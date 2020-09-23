@@ -20,20 +20,59 @@ import synthtool as s
 import synthtool.gcp as gcp
 from synthtool.languages import python
 
-gapic = gcp.GAPICBazel()
+# Use the microgenerator for now since we want to pin the generator version.
+# gapic = gcp.GAPICBazel()
+gapic = gcp.GAPICMicrogenerator()
+
 common = gcp.CommonTemplates()
 
 # ----------------------------------------------------------------------------
 # Generate AI Platform GAPIC layer
 # ----------------------------------------------------------------------------
 
+# library = gapic.py_library(
+#     service="aiplatform",
+#     version="v1beta1",
+#     bazel_target="//google/cloud/aiplatform/v1beta1:aiplatform-v1beta1-py",
+# )
 library = gapic.py_library(
-    service="aiplatform",
-    version="v1beta1",
-    bazel_target="//google/cloud/aiplatform/v1beta1:aiplatform-v1beta1-py",
+    'aiplatform',
+    'v1alpha1',
+    generator_version='0.20'
 )
 
-s.move(library, excludes=["setup.py", "README.rst", "docs/index.rst"])
+s.move(
+	library,
+	excludes=[
+		"setup.py",
+		"README.rst",
+		"docs/index.rst",
+	]
+)
+
+# ----------------------------------------------------------------------------
+# Patch the library
+# ----------------------------------------------------------------------------
+
+# https://github.com/googleapis/gapic-generator-python/issues/336
+s.replace(
+    '**/client.py',
+    ' operation.from_gapic',
+    ' ga_operation.from_gapic'
+)
+
+s.replace(
+    '**/client.py',
+    'client_options: ClientOptions = ',
+    'client_options: ClientOptions.ClientOptions = '
+)
+
+# https://github.com/googleapis/gapic-generator-python/issues/413
+s.replace(
+    'google/cloud/aiplatform_v1alpha1/services/prediction_service/client.py',
+    'request.instances = instances',
+    'request.instances.extend(instances)'
+)
 
 # ----------------------------------------------------------------------------
 # Add templated files
