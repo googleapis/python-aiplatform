@@ -16,9 +16,5 @@
 #
 
 from .client import SpecialistPoolServiceClient
-from .async_client import SpecialistPoolServiceAsyncClient
 
-__all__ = (
-    "SpecialistPoolServiceClient",
-    "SpecialistPoolServiceAsyncClient",
-)
+__all__ = ("SpecialistPoolServiceClient",)

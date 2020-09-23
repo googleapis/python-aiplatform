@@ -16,9 +16,5 @@
 #
 
 from .client import ModelServiceClient
-from .async_client import ModelServiceAsyncClient
 
-__all__ = (
-    "ModelServiceClient",
-    "ModelServiceAsyncClient",
-)
+__all__ = ("ModelServiceClient",)

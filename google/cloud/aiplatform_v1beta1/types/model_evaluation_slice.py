@@ -36,7 +36,7 @@ class ModelEvaluationSlice(proto.Message):
         name (str):
             Output only. The resource name of the
             ModelEvaluationSlice.
-        slice_ (~.model_evaluation_slice.ModelEvaluationSlice.Slice):
+        slice (~.model_evaluation_slice.ModelEvaluationSlice.Slice):
             Output only. The slice of the test data that
             is used to evaluate the Model.
         metrics_schema_uri (str):
@@ -74,17 +74,12 @@ class ModelEvaluationSlice(proto.Message):
         """
 
         dimension = proto.Field(proto.STRING, number=1)
-
         value = proto.Field(proto.STRING, number=2)
 
     name = proto.Field(proto.STRING, number=1)
-
-    slice_ = proto.Field(proto.MESSAGE, number=2, message=Slice,)
-
+    slice = proto.Field(proto.MESSAGE, number=2, message=Slice,)
     metrics_schema_uri = proto.Field(proto.STRING, number=3)
-
     metrics = proto.Field(proto.MESSAGE, number=4, message=struct.Value,)
-
     create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
 
 

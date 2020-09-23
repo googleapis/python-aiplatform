@@ -16,9 +16,5 @@
 #
 
 from .client import JobServiceClient
-from .async_client import JobServiceAsyncClient
 
-__all__ = (
-    "JobServiceClient",
-    "JobServiceAsyncClient",
-)
+__all__ = ("JobServiceClient",)

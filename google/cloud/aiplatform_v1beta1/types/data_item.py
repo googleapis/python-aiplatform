@@ -69,15 +69,10 @@ class DataItem(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
-
     create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp.Timestamp,)
-
     update_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
-
     labels = proto.MapField(proto.STRING, proto.STRING, number=3)
-
     payload = proto.Field(proto.MESSAGE, number=4, message=struct.Value,)
-
     etag = proto.Field(proto.STRING, number=7)
 
 

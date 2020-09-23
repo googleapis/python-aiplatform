@@ -203,15 +203,10 @@ class Attribution(proto.Message):
     """
 
     baseline_output_value = proto.Field(proto.DOUBLE, number=1)
-
     instance_output_value = proto.Field(proto.DOUBLE, number=2)
-
     feature_attributions = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
-
     output_index = proto.RepeatedField(proto.INT32, number=4)
-
     output_display_name = proto.Field(proto.STRING, number=5)
-
     approximation_error = proto.Field(proto.DOUBLE, number=6)
 
 
@@ -229,7 +224,6 @@ class ExplanationSpec(proto.Message):
     """
 
     parameters = proto.Field(proto.MESSAGE, number=1, message="ExplanationParameters",)
-
     metadata = proto.Field(
         proto.MESSAGE, number=2, message=explanation_metadata.ExplanationMetadata,
     )

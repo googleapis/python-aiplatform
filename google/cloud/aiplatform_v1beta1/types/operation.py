@@ -49,9 +49,7 @@ class GenericOperationMetadata(proto.Message):
     partial_failures = proto.RepeatedField(
         proto.MESSAGE, number=1, message=status.Status,
     )
-
     create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp.Timestamp,)
-
     update_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
 
 

@@ -16,9 +16,5 @@
 #
 
 from .client import PipelineServiceClient
-from .async_client import PipelineServiceAsyncClient
 
-__all__ = (
-    "PipelineServiceClient",
-    "PipelineServiceAsyncClient",
-)
+__all__ = ("PipelineServiceClient",)

@@ -119,21 +119,16 @@ class ExplanationMetadata(proto.Message):
         """
 
         index_display_name_mapping = proto.Field(
-            proto.MESSAGE, number=1, oneof="display_name_mapping", message=struct.Value,
+            proto.MESSAGE, number=1, message=struct.Value,
         )
-
-        display_name_mapping_key = proto.Field(
-            proto.STRING, number=2, oneof="display_name_mapping"
-        )
+        display_name_mapping_key = proto.Field(proto.STRING, number=2)
 
     inputs = proto.MapField(
         proto.STRING, proto.MESSAGE, number=1, message=InputMetadata,
     )
-
     outputs = proto.MapField(
         proto.STRING, proto.MESSAGE, number=2, message=OutputMetadata,
     )
-
     feature_attributions_schema_uri = proto.Field(proto.STRING, number=3)
 
 
