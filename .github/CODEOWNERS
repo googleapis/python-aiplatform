@@ -8,4 +8,4 @@
 *                                      @googleapis/yoshi-python
 
 # The python-samples-owners team is the default owner for samples
-/samples/**/*.py                       @telpirion @sirtorry @googleapis/python-samples-owners
+/samples/**/*.py                       @dizcology @googleapis/python-samples-owners
