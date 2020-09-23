@@ -18,22 +18,21 @@
 import proto  # type: ignore
 
 
-from google.cloud.aiplatform_v1beta1.types import (
-    completion_stats as gca_completion_stats,
-)
+from google.cloud.aiplatform_v1beta1.types import completion_stats as gca_completion_stats
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import machine_resources
-from google.cloud.aiplatform_v1beta1.types import (
-    manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters,
-)
+from google.cloud.aiplatform_v1beta1.types import manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 from google.rpc import status_pb2 as status  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"BatchPredictionJob",},
+    package='google.cloud.aiplatform.v1beta1',
+    manifest={
+        'BatchPredictionJob',
+    },
 )
 
 
@@ -171,7 +170,6 @@ class BatchPredictionJob(proto.Message):
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
     """
-
     class InputConfig(proto.Message):
         r"""Configures the input to
         [BatchPredictionJob][google.cloud.aiplatform.v1beta1.BatchPredictionJob].
@@ -198,14 +196,12 @@ class BatchPredictionJob(proto.Message):
                 [supported_input_storage_formats][google.cloud.aiplatform.v1beta1.Model.supported_input_storage_formats].
         """
 
-        gcs_source = proto.Field(
-            proto.MESSAGE, number=2, oneof="source", message=io.GcsSource,
+        gcs_source = proto.Field(proto.MESSAGE, number=2,
+            message=io.GcsSource,
         )
-
-        bigquery_source = proto.Field(
-            proto.MESSAGE, number=3, oneof="source", message=io.BigQuerySource,
+        bigquery_source = proto.Field(proto.MESSAGE, number=3,
+            message=io.BigQuerySource,
         )
-
         instances_format = proto.Field(proto.STRING, number=1)
 
     class OutputConfig(proto.Message):
@@ -274,17 +270,12 @@ class BatchPredictionJob(proto.Message):
                 [supported_output_storage_formats][google.cloud.aiplatform.v1beta1.Model.supported_output_storage_formats].
         """
 
-        gcs_destination = proto.Field(
-            proto.MESSAGE, number=2, oneof="destination", message=io.GcsDestination,
+        gcs_destination = proto.Field(proto.MESSAGE, number=2,
+            message=io.GcsDestination,
         )
-
-        bigquery_destination = proto.Field(
-            proto.MESSAGE,
-            number=3,
-            oneof="destination",
+        bigquery_destination = proto.Field(proto.MESSAGE, number=3,
             message=io.BigQueryDestination,
         )
-
         predictions_format = proto.Field(proto.STRING, number=1)
 
     class OutputInfo(proto.Message):
@@ -302,64 +293,58 @@ class BatchPredictionJob(proto.Message):
                 prediction output is written.
         """
 
-        gcs_output_directory = proto.Field(
-            proto.STRING, number=1, oneof="output_location"
-        )
-
-        bigquery_output_dataset = proto.Field(
-            proto.STRING, number=2, oneof="output_location"
-        )
+        gcs_output_directory = proto.Field(proto.STRING, number=1)
+        bigquery_output_dataset = proto.Field(proto.STRING, number=2)
 
     name = proto.Field(proto.STRING, number=1)
-
     display_name = proto.Field(proto.STRING, number=2)
-
     model = proto.Field(proto.STRING, number=3)
-
-    input_config = proto.Field(proto.MESSAGE, number=4, message=InputConfig,)
-
-    model_parameters = proto.Field(proto.MESSAGE, number=5, message=struct.Value,)
-
-    output_config = proto.Field(proto.MESSAGE, number=6, message=OutputConfig,)
-
-    dedicated_resources = proto.Field(
-        proto.MESSAGE, number=7, message=machine_resources.BatchDedicatedResources,
+    input_config = proto.Field(proto.MESSAGE, number=4,
+        message=InputConfig,
     )
-
-    manual_batch_tuning_parameters = proto.Field(
-        proto.MESSAGE,
-        number=8,
+    model_parameters = proto.Field(proto.MESSAGE, number=5,
+        message=struct.Value,
+    )
+    output_config = proto.Field(proto.MESSAGE, number=6,
+        message=OutputConfig,
+    )
+    dedicated_resources = proto.Field(proto.MESSAGE, number=7,
+        message=machine_resources.BatchDedicatedResources,
+    )
+    manual_batch_tuning_parameters = proto.Field(proto.MESSAGE, number=8,
         message=gca_manual_batch_tuning_parameters.ManualBatchTuningParameters,
     )
-
     generate_explanation = proto.Field(proto.BOOL, number=23)
-
-    output_info = proto.Field(proto.MESSAGE, number=9, message=OutputInfo,)
-
-    state = proto.Field(proto.ENUM, number=10, enum=job_state.JobState,)
-
-    error = proto.Field(proto.MESSAGE, number=11, message=status.Status,)
-
-    partial_failures = proto.RepeatedField(
-        proto.MESSAGE, number=12, message=status.Status,
+    output_info = proto.Field(proto.MESSAGE, number=9,
+        message=OutputInfo,
     )
-
-    resources_consumed = proto.Field(
-        proto.MESSAGE, number=13, message=machine_resources.ResourcesConsumed,
+    state = proto.Field(proto.ENUM, number=10,
+        enum=job_state.JobState,
     )
-
-    completion_stats = proto.Field(
-        proto.MESSAGE, number=14, message=gca_completion_stats.CompletionStats,
+    error = proto.Field(proto.MESSAGE, number=11,
+        message=status.Status,
     )
-
-    create_time = proto.Field(proto.MESSAGE, number=15, message=timestamp.Timestamp,)
-
-    start_time = proto.Field(proto.MESSAGE, number=16, message=timestamp.Timestamp,)
-
-    end_time = proto.Field(proto.MESSAGE, number=17, message=timestamp.Timestamp,)
-
-    update_time = proto.Field(proto.MESSAGE, number=18, message=timestamp.Timestamp,)
-
+    partial_failures = proto.RepeatedField(proto.MESSAGE, number=12,
+        message=status.Status,
+    )
+    resources_consumed = proto.Field(proto.MESSAGE, number=13,
+        message=machine_resources.ResourcesConsumed,
+    )
+    completion_stats = proto.Field(proto.MESSAGE, number=14,
+        message=gca_completion_stats.CompletionStats,
+    )
+    create_time = proto.Field(proto.MESSAGE, number=15,
+        message=timestamp.Timestamp,
+    )
+    start_time = proto.Field(proto.MESSAGE, number=16,
+        message=timestamp.Timestamp,
+    )
+    end_time = proto.Field(proto.MESSAGE, number=17,
+        message=timestamp.Timestamp,
+    )
+    update_time = proto.Field(proto.MESSAGE, number=18,
+        message=timestamp.Timestamp,
+    )
     labels = proto.MapField(proto.STRING, proto.STRING, number=19)
 
 

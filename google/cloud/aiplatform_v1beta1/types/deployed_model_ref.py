@@ -19,7 +19,10 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"DeployedModelRef",},
+    package='google.cloud.aiplatform.v1beta1',
+    manifest={
+        'DeployedModelRef',
+    },
 )
 
 
@@ -35,7 +38,6 @@ class DeployedModelRef(proto.Message):
     """
 
     endpoint = proto.Field(proto.STRING, number=1)
-
     deployed_model_id = proto.Field(proto.STRING, number=2)
 
 

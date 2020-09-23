@@ -26,26 +26,26 @@ from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "CreateDatasetRequest",
-        "CreateDatasetOperationMetadata",
-        "GetDatasetRequest",
-        "UpdateDatasetRequest",
-        "ListDatasetsRequest",
-        "ListDatasetsResponse",
-        "DeleteDatasetRequest",
-        "ImportDataRequest",
-        "ImportDataResponse",
-        "ImportDataOperationMetadata",
-        "ExportDataRequest",
-        "ExportDataResponse",
-        "ExportDataOperationMetadata",
-        "ListDataItemsRequest",
-        "ListDataItemsResponse",
-        "GetAnnotationSpecRequest",
-        "ListAnnotationsRequest",
-        "ListAnnotationsResponse",
+        'CreateDatasetRequest',
+        'CreateDatasetOperationMetadata',
+        'GetDatasetRequest',
+        'UpdateDatasetRequest',
+        'ListDatasetsRequest',
+        'ListDatasetsResponse',
+        'DeleteDatasetRequest',
+        'ImportDataRequest',
+        'ImportDataResponse',
+        'ImportDataOperationMetadata',
+        'ExportDataRequest',
+        'ExportDataResponse',
+        'ExportDataOperationMetadata',
+        'ListDataItemsRequest',
+        'ListDataItemsResponse',
+        'GetAnnotationSpecRequest',
+        'ListAnnotationsRequest',
+        'ListAnnotationsResponse',
     },
 )
 
@@ -64,8 +64,9 @@ class CreateDatasetRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
-
-    dataset = proto.Field(proto.MESSAGE, number=2, message=gca_dataset.Dataset,)
+    dataset = proto.Field(proto.MESSAGE, number=2,
+        message=gca_dataset.Dataset,
+    )
 
 
 class CreateDatasetOperationMetadata(proto.Message):
@@ -77,8 +78,8 @@ class CreateDatasetOperationMetadata(proto.Message):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
@@ -94,8 +95,9 @@ class GetDatasetRequest(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
-
-    read_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=2,
+        message=field_mask.FieldMask,
+    )
 
 
 class UpdateDatasetRequest(proto.Message):
@@ -119,9 +121,12 @@ class UpdateDatasetRequest(proto.Message):
             -  ``labels``
     """
 
-    dataset = proto.Field(proto.MESSAGE, number=1, message=gca_dataset.Dataset,)
-
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    dataset = proto.Field(proto.MESSAGE, number=1,
+        message=gca_dataset.Dataset,
+    )
+    update_mask = proto.Field(proto.MESSAGE, number=2,
+        message=field_mask.FieldMask,
+    )
 
 
 class ListDatasetsRequest(proto.Message):
@@ -151,15 +156,12 @@ class ListDatasetsRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
-
     filter = proto.Field(proto.STRING, number=2)
-
     page_size = proto.Field(proto.INT32, number=3)
-
     page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
-
+    read_mask = proto.Field(proto.MESSAGE, number=5,
+        message=field_mask.FieldMask,
+    )
     order_by = proto.Field(proto.STRING, number=6)
 
 
@@ -179,10 +181,9 @@ class ListDatasetsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    datasets = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=gca_dataset.Dataset,
+    datasets = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=gca_dataset.Dataset,
     )
-
     next_page_token = proto.Field(proto.STRING, number=2)
 
 
@@ -215,9 +216,8 @@ class ImportDataRequest(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
-
-    import_configs = proto.RepeatedField(
-        proto.MESSAGE, number=2, message=gca_dataset.ImportDataConfig,
+    import_configs = proto.RepeatedField(proto.MESSAGE, number=2,
+        message=gca_dataset.ImportDataConfig,
     )
 
 
@@ -236,8 +236,8 @@ class ImportDataOperationMetadata(proto.Message):
             The common part of the operation metadata.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
@@ -254,9 +254,8 @@ class ExportDataRequest(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
-
-    export_config = proto.Field(
-        proto.MESSAGE, number=2, message=gca_dataset.ExportDataConfig,
+    export_config = proto.Field(proto.MESSAGE, number=2,
+        message=gca_dataset.ExportDataConfig,
     )
 
 
@@ -286,10 +285,9 @@ class ExportDataOperationMetadata(proto.Message):
             the directory.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+        message=operation.GenericOperationMetadata,
     )
-
     gcs_output_directory = proto.Field(proto.STRING, number=2)
 
 
@@ -317,15 +315,12 @@ class ListDataItemsRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
-
     filter = proto.Field(proto.STRING, number=2)
-
     page_size = proto.Field(proto.INT32, number=3)
-
     page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
-
+    read_mask = proto.Field(proto.MESSAGE, number=5,
+        message=field_mask.FieldMask,
+    )
     order_by = proto.Field(proto.STRING, number=6)
 
 
@@ -345,10 +340,9 @@ class ListDataItemsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    data_items = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=data_item.DataItem,
+    data_items = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=data_item.DataItem,
     )
-
     next_page_token = proto.Field(proto.STRING, number=2)
 
 
@@ -366,8 +360,9 @@ class GetAnnotationSpecRequest(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
-
-    read_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=2,
+        message=field_mask.FieldMask,
+    )
 
 
 class ListAnnotationsRequest(proto.Message):
@@ -395,15 +390,12 @@ class ListAnnotationsRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
-
     filter = proto.Field(proto.STRING, number=2)
-
     page_size = proto.Field(proto.INT32, number=3)
-
     page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
-
+    read_mask = proto.Field(proto.MESSAGE, number=5,
+        message=field_mask.FieldMask,
+    )
     order_by = proto.Field(proto.STRING, number=6)
 
 
@@ -423,10 +415,9 @@ class ListAnnotationsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    annotations = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=annotation.Annotation,
+    annotations = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=annotation.Annotation,
     )
-
     next_page_token = proto.Field(proto.STRING, number=2)
 
 

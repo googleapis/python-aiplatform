@@ -18,19 +18,17 @@
 import proto  # type: ignore
 
 
-from google.cloud.aiplatform_v1beta1.types import (
-    accelerator_type as gca_accelerator_type,
-)
+from google.cloud.aiplatform_v1beta1.types import accelerator_type as gca_accelerator_type
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "MachineSpec",
-        "DedicatedResources",
-        "AutomaticResources",
-        "BatchDedicatedResources",
-        "ResourcesConsumed",
+        'MachineSpec',
+        'DedicatedResources',
+        'AutomaticResources',
+        'BatchDedicatedResources',
+        'ResourcesConsumed',
     },
 )
 
@@ -89,11 +87,9 @@ class MachineSpec(proto.Message):
     """
 
     machine_type = proto.Field(proto.STRING, number=1)
-
-    accelerator_type = proto.Field(
-        proto.ENUM, number=2, enum=gca_accelerator_type.AcceleratorType,
+    accelerator_type = proto.Field(proto.ENUM, number=2,
+        enum=gca_accelerator_type.AcceleratorType,
     )
-
     accelerator_count = proto.Field(proto.INT32, number=3)
 
 
@@ -130,10 +126,10 @@ class DedicatedResources(proto.Message):
             as the default value.
     """
 
-    machine_spec = proto.Field(proto.MESSAGE, number=1, message=MachineSpec,)
-
+    machine_spec = proto.Field(proto.MESSAGE, number=1,
+        message=MachineSpec,
+    )
     min_replica_count = proto.Field(proto.INT32, number=2)
-
     max_replica_count = proto.Field(proto.INT32, number=3)
 
 
@@ -170,7 +166,6 @@ class AutomaticResources(proto.Message):
     """
 
     min_replica_count = proto.Field(proto.INT32, number=1)
-
     max_replica_count = proto.Field(proto.INT32, number=2)
 
 
@@ -194,10 +189,10 @@ class BatchDedicatedResources(proto.Message):
             The default value is 10.
     """
 
-    machine_spec = proto.Field(proto.MESSAGE, number=1, message=MachineSpec,)
-
+    machine_spec = proto.Field(proto.MESSAGE, number=1,
+        message=MachineSpec,
+    )
     starting_replica_count = proto.Field(proto.INT32, number=2)
-
     max_replica_count = proto.Field(proto.INT32, number=3)
 
 

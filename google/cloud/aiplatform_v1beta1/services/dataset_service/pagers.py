@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple
+from typing import Any, Callable, Iterable
 
 from google.cloud.aiplatform_v1beta1.types import annotation
 from google.cloud.aiplatform_v1beta1.types import data_item
@@ -40,15 +40,11 @@ class ListDatasetsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-
-    def __init__(
-        self,
-        method: Callable[..., dataset_service.ListDatasetsResponse],
-        request: dataset_service.ListDatasetsRequest,
-        response: dataset_service.ListDatasetsResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
+    def __init__(self,
+            method: Callable[[dataset_service.ListDatasetsRequest],
+                dataset_service.ListDatasetsResponse],
+            request: dataset_service.ListDatasetsRequest,
+            response: dataset_service.ListDatasetsResponse):
         """Instantiate the pager.
 
         Args:
@@ -58,13 +54,10 @@ class ListDatasetsPager:
                 The initial request object.
             response (:class:`~.dataset_service.ListDatasetsResponse`):
                 The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
         """
         self._method = method
         self._request = dataset_service.ListDatasetsRequest(request)
         self._response = response
-        self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._response, name)
@@ -74,7 +67,7 @@ class ListDatasetsPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
+            self._response = self._method(self._request)
             yield self._response
 
     def __iter__(self) -> Iterable[dataset.Dataset]:
@@ -82,73 +75,7 @@ class ListDatasetsPager:
             yield from page.datasets
 
     def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
-
-
-class ListDatasetsAsyncPager:
-    """A pager for iterating through ``list_datasets`` requests.
-
-    This class thinly wraps an initial
-    :class:`~.dataset_service.ListDatasetsResponse` object, and
-    provides an ``__aiter__`` method to iterate through its
-    ``datasets`` field.
-
-    If there are more pages, the ``__aiter__`` method will make additional
-    ``ListDatasets`` requests and continue to iterate
-    through the ``datasets`` field on the
-    corresponding responses.
-
-    All the usual :class:`~.dataset_service.ListDatasetsResponse`
-    attributes are available on the pager. If multiple requests are made, only
-    the most recent response is retained, and thus used for attribute lookup.
-    """
-
-    def __init__(
-        self,
-        method: Callable[..., Awaitable[dataset_service.ListDatasetsResponse]],
-        request: dataset_service.ListDatasetsRequest,
-        response: dataset_service.ListDatasetsResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiate the pager.
-
-        Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (:class:`~.dataset_service.ListDatasetsRequest`):
-                The initial request object.
-            response (:class:`~.dataset_service.ListDatasetsResponse`):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = dataset_service.ListDatasetsRequest(request)
-        self._response = response
-        self._metadata = metadata
-
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
-
-    @property
-    async def pages(self) -> AsyncIterable[dataset_service.ListDatasetsResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
-            yield self._response
-
-    def __aiter__(self) -> AsyncIterable[dataset.Dataset]:
-        async def async_generator():
-            async for page in self.pages:
-                for response in page.datasets:
-                    yield response
-
-        return async_generator()
-
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
 
 
 class ListDataItemsPager:
@@ -168,15 +95,11 @@ class ListDataItemsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-
-    def __init__(
-        self,
-        method: Callable[..., dataset_service.ListDataItemsResponse],
-        request: dataset_service.ListDataItemsRequest,
-        response: dataset_service.ListDataItemsResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
+    def __init__(self,
+            method: Callable[[dataset_service.ListDataItemsRequest],
+                dataset_service.ListDataItemsResponse],
+            request: dataset_service.ListDataItemsRequest,
+            response: dataset_service.ListDataItemsResponse):
         """Instantiate the pager.
 
         Args:
@@ -186,13 +109,10 @@ class ListDataItemsPager:
                 The initial request object.
             response (:class:`~.dataset_service.ListDataItemsResponse`):
                 The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
         """
         self._method = method
         self._request = dataset_service.ListDataItemsRequest(request)
         self._response = response
-        self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._response, name)
@@ -202,7 +122,7 @@ class ListDataItemsPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
+            self._response = self._method(self._request)
             yield self._response
 
     def __iter__(self) -> Iterable[data_item.DataItem]:
@@ -210,73 +130,7 @@ class ListDataItemsPager:
             yield from page.data_items
 
     def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
-
-
-class ListDataItemsAsyncPager:
-    """A pager for iterating through ``list_data_items`` requests.
-
-    This class thinly wraps an initial
-    :class:`~.dataset_service.ListDataItemsResponse` object, and
-    provides an ``__aiter__`` method to iterate through its
-    ``data_items`` field.
-
-    If there are more pages, the ``__aiter__`` method will make additional
-    ``ListDataItems`` requests and continue to iterate
-    through the ``data_items`` field on the
-    corresponding responses.
-
-    All the usual :class:`~.dataset_service.ListDataItemsResponse`
-    attributes are available on the pager. If multiple requests are made, only
-    the most recent response is retained, and thus used for attribute lookup.
-    """
-
-    def __init__(
-        self,
-        method: Callable[..., Awaitable[dataset_service.ListDataItemsResponse]],
-        request: dataset_service.ListDataItemsRequest,
-        response: dataset_service.ListDataItemsResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiate the pager.
-
-        Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (:class:`~.dataset_service.ListDataItemsRequest`):
-                The initial request object.
-            response (:class:`~.dataset_service.ListDataItemsResponse`):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = dataset_service.ListDataItemsRequest(request)
-        self._response = response
-        self._metadata = metadata
-
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
-
-    @property
-    async def pages(self) -> AsyncIterable[dataset_service.ListDataItemsResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
-            yield self._response
-
-    def __aiter__(self) -> AsyncIterable[data_item.DataItem]:
-        async def async_generator():
-            async for page in self.pages:
-                for response in page.data_items:
-                    yield response
-
-        return async_generator()
-
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
 
 
 class ListAnnotationsPager:
@@ -296,15 +150,11 @@ class ListAnnotationsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-
-    def __init__(
-        self,
-        method: Callable[..., dataset_service.ListAnnotationsResponse],
-        request: dataset_service.ListAnnotationsRequest,
-        response: dataset_service.ListAnnotationsResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
+    def __init__(self,
+            method: Callable[[dataset_service.ListAnnotationsRequest],
+                dataset_service.ListAnnotationsResponse],
+            request: dataset_service.ListAnnotationsRequest,
+            response: dataset_service.ListAnnotationsResponse):
         """Instantiate the pager.
 
         Args:
@@ -314,13 +164,10 @@ class ListAnnotationsPager:
                 The initial request object.
             response (:class:`~.dataset_service.ListAnnotationsResponse`):
                 The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
         """
         self._method = method
         self._request = dataset_service.ListAnnotationsRequest(request)
         self._response = response
-        self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._response, name)
@@ -330,7 +177,7 @@ class ListAnnotationsPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
+            self._response = self._method(self._request)
             yield self._response
 
     def __iter__(self) -> Iterable[annotation.Annotation]:
@@ -338,70 +185,4 @@ class ListAnnotationsPager:
             yield from page.annotations
 
     def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
-
-
-class ListAnnotationsAsyncPager:
-    """A pager for iterating through ``list_annotations`` requests.
-
-    This class thinly wraps an initial
-    :class:`~.dataset_service.ListAnnotationsResponse` object, and
-    provides an ``__aiter__`` method to iterate through its
-    ``annotations`` field.
-
-    If there are more pages, the ``__aiter__`` method will make additional
-    ``ListAnnotations`` requests and continue to iterate
-    through the ``annotations`` field on the
-    corresponding responses.
-
-    All the usual :class:`~.dataset_service.ListAnnotationsResponse`
-    attributes are available on the pager. If multiple requests are made, only
-    the most recent response is retained, and thus used for attribute lookup.
-    """
-
-    def __init__(
-        self,
-        method: Callable[..., Awaitable[dataset_service.ListAnnotationsResponse]],
-        request: dataset_service.ListAnnotationsRequest,
-        response: dataset_service.ListAnnotationsResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiate the pager.
-
-        Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (:class:`~.dataset_service.ListAnnotationsRequest`):
-                The initial request object.
-            response (:class:`~.dataset_service.ListAnnotationsResponse`):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = dataset_service.ListAnnotationsRequest(request)
-        self._response = response
-        self._metadata = metadata
-
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
-
-    @property
-    async def pages(self) -> AsyncIterable[dataset_service.ListAnnotationsResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
-            yield self._response
-
-    def __aiter__(self) -> AsyncIterable[annotation.Annotation]:
-        async def async_generator():
-            async for page in self.pages:
-                for response in page.annotations:
-                    yield response
-
-        return async_generator()
-
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
