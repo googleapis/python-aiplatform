@@ -37,7 +37,7 @@ common = gcp.CommonTemplates()
 # )
 library = gapic.py_library(
     'aiplatform',
-    'v1alpha1',
+    'v1beta1',
     generator_version='0.20'
 )
 
