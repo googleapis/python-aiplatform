@@ -15,42 +15,22 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform_v1beta1.services.dataset_service.async_client import (
-    DatasetServiceAsyncClient,
-)
+
 from google.cloud.aiplatform_v1beta1.services.dataset_service.client import (
     DatasetServiceClient,
-)
-from google.cloud.aiplatform_v1beta1.services.endpoint_service.async_client import (
-    EndpointServiceAsyncClient,
 )
 from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
     EndpointServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.job_service.async_client import (
-    JobServiceAsyncClient,
-)
 from google.cloud.aiplatform_v1beta1.services.job_service.client import JobServiceClient
-from google.cloud.aiplatform_v1beta1.services.model_service.async_client import (
-    ModelServiceAsyncClient,
-)
 from google.cloud.aiplatform_v1beta1.services.model_service.client import (
     ModelServiceClient,
-)
-from google.cloud.aiplatform_v1beta1.services.pipeline_service.async_client import (
-    PipelineServiceAsyncClient,
 )
 from google.cloud.aiplatform_v1beta1.services.pipeline_service.client import (
     PipelineServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.prediction_service.async_client import (
-    PredictionServiceAsyncClient,
-)
 from google.cloud.aiplatform_v1beta1.services.prediction_service.client import (
     PredictionServiceClient,
-)
-from google.cloud.aiplatform_v1beta1.services.specialist_pool_service.async_client import (
-    SpecialistPoolServiceAsyncClient,
 )
 from google.cloud.aiplatform_v1beta1.services.specialist_pool_service.client import (
     SpecialistPoolServiceClient,
@@ -352,7 +332,6 @@ __all__ = (
     "DataItem",
     "DataLabelingJob",
     "Dataset",
-    "DatasetServiceAsyncClient",
     "DatasetServiceClient",
     "DedicatedResources",
     "DeleteBatchPredictionJobRequest",
@@ -371,7 +350,6 @@ __all__ = (
     "DeployedModel",
     "DeployedModelRef",
     "Endpoint",
-    "EndpointServiceAsyncClient",
     "EndpointServiceClient",
     "EnvVar",
     "ExplainRequest",
@@ -410,7 +388,6 @@ __all__ = (
     "ImportDataRequest",
     "ImportDataResponse",
     "InputDataConfig",
-    "JobServiceAsyncClient",
     "JobServiceClient",
     "JobState",
     "ListAnnotationsRequest",
@@ -447,9 +424,7 @@ __all__ = (
     "ModelEvaluation",
     "ModelEvaluationSlice",
     "ModelExplanation",
-    "ModelServiceAsyncClient",
     "ModelServiceClient",
-    "PipelineServiceAsyncClient",
     "PipelineServiceClient",
     "PipelineState",
     "Port",
@@ -457,7 +432,6 @@ __all__ = (
     "PredictRequest",
     "PredictResponse",
     "PredictSchemata",
-    "PredictionServiceAsyncClient",
     "PredictionServiceClient",
     "PythonPackageSpec",
     "ResourcesConsumed",
@@ -465,7 +439,6 @@ __all__ = (
     "SampledShapleyAttribution",
     "Scheduling",
     "SpecialistPool",
-    "SpecialistPoolServiceAsyncClient",
     "SpecialistPoolServiceClient",
     "StudySpec",
     "TimestampSplit",

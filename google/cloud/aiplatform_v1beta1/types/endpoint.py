@@ -82,23 +82,15 @@ class Endpoint(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
-
     display_name = proto.Field(proto.STRING, number=2)
-
     description = proto.Field(proto.STRING, number=3)
-
     deployed_models = proto.RepeatedField(
         proto.MESSAGE, number=4, message="DeployedModel",
     )
-
     traffic_split = proto.MapField(proto.STRING, proto.INT32, number=5)
-
     etag = proto.Field(proto.STRING, number=6)
-
     labels = proto.MapField(proto.STRING, proto.STRING, number=7)
-
     create_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
-
     update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
 
 
@@ -167,33 +159,19 @@ class DeployedModel(proto.Message):
     """
 
     dedicated_resources = proto.Field(
-        proto.MESSAGE,
-        number=7,
-        oneof="prediction_resources",
-        message=machine_resources.DedicatedResources,
+        proto.MESSAGE, number=7, message=machine_resources.DedicatedResources,
     )
-
     automatic_resources = proto.Field(
-        proto.MESSAGE,
-        number=8,
-        oneof="prediction_resources",
-        message=machine_resources.AutomaticResources,
+        proto.MESSAGE, number=8, message=machine_resources.AutomaticResources,
     )
-
     id = proto.Field(proto.STRING, number=1)
-
     model = proto.Field(proto.STRING, number=2)
-
     display_name = proto.Field(proto.STRING, number=3)
-
     create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
-
     explanation_spec = proto.Field(
         proto.MESSAGE, number=9, message=explanation.ExplanationSpec,
     )
-
     enable_container_logging = proto.Field(proto.BOOL, number=12)
-
     enable_access_logging = proto.Field(proto.BOOL, number=13)
 
 

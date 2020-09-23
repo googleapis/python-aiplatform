@@ -52,7 +52,6 @@ class CreateSpecialistPoolRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
-
     specialist_pool = proto.Field(
         proto.MESSAGE, number=2, message=gca_specialist_pool.SpecialistPool,
     )
@@ -109,11 +108,8 @@ class ListSpecialistPoolsRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
-
     page_size = proto.Field(proto.INT32, number=2)
-
     page_token = proto.Field(proto.STRING, number=3)
-
     read_mask = proto.Field(proto.MESSAGE, number=4, message=field_mask.FieldMask,)
 
 
@@ -136,7 +132,6 @@ class ListSpecialistPoolsResponse(proto.Message):
     specialist_pools = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_specialist_pool.SpecialistPool,
     )
-
     next_page_token = proto.Field(proto.STRING, number=2)
 
 
@@ -157,7 +152,6 @@ class DeleteSpecialistPoolRequest(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
-
     force = proto.Field(proto.BOOL, number=2)
 
 
@@ -177,7 +171,6 @@ class UpdateSpecialistPoolRequest(proto.Message):
     specialist_pool = proto.Field(
         proto.MESSAGE, number=1, message=gca_specialist_pool.SpecialistPool,
     )
-
     update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
 
 
@@ -196,7 +189,6 @@ class UpdateSpecialistPoolOperationMetadata(proto.Message):
     """
 
     specialist_pool = proto.Field(proto.STRING, number=1)
-
     generic_metadata = proto.Field(
         proto.MESSAGE, number=2, message=operation.GenericOperationMetadata,
     )

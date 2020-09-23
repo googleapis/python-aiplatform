@@ -128,35 +128,20 @@ class DataLabelingJob(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
-
     display_name = proto.Field(proto.STRING, number=2)
-
     datasets = proto.RepeatedField(proto.STRING, number=3)
-
     annotation_labels = proto.MapField(proto.STRING, proto.STRING, number=12)
-
     labeler_count = proto.Field(proto.INT32, number=4)
-
     instruction_uri = proto.Field(proto.STRING, number=5)
-
     inputs_schema_uri = proto.Field(proto.STRING, number=6)
-
     inputs = proto.Field(proto.MESSAGE, number=7, message=struct.Value,)
-
     state = proto.Field(proto.ENUM, number=8, enum=job_state.JobState,)
-
     labeling_progress = proto.Field(proto.INT32, number=13)
-
     current_spend = proto.Field(proto.MESSAGE, number=14, message=money.Money,)
-
     create_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
-
     update_time = proto.Field(proto.MESSAGE, number=10, message=timestamp.Timestamp,)
-
     labels = proto.MapField(proto.STRING, proto.STRING, number=11)
-
     specialist_pools = proto.RepeatedField(proto.STRING, number=16)
-
     active_learning_config = proto.Field(
         proto.MESSAGE, number=21, message="ActiveLearningConfig",
     )
@@ -187,16 +172,9 @@ class ActiveLearningConfig(proto.Message):
             select DataItems.
     """
 
-    max_data_item_count = proto.Field(
-        proto.INT64, number=1, oneof="human_labeling_budget"
-    )
-
-    max_data_item_percentage = proto.Field(
-        proto.INT32, number=2, oneof="human_labeling_budget"
-    )
-
+    max_data_item_count = proto.Field(proto.INT64, number=1)
+    max_data_item_percentage = proto.Field(proto.INT32, number=2)
     sample_config = proto.Field(proto.MESSAGE, number=3, message="SampleConfig",)
-
     training_config = proto.Field(proto.MESSAGE, number=4, message="TrainingConfig",)
 
 
@@ -226,14 +204,8 @@ class SampleConfig(proto.Message):
         SAMPLE_STRATEGY_UNSPECIFIED = 0
         UNCERTAINTY = 1
 
-    initial_batch_sample_percentage = proto.Field(
-        proto.INT32, number=1, oneof="initial_batch_sample_size"
-    )
-
-    following_batch_sample_percentage = proto.Field(
-        proto.INT32, number=3, oneof="following_batch_sample_size"
-    )
-
+    initial_batch_sample_percentage = proto.Field(proto.INT32, number=1)
+    following_batch_sample_percentage = proto.Field(proto.INT32, number=3)
     sample_strategy = proto.Field(proto.ENUM, number=5, enum=SampleStrategy,)
 
 

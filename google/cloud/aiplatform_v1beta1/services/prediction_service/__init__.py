@@ -16,9 +16,5 @@
 #
 
 from .client import PredictionServiceClient
-from .async_client import PredictionServiceAsyncClient
 
-__all__ = (
-    "PredictionServiceClient",
-    "PredictionServiceAsyncClient",
-)
+__all__ = ("PredictionServiceClient",)

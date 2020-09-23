@@ -15,10 +15,7 @@
 # limitations under the License.
 #
 
-from .user_action_reference import UserActionReference
-from .annotation import Annotation
 from .annotation_spec import AnnotationSpec
-from .completion_stats import CompletionStats
 from .io import (
     GcsSource,
     GcsDestination,
@@ -26,6 +23,14 @@ from .io import (
     BigQueryDestination,
     ContainerRegistryDestination,
 )
+from .dataset import (
+    Dataset,
+    ImportDataConfig,
+    ExportDataConfig,
+)
+from .manual_batch_tuning_parameters import ManualBatchTuningParameters
+from .completion_stats import CompletionStats
+from .model_evaluation_slice import ModelEvaluationSlice
 from .machine_resources import (
     MachineSpec,
     DedicatedResources,
@@ -33,35 +38,8 @@ from .machine_resources import (
     BatchDedicatedResources,
     ResourcesConsumed,
 )
-from .manual_batch_tuning_parameters import ManualBatchTuningParameters
-from .batch_prediction_job import BatchPredictionJob
-from .env_var import EnvVar
-from .custom_job import (
-    CustomJob,
-    CustomJobSpec,
-    WorkerPoolSpec,
-    ContainerSpec,
-    PythonPackageSpec,
-    Scheduling,
-)
-from .data_item import DataItem
-from .specialist_pool import SpecialistPool
-from .data_labeling_job import (
-    DataLabelingJob,
-    ActiveLearningConfig,
-    SampleConfig,
-    TrainingConfig,
-)
-from .dataset import (
-    Dataset,
-    ImportDataConfig,
-    ExportDataConfig,
-)
-from .operation import (
-    GenericOperationMetadata,
-    DeleteOperationMetadata,
-)
 from .deployed_model_ref import DeployedModelRef
+from .env_var import EnvVar
 from .explanation_metadata import ExplanationMetadata
 from .explanation import (
     Explanation,
@@ -85,44 +63,22 @@ from .training_pipeline import (
     PredefinedSplit,
     TimestampSplit,
 )
-from .dataset_service import (
-    CreateDatasetRequest,
-    CreateDatasetOperationMetadata,
-    GetDatasetRequest,
-    UpdateDatasetRequest,
-    ListDatasetsRequest,
-    ListDatasetsResponse,
-    DeleteDatasetRequest,
-    ImportDataRequest,
-    ImportDataResponse,
-    ImportDataOperationMetadata,
-    ExportDataRequest,
-    ExportDataResponse,
-    ExportDataOperationMetadata,
-    ListDataItemsRequest,
-    ListDataItemsResponse,
-    GetAnnotationSpecRequest,
-    ListAnnotationsRequest,
-    ListAnnotationsResponse,
+from .model_evaluation import ModelEvaluation
+from .batch_prediction_job import BatchPredictionJob
+from .custom_job import (
+    CustomJob,
+    CustomJobSpec,
+    WorkerPoolSpec,
+    ContainerSpec,
+    PythonPackageSpec,
+    Scheduling,
 )
-from .endpoint import (
-    Endpoint,
-    DeployedModel,
-)
-from .endpoint_service import (
-    CreateEndpointRequest,
-    CreateEndpointOperationMetadata,
-    GetEndpointRequest,
-    ListEndpointsRequest,
-    ListEndpointsResponse,
-    UpdateEndpointRequest,
-    DeleteEndpointRequest,
-    DeployModelRequest,
-    DeployModelResponse,
-    DeployModelOperationMetadata,
-    UndeployModelRequest,
-    UndeployModelResponse,
-    UndeployModelOperationMetadata,
+from .specialist_pool import SpecialistPool
+from .data_labeling_job import (
+    DataLabelingJob,
+    ActiveLearningConfig,
+    SampleConfig,
+    TrainingConfig,
 )
 from .study import (
     Trial,
@@ -156,8 +112,55 @@ from .job_service import (
     DeleteBatchPredictionJobRequest,
     CancelBatchPredictionJobRequest,
 )
-from .model_evaluation import ModelEvaluation
-from .model_evaluation_slice import ModelEvaluationSlice
+from .user_action_reference import UserActionReference
+from .annotation import Annotation
+from .operation import (
+    GenericOperationMetadata,
+    DeleteOperationMetadata,
+)
+from .endpoint import (
+    Endpoint,
+    DeployedModel,
+)
+from .prediction_service import (
+    PredictRequest,
+    PredictResponse,
+    ExplainRequest,
+    ExplainResponse,
+)
+from .endpoint_service import (
+    CreateEndpointRequest,
+    CreateEndpointOperationMetadata,
+    GetEndpointRequest,
+    ListEndpointsRequest,
+    ListEndpointsResponse,
+    UpdateEndpointRequest,
+    DeleteEndpointRequest,
+    DeployModelRequest,
+    DeployModelResponse,
+    DeployModelOperationMetadata,
+    UndeployModelRequest,
+    UndeployModelResponse,
+    UndeployModelOperationMetadata,
+)
+from .pipeline_service import (
+    CreateTrainingPipelineRequest,
+    GetTrainingPipelineRequest,
+    ListTrainingPipelinesRequest,
+    ListTrainingPipelinesResponse,
+    DeleteTrainingPipelineRequest,
+    CancelTrainingPipelineRequest,
+)
+from .specialist_pool_service import (
+    CreateSpecialistPoolRequest,
+    CreateSpecialistPoolOperationMetadata,
+    GetSpecialistPoolRequest,
+    ListSpecialistPoolsRequest,
+    ListSpecialistPoolsResponse,
+    DeleteSpecialistPoolRequest,
+    UpdateSpecialistPoolRequest,
+    UpdateSpecialistPoolOperationMetadata,
+)
 from .model_service import (
     UploadModelRequest,
     UploadModelOperationMetadata,
@@ -177,68 +180,49 @@ from .model_service import (
     ListModelEvaluationSlicesRequest,
     ListModelEvaluationSlicesResponse,
 )
-from .pipeline_service import (
-    CreateTrainingPipelineRequest,
-    GetTrainingPipelineRequest,
-    ListTrainingPipelinesRequest,
-    ListTrainingPipelinesResponse,
-    DeleteTrainingPipelineRequest,
-    CancelTrainingPipelineRequest,
-)
-from .prediction_service import (
-    PredictRequest,
-    PredictResponse,
-    ExplainRequest,
-    ExplainResponse,
-)
-from .specialist_pool_service import (
-    CreateSpecialistPoolRequest,
-    CreateSpecialistPoolOperationMetadata,
-    GetSpecialistPoolRequest,
-    ListSpecialistPoolsRequest,
-    ListSpecialistPoolsResponse,
-    DeleteSpecialistPoolRequest,
-    UpdateSpecialistPoolRequest,
-    UpdateSpecialistPoolOperationMetadata,
+from .data_item import DataItem
+from .dataset_service import (
+    CreateDatasetRequest,
+    CreateDatasetOperationMetadata,
+    GetDatasetRequest,
+    UpdateDatasetRequest,
+    ListDatasetsRequest,
+    ListDatasetsResponse,
+    DeleteDatasetRequest,
+    ImportDataRequest,
+    ImportDataResponse,
+    ImportDataOperationMetadata,
+    ExportDataRequest,
+    ExportDataResponse,
+    ExportDataOperationMetadata,
+    ListDataItemsRequest,
+    ListDataItemsResponse,
+    GetAnnotationSpecRequest,
+    ListAnnotationsRequest,
+    ListAnnotationsResponse,
 )
 
 
 __all__ = (
-    "UserActionReference",
-    "Annotation",
     "AnnotationSpec",
-    "CompletionStats",
     "GcsSource",
     "GcsDestination",
     "BigQuerySource",
     "BigQueryDestination",
     "ContainerRegistryDestination",
+    "Dataset",
+    "ImportDataConfig",
+    "ExportDataConfig",
+    "ManualBatchTuningParameters",
+    "CompletionStats",
+    "ModelEvaluationSlice",
     "MachineSpec",
     "DedicatedResources",
     "AutomaticResources",
     "BatchDedicatedResources",
     "ResourcesConsumed",
-    "ManualBatchTuningParameters",
-    "BatchPredictionJob",
-    "EnvVar",
-    "CustomJob",
-    "CustomJobSpec",
-    "WorkerPoolSpec",
-    "ContainerSpec",
-    "PythonPackageSpec",
-    "Scheduling",
-    "DataItem",
-    "SpecialistPool",
-    "DataLabelingJob",
-    "ActiveLearningConfig",
-    "SampleConfig",
-    "TrainingConfig",
-    "Dataset",
-    "ImportDataConfig",
-    "ExportDataConfig",
-    "GenericOperationMetadata",
-    "DeleteOperationMetadata",
     "DeployedModelRef",
+    "EnvVar",
     "ExplanationMetadata",
     "Explanation",
     "ModelExplanation",
@@ -256,39 +240,19 @@ __all__ = (
     "FilterSplit",
     "PredefinedSplit",
     "TimestampSplit",
-    "CreateDatasetRequest",
-    "CreateDatasetOperationMetadata",
-    "GetDatasetRequest",
-    "UpdateDatasetRequest",
-    "ListDatasetsRequest",
-    "ListDatasetsResponse",
-    "DeleteDatasetRequest",
-    "ImportDataRequest",
-    "ImportDataResponse",
-    "ImportDataOperationMetadata",
-    "ExportDataRequest",
-    "ExportDataResponse",
-    "ExportDataOperationMetadata",
-    "ListDataItemsRequest",
-    "ListDataItemsResponse",
-    "GetAnnotationSpecRequest",
-    "ListAnnotationsRequest",
-    "ListAnnotationsResponse",
-    "Endpoint",
-    "DeployedModel",
-    "CreateEndpointRequest",
-    "CreateEndpointOperationMetadata",
-    "GetEndpointRequest",
-    "ListEndpointsRequest",
-    "ListEndpointsResponse",
-    "UpdateEndpointRequest",
-    "DeleteEndpointRequest",
-    "DeployModelRequest",
-    "DeployModelResponse",
-    "DeployModelOperationMetadata",
-    "UndeployModelRequest",
-    "UndeployModelResponse",
-    "UndeployModelOperationMetadata",
+    "ModelEvaluation",
+    "BatchPredictionJob",
+    "CustomJob",
+    "CustomJobSpec",
+    "WorkerPoolSpec",
+    "ContainerSpec",
+    "PythonPackageSpec",
+    "Scheduling",
+    "SpecialistPool",
+    "DataLabelingJob",
+    "ActiveLearningConfig",
+    "SampleConfig",
+    "TrainingConfig",
     "Trial",
     "StudySpec",
     "Measurement",
@@ -317,8 +281,43 @@ __all__ = (
     "ListBatchPredictionJobsResponse",
     "DeleteBatchPredictionJobRequest",
     "CancelBatchPredictionJobRequest",
-    "ModelEvaluation",
-    "ModelEvaluationSlice",
+    "UserActionReference",
+    "Annotation",
+    "GenericOperationMetadata",
+    "DeleteOperationMetadata",
+    "Endpoint",
+    "DeployedModel",
+    "PredictRequest",
+    "PredictResponse",
+    "ExplainRequest",
+    "ExplainResponse",
+    "CreateEndpointRequest",
+    "CreateEndpointOperationMetadata",
+    "GetEndpointRequest",
+    "ListEndpointsRequest",
+    "ListEndpointsResponse",
+    "UpdateEndpointRequest",
+    "DeleteEndpointRequest",
+    "DeployModelRequest",
+    "DeployModelResponse",
+    "DeployModelOperationMetadata",
+    "UndeployModelRequest",
+    "UndeployModelResponse",
+    "UndeployModelOperationMetadata",
+    "CreateTrainingPipelineRequest",
+    "GetTrainingPipelineRequest",
+    "ListTrainingPipelinesRequest",
+    "ListTrainingPipelinesResponse",
+    "DeleteTrainingPipelineRequest",
+    "CancelTrainingPipelineRequest",
+    "CreateSpecialistPoolRequest",
+    "CreateSpecialistPoolOperationMetadata",
+    "GetSpecialistPoolRequest",
+    "ListSpecialistPoolsRequest",
+    "ListSpecialistPoolsResponse",
+    "DeleteSpecialistPoolRequest",
+    "UpdateSpecialistPoolRequest",
+    "UpdateSpecialistPoolOperationMetadata",
     "UploadModelRequest",
     "UploadModelOperationMetadata",
     "UploadModelResponse",
@@ -336,22 +335,23 @@ __all__ = (
     "GetModelEvaluationSliceRequest",
     "ListModelEvaluationSlicesRequest",
     "ListModelEvaluationSlicesResponse",
-    "CreateTrainingPipelineRequest",
-    "GetTrainingPipelineRequest",
-    "ListTrainingPipelinesRequest",
-    "ListTrainingPipelinesResponse",
-    "DeleteTrainingPipelineRequest",
-    "CancelTrainingPipelineRequest",
-    "PredictRequest",
-    "PredictResponse",
-    "ExplainRequest",
-    "ExplainResponse",
-    "CreateSpecialistPoolRequest",
-    "CreateSpecialistPoolOperationMetadata",
-    "GetSpecialistPoolRequest",
-    "ListSpecialistPoolsRequest",
-    "ListSpecialistPoolsResponse",
-    "DeleteSpecialistPoolRequest",
-    "UpdateSpecialistPoolRequest",
-    "UpdateSpecialistPoolOperationMetadata",
+    "DataItem",
+    "CreateDatasetRequest",
+    "CreateDatasetOperationMetadata",
+    "GetDatasetRequest",
+    "UpdateDatasetRequest",
+    "ListDatasetsRequest",
+    "ListDatasetsResponse",
+    "DeleteDatasetRequest",
+    "ImportDataRequest",
+    "ImportDataResponse",
+    "ImportDataOperationMetadata",
+    "ExportDataRequest",
+    "ExportDataResponse",
+    "ExportDataOperationMetadata",
+    "ListDataItemsRequest",
+    "ListDataItemsResponse",
+    "GetAnnotationSpecRequest",
+    "ListAnnotationsRequest",
+    "ListAnnotationsResponse",
 )

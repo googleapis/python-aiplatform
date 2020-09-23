@@ -89,11 +89,9 @@ class MachineSpec(proto.Message):
     """
 
     machine_type = proto.Field(proto.STRING, number=1)
-
     accelerator_type = proto.Field(
         proto.ENUM, number=2, enum=gca_accelerator_type.AcceleratorType,
     )
-
     accelerator_count = proto.Field(proto.INT32, number=3)
 
 
@@ -131,9 +129,7 @@ class DedicatedResources(proto.Message):
     """
 
     machine_spec = proto.Field(proto.MESSAGE, number=1, message=MachineSpec,)
-
     min_replica_count = proto.Field(proto.INT32, number=2)
-
     max_replica_count = proto.Field(proto.INT32, number=3)
 
 
@@ -170,7 +166,6 @@ class AutomaticResources(proto.Message):
     """
 
     min_replica_count = proto.Field(proto.INT32, number=1)
-
     max_replica_count = proto.Field(proto.INT32, number=2)
 
 
@@ -195,9 +190,7 @@ class BatchDedicatedResources(proto.Message):
     """
 
     machine_spec = proto.Field(proto.MESSAGE, number=1, message=MachineSpec,)
-
     starting_replica_count = proto.Field(proto.INT32, number=2)
-
     max_replica_count = proto.Field(proto.INT32, number=3)
 
 

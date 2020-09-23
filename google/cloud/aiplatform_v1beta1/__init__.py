@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+
 from .services.dataset_service import DatasetServiceClient
 from .services.endpoint_service import EndpointServiceClient
 from .services.job_service import JobServiceClient
@@ -212,7 +213,6 @@ __all__ = (
     "DataItem",
     "DataLabelingJob",
     "Dataset",
-    "DatasetServiceClient",
     "DedicatedResources",
     "DeleteBatchPredictionJobRequest",
     "DeleteCustomJobRequest",
@@ -319,6 +319,7 @@ __all__ = (
     "SampledShapleyAttribution",
     "Scheduling",
     "SpecialistPool",
+    "SpecialistPoolServiceClient",
     "StudySpec",
     "TimestampSplit",
     "TrainingConfig",
@@ -337,5 +338,5 @@ __all__ = (
     "UploadModelResponse",
     "UserActionReference",
     "WorkerPoolSpec",
-    "SpecialistPoolServiceClient",
+    "DatasetServiceClient",
 )
