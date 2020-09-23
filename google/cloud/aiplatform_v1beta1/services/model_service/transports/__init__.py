@@ -24,10 +24,10 @@ from .grpc import ModelServiceGrpcTransport
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[ModelServiceTransport]]
-_transport_registry['grpc'] = ModelServiceGrpcTransport
+_transport_registry["grpc"] = ModelServiceGrpcTransport
 
 
 __all__ = (
-    'ModelServiceTransport',
-    'ModelServiceGrpcTransport',
+    "ModelServiceTransport",
+    "ModelServiceGrpcTransport",
 )

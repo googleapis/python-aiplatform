@@ -40,11 +40,15 @@ class ListDatasetsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[[dataset_service.ListDatasetsRequest],
-                dataset_service.ListDatasetsResponse],
-            request: dataset_service.ListDatasetsRequest,
-            response: dataset_service.ListDatasetsResponse):
+
+    def __init__(
+        self,
+        method: Callable[
+            [dataset_service.ListDatasetsRequest], dataset_service.ListDatasetsResponse
+        ],
+        request: dataset_service.ListDatasetsRequest,
+        response: dataset_service.ListDatasetsResponse,
+    ):
         """Instantiate the pager.
 
         Args:
@@ -75,7 +79,7 @@ class ListDatasetsPager:
             yield from page.datasets
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListDataItemsPager:
@@ -95,11 +99,16 @@ class ListDataItemsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[[dataset_service.ListDataItemsRequest],
-                dataset_service.ListDataItemsResponse],
-            request: dataset_service.ListDataItemsRequest,
-            response: dataset_service.ListDataItemsResponse):
+
+    def __init__(
+        self,
+        method: Callable[
+            [dataset_service.ListDataItemsRequest],
+            dataset_service.ListDataItemsResponse,
+        ],
+        request: dataset_service.ListDataItemsRequest,
+        response: dataset_service.ListDataItemsResponse,
+    ):
         """Instantiate the pager.
 
         Args:
@@ -130,7 +139,7 @@ class ListDataItemsPager:
             yield from page.data_items
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListAnnotationsPager:
@@ -150,11 +159,16 @@ class ListAnnotationsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[[dataset_service.ListAnnotationsRequest],
-                dataset_service.ListAnnotationsResponse],
-            request: dataset_service.ListAnnotationsRequest,
-            response: dataset_service.ListAnnotationsResponse):
+
+    def __init__(
+        self,
+        method: Callable[
+            [dataset_service.ListAnnotationsRequest],
+            dataset_service.ListAnnotationsResponse,
+        ],
+        request: dataset_service.ListAnnotationsRequest,
+        response: dataset_service.ListAnnotationsResponse,
+    ):
         """Instantiate the pager.
 
         Args:
@@ -185,4 +199,4 @@ class ListAnnotationsPager:
             yield from page.annotations
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

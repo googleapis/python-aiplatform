@@ -19,12 +19,12 @@ from collections import OrderedDict
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions # type: ignore
-from google.api_core import exceptions                 # type: ignore
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import retry as retries           # type: ignore
-from google.auth import credentials                    # type: ignore
-from google.oauth2 import service_account              # type: ignore
+import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core import exceptions  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as ga_operation
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import pagers
@@ -47,12 +47,13 @@ class EndpointServiceClientMeta(type):
     support objects (e.g. transport) without polluting the client instance
     objects.
     """
-    _transport_registry = OrderedDict()  # type: Dict[str, Type[EndpointServiceTransport]]
-    _transport_registry['grpc'] = EndpointServiceGrpcTransport
 
-    def get_transport_class(cls,
-            label: str = None,
-            ) -> Type[EndpointServiceTransport]:
+    _transport_registry = (
+        OrderedDict()
+    )  # type: Dict[str, Type[EndpointServiceTransport]]
+    _transport_registry["grpc"] = EndpointServiceGrpcTransport
+
+    def get_transport_class(cls, label: str = None,) -> Type[EndpointServiceTransport]:
         """Return an appropriate transport class.
 
         Args:
@@ -74,7 +75,9 @@ class EndpointServiceClientMeta(type):
 class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     """"""
 
-    DEFAULT_OPTIONS = ClientOptions.ClientOptions(api_endpoint='aiplatform.googleapis.com')
+    DEFAULT_OPTIONS = ClientOptions.ClientOptions(
+        api_endpoint="aiplatform.googleapis.com"
+    )
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -90,23 +93,26 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Returns:
             {@api.name}: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_file(
-            filename)
-        kwargs['credentials'] = credentials
+        credentials = service_account.Credentials.from_service_account_file(filename)
+        kwargs["credentials"] = credentials
         return cls(*args, **kwargs)
 
     from_service_account_json = from_service_account_file
 
     @staticmethod
-    def endpoint_path(project: str,location: str,endpoint: str,) -> str:
+    def endpoint_path(project: str, location: str, endpoint: str,) -> str:
         """Return a fully-qualified endpoint string."""
-        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(project=project, location=location, endpoint=endpoint, )
+        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+            project=project, location=location, endpoint=endpoint,
+        )
 
-    def __init__(self, *,
-            credentials: credentials.Credentials = None,
-            transport: Union[str, EndpointServiceTransport] = None,
-            client_options: ClientOptions.ClientOptions = DEFAULT_OPTIONS,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: credentials.Credentials = None,
+        transport: Union[str, EndpointServiceTransport] = None,
+        client_options: ClientOptions.ClientOptions = DEFAULT_OPTIONS,
+    ) -> None:
         """Instantiate the endpoint service client.
 
         Args:
@@ -128,25 +134,28 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # instance provides an extensibility point for unusual situations.
         if isinstance(transport, EndpointServiceTransport):
             if credentials:
-                raise ValueError('When providing a transport instance, '
-                                 'provide its credentials directly.')
+                raise ValueError(
+                    "When providing a transport instance, "
+                    "provide its credentials directly."
+                )
             self._transport = transport
         else:
             Transport = type(self).get_transport_class(transport)
             self._transport = Transport(
                 credentials=credentials,
-                host=client_options.api_endpoint or 'aiplatform.googleapis.com',
+                host=client_options.api_endpoint or "aiplatform.googleapis.com",
             )
 
-    def create_endpoint(self,
-            request: endpoint_service.CreateEndpointRequest = None,
-            *,
-            parent: str = None,
-            endpoint: gca_endpoint.Endpoint = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def create_endpoint(
+        self,
+        request: endpoint_service.CreateEndpointRequest = None,
+        *,
+        parent: str = None,
+        endpoint: gca_endpoint.Endpoint = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Creates an Endpoint.
 
         Args:
@@ -186,8 +195,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent, endpoint]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = endpoint_service.CreateEndpointRequest(request)
 
@@ -208,12 +219,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -226,14 +232,15 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_endpoint(self,
-            request: endpoint_service.GetEndpointRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> endpoint.Endpoint:
+    def get_endpoint(
+        self,
+        request: endpoint_service.GetEndpointRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> endpoint.Endpoint:
         r"""Gets an Endpoint.
 
         Args:
@@ -264,8 +271,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = endpoint_service.GetEndpointRequest(request)
 
@@ -286,30 +295,24 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def list_endpoints(self,
-            request: endpoint_service.ListEndpointsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListEndpointsPager:
+    def list_endpoints(
+        self,
+        request: endpoint_service.ListEndpointsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListEndpointsPager:
         r"""Lists Endpoints in a Location.
 
         Args:
@@ -343,8 +346,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = endpoint_service.ListEndpointsRequest(request)
 
@@ -365,39 +370,31 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListEndpointsPager(
-            method=rpc,
-            request=request,
-            response=response,
+            method=rpc, request=request, response=response,
         )
 
         # Done; return the response.
         return response
 
-    def update_endpoint(self,
-            request: endpoint_service.UpdateEndpointRequest = None,
-            *,
-            endpoint: gca_endpoint.Endpoint = None,
-            update_mask: field_mask.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_endpoint.Endpoint:
+    def update_endpoint(
+        self,
+        request: endpoint_service.UpdateEndpointRequest = None,
+        *,
+        endpoint: gca_endpoint.Endpoint = None,
+        update_mask: field_mask.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_endpoint.Endpoint:
         r"""Updates an Endpoint.
 
         Args:
@@ -434,8 +431,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([endpoint, update_mask]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = endpoint_service.UpdateEndpointRequest(request)
 
@@ -456,24 +455,20 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def delete_endpoint(self,
-            request: endpoint_service.DeleteEndpointRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def delete_endpoint(
+        self,
+        request: endpoint_service.DeleteEndpointRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Deletes an Endpoint.
 
         Args:
@@ -519,8 +514,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = endpoint_service.DeleteEndpointRequest(request)
 
@@ -539,12 +536,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -557,16 +549,19 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Done; return the response.
         return response
 
-    def deploy_model(self,
-            request: endpoint_service.DeployModelRequest = None,
-            *,
-            endpoint: str = None,
-            deployed_model: gca_endpoint.DeployedModel = None,
-            traffic_split: Sequence[endpoint_service.DeployModelRequest.TrafficSplitEntry] = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def deploy_model(
+        self,
+        request: endpoint_service.DeployModelRequest = None,
+        *,
+        endpoint: str = None,
+        deployed_model: gca_endpoint.DeployedModel = None,
+        traffic_split: Sequence[
+            endpoint_service.DeployModelRequest.TrafficSplitEntry
+        ] = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Deploys a Model into this Endpoint, creating a
         DeployedModel within it.
 
@@ -631,8 +626,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([endpoint, deployed_model, traffic_split]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = endpoint_service.DeployModelRequest(request)
 
@@ -655,12 +652,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -673,16 +665,19 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Done; return the response.
         return response
 
-    def undeploy_model(self,
-            request: endpoint_service.UndeployModelRequest = None,
-            *,
-            endpoint: str = None,
-            deployed_model_id: str = None,
-            traffic_split: Sequence[endpoint_service.UndeployModelRequest.TrafficSplitEntry] = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def undeploy_model(
+        self,
+        request: endpoint_service.UndeployModelRequest = None,
+        *,
+        endpoint: str = None,
+        deployed_model_id: str = None,
+        traffic_split: Sequence[
+            endpoint_service.UndeployModelRequest.TrafficSplitEntry
+        ] = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Undeploys a Model from an Endpoint, removing a
         DeployedModel from it, and freeing all resources it's
         using.
@@ -738,8 +733,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([endpoint, deployed_model_id, traffic_split]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = endpoint_service.UndeployModelRequest(request)
 
@@ -762,12 +759,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -781,19 +773,14 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return response
 
 
-
-
-
 try:
     _client_info = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     _client_info = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'EndpointServiceClient',
-)
+__all__ = ("EndpointServiceClient",)

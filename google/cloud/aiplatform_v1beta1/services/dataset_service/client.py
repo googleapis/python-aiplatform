@@ -19,12 +19,12 @@ from collections import OrderedDict
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions # type: ignore
-from google.api_core import exceptions                 # type: ignore
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import retry as retries           # type: ignore
-from google.auth import credentials                    # type: ignore
-from google.oauth2 import service_account              # type: ignore
+import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core import exceptions  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as ga_operation
 from google.cloud.aiplatform_v1beta1.services.dataset_service import pagers
@@ -51,12 +51,13 @@ class DatasetServiceClientMeta(type):
     support objects (e.g. transport) without polluting the client instance
     objects.
     """
-    _transport_registry = OrderedDict()  # type: Dict[str, Type[DatasetServiceTransport]]
-    _transport_registry['grpc'] = DatasetServiceGrpcTransport
 
-    def get_transport_class(cls,
-            label: str = None,
-            ) -> Type[DatasetServiceTransport]:
+    _transport_registry = (
+        OrderedDict()
+    )  # type: Dict[str, Type[DatasetServiceTransport]]
+    _transport_registry["grpc"] = DatasetServiceGrpcTransport
+
+    def get_transport_class(cls, label: str = None,) -> Type[DatasetServiceTransport]:
         """Return an appropriate transport class.
 
         Args:
@@ -78,7 +79,9 @@ class DatasetServiceClientMeta(type):
 class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     """"""
 
-    DEFAULT_OPTIONS = ClientOptions.ClientOptions(api_endpoint='aiplatform.googleapis.com')
+    DEFAULT_OPTIONS = ClientOptions.ClientOptions(
+        api_endpoint="aiplatform.googleapis.com"
+    )
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -94,23 +97,26 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Returns:
             {@api.name}: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_file(
-            filename)
-        kwargs['credentials'] = credentials
+        credentials = service_account.Credentials.from_service_account_file(filename)
+        kwargs["credentials"] = credentials
         return cls(*args, **kwargs)
 
     from_service_account_json = from_service_account_file
 
     @staticmethod
-    def dataset_path(project: str,location: str,dataset: str,) -> str:
+    def dataset_path(project: str, location: str, dataset: str,) -> str:
         """Return a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(project=project, location=location, dataset=dataset, )
+        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+            project=project, location=location, dataset=dataset,
+        )
 
-    def __init__(self, *,
-            credentials: credentials.Credentials = None,
-            transport: Union[str, DatasetServiceTransport] = None,
-            client_options: ClientOptions.ClientOptions = DEFAULT_OPTIONS,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: credentials.Credentials = None,
+        transport: Union[str, DatasetServiceTransport] = None,
+        client_options: ClientOptions.ClientOptions = DEFAULT_OPTIONS,
+    ) -> None:
         """Instantiate the dataset service client.
 
         Args:
@@ -132,25 +138,28 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # instance provides an extensibility point for unusual situations.
         if isinstance(transport, DatasetServiceTransport):
             if credentials:
-                raise ValueError('When providing a transport instance, '
-                                 'provide its credentials directly.')
+                raise ValueError(
+                    "When providing a transport instance, "
+                    "provide its credentials directly."
+                )
             self._transport = transport
         else:
             Transport = type(self).get_transport_class(transport)
             self._transport = Transport(
                 credentials=credentials,
-                host=client_options.api_endpoint or 'aiplatform.googleapis.com',
+                host=client_options.api_endpoint or "aiplatform.googleapis.com",
             )
 
-    def create_dataset(self,
-            request: dataset_service.CreateDatasetRequest = None,
-            *,
-            parent: str = None,
-            dataset: gca_dataset.Dataset = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def create_dataset(
+        self,
+        request: dataset_service.CreateDatasetRequest = None,
+        *,
+        parent: str = None,
+        dataset: gca_dataset.Dataset = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Creates a Dataset.
 
         Args:
@@ -189,8 +198,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent, dataset]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = dataset_service.CreateDatasetRequest(request)
 
@@ -211,12 +222,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -229,14 +235,15 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_dataset(self,
-            request: dataset_service.GetDatasetRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> dataset.Dataset:
+    def get_dataset(
+        self,
+        request: dataset_service.GetDatasetRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> dataset.Dataset:
         r"""Gets a Dataset.
 
         Args:
@@ -266,8 +273,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = dataset_service.GetDatasetRequest(request)
 
@@ -280,39 +289,31 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.get_dataset,
-            default_timeout=None,
-            client_info=_client_info,
+            self._transport.get_dataset, default_timeout=None, client_info=_client_info,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def update_dataset(self,
-            request: dataset_service.UpdateDatasetRequest = None,
-            *,
-            dataset: gca_dataset.Dataset = None,
-            update_mask: field_mask.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_dataset.Dataset:
+    def update_dataset(
+        self,
+        request: dataset_service.UpdateDatasetRequest = None,
+        *,
+        dataset: gca_dataset.Dataset = None,
+        update_mask: field_mask.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_dataset.Dataset:
         r"""Updates a Dataset.
 
         Args:
@@ -356,8 +357,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([dataset, update_mask]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = dataset_service.UpdateDatasetRequest(request)
 
@@ -378,24 +381,20 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def list_datasets(self,
-            request: dataset_service.ListDatasetsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListDatasetsPager:
+    def list_datasets(
+        self,
+        request: dataset_service.ListDatasetsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListDatasetsPager:
         r"""Lists Datasets in a Location.
 
         Args:
@@ -428,8 +427,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = dataset_service.ListDatasetsRequest(request)
 
@@ -450,38 +451,30 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListDatasetsPager(
-            method=rpc,
-            request=request,
-            response=response,
+            method=rpc, request=request, response=response,
         )
 
         # Done; return the response.
         return response
 
-    def delete_dataset(self,
-            request: dataset_service.DeleteDatasetRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def delete_dataset(
+        self,
+        request: dataset_service.DeleteDatasetRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Deletes a Dataset.
 
         Args:
@@ -527,8 +520,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = dataset_service.DeleteDatasetRequest(request)
 
@@ -547,12 +542,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -565,15 +555,16 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Done; return the response.
         return response
 
-    def import_data(self,
-            request: dataset_service.ImportDataRequest = None,
-            *,
-            name: str = None,
-            import_configs: Sequence[dataset.ImportDataConfig] = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def import_data(
+        self,
+        request: dataset_service.ImportDataRequest = None,
+        *,
+        name: str = None,
+        import_configs: Sequence[dataset.ImportDataConfig] = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Imports data into a Dataset.
 
         Args:
@@ -614,8 +605,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name, import_configs]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = dataset_service.ImportDataRequest(request)
 
@@ -630,18 +623,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.import_data,
-            default_timeout=None,
-            client_info=_client_info,
+            self._transport.import_data, default_timeout=None, client_info=_client_info,
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -654,15 +640,16 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Done; return the response.
         return response
 
-    def export_data(self,
-            request: dataset_service.ExportDataRequest = None,
-            *,
-            name: str = None,
-            export_config: dataset.ExportDataConfig = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def export_data(
+        self,
+        request: dataset_service.ExportDataRequest = None,
+        *,
+        name: str = None,
+        export_config: dataset.ExportDataConfig = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Exports data from a Dataset.
 
         Args:
@@ -702,8 +689,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name, export_config]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = dataset_service.ExportDataRequest(request)
 
@@ -718,18 +707,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.export_data,
-            default_timeout=None,
-            client_info=_client_info,
+            self._transport.export_data, default_timeout=None, client_info=_client_info,
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -742,14 +724,15 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Done; return the response.
         return response
 
-    def list_data_items(self,
-            request: dataset_service.ListDataItemsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListDataItemsPager:
+    def list_data_items(
+        self,
+        request: dataset_service.ListDataItemsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListDataItemsPager:
         r"""Lists DataItems in a Dataset.
 
         Args:
@@ -783,8 +766,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = dataset_service.ListDataItemsRequest(request)
 
@@ -805,38 +790,30 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListDataItemsPager(
-            method=rpc,
-            request=request,
-            response=response,
+            method=rpc, request=request, response=response,
         )
 
         # Done; return the response.
         return response
 
-    def get_annotation_spec(self,
-            request: dataset_service.GetAnnotationSpecRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> annotation_spec.AnnotationSpec:
+    def get_annotation_spec(
+        self,
+        request: dataset_service.GetAnnotationSpecRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> annotation_spec.AnnotationSpec:
         r"""Gets an AnnotationSpec.
 
         Args:
@@ -868,8 +845,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = dataset_service.GetAnnotationSpecRequest(request)
 
@@ -890,30 +869,24 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def list_annotations(self,
-            request: dataset_service.ListAnnotationsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListAnnotationsPager:
+    def list_annotations(
+        self,
+        request: dataset_service.ListAnnotationsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListAnnotationsPager:
         r"""Lists Annotations belongs to a dataitem
 
         Args:
@@ -948,8 +921,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = dataset_service.ListAnnotationsRequest(request)
 
@@ -970,44 +945,30 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListAnnotationsPager(
-            method=rpc,
-            request=request,
-            response=response,
+            method=rpc, request=request, response=response,
         )
 
         # Done; return the response.
         return response
 
 
-
-
-
 try:
     _client_info = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     _client_info = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'DatasetServiceClient',
-)
+__all__ = ("DatasetServiceClient",)

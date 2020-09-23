@@ -17,8 +17,8 @@
 
 from typing import Callable, Dict
 
-from google.api_core import grpc_helpers   # type: ignore
-from google.auth import credentials        # type: ignore
+from google.api_core import grpc_helpers  # type: ignore
+from google.auth import credentials  # type: ignore
 
 import grpc  # type: ignore
 
@@ -39,10 +39,14 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
     It sends protocol buffers over the wire using gRPC (which is built on
     top of HTTP/2); the ``grpcio`` package must be installed.
     """
-    def __init__(self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            channel: grpc.Channel = None) -> None:
+
+    def __init__(
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        channel: grpc.Channel = None
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -70,10 +74,12 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
             self._grpc_channel = channel
 
     @classmethod
-    def create_channel(cls,
-                       host: str = 'aiplatform.googleapis.com',
-                       credentials: credentials.Credentials = None,
-                       **kwargs) -> grpc.Channel:
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        **kwargs
+    ) -> grpc.Channel:
         """Create and return a gRPC channel object.
         Args:
             address (Optionsl[str]): The host for the channel to use.
@@ -88,10 +94,7 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
             grpc.Channel: A gRPC channel object.
         """
         return grpc_helpers.create_channel(
-            host,
-            credentials=credentials,
-            scopes=cls.AUTH_SCOPES,
-            **kwargs
+            host, credentials=credentials, scopes=cls.AUTH_SCOPES, **kwargs
         )
 
     @property
@@ -103,19 +106,20 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         """
         # Sanity check: Only create a new channel if we do not already
         # have one.
-        if not hasattr(self, '_grpc_channel'):
+        if not hasattr(self, "_grpc_channel"):
             self._grpc_channel = self.create_channel(
-                self._host,
-                credentials=self._credentials,
+                self._host, credentials=self._credentials,
             )
 
         # Return the channel from cache.
         return self._grpc_channel
 
     @property
-    def predict(self) -> Callable[
-            [prediction_service.PredictRequest],
-            prediction_service.PredictResponse]:
+    def predict(
+        self,
+    ) -> Callable[
+        [prediction_service.PredictRequest], prediction_service.PredictResponse
+    ]:
         r"""Return a callable for the predict method over gRPC.
 
         Perform an online prediction.
@@ -130,18 +134,20 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'predict' not in self._stubs:
-            self._stubs['predict'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.PredictionService/Predict',
+        if "predict" not in self._stubs:
+            self._stubs["predict"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/Predict",
                 request_serializer=prediction_service.PredictRequest.serialize,
                 response_deserializer=prediction_service.PredictResponse.deserialize,
             )
-        return self._stubs['predict']
+        return self._stubs["predict"]
 
     @property
-    def explain(self) -> Callable[
-            [prediction_service.ExplainRequest],
-            prediction_service.ExplainResponse]:
+    def explain(
+        self,
+    ) -> Callable[
+        [prediction_service.ExplainRequest], prediction_service.ExplainResponse
+    ]:
         r"""Return a callable for the explain method over gRPC.
 
         Perform an online explanation.
@@ -165,15 +171,13 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'explain' not in self._stubs:
-            self._stubs['explain'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.PredictionService/Explain',
+        if "explain" not in self._stubs:
+            self._stubs["explain"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/Explain",
                 request_serializer=prediction_service.ExplainRequest.serialize,
                 response_deserializer=prediction_service.ExplainResponse.deserialize,
             )
-        return self._stubs['explain']
+        return self._stubs["explain"]
 
 
-__all__ = (
-    'PredictionServiceGrpcTransport',
-)
+__all__ = ("PredictionServiceGrpcTransport",)

@@ -19,12 +19,12 @@ from collections import OrderedDict
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions # type: ignore
-from google.api_core import exceptions                 # type: ignore
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import retry as retries           # type: ignore
-from google.auth import credentials                    # type: ignore
-from google.oauth2 import service_account              # type: ignore
+import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core import exceptions  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import prediction_service
@@ -41,12 +41,15 @@ class PredictionServiceClientMeta(type):
     support objects (e.g. transport) without polluting the client instance
     objects.
     """
-    _transport_registry = OrderedDict()  # type: Dict[str, Type[PredictionServiceTransport]]
-    _transport_registry['grpc'] = PredictionServiceGrpcTransport
 
-    def get_transport_class(cls,
-            label: str = None,
-            ) -> Type[PredictionServiceTransport]:
+    _transport_registry = (
+        OrderedDict()
+    )  # type: Dict[str, Type[PredictionServiceTransport]]
+    _transport_registry["grpc"] = PredictionServiceGrpcTransport
+
+    def get_transport_class(
+        cls, label: str = None,
+    ) -> Type[PredictionServiceTransport]:
         """Return an appropriate transport class.
 
         Args:
@@ -68,7 +71,9 @@ class PredictionServiceClientMeta(type):
 class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
     """A service for online predictions and explanations."""
 
-    DEFAULT_OPTIONS = ClientOptions.ClientOptions(api_endpoint='aiplatform.googleapis.com')
+    DEFAULT_OPTIONS = ClientOptions.ClientOptions(
+        api_endpoint="aiplatform.googleapis.com"
+    )
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -84,18 +89,19 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Returns:
             {@api.name}: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_file(
-            filename)
-        kwargs['credentials'] = credentials
+        credentials = service_account.Credentials.from_service_account_file(filename)
+        kwargs["credentials"] = credentials
         return cls(*args, **kwargs)
 
     from_service_account_json = from_service_account_file
 
-    def __init__(self, *,
-            credentials: credentials.Credentials = None,
-            transport: Union[str, PredictionServiceTransport] = None,
-            client_options: ClientOptions.ClientOptions = DEFAULT_OPTIONS,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: credentials.Credentials = None,
+        transport: Union[str, PredictionServiceTransport] = None,
+        client_options: ClientOptions.ClientOptions = DEFAULT_OPTIONS,
+    ) -> None:
         """Instantiate the prediction service client.
 
         Args:
@@ -117,26 +123,29 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # instance provides an extensibility point for unusual situations.
         if isinstance(transport, PredictionServiceTransport):
             if credentials:
-                raise ValueError('When providing a transport instance, '
-                                 'provide its credentials directly.')
+                raise ValueError(
+                    "When providing a transport instance, "
+                    "provide its credentials directly."
+                )
             self._transport = transport
         else:
             Transport = type(self).get_transport_class(transport)
             self._transport = Transport(
                 credentials=credentials,
-                host=client_options.api_endpoint or 'aiplatform.googleapis.com',
+                host=client_options.api_endpoint or "aiplatform.googleapis.com",
             )
 
-    def predict(self,
-            request: prediction_service.PredictRequest = None,
-            *,
-            endpoint: str = None,
-            instances: Sequence[struct.Value] = None,
-            parameters: struct.Value = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> prediction_service.PredictResponse:
+    def predict(
+        self,
+        request: prediction_service.PredictRequest = None,
+        *,
+        endpoint: str = None,
+        instances: Sequence[struct.Value] = None,
+        parameters: struct.Value = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> prediction_service.PredictResponse:
         r"""Perform an online prediction.
 
         Args:
@@ -192,8 +201,10 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([endpoint, instances, parameters]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = prediction_service.PredictRequest(request)
 
@@ -210,33 +221,27 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.predict,
-            default_timeout=None,
-            client_info=_client_info,
+            self._transport.predict, default_timeout=None, client_info=_client_info,
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def explain(self,
-            request: prediction_service.ExplainRequest = None,
-            *,
-            endpoint: str = None,
-            instances: Sequence[struct.Value] = None,
-            parameters: struct.Value = None,
-            deployed_model_id: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> prediction_service.ExplainResponse:
+    def explain(
+        self,
+        request: prediction_service.ExplainRequest = None,
+        *,
+        endpoint: str = None,
+        instances: Sequence[struct.Value] = None,
+        parameters: struct.Value = None,
+        deployed_model_id: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> prediction_service.ExplainResponse:
         r"""Perform an online explanation.
 
         If [ExplainRequest.deployed_model_id] is specified, the
@@ -307,9 +312,13 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        if request is not None and any([endpoint, instances, parameters, deployed_model_id]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+        if request is not None and any(
+            [endpoint, instances, parameters, deployed_model_id]
+        ):
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = prediction_service.ExplainRequest(request)
 
@@ -328,36 +337,24 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.explain,
-            default_timeout=None,
-            client_info=_client_info,
+            self._transport.explain, default_timeout=None, client_info=_client_info,
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
 
-
-
-
 try:
     _client_info = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     _client_info = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'PredictionServiceClient',
-)
+__all__ = ("PredictionServiceClient",)

@@ -27,15 +27,14 @@ from google.cloud.aiplatform_v1beta1.types import prediction_service
 class PredictionServiceTransport(metaclass=abc.ABCMeta):
     """Abstract transport class for PredictionService."""
 
-    AUTH_SCOPES = (
-        'https://www.googleapis.com/auth/cloud-platform',
-    )
+    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
     def __init__(
-            self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            ) -> None:
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -47,8 +46,8 @@ class PredictionServiceTransport(metaclass=abc.ABCMeta):
                 credentials from the environment.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ':' not in host:
-            host += ':443'
+        if ":" not in host:
+            host += ":443"
         self._host = host
 
         # If no credentials are provided, then determine the appropriate
@@ -60,18 +59,20 @@ class PredictionServiceTransport(metaclass=abc.ABCMeta):
         self._credentials = credentials
 
     @property
-    def predict(self) -> typing.Callable[
-            [prediction_service.PredictRequest],
-            prediction_service.PredictResponse]:
+    def predict(
+        self,
+    ) -> typing.Callable[
+        [prediction_service.PredictRequest], prediction_service.PredictResponse
+    ]:
         raise NotImplementedError
 
     @property
-    def explain(self) -> typing.Callable[
-            [prediction_service.ExplainRequest],
-            prediction_service.ExplainResponse]:
+    def explain(
+        self,
+    ) -> typing.Callable[
+        [prediction_service.ExplainRequest], prediction_service.ExplainResponse
+    ]:
         raise NotImplementedError
 
 
-__all__ = (
-    'PredictionServiceTransport',
-)
+__all__ = ("PredictionServiceTransport",)

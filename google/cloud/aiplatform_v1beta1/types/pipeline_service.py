@@ -18,19 +18,21 @@
 import proto  # type: ignore
 
 
-from google.cloud.aiplatform_v1beta1.types import training_pipeline as gca_training_pipeline
+from google.cloud.aiplatform_v1beta1.types import (
+    training_pipeline as gca_training_pipeline,
+)
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
-        'CreateTrainingPipelineRequest',
-        'GetTrainingPipelineRequest',
-        'ListTrainingPipelinesRequest',
-        'ListTrainingPipelinesResponse',
-        'DeleteTrainingPipelineRequest',
-        'CancelTrainingPipelineRequest',
+        "CreateTrainingPipelineRequest",
+        "GetTrainingPipelineRequest",
+        "ListTrainingPipelinesRequest",
+        "ListTrainingPipelinesResponse",
+        "DeleteTrainingPipelineRequest",
+        "CancelTrainingPipelineRequest",
     },
 )
 
@@ -49,8 +51,8 @@ class CreateTrainingPipelineRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
-    training_pipeline = proto.Field(proto.MESSAGE, number=2,
-        message=gca_training_pipeline.TrainingPipeline,
+    training_pipeline = proto.Field(
+        proto.MESSAGE, number=2, message=gca_training_pipeline.TrainingPipeline,
     )
 
 
@@ -109,9 +111,7 @@ class ListTrainingPipelinesRequest(proto.Message):
     filter = proto.Field(proto.STRING, number=2)
     page_size = proto.Field(proto.INT32, number=3)
     page_token = proto.Field(proto.STRING, number=4)
-    read_mask = proto.Field(proto.MESSAGE, number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
 class ListTrainingPipelinesResponse(proto.Message):
@@ -132,8 +132,8 @@ class ListTrainingPipelinesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    training_pipelines = proto.RepeatedField(proto.MESSAGE, number=1,
-        message=gca_training_pipeline.TrainingPipeline,
+    training_pipelines = proto.RepeatedField(
+        proto.MESSAGE, number=1, message=gca_training_pipeline.TrainingPipeline,
     )
     next_page_token = proto.Field(proto.STRING, number=2)
 

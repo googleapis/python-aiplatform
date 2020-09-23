@@ -24,7 +24,9 @@ from google.auth import credentials  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import training_pipeline
-from google.cloud.aiplatform_v1beta1.types import training_pipeline as gca_training_pipeline
+from google.cloud.aiplatform_v1beta1.types import (
+    training_pipeline as gca_training_pipeline,
+)
 from google.longrunning import operations_pb2 as operations  # type: ignore
 from google.protobuf import empty_pb2 as empty  # type: ignore
 
@@ -32,15 +34,14 @@ from google.protobuf import empty_pb2 as empty  # type: ignore
 class PipelineServiceTransport(metaclass=abc.ABCMeta):
     """Abstract transport class for PipelineService."""
 
-    AUTH_SCOPES = (
-        'https://www.googleapis.com/auth/cloud-platform',
-    )
+    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
     def __init__(
-            self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            ) -> None:
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -52,8 +53,8 @@ class PipelineServiceTransport(metaclass=abc.ABCMeta):
                 credentials from the environment.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ':' not in host:
-            host += ':443'
+        if ":" not in host:
+            host += ":443"
         self._host = host
 
         # If no credentials are provided, then determine the appropriate
@@ -70,36 +71,45 @@ class PipelineServiceTransport(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @property
-    def create_training_pipeline(self) -> typing.Callable[
-            [pipeline_service.CreateTrainingPipelineRequest],
-            gca_training_pipeline.TrainingPipeline]:
+    def create_training_pipeline(
+        self,
+    ) -> typing.Callable[
+        [pipeline_service.CreateTrainingPipelineRequest],
+        gca_training_pipeline.TrainingPipeline,
+    ]:
         raise NotImplementedError
 
     @property
-    def get_training_pipeline(self) -> typing.Callable[
-            [pipeline_service.GetTrainingPipelineRequest],
-            training_pipeline.TrainingPipeline]:
+    def get_training_pipeline(
+        self,
+    ) -> typing.Callable[
+        [pipeline_service.GetTrainingPipelineRequest],
+        training_pipeline.TrainingPipeline,
+    ]:
         raise NotImplementedError
 
     @property
-    def list_training_pipelines(self) -> typing.Callable[
-            [pipeline_service.ListTrainingPipelinesRequest],
-            pipeline_service.ListTrainingPipelinesResponse]:
+    def list_training_pipelines(
+        self,
+    ) -> typing.Callable[
+        [pipeline_service.ListTrainingPipelinesRequest],
+        pipeline_service.ListTrainingPipelinesResponse,
+    ]:
         raise NotImplementedError
 
     @property
-    def delete_training_pipeline(self) -> typing.Callable[
-            [pipeline_service.DeleteTrainingPipelineRequest],
-            operations.Operation]:
+    def delete_training_pipeline(
+        self,
+    ) -> typing.Callable[
+        [pipeline_service.DeleteTrainingPipelineRequest], operations.Operation
+    ]:
         raise NotImplementedError
 
     @property
-    def cancel_training_pipeline(self) -> typing.Callable[
-            [pipeline_service.CancelTrainingPipelineRequest],
-            empty.Empty]:
+    def cancel_training_pipeline(
+        self,
+    ) -> typing.Callable[[pipeline_service.CancelTrainingPipelineRequest], empty.Empty]:
         raise NotImplementedError
 
 
-__all__ = (
-    'PipelineServiceTransport',
-)
+__all__ = ("PipelineServiceTransport",)

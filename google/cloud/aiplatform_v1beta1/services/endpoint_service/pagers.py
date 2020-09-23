@@ -38,11 +38,16 @@ class ListEndpointsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[[endpoint_service.ListEndpointsRequest],
-                endpoint_service.ListEndpointsResponse],
-            request: endpoint_service.ListEndpointsRequest,
-            response: endpoint_service.ListEndpointsResponse):
+
+    def __init__(
+        self,
+        method: Callable[
+            [endpoint_service.ListEndpointsRequest],
+            endpoint_service.ListEndpointsResponse,
+        ],
+        request: endpoint_service.ListEndpointsRequest,
+        response: endpoint_service.ListEndpointsResponse,
+    ):
         """Instantiate the pager.
 
         Args:
@@ -73,4 +78,4 @@ class ListEndpointsPager:
             yield from page.endpoints
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

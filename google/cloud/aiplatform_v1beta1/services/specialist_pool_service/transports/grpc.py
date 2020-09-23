@@ -17,9 +17,9 @@
 
 from typing import Callable, Dict
 
-from google.api_core import grpc_helpers   # type: ignore
+from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google.auth import credentials        # type: ignore
+from google.auth import credentials  # type: ignore
 
 import grpc  # type: ignore
 
@@ -47,10 +47,14 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
     It sends protocol buffers over the wire using gRPC (which is built on
     top of HTTP/2); the ``grpcio`` package must be installed.
     """
-    def __init__(self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            channel: grpc.Channel = None) -> None:
+
+    def __init__(
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        channel: grpc.Channel = None
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -78,10 +82,12 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
             self._grpc_channel = channel
 
     @classmethod
-    def create_channel(cls,
-                       host: str = 'aiplatform.googleapis.com',
-                       credentials: credentials.Credentials = None,
-                       **kwargs) -> grpc.Channel:
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        **kwargs
+    ) -> grpc.Channel:
         """Create and return a gRPC channel object.
         Args:
             address (Optionsl[str]): The host for the channel to use.
@@ -96,10 +102,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
             grpc.Channel: A gRPC channel object.
         """
         return grpc_helpers.create_channel(
-            host,
-            credentials=credentials,
-            scopes=cls.AUTH_SCOPES,
-            **kwargs
+            host, credentials=credentials, scopes=cls.AUTH_SCOPES, **kwargs
         )
 
     @property
@@ -111,10 +114,9 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
         """
         # Sanity check: Only create a new channel if we do not already
         # have one.
-        if not hasattr(self, '_grpc_channel'):
+        if not hasattr(self, "_grpc_channel"):
             self._grpc_channel = self.create_channel(
-                self._host,
-                credentials=self._credentials,
+                self._host, credentials=self._credentials,
             )
 
         # Return the channel from cache.
@@ -128,18 +130,20 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
         client.
         """
         # Sanity check: Only create a new client if we do not already have one.
-        if 'operations_client' not in self.__dict__:
-            self.__dict__['operations_client'] = operations_v1.OperationsClient(
+        if "operations_client" not in self.__dict__:
+            self.__dict__["operations_client"] = operations_v1.OperationsClient(
                 self.grpc_channel
             )
 
         # Return the client from cache.
-        return self.__dict__['operations_client']
+        return self.__dict__["operations_client"]
 
     @property
-    def create_specialist_pool(self) -> Callable[
-            [specialist_pool_service.CreateSpecialistPoolRequest],
-            operations.Operation]:
+    def create_specialist_pool(
+        self,
+    ) -> Callable[
+        [specialist_pool_service.CreateSpecialistPoolRequest], operations.Operation
+    ]:
         r"""Return a callable for the create specialist pool method over gRPC.
 
         Creates a SpecialistPool.
@@ -154,18 +158,21 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_specialist_pool' not in self._stubs:
-            self._stubs['create_specialist_pool'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.SpecialistPoolService/CreateSpecialistPool',
+        if "create_specialist_pool" not in self._stubs:
+            self._stubs["create_specialist_pool"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.SpecialistPoolService/CreateSpecialistPool",
                 request_serializer=specialist_pool_service.CreateSpecialistPoolRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['create_specialist_pool']
+        return self._stubs["create_specialist_pool"]
 
     @property
-    def get_specialist_pool(self) -> Callable[
-            [specialist_pool_service.GetSpecialistPoolRequest],
-            specialist_pool.SpecialistPool]:
+    def get_specialist_pool(
+        self,
+    ) -> Callable[
+        [specialist_pool_service.GetSpecialistPoolRequest],
+        specialist_pool.SpecialistPool,
+    ]:
         r"""Return a callable for the get specialist pool method over gRPC.
 
         Gets a SpecialistPool.
@@ -180,18 +187,21 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_specialist_pool' not in self._stubs:
-            self._stubs['get_specialist_pool'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.SpecialistPoolService/GetSpecialistPool',
+        if "get_specialist_pool" not in self._stubs:
+            self._stubs["get_specialist_pool"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.SpecialistPoolService/GetSpecialistPool",
                 request_serializer=specialist_pool_service.GetSpecialistPoolRequest.serialize,
                 response_deserializer=specialist_pool.SpecialistPool.deserialize,
             )
-        return self._stubs['get_specialist_pool']
+        return self._stubs["get_specialist_pool"]
 
     @property
-    def list_specialist_pools(self) -> Callable[
-            [specialist_pool_service.ListSpecialistPoolsRequest],
-            specialist_pool_service.ListSpecialistPoolsResponse]:
+    def list_specialist_pools(
+        self,
+    ) -> Callable[
+        [specialist_pool_service.ListSpecialistPoolsRequest],
+        specialist_pool_service.ListSpecialistPoolsResponse,
+    ]:
         r"""Return a callable for the list specialist pools method over gRPC.
 
         Lists SpecialistPools in a Location.
@@ -206,18 +216,20 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_specialist_pools' not in self._stubs:
-            self._stubs['list_specialist_pools'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.SpecialistPoolService/ListSpecialistPools',
+        if "list_specialist_pools" not in self._stubs:
+            self._stubs["list_specialist_pools"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.SpecialistPoolService/ListSpecialistPools",
                 request_serializer=specialist_pool_service.ListSpecialistPoolsRequest.serialize,
                 response_deserializer=specialist_pool_service.ListSpecialistPoolsResponse.deserialize,
             )
-        return self._stubs['list_specialist_pools']
+        return self._stubs["list_specialist_pools"]
 
     @property
-    def delete_specialist_pool(self) -> Callable[
-            [specialist_pool_service.DeleteSpecialistPoolRequest],
-            operations.Operation]:
+    def delete_specialist_pool(
+        self,
+    ) -> Callable[
+        [specialist_pool_service.DeleteSpecialistPoolRequest], operations.Operation
+    ]:
         r"""Return a callable for the delete specialist pool method over gRPC.
 
         Deletes a SpecialistPool as well as all Specialists
@@ -233,18 +245,20 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'delete_specialist_pool' not in self._stubs:
-            self._stubs['delete_specialist_pool'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.SpecialistPoolService/DeleteSpecialistPool',
+        if "delete_specialist_pool" not in self._stubs:
+            self._stubs["delete_specialist_pool"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.SpecialistPoolService/DeleteSpecialistPool",
                 request_serializer=specialist_pool_service.DeleteSpecialistPoolRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['delete_specialist_pool']
+        return self._stubs["delete_specialist_pool"]
 
     @property
-    def update_specialist_pool(self) -> Callable[
-            [specialist_pool_service.UpdateSpecialistPoolRequest],
-            operations.Operation]:
+    def update_specialist_pool(
+        self,
+    ) -> Callable[
+        [specialist_pool_service.UpdateSpecialistPoolRequest], operations.Operation
+    ]:
         r"""Return a callable for the update specialist pool method over gRPC.
 
         Updates a SpecialistPool.
@@ -259,15 +273,13 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'update_specialist_pool' not in self._stubs:
-            self._stubs['update_specialist_pool'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.SpecialistPoolService/UpdateSpecialistPool',
+        if "update_specialist_pool" not in self._stubs:
+            self._stubs["update_specialist_pool"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.SpecialistPoolService/UpdateSpecialistPool",
                 request_serializer=specialist_pool_service.UpdateSpecialistPoolRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['update_specialist_pool']
+        return self._stubs["update_specialist_pool"]
 
 
-__all__ = (
-    'SpecialistPoolServiceGrpcTransport',
-)
+__all__ = ("SpecialistPoolServiceGrpcTransport",)

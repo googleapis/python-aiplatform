@@ -17,9 +17,9 @@
 
 from typing import Callable, Dict
 
-from google.api_core import grpc_helpers   # type: ignore
+from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google.auth import credentials        # type: ignore
+from google.auth import credentials  # type: ignore
 
 import grpc  # type: ignore
 
@@ -41,10 +41,14 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
     It sends protocol buffers over the wire using gRPC (which is built on
     top of HTTP/2); the ``grpcio`` package must be installed.
     """
-    def __init__(self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            channel: grpc.Channel = None) -> None:
+
+    def __init__(
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        channel: grpc.Channel = None
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -72,10 +76,12 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
             self._grpc_channel = channel
 
     @classmethod
-    def create_channel(cls,
-                       host: str = 'aiplatform.googleapis.com',
-                       credentials: credentials.Credentials = None,
-                       **kwargs) -> grpc.Channel:
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        **kwargs
+    ) -> grpc.Channel:
         """Create and return a gRPC channel object.
         Args:
             address (Optionsl[str]): The host for the channel to use.
@@ -90,10 +96,7 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
             grpc.Channel: A gRPC channel object.
         """
         return grpc_helpers.create_channel(
-            host,
-            credentials=credentials,
-            scopes=cls.AUTH_SCOPES,
-            **kwargs
+            host, credentials=credentials, scopes=cls.AUTH_SCOPES, **kwargs
         )
 
     @property
@@ -105,10 +108,9 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         """
         # Sanity check: Only create a new channel if we do not already
         # have one.
-        if not hasattr(self, '_grpc_channel'):
+        if not hasattr(self, "_grpc_channel"):
             self._grpc_channel = self.create_channel(
-                self._host,
-                credentials=self._credentials,
+                self._host, credentials=self._credentials,
             )
 
         # Return the channel from cache.
@@ -122,18 +124,18 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         client.
         """
         # Sanity check: Only create a new client if we do not already have one.
-        if 'operations_client' not in self.__dict__:
-            self.__dict__['operations_client'] = operations_v1.OperationsClient(
+        if "operations_client" not in self.__dict__:
+            self.__dict__["operations_client"] = operations_v1.OperationsClient(
                 self.grpc_channel
             )
 
         # Return the client from cache.
-        return self.__dict__['operations_client']
+        return self.__dict__["operations_client"]
 
     @property
-    def create_endpoint(self) -> Callable[
-            [endpoint_service.CreateEndpointRequest],
-            operations.Operation]:
+    def create_endpoint(
+        self,
+    ) -> Callable[[endpoint_service.CreateEndpointRequest], operations.Operation]:
         r"""Return a callable for the create endpoint method over gRPC.
 
         Creates an Endpoint.
@@ -148,18 +150,18 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_endpoint' not in self._stubs:
-            self._stubs['create_endpoint'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.EndpointService/CreateEndpoint',
+        if "create_endpoint" not in self._stubs:
+            self._stubs["create_endpoint"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/CreateEndpoint",
                 request_serializer=endpoint_service.CreateEndpointRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['create_endpoint']
+        return self._stubs["create_endpoint"]
 
     @property
-    def get_endpoint(self) -> Callable[
-            [endpoint_service.GetEndpointRequest],
-            endpoint.Endpoint]:
+    def get_endpoint(
+        self,
+    ) -> Callable[[endpoint_service.GetEndpointRequest], endpoint.Endpoint]:
         r"""Return a callable for the get endpoint method over gRPC.
 
         Gets an Endpoint.
@@ -174,18 +176,20 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_endpoint' not in self._stubs:
-            self._stubs['get_endpoint'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.EndpointService/GetEndpoint',
+        if "get_endpoint" not in self._stubs:
+            self._stubs["get_endpoint"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/GetEndpoint",
                 request_serializer=endpoint_service.GetEndpointRequest.serialize,
                 response_deserializer=endpoint.Endpoint.deserialize,
             )
-        return self._stubs['get_endpoint']
+        return self._stubs["get_endpoint"]
 
     @property
-    def list_endpoints(self) -> Callable[
-            [endpoint_service.ListEndpointsRequest],
-            endpoint_service.ListEndpointsResponse]:
+    def list_endpoints(
+        self,
+    ) -> Callable[
+        [endpoint_service.ListEndpointsRequest], endpoint_service.ListEndpointsResponse
+    ]:
         r"""Return a callable for the list endpoints method over gRPC.
 
         Lists Endpoints in a Location.
@@ -200,18 +204,18 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_endpoints' not in self._stubs:
-            self._stubs['list_endpoints'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.EndpointService/ListEndpoints',
+        if "list_endpoints" not in self._stubs:
+            self._stubs["list_endpoints"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/ListEndpoints",
                 request_serializer=endpoint_service.ListEndpointsRequest.serialize,
                 response_deserializer=endpoint_service.ListEndpointsResponse.deserialize,
             )
-        return self._stubs['list_endpoints']
+        return self._stubs["list_endpoints"]
 
     @property
-    def update_endpoint(self) -> Callable[
-            [endpoint_service.UpdateEndpointRequest],
-            gca_endpoint.Endpoint]:
+    def update_endpoint(
+        self,
+    ) -> Callable[[endpoint_service.UpdateEndpointRequest], gca_endpoint.Endpoint]:
         r"""Return a callable for the update endpoint method over gRPC.
 
         Updates an Endpoint.
@@ -226,18 +230,18 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'update_endpoint' not in self._stubs:
-            self._stubs['update_endpoint'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.EndpointService/UpdateEndpoint',
+        if "update_endpoint" not in self._stubs:
+            self._stubs["update_endpoint"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/UpdateEndpoint",
                 request_serializer=endpoint_service.UpdateEndpointRequest.serialize,
                 response_deserializer=gca_endpoint.Endpoint.deserialize,
             )
-        return self._stubs['update_endpoint']
+        return self._stubs["update_endpoint"]
 
     @property
-    def delete_endpoint(self) -> Callable[
-            [endpoint_service.DeleteEndpointRequest],
-            operations.Operation]:
+    def delete_endpoint(
+        self,
+    ) -> Callable[[endpoint_service.DeleteEndpointRequest], operations.Operation]:
         r"""Return a callable for the delete endpoint method over gRPC.
 
         Deletes an Endpoint.
@@ -252,18 +256,18 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'delete_endpoint' not in self._stubs:
-            self._stubs['delete_endpoint'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.EndpointService/DeleteEndpoint',
+        if "delete_endpoint" not in self._stubs:
+            self._stubs["delete_endpoint"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/DeleteEndpoint",
                 request_serializer=endpoint_service.DeleteEndpointRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['delete_endpoint']
+        return self._stubs["delete_endpoint"]
 
     @property
-    def deploy_model(self) -> Callable[
-            [endpoint_service.DeployModelRequest],
-            operations.Operation]:
+    def deploy_model(
+        self,
+    ) -> Callable[[endpoint_service.DeployModelRequest], operations.Operation]:
         r"""Return a callable for the deploy model method over gRPC.
 
         Deploys a Model into this Endpoint, creating a
@@ -279,18 +283,18 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'deploy_model' not in self._stubs:
-            self._stubs['deploy_model'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.EndpointService/DeployModel',
+        if "deploy_model" not in self._stubs:
+            self._stubs["deploy_model"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/DeployModel",
                 request_serializer=endpoint_service.DeployModelRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['deploy_model']
+        return self._stubs["deploy_model"]
 
     @property
-    def undeploy_model(self) -> Callable[
-            [endpoint_service.UndeployModelRequest],
-            operations.Operation]:
+    def undeploy_model(
+        self,
+    ) -> Callable[[endpoint_service.UndeployModelRequest], operations.Operation]:
         r"""Return a callable for the undeploy model method over gRPC.
 
         Undeploys a Model from an Endpoint, removing a
@@ -307,15 +311,13 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'undeploy_model' not in self._stubs:
-            self._stubs['undeploy_model'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.EndpointService/UndeployModel',
+        if "undeploy_model" not in self._stubs:
+            self._stubs["undeploy_model"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EndpointService/UndeployModel",
                 request_serializer=endpoint_service.UndeployModelRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['undeploy_model']
+        return self._stubs["undeploy_model"]
 
 
-__all__ = (
-    'EndpointServiceGrpcTransport',
-)
+__all__ = ("EndpointServiceGrpcTransport",)

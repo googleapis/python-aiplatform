@@ -30,15 +30,14 @@ from google.longrunning import operations_pb2 as operations  # type: ignore
 class SpecialistPoolServiceTransport(metaclass=abc.ABCMeta):
     """Abstract transport class for SpecialistPoolService."""
 
-    AUTH_SCOPES = (
-        'https://www.googleapis.com/auth/cloud-platform',
-    )
+    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
     def __init__(
-            self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            ) -> None:
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -50,8 +49,8 @@ class SpecialistPoolServiceTransport(metaclass=abc.ABCMeta):
                 credentials from the environment.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ':' not in host:
-            host += ':443'
+        if ":" not in host:
+            host += ":443"
         self._host = host
 
         # If no credentials are provided, then determine the appropriate
@@ -68,36 +67,46 @@ class SpecialistPoolServiceTransport(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @property
-    def create_specialist_pool(self) -> typing.Callable[
-            [specialist_pool_service.CreateSpecialistPoolRequest],
-            operations.Operation]:
+    def create_specialist_pool(
+        self,
+    ) -> typing.Callable[
+        [specialist_pool_service.CreateSpecialistPoolRequest], operations.Operation
+    ]:
         raise NotImplementedError
 
     @property
-    def get_specialist_pool(self) -> typing.Callable[
-            [specialist_pool_service.GetSpecialistPoolRequest],
-            specialist_pool.SpecialistPool]:
+    def get_specialist_pool(
+        self,
+    ) -> typing.Callable[
+        [specialist_pool_service.GetSpecialistPoolRequest],
+        specialist_pool.SpecialistPool,
+    ]:
         raise NotImplementedError
 
     @property
-    def list_specialist_pools(self) -> typing.Callable[
-            [specialist_pool_service.ListSpecialistPoolsRequest],
-            specialist_pool_service.ListSpecialistPoolsResponse]:
+    def list_specialist_pools(
+        self,
+    ) -> typing.Callable[
+        [specialist_pool_service.ListSpecialistPoolsRequest],
+        specialist_pool_service.ListSpecialistPoolsResponse,
+    ]:
         raise NotImplementedError
 
     @property
-    def delete_specialist_pool(self) -> typing.Callable[
-            [specialist_pool_service.DeleteSpecialistPoolRequest],
-            operations.Operation]:
+    def delete_specialist_pool(
+        self,
+    ) -> typing.Callable[
+        [specialist_pool_service.DeleteSpecialistPoolRequest], operations.Operation
+    ]:
         raise NotImplementedError
 
     @property
-    def update_specialist_pool(self) -> typing.Callable[
-            [specialist_pool_service.UpdateSpecialistPoolRequest],
-            operations.Operation]:
+    def update_specialist_pool(
+        self,
+    ) -> typing.Callable[
+        [specialist_pool_service.UpdateSpecialistPoolRequest], operations.Operation
+    ]:
         raise NotImplementedError
 
 
-__all__ = (
-    'SpecialistPoolServiceTransport',
-)
+__all__ = ("SpecialistPoolServiceTransport",)

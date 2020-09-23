@@ -19,24 +19,30 @@ from collections import OrderedDict
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions # type: ignore
-from google.api_core import exceptions                 # type: ignore
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import retry as retries           # type: ignore
-from google.auth import credentials                    # type: ignore
-from google.oauth2 import service_account              # type: ignore
+import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core import exceptions  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as ga_operation
 from google.cloud.aiplatform_v1beta1.services.job_service import pagers
 from google.cloud.aiplatform_v1beta1.types import batch_prediction_job
-from google.cloud.aiplatform_v1beta1.types import batch_prediction_job as gca_batch_prediction_job
+from google.cloud.aiplatform_v1beta1.types import (
+    batch_prediction_job as gca_batch_prediction_job,
+)
 from google.cloud.aiplatform_v1beta1.types import completion_stats
 from google.cloud.aiplatform_v1beta1.types import custom_job
 from google.cloud.aiplatform_v1beta1.types import custom_job as gca_custom_job
 from google.cloud.aiplatform_v1beta1.types import data_labeling_job
-from google.cloud.aiplatform_v1beta1.types import data_labeling_job as gca_data_labeling_job
+from google.cloud.aiplatform_v1beta1.types import (
+    data_labeling_job as gca_data_labeling_job,
+)
 from google.cloud.aiplatform_v1beta1.types import hyperparameter_tuning_job
-from google.cloud.aiplatform_v1beta1.types import hyperparameter_tuning_job as gca_hyperparameter_tuning_job
+from google.cloud.aiplatform_v1beta1.types import (
+    hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
+)
 from google.cloud.aiplatform_v1beta1.types import job_service
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import machine_resources
@@ -60,12 +66,11 @@ class JobServiceClientMeta(type):
     support objects (e.g. transport) without polluting the client instance
     objects.
     """
-    _transport_registry = OrderedDict()  # type: Dict[str, Type[JobServiceTransport]]
-    _transport_registry['grpc'] = JobServiceGrpcTransport
 
-    def get_transport_class(cls,
-            label: str = None,
-            ) -> Type[JobServiceTransport]:
+    _transport_registry = OrderedDict()  # type: Dict[str, Type[JobServiceTransport]]
+    _transport_registry["grpc"] = JobServiceGrpcTransport
+
+    def get_transport_class(cls, label: str = None,) -> Type[JobServiceTransport]:
         """Return an appropriate transport class.
 
         Args:
@@ -87,7 +92,9 @@ class JobServiceClientMeta(type):
 class JobServiceClient(metaclass=JobServiceClientMeta):
     """A service for creating and managing AI Platform's jobs."""
 
-    DEFAULT_OPTIONS = ClientOptions.ClientOptions(api_endpoint='aiplatform.googleapis.com')
+    DEFAULT_OPTIONS = ClientOptions.ClientOptions(
+        api_endpoint="aiplatform.googleapis.com"
+    )
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -103,38 +110,57 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             {@api.name}: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_file(
-            filename)
-        kwargs['credentials'] = credentials
+        credentials = service_account.Credentials.from_service_account_file(filename)
+        kwargs["credentials"] = credentials
         return cls(*args, **kwargs)
 
     from_service_account_json = from_service_account_file
 
     @staticmethod
-    def hyperparameter_tuning_job_path(project: str,location: str,hyperparameter_tuning_job: str,) -> str:
+    def hyperparameter_tuning_job_path(
+        project: str, location: str, hyperparameter_tuning_job: str,
+    ) -> str:
         """Return a fully-qualified hyperparameter_tuning_job string."""
-        return "projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}".format(project=project, location=location, hyperparameter_tuning_job=hyperparameter_tuning_job, )
+        return "projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}".format(
+            project=project,
+            location=location,
+            hyperparameter_tuning_job=hyperparameter_tuning_job,
+        )
 
     @staticmethod
-    def custom_job_path(project: str,location: str,custom_job: str,) -> str:
+    def custom_job_path(project: str, location: str, custom_job: str,) -> str:
         """Return a fully-qualified custom_job string."""
-        return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(project=project, location=location, custom_job=custom_job, )
+        return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
+            project=project, location=location, custom_job=custom_job,
+        )
 
     @staticmethod
-    def data_labeling_job_path(project: str,location: str,data_labeling_job: str,) -> str:
+    def data_labeling_job_path(
+        project: str, location: str, data_labeling_job: str,
+    ) -> str:
         """Return a fully-qualified data_labeling_job string."""
-        return "projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}".format(project=project, location=location, data_labeling_job=data_labeling_job, )
+        return "projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}".format(
+            project=project, location=location, data_labeling_job=data_labeling_job,
+        )
 
     @staticmethod
-    def batch_prediction_job_path(project: str,location: str,batch_prediction_job: str,) -> str:
+    def batch_prediction_job_path(
+        project: str, location: str, batch_prediction_job: str,
+    ) -> str:
         """Return a fully-qualified batch_prediction_job string."""
-        return "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(project=project, location=location, batch_prediction_job=batch_prediction_job, )
+        return "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
+            project=project,
+            location=location,
+            batch_prediction_job=batch_prediction_job,
+        )
 
-    def __init__(self, *,
-            credentials: credentials.Credentials = None,
-            transport: Union[str, JobServiceTransport] = None,
-            client_options: ClientOptions.ClientOptions = DEFAULT_OPTIONS,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: credentials.Credentials = None,
+        transport: Union[str, JobServiceTransport] = None,
+        client_options: ClientOptions.ClientOptions = DEFAULT_OPTIONS,
+    ) -> None:
         """Instantiate the job service client.
 
         Args:
@@ -156,25 +182,28 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # instance provides an extensibility point for unusual situations.
         if isinstance(transport, JobServiceTransport):
             if credentials:
-                raise ValueError('When providing a transport instance, '
-                                 'provide its credentials directly.')
+                raise ValueError(
+                    "When providing a transport instance, "
+                    "provide its credentials directly."
+                )
             self._transport = transport
         else:
             Transport = type(self).get_transport_class(transport)
             self._transport = Transport(
                 credentials=credentials,
-                host=client_options.api_endpoint or 'aiplatform.googleapis.com',
+                host=client_options.api_endpoint or "aiplatform.googleapis.com",
             )
 
-    def create_custom_job(self,
-            request: job_service.CreateCustomJobRequest = None,
-            *,
-            parent: str = None,
-            custom_job: gca_custom_job.CustomJob = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_custom_job.CustomJob:
+    def create_custom_job(
+        self,
+        request: job_service.CreateCustomJobRequest = None,
+        *,
+        parent: str = None,
+        custom_job: gca_custom_job.CustomJob = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_custom_job.CustomJob:
         r"""Creates a CustomJob. A created CustomJob right away
         will be attempted to be run.
 
@@ -217,8 +246,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent, custom_job]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.CreateCustomJobRequest(request)
 
@@ -239,24 +270,20 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def get_custom_job(self,
-            request: job_service.GetCustomJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> custom_job.CustomJob:
+    def get_custom_job(
+        self,
+        request: job_service.GetCustomJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> custom_job.CustomJob:
         r"""Gets a CustomJob.
 
         Args:
@@ -292,8 +319,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.GetCustomJobRequest(request)
 
@@ -314,30 +343,24 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def list_custom_jobs(self,
-            request: job_service.ListCustomJobsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListCustomJobsPager:
+    def list_custom_jobs(
+        self,
+        request: job_service.ListCustomJobsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListCustomJobsPager:
         r"""Lists CustomJobs in a Location.
 
         Args:
@@ -371,8 +394,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.ListCustomJobsRequest(request)
 
@@ -393,38 +418,30 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListCustomJobsPager(
-            method=rpc,
-            request=request,
-            response=response,
+            method=rpc, request=request, response=response,
         )
 
         # Done; return the response.
         return response
 
-    def delete_custom_job(self,
-            request: job_service.DeleteCustomJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def delete_custom_job(
+        self,
+        request: job_service.DeleteCustomJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Deletes a CustomJob.
 
         Args:
@@ -470,8 +487,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.DeleteCustomJobRequest(request)
 
@@ -490,12 +509,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -508,14 +522,15 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Done; return the response.
         return response
 
-    def cancel_custom_job(self,
-            request: job_service.CancelCustomJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> None:
+    def cancel_custom_job(
+        self,
+        request: job_service.CancelCustomJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
         r"""Cancels a CustomJob. Starts asynchronous cancellation on the
         CustomJob. The server makes a best effort to cancel the job, but
         success is not guaranteed. Clients can use
@@ -551,8 +566,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.CancelCustomJobRequest(request)
 
@@ -572,21 +589,19 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         # Send the request.
         rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
+            request, retry=retry, timeout=timeout, metadata=metadata,
         )
 
-    def create_data_labeling_job(self,
-            request: job_service.CreateDataLabelingJobRequest = None,
-            *,
-            parent: str = None,
-            data_labeling_job: gca_data_labeling_job.DataLabelingJob = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_data_labeling_job.DataLabelingJob:
+    def create_data_labeling_job(
+        self,
+        request: job_service.CreateDataLabelingJobRequest = None,
+        *,
+        parent: str = None,
+        data_labeling_job: gca_data_labeling_job.DataLabelingJob = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_data_labeling_job.DataLabelingJob:
         r"""Creates a DataLabelingJob.
 
         Args:
@@ -623,8 +638,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent, data_labeling_job]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.CreateDataLabelingJobRequest(request)
 
@@ -645,24 +662,20 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def get_data_labeling_job(self,
-            request: job_service.GetDataLabelingJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> data_labeling_job.DataLabelingJob:
+    def get_data_labeling_job(
+        self,
+        request: job_service.GetDataLabelingJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> data_labeling_job.DataLabelingJob:
         r"""Gets a DataLabelingJob.
 
         Args:
@@ -694,8 +707,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.GetDataLabelingJobRequest(request)
 
@@ -716,30 +731,24 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def list_data_labeling_jobs(self,
-            request: job_service.ListDataLabelingJobsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListDataLabelingJobsPager:
+    def list_data_labeling_jobs(
+        self,
+        request: job_service.ListDataLabelingJobsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListDataLabelingJobsPager:
         r"""Lists DataLabelingJobs in a Location.
 
         Args:
@@ -772,8 +781,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.ListDataLabelingJobsRequest(request)
 
@@ -794,38 +805,30 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListDataLabelingJobsPager(
-            method=rpc,
-            request=request,
-            response=response,
+            method=rpc, request=request, response=response,
         )
 
         # Done; return the response.
         return response
 
-    def delete_data_labeling_job(self,
-            request: job_service.DeleteDataLabelingJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def delete_data_labeling_job(
+        self,
+        request: job_service.DeleteDataLabelingJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Deletes a DataLabelingJob.
 
         Args:
@@ -872,8 +875,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.DeleteDataLabelingJobRequest(request)
 
@@ -892,12 +897,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -910,14 +910,15 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Done; return the response.
         return response
 
-    def cancel_data_labeling_job(self,
-            request: job_service.CancelDataLabelingJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> None:
+    def cancel_data_labeling_job(
+        self,
+        request: job_service.CancelDataLabelingJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
         r"""Cancels a DataLabelingJob. Success of cancellation is
         not guaranteed.
 
@@ -943,8 +944,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.CancelDataLabelingJobRequest(request)
 
@@ -964,21 +967,19 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         # Send the request.
         rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
+            request, retry=retry, timeout=timeout, metadata=metadata,
         )
 
-    def create_hyperparameter_tuning_job(self,
-            request: job_service.CreateHyperparameterTuningJobRequest = None,
-            *,
-            parent: str = None,
-            hyperparameter_tuning_job: gca_hyperparameter_tuning_job.HyperparameterTuningJob = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_hyperparameter_tuning_job.HyperparameterTuningJob:
+    def create_hyperparameter_tuning_job(
+        self,
+        request: job_service.CreateHyperparameterTuningJobRequest = None,
+        *,
+        parent: str = None,
+        hyperparameter_tuning_job: gca_hyperparameter_tuning_job.HyperparameterTuningJob = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Creates a HyperparameterTuningJob
 
         Args:
@@ -1017,8 +1018,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent, hyperparameter_tuning_job]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.CreateHyperparameterTuningJobRequest(request)
 
@@ -1039,24 +1042,20 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def get_hyperparameter_tuning_job(self,
-            request: job_service.GetHyperparameterTuningJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> hyperparameter_tuning_job.HyperparameterTuningJob:
+    def get_hyperparameter_tuning_job(
+        self,
+        request: job_service.GetHyperparameterTuningJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Gets a HyperparameterTuningJob
 
         Args:
@@ -1090,8 +1089,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.GetHyperparameterTuningJobRequest(request)
 
@@ -1112,30 +1113,24 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def list_hyperparameter_tuning_jobs(self,
-            request: job_service.ListHyperparameterTuningJobsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListHyperparameterTuningJobsPager:
+    def list_hyperparameter_tuning_jobs(
+        self,
+        request: job_service.ListHyperparameterTuningJobsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListHyperparameterTuningJobsPager:
         r"""Lists HyperparameterTuningJobs in a Location.
 
         Args:
@@ -1169,8 +1164,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.ListHyperparameterTuningJobsRequest(request)
 
@@ -1191,38 +1188,30 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListHyperparameterTuningJobsPager(
-            method=rpc,
-            request=request,
-            response=response,
+            method=rpc, request=request, response=response,
         )
 
         # Done; return the response.
         return response
 
-    def delete_hyperparameter_tuning_job(self,
-            request: job_service.DeleteHyperparameterTuningJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def delete_hyperparameter_tuning_job(
+        self,
+        request: job_service.DeleteHyperparameterTuningJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Deletes a HyperparameterTuningJob.
 
         Args:
@@ -1269,8 +1258,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.DeleteHyperparameterTuningJobRequest(request)
 
@@ -1289,12 +1280,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -1307,14 +1293,15 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Done; return the response.
         return response
 
-    def cancel_hyperparameter_tuning_job(self,
-            request: job_service.CancelHyperparameterTuningJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> None:
+    def cancel_hyperparameter_tuning_job(
+        self,
+        request: job_service.CancelHyperparameterTuningJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
         r"""Cancels a HyperparameterTuningJob. Starts asynchronous
         cancellation on the HyperparameterTuningJob. The server makes a
         best effort to cancel the job, but success is not guaranteed.
@@ -1353,8 +1340,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.CancelHyperparameterTuningJobRequest(request)
 
@@ -1374,21 +1363,19 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         # Send the request.
         rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
+            request, retry=retry, timeout=timeout, metadata=metadata,
         )
 
-    def create_batch_prediction_job(self,
-            request: job_service.CreateBatchPredictionJobRequest = None,
-            *,
-            parent: str = None,
-            batch_prediction_job: gca_batch_prediction_job.BatchPredictionJob = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_batch_prediction_job.BatchPredictionJob:
+    def create_batch_prediction_job(
+        self,
+        request: job_service.CreateBatchPredictionJobRequest = None,
+        *,
+        parent: str = None,
+        batch_prediction_job: gca_batch_prediction_job.BatchPredictionJob = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_batch_prediction_job.BatchPredictionJob:
         r"""Creates a BatchPredictionJob. A BatchPredictionJob
         once created will right away be attempted to start.
 
@@ -1431,8 +1418,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent, batch_prediction_job]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.CreateBatchPredictionJobRequest(request)
 
@@ -1453,24 +1442,20 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def get_batch_prediction_job(self,
-            request: job_service.GetBatchPredictionJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> batch_prediction_job.BatchPredictionJob:
+    def get_batch_prediction_job(
+        self,
+        request: job_service.GetBatchPredictionJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> batch_prediction_job.BatchPredictionJob:
         r"""Gets a BatchPredictionJob
 
         Args:
@@ -1507,8 +1492,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.GetBatchPredictionJobRequest(request)
 
@@ -1529,30 +1516,24 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def list_batch_prediction_jobs(self,
-            request: job_service.ListBatchPredictionJobsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListBatchPredictionJobsPager:
+    def list_batch_prediction_jobs(
+        self,
+        request: job_service.ListBatchPredictionJobsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListBatchPredictionJobsPager:
         r"""Lists BatchPredictionJobs in a Location.
 
         Args:
@@ -1586,8 +1567,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.ListBatchPredictionJobsRequest(request)
 
@@ -1608,38 +1591,30 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListBatchPredictionJobsPager(
-            method=rpc,
-            request=request,
-            response=response,
+            method=rpc, request=request, response=response,
         )
 
         # Done; return the response.
         return response
 
-    def delete_batch_prediction_job(self,
-            request: job_service.DeleteBatchPredictionJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def delete_batch_prediction_job(
+        self,
+        request: job_service.DeleteBatchPredictionJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Deletes a BatchPredictionJob. Can only be called on
         jobs that already finished.
 
@@ -1687,8 +1662,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.DeleteBatchPredictionJobRequest(request)
 
@@ -1707,12 +1684,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -1725,14 +1697,15 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Done; return the response.
         return response
 
-    def cancel_batch_prediction_job(self,
-            request: job_service.CancelBatchPredictionJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> None:
+    def cancel_batch_prediction_job(
+        self,
+        request: job_service.CancelBatchPredictionJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
         r"""Cancels a BatchPredictionJob.
 
         Starts asynchronous cancellation on the BatchPredictionJob. The
@@ -1769,8 +1742,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = job_service.CancelBatchPredictionJobRequest(request)
 
@@ -1790,26 +1765,18 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         # Send the request.
         rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
+            request, retry=retry, timeout=timeout, metadata=metadata,
         )
-
-
-
 
 
 try:
     _client_info = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     _client_info = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'JobServiceClient',
-)
+__all__ = ("JobServiceClient",)

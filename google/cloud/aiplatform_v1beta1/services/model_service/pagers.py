@@ -40,11 +40,15 @@ class ListModelsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[[model_service.ListModelsRequest],
-                model_service.ListModelsResponse],
-            request: model_service.ListModelsRequest,
-            response: model_service.ListModelsResponse):
+
+    def __init__(
+        self,
+        method: Callable[
+            [model_service.ListModelsRequest], model_service.ListModelsResponse
+        ],
+        request: model_service.ListModelsRequest,
+        response: model_service.ListModelsResponse,
+    ):
         """Instantiate the pager.
 
         Args:
@@ -75,7 +79,7 @@ class ListModelsPager:
             yield from page.models
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListModelEvaluationsPager:
@@ -95,11 +99,16 @@ class ListModelEvaluationsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[[model_service.ListModelEvaluationsRequest],
-                model_service.ListModelEvaluationsResponse],
-            request: model_service.ListModelEvaluationsRequest,
-            response: model_service.ListModelEvaluationsResponse):
+
+    def __init__(
+        self,
+        method: Callable[
+            [model_service.ListModelEvaluationsRequest],
+            model_service.ListModelEvaluationsResponse,
+        ],
+        request: model_service.ListModelEvaluationsRequest,
+        response: model_service.ListModelEvaluationsResponse,
+    ):
         """Instantiate the pager.
 
         Args:
@@ -130,7 +139,7 @@ class ListModelEvaluationsPager:
             yield from page.model_evaluations
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListModelEvaluationSlicesPager:
@@ -150,11 +159,16 @@ class ListModelEvaluationSlicesPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[[model_service.ListModelEvaluationSlicesRequest],
-                model_service.ListModelEvaluationSlicesResponse],
-            request: model_service.ListModelEvaluationSlicesRequest,
-            response: model_service.ListModelEvaluationSlicesResponse):
+
+    def __init__(
+        self,
+        method: Callable[
+            [model_service.ListModelEvaluationSlicesRequest],
+            model_service.ListModelEvaluationSlicesResponse,
+        ],
+        request: model_service.ListModelEvaluationSlicesRequest,
+        response: model_service.ListModelEvaluationSlicesResponse,
+    ):
         """Instantiate the pager.
 
         Args:
@@ -185,4 +199,4 @@ class ListModelEvaluationSlicesPager:
             yield from page.model_evaluation_slices
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

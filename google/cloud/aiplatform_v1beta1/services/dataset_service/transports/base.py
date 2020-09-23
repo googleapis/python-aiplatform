@@ -32,15 +32,14 @@ from google.longrunning import operations_pb2 as operations  # type: ignore
 class DatasetServiceTransport(metaclass=abc.ABCMeta):
     """Abstract transport class for DatasetService."""
 
-    AUTH_SCOPES = (
-        'https://www.googleapis.com/auth/cloud-platform',
-    )
+    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
     def __init__(
-            self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            ) -> None:
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -52,8 +51,8 @@ class DatasetServiceTransport(metaclass=abc.ABCMeta):
                 credentials from the environment.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ':' not in host:
-            host += ':443'
+        if ":" not in host:
+            host += ":443"
         self._host = host
 
         # If no credentials are provided, then determine the appropriate
@@ -70,66 +69,73 @@ class DatasetServiceTransport(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @property
-    def create_dataset(self) -> typing.Callable[
-            [dataset_service.CreateDatasetRequest],
-            operations.Operation]:
+    def create_dataset(
+        self,
+    ) -> typing.Callable[[dataset_service.CreateDatasetRequest], operations.Operation]:
         raise NotImplementedError
 
     @property
-    def get_dataset(self) -> typing.Callable[
-            [dataset_service.GetDatasetRequest],
-            dataset.Dataset]:
+    def get_dataset(
+        self,
+    ) -> typing.Callable[[dataset_service.GetDatasetRequest], dataset.Dataset]:
         raise NotImplementedError
 
     @property
-    def update_dataset(self) -> typing.Callable[
-            [dataset_service.UpdateDatasetRequest],
-            gca_dataset.Dataset]:
+    def update_dataset(
+        self,
+    ) -> typing.Callable[[dataset_service.UpdateDatasetRequest], gca_dataset.Dataset]:
         raise NotImplementedError
 
     @property
-    def list_datasets(self) -> typing.Callable[
-            [dataset_service.ListDatasetsRequest],
-            dataset_service.ListDatasetsResponse]:
+    def list_datasets(
+        self,
+    ) -> typing.Callable[
+        [dataset_service.ListDatasetsRequest], dataset_service.ListDatasetsResponse
+    ]:
         raise NotImplementedError
 
     @property
-    def delete_dataset(self) -> typing.Callable[
-            [dataset_service.DeleteDatasetRequest],
-            operations.Operation]:
+    def delete_dataset(
+        self,
+    ) -> typing.Callable[[dataset_service.DeleteDatasetRequest], operations.Operation]:
         raise NotImplementedError
 
     @property
-    def import_data(self) -> typing.Callable[
-            [dataset_service.ImportDataRequest],
-            operations.Operation]:
+    def import_data(
+        self,
+    ) -> typing.Callable[[dataset_service.ImportDataRequest], operations.Operation]:
         raise NotImplementedError
 
     @property
-    def export_data(self) -> typing.Callable[
-            [dataset_service.ExportDataRequest],
-            operations.Operation]:
+    def export_data(
+        self,
+    ) -> typing.Callable[[dataset_service.ExportDataRequest], operations.Operation]:
         raise NotImplementedError
 
     @property
-    def list_data_items(self) -> typing.Callable[
-            [dataset_service.ListDataItemsRequest],
-            dataset_service.ListDataItemsResponse]:
+    def list_data_items(
+        self,
+    ) -> typing.Callable[
+        [dataset_service.ListDataItemsRequest], dataset_service.ListDataItemsResponse
+    ]:
         raise NotImplementedError
 
     @property
-    def get_annotation_spec(self) -> typing.Callable[
-            [dataset_service.GetAnnotationSpecRequest],
-            annotation_spec.AnnotationSpec]:
+    def get_annotation_spec(
+        self,
+    ) -> typing.Callable[
+        [dataset_service.GetAnnotationSpecRequest], annotation_spec.AnnotationSpec
+    ]:
         raise NotImplementedError
 
     @property
-    def list_annotations(self) -> typing.Callable[
-            [dataset_service.ListAnnotationsRequest],
-            dataset_service.ListAnnotationsResponse]:
+    def list_annotations(
+        self,
+    ) -> typing.Callable[
+        [dataset_service.ListAnnotationsRequest],
+        dataset_service.ListAnnotationsResponse,
+    ]:
         raise NotImplementedError
 
 
-__all__ = (
-    'DatasetServiceTransport',
-)
+__all__ = ("DatasetServiceTransport",)

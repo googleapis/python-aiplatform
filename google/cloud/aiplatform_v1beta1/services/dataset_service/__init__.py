@@ -17,6 +17,4 @@
 
 from .client import DatasetServiceClient
 
-__all__ = (
-    'DatasetServiceClient',
-)
+__all__ = ("DatasetServiceClient",)

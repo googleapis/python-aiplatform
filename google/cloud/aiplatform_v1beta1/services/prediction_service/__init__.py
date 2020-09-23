@@ -17,6 +17,4 @@
 
 from .client import PredictionServiceClient
 
-__all__ = (
-    'PredictionServiceClient',
-)
+__all__ = ("PredictionServiceClient",)

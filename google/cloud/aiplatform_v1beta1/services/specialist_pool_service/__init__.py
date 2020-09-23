@@ -17,6 +17,4 @@
 
 from .client import SpecialistPoolServiceClient
 
-__all__ = (
-    'SpecialistPoolServiceClient',
-)
+__all__ = ("SpecialistPoolServiceClient",)

@@ -17,6 +17,4 @@
 
 from .client import ModelServiceClient
 
-__all__ = (
-    'ModelServiceClient',
-)
+__all__ = ("ModelServiceClient",)

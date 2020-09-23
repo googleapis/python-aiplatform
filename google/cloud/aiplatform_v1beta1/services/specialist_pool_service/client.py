@@ -19,12 +19,12 @@ from collections import OrderedDict
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions # type: ignore
-from google.api_core import exceptions                 # type: ignore
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import retry as retries           # type: ignore
-from google.auth import credentials                    # type: ignore
-from google.oauth2 import service_account              # type: ignore
+import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core import exceptions  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as ga_operation
 from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import pagers
@@ -46,12 +46,15 @@ class SpecialistPoolServiceClientMeta(type):
     support objects (e.g. transport) without polluting the client instance
     objects.
     """
-    _transport_registry = OrderedDict()  # type: Dict[str, Type[SpecialistPoolServiceTransport]]
-    _transport_registry['grpc'] = SpecialistPoolServiceGrpcTransport
 
-    def get_transport_class(cls,
-            label: str = None,
-            ) -> Type[SpecialistPoolServiceTransport]:
+    _transport_registry = (
+        OrderedDict()
+    )  # type: Dict[str, Type[SpecialistPoolServiceTransport]]
+    _transport_registry["grpc"] = SpecialistPoolServiceGrpcTransport
+
+    def get_transport_class(
+        cls, label: str = None,
+    ) -> Type[SpecialistPoolServiceTransport]:
         """Return an appropriate transport class.
 
         Args:
@@ -79,7 +82,9 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
     manage Specialists and tasks on CrowdCompute console.
     """
 
-    DEFAULT_OPTIONS = ClientOptions.ClientOptions(api_endpoint='aiplatform.googleapis.com')
+    DEFAULT_OPTIONS = ClientOptions.ClientOptions(
+        api_endpoint="aiplatform.googleapis.com"
+    )
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -95,23 +100,26 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Returns:
             {@api.name}: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_file(
-            filename)
-        kwargs['credentials'] = credentials
+        credentials = service_account.Credentials.from_service_account_file(filename)
+        kwargs["credentials"] = credentials
         return cls(*args, **kwargs)
 
     from_service_account_json = from_service_account_file
 
     @staticmethod
-    def specialist_pool_path(project: str,location: str,specialist_pool: str,) -> str:
+    def specialist_pool_path(project: str, location: str, specialist_pool: str,) -> str:
         """Return a fully-qualified specialist_pool string."""
-        return "projects/{project}/locations/{location}/specialistPools/{specialist_pool}".format(project=project, location=location, specialist_pool=specialist_pool, )
+        return "projects/{project}/locations/{location}/specialistPools/{specialist_pool}".format(
+            project=project, location=location, specialist_pool=specialist_pool,
+        )
 
-    def __init__(self, *,
-            credentials: credentials.Credentials = None,
-            transport: Union[str, SpecialistPoolServiceTransport] = None,
-            client_options: ClientOptions.ClientOptions = DEFAULT_OPTIONS,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: credentials.Credentials = None,
+        transport: Union[str, SpecialistPoolServiceTransport] = None,
+        client_options: ClientOptions.ClientOptions = DEFAULT_OPTIONS,
+    ) -> None:
         """Instantiate the specialist pool service client.
 
         Args:
@@ -133,25 +141,28 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # instance provides an extensibility point for unusual situations.
         if isinstance(transport, SpecialistPoolServiceTransport):
             if credentials:
-                raise ValueError('When providing a transport instance, '
-                                 'provide its credentials directly.')
+                raise ValueError(
+                    "When providing a transport instance, "
+                    "provide its credentials directly."
+                )
             self._transport = transport
         else:
             Transport = type(self).get_transport_class(transport)
             self._transport = Transport(
                 credentials=credentials,
-                host=client_options.api_endpoint or 'aiplatform.googleapis.com',
+                host=client_options.api_endpoint or "aiplatform.googleapis.com",
             )
 
-    def create_specialist_pool(self,
-            request: specialist_pool_service.CreateSpecialistPoolRequest = None,
-            *,
-            parent: str = None,
-            specialist_pool: gca_specialist_pool.SpecialistPool = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def create_specialist_pool(
+        self,
+        request: specialist_pool_service.CreateSpecialistPoolRequest = None,
+        *,
+        parent: str = None,
+        specialist_pool: gca_specialist_pool.SpecialistPool = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Creates a SpecialistPool.
 
         Args:
@@ -198,8 +209,10 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent, specialist_pool]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = specialist_pool_service.CreateSpecialistPoolRequest(request)
 
@@ -220,12 +233,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -238,14 +246,15 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_specialist_pool(self,
-            request: specialist_pool_service.GetSpecialistPoolRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> specialist_pool.SpecialistPool:
+    def get_specialist_pool(
+        self,
+        request: specialist_pool_service.GetSpecialistPoolRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> specialist_pool.SpecialistPool:
         r"""Gets a SpecialistPool.
 
         Args:
@@ -286,8 +295,10 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = specialist_pool_service.GetSpecialistPoolRequest(request)
 
@@ -308,30 +319,24 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def list_specialist_pools(self,
-            request: specialist_pool_service.ListSpecialistPoolsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListSpecialistPoolsPager:
+    def list_specialist_pools(
+        self,
+        request: specialist_pool_service.ListSpecialistPoolsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListSpecialistPoolsPager:
         r"""Lists SpecialistPools in a Location.
 
         Args:
@@ -365,8 +370,10 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = specialist_pool_service.ListSpecialistPoolsRequest(request)
 
@@ -387,38 +394,30 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListSpecialistPoolsPager(
-            method=rpc,
-            request=request,
-            response=response,
+            method=rpc, request=request, response=response,
         )
 
         # Done; return the response.
         return response
 
-    def delete_specialist_pool(self,
-            request: specialist_pool_service.DeleteSpecialistPoolRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def delete_specialist_pool(
+        self,
+        request: specialist_pool_service.DeleteSpecialistPoolRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Deletes a SpecialistPool as well as all Specialists
         in the pool.
 
@@ -465,8 +464,10 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = specialist_pool_service.DeleteSpecialistPoolRequest(request)
 
@@ -485,12 +486,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -503,15 +499,16 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # Done; return the response.
         return response
 
-    def update_specialist_pool(self,
-            request: specialist_pool_service.UpdateSpecialistPoolRequest = None,
-            *,
-            specialist_pool: gca_specialist_pool.SpecialistPool = None,
-            update_mask: field_mask.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def update_specialist_pool(
+        self,
+        request: specialist_pool_service.UpdateSpecialistPoolRequest = None,
+        *,
+        specialist_pool: gca_specialist_pool.SpecialistPool = None,
+        update_mask: field_mask.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Updates a SpecialistPool.
 
         Args:
@@ -557,8 +554,10 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([specialist_pool, update_mask]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = specialist_pool_service.UpdateSpecialistPoolRequest(request)
 
@@ -579,12 +578,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -598,19 +592,14 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         return response
 
 
-
-
-
 try:
     _client_info = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     _client_info = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'SpecialistPoolServiceClient',
-)
+__all__ = ("SpecialistPoolServiceClient",)

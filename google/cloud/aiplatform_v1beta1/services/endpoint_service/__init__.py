@@ -17,6 +17,4 @@
 
 from .client import EndpointServiceClient
 
-__all__ = (
-    'EndpointServiceClient',
-)
+__all__ = ("EndpointServiceClient",)

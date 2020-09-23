@@ -41,11 +41,15 @@ class ListCustomJobsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[[job_service.ListCustomJobsRequest],
-                job_service.ListCustomJobsResponse],
-            request: job_service.ListCustomJobsRequest,
-            response: job_service.ListCustomJobsResponse):
+
+    def __init__(
+        self,
+        method: Callable[
+            [job_service.ListCustomJobsRequest], job_service.ListCustomJobsResponse
+        ],
+        request: job_service.ListCustomJobsRequest,
+        response: job_service.ListCustomJobsResponse,
+    ):
         """Instantiate the pager.
 
         Args:
@@ -76,7 +80,7 @@ class ListCustomJobsPager:
             yield from page.custom_jobs
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListDataLabelingJobsPager:
@@ -96,11 +100,16 @@ class ListDataLabelingJobsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[[job_service.ListDataLabelingJobsRequest],
-                job_service.ListDataLabelingJobsResponse],
-            request: job_service.ListDataLabelingJobsRequest,
-            response: job_service.ListDataLabelingJobsResponse):
+
+    def __init__(
+        self,
+        method: Callable[
+            [job_service.ListDataLabelingJobsRequest],
+            job_service.ListDataLabelingJobsResponse,
+        ],
+        request: job_service.ListDataLabelingJobsRequest,
+        response: job_service.ListDataLabelingJobsResponse,
+    ):
         """Instantiate the pager.
 
         Args:
@@ -131,7 +140,7 @@ class ListDataLabelingJobsPager:
             yield from page.data_labeling_jobs
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListHyperparameterTuningJobsPager:
@@ -151,11 +160,16 @@ class ListHyperparameterTuningJobsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[[job_service.ListHyperparameterTuningJobsRequest],
-                job_service.ListHyperparameterTuningJobsResponse],
-            request: job_service.ListHyperparameterTuningJobsRequest,
-            response: job_service.ListHyperparameterTuningJobsResponse):
+
+    def __init__(
+        self,
+        method: Callable[
+            [job_service.ListHyperparameterTuningJobsRequest],
+            job_service.ListHyperparameterTuningJobsResponse,
+        ],
+        request: job_service.ListHyperparameterTuningJobsRequest,
+        response: job_service.ListHyperparameterTuningJobsResponse,
+    ):
         """Instantiate the pager.
 
         Args:
@@ -186,7 +200,7 @@ class ListHyperparameterTuningJobsPager:
             yield from page.hyperparameter_tuning_jobs
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListBatchPredictionJobsPager:
@@ -206,11 +220,16 @@ class ListBatchPredictionJobsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[[job_service.ListBatchPredictionJobsRequest],
-                job_service.ListBatchPredictionJobsResponse],
-            request: job_service.ListBatchPredictionJobsRequest,
-            response: job_service.ListBatchPredictionJobsResponse):
+
+    def __init__(
+        self,
+        method: Callable[
+            [job_service.ListBatchPredictionJobsRequest],
+            job_service.ListBatchPredictionJobsResponse,
+        ],
+        request: job_service.ListBatchPredictionJobsRequest,
+        response: job_service.ListBatchPredictionJobsResponse,
+    ):
         """Instantiate the pager.
 
         Args:
@@ -241,4 +260,4 @@ class ListBatchPredictionJobsPager:
             yield from page.batch_prediction_jobs
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

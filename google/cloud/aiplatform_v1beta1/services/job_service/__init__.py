@@ -17,6 +17,4 @@
 
 from .client import JobServiceClient
 
-__all__ = (
-    'JobServiceClient',
-)
+__all__ = ("JobServiceClient",)

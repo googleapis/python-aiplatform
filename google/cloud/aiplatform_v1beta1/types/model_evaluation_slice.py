@@ -23,10 +23,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'ModelEvaluationSlice',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"ModelEvaluationSlice",},
 )
 
 
@@ -57,6 +54,7 @@ class ModelEvaluationSlice(proto.Message):
             Output only. Timestamp when this
             ModelEvaluationSlice was created.
     """
+
     class Slice(proto.Message):
         r"""Definition of a slice.
 
@@ -79,16 +77,10 @@ class ModelEvaluationSlice(proto.Message):
         value = proto.Field(proto.STRING, number=2)
 
     name = proto.Field(proto.STRING, number=1)
-    slice = proto.Field(proto.MESSAGE, number=2,
-        message=Slice,
-    )
+    slice = proto.Field(proto.MESSAGE, number=2, message=Slice,)
     metrics_schema_uri = proto.Field(proto.STRING, number=3)
-    metrics = proto.Field(proto.MESSAGE, number=4,
-        message=struct.Value,
-    )
-    create_time = proto.Field(proto.MESSAGE, number=5,
-        message=timestamp.Timestamp,
-    )
+    metrics = proto.Field(proto.MESSAGE, number=4, message=struct.Value,)
+    create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -33,15 +33,14 @@ from google.longrunning import operations_pb2 as operations  # type: ignore
 class ModelServiceTransport(metaclass=abc.ABCMeta):
     """Abstract transport class for ModelService."""
 
-    AUTH_SCOPES = (
-        'https://www.googleapis.com/auth/cloud-platform',
-    )
+    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
     def __init__(
-            self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            ) -> None:
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -53,8 +52,8 @@ class ModelServiceTransport(metaclass=abc.ABCMeta):
                 credentials from the environment.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ':' not in host:
-            host += ':443'
+        if ":" not in host:
+            host += ":443"
         self._host = host
 
         # If no credentials are provided, then determine the appropriate
@@ -71,66 +70,77 @@ class ModelServiceTransport(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @property
-    def upload_model(self) -> typing.Callable[
-            [model_service.UploadModelRequest],
-            operations.Operation]:
+    def upload_model(
+        self,
+    ) -> typing.Callable[[model_service.UploadModelRequest], operations.Operation]:
         raise NotImplementedError
 
     @property
-    def get_model(self) -> typing.Callable[
-            [model_service.GetModelRequest],
-            model.Model]:
+    def get_model(
+        self,
+    ) -> typing.Callable[[model_service.GetModelRequest], model.Model]:
         raise NotImplementedError
 
     @property
-    def list_models(self) -> typing.Callable[
-            [model_service.ListModelsRequest],
-            model_service.ListModelsResponse]:
+    def list_models(
+        self,
+    ) -> typing.Callable[
+        [model_service.ListModelsRequest], model_service.ListModelsResponse
+    ]:
         raise NotImplementedError
 
     @property
-    def update_model(self) -> typing.Callable[
-            [model_service.UpdateModelRequest],
-            gca_model.Model]:
+    def update_model(
+        self,
+    ) -> typing.Callable[[model_service.UpdateModelRequest], gca_model.Model]:
         raise NotImplementedError
 
     @property
-    def delete_model(self) -> typing.Callable[
-            [model_service.DeleteModelRequest],
-            operations.Operation]:
+    def delete_model(
+        self,
+    ) -> typing.Callable[[model_service.DeleteModelRequest], operations.Operation]:
         raise NotImplementedError
 
     @property
-    def export_model(self) -> typing.Callable[
-            [model_service.ExportModelRequest],
-            operations.Operation]:
+    def export_model(
+        self,
+    ) -> typing.Callable[[model_service.ExportModelRequest], operations.Operation]:
         raise NotImplementedError
 
     @property
-    def get_model_evaluation(self) -> typing.Callable[
-            [model_service.GetModelEvaluationRequest],
-            model_evaluation.ModelEvaluation]:
+    def get_model_evaluation(
+        self,
+    ) -> typing.Callable[
+        [model_service.GetModelEvaluationRequest], model_evaluation.ModelEvaluation
+    ]:
         raise NotImplementedError
 
     @property
-    def list_model_evaluations(self) -> typing.Callable[
-            [model_service.ListModelEvaluationsRequest],
-            model_service.ListModelEvaluationsResponse]:
+    def list_model_evaluations(
+        self,
+    ) -> typing.Callable[
+        [model_service.ListModelEvaluationsRequest],
+        model_service.ListModelEvaluationsResponse,
+    ]:
         raise NotImplementedError
 
     @property
-    def get_model_evaluation_slice(self) -> typing.Callable[
-            [model_service.GetModelEvaluationSliceRequest],
-            model_evaluation_slice.ModelEvaluationSlice]:
+    def get_model_evaluation_slice(
+        self,
+    ) -> typing.Callable[
+        [model_service.GetModelEvaluationSliceRequest],
+        model_evaluation_slice.ModelEvaluationSlice,
+    ]:
         raise NotImplementedError
 
     @property
-    def list_model_evaluation_slices(self) -> typing.Callable[
-            [model_service.ListModelEvaluationSlicesRequest],
-            model_service.ListModelEvaluationSlicesResponse]:
+    def list_model_evaluation_slices(
+        self,
+    ) -> typing.Callable[
+        [model_service.ListModelEvaluationSlicesRequest],
+        model_service.ListModelEvaluationSlicesResponse,
+    ]:
         raise NotImplementedError
 
 
-__all__ = (
-    'ModelServiceTransport',
-)
+__all__ = ("ModelServiceTransport",)

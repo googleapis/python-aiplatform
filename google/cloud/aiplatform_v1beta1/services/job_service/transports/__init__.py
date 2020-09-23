@@ -24,10 +24,10 @@ from .grpc import JobServiceGrpcTransport
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[JobServiceTransport]]
-_transport_registry['grpc'] = JobServiceGrpcTransport
+_transport_registry["grpc"] = JobServiceGrpcTransport
 
 
 __all__ = (
-    'JobServiceTransport',
-    'JobServiceGrpcTransport',
+    "JobServiceTransport",
+    "JobServiceGrpcTransport",
 )

@@ -19,12 +19,12 @@ from collections import OrderedDict
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions # type: ignore
-from google.api_core import exceptions                 # type: ignore
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import retry as retries           # type: ignore
-from google.auth import credentials                    # type: ignore
-from google.oauth2 import service_account              # type: ignore
+import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core import exceptions  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as ga_operation
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import pagers
@@ -33,7 +33,9 @@ from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
 from google.cloud.aiplatform_v1beta1.types import training_pipeline
-from google.cloud.aiplatform_v1beta1.types import training_pipeline as gca_training_pipeline
+from google.cloud.aiplatform_v1beta1.types import (
+    training_pipeline as gca_training_pipeline,
+)
 from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
@@ -50,12 +52,13 @@ class PipelineServiceClientMeta(type):
     support objects (e.g. transport) without polluting the client instance
     objects.
     """
-    _transport_registry = OrderedDict()  # type: Dict[str, Type[PipelineServiceTransport]]
-    _transport_registry['grpc'] = PipelineServiceGrpcTransport
 
-    def get_transport_class(cls,
-            label: str = None,
-            ) -> Type[PipelineServiceTransport]:
+    _transport_registry = (
+        OrderedDict()
+    )  # type: Dict[str, Type[PipelineServiceTransport]]
+    _transport_registry["grpc"] = PipelineServiceGrpcTransport
+
+    def get_transport_class(cls, label: str = None,) -> Type[PipelineServiceTransport]:
         """Return an appropriate transport class.
 
         Args:
@@ -77,7 +80,9 @@ class PipelineServiceClientMeta(type):
 class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     """A service for creating and managing AI Platform's pipelines."""
 
-    DEFAULT_OPTIONS = ClientOptions.ClientOptions(api_endpoint='aiplatform.googleapis.com')
+    DEFAULT_OPTIONS = ClientOptions.ClientOptions(
+        api_endpoint="aiplatform.googleapis.com"
+    )
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -93,28 +98,35 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Returns:
             {@api.name}: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_file(
-            filename)
-        kwargs['credentials'] = credentials
+        credentials = service_account.Credentials.from_service_account_file(filename)
+        kwargs["credentials"] = credentials
         return cls(*args, **kwargs)
 
     from_service_account_json = from_service_account_file
 
     @staticmethod
-    def training_pipeline_path(project: str,location: str,training_pipeline: str,) -> str:
+    def training_pipeline_path(
+        project: str, location: str, training_pipeline: str,
+    ) -> str:
         """Return a fully-qualified training_pipeline string."""
-        return "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(project=project, location=location, training_pipeline=training_pipeline, )
+        return "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
+            project=project, location=location, training_pipeline=training_pipeline,
+        )
 
     @staticmethod
-    def model_path(project: str,location: str,model: str,) -> str:
+    def model_path(project: str, location: str, model: str,) -> str:
         """Return a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(project=project, location=location, model=model, )
+        return "projects/{project}/locations/{location}/models/{model}".format(
+            project=project, location=location, model=model,
+        )
 
-    def __init__(self, *,
-            credentials: credentials.Credentials = None,
-            transport: Union[str, PipelineServiceTransport] = None,
-            client_options: ClientOptions.ClientOptions = DEFAULT_OPTIONS,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: credentials.Credentials = None,
+        transport: Union[str, PipelineServiceTransport] = None,
+        client_options: ClientOptions.ClientOptions = DEFAULT_OPTIONS,
+    ) -> None:
         """Instantiate the pipeline service client.
 
         Args:
@@ -136,25 +148,28 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # instance provides an extensibility point for unusual situations.
         if isinstance(transport, PipelineServiceTransport):
             if credentials:
-                raise ValueError('When providing a transport instance, '
-                                 'provide its credentials directly.')
+                raise ValueError(
+                    "When providing a transport instance, "
+                    "provide its credentials directly."
+                )
             self._transport = transport
         else:
             Transport = type(self).get_transport_class(transport)
             self._transport = Transport(
                 credentials=credentials,
-                host=client_options.api_endpoint or 'aiplatform.googleapis.com',
+                host=client_options.api_endpoint or "aiplatform.googleapis.com",
             )
 
-    def create_training_pipeline(self,
-            request: pipeline_service.CreateTrainingPipelineRequest = None,
-            *,
-            parent: str = None,
-            training_pipeline: gca_training_pipeline.TrainingPipeline = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_training_pipeline.TrainingPipeline:
+    def create_training_pipeline(
+        self,
+        request: pipeline_service.CreateTrainingPipelineRequest = None,
+        *,
+        parent: str = None,
+        training_pipeline: gca_training_pipeline.TrainingPipeline = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_training_pipeline.TrainingPipeline:
         r"""Creates a TrainingPipeline. A created
         TrainingPipeline right away will be attempted to be run.
 
@@ -196,8 +211,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent, training_pipeline]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.CreateTrainingPipelineRequest(request)
 
@@ -218,24 +235,20 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def get_training_pipeline(self,
-            request: pipeline_service.GetTrainingPipelineRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> training_pipeline.TrainingPipeline:
+    def get_training_pipeline(
+        self,
+        request: pipeline_service.GetTrainingPipelineRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> training_pipeline.TrainingPipeline:
         r"""Gets a TrainingPipeline.
 
         Args:
@@ -271,8 +284,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.GetTrainingPipelineRequest(request)
 
@@ -293,30 +308,24 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def list_training_pipelines(self,
-            request: pipeline_service.ListTrainingPipelinesRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListTrainingPipelinesPager:
+    def list_training_pipelines(
+        self,
+        request: pipeline_service.ListTrainingPipelinesRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListTrainingPipelinesPager:
         r"""Lists TrainingPipelines in a Location.
 
         Args:
@@ -350,8 +359,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([parent]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.ListTrainingPipelinesRequest(request)
 
@@ -372,38 +383,30 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTrainingPipelinesPager(
-            method=rpc,
-            request=request,
-            response=response,
+            method=rpc, request=request, response=response,
         )
 
         # Done; return the response.
         return response
 
-    def delete_training_pipeline(self,
-            request: pipeline_service.DeleteTrainingPipelineRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+    def delete_training_pipeline(
+        self,
+        request: pipeline_service.DeleteTrainingPipelineRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> ga_operation.Operation:
         r"""Deletes a TrainingPipeline.
 
         Args:
@@ -450,8 +453,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.DeleteTrainingPipelineRequest(request)
 
@@ -470,12 +475,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -488,14 +488,15 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # Done; return the response.
         return response
 
-    def cancel_training_pipeline(self,
-            request: pipeline_service.CancelTrainingPipelineRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> None:
+    def cancel_training_pipeline(
+        self,
+        request: pipeline_service.CancelTrainingPipelineRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
         r"""Cancels a TrainingPipeline. Starts asynchronous cancellation on
         the TrainingPipeline. The server makes a best effort to cancel
         the pipeline, but success is not guaranteed. Clients can use
@@ -533,8 +534,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         if request is not None and any([name]):
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.CancelTrainingPipelineRequest(request)
 
@@ -554,26 +557,18 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         # Send the request.
         rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
+            request, retry=retry, timeout=timeout, metadata=metadata,
         )
-
-
-
 
 
 try:
     _client_info = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     _client_info = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'PipelineServiceClient',
-)
+__all__ = ("PipelineServiceClient",)

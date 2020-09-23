@@ -23,11 +23,13 @@ from .grpc import SpecialistPoolServiceGrpcTransport
 
 
 # Compile a registry of transports.
-_transport_registry = OrderedDict()  # type: Dict[str, Type[SpecialistPoolServiceTransport]]
-_transport_registry['grpc'] = SpecialistPoolServiceGrpcTransport
+_transport_registry = (
+    OrderedDict()
+)  # type: Dict[str, Type[SpecialistPoolServiceTransport]]
+_transport_registry["grpc"] = SpecialistPoolServiceGrpcTransport
 
 
 __all__ = (
-    'SpecialistPoolServiceTransport',
-    'SpecialistPoolServiceGrpcTransport',
+    "SpecialistPoolServiceTransport",
+    "SpecialistPoolServiceGrpcTransport",
 )

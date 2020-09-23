@@ -31,15 +31,14 @@ from google.longrunning import operations_pb2 as operations  # type: ignore
 class EndpointServiceTransport(metaclass=abc.ABCMeta):
     """Abstract transport class for EndpointService."""
 
-    AUTH_SCOPES = (
-        'https://www.googleapis.com/auth/cloud-platform',
-    )
+    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
     def __init__(
-            self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            ) -> None:
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -51,8 +50,8 @@ class EndpointServiceTransport(metaclass=abc.ABCMeta):
                 credentials from the environment.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ':' not in host:
-            host += ':443'
+        if ":" not in host:
+            host += ":443"
         self._host = host
 
         # If no credentials are provided, then determine the appropriate
@@ -69,48 +68,54 @@ class EndpointServiceTransport(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @property
-    def create_endpoint(self) -> typing.Callable[
-            [endpoint_service.CreateEndpointRequest],
-            operations.Operation]:
+    def create_endpoint(
+        self,
+    ) -> typing.Callable[
+        [endpoint_service.CreateEndpointRequest], operations.Operation
+    ]:
         raise NotImplementedError
 
     @property
-    def get_endpoint(self) -> typing.Callable[
-            [endpoint_service.GetEndpointRequest],
-            endpoint.Endpoint]:
+    def get_endpoint(
+        self,
+    ) -> typing.Callable[[endpoint_service.GetEndpointRequest], endpoint.Endpoint]:
         raise NotImplementedError
 
     @property
-    def list_endpoints(self) -> typing.Callable[
-            [endpoint_service.ListEndpointsRequest],
-            endpoint_service.ListEndpointsResponse]:
+    def list_endpoints(
+        self,
+    ) -> typing.Callable[
+        [endpoint_service.ListEndpointsRequest], endpoint_service.ListEndpointsResponse
+    ]:
         raise NotImplementedError
 
     @property
-    def update_endpoint(self) -> typing.Callable[
-            [endpoint_service.UpdateEndpointRequest],
-            gca_endpoint.Endpoint]:
+    def update_endpoint(
+        self,
+    ) -> typing.Callable[
+        [endpoint_service.UpdateEndpointRequest], gca_endpoint.Endpoint
+    ]:
         raise NotImplementedError
 
     @property
-    def delete_endpoint(self) -> typing.Callable[
-            [endpoint_service.DeleteEndpointRequest],
-            operations.Operation]:
+    def delete_endpoint(
+        self,
+    ) -> typing.Callable[
+        [endpoint_service.DeleteEndpointRequest], operations.Operation
+    ]:
         raise NotImplementedError
 
     @property
-    def deploy_model(self) -> typing.Callable[
-            [endpoint_service.DeployModelRequest],
-            operations.Operation]:
+    def deploy_model(
+        self,
+    ) -> typing.Callable[[endpoint_service.DeployModelRequest], operations.Operation]:
         raise NotImplementedError
 
     @property
-    def undeploy_model(self) -> typing.Callable[
-            [endpoint_service.UndeployModelRequest],
-            operations.Operation]:
+    def undeploy_model(
+        self,
+    ) -> typing.Callable[[endpoint_service.UndeployModelRequest], operations.Operation]:
         raise NotImplementedError
 
 
-__all__ = (
-    'EndpointServiceTransport',
-)
+__all__ = ("EndpointServiceTransport",)

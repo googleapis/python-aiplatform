@@ -38,11 +38,16 @@ class ListSpecialistPoolsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[[specialist_pool_service.ListSpecialistPoolsRequest],
-                specialist_pool_service.ListSpecialistPoolsResponse],
-            request: specialist_pool_service.ListSpecialistPoolsRequest,
-            response: specialist_pool_service.ListSpecialistPoolsResponse):
+
+    def __init__(
+        self,
+        method: Callable[
+            [specialist_pool_service.ListSpecialistPoolsRequest],
+            specialist_pool_service.ListSpecialistPoolsResponse,
+        ],
+        request: specialist_pool_service.ListSpecialistPoolsRequest,
+        response: specialist_pool_service.ListSpecialistPoolsResponse,
+    ):
         """Instantiate the pager.
 
         Args:
@@ -73,4 +78,4 @@ class ListSpecialistPoolsPager:
             yield from page.specialist_pools
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
