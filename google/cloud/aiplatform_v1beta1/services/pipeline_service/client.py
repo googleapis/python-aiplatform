@@ -105,19 +105,19 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     from_service_account_json = from_service_account_file
 
     @staticmethod
+    def model_path(project: str, location: str, model: str,) -> str:
+        """Return a fully-qualified model string."""
+        return "projects/{project}/locations/{location}/models/{model}".format(
+            project=project, location=location, model=model,
+        )
+
+    @staticmethod
     def training_pipeline_path(
         project: str, location: str, training_pipeline: str,
     ) -> str:
         """Return a fully-qualified training_pipeline string."""
         return "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
             project=project, location=location, training_pipeline=training_pipeline,
-        )
-
-    @staticmethod
-    def model_path(project: str, location: str, model: str,) -> str:
-        """Return a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project, location=location, model=model,
         )
 
     def __init__(

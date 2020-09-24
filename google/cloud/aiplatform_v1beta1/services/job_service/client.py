@@ -117,21 +117,14 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     from_service_account_json = from_service_account_file
 
     @staticmethod
-    def hyperparameter_tuning_job_path(
-        project: str, location: str, hyperparameter_tuning_job: str,
+    def batch_prediction_job_path(
+        project: str, location: str, batch_prediction_job: str,
     ) -> str:
-        """Return a fully-qualified hyperparameter_tuning_job string."""
-        return "projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}".format(
+        """Return a fully-qualified batch_prediction_job string."""
+        return "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
             project=project,
             location=location,
-            hyperparameter_tuning_job=hyperparameter_tuning_job,
-        )
-
-    @staticmethod
-    def custom_job_path(project: str, location: str, custom_job: str,) -> str:
-        """Return a fully-qualified custom_job string."""
-        return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
-            project=project, location=location, custom_job=custom_job,
+            batch_prediction_job=batch_prediction_job,
         )
 
     @staticmethod
@@ -144,14 +137,21 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
     @staticmethod
-    def batch_prediction_job_path(
-        project: str, location: str, batch_prediction_job: str,
+    def custom_job_path(project: str, location: str, custom_job: str,) -> str:
+        """Return a fully-qualified custom_job string."""
+        return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
+            project=project, location=location, custom_job=custom_job,
+        )
+
+    @staticmethod
+    def hyperparameter_tuning_job_path(
+        project: str, location: str, hyperparameter_tuning_job: str,
     ) -> str:
-        """Return a fully-qualified batch_prediction_job string."""
-        return "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
+        """Return a fully-qualified hyperparameter_tuning_job string."""
+        return "projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}".format(
             project=project,
             location=location,
-            batch_prediction_job=batch_prediction_job,
+            hyperparameter_tuning_job=hyperparameter_tuning_job,
         )
 
     def __init__(
