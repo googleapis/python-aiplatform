@@ -117,6 +117,17 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     from_service_account_json = from_service_account_file
 
     @staticmethod
+    def hyperparameter_tuning_job_path(
+        project: str, location: str, hyperparameter_tuning_job: str,
+    ) -> str:
+        """Return a fully-qualified hyperparameter_tuning_job string."""
+        return "projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}".format(
+            project=project,
+            location=location,
+            hyperparameter_tuning_job=hyperparameter_tuning_job,
+        )
+
+    @staticmethod
     def batch_prediction_job_path(
         project: str, location: str, batch_prediction_job: str,
     ) -> str:
@@ -141,17 +152,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         """Return a fully-qualified custom_job string."""
         return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
             project=project, location=location, custom_job=custom_job,
-        )
-
-    @staticmethod
-    def hyperparameter_tuning_job_path(
-        project: str, location: str, hyperparameter_tuning_job: str,
-    ) -> str:
-        """Return a fully-qualified hyperparameter_tuning_job string."""
-        return "projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}".format(
-            project=project,
-            location=location,
-            hyperparameter_tuning_job=hyperparameter_tuning_job,
         )
 
     def __init__(
