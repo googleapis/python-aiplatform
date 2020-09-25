@@ -1,0 +1,1 @@
+See https://github.com/googleapis/python-aiplatform/blob/master/CONTRIBUTING.rst
