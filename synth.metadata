@@ -3,15 +3,15 @@
     {
       "git": {
         "name": ".",
-        "remote": "https://989977d47c15cdc28bf193434047b8ad35f6c849@github.com/dizcology/python-aiplatform",
-        "sha": "0610b3259bf3239d27ccb7c0cb57eee905317922"
+        "remote": "https://github.com/dizcology/python-aiplatform.git",
+        "sha": "42fa6fd761ad446872cd4bb1aca3d88abb8d7085"
       }
     },
     {
       "git": {
         "name": "synthtool",
         "remote": "https://github.com/googleapis/synthtool.git",
-        "sha": "916c10e8581804df2b48a0f0457d848f3faa582e"
+        "sha": "da29da32b3a988457b49ae290112b74f14b713cc"
       }
     }
   ],
