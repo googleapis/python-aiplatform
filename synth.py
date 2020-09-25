@@ -83,4 +83,4 @@ s.move(
     templated_files, excludes=[".coveragerc"] 
 ) # the microgenerator has a good coveragerc file
 
-# s.shell.run(["nox", "-s", "blacken"], hide_output=False)
+s.shell.run(["nox", "-s", "blacken"], hide_output=False)
