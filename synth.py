@@ -69,7 +69,7 @@ s.replace(
 
 # https://github.com/googleapis/gapic-generator-python/issues/413
 s.replace(
-    'google/cloud/aiplatform_v1alpha1/services/prediction_service/client.py',
+    'google/cloud/aiplatform_v1beta1/services/prediction_service/client.py',
     'request.instances = instances',
     'request.instances.extend(instances)'
 )
