@@ -19,7 +19,9 @@ from google.cloud import aiplatform
 def deploy_model_sample(
     model_name: str, deployed_model_display_name: str, project: str, endpoint_id: str
 ):
-    client_options = dict(api_endpoint="us-central1-aiplatform.googleapis.com")
+    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    # Initialize client that will be used to create and send requests.
+    # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.EndpointServiceClient(client_options=client_options)
     location = "us-central1"
     name = client.endpoint_path(
@@ -48,19 +50,8 @@ def deploy_model_sample(
     print("  id:", deployed_model.id)
     print("  model:", deployed_model.model)
     print("  display_name:", deployed_model.display_name)
-    print("  create_time:", deployed_model.create_time)
     dedicated_resources = deployed_model.dedicated_resources
-    print("  dedicated_resources")
-    print("   min_replica_count:", dedicated_resources.min_replica_count)
-    machine_spec = dedicated_resources.machine_spec
-    print("   machine_spec")
-    print("    machine_type:", machine_spec.machine_type)
-    print("    accelerator_type:", machine_spec.accelerator_type)
-    print("    accelerator_count:", machine_spec.accelerator_count)
     automatic_resources = deployed_model.automatic_resources
-    print("  automatic_resources")
-    print("   min_replica_count:", automatic_resources.min_replica_count)
-    print("   max_replica_count:", automatic_resources.max_replica_count)
 
 
 # [END aiplatform_deploy_model_sample]

@@ -14,6 +14,7 @@
 
 from uuid import uuid4
 import pytest
+import os
 
 from samples import (
     create_training_pipeline_image_object_detection_sample,
@@ -21,20 +22,22 @@ from samples import (
     delete_training_pipeline_sample,
 )
 
-PROJECT_ID = "ucaip-sample-tests"
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 DATASET_ID = "3555732643297361920"  # permanent_salad_object_detection_dataset
 DISPLAY_NAME = f"temp_create_training_pipeline_image_obj_detection_test_{uuid4()}"
 
-TRAINING_PIPELINE_NAME = None
+
+@pytest.fixture
+def shared_state():
+    state = {}
+    yield state
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(capsys):
+def teardown(shared_state):
     yield
 
-    assert TRAINING_PIPELINE_NAME is not None
-
-    training_pipeline_id = TRAINING_PIPELINE_NAME.split("/")[-1]
+    training_pipeline_id = shared_state["training_pipeline_name"].split("/")[-1]
 
     # Stop the training pipeline
     cancel_training_pipeline_sample.cancel_training_pipeline_sample(
@@ -46,22 +49,19 @@ def teardown(capsys):
         project=PROJECT_ID, training_pipeline_id=training_pipeline_id
     )
 
-    out, _ = capsys.readouterr()
-    assert "delete_training_pipeline_response" in out
 
-
-def test_ucaip_generated_create_training_pipeline_image_object_dectection(capsys):
-    global TRAINING_PIPELINE_NAME
-    assert TRAINING_PIPELINE_NAME is None
+def test_ucaip_generated_create_training_pipeline_image_object_dectection(
+    capsys, shared_state
+):
 
     create_training_pipeline_image_object_detection_sample.create_training_pipeline_image_object_detection_sample(
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,
         dataset_id=DATASET_ID,
-        model_display_name=f"Temp Model for {DISPLAY_NAME}"
+        model_display_name=f"Temp Model for {DISPLAY_NAME}",
     )
 
     out, _ = capsys.readouterr()
 
     # Save resource name of the newly created training pipeline
-    TRAINING_PIPELINE_NAME = out.split("name:")[1].split("\n")[0]
+    shared_state["training_pipeline_name"] = out.split("name:")[1].split("\n")[0]

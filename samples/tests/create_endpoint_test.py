@@ -14,40 +14,38 @@
 # limitations under the License.
 
 import pytest
+import os
 from uuid import uuid4
 
 from samples import create_endpoint_sample, delete_endpoint_sample
 
 DISPLAY_NAME = f"temp_create_endpoint_test_{uuid4()}"
-PROJECT = "ucaip-sample-tests"
-ENDPOINT_ID = None
+PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+
+
+@pytest.fixture
+def shared_state():
+    state = {}
+    yield state
+
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(capsys):
+def teardown(shared_state):
     yield
-
-    assert ENDPOINT_ID is not None
 
     # Delete the endpoint that was just created
     delete_endpoint_sample.delete_endpoint_sample(
-        project=PROJECT,
-        endpoint_id=ENDPOINT_ID
+        project=PROJECT, endpoint_id=shared_state["endpoint_id"]
     )
 
-    out, _ = capsys.readouterr()
-    assert "delete_endpoint_response:" in out
 
-
-def test_ucaip_generated_create_endpoint_sample(capsys):
-    global ENDPOINT_ID
-    assert ENDPOINT_ID is None
+def test_ucaip_generated_create_endpoint_sample(capsys, shared_state):
 
     create_endpoint_sample.create_endpoint_sample(
-        display_name=DISPLAY_NAME,
-        project=PROJECT
+        display_name=DISPLAY_NAME, project=PROJECT
     )
 
     out, _ = capsys.readouterr()
     assert "create_endpoint_response" in out
 
-    ENDPOINT_ID = out.split("name:")[1].split("\n")[0].split("/")[-1]
+    shared_state["endpoint_id"] = out.split("name:")[1].split("\n")[0].split("/")[-1]

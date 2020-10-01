@@ -17,7 +17,9 @@ from google.cloud import aiplatform
 
 
 def create_endpoint_sample(display_name: str, project: str):
-    client_options = dict(api_endpoint="us-central1-aiplatform.googleapis.com")
+    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    # Initialize client that will be used to create and send requests.
+    # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.EndpointServiceClient(client_options=client_options)
     location = "us-central1"
     parent = "projects/{project}/locations/{location}".format(
@@ -32,8 +34,6 @@ def create_endpoint_sample(display_name: str, project: str):
     print(" display_name:", create_endpoint_response.display_name)
     print(" description:", create_endpoint_response.description)
     print(" labels:", create_endpoint_response.labels)
-    print(" create_time:", create_endpoint_response.create_time)
-    print(" update_time:", create_endpoint_response.update_time)
 
 
 # [END aiplatform_create_endpoint_sample]

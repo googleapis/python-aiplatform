@@ -15,53 +15,55 @@
 
 from uuid import uuid4
 import pytest
+import os
 
-from samples import create_training_pipeline_sample, cancel_training_pipeline_sample, delete_training_pipeline_sample
+from samples import (
+    create_training_pipeline_sample,
+    cancel_training_pipeline_sample,
+    delete_training_pipeline_sample,
+)
 
-PROJECT_ID = "ucaip-sample-tests"
-DATASET_ID = "1084241610289446912" # Permanent 50 Flowers Dataset
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+DATASET_ID = "1084241610289446912"  # Permanent 50 Flowers Dataset
 DISPLAY_NAME = f"temp_create_training_pipeline_test_{uuid4()}"
 TRAINING_DEFINITION_GCS_PATH = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml"
 
-TRAINING_PIPELINE_NAME = None
+
+@pytest.fixture
+def shared_state():
+    state = {}
+    yield state
+
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(capsys):
+def teardown(shared_state):
     yield
 
-    assert TRAINING_PIPELINE_NAME is not None
-
-    training_pipeline_id = TRAINING_PIPELINE_NAME.split("/")[-1]
+    training_pipeline_id = shared_state["training_pipeline_name"].split("/")[-1]
 
     # Stop the training pipeline
     cancel_training_pipeline_sample.cancel_training_pipeline_sample(
-        project=PROJECT_ID,
-        training_pipeline_id=training_pipeline_id
+        project=PROJECT_ID, training_pipeline_id=training_pipeline_id
     )
 
     # Delete the training pipeline
     delete_training_pipeline_sample.delete_training_pipeline_sample(
-        project=PROJECT_ID,
-        training_pipeline_id=training_pipeline_id
+        project=PROJECT_ID, training_pipeline_id=training_pipeline_id
     )
 
-    out, _ = capsys.readouterr()
-    assert "delete_training_pipeline_response" in out
 
 # Training AutoML Vision Model
-def test_ucaip_generated_create_training_pipeline_sample(capsys):
-    global TRAINING_PIPELINE_NAME
-    assert TRAINING_PIPELINE_NAME is None
+def test_ucaip_generated_create_training_pipeline_sample(capsys, shared_state):
 
     create_training_pipeline_sample.create_training_pipeline_sample(
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,
         training_task_definition=TRAINING_DEFINITION_GCS_PATH,
         dataset_id=DATASET_ID,
-        model_display_name=f"Temp Model for {DISPLAY_NAME}"
+        model_display_name=f"Temp Model for {DISPLAY_NAME}",
     )
 
     out, _ = capsys.readouterr()
-    
+
     # Save resource name of the newly created training pipeline
-    TRAINING_PIPELINE_NAME = out.split("name:")[1].split("\n")[0]
+    shared_state["training_pipeline_name"] = out.split("name:")[1].split("\n")[0]

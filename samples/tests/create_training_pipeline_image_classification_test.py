@@ -14,6 +14,7 @@
 
 from uuid import uuid4
 import pytest
+import os
 
 from samples import (
     create_training_pipeline_image_classification_sample,
@@ -21,20 +22,22 @@ from samples import (
     delete_training_pipeline_sample,
 )
 
-PROJECT_ID = "ucaip-sample-tests"
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 DATASET_ID = "1084241610289446912"  # Permanent 50 Flowers Dataset
 DISPLAY_NAME = f"temp_create_training_pipeline_image_classification_test_{uuid4()}"
 
-TRAINING_PIPELINE_NAME = None
+
+@pytest.fixture
+def shared_state():
+    state = {}
+    yield state
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(capsys):
+def teardown(shared_state):
     yield
 
-    assert TRAINING_PIPELINE_NAME is not None
-
-    training_pipeline_id = TRAINING_PIPELINE_NAME.split("/")[-1]
+    training_pipeline_id = shared_state["training_pipeline_name"].split("/")[-1]
 
     # Stop the training pipeline
     cancel_training_pipeline_sample.cancel_training_pipeline_sample(
@@ -46,13 +49,10 @@ def teardown(capsys):
         project=PROJECT_ID, training_pipeline_id=training_pipeline_id
     )
 
-    out, _ = capsys.readouterr()
-    assert "delete_training_pipeline_response" in out
 
-
-def test_ucaip_generated_create_training_pipeline_video_classification_sample(capsys):
-    global TRAINING_PIPELINE_NAME
-    assert TRAINING_PIPELINE_NAME is None
+def test_ucaip_generated_create_training_pipeline_video_classification_sample(
+    capsys, shared_state
+):
 
     create_training_pipeline_image_classification_sample.create_training_pipeline_image_classification_sample(
         project=PROJECT_ID,
@@ -64,4 +64,4 @@ def test_ucaip_generated_create_training_pipeline_video_classification_sample(ca
     out, _ = capsys.readouterr()
 
     # Save resource name of the newly created training pipeline
-    TRAINING_PIPELINE_NAME = out.split("name:")[1].split("\n")[0]
+    shared_state["training_pipeline_name"] = out.split("name:")[1].split("\n")[0]
