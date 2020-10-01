@@ -25,9 +25,11 @@ def create_data_labeling_job_video_sample(
     annotation_spec: str,
     project: str,
 ):
-    client_options = dict(
-        api_endpoint="us-central1-autopush-aiplatform.sandbox.googleapis.com"
-    )
+    client_options = {
+        "api_endpoint": "us-central1-autopush-aiplatform.sandbox.googleapis.com"
+    }
+    # Initialize client that will be used to create and send requests.
+    # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.JobServiceClient(client_options=client_options)
     location = "us-central1"
     parent = "projects/{project}/locations/{location}".format(
@@ -62,20 +64,10 @@ def create_data_labeling_job_video_sample(
     print(" inputs:", json_format.MessageToDict(response._pb.inputs))
     print(" state:", response.state)
     print(" labeling_progress:", response.labeling_progress)
-    print(" create_time:", response.create_time)
-    print(" update_time:", response.update_time)
     print(" labels:", response.labels)
     print(" specialist_pools:", response.specialist_pools)
     annotation_labels = response.annotation_labels
-    for annotation_label in annotation_labels:
-        print(" annotation_label")
-        print("  key:", annotation_label.key)
-        print("  value:", annotation_label.value)
     current_spend = response.current_spend
-    print(" current_spend")
-    print("  currency_code:", current_spend.currency_code)
-    print("  units:", current_spend.units)
-    print("  nanos:", current_spend.nanos)
 
 
 # [END aiplatform_create_data_labeling_job_video_sample]

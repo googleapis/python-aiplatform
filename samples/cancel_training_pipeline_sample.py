@@ -18,7 +18,9 @@ import time
 
 
 def cancel_training_pipeline_sample(project: str, training_pipeline_id: str):
-    client_options = dict(api_endpoint="us-central1-aiplatform.googleapis.com")
+    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    # Initialize client that will be used to create and send requests.
+    # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.PipelineServiceClient(client_options=client_options)
     location = "us-central1"
     name = client.training_pipeline_path(

@@ -15,25 +15,29 @@
 from uuid import uuid4
 
 import pytest
+import os
 
 from samples import create_dataset_video_sample
 from samples import delete_dataset_sample
 
 
-PROJECT_ID = "ucaip-sample-tests"
-DATASET_NAME = None
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 VIDEO_METADATA_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/dataset/metadata/video_1.0.0.yaml"
 )
 
 
+@pytest.fixture
+def shared_state():
+    state = {}
+    yield state
+
+
 @pytest.fixture(scope="function", autouse=True)
-def teardown():
+def teardown(shared_state):
     yield
 
-    assert DATASET_NAME is not None
-
-    dataset_id = DATASET_NAME.split("/")[-1]
+    dataset_id = shared_state["dataset_name"].split("/")[-1]
 
     # Delete the created dataset
     delete_dataset_sample.delete_dataset_sample(
@@ -41,13 +45,11 @@ def teardown():
     )
 
 
-def test_ucaip_generated_create_dataset_video_sample_vision(capsys):
+def test_ucaip_generated_create_dataset_video_sample_vision(capsys, shared_state):
     create_dataset_video_sample.create_dataset_video_sample(
-        display_name=f"temp_create_dataset_test_{uuid4()}",
-        project=PROJECT_ID
+        display_name=f"temp_create_dataset_test_{uuid4()}", project=PROJECT_ID
     )
     out, _ = capsys.readouterr()
     assert "create_dataset_response" in out
 
-    global DATASET_NAME
-    DATASET_NAME = out.split("name:")[1].split("\n")[0]
+    shared_state["dataset_name"] = out.split("name:")[1].split("\n")[0]

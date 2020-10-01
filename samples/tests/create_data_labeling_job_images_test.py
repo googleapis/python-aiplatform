@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import pytest
+import os
 from uuid import uuid4
 from time import sleep
 from google.cloud import aiplatform as aip
@@ -23,7 +24,7 @@ from samples import (
     delete_data_labeling_job_sample,
 )
 
-PROJECT_ID = "ucaip-sample-tests"
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
 DATASET_ID = "1905673553261363200"  # AUTOPUSH: Permanent no label ICN dataset
 DISPLAY_NAME = f"temp_create_data_labeling_job_test_{uuid4()}"
@@ -33,22 +34,23 @@ INSTRUCTIONS_GCS_URI = (
 ANNOTATION_SPEC = "daisy"
 
 
-DATA_LABELING_JOB_NAME = None
+@pytest.fixture
+def shared_state():
+    state = {}
+    yield state
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(capsys):
+def teardown(capsys, shared_state):
     yield
 
-    assert DATA_LABELING_JOB_NAME is not None
+    data_labeling_job_id = shared_state["data_labeling_job_name"].split("/")[-1]
 
-    data_labeling_job_id = DATA_LABELING_JOB_NAME.split("/")[-1]
-
-    client_options = dict(
-        api_endpoint="us-central1-autopush-aiplatform.sandbox.googleapis.com"
-    )
+    client_options = {
+        "api_endpoint": "us-central1-autopush-aiplatform.sandbox.googleapis.com"
+    }
     client = aip.JobServiceClient(client_options=client_options)
-    
+
     name = client.data_labeling_job_path(
         project=PROJECT_ID, location=LOCATION, data_labeling_job=data_labeling_job_id
     )
@@ -72,9 +74,7 @@ def teardown(capsys):
 
 
 # Creating a data labeling job for images
-def test_ucaip_generated_create_data_labeling_job_sample(capsys):
-    global DATA_LABELING_JOB_NAME
-    assert DATA_LABELING_JOB_NAME is None
+def test_ucaip_generated_create_data_labeling_job_sample(capsys, shared_state):
 
     dataset_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/datasets/{DATASET_ID}"
 
@@ -89,4 +89,4 @@ def test_ucaip_generated_create_data_labeling_job_sample(capsys):
     out, _ = capsys.readouterr()
 
     # Save resource name of the newly created data labeing job
-    DATA_LABELING_JOB_NAME = out.split("name:")[1].split("\n")[0]
+    shared_state["data_labeling_job_name"] = out.split("name:")[1].split("\n")[0]
