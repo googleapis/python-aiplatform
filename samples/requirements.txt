@@ -1,1 +1,3 @@
 pytest==6.0.1
+# TODO (vinnysenthil): Replace Github library src with PyPi package name (google-cloud-aiplatform)
+git+git://github.com/googleapis/python-aiplatform.git@dc5e5cdb3844622bf6dfecbda6e0857b8a228a8d
