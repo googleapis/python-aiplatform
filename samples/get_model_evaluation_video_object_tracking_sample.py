@@ -20,7 +20,9 @@ from google.protobuf import json_format
 def get_model_evaluation_video_object_tracking_sample(
     project: str, model_id: str, evaluation_id: str
 ):
-    client_options = dict(api_endpoint="us-central1-aiplatform.googleapis.com")
+    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    # Initialize client that will be used to create and send requests.
+    # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.ModelServiceClient(client_options=client_options)
     location = "us-central1"
     name = "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}".format(
@@ -31,7 +33,6 @@ def get_model_evaluation_video_object_tracking_sample(
     print(" name:", response.name)
     print(" metrics_schema_uri:", response.metrics_schema_uri)
     print(" metrics:", json_format.MessageToDict(response._pb.metrics))
-    print(" create_time:", response.create_time)
     print(" slice_dimensions:", response.slice_dimensions)
 
 

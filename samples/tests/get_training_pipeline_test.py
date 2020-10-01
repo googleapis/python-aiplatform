@@ -14,19 +14,20 @@
 # limitations under the License.
 
 import pytest
+import os
 
 from samples import get_training_pipeline_sample
 
-PROJECT_ID = "ucaip-sample-tests"
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
 # Permanent training pipeline of 50 flowers dataset
 TRAINING_PIPELINE_ID = "1419759782528548864"
 TRAINING_PIPELINE_DISPLAY_NAME = "permanent_50_flowers_pipeline"
 
+
 def test_ucaip_generated_get_training_pipeline_sample(capsys):
     get_training_pipeline_sample.get_training_pipeline_sample(
-        project=PROJECT_ID,
-        training_pipeline_id=TRAINING_PIPELINE_ID
+        project=PROJECT_ID, training_pipeline_id=TRAINING_PIPELINE_ID
     )
 
     out, _ = capsys.readouterr()

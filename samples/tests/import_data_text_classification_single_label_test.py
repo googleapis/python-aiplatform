@@ -14,6 +14,7 @@
 
 
 import pytest
+import os
 from unittest.mock import patch, mock_open, MagicMock
 
 from samples import import_data_text_classification_single_label_sample

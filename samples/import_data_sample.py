@@ -19,7 +19,9 @@ from google.cloud import aiplatform
 def import_data_sample(
     gcs_source_uri: str, import_schema_uri: str, project: str, dataset_id: str
 ):
-    client_options = dict(api_endpoint="us-central1-aiplatform.googleapis.com")
+    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    # Initialize client that will be used to create and send requests.
+    # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.DatasetServiceClient(client_options=client_options)
     location = "us-central1"
     name = client.dataset_path(project=project, location=location, dataset=dataset_id)

@@ -14,10 +14,11 @@
 # limitations under the License.
 
 import pytest
+import os
 
 from samples import get_model_evaluation_video_classification_sample
 
-PROJECT_ID = "ucaip-sample-tests"
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 MODEL_ID = "667940119734386688"  # Permanent sports model
 EVALUATION_ID = "789396572185034752"  # Permanent sports evaluation
 

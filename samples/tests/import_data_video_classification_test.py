@@ -14,6 +14,7 @@
 
 
 import pytest
+import os
 
 from uuid import uuid4
 from google.cloud import aiplatform_v1alpha1 as aip
@@ -22,7 +23,7 @@ from samples import import_data_video_classification_sample
 from samples import delete_dataset_sample
 
 
-PROJECT_ID = "ucaip-sample-tests"
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
 GCS_SOURCE = "gs://ucaip-sample-resources/video_classification_train.jsonl"
 METADATA_SCHEMA_URI = (
@@ -62,9 +63,7 @@ def test_ucaip_generated_import_data_video_classification_sample_single_label_im
     dataset_id = dataset_name.split("/")[-1]
 
     import_data_video_classification_sample.import_data_video_classification_sample(
-        project=PROJECT_ID,
-        dataset_id=dataset_id,
-        gcs_source_uri=GCS_SOURCE,
+        project=PROJECT_ID, dataset_id=dataset_id, gcs_source_uri=GCS_SOURCE,
     )
     out, _ = capsys.readouterr()
     assert "import_data_response" in out

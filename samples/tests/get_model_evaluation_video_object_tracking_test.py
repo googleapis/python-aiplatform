@@ -14,10 +14,11 @@
 # limitations under the License.
 
 import pytest
+import os
 
 from samples import get_model_evaluation_video_object_tracking_sample
 
-PROJECT_ID = "ucaip-sample-tests"
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 MODEL_ID = "20547673299877888"  # Permanent horses model
 EVALUATION_ID = "1165447141070471168"  # Permanent horses evaluation
 

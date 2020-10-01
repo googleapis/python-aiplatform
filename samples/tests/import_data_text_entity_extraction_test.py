@@ -1,4 +1,5 @@
 import pytest
+import os
 
 from uuid import uuid4
 from google.cloud import aiplatform_v1alpha1 as aip
@@ -11,7 +12,7 @@ print(
     f"uCAIP Import Source:\t{import_data_text_entity_extraction_sample.__file__}"
 )  # Package source location sanity check
 
-PROJECT_ID = "ucaip-sample-tests"
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
 GCS_SOURCE = "gs://ucaip-test-us-central1/dataset/ucaip_ten_dataset.jsonl"
 METADATA_SCHEMA_URI = (
