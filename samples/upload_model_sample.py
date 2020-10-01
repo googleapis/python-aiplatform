@@ -23,7 +23,9 @@ def upload_model_sample(
     artifact_uri: str,
     project: str,
 ):
-    client_options = dict(api_endpoint="us-central1-aiplatform.googleapis.com")
+    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    # Initialize client that will be used to create and send requests.
+    # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.ModelServiceClient(client_options=client_options)
     location = "us-central1"
     parent = "projects/{project}/locations/{location}".format(
@@ -32,6 +34,10 @@ def upload_model_sample(
     model = {
         "display_name": display_name,
         "metadata_schema_uri": metadata_schema_uri,
+        # The artifact_uri should be the path to a GCS directory containing
+        # saved model artifacts.  The bucket must be accessible for the
+        # project's AI Platform service account and in the same region as
+        # the api endpoint.
         "artifact_uri": artifact_uri,
         "container_spec": {
             "image_uri": image_uri,

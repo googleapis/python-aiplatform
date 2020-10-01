@@ -13,14 +13,15 @@
 # limitations under the License.
 
 import pytest
+import os
 import base64
 import pathlib
 
 from samples import predict_custom_trained_model_sample
 
 
-ENDPOINT_ID = "6119547468666372096" # permanent_custom_flowers_model
-PROJECT_ID = "580378083368" # ucaip-sample-tests
+ENDPOINT_ID = "6119547468666372096"  # permanent_custom_flowers_model
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
 PATH_TO_IMG = pathlib.Path(__file__).parent.absolute() / "resources/daisy.jpg"
 
@@ -30,12 +31,10 @@ def test_ucaip_generated_predict_custom_trained_model_sample(capsys):
         file_content = f.read()
     encoded_content = base64.b64encode(file_content).decode("utf-8")
 
-    instance_dict = {'image_bytes': {'b64': encoded_content}, 'key': '0'}
+    instance_dict = {"image_bytes": {"b64": encoded_content}, "key": "0"}
 
     predict_custom_trained_model_sample.predict_custom_trained_model_sample(
-        instance_dict=instance_dict,
-        project=PROJECT_ID,
-        endpoint_id=ENDPOINT_ID
+        instance_dict=instance_dict, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
     )
 
     out, _ = capsys.readouterr()

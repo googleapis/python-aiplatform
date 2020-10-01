@@ -13,20 +13,20 @@
 # limitations under the License.
 
 import pytest
+import os
 
 from samples import predict_text_classification_single_label_sample
 
-ENDPOINT_ID = "65372563341049856" # text_classification_single_label
-PROJECT_ID = "580378083368" # ucaip-sample-tests
+ENDPOINT_ID = "65372563341049856"  # text_classification_single_label
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
-content = 'The Chicago Bears is the best football team on Earth.'
+content = "The Chicago Bears is the best football team on Earth."
+
 
 def test_ucaip_generated_predict_text_classification_single_label_sample(capsys):
 
     predict_text_classification_single_label_sample.predict_text_classification_single_label_sample(
-        content=content,
-        project=PROJECT_ID,
-        endpoint_id=ENDPOINT_ID
+        content=content, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
     )
 
     out, _ = capsys.readouterr()

@@ -14,20 +14,20 @@
 # limitations under the License.
 
 import pytest
+import os
 
 from samples import list_model_evaluation_slices_sample
 
-PROJECT_ID = "ucaip-sample-tests"
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 MODEL_ID = "5162251072873431040"
 EVALUATION_ID = "5615675837586029221"
 
-KNOWN_EVALUATION_SLICE = "projects/580378083368/locations/us-central1/models/5162251072873431040/evaluations/5615675837586029221/slices/4322488217836113260"
+KNOWN_EVALUATION_SLICE = "/locations/us-central1/models/5162251072873431040/evaluations/5615675837586029221/slices/4322488217836113260"
+
 
 def test_ucaip_generated_get_model_evaluation_slices_sample(capsys):
     list_model_evaluation_slices_sample.list_model_evaluation_slices_sample(
-        project=PROJECT_ID,
-        model_id=MODEL_ID,
-        evaluation_id=EVALUATION_ID
+        project=PROJECT_ID, model_id=MODEL_ID, evaluation_id=EVALUATION_ID
     )
     out, _ = capsys.readouterr()
     assert KNOWN_EVALUATION_SLICE in out

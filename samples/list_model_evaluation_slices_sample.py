@@ -20,7 +20,9 @@ from google.protobuf import json_format
 def list_model_evaluation_slices_sample(
     project: str, model_id: str, evaluation_id: str
 ):
-    client_options = dict(api_endpoint="us-central1-aiplatform.googleapis.com")
+    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    # Initialize client that will be used to create and send requests.
+    # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.ModelServiceClient(client_options=client_options)
     location = "us-central1"
     parent = "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}".format(
@@ -34,11 +36,7 @@ def list_model_evaluation_slices_sample(
         print(
             " metrics:", json_format.MessageToDict(model_evaluation_slice._pb.metrics)
         )
-        print(" create_time:", model_evaluation_slice.create_time)
         slice = model_evaluation_slice.slice
-        print(" slice")
-        print("  dimension:", slice.dimension)
-        print("  value:", slice.value)
 
 
 # [END aiplatform_list_model_evaluation_slices_sample]

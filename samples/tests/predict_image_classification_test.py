@@ -13,24 +13,24 @@
 # limitations under the License.
 
 import pytest
+import os
 import base64
 import pathlib
 
 from samples import predict_image_classification_sample
 
 
-ENDPOINT_ID = "71213169107795968" # permanent_50_flowers_endpoint
-PROJECT_ID = "580378083368" # ucaip-sample-tests
+ENDPOINT_ID = "71213169107795968"  # permanent_50_flowers_endpoint
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
 PATH_TO_IMG = pathlib.Path(__file__).parent.absolute() / "resources/daisy.jpg"
+
 
 def test_ucaip_generated_predict_image_classification_sample(capsys):
 
     predict_image_classification_sample.predict_image_classification_sample(
-        filename=PATH_TO_IMG,
-        project=PROJECT_ID,
-        endpoint_id=ENDPOINT_ID
+        filename=PATH_TO_IMG, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
     )
 
     out, _ = capsys.readouterr()
-    assert "string_value: \"daisy\"" in out
+    assert 'string_value: "daisy"' in out

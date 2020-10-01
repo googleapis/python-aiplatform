@@ -19,9 +19,11 @@ from google.protobuf.struct_pb2 import Value
 
 
 def predict_text_entity_extraction_sample(content: str, project: str, endpoint_id: str):
-    client_options = dict(
-        api_endpoint="us-central1-prediction-aiplatform.googleapis.com"
-    )
+    client_options = {
+        "api_endpoint": "us-central1-prediction-aiplatform.googleapis.com"
+    }
+    # Initialize client that will be used to create and send requests.
+    # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.PredictionServiceClient(client_options=client_options)
     location = "us-central1"
     name = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(

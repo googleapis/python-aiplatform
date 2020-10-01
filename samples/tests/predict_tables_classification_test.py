@@ -13,21 +13,26 @@
 # limitations under the License.
 
 import pytest
+import os
 
 from samples import predict_tables_classification_sample
 
-ENDPOINT_ID = "4966625964059525120" # iris 1000
-PROJECT_ID = "580378083368" # ucaip-sample-tests
+ENDPOINT_ID = "4966625964059525120"  # iris 1000
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
-INSTANCE = {"petal_length": '1.4', "petal_width": '1.3', "sepal_length": '5.1', "sepal_width": '2.8'}
+INSTANCE = {
+    "petal_length": "1.4",
+    "petal_width": "1.3",
+    "sepal_length": "5.1",
+    "sepal_width": "2.8",
+}
+
 
 def test_ucaip_generated_predict_tables_classification_sample(capsys):
 
     predict_tables_classification_sample.predict_tables_classification_sample(
-        instance_dict=INSTANCE,
-        project=PROJECT_ID,
-        endpoint_id=ENDPOINT_ID
+        instance_dict=INSTANCE, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
     )
 
     out, _ = capsys.readouterr()
-    assert "string_value: \"setosa\"" in out
+    assert 'string_value: "setosa"' in out
