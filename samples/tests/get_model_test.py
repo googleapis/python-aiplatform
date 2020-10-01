@@ -14,17 +14,16 @@
 # limitations under the License.
 
 import pytest
+import os
 
 from samples import get_model_sample
 
-PROJECT_ID = "ucaip-sample-tests"
-MODEL_ID = "1478306577684365312" # permanent_50_flowers_model
-KNOWN_MODEL = f"projects/580378083368/locations/us-central1/models/{MODEL_ID}"
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+MODEL_ID = "1478306577684365312"  # permanent_50_flowers_model
+KNOWN_MODEL = f"/locations/us-central1/models/{MODEL_ID}"
+
 
 def test_ucaip_generated_get_model_sample(capsys):
-    get_model_sample.get_model_sample(
-        project=PROJECT_ID,
-        model_id=MODEL_ID
-    )
+    get_model_sample.get_model_sample(project=PROJECT_ID, model_id=MODEL_ID)
     out, _ = capsys.readouterr()
     assert KNOWN_MODEL in out

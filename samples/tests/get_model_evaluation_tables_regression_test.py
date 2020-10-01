@@ -14,18 +14,18 @@
 # limitations under the License.
 
 import pytest
+import os
 
 from samples import get_model_evaluation_sample
 
-PROJECT_ID = "ucaip-sample-tests"
-MODEL_ID = "3125638878883479552" # bq all
-EVALUATION_ID = "2025948722346981108" # bq all evaluation
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+MODEL_ID = "3125638878883479552"  # bq all
+EVALUATION_ID = "2025948722346981108"  # bq all evaluation
+
 
 def test_ucaip_generated_get_model_evaluation_sample(capsys):
     get_model_evaluation_sample.get_model_evaluation_sample(
-        project=PROJECT_ID,
-        model_id=MODEL_ID,
-        evaluation_id=EVALUATION_ID
+        project=PROJECT_ID, model_id=MODEL_ID, evaluation_id=EVALUATION_ID
     )
     out, _ = capsys.readouterr()
     assert "metrics_schema_uri" in out

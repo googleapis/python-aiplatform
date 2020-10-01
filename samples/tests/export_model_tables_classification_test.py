@@ -14,13 +14,15 @@
 # limitations under the License.
 
 import pytest
+import os
 
 from samples import export_model_tables_classification_sample
 from google.cloud import storage
 
-PROJECT_ID = "ucaip-sample-tests"
-MODEL_ID = "5359002081594179584" # iris 1000
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+MODEL_ID = "5359002081594179584"  # iris 1000
 GCS_URI = "gs://ucaip-samples-test-output/tmp/export_model_test"
+
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown():
@@ -28,15 +30,14 @@ def teardown():
 
     storage_client = storage.Client()
     bucket = storage_client.get_bucket("ucaip-samples-test-output")
-    blobs = bucket.list_blobs(prefix='tmp/export_model_test')
+    blobs = bucket.list_blobs(prefix="tmp/export_model_test")
     for blob in blobs:
         blob.delete()
 
+
 def test_ucaip_generated_export_model_tables_classification_sample(capsys):
     export_model_tables_classification_sample.export_model_tables_classification_sample(
-        project = PROJECT_ID,
-        model_id = MODEL_ID,
-        gcs_destination_output_uri_prefix = GCS_URI
+        project=PROJECT_ID, model_id=MODEL_ID, gcs_destination_output_uri_prefix=GCS_URI
     )
     out, _ = capsys.readouterr()
     assert "export_model_response" in out

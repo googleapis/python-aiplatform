@@ -14,20 +14,22 @@
 # limitations under the License.
 
 import pytest
+import os
 
 from samples import get_model_evaluation_slice_sample
 
-PROJECT_ID = "ucaip-sample-tests"
-MODEL_ID = "5162251072873431040" # permanent_safe_driver_model
-EVALUATION_ID = "5615675837586029221" # permanent_safe_driver_model Evaluation
-SLICE_ID = "4322488217836113260" # permanent_safe_driver_model Eval Slice
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+MODEL_ID = "5162251072873431040"  # permanent_safe_driver_model
+EVALUATION_ID = "5615675837586029221"  # permanent_safe_driver_model Evaluation
+SLICE_ID = "4322488217836113260"  # permanent_safe_driver_model Eval Slice
+
 
 def test_ucaip_generated_get_model_evaluation_slice_sample(capsys):
     get_model_evaluation_slice_sample.get_model_evaluation_slice_sample(
         project=PROJECT_ID,
         model_id=MODEL_ID,
         evaluation_id=EVALUATION_ID,
-        slice_id=SLICE_ID
+        slice_id=SLICE_ID,
     )
     out, _ = capsys.readouterr()
     assert "metrics_schema_uri" in out
