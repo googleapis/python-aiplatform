@@ -15,7 +15,7 @@
 import pytest
 import os
 
-from samples import predict_tables_classification_sample
+from samples import predict_tabular_classification_sample
 
 ENDPOINT_ID = "6207156555167563776"  # text_entity_extraction endpoint
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -25,7 +25,7 @@ INSTANCE = {"content": "I really love working at Google!"}
 
 def test_ucaip_generated_predict_text_entity_extraction_sample(capsys):
 
-    predict_tables_classification_sample.predict_tables_classification_sample(
+    predict_tabular_classification_sample.predict_tabular_classification_sample(
         instance_dict=INSTANCE, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
     )
 

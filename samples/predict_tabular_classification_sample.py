@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_predict_tables_regression_sample]
+# [START aiplatform_predict_tabular_classification_sample]
 from google.cloud import aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 from typing import Dict
 
 
-def predict_tables_regression_sample(
+def predict_tabular_classification_sample(
     instance_dict: Dict, project: str, endpoint_id: str
 ):
     client_options = {
@@ -27,7 +27,7 @@ def predict_tables_regression_sample(
     }
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.PredictionServiceClient(client_options=client_options)
+    client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
     location = "us-central1"
     name = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
         project=project, location=location, endpoint=endpoint_id
@@ -41,11 +41,11 @@ def predict_tables_regression_sample(
     response = client.predict(endpoint=name, instances=instances, parameters=parameters)
     print("response")
     print(" deployed_model_id:", response.deployed_model_id)
-    # See gs://google-cloud-aiplatform/schema/predict/prediction/tables_regression.yaml for the format of the predictions.
+    # See gs://google-cloud-aiplatform/schema/predict/prediction/tables_classification.yaml for the format of the predictions.
     predictions = response.predictions
     print("predictions")
     for prediction in predictions:
         print(" prediction:", dict(prediction))
 
 
-# [END aiplatform_predict_tables_regression_sample]
+# [END aiplatform_predict_tabular_classification_sample]

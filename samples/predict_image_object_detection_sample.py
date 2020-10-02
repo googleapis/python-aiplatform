@@ -27,7 +27,7 @@ def predict_image_object_detection_sample(
     }
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.PredictionServiceClient(client_options=client_options)
+    client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
     location = "us-central1"
     name = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
         project=project, location=location, endpoint=endpoint_id
