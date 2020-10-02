@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_create_training_pipeline_tables_regression_sample]
+# [START aiplatform_create_training_pipeline_tabular_regression_sample]
 from google.cloud import aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
 
-def create_training_pipeline_tables_regression_sample(
+def create_training_pipeline_tabular_regression_sample(
     display_name: str,
     dataset_id: str,
     model_display_name: str,
@@ -28,7 +28,7 @@ def create_training_pipeline_tables_regression_sample(
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.PipelineServiceClient(client_options=client_options)
+    client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
     location = "us-central1"
     parent = "projects/{project}/locations/{location}".format(
         project=project, location=location
@@ -117,4 +117,4 @@ def create_training_pipeline_tables_regression_sample(
     error = response.error
 
 
-# [END aiplatform_create_training_pipeline_tables_regression_sample]
+# [END aiplatform_create_training_pipeline_tabular_regression_sample]
