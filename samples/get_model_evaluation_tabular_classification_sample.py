@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_get_model_evaluation_tables_classification_sample]
+# [START aiplatform_get_model_evaluation_tabular_classification_sample]
 from google.cloud import aiplatform
 from google.protobuf import json_format
 
 
-def get_model_evaluation_tables_classification_sample(
+def get_model_evaluation_tabular_classification_sample(
     project: str, model_id: str, evaluation_id: str
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.ModelServiceClient(client_options=client_options)
+    client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
     location = "us-central1"
     name = "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}".format(
         project=project, location=location, model=model_id, evaluation=evaluation_id
@@ -37,4 +37,4 @@ def get_model_evaluation_tables_classification_sample(
     model_explanation = response.model_explanation
 
 
-# [END aiplatform_get_model_evaluation_tables_classification_sample]
+# [END aiplatform_get_model_evaluation_tabular_classification_sample]

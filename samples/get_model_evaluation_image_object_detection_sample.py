@@ -23,7 +23,7 @@ def get_model_evaluation_image_object_detection_sample(
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.ModelServiceClient(client_options=client_options)
+    client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
     location = "us-central1"
     name = "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}".format(
         project=project, location=location, model=model_id, evaluation=evaluation_id

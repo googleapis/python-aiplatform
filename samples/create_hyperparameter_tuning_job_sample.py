@@ -22,7 +22,7 @@ def create_hyperparameter_tuning_job_sample(
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.JobServiceClient(client_options=client_options)
+    client = aiplatform.gapic.JobServiceClient(client_options=client_options)
     location = "us-central1"
     parent = "projects/{project}/locations/{location}".format(
         project=project, location=location
@@ -36,7 +36,7 @@ def create_hyperparameter_tuning_job_sample(
             "metrics": [
                 {
                     "metric_id": "accuracy",
-                    "goal": aiplatform.StudySpec.MetricSpec.GoalType.MAXIMIZE,
+                    "goal": aiplatform.gapic.StudySpec.MetricSpec.GoalType.MAXIMIZE,
                 }
             ],
             "parameters": [
@@ -52,7 +52,7 @@ def create_hyperparameter_tuning_job_sample(
                 {
                     "machine_spec": {
                         "machine_type": "n1-standard-4",
-                        "accelerator_type": aiplatform.AcceleratorType.NVIDIA_TESLA_K80,
+                        "accelerator_type": aiplatform.gapic.AcceleratorType.NVIDIA_TESLA_K80,
                         "accelerator_count": 1,
                     },
                     "replica_count": 1,

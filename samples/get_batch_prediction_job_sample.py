@@ -21,7 +21,7 @@ def get_batch_prediction_job_sample(project: str, batch_prediction_job_id: str):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.JobServiceClient(client_options=client_options)
+    client = aiplatform.gapic.JobServiceClient(client_options=client_options)
     location = "us-central1"
     name = client.batch_prediction_job_path(
         project=project, location=location, batch_prediction_job=batch_prediction_job_id

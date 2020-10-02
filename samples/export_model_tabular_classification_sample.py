@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_export_model_tables_classification_sample]
+# [START aiplatform_export_model_tabular_classification_sample]
 from google.cloud import aiplatform
 
 
-def export_model_tables_classification_sample(
+def export_model_tabular_classification_sample(
     gcs_destination_output_uri_prefix: str, project: str, model_id: str
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.ModelServiceClient(client_options=client_options)
+    client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
     location = "us-central1"
     name = client.model_path(project=project, location=location, model=model_id)
     gcs_destination = {"output_uri_prefix": gcs_destination_output_uri_prefix}
     output_config = {
-        "gcs_destination": gcs_destination,
+        "artifact_destination": gcs_destination,
         "export_format_id": "tf-saved-model",
     }
     response = client.export_model(name=name, output_config=output_config)
@@ -36,4 +36,4 @@ def export_model_tables_classification_sample(
     print("export_model_response:", export_model_response)
 
 
-# [END aiplatform_export_model_tables_classification_sample]
+# [END aiplatform_export_model_tabular_classification_sample]

@@ -21,7 +21,7 @@ def get_model_sample(project: str, model_id: str):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.ModelServiceClient(client_options=client_options)
+    client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
     location = "us-central1"
     name = client.model_path(project=project, location=location, model=model_id)
     response = client.get_model(name=name)

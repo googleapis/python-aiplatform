@@ -22,11 +22,11 @@ def export_model_sample(
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.ModelServiceClient(client_options=client_options)
+    client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
     location = "us-central1"
     name = client.model_path(project=project, location=location, model=model_id)
     output_config = {
-        "gcs_destination": {"output_uri_prefix": gcs_destination_output_uri_prefix}
+        "artifact_destination": {"output_uri_prefix": gcs_destination_output_uri_prefix}
     }
     response = client.export_model(name=name, output_config=output_config)
     print("Long running operation:", response.operation.name)
