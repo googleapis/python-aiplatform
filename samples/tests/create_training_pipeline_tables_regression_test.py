@@ -18,7 +18,7 @@ import pytest
 import os
 
 from samples import (
-    create_training_pipeline_tables_regression_sample,
+    create_training_pipeline_tabular_regression_sample,
     cancel_training_pipeline_sample,
     delete_training_pipeline_sample,
 )
@@ -55,7 +55,7 @@ def teardown(shared_state):
 
 def test_ucaip_generated_create_training_pipeline_sample(capsys, shared_state):
 
-    create_training_pipeline_tables_regression_sample.create_training_pipeline_tables_regression_sample(
+    create_training_pipeline_tabular_regression_sample.create_training_pipeline_tabular_regression_sample(
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,
         dataset_id=DATASET_ID,
