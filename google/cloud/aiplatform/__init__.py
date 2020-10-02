@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-
-from google.cloud import aiplatform_v1beta1 as gapic_v1beta1
+from google.cloud.aiplatform import gapic
 
 __all__ = ()
