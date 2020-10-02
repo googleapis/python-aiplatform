@@ -17,7 +17,7 @@ from uuid import uuid4
 import pytest
 import os
 
-from samples import create_dataset_tables_gcs_sample
+from samples import create_dataset_tabular_gcs_sample
 from samples import delete_dataset_sample
 
 
@@ -43,8 +43,8 @@ def teardown(shared_state):
     )
 
 
-def test_ucaip_generated_create_dataset_tables_gcs(capsys, shared_state):
-    create_dataset_tables_gcs_sample.create_dataset_tables_gcs_sample(
+def test_ucaip_generated_create_dataset_tabular_gcs(capsys, shared_state):
+    create_dataset_tabular_gcs_sample.create_dataset_tabular_gcs_sample(
         display_name=f"temp_create_dataset_test_{uuid4()}",
         gcs_uri=GCS_URI,
         project=PROJECT_ID,

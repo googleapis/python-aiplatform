@@ -30,7 +30,7 @@ def create_data_labeling_job_images_sample(
     }
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.JobServiceClient(client_options=client_options)
+    client = aiplatform.gapic.JobServiceClient(client_options=client_options)
     location = "us-central1"
     parent = "projects/{project}/locations/{location}".format(
         project=project, location=location
