@@ -12,17 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_create_dataset_tables_gcs_sample]
+# [START aiplatform_create_dataset_tabular_gcs_sample]
 from google.cloud import aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
 
-def create_dataset_tables_gcs_sample(display_name: str, gcs_uri: str, project: str):
+def create_dataset_tabular_gcs_sample(display_name: str, gcs_uri: str, project: str):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.DatasetServiceClient(client_options=client_options)
+    client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
     location = "us-central1"
     parent = "projects/{project}/locations/{location}".format(
         project=project, location=location
@@ -45,4 +45,4 @@ def create_dataset_tables_gcs_sample(display_name: str, gcs_uri: str, project: s
     print(" metadata:", json_format.MessageToDict(create_dataset_response._pb.metadata))
 
 
-# [END aiplatform_create_dataset_tables_gcs_sample]
+# [END aiplatform_create_dataset_tabular_gcs_sample]
