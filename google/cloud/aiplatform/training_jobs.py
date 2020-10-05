@@ -15,18 +15,14 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform import gapic
-from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import schema
+
+class TrainingJob:
+	pass
 
 
-"""
-Usage:
-from google.cloud import aiplatform
-
-aiplatform.init(project='my_project')
-"""
-init = initializer.singleton.init
+class CustomTrainingJob(TrainingJob):
+	pass
 
 
-__all__ = (gapic, schema)
+class AutoMLTablesTrainingJob(TrainingJob):
+	pass

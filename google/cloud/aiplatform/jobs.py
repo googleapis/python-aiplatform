@@ -15,18 +15,10 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform import gapic
-from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import schema
+
+class Job:
+	pass
 
 
-"""
-Usage:
-from google.cloud import aiplatform
-
-aiplatform.init(project='my_project')
-"""
-init = initializer.singleton.init
-
-
-__all__ = (gapic, schema)
+class BatchPredictionJob(Job):
+	pass
