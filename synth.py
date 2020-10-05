@@ -47,6 +47,7 @@ s.move(
 		"setup.py",
 		"README.rst",
 		"docs/index.rst",
+        "google/cloud/aiplatform/__init__.py",
 	]
 )
 
