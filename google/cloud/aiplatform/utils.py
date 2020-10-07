@@ -33,7 +33,15 @@ RESOURCE_NAME_PATTERN = re.compile(
     r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>\w+)\/(?P<id>\d+)$"
 )
 
-Fields = namedtuple("Fields", ["project", "location", "resource", "id",])
+Fields = namedtuple(
+    "Fields",
+    [
+        "project",
+        "location",
+        "resource",
+        "id",
+    ],
+)
 
 
 def _match_to_fields(match: re.Match) -> Optional[Fields]:
@@ -49,24 +57,26 @@ def _match_to_fields(match: re.Match) -> Optional[Fields]:
     )
 
 
-def validate_name(resource_name: str, resource_noun: Optional[str] = None) -> Optional[Fields]:
+def validate_name(
+    resource_name: str, resource_noun: Optional[str] = None
+) -> Optional[Fields]:
     """Validates and returns extracted fields from a fully-qualified resource name.
     Returns None if name is invalid.
 
-        Args:
-            resource_name (str):
-                Required. A fully-qualified AI Platform (Unified) resource name
+    Args:
+        resource_name (str):
+            Required. A fully-qualified AI Platform (Unified) resource name
 
-            resource_noun (str):
-                A plural resource noun to validate the resource name against.
-                For example, you would pass "datasets" to validate 
-                "projects/123/locations/us-central1/datasets/456".
+        resource_noun (str):
+            A plural resource noun to validate the resource name against.
+            For example, you would pass "datasets" to validate
+            "projects/123/locations/us-central1/datasets/456".
 
-        Returns:
-            fields (Fields):
-                A named tuple containing four extracted fields from a resource name:
-                project, location, resource, and id. These fields can be used for 
-                subsequent method calls in the SDK.
+    Returns:
+        fields (Fields):
+            A named tuple containing four extracted fields from a resource name:
+            project, location, resource, and id. These fields can be used for
+            subsequent method calls in the SDK.
     """
     fields = _match_to_fields(RESOURCE_NAME_PATTERN.match(resource_name))
 
@@ -86,7 +96,7 @@ def get_client_options(
     Args:
         location_override (str):
             Set this parameter to get client options for a location different
-            from location set by initializer. Must be a GCP region 
+            from location set by initializer. Must be a GCP region
             supported by AI Platform (Unified).
 
         prediction_client (bool):
