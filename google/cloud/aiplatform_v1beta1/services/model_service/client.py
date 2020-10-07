@@ -164,7 +164,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (:class:`~.model_service.UploadModelRequest`):
                 The request object. Request message for
-                [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel].
+                ``ModelService.UploadModel``.
             parent (:class:`str`):
                 Required. The resource name of the Location into which
                 to upload the Model. Format:
@@ -189,9 +189,9 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.model_service.UploadModelResponse``: Response
+                :class:`~.model_service.UploadModelResponse`: Response
                 message of
-                [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
+                ``ModelService.UploadModel``
                 operation.
 
         """
@@ -250,7 +250,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (:class:`~.model_service.GetModelRequest`):
                 The request object. Request message for
-                [ModelService.GetModel][google.cloud.aiplatform.v1beta1.ModelService.GetModel].
+                ``ModelService.GetModel``.
             name (:class:`str`):
                 Required. The name of the Model resource. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
@@ -317,7 +317,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (:class:`~.model_service.ListModelsRequest`):
                 The request object. Request message for
-                [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels].
+                ``ModelService.ListModels``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 Models from. Format:
@@ -335,7 +335,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             ~.pagers.ListModelsPager:
                 Response message for
-                [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels]
+                ``ModelService.ListModels``
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -397,7 +397,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (:class:`~.model_service.UpdateModelRequest`):
                 The request object. Request message for
-                [ModelService.UpdateModel][google.cloud.aiplatform.v1beta1.ModelService.UpdateModel].
+                ``ModelService.UpdateModel``.
             model (:class:`~.gca_model.Model`):
                 Required. The Model which replaces
                 the resource on the server.
@@ -408,9 +408,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 Required. The update mask applies to the resource. For
                 the ``FieldMask`` definition, see
 
-                [FieldMask](https:
-                //developers.google.com/protocol-buffers //
-                /docs/reference/google.protobuf#fieldmask).
+                [FieldMask](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask).
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -474,7 +472,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (:class:`~.model_service.DeleteModelRequest`):
                 The request object. Request message for
-                [ModelService.DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel].
+                ``ModelService.DeleteModel``.
             name (:class:`str`):
                 Required. The name of the Model resource to be deleted.
                 Format:
@@ -494,7 +492,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.empty.Empty``: A generic empty message that
+                :class:`~.empty.Empty`: A generic empty message that
                 you can re-use to avoid defining duplicated empty
                 messages in your APIs. A typical example is to use it as
                 the request or the response type of an API method. For
@@ -567,7 +565,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (:class:`~.model_service.ExportModelRequest`):
                 The request object. Request message for
-                [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel].
+                ``ModelService.ExportModel``.
             name (:class:`str`):
                 Required. The resource name of the Model to export.
                 Format:
@@ -593,9 +591,9 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.model_service.ExportModelResponse``: Response
+                :class:`~.model_service.ExportModelResponse`: Response
                 message of
-                [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel]
+                ``ModelService.ExportModel``
                 operation.
 
         """
@@ -654,7 +652,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (:class:`~.model_service.GetModelEvaluationRequest`):
                 The request object. Request message for
-                [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluation].
+                ``ModelService.GetModelEvaluation``.
             name (:class:`str`):
                 Required. The name of the ModelEvaluation resource.
                 Format:
@@ -729,7 +727,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (:class:`~.model_service.ListModelEvaluationsRequest`):
                 The request object. Request message for
-                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
+                ``ModelService.ListModelEvaluations``.
             parent (:class:`str`):
                 Required. The resource name of the Model to list the
                 ModelEvaluations from. Format:
@@ -747,7 +745,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             ~.pagers.ListModelEvaluationsPager:
                 Response message for
-                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
+                ``ModelService.ListModelEvaluations``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -810,7 +808,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (:class:`~.model_service.GetModelEvaluationSliceRequest`):
                 The request object. Request message for
-                [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluationSlice].
+                ``ModelService.GetModelEvaluationSlice``.
             name (:class:`str`):
                 Required. The name of the ModelEvaluationSlice resource.
                 Format:
@@ -885,7 +883,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (:class:`~.model_service.ListModelEvaluationSlicesRequest`):
                 The request object. Request message for
-                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
+                ``ModelService.ListModelEvaluationSlices``.
             parent (:class:`str`):
                 Required. The resource name of the ModelEvaluation to
                 list the ModelEvaluationSlices from. Format:
@@ -904,7 +902,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             ~.pagers.ListModelEvaluationSlicesPager:
                 Response message for
-                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
+                ``ModelService.ListModelEvaluationSlices``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

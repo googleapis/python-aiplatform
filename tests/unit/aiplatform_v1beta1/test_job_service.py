@@ -2074,16 +2074,16 @@ def test_custom_job_path():
     assert expected == actual
 
 
-def test_data_labeling_job_path():
+def test_batch_prediction_job_path():
     project = "squid"
     location = "clam"
-    data_labeling_job = "whelk"
+    batch_prediction_job = "whelk"
 
-    expected = "projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}".format(
-        project=project, location=location, data_labeling_job=data_labeling_job,
+    expected = "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
+        project=project, location=location, batch_prediction_job=batch_prediction_job,
     )
-    actual = JobServiceClient.data_labeling_job_path(
-        project, location, data_labeling_job
+    actual = JobServiceClient.batch_prediction_job_path(
+        project, location, batch_prediction_job
     )
     assert expected == actual
 
@@ -2104,15 +2104,15 @@ def test_hyperparameter_tuning_job_path():
     assert expected == actual
 
 
-def test_batch_prediction_job_path():
+def test_data_labeling_job_path():
     project = "squid"
     location = "clam"
-    batch_prediction_job = "whelk"
+    data_labeling_job = "whelk"
 
-    expected = "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
-        project=project, location=location, batch_prediction_job=batch_prediction_job,
+    expected = "projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}".format(
+        project=project, location=location, data_labeling_job=data_labeling_job,
     )
-    actual = JobServiceClient.batch_prediction_job_path(
-        project, location, batch_prediction_job
+    actual = JobServiceClient.data_labeling_job_path(
+        project, location, data_labeling_job
     )
     assert expected == actual
