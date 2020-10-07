@@ -18,6 +18,7 @@
 
 import re
 
+from typing import Dict
 from typing import Optional
 from collections import namedtuple
 
@@ -25,6 +26,9 @@ from google.cloud.aiplatform.initializer import singleton as state
 
 SUPPORTED_REGIONS = ("us-central1", "europe-west4", "asia-east1")
 PROD_API_ENDPOINT = "aiplatform.googleapis.com"
+
+# TODO(b/170334193): Add support for resource names with non-integer IDs
+# TODO(b/170334098): Add support for resource names more than one level deep
 RESOURCE_NAME_PATTERN = re.compile(
     r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>\w+)\/(?P<id>\d+)$"
 )
@@ -32,7 +36,7 @@ RESOURCE_NAME_PATTERN = re.compile(
 Fields = namedtuple("Fields", ["project", "location", "resource", "id",])
 
 
-def _match_to_fields(match: re.Match) -> Fields:
+def _match_to_fields(match: re.Match) -> Optional[Fields]:
     """Normalize RegEx groups from resource name pattern Match to class Fields"""
     if not match:
         return None
@@ -45,7 +49,7 @@ def _match_to_fields(match: re.Match) -> Fields:
     )
 
 
-def validate_name(resource_name: str, resource_noun: Optional[str] = None) -> Fields:
+def validate_name(resource_name: str, resource_noun: Optional[str] = None) -> Optional[Fields]:
     """Validates and returns extracted fields from a fully-qualified resource name.
     Returns None if name is invalid.
 
@@ -76,7 +80,7 @@ def validate_name(resource_name: str, resource_noun: Optional[str] = None) -> Fi
 
 def get_client_options(
     location_override: Optional[str] = None, prediction_client: Optional[bool] = False
-) -> dict:
+) -> Dict[str, str]:
     """Creates client_options for GAPIC service client using location and client type.
 
     Args:
@@ -98,7 +102,7 @@ def get_client_options(
     """
     if not (state.location or location_override):
         raise ValueError(
-            "No location found. Provide or initialize SDK with a valid location."
+            "No location found. Provide or initialize SDK with a location."
         )
 
     region = state.location if not location_override else location_override
