@@ -17,8 +17,8 @@
 
 
 class Model:
-	pass
+    pass
 
 
 class Endpoint:
-	pass
+    pass
