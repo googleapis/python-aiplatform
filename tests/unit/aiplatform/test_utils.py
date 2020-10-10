@@ -26,7 +26,6 @@ from string import ascii_letters
 from google.cloud import aiplatform as aip
 from google.cloud.aiplatform.utils import Fields
 from google.cloud.aiplatform.utils import validate_name
-from google.cloud.aiplatform.utils import get_client_options
 
 
 @pytest.mark.parametrize(
@@ -103,33 +102,9 @@ def test_validate_name_with_resource_noun(
     )
 
 
-@pytest.mark.parametrize(
-    "init_location, location_override, prediction, expected_endpoint",
-    [
-        ("us-central1", None, False, "us-central1-aiplatform.googleapis.com"),
-        (
-            "us-central1",
-            "europe-west4",
-            False,
-            "europe-west4-aiplatform.googleapis.com",
-        ),
-        ("asia-east1", None, False, "asia-east1-aiplatform.googleapis.com"),
-        ("asia-east1", None, True, "asia-east1-prediction-aiplatform.googleapis.com"),
-    ],
-)
-def test_get_client_options(
-    init_location: str, location_override: str, prediction: bool, expected_endpoint: str
-):
-    reload(aip)  # Reload aiplatform module to reset initializer settings
-    aip.init(location=init_location)
-
-    assert get_client_options(
-        location_override=location_override, prediction_client=prediction
-    ) == {"api_endpoint": expected_endpoint}
-
-
-def test_get_client_options_with_invalid_region():
+def test_invalid_region_raises_with_invalid_region():
     with pytest.raises(ValueError):
-        reload(aip)
-        aip.init(location="us-west4")
-        get_client_options()  # Throws ValueError due to unsupported region
+        aip.utils.validate_region(region="us-west4")
+
+def test_invalid_region_does_not_raise_with_valid_region():
+    aip.utils.validate_region(region="us-central1")
