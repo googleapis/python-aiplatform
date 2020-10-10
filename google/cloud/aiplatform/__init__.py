@@ -26,7 +26,7 @@ from google.cloud import aiplatform
 aiplatform.init(project='my_project')
 """
 
-init = initializer.singleton.init
+init = initializer.global_config.init
 
 
 __all__ = ()
