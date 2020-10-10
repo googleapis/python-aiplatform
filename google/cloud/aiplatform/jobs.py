@@ -17,8 +17,8 @@
 
 
 class Job:
-	pass
+    pass
 
 
 class BatchPredictionJob(Job):
-	pass
+    pass
