@@ -17,27 +17,13 @@
 import logging
 from typing import Dict, Optional
 
+from google.api_core import client_options
 import google.auth
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import utils
 
 
-def validate_region(region: str):
-    """Validates region against supported regions.
-
-    Args:
-        region: region to validate
-    Raises:
-        ValueError if region is not in supported regions.
-    """
-    region = region.lower()
-    if region not in SUPPORTED_REGIONS:
-        raise ValueError(
-            f"Unsupported region for AI Platform, select from {SUPPORTED_REGIONS}"
-        )
-
-
-class Init:
+class _Config:
     """Stores common parameters and options for API calls."""
 
     def __init__(self):
@@ -59,14 +45,15 @@ class Init:
         """Updates common initalization parameters with provided options.
 
         Args:
-            project: The default project to use when making API calls.
-            location: The default location to use when making API calls. If not set
-                defaults to us-central-1
-            experiment: The experiment to assign
-            staging_bucket: The default staging bucket to use to stage artifacts when
-                making API calls.
-            credentials: The default custom credentials to use when making API calls. If
-                not provided crendentials will be ascertained from the environment.
+            project (str): The default project to use when making API calls.
+            location (str): The default location to use when making API calls. If not
+                set defaults to us-central-1
+            experiment (str): The experiment to assign
+            staging_bucket (str): The default staging bucket to use to stage artifacts
+                when making API calls. In the form gs://...
+            credentials (google.auth.crendentials.Crendentials): The default custom
+                credentials to use when making API calls. If not provided crendentials
+                will be ascertained from the environment.
         """
         if project:
             self._project = project
@@ -113,8 +100,8 @@ class Init:
     def get_client_options(
         self,
         location_override: Optional[str] = None,
-        prediction_client: Optional[bool] = False,
-    ) -> Dict[str, str]:
+        prediction_client: bool = False,
+    ) -> client_options.ClientOptions:
         """Creates GAPIC client_options using location and type.
 
         Args:
@@ -124,7 +111,7 @@ class Init:
                 Platform (Unified).
 
             prediction_client (bool):
-                True if service client is a PredictionServiceClient, otherwise defaults 
+                True if service client is a PredictionServiceClient, otherwise defaults
                 to False. This is used to provide a prediction-specific API endpoint.
 
         Returns:
@@ -138,18 +125,16 @@ class Init:
                 "No location found. Provide or initialize SDK with a location."
             )
 
-        region = self.location if not location_override else location_override
+        region = location_override or self.location
         region = region.lower()
         prediction = "prediction-" if prediction_client else ""
 
         utils.validate_region(region)
 
-        client_options = {
-            "api_endpoint": f"{region}-{prediction}{utils.PROD_API_ENDPOINT}"
-        }
-
-        return client_options
+        return client_options.ClientOptions(
+            api_endpoint=f"{region}-{prediction}{utils.PROD_API_ENDPOINT}"
+        )
 
 
-# singleton to store init parameters: ie, aiplatform.init(project=..., location=...)
-singleton = Init()
+# globa config to store init parameters: ie, aiplatform.init(project=..., location=...)
+global_config = _Config()

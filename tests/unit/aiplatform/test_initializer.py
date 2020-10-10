@@ -19,6 +19,8 @@
 import pytest
 import importlib
 
+
+from google.api_core import client_options
 import google.auth
 from google.auth import credentials
 from google.cloud.aiplatform import initializer
@@ -37,39 +39,39 @@ class TestInit:
         importlib.reload(initializer)
 
     def test_init_project_sets_project(self):
-        initializer.singleton.init(project=_TEST_PROJECT)
-        assert initializer.singleton.project == _TEST_PROJECT
+        initializer.global_config.init(project=_TEST_PROJECT)
+        assert initializer.global_config.project == _TEST_PROJECT
 
     def test_not_init_project_gets_default_project(self, monkeypatch):
         def mock_auth_default():
             return None, _TEST_PROJECT
 
         monkeypatch.setattr(google.auth, 'default', mock_auth_default)
-        assert initializer.singleton.project == _TEST_PROJECT
+        assert initializer.global_config.project == _TEST_PROJECT
 
     def test_init_location_sets_location(self):
-        initializer.singleton.init(location=_TEST_LOCATION)
-        assert initializer.singleton.location == _TEST_LOCATION
+        initializer.global_config.init(location=_TEST_LOCATION)
+        assert initializer.global_config.location == _TEST_LOCATION
 
     def test_not_init_location_gets_default_location(self):
-        assert initializer.singleton.location == utils.DEFAULT_REGION
+        assert initializer.global_config.location == utils.DEFAULT_REGION
 
     def test_init_location_with_invalid_location_raises(self):
         with pytest.raises(ValueError):
-            initializer.singleton.init(location=_TEST_INVALIED_LOCATION)
+            initializer.global_config.init(location=_TEST_INVALIED_LOCATION)
 
     def test_init_experiment_sets_experiment(self):
-        initializer.singleton.init(experiment=_TEST_EXPERIMENT)
-        assert initializer.singleton.experiment == _TEST_EXPERIMENT
+        initializer.global_config.init(experiment=_TEST_EXPERIMENT)
+        assert initializer.global_config.experiment == _TEST_EXPERIMENT
 
     def test_init_staging_bucket_sets_staging_bucket(self):
-        initializer.singleton.init(staging_bucket=_TEST_STAGING_BUCKET)
-        assert initializer.singleton.staging_bucket == _TEST_STAGING_BUCKET
+        initializer.global_config.init(staging_bucket=_TEST_STAGING_BUCKET)
+        assert initializer.global_config.staging_bucket == _TEST_STAGING_BUCKET
 
     def test_init_credentials_sets_credentials(self):
         creds = credentials.AnonymousCredentials()
-        initializer.singleton.init(credentials=creds)
-        assert initializer.singleton.credentials is creds
+        initializer.global_config.init(credentials=creds)
+        assert initializer.global_config.credentials is creds
 
     @pytest.mark.parametrize(
         "init_location, location_override, prediction, expected_endpoint",
@@ -101,8 +103,8 @@ class TestInit:
         self, init_location: str, location_override: str, prediction: bool,
         expected_endpoint: str
     ):
-        initializer.singleton.init(location=init_location)
+        initializer.global_config.init(location=init_location)
 
-        assert initializer.singleton.get_client_options(
+        assert initializer.global_config.get_client_options(
             location_override=location_override, prediction_client=prediction
-        ) == {"api_endpoint": expected_endpoint}
+        ).api_endpoint == expected_endpoint
