@@ -262,15 +262,15 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
         Cancels a TrainingPipeline. Starts asynchronous cancellation on
         the TrainingPipeline. The server makes a best effort to cancel
         the pipeline, but success is not guaranteed. Clients can use
-        [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.GetTrainingPipeline]
+        ``PipelineService.GetTrainingPipeline``
         or other methods to check whether the cancellation succeeded or
         whether the pipeline completed despite cancellation. On
         successful cancellation, the TrainingPipeline is not deleted;
         instead it becomes a pipeline with a
-        [TrainingPipeline.error][google.cloud.aiplatform.v1beta1.TrainingPipeline.error]
-        value with a [google.rpc.Status.code][google.rpc.Status.code] of
+        ``TrainingPipeline.error``
+        value with a ``google.rpc.Status.code`` of
         1, corresponding to ``Code.CANCELLED``, and
-        [TrainingPipeline.state][google.cloud.aiplatform.v1beta1.TrainingPipeline.state]
+        ``TrainingPipeline.state``
         is set to ``CANCELLED``.
 
         Returns:

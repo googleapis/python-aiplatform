@@ -75,14 +75,14 @@ class MachineSpec(proto.Message):
 
             When used for [DeployedMode][] this field is optional and
             the default value is ``n1-standard-2``. If used for
-            [BatchPredictionJob][google.cloud.aiplatform.v1beta1.BatchPredictionJob]
+            ``BatchPredictionJob``
             or as part of
-            [WorkerPoolSpec][google.cloud.aiplatform.v1beta1.WorkerPoolSpec]
+            ``WorkerPoolSpec``
             this field is required.
         accelerator_type (~.gca_accelerator_type.AcceleratorType):
             Immutable. The type of accelerator(s) that may be attached
             to the machine as per
-            [accelerator_count][google.cloud.aiplatform.v1beta1.MachineSpec.accelerator_count].
+            ``accelerator_count``.
         accelerator_count (int):
             The number of accelerators to attach to the
             machine.
@@ -110,10 +110,10 @@ class DedicatedResources(proto.Message):
             against it increases, it may dynamically be deployed onto
             more replicas, and as traffic decreases, some of these extra
             replicas may be freed. Note: if
-            [machine_spec.accelerator_count][google.cloud.aiplatform.v1beta1.MachineSpec.accelerator_count]
+            ``machine_spec.accelerator_count``
             is above 0, currently the model will be always deployed
             precisely on
-            [min_replica_count][google.cloud.aiplatform.v1beta1.DedicatedResources.min_replica_count].
+            ``min_replica_count``.
         max_replica_count (int):
             Immutable. The maximum number of replicas this DeployedModel
             may be deployed on when the traffic against it increases. If
@@ -124,7 +124,7 @@ class DedicatedResources(proto.Message):
             beyond what its replicas at maximum may handle, a portion of
             the traffic will be dropped. If this value is not provided,
             will use
-            [min_replica_count][google.cloud.aiplatform.v1beta1.DedicatedResources.min_replica_count]
+            ``min_replica_count``
             as the default value.
     """
 
@@ -144,7 +144,7 @@ class AutomaticResources(proto.Message):
             Immutable. The minimum number of replicas this DeployedModel
             will be always deployed on. If traffic against it increases,
             it may dynamically be deployed onto more replicas up to
-            [max_replica_count][google.cloud.aiplatform.v1beta1.AutomaticResources.max_replica_count],
+            ``max_replica_count``,
             and as traffic decreases, some of these extra replicas may
             be freed. If requested value is too large, the deployment
             will error.
@@ -182,7 +182,7 @@ class BatchDedicatedResources(proto.Message):
             Immutable. The number of machine replicas used at the start
             of the batch operation. If not set, AI Platform decides
             starting number, not greater than
-            [max_replica_count][google.cloud.aiplatform.v1beta1.BatchDedicatedResources.max_replica_count]
+            ``max_replica_count``
         max_replica_count (int):
             Immutable. The maximum number of machine
             replicas the batch operation may be scaled to.

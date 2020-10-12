@@ -52,7 +52,7 @@ __protobuf__ = proto.module(
 
 class UploadModelRequest(proto.Message):
     r"""Request message for
-    [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel].
+    ``ModelService.UploadModel``.
 
     Attributes:
         parent (str):
@@ -69,7 +69,7 @@ class UploadModelRequest(proto.Message):
 
 class UploadModelOperationMetadata(proto.Message):
     r"""Details of
-    [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
+    ``ModelService.UploadModel``
     operation.
 
     Attributes:
@@ -84,7 +84,7 @@ class UploadModelOperationMetadata(proto.Message):
 
 class UploadModelResponse(proto.Message):
     r"""Response message of
-    [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
+    ``ModelService.UploadModel``
     operation.
 
     Attributes:
@@ -98,7 +98,7 @@ class UploadModelResponse(proto.Message):
 
 class GetModelRequest(proto.Message):
     r"""Request message for
-    [ModelService.GetModel][google.cloud.aiplatform.v1beta1.ModelService.GetModel].
+    ``ModelService.GetModel``.
 
     Attributes:
         name (str):
@@ -111,7 +111,7 @@ class GetModelRequest(proto.Message):
 
 class ListModelsRequest(proto.Message):
     r"""Request message for
-    [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels].
+    ``ModelService.ListModels``.
 
     Attributes:
         parent (str):
@@ -124,9 +124,9 @@ class ListModelsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            [ListModelsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListModelsResponse.next_page_token]
+            ``ListModelsResponse.next_page_token``
             of the previous
-            [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels]
+            ``ModelService.ListModels``
             call.
         read_mask (~.field_mask.FieldMask):
             Mask specifying which fields to read.
@@ -141,14 +141,14 @@ class ListModelsRequest(proto.Message):
 
 class ListModelsResponse(proto.Message):
     r"""Response message for
-    [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels]
+    ``ModelService.ListModels``
 
     Attributes:
         models (Sequence[~.gca_model.Model]):
             List of Models in the requested page.
         next_page_token (str):
             A token to retrieve next page of results. Pass to
-            [ListModelsRequest.page_token][google.cloud.aiplatform.v1beta1.ListModelsRequest.page_token]
+            ``ListModelsRequest.page_token``
             to obtain that page.
     """
 
@@ -162,7 +162,7 @@ class ListModelsResponse(proto.Message):
 
 class UpdateModelRequest(proto.Message):
     r"""Request message for
-    [ModelService.UpdateModel][google.cloud.aiplatform.v1beta1.ModelService.UpdateModel].
+    ``ModelService.UpdateModel``.
 
     Attributes:
         model (~.gca_model.Model):
@@ -172,8 +172,7 @@ class UpdateModelRequest(proto.Message):
             Required. The update mask applies to the resource. For the
             ``FieldMask`` definition, see
 
-            [FieldMask](https: //developers.google.com/protocol-buffers
-            // /docs/reference/google.protobuf#fieldmask).
+            [FieldMask](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask).
     """
 
     model = proto.Field(proto.MESSAGE, number=1, message=gca_model.Model,)
@@ -182,7 +181,7 @@ class UpdateModelRequest(proto.Message):
 
 class DeleteModelRequest(proto.Message):
     r"""Request message for
-    [ModelService.DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel].
+    ``ModelService.DeleteModel``.
 
     Attributes:
         name (str):
@@ -196,7 +195,7 @@ class DeleteModelRequest(proto.Message):
 
 class ExportModelRequest(proto.Message):
     r"""Request message for
-    [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel].
+    ``ModelService.ExportModel``.
 
     Attributes:
         name (str):
@@ -250,7 +249,7 @@ class ExportModelRequest(proto.Message):
 
 class ExportModelOperationMetadata(proto.Message):
     r"""Details of
-    [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel]
+    ``ModelService.ExportModel``
     operation.
 
     Attributes:
@@ -263,7 +262,7 @@ class ExportModelOperationMetadata(proto.Message):
 
     class OutputInfo(proto.Message):
         r"""Further describes the output of the ExportModel. Supplements
-        [ExportModelRequest.OutputConfig][google.cloud.aiplatform.v1beta1.ExportModelRequest.OutputConfig].
+        ``ExportModelRequest.OutputConfig``.
 
         Attributes:
             artifact_output_uri (str):
@@ -289,14 +288,14 @@ class ExportModelOperationMetadata(proto.Message):
 
 class ExportModelResponse(proto.Message):
     r"""Response message of
-    [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel]
+    ``ModelService.ExportModel``
     operation.
     """
 
 
 class GetModelEvaluationRequest(proto.Message):
     r"""Request message for
-    [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluation].
+    ``ModelService.GetModelEvaluation``.
 
     Attributes:
         name (str):
@@ -310,7 +309,7 @@ class GetModelEvaluationRequest(proto.Message):
 
 class ListModelEvaluationsRequest(proto.Message):
     r"""Request message for
-    [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
+    ``ModelService.ListModelEvaluations``.
 
     Attributes:
         parent (str):
@@ -323,9 +322,9 @@ class ListModelEvaluationsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            [ListModelEvaluationsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListModelEvaluationsResponse.next_page_token]
+            ``ListModelEvaluationsResponse.next_page_token``
             of the previous
-            [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations]
+            ``ModelService.ListModelEvaluations``
             call.
         read_mask (~.field_mask.FieldMask):
             Mask specifying which fields to read.
@@ -340,7 +339,7 @@ class ListModelEvaluationsRequest(proto.Message):
 
 class ListModelEvaluationsResponse(proto.Message):
     r"""Response message for
-    [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
+    ``ModelService.ListModelEvaluations``.
 
     Attributes:
         model_evaluations (Sequence[~.model_evaluation.ModelEvaluation]):
@@ -348,7 +347,7 @@ class ListModelEvaluationsResponse(proto.Message):
             page.
         next_page_token (str):
             A token to retrieve next page of results. Pass to
-            [ListModelEvaluationsRequest.page_token][google.cloud.aiplatform.v1beta1.ListModelEvaluationsRequest.page_token]
+            ``ListModelEvaluationsRequest.page_token``
             to obtain that page.
     """
 
@@ -364,7 +363,7 @@ class ListModelEvaluationsResponse(proto.Message):
 
 class GetModelEvaluationSliceRequest(proto.Message):
     r"""Request message for
-    [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluationSlice].
+    ``ModelService.GetModelEvaluationSlice``.
 
     Attributes:
         name (str):
@@ -379,7 +378,7 @@ class GetModelEvaluationSliceRequest(proto.Message):
 
 class ListModelEvaluationSlicesRequest(proto.Message):
     r"""Request message for
-    [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
+    ``ModelService.ListModelEvaluationSlices``.
 
     Attributes:
         parent (str):
@@ -395,9 +394,9 @@ class ListModelEvaluationSlicesRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            [ListModelEvaluationSlicesResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListModelEvaluationSlicesResponse.next_page_token]
+            ``ListModelEvaluationSlicesResponse.next_page_token``
             of the previous
-            [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices]
+            ``ModelService.ListModelEvaluationSlices``
             call.
         read_mask (~.field_mask.FieldMask):
             Mask specifying which fields to read.
@@ -412,7 +411,7 @@ class ListModelEvaluationSlicesRequest(proto.Message):
 
 class ListModelEvaluationSlicesResponse(proto.Message):
     r"""Response message for
-    [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
+    ``ModelService.ListModelEvaluationSlices``.
 
     Attributes:
         model_evaluation_slices (Sequence[~.model_evaluation_slice.ModelEvaluationSlice]):
@@ -420,7 +419,7 @@ class ListModelEvaluationSlicesResponse(proto.Message):
             page.
         next_page_token (str):
             A token to retrieve next page of results. Pass to
-            [ListModelEvaluationSlicesRequest.page_token][google.cloud.aiplatform.v1beta1.ListModelEvaluationSlicesRequest.page_token]
+            ``ListModelEvaluationSlicesRequest.page_token``
             to obtain that page.
     """
 

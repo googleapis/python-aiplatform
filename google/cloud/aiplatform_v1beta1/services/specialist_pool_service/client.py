@@ -168,7 +168,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Args:
             request (:class:`~.specialist_pool_service.CreateSpecialistPoolRequest`):
                 The request object. Request message for
-                [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.CreateSpecialistPool].
+                ``SpecialistPoolService.CreateSpecialistPool``.
             parent (:class:`str`):
                 Required. The parent Project name for the new
                 SpecialistPool. The form is
@@ -194,7 +194,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.gca_specialist_pool.SpecialistPool``:
+                :class:`~.gca_specialist_pool.SpecialistPool`:
                 SpecialistPool represents customers' own workforce to
                 work on their data labeling jobs. It includes a group of
                 specialist managers who are responsible for managing the
@@ -260,7 +260,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Args:
             request (:class:`~.specialist_pool_service.GetSpecialistPoolRequest`):
                 The request object. Request message for
-                [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.GetSpecialistPool].
+                ``SpecialistPoolService.GetSpecialistPool``.
             name (:class:`str`):
                 Required. The name of the SpecialistPool resource. The
                 form is
@@ -342,7 +342,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Args:
             request (:class:`~.specialist_pool_service.ListSpecialistPoolsRequest`):
                 The request object. Request message for
-                [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
+                ``SpecialistPoolService.ListSpecialistPools``.
             parent (:class:`str`):
                 Required. The name of the SpecialistPool's parent
                 resource. Format:
@@ -360,7 +360,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Returns:
             ~.pagers.ListSpecialistPoolsPager:
                 Response message for
-                [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
+                ``SpecialistPoolService.ListSpecialistPools``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -424,7 +424,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Args:
             request (:class:`~.specialist_pool_service.DeleteSpecialistPoolRequest`):
                 The request object. Request message for
-                [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.DeleteSpecialistPool].
+                ``SpecialistPoolService.DeleteSpecialistPool``.
             name (:class:`str`):
                 Required. The resource name of the SpecialistPool to
                 delete. Format:
@@ -444,7 +444,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.empty.Empty``: A generic empty message that
+                :class:`~.empty.Empty`: A generic empty message that
                 you can re-use to avoid defining duplicated empty
                 messages in your APIs. A typical example is to use it as
                 the request or the response type of an API method. For
@@ -514,7 +514,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Args:
             request (:class:`~.specialist_pool_service.UpdateSpecialistPoolRequest`):
                 The request object. Request message for
-                [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.UpdateSpecialistPool].
+                ``SpecialistPoolService.UpdateSpecialistPool``.
             specialist_pool (:class:`~.gca_specialist_pool.SpecialistPool`):
                 Required. The SpecialistPool which
                 replaces the resource on the server.
@@ -539,7 +539,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.gca_specialist_pool.SpecialistPool``:
+                :class:`~.gca_specialist_pool.SpecialistPool`:
                 SpecialistPool represents customers' own workforce to
                 work on their data labeling jobs. It includes a group of
                 specialist managers who are responsible for managing the

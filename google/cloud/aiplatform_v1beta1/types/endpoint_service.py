@@ -45,7 +45,7 @@ __protobuf__ = proto.module(
 
 class CreateEndpointRequest(proto.Message):
     r"""Request message for
-    [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.CreateEndpoint].
+    ``EndpointService.CreateEndpoint``.
 
     Attributes:
         parent (str):
@@ -62,7 +62,7 @@ class CreateEndpointRequest(proto.Message):
 
 class CreateEndpointOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.CreateEndpoint].
+    ``EndpointService.CreateEndpoint``.
 
     Attributes:
         generic_metadata (~.operation.GenericOperationMetadata):
@@ -76,7 +76,7 @@ class CreateEndpointOperationMetadata(proto.Message):
 
 class GetEndpointRequest(proto.Message):
     r"""Request message for
-    [EndpointService.GetEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.GetEndpoint]
+    ``EndpointService.GetEndpoint``
 
     Attributes:
         name (str):
@@ -89,7 +89,7 @@ class GetEndpointRequest(proto.Message):
 
 class ListEndpointsRequest(proto.Message):
     r"""Request message for
-    [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
+    ``EndpointService.ListEndpoints``.
 
     Attributes:
         parent (str):
@@ -125,9 +125,9 @@ class ListEndpointsRequest(proto.Message):
         page_token (str):
             Optional. The standard list page token. Typically obtained
             via
-            [ListEndpointsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListEndpointsResponse.next_page_token]
+            ``ListEndpointsResponse.next_page_token``
             of the previous
-            [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints]
+            ``EndpointService.ListEndpoints``
             call.
         read_mask (~.field_mask.FieldMask):
             Optional. Mask specifying which fields to
@@ -143,14 +143,14 @@ class ListEndpointsRequest(proto.Message):
 
 class ListEndpointsResponse(proto.Message):
     r"""Response message for
-    [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
+    ``EndpointService.ListEndpoints``.
 
     Attributes:
         endpoints (Sequence[~.gca_endpoint.Endpoint]):
             List of Endpoints in the requested page.
         next_page_token (str):
             A token to retrieve next page of results. Pass to
-            [ListEndpointsRequest.page_token][google.cloud.aiplatform.v1beta1.ListEndpointsRequest.page_token]
+            ``ListEndpointsRequest.page_token``
             to obtain that page.
     """
 
@@ -166,7 +166,7 @@ class ListEndpointsResponse(proto.Message):
 
 class UpdateEndpointRequest(proto.Message):
     r"""Request message for
-    [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpoint].
+    ``EndpointService.UpdateEndpoint``.
 
     Attributes:
         endpoint (~.gca_endpoint.Endpoint):
@@ -183,7 +183,7 @@ class UpdateEndpointRequest(proto.Message):
 
 class DeleteEndpointRequest(proto.Message):
     r"""Request message for
-    [EndpointService.DeleteEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.DeleteEndpoint].
+    ``EndpointService.DeleteEndpoint``.
 
     Attributes:
         name (str):
@@ -197,7 +197,7 @@ class DeleteEndpointRequest(proto.Message):
 
 class DeployModelRequest(proto.Message):
     r"""Request message for
-    [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
+    ``EndpointService.DeployModel``.
 
     Attributes:
         endpoint (str):
@@ -207,17 +207,17 @@ class DeployModelRequest(proto.Message):
         deployed_model (~.gca_endpoint.DeployedModel):
             Required. The DeployedModel to be created within the
             Endpoint. Note that
-            [Endpoint.traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
+            ``Endpoint.traffic_split``
             must be updated for the DeployedModel to start receiving
             traffic, either as part of this call, or via
-            [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpoint].
+            ``EndpointService.UpdateEndpoint``.
         traffic_split (Sequence[~.endpoint_service.DeployModelRequest.TrafficSplitEntry]):
             A map from a DeployedModel's ID to the percentage of this
             Endpoint's traffic that should be forwarded to that
             DeployedModel.
 
             If this field is non-empty, then the Endpoint's
-            [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
+            ``traffic_split``
             will be overwritten with it. To refer to the ID of the just
             being deployed Model, a "0" should be used, and the actual
             ID of the new DeployedModel will be filled in its place by
@@ -225,7 +225,7 @@ class DeployModelRequest(proto.Message):
             100.
 
             If this field is empty, then the Endpoint's
-            [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
+            ``traffic_split``
             is not updated.
     """
 
@@ -238,7 +238,7 @@ class DeployModelRequest(proto.Message):
 
 class DeployModelResponse(proto.Message):
     r"""Response message for
-    [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
+    ``EndpointService.DeployModel``.
 
     Attributes:
         deployed_model (~.gca_endpoint.DeployedModel):
@@ -253,7 +253,7 @@ class DeployModelResponse(proto.Message):
 
 class DeployModelOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
+    ``EndpointService.DeployModel``.
 
     Attributes:
         generic_metadata (~.operation.GenericOperationMetadata):
@@ -267,7 +267,7 @@ class DeployModelOperationMetadata(proto.Message):
 
 class UndeployModelRequest(proto.Message):
     r"""Request message for
-    [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
+    ``EndpointService.UndeployModel``.
 
     Attributes:
         endpoint (str):
@@ -279,7 +279,7 @@ class UndeployModelRequest(proto.Message):
             undeployed from the Endpoint.
         traffic_split (Sequence[~.endpoint_service.UndeployModelRequest.TrafficSplitEntry]):
             If this field is provided, then the Endpoint's
-            [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
+            ``traffic_split``
             will be overwritten with it. If last DeployedModel is being
             undeployed from the Endpoint, the [Endpoint.traffic_split]
             will always end up empty when this call returns. A
@@ -295,13 +295,13 @@ class UndeployModelRequest(proto.Message):
 
 class UndeployModelResponse(proto.Message):
     r"""Response message for
-    [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
+    ``EndpointService.UndeployModel``.
     """
 
 
 class UndeployModelOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
+    ``EndpointService.UndeployModel``.
 
     Attributes:
         generic_metadata (~.operation.GenericOperationMetadata):
