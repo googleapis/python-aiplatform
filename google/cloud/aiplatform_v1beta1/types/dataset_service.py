@@ -52,7 +52,7 @@ __protobuf__ = proto.module(
 
 class CreateDatasetRequest(proto.Message):
     r"""Request message for
-    [DatasetService.CreateDataset][google.cloud.aiplatform.v1beta1.DatasetService.CreateDataset].
+    ``DatasetService.CreateDataset``.
 
     Attributes:
         parent (str):
@@ -69,7 +69,7 @@ class CreateDatasetRequest(proto.Message):
 
 class CreateDatasetOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    [DatasetService.CreateDataset][google.cloud.aiplatform.v1beta1.DatasetService.CreateDataset].
+    ``DatasetService.CreateDataset``.
 
     Attributes:
         generic_metadata (~.operation.GenericOperationMetadata):
@@ -83,7 +83,7 @@ class CreateDatasetOperationMetadata(proto.Message):
 
 class GetDatasetRequest(proto.Message):
     r"""Request message for
-    [DatasetService.GetDataset][google.cloud.aiplatform.v1beta1.DatasetService.GetDataset].
+    ``DatasetService.GetDataset``.
 
     Attributes:
         name (str):
@@ -98,7 +98,7 @@ class GetDatasetRequest(proto.Message):
 
 class UpdateDatasetRequest(proto.Message):
     r"""Request message for
-    [DatasetService.UpdateDataset][google.cloud.aiplatform.v1beta1.DatasetService.UpdateDataset].
+    ``DatasetService.UpdateDataset``.
 
     Attributes:
         dataset (~.gca_dataset.Dataset):
@@ -108,8 +108,7 @@ class UpdateDatasetRequest(proto.Message):
             Required. The update mask applies to the resource. For the
             ``FieldMask`` definition, see
 
-            [FieldMask](https:
-            //tinyurl.com/dev-google-protobuf#google.protobuf.FieldMask).
+            [FieldMask](https://tinyurl.com/dev-google-protobuf#google.protobuf.FieldMask).
             Updatable fields:
 
             -  ``display_name``
@@ -123,7 +122,7 @@ class UpdateDatasetRequest(proto.Message):
 
 class ListDatasetsRequest(proto.Message):
     r"""Request message for
-    [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
+    ``DatasetService.ListDatasets``.
 
     Attributes:
         parent (str):
@@ -157,7 +156,7 @@ class ListDatasetsRequest(proto.Message):
 
 class ListDatasetsResponse(proto.Message):
     r"""Response message for
-    [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
+    ``DatasetService.ListDatasets``.
 
     Attributes:
         datasets (Sequence[~.gca_dataset.Dataset]):
@@ -179,7 +178,7 @@ class ListDatasetsResponse(proto.Message):
 
 class DeleteDatasetRequest(proto.Message):
     r"""Request message for
-    [DatasetService.DeleteDataset][google.cloud.aiplatform.v1beta1.DatasetService.DeleteDataset].
+    ``DatasetService.DeleteDataset``.
 
     Attributes:
         name (str):
@@ -193,7 +192,7 @@ class DeleteDatasetRequest(proto.Message):
 
 class ImportDataRequest(proto.Message):
     r"""Request message for
-    [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
+    ``DatasetService.ImportData``.
 
     Attributes:
         name (str):
@@ -213,13 +212,13 @@ class ImportDataRequest(proto.Message):
 
 class ImportDataResponse(proto.Message):
     r"""Response message for
-    [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
+    ``DatasetService.ImportData``.
     """
 
 
 class ImportDataOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
+    ``DatasetService.ImportData``.
 
     Attributes:
         generic_metadata (~.operation.GenericOperationMetadata):
@@ -233,7 +232,7 @@ class ImportDataOperationMetadata(proto.Message):
 
 class ExportDataRequest(proto.Message):
     r"""Request message for
-    [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
+    ``DatasetService.ExportData``.
 
     Attributes:
         name (str):
@@ -251,7 +250,7 @@ class ExportDataRequest(proto.Message):
 
 class ExportDataResponse(proto.Message):
     r"""Response message for
-    [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
+    ``DatasetService.ExportData``.
 
     Attributes:
         exported_files (Sequence[str]):
@@ -264,7 +263,7 @@ class ExportDataResponse(proto.Message):
 
 class ExportDataOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
+    ``DatasetService.ExportData``.
 
     Attributes:
         generic_metadata (~.operation.GenericOperationMetadata):
@@ -283,7 +282,7 @@ class ExportDataOperationMetadata(proto.Message):
 
 class ListDataItemsRequest(proto.Message):
     r"""Request message for
-    [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
+    ``DatasetService.ListDataItems``.
 
     Attributes:
         parent (str):
@@ -314,7 +313,7 @@ class ListDataItemsRequest(proto.Message):
 
 class ListDataItemsResponse(proto.Message):
     r"""Response message for
-    [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
+    ``DatasetService.ListDataItems``.
 
     Attributes:
         data_items (Sequence[~.data_item.DataItem]):
@@ -336,7 +335,7 @@ class ListDataItemsResponse(proto.Message):
 
 class GetAnnotationSpecRequest(proto.Message):
     r"""Request message for
-    [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1beta1.DatasetService.GetAnnotationSpec].
+    ``DatasetService.GetAnnotationSpec``.
 
     Attributes:
         name (str):
@@ -353,7 +352,7 @@ class GetAnnotationSpecRequest(proto.Message):
 
 class ListAnnotationsRequest(proto.Message):
     r"""Request message for
-    [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
+    ``DatasetService.ListAnnotations``.
 
     Attributes:
         parent (str):
@@ -385,7 +384,7 @@ class ListAnnotationsRequest(proto.Message):
 
 class ListAnnotationsResponse(proto.Message):
     r"""Response message for
-    [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
+    ``DatasetService.ListAnnotations``.
 
     Attributes:
         annotations (Sequence[~.annotation.Annotation]):
