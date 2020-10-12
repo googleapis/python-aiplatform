@@ -3,6 +3,9 @@ Python Client for Cloud AI Platform
 
 |beta| |pypi| |versions|
 
+
+:Warning: This library is a pre-release product and is subject to breaking changes.
+
 `Cloud AI Platform`_: Cloud AI Platform is a suite of machine learning tools that enables
     developers to train high-quality models specific to their business needs.
     It offers both novices and experts the best workbench for machine learning
