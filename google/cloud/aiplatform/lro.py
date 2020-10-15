@@ -17,7 +17,7 @@
 
 import threading
 
-from google.api_core import ga_operation
+from google.api_core import operation as ga_operation
 
 
 class LRO:
