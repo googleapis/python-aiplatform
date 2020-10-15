@@ -15,6 +15,28 @@
 # limitations under the License.
 #
 
+import threading
+
+from google.api_core import ga_operation
 
 class LRO:
-	pass
+    """A handler for Operation futures"""
+	def __init__(operation, operations_client, result_type, **kwargs):
+        self._operation_future = ga_operation.from_gapic(operation, operations_client, result_type, **kwargs)
+        self.result = None
+        self.exception = None
+        self._poll_until_finish()
+
+    def callback(operation_future):
+        self._operation_future._set_result_from_operation()
+        self.result = operation_future.result()
+        self.exception = operation_future.exception()
+
+    def done(self):
+        return self._operation_future.done()
+
+    def _poll_until_finish(self):
+        self._operation_future.add_done_callback(callback)
+
+    def running(self):
+        return self._operation_future.running()
