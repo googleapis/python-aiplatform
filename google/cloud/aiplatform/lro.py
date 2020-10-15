@@ -19,10 +19,14 @@ import threading
 
 from google.api_core import ga_operation
 
+
 class LRO:
     """A handler for Operation futures"""
-	def __init__(operation, operations_client, result_type, **kwargs):
-        self._operation_future = ga_operation.from_gapic(operation, operations_client, result_type, **kwargs)
+
+    def __init__(self, operation, operations_client, result_type, **kwargs):
+        self._operation_future = ga_operation.from_gapic(
+            operation, operations_client, result_type, **kwargs
+        )
         self.result = None
         self.exception = None
         self._poll_until_finish()
