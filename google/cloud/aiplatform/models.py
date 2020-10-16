@@ -23,8 +23,8 @@ from typing import Dict, Optional, Sequence
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1.services.model_service.client import (
     ModelServiceClient,
 )

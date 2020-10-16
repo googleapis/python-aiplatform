@@ -20,8 +20,6 @@ import pytest
 import importlib
 from unittest import mock
 
-
-from google.api_core import client_options
 from google.api_core import operation as ga_operation
 import google.auth
 from google.auth import credentials as auth_credentials
