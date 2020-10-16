@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, Type
 
 from google.api_core import client_options
 import google.auth
@@ -135,6 +135,26 @@ class _Config:
             api_endpoint=f"{region}-{prediction}{utils.PROD_API_ENDPOINT}"
         )
 
+    def get_resource_parent(self, project: Optional[str] = None,
+        location: Optional[str] = None):
+        return '/'.join(['projects', project or self.project, 'locations',
+                            location or self.location])
 
-# globa config to store init parameters: ie, aiplatform.init(project=..., location=...)
+
+    def create_client(self,
+        client_class: Type[utils.AiPlatformServiceClient],
+        credentials: Optional[auth_credentials.Credentials] = None,
+        location_override: Optional[str] = None,
+        prediction_client: bool = False
+        ) -> utils.AiPlatformServiceClient:
+        
+        return client_class(credentials=credentials or self.credentials,
+                      client_options=self.get_client_options(
+                        location_override=location_override,
+                        prediction_client=prediction_client
+                        ))
+
+
+
+# global config to store init parameters: ie, aiplatform.init(project=..., location=...)
 global_config = _Config()
