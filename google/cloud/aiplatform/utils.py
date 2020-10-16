@@ -21,16 +21,22 @@ import re
 from typing import Optional, TypeVar, Union
 from collections import namedtuple
 
-from google.cloud.aiplatform_v1beta1.services.dataset_service import client as dataset_client
-from google.cloud.aiplatform_v1beta1.services.model_service import client as model_client
+from google.cloud.aiplatform_v1beta1.services.dataset_service import (
+    client as dataset_client,
+)
+from google.cloud.aiplatform_v1beta1.services.model_service import (
+    client as model_client,
+)
 
 DEFAULT_REGION = "us-central1"
 SUPPORTED_REGIONS = ("us-central1", "europe-west4", "asia-east1")
 PROD_API_ENDPOINT = "aiplatform.googleapis.com"
 
-AiPlatformServiceClient = TypeVar('AiPlatformServiceClient',
+AiPlatformServiceClient = TypeVar(
+    "AiPlatformServiceClient",
     dataset_client.DatasetServiceClient,
-    model_client.ModelServiceClient) 
+    model_client.ModelServiceClient,
+)
 
 # TODO(b/170334193): Add support for resource names with non-integer IDs
 # TODO(b/170334098): Add support for resource names more than one level deep
@@ -61,11 +67,8 @@ def _match_to_fields(match: re.Match) -> Optional[Fields]:
         id=match["id"],
     )
 
-def extract_fields_form_resource_name(resource_name: str) -> Optional[Fields]:
-    return _match_to_fields(RESOURCE_NAME_PATTERN.match(resource_name))
 
-
-def validate_name(
+def extract_fields_from_resource_name(
     resource_name: str, resource_noun: Optional[str] = None
 ) -> Optional[Fields]:
     """Validates and returns extracted fields from a fully-qualified resource name.
@@ -86,7 +89,7 @@ def validate_name(
             project, location, resource, and id. These fields can be used for
             subsequent method calls in the SDK.
     """
-    fields = extract_fields_form_resource_name(resource_name)
+    fields = _match_to_fields(RESOURCE_NAME_PATTERN.match(resource_name))
 
     if not fields:
         return None

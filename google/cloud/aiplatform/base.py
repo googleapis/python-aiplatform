@@ -22,6 +22,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
 
+
 class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     """Base class the AI Platform resource nouns.
 
@@ -47,12 +48,15 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     def is_prediction_client(cls) -> bool:
         """Flag to indicate whether to use prediction endpoint with client."""
         pass
-    
-    
-    def __init__(self, project: Optional[str]=None, location: Optional[str]=None,
-        credentials: Optional[auth_credentials.Credentials] = None):
+
+    def __init__(
+        self,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
         """Initializes class with project, location, and api_client.
-        
+
         Args:
             project(str): Project of the resource noun.
             location(str): The location of the resource noun.
@@ -62,15 +66,17 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
 
         self.project = project or initializer.global_config.project
         self.location = location or initializer.global_config.location
-        
+
         self.api_client = self._instantiate_client(self.location, credentials)
-    
+
     @classmethod
-    def _instantiate_client(cls, location: Optional[str]=None,
-        credentials: Optional[auth_credentials.Credentials] = None
-        ) -> utils.AiPlatformServiceClient:
+    def _instantiate_client(
+        cls,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> utils.AiPlatformServiceClient:
         """Helper method to instantiate service client for resource noun.
-        
+
         Args:
             project (str): Project of the resource noun.
             location (str): The location of the resource noun.
@@ -85,19 +91,19 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
             client_class=cls.client_class,
             credentials=credentials,
             location_override=location,
-            prediction_client=cls.is_prediction_client)
-        
-        
+            prediction_client=cls.is_prediction_client,
+        )
+
     @property
     def name(self) -> str:
         """Name of this resource."""
-        return self._gca_resource.name.split('/')[-1]
-    
+        return self._gca_resource.name.split("/")[-1]
+
     @property
     def resource_name(self) -> str:
         """Full qualified resource name."""
         return self._gca_resource.name
-    
+
     @property
     def display_name(self) -> str:
         """Display name of this resource."""

@@ -19,22 +19,25 @@
 import pytest
 import importlib
 
-
 from google.api_core import client_options
 import google.auth
 from google.auth import credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform_v1beta1.services.model_service.client import (
+    ModelServiceClient,
+)
 
-_TEST_PROJECT='test-project'
-_TEST_LOCATION='us-central1'
-_TEST_INVALIED_LOCATION='test-invalid-location'
-_TEST_EXPERIMENT='test-experiment'
-_TEST_STAGING_BUCKET='test-bucket'
+_TEST_PROJECT = "test-project"
+_TEST_PROJECT_2 = "test-project-2"
+_TEST_LOCATION = "us-central1"
+_TEST_LOCATION_2 = "europe-west4"
+_TEST_INVALIED_LOCATION = "test-invalid-location"
+_TEST_EXPERIMENT = "test-experiment"
+_TEST_STAGING_BUCKET = "test-bucket"
 
 
 class TestInit:
-
     def setup_method(self):
         importlib.reload(initializer)
 
@@ -46,7 +49,7 @@ class TestInit:
         def mock_auth_default():
             return None, _TEST_PROJECT
 
-        monkeypatch.setattr(google.auth, 'default', mock_auth_default)
+        monkeypatch.setattr(google.auth, "default", mock_auth_default)
         assert initializer.global_config.project == _TEST_PROJECT
 
     def test_init_location_sets_location(self):
@@ -73,38 +76,75 @@ class TestInit:
         initializer.global_config.init(credentials=creds)
         assert initializer.global_config.credentials is creds
 
+    def test_get_resource_parent_returns_parent(self):
+        initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        true_resource_parent = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+        assert true_resource_parent == initializer.global_config.get_resource_parent()
+
+    def test_get_resource_parent_overrides(self):
+        initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        true_resource_parent = (
+            f"projects/{_TEST_PROJECT_2}/locations/{_TEST_LOCATION_2}"
+        )
+        assert true_resource_parent == initializer.global_config.get_resource_parent(
+            project=_TEST_PROJECT_2, location=_TEST_LOCATION_2
+        )
+
+    def test_create_client_returns_client(self):
+        initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        client = initializer.global_config.create_client(ModelServiceClient)
+        assert isinstance(client, ModelServiceClient)
+        assert (
+            client._transport._host == f"{_TEST_LOCATION}-{utils.PROD_API_ENDPOINT}:443"
+        )
+
+    def test_create_client_overrides(self):
+        initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        creds = credentials.AnonymousCredentials()
+        client = initializer.global_config.create_client(
+            ModelServiceClient,
+            credentials=creds,
+            location_override=_TEST_LOCATION_2,
+            prediction_client=True,
+        )
+        assert isinstance(client, ModelServiceClient)
+        assert (
+            client._transport._host
+            == f"{_TEST_LOCATION_2}-prediction-{utils.PROD_API_ENDPOINT}:443"
+        )
+        assert client._transport._credentials == creds
+
     @pytest.mark.parametrize(
         "init_location, location_override, prediction, expected_endpoint",
         [
-            (
-                "us-central1",
-                None,
-                False,
-                "us-central1-aiplatform.googleapis.com"),
+            ("us-central1", None, False, "us-central1-aiplatform.googleapis.com"),
             (
                 "us-central1",
                 "europe-west4",
                 False,
                 "europe-west4-aiplatform.googleapis.com",
             ),
-            (
-                "asia-east1",
-                None,
-                False,
-                "asia-east1-aiplatform.googleapis.com"),
+            ("asia-east1", None, False, "asia-east1-aiplatform.googleapis.com"),
             (
                 "asia-east1",
                 None,
                 True,
-                "asia-east1-prediction-aiplatform.googleapis.com"),
+                "asia-east1-prediction-aiplatform.googleapis.com",
+            ),
         ],
     )
     def test_get_client_options(
-        self, init_location: str, location_override: str, prediction: bool,
-        expected_endpoint: str
+        self,
+        init_location: str,
+        location_override: str,
+        prediction: bool,
+        expected_endpoint: str,
     ):
         initializer.global_config.init(location=init_location)
 
-        assert initializer.global_config.get_client_options(
-            location_override=location_override, prediction_client=prediction
-        ).api_endpoint == expected_endpoint
+        assert (
+            initializer.global_config.get_client_options(
+                location_override=location_override, prediction_client=prediction
+            ).api_endpoint
+            == expected_endpoint
+        )

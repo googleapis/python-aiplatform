@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+
 import logging
 from typing import Dict, Optional, Type
 
@@ -135,25 +137,52 @@ class _Config:
             api_endpoint=f"{region}-{prediction}{utils.PROD_API_ENDPOINT}"
         )
 
-    def get_resource_parent(self, project: Optional[str] = None,
-        location: Optional[str] = None):
-        return '/'.join(['projects', project or self.project, 'locations',
-                            location or self.location])
+    def get_resource_parent(
+        self, project: Optional[str] = None, location: Optional[str] = None
+    ) -> str:
+        """Get parent resource with optional project and location override.
 
+        Args:
+            project (str): GCP project. If not provided will use the current project.
+            location (str): Location. If not provided will use the current location.
+        Returns:
+            resource_parent: Formatted parent resource string.
+        """
+        return "/".join(
+            [
+                "projects",
+                project or self.project,
+                "locations",
+                location or self.location,
+            ]
+        )
 
-    def create_client(self,
+    def create_client(
+        self,
         client_class: Type[utils.AiPlatformServiceClient],
         credentials: Optional[auth_credentials.Credentials] = None,
         location_override: Optional[str] = None,
-        prediction_client: bool = False
-        ) -> utils.AiPlatformServiceClient:
-        
-        return client_class(credentials=credentials or self.credentials,
-                      client_options=self.get_client_options(
-                        location_override=location_override,
-                        prediction_client=prediction_client
-                        ))
+        prediction_client: bool = False,
+    ) -> utils.AiPlatformServiceClient:
+        """Instantiates a given AiPlatformServiceClient with optinal overrides.
 
+        Args:
+            client_class (utils.AiPlatformServiceClient):
+                (Required)An AI Platform Service Client.
+            credentials (auth_credentials.Credentials):
+                Custom auth credentials. If not provided will use the current config.
+            location_override (str): Optional location override.
+            prediction_client (str): Optional flag to use a prediction endpoint.
+        Returns:
+            client: Instantiated AI Platform Service client
+        """
+
+        return client_class(
+            credentials=credentials or self.credentials,
+            client_options=self.get_client_options(
+                location_override=location_override, prediction_client=prediction_client
+            ),
+        )
 
 
 # global config to store init parameters: ie, aiplatform.init(project=..., location=...)
