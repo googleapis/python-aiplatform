@@ -167,7 +167,7 @@ class _Config:
         location_override: Optional[str] = None,
         prediction_client: bool = False,
     ) -> utils.AiPlatformServiceClient:
-        """Instantiates a given AiPlatformServiceClient with optinal overrides.
+        """Instantiates a given AiPlatformServiceClient with optional overrides.
 
         Args:
             client_class (utils.AiPlatformServiceClient):
