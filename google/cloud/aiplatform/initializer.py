@@ -148,6 +148,9 @@ class _Config:
         Returns:
             resource_parent: Formatted parent resource string.
         """
+        if location:
+            utils.validate_region(location)
+        
         return "/".join(
             [
                 "projects",
