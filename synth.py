@@ -40,7 +40,6 @@ library = gapic.py_library("aiplatform", "v1beta1")
 s.move(
     library,
     excludes=[
-        ".kokoro",
         "setup.py",
         "README.rst",
         "docs/index.rst",
@@ -53,9 +52,6 @@ s.move(
 # Patch the library
 # ----------------------------------------------------------------------------
 
-# https://github.com/googleapis/gapic-generator-python/issues/336
-s.replace("**/client.py", " operation.from_gapic", " ga_operation.from_gapic")
-
 s.replace(
     "**/client.py",
     "client_options: ClientOptions = ",
@@ -67,6 +63,13 @@ s.replace(
     "google/cloud/aiplatform_v1beta1/services/prediction_service/client.py",
     "request.instances = instances",
     "request.instances.extend(instances)",
+)
+
+# https://github.com/googleapis/gapic-generator-python/issues/672
+s.replace(
+    "google/cloud/aiplatform_v1beta1/services/endpoint_service/client.py",
+    "request.traffic_split.extend\(traffic_split\)",
+    "request.traffic_split = traffic_split",
 )
 
 # post processing to fix the generated reference doc
@@ -125,7 +128,11 @@ s.replace("google/cloud/**/*.py", "[\n]*\s*//\s*/", "/")
 
 templated_files = common.py_library(cov_level=99, microgenerator=True)
 s.move(
-    templated_files, excludes=[".coveragerc"]
+    templated_files,
+    excludes=[
+        ".coveragerc",
+        ".kokoro/samples/**"
+    ]
 )  # the microgenerator has a good coveragerc file
 
 # Don't treat docs warnings as errors

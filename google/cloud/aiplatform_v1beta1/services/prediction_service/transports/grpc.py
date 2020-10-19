@@ -18,10 +18,10 @@
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple
 
-from google.api_core import grpc_helpers   # type: ignore
-from google.api_core import gapic_v1       # type: ignore
-from google import auth                    # type: ignore
-from google.auth import credentials        # type: ignore
+from google.api_core import grpc_helpers  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google import auth  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
@@ -43,20 +43,23 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
     It sends protocol buffers over the wire using gRPC (which is built on
     top of HTTP/2); the ``grpcio`` package must be installed.
     """
+
     _stubs: Dict[str, Callable]
 
-    def __init__(self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            credentials_file: str = None,
-            scopes: Sequence[str] = None,
-            channel: grpc.Channel = None,
-            api_mtls_endpoint: str = None,
-            client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-            ssl_channel_credentials: grpc.ChannelCredentials = None,
-            quota_project_id: Optional[str] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: str = None,
+        scopes: Sequence[str] = None,
+        channel: grpc.Channel = None,
+        api_mtls_endpoint: str = None,
+        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+        ssl_channel_credentials: grpc.ChannelCredentials = None,
+        quota_project_id: Optional[str] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -106,12 +109,21 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
         elif api_mtls_endpoint:
-            warnings.warn("api_mtls_endpoint and client_cert_source are deprecated", DeprecationWarning)
+            warnings.warn(
+                "api_mtls_endpoint and client_cert_source are deprecated",
+                DeprecationWarning,
+            )
 
-            host = api_mtls_endpoint if ":" in api_mtls_endpoint else api_mtls_endpoint + ":443"
+            host = (
+                api_mtls_endpoint
+                if ":" in api_mtls_endpoint
+                else api_mtls_endpoint + ":443"
+            )
 
             if credentials is None:
-                credentials, _ = auth.default(scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id)
+                credentials, _ = auth.default(
+                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
+                )
 
             # Create SSL credentials with client_cert_source or application
             # default SSL credentials.
@@ -136,7 +148,9 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
             host = host if ":" in host else host + ":443"
 
             if credentials is None:
-                credentials, _ = auth.default(scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id)
+                credentials, _ = auth.default(
+                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
+                )
 
             # create a new channel. The provided one is ignored.
             self._grpc_channel = type(self).create_channel(
@@ -161,13 +175,15 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         )
 
     @classmethod
-    def create_channel(cls,
-                       host: str = 'aiplatform.googleapis.com',
-                       credentials: credentials.Credentials = None,
-                       credentials_file: str = None,
-                       scopes: Optional[Sequence[str]] = None,
-                       quota_project_id: Optional[str] = None,
-                       **kwargs) -> grpc.Channel:
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: str = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        **kwargs,
+    ) -> grpc.Channel:
         """Create and return a gRPC channel object.
         Args:
             address (Optionsl[str]): The host for the channel to use.
@@ -200,7 +216,7 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
             credentials_file=credentials_file,
             scopes=scopes,
             quota_project_id=quota_project_id,
-            **kwargs
+            **kwargs,
         )
 
     @property
@@ -210,9 +226,11 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         return self._grpc_channel
 
     @property
-    def predict(self) -> Callable[
-            [prediction_service.PredictRequest],
-            prediction_service.PredictResponse]:
+    def predict(
+        self,
+    ) -> Callable[
+        [prediction_service.PredictRequest], prediction_service.PredictResponse
+    ]:
         r"""Return a callable for the predict method over gRPC.
 
         Perform an online prediction.
@@ -227,18 +245,20 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'predict' not in self._stubs:
-            self._stubs['predict'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.PredictionService/Predict',
+        if "predict" not in self._stubs:
+            self._stubs["predict"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/Predict",
                 request_serializer=prediction_service.PredictRequest.serialize,
                 response_deserializer=prediction_service.PredictResponse.deserialize,
             )
-        return self._stubs['predict']
+        return self._stubs["predict"]
 
     @property
-    def explain(self) -> Callable[
-            [prediction_service.ExplainRequest],
-            prediction_service.ExplainResponse]:
+    def explain(
+        self,
+    ) -> Callable[
+        [prediction_service.ExplainRequest], prediction_service.ExplainResponse
+    ]:
         r"""Return a callable for the explain method over gRPC.
 
         Perform an online explanation.
@@ -264,15 +284,13 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'explain' not in self._stubs:
-            self._stubs['explain'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.PredictionService/Explain',
+        if "explain" not in self._stubs:
+            self._stubs["explain"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/Explain",
                 request_serializer=prediction_service.ExplainRequest.serialize,
                 response_deserializer=prediction_service.ExplainResponse.deserialize,
             )
-        return self._stubs['explain']
+        return self._stubs["explain"]
 
 
-__all__ = (
-    'PredictionServiceGrpcTransport',
-)
+__all__ = ("PredictionServiceGrpcTransport",)

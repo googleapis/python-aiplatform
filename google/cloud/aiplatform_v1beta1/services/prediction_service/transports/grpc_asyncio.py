@@ -18,13 +18,13 @@
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple
 
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import grpc_helpers_async         # type: ignore
-from google import auth                                # type: ignore
-from google.auth import credentials                    # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import grpc_helpers_async  # type: ignore
+from google import auth  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
-import grpc                        # type: ignore
+import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import prediction_service
@@ -50,13 +50,15 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
     _stubs: Dict[str, Callable] = {}
 
     @classmethod
-    def create_channel(cls,
-                       host: str = 'aiplatform.googleapis.com',
-                       credentials: credentials.Credentials = None,
-                       credentials_file: Optional[str] = None,
-                       scopes: Optional[Sequence[str]] = None,
-                       quota_project_id: Optional[str] = None,
-                       **kwargs) -> aio.Channel:
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        **kwargs,
+    ) -> aio.Channel:
         """Create and return a gRPC AsyncIO channel object.
         Args:
             address (Optional[str]): The host for the channel to use.
@@ -85,21 +87,23 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
             credentials_file=credentials_file,
             scopes=scopes,
             quota_project_id=quota_project_id,
-            **kwargs
+            **kwargs,
         )
 
-    def __init__(self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            credentials_file: Optional[str] = None,
-            scopes: Optional[Sequence[str]] = None,
-            channel: aio.Channel = None,
-            api_mtls_endpoint: str = None,
-            client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-            ssl_channel_credentials: grpc.ChannelCredentials = None,
-            quota_project_id=None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        channel: aio.Channel = None,
+        api_mtls_endpoint: str = None,
+        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+        ssl_channel_credentials: grpc.ChannelCredentials = None,
+        quota_project_id=None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -150,12 +154,21 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
         elif api_mtls_endpoint:
-            warnings.warn("api_mtls_endpoint and client_cert_source are deprecated", DeprecationWarning)
+            warnings.warn(
+                "api_mtls_endpoint and client_cert_source are deprecated",
+                DeprecationWarning,
+            )
 
-            host = api_mtls_endpoint if ":" in api_mtls_endpoint else api_mtls_endpoint + ":443"
+            host = (
+                api_mtls_endpoint
+                if ":" in api_mtls_endpoint
+                else api_mtls_endpoint + ":443"
+            )
 
             if credentials is None:
-                credentials, _ = auth.default(scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id)
+                credentials, _ = auth.default(
+                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
+                )
 
             # Create SSL credentials with client_cert_source or application
             # default SSL credentials.
@@ -180,7 +193,9 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
             host = host if ":" in host else host + ":443"
 
             if credentials is None:
-                credentials, _ = auth.default(scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id)
+                credentials, _ = auth.default(
+                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
+                )
 
             # create a new channel. The provided one is ignored.
             self._grpc_channel = type(self).create_channel(
@@ -215,9 +230,12 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         return self._grpc_channel
 
     @property
-    def predict(self) -> Callable[
-            [prediction_service.PredictRequest],
-            Awaitable[prediction_service.PredictResponse]]:
+    def predict(
+        self,
+    ) -> Callable[
+        [prediction_service.PredictRequest],
+        Awaitable[prediction_service.PredictResponse],
+    ]:
         r"""Return a callable for the predict method over gRPC.
 
         Perform an online prediction.
@@ -232,18 +250,21 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'predict' not in self._stubs:
-            self._stubs['predict'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.PredictionService/Predict',
+        if "predict" not in self._stubs:
+            self._stubs["predict"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/Predict",
                 request_serializer=prediction_service.PredictRequest.serialize,
                 response_deserializer=prediction_service.PredictResponse.deserialize,
             )
-        return self._stubs['predict']
+        return self._stubs["predict"]
 
     @property
-    def explain(self) -> Callable[
-            [prediction_service.ExplainRequest],
-            Awaitable[prediction_service.ExplainResponse]]:
+    def explain(
+        self,
+    ) -> Callable[
+        [prediction_service.ExplainRequest],
+        Awaitable[prediction_service.ExplainResponse],
+    ]:
         r"""Return a callable for the explain method over gRPC.
 
         Perform an online explanation.
@@ -269,15 +290,13 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'explain' not in self._stubs:
-            self._stubs['explain'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.PredictionService/Explain',
+        if "explain" not in self._stubs:
+            self._stubs["explain"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/Explain",
                 request_serializer=prediction_service.ExplainRequest.serialize,
                 response_deserializer=prediction_service.ExplainResponse.deserialize,
             )
-        return self._stubs['explain']
+        return self._stubs["explain"]
 
 
-__all__ = (
-    'PredictionServiceGrpcAsyncIOTransport',
-)
+__all__ = ("PredictionServiceGrpcAsyncIOTransport",)

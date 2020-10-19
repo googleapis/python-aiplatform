@@ -38,12 +38,15 @@ class SearchMigratableResourcesPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., migration_service.SearchMigratableResourcesResponse],
-            request: migration_service.SearchMigratableResourcesRequest,
-            response: migration_service.SearchMigratableResourcesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., migration_service.SearchMigratableResourcesResponse],
+        request: migration_service.SearchMigratableResourcesRequest,
+        response: migration_service.SearchMigratableResourcesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -77,7 +80,7 @@ class SearchMigratableResourcesPager:
             yield from page.migratable_resources
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class SearchMigratableResourcesAsyncPager:
@@ -97,12 +100,17 @@ class SearchMigratableResourcesAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[migration_service.SearchMigratableResourcesResponse]],
-            request: migration_service.SearchMigratableResourcesRequest,
-            response: migration_service.SearchMigratableResourcesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., Awaitable[migration_service.SearchMigratableResourcesResponse]
+        ],
+        request: migration_service.SearchMigratableResourcesRequest,
+        response: migration_service.SearchMigratableResourcesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -124,7 +132,9 @@ class SearchMigratableResourcesAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[migration_service.SearchMigratableResourcesResponse]:
+    async def pages(
+        self,
+    ) -> AsyncIterable[migration_service.SearchMigratableResourcesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -140,4 +150,4 @@ class SearchMigratableResourcesAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

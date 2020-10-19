@@ -23,14 +23,14 @@ from google.protobuf import struct_pb2 as struct  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
-        'Explanation',
-        'ModelExplanation',
-        'Attribution',
-        'ExplanationSpec',
-        'ExplanationParameters',
-        'SampledShapleyAttribution',
+        "Explanation",
+        "ModelExplanation",
+        "Attribution",
+        "ExplanationSpec",
+        "ExplanationParameters",
+        "SampledShapleyAttribution",
     },
 )
 
@@ -59,9 +59,7 @@ class Explanation(proto.Message):
             explaining.
     """
 
-    attributions = proto.RepeatedField(proto.MESSAGE, number=1,
-        message='Attribution',
-    )
+    attributions = proto.RepeatedField(proto.MESSAGE, number=1, message="Attribution",)
 
 
 class ModelExplanation(proto.Message):
@@ -100,8 +98,8 @@ class ModelExplanation(proto.Message):
             is not populated.
     """
 
-    mean_attributions = proto.RepeatedField(proto.MESSAGE, number=1,
-        message='Attribution',
+    mean_attributions = proto.RepeatedField(
+        proto.MESSAGE, number=1, message="Attribution",
     )
 
 
@@ -209,9 +207,7 @@ class Attribution(proto.Message):
 
     instance_output_value = proto.Field(proto.DOUBLE, number=2)
 
-    feature_attributions = proto.Field(proto.MESSAGE, number=3,
-        message=struct.Value,
-    )
+    feature_attributions = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
 
     output_index = proto.RepeatedField(proto.INT32, number=4)
 
@@ -233,12 +229,10 @@ class ExplanationSpec(proto.Message):
             input and output for explanation.
     """
 
-    parameters = proto.Field(proto.MESSAGE, number=1,
-        message='ExplanationParameters',
-    )
+    parameters = proto.Field(proto.MESSAGE, number=1, message="ExplanationParameters",)
 
-    metadata = proto.Field(proto.MESSAGE, number=2,
-        message=explanation_metadata.ExplanationMetadata,
+    metadata = proto.Field(
+        proto.MESSAGE, number=2, message=explanation_metadata.ExplanationMetadata,
     )
 
 
@@ -254,8 +248,8 @@ class ExplanationParameters(proto.Message):
             considering all subsets of features.
     """
 
-    sampled_shapley_attribution = proto.Field(proto.MESSAGE, number=1,
-        message='SampledShapleyAttribution',
+    sampled_shapley_attribution = proto.Field(
+        proto.MESSAGE, number=1, message="SampledShapleyAttribution",
     )
 
 

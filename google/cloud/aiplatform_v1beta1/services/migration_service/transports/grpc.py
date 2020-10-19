@@ -18,11 +18,11 @@
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple
 
-from google.api_core import grpc_helpers   # type: ignore
+from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google.api_core import gapic_v1       # type: ignore
-from google import auth                    # type: ignore
-from google.auth import credentials        # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google import auth  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
@@ -47,20 +47,23 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
     It sends protocol buffers over the wire using gRPC (which is built on
     top of HTTP/2); the ``grpcio`` package must be installed.
     """
+
     _stubs: Dict[str, Callable]
 
-    def __init__(self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            credentials_file: str = None,
-            scopes: Sequence[str] = None,
-            channel: grpc.Channel = None,
-            api_mtls_endpoint: str = None,
-            client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-            ssl_channel_credentials: grpc.ChannelCredentials = None,
-            quota_project_id: Optional[str] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: str = None,
+        scopes: Sequence[str] = None,
+        channel: grpc.Channel = None,
+        api_mtls_endpoint: str = None,
+        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+        ssl_channel_credentials: grpc.ChannelCredentials = None,
+        quota_project_id: Optional[str] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -110,12 +113,21 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
         elif api_mtls_endpoint:
-            warnings.warn("api_mtls_endpoint and client_cert_source are deprecated", DeprecationWarning)
+            warnings.warn(
+                "api_mtls_endpoint and client_cert_source are deprecated",
+                DeprecationWarning,
+            )
 
-            host = api_mtls_endpoint if ":" in api_mtls_endpoint else api_mtls_endpoint + ":443"
+            host = (
+                api_mtls_endpoint
+                if ":" in api_mtls_endpoint
+                else api_mtls_endpoint + ":443"
+            )
 
             if credentials is None:
-                credentials, _ = auth.default(scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id)
+                credentials, _ = auth.default(
+                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
+                )
 
             # Create SSL credentials with client_cert_source or application
             # default SSL credentials.
@@ -140,7 +152,9 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
             host = host if ":" in host else host + ":443"
 
             if credentials is None:
-                credentials, _ = auth.default(scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id)
+                credentials, _ = auth.default(
+                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
+                )
 
             # create a new channel. The provided one is ignored.
             self._grpc_channel = type(self).create_channel(
@@ -165,13 +179,15 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
         )
 
     @classmethod
-    def create_channel(cls,
-                       host: str = 'aiplatform.googleapis.com',
-                       credentials: credentials.Credentials = None,
-                       credentials_file: str = None,
-                       scopes: Optional[Sequence[str]] = None,
-                       quota_project_id: Optional[str] = None,
-                       **kwargs) -> grpc.Channel:
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: str = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        **kwargs,
+    ) -> grpc.Channel:
         """Create and return a gRPC channel object.
         Args:
             address (Optionsl[str]): The host for the channel to use.
@@ -204,7 +220,7 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
             credentials_file=credentials_file,
             scopes=scopes,
             quota_project_id=quota_project_id,
-            **kwargs
+            **kwargs,
         )
 
     @property
@@ -221,18 +237,21 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
         client.
         """
         # Sanity check: Only create a new client if we do not already have one.
-        if 'operations_client' not in self.__dict__:
-            self.__dict__['operations_client'] = operations_v1.OperationsClient(
+        if "operations_client" not in self.__dict__:
+            self.__dict__["operations_client"] = operations_v1.OperationsClient(
                 self.grpc_channel
             )
 
         # Return the client from cache.
-        return self.__dict__['operations_client']
+        return self.__dict__["operations_client"]
 
     @property
-    def search_migratable_resources(self) -> Callable[
-            [migration_service.SearchMigratableResourcesRequest],
-            migration_service.SearchMigratableResourcesResponse]:
+    def search_migratable_resources(
+        self,
+    ) -> Callable[
+        [migration_service.SearchMigratableResourcesRequest],
+        migration_service.SearchMigratableResourcesResponse,
+    ]:
         r"""Return a callable for the search migratable resources method over gRPC.
 
         Searches all of the resources in
@@ -250,18 +269,20 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'search_migratable_resources' not in self._stubs:
-            self._stubs['search_migratable_resources'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MigrationService/SearchMigratableResources',
+        if "search_migratable_resources" not in self._stubs:
+            self._stubs["search_migratable_resources"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MigrationService/SearchMigratableResources",
                 request_serializer=migration_service.SearchMigratableResourcesRequest.serialize,
                 response_deserializer=migration_service.SearchMigratableResourcesResponse.deserialize,
             )
-        return self._stubs['search_migratable_resources']
+        return self._stubs["search_migratable_resources"]
 
     @property
-    def batch_migrate_resources(self) -> Callable[
-            [migration_service.BatchMigrateResourcesRequest],
-            operations.Operation]:
+    def batch_migrate_resources(
+        self,
+    ) -> Callable[
+        [migration_service.BatchMigrateResourcesRequest], operations.Operation
+    ]:
         r"""Return a callable for the batch migrate resources method over gRPC.
 
         Batch migrates resources from ml.googleapis.com,
@@ -278,15 +299,13 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'batch_migrate_resources' not in self._stubs:
-            self._stubs['batch_migrate_resources'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MigrationService/BatchMigrateResources',
+        if "batch_migrate_resources" not in self._stubs:
+            self._stubs["batch_migrate_resources"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MigrationService/BatchMigrateResources",
                 request_serializer=migration_service.BatchMigrateResourcesRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['batch_migrate_resources']
+        return self._stubs["batch_migrate_resources"]
 
 
-__all__ = (
-    'MigrationServiceGrpcTransport',
-)
+__all__ = ("MigrationServiceGrpcTransport",)

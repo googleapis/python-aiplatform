@@ -4,7 +4,7 @@
       "git": {
         "name": ".",
         "remote": "https://github.com/dizcology/python-aiplatform.git",
-        "sha": "0fc50abf7571c93a7810506e73c05a72b9f6efc0"
+        "sha": "288035dd0612b35204273d09a2b3dbbba9fe5e2c"
       }
     },
     {
