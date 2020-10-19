@@ -37,7 +37,7 @@ from google.cloud.aiplatform_v1beta1.types import model_service
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_2 = "test-project-2"
 _TEST_LOCATION = "us-central1"
-_TEST_LOCATION_2 = "us-central2"
+_TEST_LOCATION_2 = "europe-west4"
 _TEST_MODEL_NAME = "test-model"
 _TEST_ARTIFACT_URI = "gs://test/artifact/uri"
 _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
@@ -193,7 +193,7 @@ class TestModel:
             )
 
             api_client_mock.upload_model.assert_called_once_with(
-                parent=initializer.global_config.get_resource_parent(),
+                parent=initializer.global_config.common_location_path(),
                 model=managed_model,
             )
 
@@ -259,7 +259,7 @@ class TestModel:
             )
 
             api_client_mock.upload_model.assert_called_once_with(
-                parent=initializer.global_config.get_resource_parent(),
+                parent=initializer.global_config.common_location_path(),
                 model=managed_model,
             )
 

@@ -32,7 +32,7 @@ _TEST_PROJECT = "test-project"
 _TEST_PROJECT_2 = "test-project-2"
 _TEST_LOCATION = "us-central1"
 _TEST_LOCATION_2 = "europe-west4"
-_TEST_INVALIED_LOCATION = "test-invalid-location"
+_TEST_INVALID_LOCATION = "test-invalid-location"
 _TEST_EXPERIMENT = "test-experiment"
 _TEST_STAGING_BUCKET = "test-bucket"
 
@@ -61,7 +61,7 @@ class TestInit:
 
     def test_init_location_with_invalid_location_raises(self):
         with pytest.raises(ValueError):
-            initializer.global_config.init(location=_TEST_INVALIED_LOCATION)
+            initializer.global_config.init(location=_TEST_INVALID_LOCATION)
 
     def test_init_experiment_sets_experiment(self):
         initializer.global_config.init(experiment=_TEST_EXPERIMENT)
@@ -76,17 +76,17 @@ class TestInit:
         initializer.global_config.init(credentials=creds)
         assert initializer.global_config.credentials is creds
 
-    def test_get_resource_parent_returns_parent(self):
+    def test_common_location_path_returns_parent(self):
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         true_resource_parent = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
-        assert true_resource_parent == initializer.global_config.get_resource_parent()
+        assert true_resource_parent == initializer.global_config.common_location_path()
 
-    def test_get_resource_parent_overrides(self):
+    def test_common_location_path_overrides(self):
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         true_resource_parent = (
             f"projects/{_TEST_PROJECT_2}/locations/{_TEST_LOCATION_2}"
         )
-        assert true_resource_parent == initializer.global_config.get_resource_parent(
+        assert true_resource_parent == initializer.global_config.common_location_path(
             project=_TEST_PROJECT_2, location=_TEST_LOCATION_2
         )
 

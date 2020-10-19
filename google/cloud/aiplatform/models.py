@@ -35,7 +35,7 @@ from google.cloud.aiplatform_v1beta1.types import env_var
 class Model(base.AiPlatformResourceNoun):
 
     client_class = ModelServiceClient
-    is_prediction_client = False
+    _is_client_prediction_client = False
 
     @property
     def uri(self):
@@ -209,7 +209,7 @@ class Model(base.AiPlatformResourceNoun):
         )
 
         lro = api_client.upload_model(
-            parent=initializer.global_config.get_resource_parent(project, location),
+            parent=initializer.global_config.common_location_path(project, location),
             model=managed_model,
         )
 

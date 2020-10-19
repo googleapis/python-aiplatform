@@ -137,7 +137,7 @@ class _Config:
             api_endpoint=f"{region}-{prediction}{utils.PROD_API_ENDPOINT}"
         )
 
-    def get_resource_parent(
+    def common_location_path(
         self, project: Optional[str] = None, location: Optional[str] = None
     ) -> str:
         """Get parent resource with optional project and location override.
@@ -150,7 +150,7 @@ class _Config:
         """
         if location:
             utils.validate_region(location)
-        
+
         return "/".join(
             [
                 "projects",
@@ -180,6 +180,7 @@ class _Config:
             client: Instantiated AI Platform Service client
         """
 
+        # TODO(b/171202993) add user agent
         return client_class(
             credentials=credentials or self.credentials,
             client_options=self.get_client_options(

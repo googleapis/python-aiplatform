@@ -29,7 +29,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     Subclasses require two class attributes:
 
     client_class: The client to instantiate to interact with this resource noun.
-    is_prediction_client: Flag to indicate if the client requires a prediction endpoint.
+    _is_client_prediction_client: Flag to indicate if the client requires a prediction endpoint.
 
     Subclass is required to populate private attribute _gca_resource which is the
     service representation of the resource noun.
@@ -45,7 +45,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     @property
     @classmethod
     @abc.abstractmethod
-    def is_prediction_client(cls) -> bool:
+    def _is_client_prediction_client(cls) -> bool:
         """Flag to indicate whether to use prediction endpoint with client."""
         pass
 
@@ -91,7 +91,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
             client_class=cls.client_class,
             credentials=credentials,
             location_override=location,
-            prediction_client=cls.is_prediction_client,
+            prediction_client=cls._is_client_prediction_client,
         )
 
     @property
