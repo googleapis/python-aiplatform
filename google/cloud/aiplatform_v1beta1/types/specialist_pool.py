@@ -19,7 +19,10 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"SpecialistPool",},
+    package='google.cloud.aiplatform.v1beta1',
+    manifest={
+        'SpecialistPool',
+    },
 )
 
 
@@ -55,9 +58,13 @@ class SpecialistPool(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
+
     display_name = proto.Field(proto.STRING, number=2)
+
     specialist_managers_count = proto.Field(proto.INT32, number=3)
+
     specialist_manager_emails = proto.RepeatedField(proto.STRING, number=4)
+
     pending_data_labeling_jobs = proto.RepeatedField(proto.STRING, number=5)
 
 

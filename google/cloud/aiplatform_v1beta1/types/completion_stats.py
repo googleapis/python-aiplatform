@@ -19,7 +19,10 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"CompletionStats",},
+    package='google.cloud.aiplatform.v1beta1',
+    manifest={
+        'CompletionStats',
+    },
 )
 
 
@@ -46,7 +49,9 @@ class CompletionStats(proto.Message):
     """
 
     successful_count = proto.Field(proto.INT64, number=1)
+
     failed_count = proto.Field(proto.INT64, number=2)
+
     incomplete_count = proto.Field(proto.INT64, number=3)
 
 

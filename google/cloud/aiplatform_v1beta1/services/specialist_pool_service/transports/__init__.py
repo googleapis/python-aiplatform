@@ -20,16 +20,17 @@ from typing import Dict, Type
 
 from .base import SpecialistPoolServiceTransport
 from .grpc import SpecialistPoolServiceGrpcTransport
+from .grpc_asyncio import SpecialistPoolServiceGrpcAsyncIOTransport
 
 
 # Compile a registry of transports.
-_transport_registry = (
-    OrderedDict()
-)  # type: Dict[str, Type[SpecialistPoolServiceTransport]]
-_transport_registry["grpc"] = SpecialistPoolServiceGrpcTransport
+_transport_registry = OrderedDict()  # type: Dict[str, Type[SpecialistPoolServiceTransport]]
+_transport_registry['grpc'] = SpecialistPoolServiceGrpcTransport
+_transport_registry['grpc_asyncio'] = SpecialistPoolServiceGrpcAsyncIOTransport
 
 
 __all__ = (
-    "SpecialistPoolServiceTransport",
-    "SpecialistPoolServiceGrpcTransport",
+    'SpecialistPoolServiceTransport',
+    'SpecialistPoolServiceGrpcTransport',
+    'SpecialistPoolServiceGrpcAsyncIOTransport',
 )

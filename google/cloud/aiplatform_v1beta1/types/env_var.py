@@ -19,7 +19,10 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"EnvVar",},
+    package='google.cloud.aiplatform.v1beta1',
+    manifest={
+        'EnvVar',
+    },
 )
 
 
@@ -43,6 +46,7 @@ class EnvVar(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
+
     value = proto.Field(proto.STRING, number=2)
 
 

@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Any, Callable, Iterable
+from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple
 
 from google.cloud.aiplatform_v1beta1.types import batch_prediction_job
 from google.cloud.aiplatform_v1beta1.types import custom_job
@@ -41,15 +41,12 @@ class ListCustomJobsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-
-    def __init__(
-        self,
-        method: Callable[
-            [job_service.ListCustomJobsRequest], job_service.ListCustomJobsResponse
-        ],
-        request: job_service.ListCustomJobsRequest,
-        response: job_service.ListCustomJobsResponse,
-    ):
+    def __init__(self,
+            method: Callable[..., job_service.ListCustomJobsResponse],
+            request: job_service.ListCustomJobsRequest,
+            response: job_service.ListCustomJobsResponse,
+            *,
+            metadata: Sequence[Tuple[str, str]] = ()):
         """Instantiate the pager.
 
         Args:
@@ -59,10 +56,13 @@ class ListCustomJobsPager:
                 The initial request object.
             response (:class:`~.job_service.ListCustomJobsResponse`):
                 The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
         """
         self._method = method
         self._request = job_service.ListCustomJobsRequest(request)
         self._response = response
+        self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._response, name)
@@ -72,7 +72,7 @@ class ListCustomJobsPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request)
+            self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __iter__(self) -> Iterable[custom_job.CustomJob]:
@@ -80,7 +80,70 @@ class ListCustomJobsPager:
             yield from page.custom_jobs
 
     def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+
+
+class ListCustomJobsAsyncPager:
+    """A pager for iterating through ``list_custom_jobs`` requests.
+
+    This class thinly wraps an initial
+    :class:`~.job_service.ListCustomJobsResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``custom_jobs`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``ListCustomJobs`` requests and continue to iterate
+    through the ``custom_jobs`` field on the
+    corresponding responses.
+
+    All the usual :class:`~.job_service.ListCustomJobsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+    def __init__(self,
+            method: Callable[..., Awaitable[job_service.ListCustomJobsResponse]],
+            request: job_service.ListCustomJobsRequest,
+            response: job_service.ListCustomJobsResponse,
+            *,
+            metadata: Sequence[Tuple[str, str]] = ()):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (:class:`~.job_service.ListCustomJobsRequest`):
+                The initial request object.
+            response (:class:`~.job_service.ListCustomJobsResponse`):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = job_service.ListCustomJobsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(self) -> AsyncIterable[job_service.ListCustomJobsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __aiter__(self) -> AsyncIterable[custom_job.CustomJob]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.custom_jobs:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
 
 
 class ListDataLabelingJobsPager:
@@ -100,16 +163,12 @@ class ListDataLabelingJobsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-
-    def __init__(
-        self,
-        method: Callable[
-            [job_service.ListDataLabelingJobsRequest],
-            job_service.ListDataLabelingJobsResponse,
-        ],
-        request: job_service.ListDataLabelingJobsRequest,
-        response: job_service.ListDataLabelingJobsResponse,
-    ):
+    def __init__(self,
+            method: Callable[..., job_service.ListDataLabelingJobsResponse],
+            request: job_service.ListDataLabelingJobsRequest,
+            response: job_service.ListDataLabelingJobsResponse,
+            *,
+            metadata: Sequence[Tuple[str, str]] = ()):
         """Instantiate the pager.
 
         Args:
@@ -119,10 +178,13 @@ class ListDataLabelingJobsPager:
                 The initial request object.
             response (:class:`~.job_service.ListDataLabelingJobsResponse`):
                 The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
         """
         self._method = method
         self._request = job_service.ListDataLabelingJobsRequest(request)
         self._response = response
+        self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._response, name)
@@ -132,7 +194,7 @@ class ListDataLabelingJobsPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request)
+            self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __iter__(self) -> Iterable[data_labeling_job.DataLabelingJob]:
@@ -140,7 +202,70 @@ class ListDataLabelingJobsPager:
             yield from page.data_labeling_jobs
 
     def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+
+
+class ListDataLabelingJobsAsyncPager:
+    """A pager for iterating through ``list_data_labeling_jobs`` requests.
+
+    This class thinly wraps an initial
+    :class:`~.job_service.ListDataLabelingJobsResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``data_labeling_jobs`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``ListDataLabelingJobs`` requests and continue to iterate
+    through the ``data_labeling_jobs`` field on the
+    corresponding responses.
+
+    All the usual :class:`~.job_service.ListDataLabelingJobsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+    def __init__(self,
+            method: Callable[..., Awaitable[job_service.ListDataLabelingJobsResponse]],
+            request: job_service.ListDataLabelingJobsRequest,
+            response: job_service.ListDataLabelingJobsResponse,
+            *,
+            metadata: Sequence[Tuple[str, str]] = ()):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (:class:`~.job_service.ListDataLabelingJobsRequest`):
+                The initial request object.
+            response (:class:`~.job_service.ListDataLabelingJobsResponse`):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = job_service.ListDataLabelingJobsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(self) -> AsyncIterable[job_service.ListDataLabelingJobsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __aiter__(self) -> AsyncIterable[data_labeling_job.DataLabelingJob]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.data_labeling_jobs:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
 
 
 class ListHyperparameterTuningJobsPager:
@@ -160,16 +285,12 @@ class ListHyperparameterTuningJobsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-
-    def __init__(
-        self,
-        method: Callable[
-            [job_service.ListHyperparameterTuningJobsRequest],
-            job_service.ListHyperparameterTuningJobsResponse,
-        ],
-        request: job_service.ListHyperparameterTuningJobsRequest,
-        response: job_service.ListHyperparameterTuningJobsResponse,
-    ):
+    def __init__(self,
+            method: Callable[..., job_service.ListHyperparameterTuningJobsResponse],
+            request: job_service.ListHyperparameterTuningJobsRequest,
+            response: job_service.ListHyperparameterTuningJobsResponse,
+            *,
+            metadata: Sequence[Tuple[str, str]] = ()):
         """Instantiate the pager.
 
         Args:
@@ -179,10 +300,13 @@ class ListHyperparameterTuningJobsPager:
                 The initial request object.
             response (:class:`~.job_service.ListHyperparameterTuningJobsResponse`):
                 The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
         """
         self._method = method
         self._request = job_service.ListHyperparameterTuningJobsRequest(request)
         self._response = response
+        self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._response, name)
@@ -192,7 +316,7 @@ class ListHyperparameterTuningJobsPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request)
+            self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __iter__(self) -> Iterable[hyperparameter_tuning_job.HyperparameterTuningJob]:
@@ -200,7 +324,70 @@ class ListHyperparameterTuningJobsPager:
             yield from page.hyperparameter_tuning_jobs
 
     def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+
+
+class ListHyperparameterTuningJobsAsyncPager:
+    """A pager for iterating through ``list_hyperparameter_tuning_jobs`` requests.
+
+    This class thinly wraps an initial
+    :class:`~.job_service.ListHyperparameterTuningJobsResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``hyperparameter_tuning_jobs`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``ListHyperparameterTuningJobs`` requests and continue to iterate
+    through the ``hyperparameter_tuning_jobs`` field on the
+    corresponding responses.
+
+    All the usual :class:`~.job_service.ListHyperparameterTuningJobsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+    def __init__(self,
+            method: Callable[..., Awaitable[job_service.ListHyperparameterTuningJobsResponse]],
+            request: job_service.ListHyperparameterTuningJobsRequest,
+            response: job_service.ListHyperparameterTuningJobsResponse,
+            *,
+            metadata: Sequence[Tuple[str, str]] = ()):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (:class:`~.job_service.ListHyperparameterTuningJobsRequest`):
+                The initial request object.
+            response (:class:`~.job_service.ListHyperparameterTuningJobsResponse`):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = job_service.ListHyperparameterTuningJobsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(self) -> AsyncIterable[job_service.ListHyperparameterTuningJobsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __aiter__(self) -> AsyncIterable[hyperparameter_tuning_job.HyperparameterTuningJob]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.hyperparameter_tuning_jobs:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
 
 
 class ListBatchPredictionJobsPager:
@@ -220,16 +407,12 @@ class ListBatchPredictionJobsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-
-    def __init__(
-        self,
-        method: Callable[
-            [job_service.ListBatchPredictionJobsRequest],
-            job_service.ListBatchPredictionJobsResponse,
-        ],
-        request: job_service.ListBatchPredictionJobsRequest,
-        response: job_service.ListBatchPredictionJobsResponse,
-    ):
+    def __init__(self,
+            method: Callable[..., job_service.ListBatchPredictionJobsResponse],
+            request: job_service.ListBatchPredictionJobsRequest,
+            response: job_service.ListBatchPredictionJobsResponse,
+            *,
+            metadata: Sequence[Tuple[str, str]] = ()):
         """Instantiate the pager.
 
         Args:
@@ -239,10 +422,13 @@ class ListBatchPredictionJobsPager:
                 The initial request object.
             response (:class:`~.job_service.ListBatchPredictionJobsResponse`):
                 The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
         """
         self._method = method
         self._request = job_service.ListBatchPredictionJobsRequest(request)
         self._response = response
+        self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._response, name)
@@ -252,7 +438,7 @@ class ListBatchPredictionJobsPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request)
+            self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __iter__(self) -> Iterable[batch_prediction_job.BatchPredictionJob]:
@@ -260,4 +446,67 @@ class ListBatchPredictionJobsPager:
             yield from page.batch_prediction_jobs
 
     def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+
+
+class ListBatchPredictionJobsAsyncPager:
+    """A pager for iterating through ``list_batch_prediction_jobs`` requests.
+
+    This class thinly wraps an initial
+    :class:`~.job_service.ListBatchPredictionJobsResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``batch_prediction_jobs`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``ListBatchPredictionJobs`` requests and continue to iterate
+    through the ``batch_prediction_jobs`` field on the
+    corresponding responses.
+
+    All the usual :class:`~.job_service.ListBatchPredictionJobsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+    def __init__(self,
+            method: Callable[..., Awaitable[job_service.ListBatchPredictionJobsResponse]],
+            request: job_service.ListBatchPredictionJobsRequest,
+            response: job_service.ListBatchPredictionJobsResponse,
+            *,
+            metadata: Sequence[Tuple[str, str]] = ()):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (:class:`~.job_service.ListBatchPredictionJobsRequest`):
+                The initial request object.
+            response (:class:`~.job_service.ListBatchPredictionJobsResponse`):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = job_service.ListBatchPredictionJobsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(self) -> AsyncIterable[job_service.ListBatchPredictionJobsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __aiter__(self) -> AsyncIterable[batch_prediction_job.BatchPredictionJob]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.batch_prediction_jobs:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)

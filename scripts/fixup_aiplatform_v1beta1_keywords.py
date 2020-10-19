@@ -40,6 +40,7 @@ def partition(
 class aiplatformCallTransformer(cst.CSTTransformer):
     CTRL_PARAMS: Tuple[str] = ('retry', 'timeout', 'metadata')
     METHOD_TO_PARAMS: Dict[str, Tuple[str]] = {
+    'batch_migrate_resources': ('parent', 'migrate_resource_requests', ),
     'cancel_batch_prediction_job': ('name', ),
     'cancel_custom_job': ('name', ),
     'cancel_data_labeling_job': ('name', ),
@@ -93,6 +94,7 @@ class aiplatformCallTransformer(cst.CSTTransformer):
     'list_specialist_pools': ('parent', 'page_size', 'page_token', 'read_mask', ),
     'list_training_pipelines': ('parent', 'filter', 'page_size', 'page_token', 'read_mask', ),
     'predict': ('endpoint', 'instances', 'parameters', ),
+    'search_migratable_resources': ('parent', 'page_size', 'page_token', ),
     'undeploy_model': ('endpoint', 'deployed_model_id', 'traffic_split', ),
     'update_dataset': ('dataset', 'update_mask', ),
     'update_endpoint': ('endpoint', 'update_mask', ),

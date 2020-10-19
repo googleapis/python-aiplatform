@@ -35,7 +35,7 @@ common = gcp.CommonTemplates()
 #     version="v1beta1",
 #     bazel_target="//google/cloud/aiplatform/v1beta1:aiplatform-v1beta1-py",
 # )
-library = gapic.py_library("aiplatform", "v1beta1", generator_version="0.20")
+library = gapic.py_library("aiplatform", "v1beta1")
 
 s.move(
     library,
@@ -45,7 +45,7 @@ s.move(
         "README.rst",
         "docs/index.rst",
         "google/cloud/aiplatform/__init__.py",
-        "tests/unit/aiplatform_v1beta1/test_prediction_service.py",
+        "tests/unit/gapic/aiplatform_v1beta1/test_prediction_service.py",
     ],
 )
 

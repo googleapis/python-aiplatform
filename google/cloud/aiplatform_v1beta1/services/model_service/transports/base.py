@@ -17,8 +17,12 @@
 
 import abc
 import typing
+import pkg_resources
 
-from google import auth
+from google import auth  # type: ignore
+from google.api_core import exceptions  # type: ignore
+from google.api_core import gapic_v1    # type: ignore
+from google.api_core import retry as retries  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.auth import credentials  # type: ignore
 
@@ -30,17 +34,32 @@ from google.cloud.aiplatform_v1beta1.types import model_service
 from google.longrunning import operations_pb2 as operations  # type: ignore
 
 
-class ModelServiceTransport(metaclass=abc.ABCMeta):
+try:
+    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+        gapic_version=pkg_resources.get_distribution(
+            'google-cloud-aiplatform',
+        ).version,
+    )
+except pkg_resources.DistributionNotFound:
+    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+
+class ModelServiceTransport(abc.ABC):
     """Abstract transport class for ModelService."""
 
-    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
+    AUTH_SCOPES = (
+        'https://www.googleapis.com/auth/cloud-platform',
+    )
 
     def __init__(
-        self,
-        *,
-        host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
-    ) -> None:
+            self, *,
+            host: str = 'aiplatform.googleapis.com',
+            credentials: credentials.Credentials = None,
+            credentials_file: typing.Optional[str] = None,
+            scopes: typing.Optional[typing.Sequence[str]] = AUTH_SCOPES,
+            quota_project_id: typing.Optional[str] = None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            **kwargs,
+            ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -50,97 +69,196 @@ class ModelServiceTransport(metaclass=abc.ABCMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
+            credentials_file (Optional[str]): A file with credentials that can
+                be loaded with :func:`google.auth.load_credentials_from_file`.
+                This argument is mutually exclusive with credentials.
+            scope (Optional[Sequence[str]]): A list of scopes.
+            quota_project_id (Optional[str]): An optional project to use for billing
+                and quota.
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):	
+                The client info used to send a user-agent string along with	
+                API requests. If ``None``, then default info will be used.	
+                Generally, you only need to set this if you're developing	
+                your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ":" not in host:
-            host += ":443"
+        if ':' not in host:
+            host += ':443'
         self._host = host
 
         # If no credentials are provided, then determine the appropriate
         # defaults.
-        if credentials is None:
-            credentials, _ = auth.default(scopes=self.AUTH_SCOPES)
+        if credentials and credentials_file:
+            raise exceptions.DuplicateCredentialArgs("'credentials_file' and 'credentials' are mutually exclusive")
+
+        if credentials_file is not None:
+            credentials, _ = auth.load_credentials_from_file(
+                                credentials_file,
+                                scopes=scopes,
+                                quota_project_id=quota_project_id
+                            )
+
+        elif credentials is None:
+            credentials, _ = auth.default(scopes=scopes, quota_project_id=quota_project_id)
 
         # Save the credentials.
         self._credentials = credentials
 
+        # Lifted into its own function so it can be stubbed out during tests.
+        self._prep_wrapped_messages(client_info)
+
+    def _prep_wrapped_messages(self, client_info):
+        # Precompute the wrapped methods.
+        self._wrapped_methods = {
+            self.upload_model: gapic_v1.method.wrap_method(
+                self.upload_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_model: gapic_v1.method.wrap_method(
+                self.get_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_models: gapic_v1.method.wrap_method(
+                self.list_models,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_model: gapic_v1.method.wrap_method(
+                self.update_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_model: gapic_v1.method.wrap_method(
+                self.delete_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.export_model: gapic_v1.method.wrap_method(
+                self.export_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_model_evaluation: gapic_v1.method.wrap_method(
+                self.get_model_evaluation,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_model_evaluations: gapic_v1.method.wrap_method(
+                self.list_model_evaluations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_model_evaluation_slice: gapic_v1.method.wrap_method(
+                self.get_model_evaluation_slice,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_model_evaluation_slices: gapic_v1.method.wrap_method(
+                self.list_model_evaluation_slices,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+
+        }
+
     @property
     def operations_client(self) -> operations_v1.OperationsClient:
         """Return the client designed to process long-running operations."""
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @property
-    def upload_model(
-        self,
-    ) -> typing.Callable[[model_service.UploadModelRequest], operations.Operation]:
-        raise NotImplementedError
+    def upload_model(self) -> typing.Callable[
+            [model_service.UploadModelRequest],
+            typing.Union[
+                operations.Operation,
+                typing.Awaitable[operations.Operation]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def get_model(
-        self,
-    ) -> typing.Callable[[model_service.GetModelRequest], model.Model]:
-        raise NotImplementedError
+    def get_model(self) -> typing.Callable[
+            [model_service.GetModelRequest],
+            typing.Union[
+                model.Model,
+                typing.Awaitable[model.Model]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def list_models(
-        self,
-    ) -> typing.Callable[
-        [model_service.ListModelsRequest], model_service.ListModelsResponse
-    ]:
-        raise NotImplementedError
+    def list_models(self) -> typing.Callable[
+            [model_service.ListModelsRequest],
+            typing.Union[
+                model_service.ListModelsResponse,
+                typing.Awaitable[model_service.ListModelsResponse]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def update_model(
-        self,
-    ) -> typing.Callable[[model_service.UpdateModelRequest], gca_model.Model]:
-        raise NotImplementedError
+    def update_model(self) -> typing.Callable[
+            [model_service.UpdateModelRequest],
+            typing.Union[
+                gca_model.Model,
+                typing.Awaitable[gca_model.Model]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def delete_model(
-        self,
-    ) -> typing.Callable[[model_service.DeleteModelRequest], operations.Operation]:
-        raise NotImplementedError
+    def delete_model(self) -> typing.Callable[
+            [model_service.DeleteModelRequest],
+            typing.Union[
+                operations.Operation,
+                typing.Awaitable[operations.Operation]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def export_model(
-        self,
-    ) -> typing.Callable[[model_service.ExportModelRequest], operations.Operation]:
-        raise NotImplementedError
+    def export_model(self) -> typing.Callable[
+            [model_service.ExportModelRequest],
+            typing.Union[
+                operations.Operation,
+                typing.Awaitable[operations.Operation]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def get_model_evaluation(
-        self,
-    ) -> typing.Callable[
-        [model_service.GetModelEvaluationRequest], model_evaluation.ModelEvaluation
-    ]:
-        raise NotImplementedError
+    def get_model_evaluation(self) -> typing.Callable[
+            [model_service.GetModelEvaluationRequest],
+            typing.Union[
+                model_evaluation.ModelEvaluation,
+                typing.Awaitable[model_evaluation.ModelEvaluation]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def list_model_evaluations(
-        self,
-    ) -> typing.Callable[
-        [model_service.ListModelEvaluationsRequest],
-        model_service.ListModelEvaluationsResponse,
-    ]:
-        raise NotImplementedError
+    def list_model_evaluations(self) -> typing.Callable[
+            [model_service.ListModelEvaluationsRequest],
+            typing.Union[
+                model_service.ListModelEvaluationsResponse,
+                typing.Awaitable[model_service.ListModelEvaluationsResponse]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def get_model_evaluation_slice(
-        self,
-    ) -> typing.Callable[
-        [model_service.GetModelEvaluationSliceRequest],
-        model_evaluation_slice.ModelEvaluationSlice,
-    ]:
-        raise NotImplementedError
+    def get_model_evaluation_slice(self) -> typing.Callable[
+            [model_service.GetModelEvaluationSliceRequest],
+            typing.Union[
+                model_evaluation_slice.ModelEvaluationSlice,
+                typing.Awaitable[model_evaluation_slice.ModelEvaluationSlice]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def list_model_evaluation_slices(
-        self,
-    ) -> typing.Callable[
-        [model_service.ListModelEvaluationSlicesRequest],
-        model_service.ListModelEvaluationSlicesResponse,
-    ]:
-        raise NotImplementedError
+    def list_model_evaluation_slices(self) -> typing.Callable[
+            [model_service.ListModelEvaluationSlicesRequest],
+            typing.Union[
+                model_service.ListModelEvaluationSlicesResponse,
+                typing.Awaitable[model_service.ListModelEvaluationSlicesResponse]
+            ]]:
+        raise NotImplementedError()
 
 
-__all__ = ("ModelServiceTransport",)
+__all__ = (
+    'ModelServiceTransport',
+)

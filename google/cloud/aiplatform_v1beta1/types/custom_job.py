@@ -27,14 +27,14 @@ from google.rpc import status_pb2 as status  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "CustomJob",
-        "CustomJobSpec",
-        "WorkerPoolSpec",
-        "ContainerSpec",
-        "PythonPackageSpec",
-        "Scheduling",
+        'CustomJob',
+        'CustomJobSpec',
+        'WorkerPoolSpec',
+        'ContainerSpec',
+        'PythonPackageSpec',
+        'Scheduling',
     },
 )
 
@@ -86,14 +86,37 @@ class CustomJob(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
+
     display_name = proto.Field(proto.STRING, number=2)
-    job_spec = proto.Field(proto.MESSAGE, number=4, message="CustomJobSpec",)
-    state = proto.Field(proto.ENUM, number=5, enum=job_state.JobState,)
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
-    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
-    error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
+
+    job_spec = proto.Field(proto.MESSAGE, number=4,
+        message='CustomJobSpec',
+    )
+
+    state = proto.Field(proto.ENUM, number=5,
+        enum=job_state.JobState,
+    )
+
+    create_time = proto.Field(proto.MESSAGE, number=6,
+        message=timestamp.Timestamp,
+    )
+
+    start_time = proto.Field(proto.MESSAGE, number=7,
+        message=timestamp.Timestamp,
+    )
+
+    end_time = proto.Field(proto.MESSAGE, number=8,
+        message=timestamp.Timestamp,
+    )
+
+    update_time = proto.Field(proto.MESSAGE, number=9,
+        message=timestamp.Timestamp,
+    )
+
+    error = proto.Field(proto.MESSAGE, number=10,
+        message=status.Status,
+    )
+
     labels = proto.MapField(proto.STRING, proto.STRING, number=11)
 
 
@@ -139,12 +162,16 @@ class CustomJobSpec(proto.Message):
                ``<base_output_directory>/<trial_id>/logs/``
     """
 
-    worker_pool_specs = proto.RepeatedField(
-        proto.MESSAGE, number=1, message="WorkerPoolSpec",
+    worker_pool_specs = proto.RepeatedField(proto.MESSAGE, number=1,
+        message='WorkerPoolSpec',
     )
-    scheduling = proto.Field(proto.MESSAGE, number=3, message="Scheduling",)
-    base_output_directory = proto.Field(
-        proto.MESSAGE, number=6, message=io.GcsDestination,
+
+    scheduling = proto.Field(proto.MESSAGE, number=3,
+        message='Scheduling',
+    )
+
+    base_output_directory = proto.Field(proto.MESSAGE, number=6,
+        message=io.GcsDestination,
     )
 
 
@@ -164,13 +191,18 @@ class WorkerPoolSpec(proto.Message):
             use for this worker pool.
     """
 
-    container_spec = proto.Field(proto.MESSAGE, number=6, message="ContainerSpec",)
-    python_package_spec = proto.Field(
-        proto.MESSAGE, number=7, message="PythonPackageSpec",
+    container_spec = proto.Field(proto.MESSAGE, number=6, oneof='task',
+        message='ContainerSpec',
     )
-    machine_spec = proto.Field(
-        proto.MESSAGE, number=1, message=machine_resources.MachineSpec,
+
+    python_package_spec = proto.Field(proto.MESSAGE, number=7, oneof='task',
+        message='PythonPackageSpec',
     )
+
+    machine_spec = proto.Field(proto.MESSAGE, number=1,
+        message=machine_resources.MachineSpec,
+    )
+
     replica_count = proto.Field(proto.INT64, number=2)
 
 
@@ -192,7 +224,9 @@ class ContainerSpec(proto.Message):
     """
 
     image_uri = proto.Field(proto.STRING, number=1)
+
     command = proto.RepeatedField(proto.STRING, number=2)
+
     args = proto.RepeatedField(proto.STRING, number=3)
 
 
@@ -221,8 +255,11 @@ class PythonPackageSpec(proto.Message):
     """
 
     executor_image_uri = proto.Field(proto.STRING, number=1)
+
     package_uris = proto.RepeatedField(proto.STRING, number=2)
+
     python_module = proto.Field(proto.STRING, number=3)
+
     args = proto.RepeatedField(proto.STRING, number=4)
 
 
@@ -241,7 +278,10 @@ class Scheduling(proto.Message):
             to workers leaving and joining a job.
     """
 
-    timeout = proto.Field(proto.MESSAGE, number=1, message=duration.Duration,)
+    timeout = proto.Field(proto.MESSAGE, number=1,
+        message=duration.Duration,
+    )
+
     restart_job_on_worker_restart = proto.Field(proto.BOOL, number=3)
 
 

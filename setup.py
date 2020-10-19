@@ -15,46 +15,36 @@
 # limitations under the License.
 #
 
-import io
-import os
 import setuptools  # type: ignore
-
-version = "0.2.0"
-
-package_root = os.path.abspath(os.path.dirname(__file__))
-
-readme_filename = os.path.join(package_root, "README.rst")
-with io.open(readme_filename, encoding="utf-8") as readme_file:
-    readme = readme_file.read()
 
 
 setuptools.setup(
-    name="google-cloud-aiplatform",
-    version=version,
-    long_description=readme,
-    author="Google LLC",
-    author_email="googleapis-packages@google.com",
-    license="Apache 2.0",
-    url="https://github.com/googleapis/python-documentai",
+    name='google-cloud-aiplatform',
+    version='0.3.0',
     packages=setuptools.PEP420PackageFinder.find(),
-    namespace_packages=("google", "google.cloud"),
-    platforms="Posix; MacOS X; Windows",
+    namespace_packages=('google', 'google.cloud'),
+    platforms='Posix; MacOS X; Windows',
     include_package_data=True,
     install_requires=(
-        "google-api-core[grpc] >= 1.22.2, < 2.0.0dev",
-        "libcst >= 0.2.5",
-        "proto-plus >= 1.4.0",
+        'google-api-core[grpc] >= 1.22.2, < 2.0.0dev',
+        'libcst >= 0.2.5',
+        'proto-plus >= 1.4.0',
+        'mock >= 4.0.2',
+        'google-cloud-storage >= 1.26.0',
     ),
-    python_requires=">=3.6",
+    python_requires='>=3.6',
+    scripts=[
+        'scripts/fixup_aiplatform_v1beta1_keywords.py',
+    ],
     classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Topic :: Internet",
-        "Topic :: Software Development :: Libraries :: Python Modules",
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Topic :: Internet',
+        'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     zip_safe=False,
 )

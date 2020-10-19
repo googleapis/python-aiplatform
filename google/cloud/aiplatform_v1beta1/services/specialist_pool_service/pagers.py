@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Any, Callable, Iterable
+from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple
 
 from google.cloud.aiplatform_v1beta1.types import specialist_pool
 from google.cloud.aiplatform_v1beta1.types import specialist_pool_service
@@ -38,16 +38,12 @@ class ListSpecialistPoolsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-
-    def __init__(
-        self,
-        method: Callable[
-            [specialist_pool_service.ListSpecialistPoolsRequest],
-            specialist_pool_service.ListSpecialistPoolsResponse,
-        ],
-        request: specialist_pool_service.ListSpecialistPoolsRequest,
-        response: specialist_pool_service.ListSpecialistPoolsResponse,
-    ):
+    def __init__(self,
+            method: Callable[..., specialist_pool_service.ListSpecialistPoolsResponse],
+            request: specialist_pool_service.ListSpecialistPoolsRequest,
+            response: specialist_pool_service.ListSpecialistPoolsResponse,
+            *,
+            metadata: Sequence[Tuple[str, str]] = ()):
         """Instantiate the pager.
 
         Args:
@@ -57,10 +53,13 @@ class ListSpecialistPoolsPager:
                 The initial request object.
             response (:class:`~.specialist_pool_service.ListSpecialistPoolsResponse`):
                 The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
         """
         self._method = method
         self._request = specialist_pool_service.ListSpecialistPoolsRequest(request)
         self._response = response
+        self._metadata = metadata
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._response, name)
@@ -70,7 +69,7 @@ class ListSpecialistPoolsPager:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request)
+            self._response = self._method(self._request, metadata=self._metadata)
             yield self._response
 
     def __iter__(self) -> Iterable[specialist_pool.SpecialistPool]:
@@ -78,4 +77,67 @@ class ListSpecialistPoolsPager:
             yield from page.specialist_pools
 
     def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+
+
+class ListSpecialistPoolsAsyncPager:
+    """A pager for iterating through ``list_specialist_pools`` requests.
+
+    This class thinly wraps an initial
+    :class:`~.specialist_pool_service.ListSpecialistPoolsResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``specialist_pools`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``ListSpecialistPools`` requests and continue to iterate
+    through the ``specialist_pools`` field on the
+    corresponding responses.
+
+    All the usual :class:`~.specialist_pool_service.ListSpecialistPoolsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+    def __init__(self,
+            method: Callable[..., Awaitable[specialist_pool_service.ListSpecialistPoolsResponse]],
+            request: specialist_pool_service.ListSpecialistPoolsRequest,
+            response: specialist_pool_service.ListSpecialistPoolsResponse,
+            *,
+            metadata: Sequence[Tuple[str, str]] = ()):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (:class:`~.specialist_pool_service.ListSpecialistPoolsRequest`):
+                The initial request object.
+            response (:class:`~.specialist_pool_service.ListSpecialistPoolsResponse`):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = specialist_pool_service.ListSpecialistPoolsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(self) -> AsyncIterable[specialist_pool_service.ListSpecialistPoolsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __aiter__(self) -> AsyncIterable[specialist_pool.SpecialistPool]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.specialist_pools:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)

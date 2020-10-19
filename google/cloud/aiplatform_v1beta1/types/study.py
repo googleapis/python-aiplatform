@@ -23,8 +23,12 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
-    manifest={"Trial", "StudySpec", "Measurement",},
+    package='google.cloud.aiplatform.v1beta1',
+    manifest={
+        'Trial',
+        'StudySpec',
+        'Measurement',
+    },
 )
 
 
@@ -54,7 +58,6 @@ class Trial(proto.Message):
             Trial. It's set for a HyperparameterTuningJob's
             Trial.
     """
-
     class State(proto.Enum):
         r"""Describes a Trial state."""
         STATE_UNSPECIFIED = 0
@@ -81,14 +84,33 @@ class Trial(proto.Message):
         """
 
         parameter_id = proto.Field(proto.STRING, number=1)
-        value = proto.Field(proto.MESSAGE, number=2, message=struct.Value,)
+
+        value = proto.Field(proto.MESSAGE, number=2,
+            message=struct.Value,
+        )
 
     id = proto.Field(proto.STRING, number=2)
-    state = proto.Field(proto.ENUM, number=3, enum=State,)
-    parameters = proto.RepeatedField(proto.MESSAGE, number=4, message=Parameter,)
-    final_measurement = proto.Field(proto.MESSAGE, number=5, message="Measurement",)
-    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
+
+    state = proto.Field(proto.ENUM, number=3,
+        enum=State,
+    )
+
+    parameters = proto.RepeatedField(proto.MESSAGE, number=4,
+        message=Parameter,
+    )
+
+    final_measurement = proto.Field(proto.MESSAGE, number=5,
+        message='Measurement',
+    )
+
+    start_time = proto.Field(proto.MESSAGE, number=7,
+        message=timestamp.Timestamp,
+    )
+
+    end_time = proto.Field(proto.MESSAGE, number=8,
+        message=timestamp.Timestamp,
+    )
+
     custom_job = proto.Field(proto.STRING, number=11)
 
 
@@ -103,7 +125,6 @@ class StudySpec(proto.Message):
         algorithm (~.study.StudySpec.Algorithm):
             The search algorithm specified for the Study.
     """
-
     class Algorithm(proto.Enum):
         r"""The available search algorithms for the Study."""
         ALGORITHM_UNSPECIFIED = 0
@@ -122,7 +143,6 @@ class StudySpec(proto.Message):
                 Required. The optimization goal of the
                 metric.
         """
-
         class GoalType(proto.Enum):
             r"""The available types of optimization goals."""
             GOAL_TYPE_UNSPECIFIED = 0
@@ -130,7 +150,10 @@ class StudySpec(proto.Message):
             MINIMIZE = 2
 
         metric_id = proto.Field(proto.STRING, number=1)
-        goal = proto.Field(proto.ENUM, number=2, enum="StudySpec.MetricSpec.GoalType",)
+
+        goal = proto.Field(proto.ENUM, number=2,
+            enum='StudySpec.MetricSpec.GoalType',
+        )
 
     class ParameterSpec(proto.Message):
         r"""Represents a single parameter to optimize.
@@ -152,7 +175,6 @@ class StudySpec(proto.Message):
                 How the parameter should be scaled. Leave unset for
                 ``CATEGORICAL`` parameters.
         """
-
         class ScaleType(proto.Enum):
             r"""The type of scaling that should be applied to this parameter."""
             SCALE_TYPE_UNSPECIFIED = 0
@@ -173,6 +195,7 @@ class StudySpec(proto.Message):
             """
 
             min_value = proto.Field(proto.DOUBLE, number=1)
+
             max_value = proto.Field(proto.DOUBLE, number=2)
 
         class IntegerValueSpec(proto.Message):
@@ -188,6 +211,7 @@ class StudySpec(proto.Message):
             """
 
             min_value = proto.Field(proto.INT64, number=1)
+
             max_value = proto.Field(proto.INT64, number=2)
 
         class CategoricalValueSpec(proto.Message):
@@ -215,30 +239,39 @@ class StudySpec(proto.Message):
 
             values = proto.RepeatedField(proto.DOUBLE, number=1)
 
-        double_value_spec = proto.Field(
-            proto.MESSAGE, number=2, message="StudySpec.ParameterSpec.DoubleValueSpec",
-        )
-        integer_value_spec = proto.Field(
-            proto.MESSAGE, number=3, message="StudySpec.ParameterSpec.IntegerValueSpec",
-        )
-        categorical_value_spec = proto.Field(
-            proto.MESSAGE,
-            number=4,
-            message="StudySpec.ParameterSpec.CategoricalValueSpec",
-        )
-        discrete_value_spec = proto.Field(
-            proto.MESSAGE,
-            number=5,
-            message="StudySpec.ParameterSpec.DiscreteValueSpec",
-        )
-        parameter_id = proto.Field(proto.STRING, number=1)
-        scale_type = proto.Field(
-            proto.ENUM, number=6, enum="StudySpec.ParameterSpec.ScaleType",
+        double_value_spec = proto.Field(proto.MESSAGE, number=2, oneof='parameter_value_spec',
+            message='StudySpec.ParameterSpec.DoubleValueSpec',
         )
 
-    metrics = proto.RepeatedField(proto.MESSAGE, number=1, message=MetricSpec,)
-    parameters = proto.RepeatedField(proto.MESSAGE, number=2, message=ParameterSpec,)
-    algorithm = proto.Field(proto.ENUM, number=3, enum=Algorithm,)
+        integer_value_spec = proto.Field(proto.MESSAGE, number=3, oneof='parameter_value_spec',
+            message='StudySpec.ParameterSpec.IntegerValueSpec',
+        )
+
+        categorical_value_spec = proto.Field(proto.MESSAGE, number=4, oneof='parameter_value_spec',
+            message='StudySpec.ParameterSpec.CategoricalValueSpec',
+        )
+
+        discrete_value_spec = proto.Field(proto.MESSAGE, number=5, oneof='parameter_value_spec',
+            message='StudySpec.ParameterSpec.DiscreteValueSpec',
+        )
+
+        parameter_id = proto.Field(proto.STRING, number=1)
+
+        scale_type = proto.Field(proto.ENUM, number=6,
+            enum='StudySpec.ParameterSpec.ScaleType',
+        )
+
+    metrics = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=MetricSpec,
+    )
+
+    parameters = proto.RepeatedField(proto.MESSAGE, number=2,
+        message=ParameterSpec,
+    )
+
+    algorithm = proto.Field(proto.ENUM, number=3,
+        enum=Algorithm,
+    )
 
 
 class Measurement(proto.Message):
@@ -256,7 +289,6 @@ class Measurement(proto.Message):
             evaluating the objective functions using
             suggested Parameter values.
     """
-
     class Metric(proto.Message):
         r"""A message representing a metric in the measurement.
 
@@ -270,10 +302,14 @@ class Measurement(proto.Message):
         """
 
         metric_id = proto.Field(proto.STRING, number=1)
+
         value = proto.Field(proto.DOUBLE, number=2)
 
     step_count = proto.Field(proto.INT64, number=2)
-    metrics = proto.RepeatedField(proto.MESSAGE, number=3, message=Metric,)
+
+    metrics = proto.RepeatedField(proto.MESSAGE, number=3,
+        message=Metric,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

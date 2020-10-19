@@ -20,14 +20,17 @@ from typing import Dict, Type
 
 from .base import DatasetServiceTransport
 from .grpc import DatasetServiceGrpcTransport
+from .grpc_asyncio import DatasetServiceGrpcAsyncIOTransport
 
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[DatasetServiceTransport]]
-_transport_registry["grpc"] = DatasetServiceGrpcTransport
+_transport_registry['grpc'] = DatasetServiceGrpcTransport
+_transport_registry['grpc_asyncio'] = DatasetServiceGrpcAsyncIOTransport
 
 
 __all__ = (
-    "DatasetServiceTransport",
-    "DatasetServiceGrpcTransport",
+    'DatasetServiceTransport',
+    'DatasetServiceGrpcTransport',
+    'DatasetServiceGrpcAsyncIOTransport',
 )

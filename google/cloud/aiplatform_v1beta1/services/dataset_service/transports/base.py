@@ -17,8 +17,12 @@
 
 import abc
 import typing
+import pkg_resources
 
-from google import auth
+from google import auth  # type: ignore
+from google.api_core import exceptions  # type: ignore
+from google.api_core import gapic_v1    # type: ignore
+from google.api_core import retry as retries  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.auth import credentials  # type: ignore
 
@@ -29,17 +33,32 @@ from google.cloud.aiplatform_v1beta1.types import dataset_service
 from google.longrunning import operations_pb2 as operations  # type: ignore
 
 
-class DatasetServiceTransport(metaclass=abc.ABCMeta):
+try:
+    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+        gapic_version=pkg_resources.get_distribution(
+            'google-cloud-aiplatform',
+        ).version,
+    )
+except pkg_resources.DistributionNotFound:
+    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+
+class DatasetServiceTransport(abc.ABC):
     """Abstract transport class for DatasetService."""
 
-    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
+    AUTH_SCOPES = (
+        'https://www.googleapis.com/auth/cloud-platform',
+    )
 
     def __init__(
-        self,
-        *,
-        host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
-    ) -> None:
+            self, *,
+            host: str = 'aiplatform.googleapis.com',
+            credentials: credentials.Credentials = None,
+            credentials_file: typing.Optional[str] = None,
+            scopes: typing.Optional[typing.Sequence[str]] = AUTH_SCOPES,
+            quota_project_id: typing.Optional[str] = None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            **kwargs,
+            ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -49,93 +68,196 @@ class DatasetServiceTransport(metaclass=abc.ABCMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
+            credentials_file (Optional[str]): A file with credentials that can
+                be loaded with :func:`google.auth.load_credentials_from_file`.
+                This argument is mutually exclusive with credentials.
+            scope (Optional[Sequence[str]]): A list of scopes.
+            quota_project_id (Optional[str]): An optional project to use for billing
+                and quota.
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):	
+                The client info used to send a user-agent string along with	
+                API requests. If ``None``, then default info will be used.	
+                Generally, you only need to set this if you're developing	
+                your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ":" not in host:
-            host += ":443"
+        if ':' not in host:
+            host += ':443'
         self._host = host
 
         # If no credentials are provided, then determine the appropriate
         # defaults.
-        if credentials is None:
-            credentials, _ = auth.default(scopes=self.AUTH_SCOPES)
+        if credentials and credentials_file:
+            raise exceptions.DuplicateCredentialArgs("'credentials_file' and 'credentials' are mutually exclusive")
+
+        if credentials_file is not None:
+            credentials, _ = auth.load_credentials_from_file(
+                                credentials_file,
+                                scopes=scopes,
+                                quota_project_id=quota_project_id
+                            )
+
+        elif credentials is None:
+            credentials, _ = auth.default(scopes=scopes, quota_project_id=quota_project_id)
 
         # Save the credentials.
         self._credentials = credentials
 
+        # Lifted into its own function so it can be stubbed out during tests.
+        self._prep_wrapped_messages(client_info)
+
+    def _prep_wrapped_messages(self, client_info):
+        # Precompute the wrapped methods.
+        self._wrapped_methods = {
+            self.create_dataset: gapic_v1.method.wrap_method(
+                self.create_dataset,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_dataset: gapic_v1.method.wrap_method(
+                self.get_dataset,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_dataset: gapic_v1.method.wrap_method(
+                self.update_dataset,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_datasets: gapic_v1.method.wrap_method(
+                self.list_datasets,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_dataset: gapic_v1.method.wrap_method(
+                self.delete_dataset,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.import_data: gapic_v1.method.wrap_method(
+                self.import_data,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.export_data: gapic_v1.method.wrap_method(
+                self.export_data,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_data_items: gapic_v1.method.wrap_method(
+                self.list_data_items,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_annotation_spec: gapic_v1.method.wrap_method(
+                self.get_annotation_spec,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_annotations: gapic_v1.method.wrap_method(
+                self.list_annotations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+
+        }
+
     @property
     def operations_client(self) -> operations_v1.OperationsClient:
         """Return the client designed to process long-running operations."""
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @property
-    def create_dataset(
-        self,
-    ) -> typing.Callable[[dataset_service.CreateDatasetRequest], operations.Operation]:
-        raise NotImplementedError
+    def create_dataset(self) -> typing.Callable[
+            [dataset_service.CreateDatasetRequest],
+            typing.Union[
+                operations.Operation,
+                typing.Awaitable[operations.Operation]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def get_dataset(
-        self,
-    ) -> typing.Callable[[dataset_service.GetDatasetRequest], dataset.Dataset]:
-        raise NotImplementedError
+    def get_dataset(self) -> typing.Callable[
+            [dataset_service.GetDatasetRequest],
+            typing.Union[
+                dataset.Dataset,
+                typing.Awaitable[dataset.Dataset]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def update_dataset(
-        self,
-    ) -> typing.Callable[[dataset_service.UpdateDatasetRequest], gca_dataset.Dataset]:
-        raise NotImplementedError
+    def update_dataset(self) -> typing.Callable[
+            [dataset_service.UpdateDatasetRequest],
+            typing.Union[
+                gca_dataset.Dataset,
+                typing.Awaitable[gca_dataset.Dataset]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def list_datasets(
-        self,
-    ) -> typing.Callable[
-        [dataset_service.ListDatasetsRequest], dataset_service.ListDatasetsResponse
-    ]:
-        raise NotImplementedError
+    def list_datasets(self) -> typing.Callable[
+            [dataset_service.ListDatasetsRequest],
+            typing.Union[
+                dataset_service.ListDatasetsResponse,
+                typing.Awaitable[dataset_service.ListDatasetsResponse]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def delete_dataset(
-        self,
-    ) -> typing.Callable[[dataset_service.DeleteDatasetRequest], operations.Operation]:
-        raise NotImplementedError
+    def delete_dataset(self) -> typing.Callable[
+            [dataset_service.DeleteDatasetRequest],
+            typing.Union[
+                operations.Operation,
+                typing.Awaitable[operations.Operation]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def import_data(
-        self,
-    ) -> typing.Callable[[dataset_service.ImportDataRequest], operations.Operation]:
-        raise NotImplementedError
+    def import_data(self) -> typing.Callable[
+            [dataset_service.ImportDataRequest],
+            typing.Union[
+                operations.Operation,
+                typing.Awaitable[operations.Operation]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def export_data(
-        self,
-    ) -> typing.Callable[[dataset_service.ExportDataRequest], operations.Operation]:
-        raise NotImplementedError
+    def export_data(self) -> typing.Callable[
+            [dataset_service.ExportDataRequest],
+            typing.Union[
+                operations.Operation,
+                typing.Awaitable[operations.Operation]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def list_data_items(
-        self,
-    ) -> typing.Callable[
-        [dataset_service.ListDataItemsRequest], dataset_service.ListDataItemsResponse
-    ]:
-        raise NotImplementedError
+    def list_data_items(self) -> typing.Callable[
+            [dataset_service.ListDataItemsRequest],
+            typing.Union[
+                dataset_service.ListDataItemsResponse,
+                typing.Awaitable[dataset_service.ListDataItemsResponse]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def get_annotation_spec(
-        self,
-    ) -> typing.Callable[
-        [dataset_service.GetAnnotationSpecRequest], annotation_spec.AnnotationSpec
-    ]:
-        raise NotImplementedError
+    def get_annotation_spec(self) -> typing.Callable[
+            [dataset_service.GetAnnotationSpecRequest],
+            typing.Union[
+                annotation_spec.AnnotationSpec,
+                typing.Awaitable[annotation_spec.AnnotationSpec]
+            ]]:
+        raise NotImplementedError()
 
     @property
-    def list_annotations(
-        self,
-    ) -> typing.Callable[
-        [dataset_service.ListAnnotationsRequest],
-        dataset_service.ListAnnotationsResponse,
-    ]:
-        raise NotImplementedError
+    def list_annotations(self) -> typing.Callable[
+            [dataset_service.ListAnnotationsRequest],
+            typing.Union[
+                dataset_service.ListAnnotationsResponse,
+                typing.Awaitable[dataset_service.ListAnnotationsResponse]
+            ]]:
+        raise NotImplementedError()
 
 
-__all__ = ("DatasetServiceTransport",)
+__all__ = (
+    'DatasetServiceTransport',
+)

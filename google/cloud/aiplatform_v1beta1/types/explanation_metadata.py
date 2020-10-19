@@ -22,7 +22,10 @@ from google.protobuf import struct_pb2 as struct  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"ExplanationMetadata",},
+    package='google.cloud.aiplatform.v1beta1',
+    manifest={
+        'ExplanationMetadata',
+    },
 )
 
 
@@ -58,7 +61,6 @@ class ExplanationMetadata(proto.Message):
             output URI will point to a location where the user only has
             a read access.
     """
-
     class InputMetadata(proto.Message):
         r"""Metadata of the input of a feature.
 
@@ -81,8 +83,8 @@ class ExplanationMetadata(proto.Message):
                 ``instance_schema_uri``.
         """
 
-        input_baselines = proto.RepeatedField(
-            proto.MESSAGE, number=1, message=struct.Value,
+        input_baselines = proto.RepeatedField(proto.MESSAGE, number=1,
+            message=struct.Value,
         )
 
     class OutputMetadata(proto.Message):
@@ -118,17 +120,20 @@ class ExplanationMetadata(proto.Message):
                 for a specific output.
         """
 
-        index_display_name_mapping = proto.Field(
-            proto.MESSAGE, number=1, message=struct.Value,
+        index_display_name_mapping = proto.Field(proto.MESSAGE, number=1, oneof='display_name_mapping',
+            message=struct.Value,
         )
-        display_name_mapping_key = proto.Field(proto.STRING, number=2)
 
-    inputs = proto.MapField(
-        proto.STRING, proto.MESSAGE, number=1, message=InputMetadata,
+        display_name_mapping_key = proto.Field(proto.STRING, number=2, oneof='display_name_mapping')
+
+    inputs = proto.MapField(proto.STRING, proto.MESSAGE, number=1,
+        message=InputMetadata,
     )
-    outputs = proto.MapField(
-        proto.STRING, proto.MESSAGE, number=2, message=OutputMetadata,
+
+    outputs = proto.MapField(proto.STRING, proto.MESSAGE, number=2,
+        message=OutputMetadata,
     )
+
     feature_attributions_schema_uri = proto.Field(proto.STRING, number=3)
 
 

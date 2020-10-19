@@ -15,11 +15,15 @@
 # limitations under the License.
 #
 
-from typing import Callable, Dict
+import warnings
+from typing import Callable, Dict, Optional, Sequence, Tuple
 
-from google.api_core import grpc_helpers  # type: ignore
+from google.api_core import grpc_helpers   # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.api_core import gapic_v1       # type: ignore
+from google import auth                    # type: ignore
+from google.auth import credentials        # type: ignore
+from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
 
@@ -30,7 +34,7 @@ from google.cloud.aiplatform_v1beta1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1beta1.types import model_service
 from google.longrunning import operations_pb2 as operations  # type: ignore
 
-from .base import ModelServiceTransport
+from .base import ModelServiceTransport, DEFAULT_CLIENT_INFO
 
 
 class ModelServiceGrpcTransport(ModelServiceTransport):
@@ -45,14 +49,20 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
     It sends protocol buffers over the wire using gRPC (which is built on
     top of HTTP/2); the ``grpcio`` package must be installed.
     """
+    _stubs: Dict[str, Callable]
 
-    def __init__(
-        self,
-        *,
-        host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
-        channel: grpc.Channel = None
-    ) -> None:
+    def __init__(self, *,
+            host: str = 'aiplatform.googleapis.com',
+            credentials: credentials.Credentials = None,
+            credentials_file: str = None,
+            scopes: Sequence[str] = None,
+            channel: grpc.Channel = None,
+            api_mtls_endpoint: str = None,
+            client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+            ssl_channel_credentials: grpc.ChannelCredentials = None,
+            quota_project_id: Optional[str] = None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -63,29 +73,107 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
                 This argument is ignored if ``channel`` is provided.
+            credentials_file (Optional[str]): A file with credentials that can
+                be loaded with :func:`google.auth.load_credentials_from_file`.
+                This argument is ignored if ``channel`` is provided.
+            scopes (Optional(Sequence[str])): A list of scopes. This argument is
+                ignored if ``channel`` is provided.
             channel (Optional[grpc.Channel]): A ``Channel`` instance through
                 which to make calls.
+            api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS endpoint.
+                If provided, it overrides the ``host`` argument and tries to create
+                a mutual TLS channel with client SSL credentials from
+                ``client_cert_source`` or applicatin default SSL credentials.
+            client_cert_source (Optional[Callable[[], Tuple[bytes, bytes]]]):
+                Deprecated. A callback to provide client SSL certificate bytes and
+                private key bytes, both in PEM format. It is ignored if
+                ``api_mtls_endpoint`` is None.
+            ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
+                for grpc channel. It is ignored if ``channel`` is provided.
+            quota_project_id (Optional[str]): An optional project to use for billing
+                and quota.
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
+                The client info used to send a user-agent string along with
+                API requests. If ``None``, then default info will be used.
+                Generally, you only need to set this if you're developing
+                your own client library.
+
+        Raises:
+          google.auth.exceptions.MutualTLSChannelError: If mutual TLS transport
+              creation failed for any reason.
+          google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
+              and ``credentials_file`` are passed.
         """
-        # Sanity check: Ensure that channel and credentials are not both
-        # provided.
         if channel:
+            # Sanity check: Ensure that channel and credentials are not both
+            # provided.
             credentials = False
 
-        # Run the base constructor.
-        super().__init__(host=host, credentials=credentials)
+            # If a channel was explicitly provided, set it.
+            self._grpc_channel = channel
+        elif api_mtls_endpoint:
+            warnings.warn("api_mtls_endpoint and client_cert_source are deprecated", DeprecationWarning)
+
+            host = api_mtls_endpoint if ":" in api_mtls_endpoint else api_mtls_endpoint + ":443"
+
+            if credentials is None:
+                credentials, _ = auth.default(scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id)
+
+            # Create SSL credentials with client_cert_source or application
+            # default SSL credentials.
+            if client_cert_source:
+                cert, key = client_cert_source()
+                ssl_credentials = grpc.ssl_channel_credentials(
+                    certificate_chain=cert, private_key=key
+                )
+            else:
+                ssl_credentials = SslCredentials().ssl_credentials
+
+            # create a new channel. The provided one is ignored.
+            self._grpc_channel = type(self).create_channel(
+                host,
+                credentials=credentials,
+                credentials_file=credentials_file,
+                ssl_credentials=ssl_credentials,
+                scopes=scopes or self.AUTH_SCOPES,
+                quota_project_id=quota_project_id,
+            )
+        else:
+            host = host if ":" in host else host + ":443"
+
+            if credentials is None:
+                credentials, _ = auth.default(scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id)
+
+            # create a new channel. The provided one is ignored.
+            self._grpc_channel = type(self).create_channel(
+                host,
+                credentials=credentials,
+                credentials_file=credentials_file,
+                ssl_credentials=ssl_channel_credentials,
+                scopes=scopes or self.AUTH_SCOPES,
+                quota_project_id=quota_project_id,
+            )
+
         self._stubs = {}  # type: Dict[str, Callable]
 
-        # If a channel was explicitly provided, set it.
-        if channel:
-            self._grpc_channel = channel
+        # Run the base constructor.
+        super().__init__(
+            host=host,
+            credentials=credentials,
+            credentials_file=credentials_file,
+            scopes=scopes or self.AUTH_SCOPES,
+            quota_project_id=quota_project_id,
+            client_info=client_info,
+        )
 
     @classmethod
-    def create_channel(
-        cls,
-        host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
-        **kwargs
-    ) -> grpc.Channel:
+    def create_channel(cls,
+                       host: str = 'aiplatform.googleapis.com',
+                       credentials: credentials.Credentials = None,
+                       credentials_file: str = None,
+                       scopes: Optional[Sequence[str]] = None,
+                       quota_project_id: Optional[str] = None,
+                       **kwargs) -> grpc.Channel:
         """Create and return a gRPC channel object.
         Args:
             address (Optionsl[str]): The host for the channel to use.
@@ -94,30 +182,37 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
                 credentials identify this application to the service. If
                 none are specified, the client will attempt to ascertain
                 the credentials from the environment.
+            credentials_file (Optional[str]): A file with credentials that can
+                be loaded with :func:`google.auth.load_credentials_from_file`.
+                This argument is mutually exclusive with credentials.
+            scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
+                service. These are only used when credentials are not specified and
+                are passed to :func:`google.auth.default`.
+            quota_project_id (Optional[str]): An optional project to use for billing
+                and quota.
             kwargs (Optional[dict]): Keyword arguments, which are passed to the
                 channel creation.
         Returns:
             grpc.Channel: A gRPC channel object.
+
+        Raises:
+            google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
+              and ``credentials_file`` are passed.
         """
+        scopes = scopes or cls.AUTH_SCOPES
         return grpc_helpers.create_channel(
-            host, credentials=credentials, scopes=cls.AUTH_SCOPES, **kwargs
+            host,
+            credentials=credentials,
+            credentials_file=credentials_file,
+            scopes=scopes,
+            quota_project_id=quota_project_id,
+            **kwargs
         )
 
     @property
     def grpc_channel(self) -> grpc.Channel:
-        """Create the channel designed to connect to this service.
-
-        This property caches on the instance; repeated calls return
-        the same channel.
+        """Return the channel designed to connect to this service.
         """
-        # Sanity check: Only create a new channel if we do not already
-        # have one.
-        if not hasattr(self, "_grpc_channel"):
-            self._grpc_channel = self.create_channel(
-                self._host, credentials=self._credentials,
-            )
-
-        # Return the channel from cache.
         return self._grpc_channel
 
     @property
@@ -128,18 +223,18 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         client.
         """
         # Sanity check: Only create a new client if we do not already have one.
-        if "operations_client" not in self.__dict__:
-            self.__dict__["operations_client"] = operations_v1.OperationsClient(
+        if 'operations_client' not in self.__dict__:
+            self.__dict__['operations_client'] = operations_v1.OperationsClient(
                 self.grpc_channel
             )
 
         # Return the client from cache.
-        return self.__dict__["operations_client"]
+        return self.__dict__['operations_client']
 
     @property
-    def upload_model(
-        self,
-    ) -> Callable[[model_service.UploadModelRequest], operations.Operation]:
+    def upload_model(self) -> Callable[
+            [model_service.UploadModelRequest],
+            operations.Operation]:
         r"""Return a callable for the upload model method over gRPC.
 
         Uploads a Model artifact into AI Platform.
@@ -154,16 +249,18 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "upload_model" not in self._stubs:
-            self._stubs["upload_model"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelService/UploadModel",
+        if 'upload_model' not in self._stubs:
+            self._stubs['upload_model'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.ModelService/UploadModel',
                 request_serializer=model_service.UploadModelRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs["upload_model"]
+        return self._stubs['upload_model']
 
     @property
-    def get_model(self) -> Callable[[model_service.GetModelRequest], model.Model]:
+    def get_model(self) -> Callable[
+            [model_service.GetModelRequest],
+            model.Model]:
         r"""Return a callable for the get model method over gRPC.
 
         Gets a Model.
@@ -178,18 +275,18 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "get_model" not in self._stubs:
-            self._stubs["get_model"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelService/GetModel",
+        if 'get_model' not in self._stubs:
+            self._stubs['get_model'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.ModelService/GetModel',
                 request_serializer=model_service.GetModelRequest.serialize,
                 response_deserializer=model.Model.deserialize,
             )
-        return self._stubs["get_model"]
+        return self._stubs['get_model']
 
     @property
-    def list_models(
-        self,
-    ) -> Callable[[model_service.ListModelsRequest], model_service.ListModelsResponse]:
+    def list_models(self) -> Callable[
+            [model_service.ListModelsRequest],
+            model_service.ListModelsResponse]:
         r"""Return a callable for the list models method over gRPC.
 
         Lists Models in a Location.
@@ -204,18 +301,18 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "list_models" not in self._stubs:
-            self._stubs["list_models"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelService/ListModels",
+        if 'list_models' not in self._stubs:
+            self._stubs['list_models'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.ModelService/ListModels',
                 request_serializer=model_service.ListModelsRequest.serialize,
                 response_deserializer=model_service.ListModelsResponse.deserialize,
             )
-        return self._stubs["list_models"]
+        return self._stubs['list_models']
 
     @property
-    def update_model(
-        self,
-    ) -> Callable[[model_service.UpdateModelRequest], gca_model.Model]:
+    def update_model(self) -> Callable[
+            [model_service.UpdateModelRequest],
+            gca_model.Model]:
         r"""Return a callable for the update model method over gRPC.
 
         Updates a Model.
@@ -230,18 +327,18 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "update_model" not in self._stubs:
-            self._stubs["update_model"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelService/UpdateModel",
+        if 'update_model' not in self._stubs:
+            self._stubs['update_model'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.ModelService/UpdateModel',
                 request_serializer=model_service.UpdateModelRequest.serialize,
                 response_deserializer=gca_model.Model.deserialize,
             )
-        return self._stubs["update_model"]
+        return self._stubs['update_model']
 
     @property
-    def delete_model(
-        self,
-    ) -> Callable[[model_service.DeleteModelRequest], operations.Operation]:
+    def delete_model(self) -> Callable[
+            [model_service.DeleteModelRequest],
+            operations.Operation]:
         r"""Return a callable for the delete model method over gRPC.
 
         Deletes a Model.
@@ -258,18 +355,18 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "delete_model" not in self._stubs:
-            self._stubs["delete_model"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelService/DeleteModel",
+        if 'delete_model' not in self._stubs:
+            self._stubs['delete_model'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.ModelService/DeleteModel',
                 request_serializer=model_service.DeleteModelRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs["delete_model"]
+        return self._stubs['delete_model']
 
     @property
-    def export_model(
-        self,
-    ) -> Callable[[model_service.ExportModelRequest], operations.Operation]:
+    def export_model(self) -> Callable[
+            [model_service.ExportModelRequest],
+            operations.Operation]:
         r"""Return a callable for the export model method over gRPC.
 
         Exports a trained, exportable, Model to a location specified by
@@ -287,20 +384,18 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "export_model" not in self._stubs:
-            self._stubs["export_model"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelService/ExportModel",
+        if 'export_model' not in self._stubs:
+            self._stubs['export_model'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.ModelService/ExportModel',
                 request_serializer=model_service.ExportModelRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs["export_model"]
+        return self._stubs['export_model']
 
     @property
-    def get_model_evaluation(
-        self,
-    ) -> Callable[
-        [model_service.GetModelEvaluationRequest], model_evaluation.ModelEvaluation
-    ]:
+    def get_model_evaluation(self) -> Callable[
+            [model_service.GetModelEvaluationRequest],
+            model_evaluation.ModelEvaluation]:
         r"""Return a callable for the get model evaluation method over gRPC.
 
         Gets a ModelEvaluation.
@@ -315,21 +410,18 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "get_model_evaluation" not in self._stubs:
-            self._stubs["get_model_evaluation"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelService/GetModelEvaluation",
+        if 'get_model_evaluation' not in self._stubs:
+            self._stubs['get_model_evaluation'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.ModelService/GetModelEvaluation',
                 request_serializer=model_service.GetModelEvaluationRequest.serialize,
                 response_deserializer=model_evaluation.ModelEvaluation.deserialize,
             )
-        return self._stubs["get_model_evaluation"]
+        return self._stubs['get_model_evaluation']
 
     @property
-    def list_model_evaluations(
-        self,
-    ) -> Callable[
-        [model_service.ListModelEvaluationsRequest],
-        model_service.ListModelEvaluationsResponse,
-    ]:
+    def list_model_evaluations(self) -> Callable[
+            [model_service.ListModelEvaluationsRequest],
+            model_service.ListModelEvaluationsResponse]:
         r"""Return a callable for the list model evaluations method over gRPC.
 
         Lists ModelEvaluations in a Model.
@@ -344,21 +436,18 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "list_model_evaluations" not in self._stubs:
-            self._stubs["list_model_evaluations"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelService/ListModelEvaluations",
+        if 'list_model_evaluations' not in self._stubs:
+            self._stubs['list_model_evaluations'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.ModelService/ListModelEvaluations',
                 request_serializer=model_service.ListModelEvaluationsRequest.serialize,
                 response_deserializer=model_service.ListModelEvaluationsResponse.deserialize,
             )
-        return self._stubs["list_model_evaluations"]
+        return self._stubs['list_model_evaluations']
 
     @property
-    def get_model_evaluation_slice(
-        self,
-    ) -> Callable[
-        [model_service.GetModelEvaluationSliceRequest],
-        model_evaluation_slice.ModelEvaluationSlice,
-    ]:
+    def get_model_evaluation_slice(self) -> Callable[
+            [model_service.GetModelEvaluationSliceRequest],
+            model_evaluation_slice.ModelEvaluationSlice]:
         r"""Return a callable for the get model evaluation slice method over gRPC.
 
         Gets a ModelEvaluationSlice.
@@ -373,21 +462,18 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "get_model_evaluation_slice" not in self._stubs:
-            self._stubs["get_model_evaluation_slice"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelService/GetModelEvaluationSlice",
+        if 'get_model_evaluation_slice' not in self._stubs:
+            self._stubs['get_model_evaluation_slice'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.ModelService/GetModelEvaluationSlice',
                 request_serializer=model_service.GetModelEvaluationSliceRequest.serialize,
                 response_deserializer=model_evaluation_slice.ModelEvaluationSlice.deserialize,
             )
-        return self._stubs["get_model_evaluation_slice"]
+        return self._stubs['get_model_evaluation_slice']
 
     @property
-    def list_model_evaluation_slices(
-        self,
-    ) -> Callable[
-        [model_service.ListModelEvaluationSlicesRequest],
-        model_service.ListModelEvaluationSlicesResponse,
-    ]:
+    def list_model_evaluation_slices(self) -> Callable[
+            [model_service.ListModelEvaluationSlicesRequest],
+            model_service.ListModelEvaluationSlicesResponse]:
         r"""Return a callable for the list model evaluation slices method over gRPC.
 
         Lists ModelEvaluationSlices in a ModelEvaluation.
@@ -402,13 +488,15 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "list_model_evaluation_slices" not in self._stubs:
-            self._stubs["list_model_evaluation_slices"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.ModelService/ListModelEvaluationSlices",
+        if 'list_model_evaluation_slices' not in self._stubs:
+            self._stubs['list_model_evaluation_slices'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.ModelService/ListModelEvaluationSlices',
                 request_serializer=model_service.ListModelEvaluationSlicesRequest.serialize,
                 response_deserializer=model_service.ListModelEvaluationSlicesResponse.deserialize,
             )
-        return self._stubs["list_model_evaluation_slices"]
+        return self._stubs['list_model_evaluation_slices']
 
 
-__all__ = ("ModelServiceGrpcTransport",)
+__all__ = (
+    'ModelServiceGrpcTransport',
+)

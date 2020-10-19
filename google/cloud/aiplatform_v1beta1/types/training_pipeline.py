@@ -27,14 +27,14 @@ from google.rpc import status_pb2 as status  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "TrainingPipeline",
-        "InputDataConfig",
-        "FractionSplit",
-        "FilterSplit",
-        "PredefinedSplit",
-        "TimestampSplit",
+        'TrainingPipeline',
+        'InputDataConfig',
+        'FractionSplit',
+        'FilterSplit',
+        'PredefinedSplit',
+        'TimestampSplit',
     },
 )
 
@@ -143,18 +143,51 @@ class TrainingPipeline(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
+
     display_name = proto.Field(proto.STRING, number=2)
-    input_data_config = proto.Field(proto.MESSAGE, number=3, message="InputDataConfig",)
+
+    input_data_config = proto.Field(proto.MESSAGE, number=3,
+        message='InputDataConfig',
+    )
+
     training_task_definition = proto.Field(proto.STRING, number=4)
-    training_task_inputs = proto.Field(proto.MESSAGE, number=5, message=struct.Value,)
-    training_task_metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
-    model_to_upload = proto.Field(proto.MESSAGE, number=7, message=model.Model,)
-    state = proto.Field(proto.ENUM, number=9, enum=pipeline_state.PipelineState,)
-    error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
-    create_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
-    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
+
+    training_task_inputs = proto.Field(proto.MESSAGE, number=5,
+        message=struct.Value,
+    )
+
+    training_task_metadata = proto.Field(proto.MESSAGE, number=6,
+        message=struct.Value,
+    )
+
+    model_to_upload = proto.Field(proto.MESSAGE, number=7,
+        message=model.Model,
+    )
+
+    state = proto.Field(proto.ENUM, number=9,
+        enum=pipeline_state.PipelineState,
+    )
+
+    error = proto.Field(proto.MESSAGE, number=10,
+        message=status.Status,
+    )
+
+    create_time = proto.Field(proto.MESSAGE, number=11,
+        message=timestamp.Timestamp,
+    )
+
+    start_time = proto.Field(proto.MESSAGE, number=12,
+        message=timestamp.Timestamp,
+    )
+
+    end_time = proto.Field(proto.MESSAGE, number=13,
+        message=timestamp.Timestamp,
+    )
+
+    update_time = proto.Field(proto.MESSAGE, number=14,
+        message=timestamp.Timestamp,
+    )
+
     labels = proto.MapField(proto.STRING, proto.STRING, number=15)
 
 
@@ -177,17 +210,31 @@ class InputDataConfig(proto.Message):
             Split based on the timestamp of the input data
             pieces.
         gcs_destination (~.io.GcsDestination):
-            The Google Cloud Storage location.
+            The Google Cloud Storage location where the output is to be
+            written to. In the given directory a new directory will be
+            created with name:
+            ``dataset-<dataset-id>-<annotation-type>-<timestamp-of-training-call>``
+            where timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601
+            format. All training input data will be written into that
+            directory.
 
             The AI Platform environment variables representing Google
             Cloud Storage data URIs will always be represented in the
             Google Cloud Storage wildcard format to support sharded
-            data. e.g.: "gs://.../training-\*
+            data. e.g.: "gs://.../training-*.jsonl"
 
             -  AIP_DATA_FORMAT = "jsonl".
-            -  AIP_TRAINING_DATA_URI = "gcs_destination/training-*"
-            -  AIP_VALIDATION_DATA_URI = "gcs_destination/validation-*"
-            -  AIP_TEST_DATA_URI = "gcs_destination/test-*".
+            -  AIP_TRAINING_DATA_URI =
+
+            "gcs_destination/dataset---/training-*.jsonl"
+
+            -  AIP_VALIDATION_DATA_URI =
+
+            "gcs_destination/dataset---/validation-*.jsonl"
+
+            -  AIP_TEST_DATA_URI =
+
+            "gcs_destination/dataset---/test-*.jsonl".
         dataset_id (str):
             Required. The ID of the Dataset in the same Project and
             Location which data will be used to train the Model. The
@@ -237,13 +284,30 @@ class InputDataConfig(proto.Message):
             ``annotation_schema_uri``.
     """
 
-    fraction_split = proto.Field(proto.MESSAGE, number=2, message="FractionSplit",)
-    filter_split = proto.Field(proto.MESSAGE, number=3, message="FilterSplit",)
-    predefined_split = proto.Field(proto.MESSAGE, number=4, message="PredefinedSplit",)
-    timestamp_split = proto.Field(proto.MESSAGE, number=5, message="TimestampSplit",)
-    gcs_destination = proto.Field(proto.MESSAGE, number=8, message=io.GcsDestination,)
+    fraction_split = proto.Field(proto.MESSAGE, number=2, oneof='split',
+        message='FractionSplit',
+    )
+
+    filter_split = proto.Field(proto.MESSAGE, number=3, oneof='split',
+        message='FilterSplit',
+    )
+
+    predefined_split = proto.Field(proto.MESSAGE, number=4, oneof='split',
+        message='PredefinedSplit',
+    )
+
+    timestamp_split = proto.Field(proto.MESSAGE, number=5, oneof='split',
+        message='TimestampSplit',
+    )
+
+    gcs_destination = proto.Field(proto.MESSAGE, number=8, oneof='destination',
+        message=io.GcsDestination,
+    )
+
     dataset_id = proto.Field(proto.STRING, number=1)
+
     annotations_filter = proto.Field(proto.STRING, number=6)
+
     annotation_schema_uri = proto.Field(proto.STRING, number=9)
 
 
@@ -269,7 +333,9 @@ class FractionSplit(proto.Message):
     """
 
     training_fraction = proto.Field(proto.DOUBLE, number=1)
+
     validation_fraction = proto.Field(proto.DOUBLE, number=2)
+
     test_fraction = proto.Field(proto.DOUBLE, number=3)
 
 
@@ -312,7 +378,9 @@ class FilterSplit(proto.Message):
     """
 
     training_filter = proto.Field(proto.STRING, number=1)
+
     validation_filter = proto.Field(proto.STRING, number=2)
+
     test_filter = proto.Field(proto.STRING, number=3)
 
 
@@ -363,8 +431,11 @@ class TimestampSplit(proto.Message):
     """
 
     training_fraction = proto.Field(proto.DOUBLE, number=1)
+
     validation_fraction = proto.Field(proto.DOUBLE, number=2)
+
     test_fraction = proto.Field(proto.DOUBLE, number=3)
+
     key = proto.Field(proto.STRING, number=4)
 
 
