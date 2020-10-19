@@ -18,8 +18,11 @@
 import functools
 
 from google.api_core import operation as ga_operation
-from google.cloud.aiplatform_v1beta1.services.endpoint_service.transports.base import EndpointServiceTransport
+from google.cloud.aiplatform_v1beta1.services.endpoint_service.transports.base import (
+    EndpointServiceTransport
+)
 from google.protobuf import empty_pb2 as empty
+
 
 class LRO(ga_operation):
     """A handler for Operation futures.
