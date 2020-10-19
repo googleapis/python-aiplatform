@@ -18,6 +18,7 @@
 from google.cloud.aiplatform import gapic
 
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.models import Model
 
 """
 Usage:
@@ -25,8 +26,7 @@ from google.cloud import aiplatform
 
 aiplatform.init(project='my_project')
 """
-
-init = initializer.singleton.init
+init = initializer.global_config.init
 
 
 __all__ = ()

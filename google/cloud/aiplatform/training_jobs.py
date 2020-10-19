@@ -17,12 +17,12 @@
 
 
 class TrainingJob:
-	pass
+    pass
 
 
 class CustomTrainingJob(TrainingJob):
-	pass
+    pass
 
 
 class AutoMLTablesTrainingJob(TrainingJob):
-	pass
+    pass

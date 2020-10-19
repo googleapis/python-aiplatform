@@ -18,14 +18,25 @@
 
 import re
 
-from typing import Dict
-from typing import Optional
+from typing import Optional, TypeVar, Union
 from collections import namedtuple
 
-from google.cloud.aiplatform.initializer import singleton as state
+from google.cloud.aiplatform_v1beta1.services.dataset_service import (
+    client as dataset_client,
+)
+from google.cloud.aiplatform_v1beta1.services.model_service import (
+    client as model_client,
+)
 
+DEFAULT_REGION = "us-central1"
 SUPPORTED_REGIONS = ("us-central1", "europe-west4", "asia-east1")
 PROD_API_ENDPOINT = "aiplatform.googleapis.com"
+
+AiPlatformServiceClient = TypeVar(
+    "AiPlatformServiceClient",
+    dataset_client.DatasetServiceClient,
+    model_client.ModelServiceClient,
+)
 
 # TODO(b/170334193): Add support for resource names with non-integer IDs
 # TODO(b/170334098): Add support for resource names more than one level deep
@@ -57,7 +68,7 @@ def _match_to_fields(match: re.Match) -> Optional[Fields]:
     )
 
 
-def validate_name(
+def extract_fields_from_resource_name(
     resource_name: str, resource_noun: Optional[str] = None
 ) -> Optional[Fields]:
     """Validates and returns extracted fields from a fully-qualified resource name.
@@ -88,42 +99,16 @@ def validate_name(
     return fields
 
 
-def get_client_options(
-    location_override: Optional[str] = None, prediction_client: Optional[bool] = False
-) -> Dict[str, str]:
-    """Creates client_options for GAPIC service client using location and client type.
+def validate_region(region: str):
+    """Validates region against supported regions.
 
     Args:
-        location_override (str):
-            Set this parameter to get client options for a location different
-            from location set by initializer. Must be a GCP region
-            supported by AI Platform (Unified).
-
-        prediction_client (bool):
-            True if service client is a PredictionServiceClient, otherwise
-            defaults to False. This is used to provide a prediction-specific
-            API endpoint.
-
-    Returns:
-        clients_options (dict):
-            A dictionary containing client_options with one key, for example
-            { "api_endpoint": "us-central1-aiplatform.googleapis.com" } or
-            { "api_endpoint": "asia-east1-prediction-aiplatform.googleapis.com" }
+        region: region to validate
+    Raises:
+        ValueError if region is not in supported regions.
     """
-    if not (state.location or location_override):
-        raise ValueError(
-            "No location found. Provide or initialize SDK with a location."
-        )
-
-    region = state.location if not location_override else location_override
     region = region.lower()
-    prediction = "prediction-" if prediction_client else ""
-
     if region not in SUPPORTED_REGIONS:
         raise ValueError(
             f"Unsupported region for AI Platform, select from {SUPPORTED_REGIONS}"
         )
-
-    client_options = {"api_endpoint": f"{region}-{prediction}{PROD_API_ENDPOINT}"}
-
-    return client_options
