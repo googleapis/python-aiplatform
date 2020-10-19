@@ -34,10 +34,13 @@ class LRO(ga_operation):
             result.
     """
 
-    def __init__(self, operation, result_type=empty.Empty, **kwargs):
+    def __init__(self, operation, refresh=None, cancel=None, result_type=empty.Empty, **kwargs):
         operations_client = EndpointServiceTransport().operations_client
-        refresh = functools.partial(operations_client.get_operation, operation.name)
-        cancel = functools.partial(operations_client.cancel_operation, operation.name)
+        if refresh is None:
+            refresh = functools.partial(operations_client.get_operation, operation.name)
+        if cancel is None:
+            cancel = functools.partial(operations_client.cancel_operation, operation.name)
+
         super().__init__(operation, refresh, cancel, result_type, **kwargs)
         self.operation_name = operation.name
         self.add_done_callback(callback)
