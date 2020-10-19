@@ -128,4 +128,7 @@ s.move(
     templated_files, excludes=[".coveragerc"]
 )  # the microgenerator has a good coveragerc file
 
+# Don't treat docs warnings as errors
+s.replace("noxfile.py", """["']-W["'],  # warnings as errors""", "")
+
 s.shell.run(["nox", "-s", "blacken"], hide_output=False)
