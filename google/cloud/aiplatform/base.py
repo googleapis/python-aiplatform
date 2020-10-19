@@ -84,7 +84,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
                 Optional custom credentials to use when accessing interacting with
                 resource noun.
         Returns:
-            client (utils.AiPlatofrmServiceClient):
+            client (utils.AiPlatformServiceClient):
                 Initialized service client for this service noun.
         """
         return initializer.global_config.create_client(
