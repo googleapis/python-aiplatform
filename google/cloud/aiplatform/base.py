@@ -80,7 +80,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         Args:
             project (str): Project of the resource noun.
             location (str): The location of the resource noun.
-            credentials (google.auth.crendentials.Crendentials):
+            credentials (google.auth.credentials.Credentials):
                 Optional custom credentials to use when accessing interacting with
                 resource noun.
         Returns:
