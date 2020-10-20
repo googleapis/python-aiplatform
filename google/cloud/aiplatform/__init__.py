@@ -20,6 +20,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 
 from google.cloud.aiplatform.models import Model
+from google.cloud.aiplatform.datasets import Dataset
 
 """
 Usage:
@@ -30,4 +31,4 @@ aiplatform.init(project='my_project')
 init = initializer.global_config.init
 
 
-__all__ = (gapic, schema)
+__all__ = ("gapic", "schema", "Model", "Dataset")
