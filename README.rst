@@ -4,7 +4,13 @@ Python Client for Cloud AI Platform
 |beta| |pypi| |versions|
 
 
-`Cloud AI Platform`_: Google Cloud AI Platform is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.
+:Warning: This library is a pre-release product and is subject to breaking changes.
+
+`Cloud AI Platform`_: Cloud AI Platform is a suite of machine learning tools that enables
+    developers to train high-quality models specific to their business needs.
+    It offers both novices and experts the best workbench for machine learning
+    development by leveraging Google's state-of-the-art transfer learning and
+    Neural Architecture Search technology.
 
 - `Client Library Documentation`_
 - `Product Documentation`_
@@ -15,9 +21,9 @@ Python Client for Cloud AI Platform
    :target: https://pypi.org/project/google-cloud-aiplatform/
 .. |versions| image:: https://img.shields.io/pypi/pyversions/google-cloud-aiplatform.svg
    :target: https://pypi.org/project/google-cloud-aiplatform/
-.. _Cloud AI Platform: https://cloud.google.com/ai-platform-unified/docs
+.. _Cloud AI Platform: https://cloud.google.com/ai-platform/docs
 .. _Client Library Documentation: https://googleapis.dev/python/aiplatform/latest
-.. _Product Documentation:  https://cloud.google.com/ai-platform-unified/docs
+.. _Product Documentation:  https://cloud.google.com/ai-platform/docs
 
 Quick Start
 -----------
@@ -79,5 +85,5 @@ Next Steps
 -  View this `README`_ to see the full list of Cloud
    APIs that we cover.
 
-.. _Cloud AI Platform API Product documentation:  https://cloud.google.com/ai-platform-unified/docs
+.. _Cloud AI Platform API Product documentation:  https://cloud.google.com/ai-platform/docs
 .. _README: https://github.com/googleapis/google-cloud-python/blob/master/README.rst

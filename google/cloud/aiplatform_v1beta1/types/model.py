@@ -70,7 +70,7 @@ class Model(proto.Message):
         supported_export_formats (Sequence[~.model.Model.ExportFormat]):
             Output only. The formats in which this Model
             may be exported. If empty, this Model is not
-            available for export.
+            avaiable for export.
         training_pipeline (str):
             Output only. The resource name of the
             TrainingPipeline that uploaded this Model, if
@@ -272,55 +272,36 @@ class Model(proto.Message):
             IMAGE = 2
 
         id = proto.Field(proto.STRING, number=1)
-
         exportable_contents = proto.RepeatedField(
             proto.ENUM, number=2, enum="Model.ExportFormat.ExportableContent",
         )
 
     name = proto.Field(proto.STRING, number=1)
-
     display_name = proto.Field(proto.STRING, number=2)
-
     description = proto.Field(proto.STRING, number=3)
-
     predict_schemata = proto.Field(proto.MESSAGE, number=4, message="PredictSchemata",)
-
     metadata_schema_uri = proto.Field(proto.STRING, number=5)
-
     metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
-
     supported_export_formats = proto.RepeatedField(
         proto.MESSAGE, number=20, message=ExportFormat,
     )
-
     training_pipeline = proto.Field(proto.STRING, number=7)
-
     container_spec = proto.Field(proto.MESSAGE, number=9, message="ModelContainerSpec",)
-
     artifact_uri = proto.Field(proto.STRING, number=26)
-
     supported_deployment_resources_types = proto.RepeatedField(
         proto.ENUM, number=10, enum=DeploymentResourcesType,
     )
-
     supported_input_storage_formats = proto.RepeatedField(proto.STRING, number=11)
-
     supported_output_storage_formats = proto.RepeatedField(proto.STRING, number=12)
-
     create_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
-
     update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
-
     deployed_models = proto.RepeatedField(
         proto.MESSAGE, number=15, message=deployed_model_ref.DeployedModelRef,
     )
-
     explanation_spec = proto.Field(
         proto.MESSAGE, number=23, message=explanation.ExplanationSpec,
     )
-
     etag = proto.Field(proto.STRING, number=16)
-
     labels = proto.MapField(proto.STRING, proto.STRING, number=17)
 
 
@@ -382,253 +363,75 @@ class PredictSchemata(proto.Message):
     """
 
     instance_schema_uri = proto.Field(proto.STRING, number=1)
-
     parameters_schema_uri = proto.Field(proto.STRING, number=2)
-
     prediction_schema_uri = proto.Field(proto.STRING, number=3)
 
 
 class ModelContainerSpec(proto.Message):
-    r"""Specification of a container for serving predictions. This message
-    is a subset of the Kubernetes Container v1 core
-    `specification <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
+    r"""Specification of the container to be deployed for this Model. The
+    ModelContainerSpec is based on the Kubernetes Container
+    `specification <https://tinyurl.com/k8s-io-api/v1.10/#container-v1-core>`__.
 
     Attributes:
         image_uri (str):
-            Required. Immutable. URI of the Docker image to be used as
-            the custom container for serving predictions. This URI must
-            identify an image in Artifact Registry or Container
-            Registry. Learn more about the container publishing
-            requirements, including permissions requirements for the AI
-            Platform Service Agent,
-            `here <https://tinyurl.com/cust-cont-reqs#publishing>`__.
-
-            The container image is ingested upon
+            Required. Immutable. The URI of the Model serving container
+            file in the Container Registry. The container image is
+            ingested upon
             ``ModelService.UploadModel``,
             stored internally, and this original path is afterwards not
             used.
-
-            To learn about the requirements for the Docker image itself,
-            see `Custom container
-            requirements <https://tinyurl.com/cust-cont-reqs>`__.
         command (Sequence[str]):
-            Immutable. Specifies the command that runs when the
-            container starts. This overrides the container's
-            `ENTRYPOINT <https://docs.docker.com/engine/reference/builder/#entrypoint>`__.
-            Specify this field as an array of executable and arguments,
-            similar to a Docker ``ENTRYPOINT``'s "exec" form, not its
-            "shell" form.
-
-            If you do not specify this field, then the container's
-            ``ENTRYPOINT`` runs, in conjunction with the
-            ``args``
-            field or the container's
-            ```CMD`` <https://docs.docker.com/engine/reference/builder/#cmd>`__,
-            if either exists. If this field is not specified and the
-            container does not have an ``ENTRYPOINT``, then refer to the
-            Docker documentation about how ``CMD`` and ``ENTRYPOINT``
-            `interact <https://tinyurl.com/h3kdcgs>`__.
-
-            If you specify this field, then you can also specify the
-            ``args`` field to provide additional arguments for this
-            command. However, if you specify this field, then the
-            container's ``CMD`` is ignored. See the `Kubernetes
-            documentation <https://tinyurl.com/y8bvllf4>`__ about how
-            the ``command`` and ``args`` fields interact with a
-            container's ``ENTRYPOINT`` and ``CMD``.
-
-            In this field, you can reference environment variables `set
-            by AI
-            Platform <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
-            and environment variables set in the
-            ``env``
-            field. You cannot reference environment variables set in the
-            Docker image. In order for environment variables to be
-            expanded, reference them by using the following syntax:
-            $(VARIABLE_NAME) Note that this differs from Bash variable
-            expansion, which does not use parentheses. If a variable
-            cannot be resolved, the reference in the input string is
-            used unchanged. To avoid variable expansion, you can escape
-            this syntax with ``$$``; for example: $$(VARIABLE_NAME) This
-            field corresponds to the ``command`` field of the Kubernetes
-            Containers `v1 core
-            API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
+            Immutable. The command with which the container is run. Not
+            executed within a shell. The Docker image's ENTRYPOINT is
+            used if this is not provided. Variable references
+            $(VAR_NAME) are expanded using the container's environment.
+            If a variable cannot be resolved, the reference in the input
+            string will be unchanged. The $(VAR_NAME) syntax can be
+            escaped with a double $$, ie: $$(VAR_NAME). Escaped
+            references will never be expanded, regardless of whether the
+            variable exists or not. More info:
+            https://tinyurl.com/y42hmlxe
         args (Sequence[str]):
-            Immutable. Specifies arguments for the command that runs
-            when the container starts. This overrides the container's
-            ```CMD`` <https://docs.docker.com/engine/reference/builder/#cmd>`__.
-            Specify this field as an array of executable and arguments,
-            similar to a Docker ``CMD``'s "default parameters" form.
-
-            If you don't specify this field but do specify the
-            ``command``
-            field, then the command from the ``command`` field runs
-            without any additional arguments. See the `Kubernetes
-            documentation <https://tinyurl.com/y8bvllf4>`__ about how
-            the ``command`` and ``args`` fields interact with a
-            container's ``ENTRYPOINT`` and ``CMD``.
-
-            If you don't specify this field and don't specify the
-            ``command`` field, then the container's
-            ```ENTRYPOINT`` <https://docs.docker.com/engine/reference/builder/#cmd>`__
-            and ``CMD`` determine what runs based on their default
-            behavior. See the Docker documentation about how ``CMD`` and
-            ``ENTRYPOINT`` `interact <https://tinyurl.com/h3kdcgs>`__.
-
-            In this field, you can reference environment variables `set
-            by AI
-            Platform <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
-            and environment variables set in the
-            ``env``
-            field. You cannot reference environment variables set in the
-            Docker image. In order for environment variables to be
-            expanded, reference them by using the following syntax:
-            $(VARIABLE_NAME) Note that this differs from Bash variable
-            expansion, which does not use parentheses. If a variable
-            cannot be resolved, the reference in the input string is
-            used unchanged. To avoid variable expansion, you can escape
-            this syntax with ``$$``; for example: $$(VARIABLE_NAME) This
-            field corresponds to the ``args`` field of the Kubernetes
-            Containers `v1 core
-            API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
+            Immutable. The arguments to the command. The Docker image's
+            CMD is used if this is not provided. Variable references
+            $(VAR_NAME) are expanded using the container's environment.
+            If a variable cannot be resolved, the reference in the input
+            string will be unchanged. The $(VAR_NAME) syntax can be
+            escaped with a double $$, ie: $$(VAR_NAME). Escaped
+            references will never be expanded, regardless of whether the
+            variable exists or not. More info:
+            https://tinyurl.com/y42hmlxe
         env (Sequence[~.env_var.EnvVar]):
-            Immutable. List of environment variables to set in the
-            container. After the container starts running, code running
-            in the container can read these environment variables.
-
-            Additionally, the
-            ``command``
-            and
-            ``args``
-            fields can reference these variables. Later entries in this
-            list can also reference earlier entries. For example, the
-            following example sets the variable ``VAR_2`` to have the
-            value ``foo bar``:
-
-            .. code:: json
-
-               [
-                 {
-                   "name": "VAR_1",
-                   "value": "foo"
-                 },
-                 {
-                   "name": "VAR_2",
-                   "value": "$(VAR_1) bar"
-                 }
-               ]
-
-            If you switch the order of the variables in the example,
-            then the expansion does not occur.
-
-            This field corresponds to the ``env`` field of the
-            Kubernetes Containers `v1 core
-            API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
+            Immutable. The environment variables that are
+            to be present in the container.
         ports (Sequence[~.model.Port]):
-            Immutable. List of ports to expose from the container. AI
-            Platform sends any prediction requests that it receives to
-            the first port on this list. AI Platform also sends
-            `liveness and health
-            checks <https://tinyurl.com/cust-cont-reqs#health>`__ to
-            this port.
-
-            If you do not specify this field, it defaults to following
-            value:
-
-            .. code:: json
-
-               [
-                 {
-                   "containerPort": 8080
-                 }
-               ]
-
-            AI Platform does not use ports other than the first one
-            listed. This field corresponds to the ``ports`` field of the
-            Kubernetes Containers `v1 core
-            API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
+            Immutable. Declaration of ports that are
+            exposed by the container. This field is
+            primarily informational, it gives AI Platform
+            information about the network connections the
+            container uses. Listing or not a port here has
+            no impact on whether the port is actually
+            exposed, any port listening on the default
+            "0.0.0.0" address inside a container will be
+            accessible from the network.
         predict_route (str):
-            Immutable. HTTP path on the container to send prediction
-            requests to. AI Platform forwards requests sent using
-            ``projects.locations.endpoints.predict``
-            to this path on the container's IP address and port. AI
-            Platform then returns the container's response in the API
-            response.
-
-            For example, if you set this field to ``/foo``, then when AI
-            Platform receives a prediction request, it forwards the
-            request body in a POST request to the following URL on the
-            container: localhost:PORT/foo PORT refers to the first value
-            of this ``ModelContainerSpec``'s
-            ``ports``
-            field.
-
-            If you don't specify this field, it defaults to the
-            following value when you [deploy this Model to an
-            Endpoint][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel]:
-            /v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict
-            The placeholders in this value are replaced as follows:
-
-            -  ENDPOINT: The last segment (following ``endpoints/``)of
-               the Endpoint.name][] field of the Endpoint where this
-               Model has been deployed. (AI Platform makes this value
-               available to your container code as the
-               ```AIP_ENDPOINT_ID`` <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
-               environment variable.)
-
-            -  DEPLOYED_MODEL:
-               ``DeployedModel.id``
-               of the ``DeployedModel``. (AI Platform makes this value
-               available to your container code as the
-               ```AIP_DEPLOYED_MODEL_ID`` environment
-               variable <https://tinyurl.com/cust-cont-reqs#aip-variables>`__.)
+            Immutable. An HTTP path to send prediction
+            requests to the container, and which must be
+            supported by it. If not specified a default HTTP
+            path will be used by AI Platform.
         health_route (str):
-            Immutable. HTTP path on the container to send health checkss
-            to. AI Platform intermittently sends GET requests to this
-            path on the container's IP address and port to check that
-            the container is healthy. Read more about `health
-            checks <https://tinyurl.com/cust-cont-reqs#checks>`__.
-
-            For example, if you set this field to ``/bar``, then AI
-            Platform intermittently sends a GET request to the following
-            URL on the container: localhost:PORT/bar PORT refers to the
-            first value of this ``ModelContainerSpec``'s
-            ``ports``
-            field.
-
-            If you don't specify this field, it defaults to the
-            following value when you [deploy this Model to an
-            Endpoint][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel]:
-            /v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict
-            The placeholders in this value are replaced as follows:
-
-            -  ENDPOINT: The last segment (following ``endpoints/``)of
-               the Endpoint.name][] field of the Endpoint where this
-               Model has been deployed. (AI Platform makes this value
-               available to your container code as the
-               ```AIP_ENDPOINT_ID`` <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
-               environment variable.)
-
-            -  DEPLOYED_MODEL:
-               ``DeployedModel.id``
-               of the ``DeployedModel``. (AI Platform makes this value
-               available to your container code as the
-               ```AIP_DEPLOYED_MODEL_ID`` <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
-               environment variable.)
+            Immutable. An HTTP path to send health check
+            requests to the container, and which must be
+            supported by it. If not specified a standard
+            HTTP path will be used by AI Platform.
     """
 
     image_uri = proto.Field(proto.STRING, number=1)
-
     command = proto.RepeatedField(proto.STRING, number=2)
-
     args = proto.RepeatedField(proto.STRING, number=3)
-
     env = proto.RepeatedField(proto.MESSAGE, number=4, message=env_var.EnvVar,)
-
     ports = proto.RepeatedField(proto.MESSAGE, number=5, message="Port",)
-
     predict_route = proto.Field(proto.STRING, number=6)
-
     health_route = proto.Field(proto.STRING, number=7)
 
 
