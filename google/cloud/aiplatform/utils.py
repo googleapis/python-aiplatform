@@ -18,7 +18,7 @@
 
 import re
 
-from typing import Optional, TypeVar, Union
+from typing import Optional, TypeVar, Union, List
 from collections import namedtuple
 
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
@@ -43,6 +43,7 @@ AiPlatformServiceClient = TypeVar(
 RESOURCE_NAME_PATTERN = re.compile(
     r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>\w+)\/(?P<id>\d+)$"
 )
+RESOURCE_ID_PATTERN = re.compile(r"^\d+$")
 
 Fields = namedtuple(
     "Fields",
@@ -66,6 +67,16 @@ def _match_to_fields(match: re.Match) -> Optional[Fields]:
         resource=match["resource"],
         id=match["id"],
     )
+
+
+def validate_string_list(obj: List[str]):
+    """Ensure every item in a given list is type str"""
+    return bool(obj) and all(isinstance(item, basestring) for item in obj)
+
+
+def validate_id(resource_id: str) -> bool:
+    """Validate int64 resource ID number"""
+    return bool(RESOURCE_ID_PATTERN.match(resource_id))
 
 
 def extract_fields_from_resource_name(

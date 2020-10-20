@@ -22,6 +22,7 @@ from typing import Dict, Optional, Type
 from google.api_core import client_options
 import google.auth
 from google.auth import credentials as auth_credentials
+from google.auth.exceptions import GoogleAuthError
 from google.cloud.aiplatform import utils
 
 
@@ -76,13 +77,21 @@ class _Config:
         if self._project:
             return self._project
 
-        _, project_id = google.auth.default()
+        try:
+            _, project_id = google.auth.default()
+        except GoogleAuthError:
+            raise ValueError(
+                "Unable to find your project. Please provide a project ID by:"
+                "\n- Passing a constructor argument"
+                "\n- Using aiplatform.init()"
+                "\n- Setting a GCP environment variable"
+            )
         return project_id
 
     @property
     def location(self) -> str:
         """Default location."""
-        return self._location if self._location else utils.DEFAULT_REGION
+        return self._location or utils.DEFAULT_REGION
 
     @property
     def experiment(self) -> Optional[str]:

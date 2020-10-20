@@ -19,6 +19,7 @@ from google.cloud.aiplatform import gapic
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.models import Model
+from google.cloud.aiplatform.datasets import Dataset
 
 """
 Usage:
