@@ -15,25 +15,36 @@
 # limitations under the License.
 #
 
+from typing import Optional
+
+from google.api_core import operation as ga_operation
+from google.cloud.aiplatform import base
+
 
 class LRO:
     """A handler for operation futures."""
 
-    def __init__(self, operation: google.api_core.operation.Operation):
+    def __init__(
+        self,
+        operation: ga_operation.Operation,
+        resource_noun_obj: Optional[base.AiPlatformResourceNoun] = None,
+    ):
         """Initialises class with operation.
 
         Args:
-            operation (google.api_core.operation.Operation): operation to handle
+            operation (ga_operation.Operation): operation to handle
         """
         self._operation_future = operation
+        if resource_noun_obj:
+            self.add_update_resource_callback(resource_noun_obj)
 
     def add_update_resource_callback(
-        self, resource_noun_obj: google.cloud.aiplatform.base.AiPlatformResourceNoun
+        self, resource_noun_obj: base.AiPlatformResourceNoun
     ):
         """Updates resource with result of operation.
 
         Args:
-            resource_noun_obj (google.cloud.aiplatform.base.AiPlatformResourceNoun):
+            resource_noun_obj (base.AiPlatformResourceNoun):
                 resource to be updated upon operation completion
         """
 
@@ -43,6 +54,7 @@ class LRO:
 
         self._operation_future.add_done_callback(callback)
 
+    @property
     def operation_future(self):
-        """google.api_core.operation.Operation: underlying operation future"""
+        """ga_operation.Operation: underlying operation future"""
         return self._operation_future
