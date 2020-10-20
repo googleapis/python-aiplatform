@@ -26,6 +26,7 @@ def make_lro():
 
     return lro
 
+
 def test_constructor():
     lro = make_lro()
     operation_future = lro._operation_future
@@ -36,6 +37,7 @@ def test_constructor():
     assert operation_future.done() is False
     assert operation_future.running()
 
+
 def test_add_update_resource_callback():
     lro = make_lro()
     resource_noun_obj = base.AiPlatformResourceNoun()
@@ -44,6 +46,7 @@ def test_add_update_resource_callback():
     operation_future = lro._operation_future
 
     assert len(operation_future._done_callbacks) is 1
+
 
 def test_operation():
     lro = make_lro()

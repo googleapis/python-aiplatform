@@ -36,6 +36,7 @@ class LRO:
             resource_noun_obj (google.cloud.aiplatform.base.AiPlatformResourceNoun):
                 resource to be updated upon operation completion
         """
+
         def callback(operation_future):
             result_obj = operation_future.result()
             resource_noun_obj._gca_resource = result_obj
