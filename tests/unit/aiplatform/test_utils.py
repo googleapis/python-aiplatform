@@ -20,10 +20,9 @@ import pytest
 from uuid import uuid4
 from random import choice
 from random import randint
-from importlib import reload
 from string import ascii_letters
 
-from google.cloud import aiplatform as aip
+from google.cloud import aiplatform
 from google.cloud.aiplatform.utils import Fields
 from google.cloud.aiplatform.utils import extract_fields_from_resource_name
 
@@ -108,8 +107,8 @@ def test_extract_fields_from_resource_name_with_resource_noun(
 
 def test_invalid_region_raises_with_invalid_region():
     with pytest.raises(ValueError):
-        aip.utils.validate_region(region="us-west4")
+        aiplatform.utils.validate_region(region="us-west4")
 
 
 def test_invalid_region_does_not_raise_with_valid_region():
-    aip.utils.validate_region(region="us-central1")
+    aiplatform.utils.validate_region(region="us-central1")

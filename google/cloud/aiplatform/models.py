@@ -15,10 +15,6 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform_v1beta1.services.model_service import (
-    client as model_client,
-)
-
 from typing import Dict, Optional, Sequence
 
 from google.auth import credentials as auth_credentials
