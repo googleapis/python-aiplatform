@@ -18,7 +18,7 @@
 
 import re
 
-from typing import Optional, TypeVar, Union, List
+from typing import Optional, TypeVar, Union, List, Match
 from collections import namedtuple
 
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
@@ -56,7 +56,7 @@ Fields = namedtuple(
 )
 
 
-def _match_to_fields(match: re.Match) -> Optional[Fields]:
+def _match_to_fields(match: Match) -> Optional[Fields]:
     """Normalize RegEx groups from resource name pattern Match to class Fields"""
     if not match:
         return None
