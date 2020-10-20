@@ -15,13 +15,12 @@
 # limitations under the License.
 #
 
-from typing import Optional, Sequence, Union, List, Dict, Tuple
+from typing import Optional, Sequence, Dict, Tuple
 
 from google.api_core import operation
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import validate_id
 from google.cloud.aiplatform.utils import extract_fields_from_resource_name
@@ -30,7 +29,6 @@ from google.cloud.aiplatform_v1beta1 import GcsSource
 from google.cloud.aiplatform_v1beta1 import GcsDestination
 from google.cloud.aiplatform_v1beta1 import ExportDataConfig
 from google.cloud.aiplatform_v1beta1 import ImportDataConfig
-from google.cloud.aiplatform_v1beta1 import ImportDataRequest
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 

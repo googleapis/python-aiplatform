@@ -19,7 +19,6 @@
 import pytest
 import importlib
 
-from google.api_core import client_options
 import google.auth
 from google.auth import credentials
 from google.cloud.aiplatform import initializer

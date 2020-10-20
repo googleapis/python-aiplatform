@@ -17,7 +17,7 @@
 
 
 import logging
-from typing import Dict, Optional, Type
+from typing import Optional, Type
 
 from google.api_core import client_options
 import google.auth

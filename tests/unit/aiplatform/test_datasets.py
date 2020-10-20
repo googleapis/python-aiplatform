@@ -119,12 +119,12 @@ class TestDataset:
             yield export_data_mock
 
     def test_init_dataset(self, get_dataset_mock):
-        dataset = Dataset(dataset_name=_TEST_NAME)
+        Dataset(dataset_name=_TEST_NAME)
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
 
     def test_init_dataset_with_id_only(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        dataset = Dataset(dataset_name=_TEST_ID)
+        Dataset(dataset_name=_TEST_ID)
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
 
     @pytest.mark.usefixtures("get_dataset_without_name_mock")
@@ -140,14 +140,14 @@ class TestDataset:
 
     def test_init_dataset_with_location_override(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        dataset = Dataset(dataset_name=_TEST_ID, location=_TEST_ALT_LOCATION)
+        Dataset(dataset_name=_TEST_ID, location=_TEST_ALT_LOCATION)
         get_dataset_mock.assert_called_once_with(name=_TEST_ALT_NAME)
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_init_dataset_with_invalid_name(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-            dataset = Dataset(dataset_name=_TEST_INVALID_NAME)
+            Dataset(dataset_name=_TEST_INVALID_NAME)
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_create_dataset(self, create_dataset_mock):

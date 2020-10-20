@@ -18,7 +18,7 @@
 
 import re
 
-from typing import Optional, TypeVar, Union, List, Match
+from typing import Optional, TypeVar, Match
 from collections import namedtuple
 
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
@@ -45,7 +45,7 @@ RESOURCE_NAME_PATTERN = re.compile(
 )
 RESOURCE_ID_PATTERN = re.compile(r"^\d+$")
 
-Fields = namedtuple("Fields", ["project", "location", "resource", "id",],)
+Fields = namedtuple("Fields", ["project", "location", "resource", "id"],)
 
 
 def _match_to_fields(match: Match) -> Optional[Fields]:
