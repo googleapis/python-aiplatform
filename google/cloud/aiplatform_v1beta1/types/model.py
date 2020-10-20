@@ -46,9 +46,9 @@ class Model(proto.Message):
         predict_schemata (~.model.PredictSchemata):
             The schemata that describe formats of the Model's
             predictions and explanations as given and returned via
-            [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict]
+            ``PredictionService.Predict``
             and
-            [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
+            ``PredictionService.Explain``.
         metadata_schema_uri (str):
             Immutable. Points to a YAML file stored on Google Cloud
             Storage describing additional information about the Model,
@@ -65,7 +65,7 @@ class Model(proto.Message):
         metadata (~.struct.Value):
             Immutable. An additional information about the Model; the
             schema of the metadata can be found in
-            [metadata_schema][google.cloud.aiplatform.v1beta1.Model.metadata_schema_uri].
+            ``metadata_schema``.
             Unset if the Model does not have any additional information.
         supported_export_formats (Sequence[~.model.Model.ExportFormat]):
             Output only. The formats in which this Model
@@ -79,7 +79,7 @@ class Model(proto.Message):
             Input only. The specification of the container that is to be
             used when deploying this Model. The specification is
             ingested upon
-            [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel],
+            ``ModelService.UploadModel``,
             and all binaries it contains are copied and stored
             internally by AI Platform. Not present for AutoML Models.
         artifact_uri (str):
@@ -90,68 +90,68 @@ class Model(proto.Message):
             Output only. When this Model is deployed, its prediction
             resources are described by the ``prediction_resources``
             field of the
-            [Endpoint.deployed_models][google.cloud.aiplatform.v1beta1.Endpoint.deployed_models]
+            ``Endpoint.deployed_models``
             object. Because not all Models support all resource
             configuration types, the configuration types this Model
             supports are listed here. If no configuration types are
             listed, the Model cannot be deployed to an
-            [Endpoint][google.cloud.aiplatform.v1beta1.Endpoint] and
+            ``Endpoint`` and
             does not support online predictions
-            ([PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict]
+            (``PredictionService.Predict``
             or
-            [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain]).
+            ``PredictionService.Explain``).
             Such a Model can serve predictions by using a
-            [BatchPredictionJob][google.cloud.aiplatform.v1beta1.BatchPredictionJob],
+            ``BatchPredictionJob``,
             if it has at least one entry each in
-            [supported_input_storage_formats][google.cloud.aiplatform.v1beta1.Model.supported_input_storage_formats]
+            ``supported_input_storage_formats``
             and
-            [supported_output_storage_formats][google.cloud.aiplatform.v1beta1.Model.supported_output_storage_formats].
+            ``supported_output_storage_formats``.
         supported_input_storage_formats (Sequence[str]):
             Output only. The formats this Model supports in
-            [BatchPredictionJob.input_config][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
+            ``BatchPredictionJob.input_config``.
             If
-            [PredictSchemata.instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri]
+            ``PredictSchemata.instance_schema_uri``
             exists, the instances should be given as per that schema.
 
             The possible formats are:
 
             -  ``jsonl`` The JSON Lines format, where each instance is a
                single line. Uses
-               [GcsSource][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InputConfig.gcs_source].
+               ``GcsSource``.
 
             -  ``csv`` The CSV format, where each instance is a single
                comma-separated line. The first line in the file is the
                header, containing comma-separated field names. Uses
-               [GcsSource][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InputConfig.gcs_source].
+               ``GcsSource``.
 
             -  ``tf-record`` The TFRecord format, where each instance is
                a single record in tfrecord syntax. Uses
-               [GcsSource][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InputConfig.gcs_source].
+               ``GcsSource``.
 
             -  ``tf-record-gzip`` Similar to ``tf-record``, but the file
                is gzipped. Uses
-               [GcsSource][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InputConfig.gcs_source].
+               ``GcsSource``.
 
             -  ``bigquery`` Each instance is a single row in BigQuery.
                Uses
-               [BigQuerySource][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InputConfig.bigquery_source].
+               ``BigQuerySource``.
 
             If this Model doesn't support any of these formats it means
             it cannot be used with a
-            [BatchPredictionJob][google.cloud.aiplatform.v1beta1.BatchPredictionJob].
+            ``BatchPredictionJob``.
             However, if it has
-            [supported_deployment_resources_types][google.cloud.aiplatform.v1beta1.Model.supported_deployment_resources_types],
+            ``supported_deployment_resources_types``,
             it could serve online predictions by using
-            [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict]
+            ``PredictionService.Predict``
             or
-            [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
+            ``PredictionService.Explain``.
         supported_output_storage_formats (Sequence[str]):
             Output only. The formats this Model supports in
-            [BatchPredictionJob.output_config][google.cloud.aiplatform.v1beta1.BatchPredictionJob.output_config].
+            ``BatchPredictionJob.output_config``.
             If both
-            [PredictSchemata.instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri]
+            ``PredictSchemata.instance_schema_uri``
             and
-            [PredictSchemata.prediction_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.prediction_schema_uri]
+            ``PredictSchemata.prediction_schema_uri``
             exist, the predictions are returned together with their
             instances. In other words, the prediction has the original
             instance data first, followed by the actual prediction
@@ -161,27 +161,27 @@ class Model(proto.Message):
 
             -  ``jsonl`` The JSON Lines format, where each prediction is
                a single line. Uses
-               [GcsDestination][google.cloud.aiplatform.v1beta1.BatchPredictionJob.OutputConfig.gcs_destination].
+               ``GcsDestination``.
 
             -  ``csv`` The CSV format, where each prediction is a single
                comma-separated line. The first line in the file is the
                header, containing comma-separated field names. Uses
-               [GcsDestination][google.cloud.aiplatform.v1beta1.BatchPredictionJob.OutputConfig.gcs_destination].
+               ``GcsDestination``.
 
             -  ``bigquery`` Each prediction is a single row in a
                BigQuery table, uses
-               [BigQueryDestination][google.cloud.aiplatform.v1beta1.BatchPredictionJob.OutputConfig.bigquery_destination]
+               ``BigQueryDestination``
                .
 
             If this Model doesn't support any of these formats it means
             it cannot be used with a
-            [BatchPredictionJob][google.cloud.aiplatform.v1beta1.BatchPredictionJob].
+            ``BatchPredictionJob``.
             However, if it has
-            [supported_deployment_resources_types][google.cloud.aiplatform.v1beta1.Model.supported_deployment_resources_types],
+            ``supported_deployment_resources_types``,
             it could serve online predictions by using
-            [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict]
+            ``PredictionService.Predict``
             or
-            [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
+            ``PredictionService.Explain``.
         create_time (~.timestamp.Timestamp):
             Output only. Timestamp when this Model was
             uploaded into AI Platform.
@@ -200,17 +200,17 @@ class Model(proto.Message):
             Model can be used for [requesting
             explanation][google.cloud.aiplatform.v1beta1.PredictionService.Explain]
             after being
-            [deployed][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel]
+            ``deployed``
             iff it is populated.
 
             All fields of the explanation_spec can be overridden by
-            [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
+            ``explanation_spec``
             of
-            [DeployModelRequest.deployed_model][google.cloud.aiplatform.v1beta1.DeployModelRequest.deployed_model].
+            ``DeployModelRequest.deployed_model``.
 
             This field is populated only for tabular AutoML Models.
             Specifying it with
-            [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
+            ``ModelService.UploadModel``
             is not supported.
         etag (str):
             Used to perform consistent read-modify-write
@@ -308,20 +308,20 @@ class Model(proto.Message):
 class PredictSchemata(proto.Message):
     r"""Contains the schemata used in Model's predictions and explanations
     via
-    [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict],
-    [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain]
+    ``PredictionService.Predict``,
+    ``PredictionService.Explain``
     and
-    [BatchPredictionJob][google.cloud.aiplatform.v1beta1.BatchPredictionJob].
+    ``BatchPredictionJob``.
 
     Attributes:
         instance_schema_uri (str):
             Immutable. Points to a YAML file stored on Google Cloud
             Storage describing the format of a single instance, which
             are used in
-            [PredictRequest.instances][google.cloud.aiplatform.v1beta1.PredictRequest.instances],
-            [ExplainRequest.instances][google.cloud.aiplatform.v1beta1.ExplainRequest.instances]
+            ``PredictRequest.instances``,
+            ``ExplainRequest.instances``
             and
-            [BatchPredictionJob.input_config][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
+            ``BatchPredictionJob.input_config``.
             The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
             AutoML Models always have this field populated by AI
@@ -333,10 +333,10 @@ class PredictSchemata(proto.Message):
             Immutable. Points to a YAML file stored on Google Cloud
             Storage describing the parameters of prediction and
             explanation via
-            [PredictRequest.parameters][google.cloud.aiplatform.v1beta1.PredictRequest.parameters],
-            [ExplainRequest.parameters][google.cloud.aiplatform.v1beta1.ExplainRequest.parameters]
+            ``PredictRequest.parameters``,
+            ``ExplainRequest.parameters``
             and
-            [BatchPredictionJob.model_parameters][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model_parameters].
+            ``BatchPredictionJob.model_parameters``.
             The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
             AutoML Models always have this field populated by AI
@@ -349,10 +349,10 @@ class PredictSchemata(proto.Message):
             Immutable. Points to a YAML file stored on Google Cloud
             Storage describing the format of a single prediction
             produced by this Model, which are returned via
-            [PredictResponse.predictions][google.cloud.aiplatform.v1beta1.PredictResponse.predictions],
-            [ExplainResponse.explanations][google.cloud.aiplatform.v1beta1.ExplainResponse.explanations],
+            ``PredictResponse.predictions``,
+            ``ExplainResponse.explanations``,
             and
-            [BatchPredictionJob.output_config][google.cloud.aiplatform.v1beta1.BatchPredictionJob.output_config].
+            ``BatchPredictionJob.output_config``.
             The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
             AutoML Models always have this field populated by AI
@@ -377,7 +377,7 @@ class ModelContainerSpec(proto.Message):
             Required. Immutable. The URI of the Model serving container
             file in the Container Registry. The container image is
             ingested upon
-            [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel],
+            ``ModelService.UploadModel``,
             stored internally, and this original path is afterwards not
             used.
         command (Sequence[str]):

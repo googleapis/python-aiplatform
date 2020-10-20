@@ -649,6 +649,18 @@ def test_pipeline_service_grpc_lro_client():
     assert transport.operations_client is transport.operations_client
 
 
+def test_model_path():
+    project = "squid"
+    location = "clam"
+    model = "whelk"
+
+    expected = "projects/{project}/locations/{location}/models/{model}".format(
+        project=project, location=location, model=model,
+    )
+    actual = PipelineServiceClient.model_path(project, location, model)
+    assert expected == actual
+
+
 def test_training_pipeline_path():
     project = "squid"
     location = "clam"
@@ -660,16 +672,4 @@ def test_training_pipeline_path():
     actual = PipelineServiceClient.training_pipeline_path(
         project, location, training_pipeline
     )
-    assert expected == actual
-
-
-def test_model_path():
-    project = "squid"
-    location = "clam"
-    model = "whelk"
-
-    expected = "projects/{project}/locations/{location}/models/{model}".format(
-        project=project, location=location, model=model,
-    )
-    actual = PipelineServiceClient.model_path(project, location, model)
     assert expected == actual
