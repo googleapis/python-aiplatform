@@ -80,7 +80,7 @@ class _Config:
         try:
             _, project_id = google.auth.default()
         except GoogleAuthError:
-            raise ValueError(
+            raise GoogleAuthError(
                 "Unable to find your project. Please provide a project ID by:"
                 "\n- Passing a constructor argument"
                 "\n- Using aiplatform.init()"

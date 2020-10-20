@@ -24,7 +24,6 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import validate_id
-from google.cloud.aiplatform.utils import validate_string_list
 from google.cloud.aiplatform.utils import extract_fields_from_resource_name
 
 from google.cloud.aiplatform_v1beta1 import GcsSource
@@ -98,16 +97,17 @@ class Dataset(base.AiPlatformResourceNoun):
         cls,
         display_name: str,
         metadata_schema_uri: str,
+        source: Optional[Sequence[str]] = None,
+        import_schema_uri: Optional[str] = None,
         metadata: Sequence[Tuple[str, str]] = (),
-        source: Optional[Union[str, List[str]]] = None,
         labels: Optional[Dict] = None,
         data_items_labels: Optional[Dict] = None,
-        import_schema_uri: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "Dataset":
-        """Creates new dataset.
+        """Creates a new dataset and optionally imports data into dataset when
+        source and import_schema_uri are passed.
 
         Args:
             display_name (str):
@@ -120,13 +120,19 @@ class Dataset(base.AiPlatformResourceNoun):
                 is defined as an OpenAPI 3.0.2 Schema Object. The schema files
                 that can be used here are found in gs://google-cloud-
                 aiplatform/schema/dataset/metadata/.
-            metadata: Sequence[Tuple[str, str]]=()
-                Strings which should be sent along with the request as metadata.
-            source: Optional[Union[str, List[str]]]=None:
+            source: Optional[Sequence[str]]=None:
                 Google Cloud Storage URI(-s) to the
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+            import_schema_uri: Optional[str] = None
+                Points to a YAML file stored on Google Cloud
+                Storage describing the import format. Validation will be
+                done against the schema. The schema is defined as an
+                `OpenAPI 3.0.2 Schema
+                Object <https://tinyurl.com/y538mdwt>`__.
+            metadata: Sequence[Tuple[str, str]]=()
+                Strings which should be sent along with the request as metadata.
             labels: (Optional[Dict]) = None
                 The labels with user-defined metadata to organize your
                 Datasets.
@@ -155,12 +161,6 @@ class Dataset(base.AiPlatformResourceNoun):
                 labels specified inside index file refenced by
                 [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
                 e.g. jsonl file.
-            import_schema_uri: Optional[str] = None
-                Points to a YAML file stored on Google Cloud
-                Storage describing the import format. Validation will be
-                done against the schema. The schema is defined as an
-                `OpenAPI 3.0.2 Schema
-                Object <https://tinyurl.com/y538mdwt>`__.
             project: Optional[str]=None,
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -178,7 +178,7 @@ class Dataset(base.AiPlatformResourceNoun):
         # Validate that source and import schema are passed together or not at all
         if bool(source) ^ bool(import_schema_uri):
             raise ValueError(
-                "Please provide both source and import_schema_uri to import data"
+                "Please provide both source and import_schema_uri to import data or omit both."
             )
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
@@ -223,7 +223,46 @@ class Dataset(base.AiPlatformResourceNoun):
         labels: Optional[Dict] = {},
         request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
+        """Creates a new managed dataset by directly calling API client.
 
+        Args:
+            api_client (DatasetServiceClient):
+                An instance of DatasetServiceClient with the correct api_endpoint
+                already set based on user's preferences.
+            parent (str):
+                Also known as common location path, that usually contains the
+                project and location that the user provided to the upstream method.
+                Example: "projects/my-prj/locations/us-central1"
+            display_name (str):
+                Required. The user-defined name of the Dataset.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            metadata_schema_uri (str):
+                Required. Points to a YAML file stored on Google Cloud Storage
+                describing additional information about the Dataset. The schema
+                is defined as an OpenAPI 3.0.2 Schema Object. The schema files
+                that can be used here are found in gs://google-cloud-
+                aiplatform/schema/dataset/metadata/.
+            labels: (Optional[Dict]) = None
+                The labels with user-defined metadata to organize your
+                Datasets.
+
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters,
+                numeric characters, underscores and dashes. International
+                characters are allowed. No more than 64 user labels can be
+                associated with one Dataset (System labels are excluded).
+
+                See https://goo.gl/xmQnxf for more information and examples
+                of labels. System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
+            request_metadata: Sequence[Tuple[str, str]] = ()
+                Strings which should be sent along with the create_dataset
+                request as metadata. Usually to specify special dataset config.
+        Returns:
+            operation (Operation):
+                An object representing a long-running operation.
+        """
         gapic_dataset = GapicDataset(
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
@@ -236,7 +275,7 @@ class Dataset(base.AiPlatformResourceNoun):
 
     def _import(
         self,
-        source: Union[str, List[str]],
+        source: Sequence[str],
         import_schema_uri: str,
         data_items_labels: Optional[Dict] = None,
     ) -> Optional[operation.Operation]:
@@ -273,9 +312,9 @@ class Dataset(base.AiPlatformResourceNoun):
             operation (Operation):
                 An object representing a long-running operation.
         """
-
+        # TODO(b/171311614): Add support for BiqQuery import source
         import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=source if type(source) == list else [source]),
+            gcs_source=GcsSource(uris=[source] if type(source) == str else source),
             import_schema_uri=import_schema_uri,
             data_item_labels=data_items_labels,
         )
@@ -286,7 +325,7 @@ class Dataset(base.AiPlatformResourceNoun):
 
     def import_data(
         self,
-        gcs_source: Union[str, List[str]],
+        gcs_source: Sequence[str],
         import_schema_uri: str,
         data_items_labels: Optional[Dict] = None,
     ) -> "Dataset":
@@ -334,7 +373,7 @@ class Dataset(base.AiPlatformResourceNoun):
 
         return self
 
-    def export_data(self, output_dir: str) -> Optional[operation.Operation]:
+    def export_data(self, output_dir: str) -> Sequence[str]:
         """Exports data to output dir to GCS.
 
         Args:
@@ -354,10 +393,10 @@ class Dataset(base.AiPlatformResourceNoun):
                 appended. The directory is created if it doesn't exist.
 
         Returns:
-            operation (Operation):
-                An object representing a long-running operation.
+            exported_files (Sequence[str]):
+                All of the files that are exported in this export operation.
         """
-
+        # TODO(b/171311614): Add support for BiqQuery export path
         export_data_config = ExportDataConfig(
             gcs_destination=GcsDestination(output_uri_prefix=output_dir)
         )
@@ -366,7 +405,9 @@ class Dataset(base.AiPlatformResourceNoun):
             name=self.resource_name, export_config=export_data_config
         )
 
-        return export_lro
+        export_data_response = export_lro.result()
+
+        return export_data_response.exported_files
 
     def update(self):
         raise NotImplementedError("Update dataset has not been implemented yet")

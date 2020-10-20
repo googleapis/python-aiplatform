@@ -23,9 +23,10 @@ from importlib import reload
 from unittest.mock import patch
 
 from google.api_core import operation
+from google.auth.exceptions import GoogleAuthError
 from google.auth import credentials as auth_credentials
 
-from google.cloud import aiplatform as aip
+from google.cloud import aiplatform
 from google.cloud.aiplatform import Dataset
 from google.cloud.aiplatform import initializer
 
@@ -66,10 +67,11 @@ _TEST_DATA_LABEL_ITEMS = {}
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
 
 
+# TODO(b/171333554): Move reusable test fixtures to conftest.py file
 class TestDataset:
     def setup_method(self):
         reload(initializer)
-        reload(aip)
+        reload(aiplatform)
 
     @pytest.fixture
     def get_dataset_mock(self):
@@ -121,7 +123,7 @@ class TestDataset:
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
 
     def test_init_dataset_with_id_only(self, get_dataset_mock):
-        aip.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         dataset = Dataset(dataset_name=_TEST_ID)
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
 
@@ -130,26 +132,26 @@ class TestDataset:
         os.environ, {"GOOGLE_CLOUD_PROJECT": "", "GOOGLE_APPLICATION_CREDENTIALS": ""}
     )
     def test_init_dataset_with_id_only_without_project_or_location(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(GoogleAuthError):
             Dataset(
                 dataset_name=_TEST_ID,
                 credentials=auth_credentials.AnonymousCredentials(),
             )
 
     def test_init_dataset_with_location_override(self, get_dataset_mock):
-        aip.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         dataset = Dataset(dataset_name=_TEST_ID, location=_TEST_ALT_LOCATION)
         get_dataset_mock.assert_called_once_with(name=_TEST_ALT_NAME)
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_init_dataset_with_invalid_name(self):
         with pytest.raises(ValueError):
-            aip.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             dataset = Dataset(dataset_name=_TEST_INVALID_NAME)
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_create_dataset(self, create_dataset_mock):
-        aip.init(project=_TEST_PROJECT)
+        aiplatform.init(project=_TEST_PROJECT)
 
         Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
@@ -169,7 +171,7 @@ class TestDataset:
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_create_and_import_dataset(self, create_dataset_mock, import_data_mock):
-        aip.init(project=_TEST_PROJECT)
+        aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
@@ -208,7 +210,7 @@ class TestDataset:
         self, create_dataset_mock
     ):
         with pytest.raises(ValueError):
-            aip.init(project=_TEST_PROJECT)
+            aiplatform.init(project=_TEST_PROJECT)
 
             Dataset.create(
                 display_name=_TEST_DISPLAY_NAME,
@@ -219,7 +221,7 @@ class TestDataset:
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_import_data(self, import_data_mock):
-        aip.init(project=_TEST_PROJECT)
+        aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = Dataset(dataset_name=_TEST_NAME)
 
@@ -241,7 +243,7 @@ class TestDataset:
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_export_data(self, export_data_mock):
-        aip.init(project=_TEST_PROJECT)
+        aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = Dataset(dataset_name=_TEST_NAME)
 
