@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from gopgle.api_core.tests.unit import test_operation
+from google.api_core.tests.unit import test_operation
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import lro
 from google.protobuf import empty_pb2 as empty
