@@ -29,7 +29,7 @@ class LRO:
         operation: ga_operation.Operation,
         resource_noun_obj: Optional[base.AiPlatformResourceNoun] = None,
     ):
-        """Initialises class with operation.
+        """Initialises class with operation and optional object to update.
 
         Args:
             operation (ga_operation.Operation): operation to handle

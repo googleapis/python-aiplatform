@@ -20,9 +20,9 @@ from google.protobuf import empty_pb2 as empty
 TEST_OPERATION_NAME = "test/operation"
 
 
-def make_lro():
+def make_lro(resource_noun_obj=None):
     operation = test_operation.make_operation_future()
-    lro = lro.LRO(operation)
+    lro = lro.LRO(operation, resource_noun_obj)
 
     return lro
 
@@ -38,6 +38,14 @@ def test_constructor():
     assert operation_future.running()
 
 
+def test_constructor_with_resource_noun():
+    resource_noun_obj = base.AiPlatformResourceNoun()
+    lro = make_lro(resource_noun_obj)
+    operation_future = lro._operation_future
+
+    assert len(operation_future._done_callbacks) is 1
+
+
 def test_add_update_resource_callback():
     lro = make_lro()
     resource_noun_obj = base.AiPlatformResourceNoun()
@@ -48,12 +56,11 @@ def test_add_update_resource_callback():
     assert len(operation_future._done_callbacks) is 1
 
 
-def test_operation():
+def test_operation_future():
     lro = make_lro()
-    operation_future = lro.operation_future()
 
-    assert operation_future.name == TEST_OPERATION_NAME
-    assert operation_future._result_type is empty.Empty
-    assert operation_future.metadata() is None
-    assert operation_future.done() is False
-    assert operation_future.running()
+    assert lro.operation_future.name == TEST_OPERATION_NAME
+    assert lro.operation_future._result_type is empty.Empty
+    assert lro.operation_future.metadata() is None
+    assert lro.operation_future.done() is False
+    assert lro.operation_future.running()
