@@ -15,44 +15,33 @@
 # limitations under the License.
 #
 
-import functools
 
-from google.api_core import operation as ga_operation
-from google.cloud.aiplatform_v1beta1.services.endpoint_service.transports.base import (
-    EndpointServiceTransport
-)
-from google.protobuf import empty_pb2 as empty
+class LRO:
+    """A handler for operation futures."""
 
-
-class LRO(ga_operation):
-    """A handler for Operation futures.
-
-    Args:
-        operation (google.longrunning.operations_pb2.Operation): The
-            initial operation.
-        result_type (func:`type`): The protobuf type for the operation's
-            result.
-    """
-
-    def __init__(
-        self, operation, refresh=None, cancel=None, result_type=empty.Empty, **kwargs
-    ):
-        operations_client = EndpointServiceTransport().operations_client
-        if refresh is None:
-            refresh = functools.partial(operations_client.get_operation, operation.name)
-        if cancel is None:
-            cancel = functools.partial(
-                operations_client.cancel_operation, operation.name
-            )
-
-        super().__init__(operation, refresh, cancel, result_type, **kwargs)
-        self.operation_name = operation.name
-        self.add_done_callback(callback)
-
-    def callback(operation_future):
-        """Callback used to set results of operation future.
+    def __init__(self, operation: google.api_core.operation.Operation):
+        """Initialises class with operation.
 
         Args:
-            operation_future (ga_operation.Operation): operation to set result of
+            operation (google.api_core.operation.Operation): operation to handle
         """
-        operation_future._set_result_from_operation()
+        self._operation_future = operation
+
+    def add_update_resource_callback(
+        self, resource_noun_obj: google.cloud.aiplatform.base.AiPlatformResourceNoun
+    ):
+        """Updates resource with result of operation.
+
+        Args:
+            resource_noun_obj (google.cloud.aiplatform.base.AiPlatformResourceNoun):
+                resource to be updated upon operation completion
+        """
+        def callback(operation_future):
+            result_obj = operation_future.result()
+            resource_noun_obj._gca_resource = result_obj
+
+        self._operation_future.add_done_callback(callback)
+
+    def operation_future(self):
+        """google.api_core.operation.Operation: underlying operation future"""
+        return self._operation_future

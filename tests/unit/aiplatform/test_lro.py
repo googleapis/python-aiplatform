@@ -12,11 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import time
-import mock
-
-from google.api_core import exceptions
 from gopgle.api_core.tests.unit import test_operation
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import lro
 from google.protobuf import empty_pb2 as empty
 
@@ -24,31 +21,36 @@ TEST_OPERATION_NAME = "test/operation"
 
 
 def make_lro():
-    operation = make_operation_proto()
+    operation = test_operation.make_operation_future()
     lro = lro.LRO(operation)
 
     return lro
 
-
 def test_constructor():
     lro = make_lro()
+    operation_future = lro._operation_future
 
-    assert lro.operation_name == TEST_OPERATION_NAME
-    assert len(lro._done_callbacks) is 1
-    assert lro._result_type is empty.Empty
-    assert lro.metadata() is None
-    assert lro.done() is False
-    assert lro.running()
+    assert operation_future.name == TEST_OPERATION_NAME
+    assert operation_future._result_type is empty.Empty
+    assert operation_future.metadata() is None
+    assert operation_future.done() is False
+    assert operation_future.running()
 
-
-def test_callback():
+def test_add_update_resource_callback():
     lro = make_lro()
-    lro._operation.done = True
-    exception = exceptions.GoogleAPICallError(
-        "Unexpected state: Long-running operation had neither "
-        "response nor error set."
-    )
-    time.sleep(1)
+    resource_noun_obj = base.AiPlatformResourceNoun()
+    lro.add_update_resource_callback(resource_noun_obj)
 
-    assert lro.callback.assert_called_once_with(lro)
-    assert lro.exception() == exception
+    operation_future = lro._operation_future
+
+    assert len(operation_future._done_callbacks) is 1
+
+def test_operation():
+    lro = make_lro()
+    operation_future = lro.operation_future()
+
+    assert operation_future.name == TEST_OPERATION_NAME
+    assert operation_future._result_type is empty.Empty
+    assert operation_future.metadata() is None
+    assert operation_future.done() is False
+    assert operation_future.running()
