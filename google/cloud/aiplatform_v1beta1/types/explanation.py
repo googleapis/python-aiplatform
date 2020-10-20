@@ -36,9 +36,9 @@ __protobuf__ = proto.module(
 
 
 class Explanation(proto.Message):
-    r"""Explanation of a [prediction][ExplainResponse.predictions] produced
+    r"""Explanation of a ``prediction`` produced
     by the Model on a given
-    [instance][google.cloud.aiplatform.v1beta1.ExplainRequest.instances].
+    ``instance``.
 
     Currently, only AutoML tabular Models support explanation.
 
@@ -53,7 +53,7 @@ class Explanation(proto.Message):
             that predict multiple outputs, such as multiclass Models
             that predict multiple classes, each element explains one
             specific item.
-            [Attribution.output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index]
+            ``Attribution.output_index``
             can be used to identify which output this attribution is
             explaining.
     """
@@ -79,21 +79,21 @@ class ModelExplanation(proto.Message):
             that predict multiple outputs, such as multiclass Models
             that predict multiple classes, each element explains one
             specific item.
-            [Attribution.output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index]
+            ``Attribution.output_index``
             can be used to identify which output this attribution is
             explaining.
 
             The
-            [baselineOutputValue][google.cloud.aiplatform.v1beta1.Attribution.baseline_output_value],
-            [instanceOutputValue][google.cloud.aiplatform.v1beta1.Attribution.instance_output_value]
+            ``baselineOutputValue``,
+            ``instanceOutputValue``
             and
-            [featureAttributions][google.cloud.aiplatform.v1beta1.Attribution.feature_attributions]
+            ``featureAttributions``
             fields are averaged over the test data.
 
             NOTE: Currently AutoML tabular classification Models produce
             only one attribution, which averages attributions over all
             the classes it predicts.
-            [Attribution.approximation_error][google.cloud.aiplatform.v1beta1.Attribution.approximation_error]
+            ``Attribution.approximation_error``
             is not populated.
     """
 
@@ -110,14 +110,14 @@ class Attribution(proto.Message):
             Output only. Model predicted output if the input instance is
             constructed from the baselines of all the features defined
             in
-            [ExplanationMetadata.inputs][google.cloud.aiplatform.v1beta1.ExplanationMetadata.inputs].
+            ``ExplanationMetadata.inputs``.
             The field name of the output is determined by the key in
-            [ExplanationMetadata.outputs][google.cloud.aiplatform.v1beta1.ExplanationMetadata.outputs].
+            ``ExplanationMetadata.outputs``.
 
             If the Model predicted output is a tensor value (for
             example, an ndarray), this is the value in the output
             located by
-            [output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index].
+            ``output_index``.
 
             If there are multiple baselines, their output values are
             averaged.
@@ -125,12 +125,12 @@ class Attribution(proto.Message):
             Output only. Model predicted output on the corresponding
             [explanation instance][ExplainRequest.instances]. The field
             name of the output is determined by the key in
-            [ExplanationMetadata.outputs][google.cloud.aiplatform.v1beta1.ExplanationMetadata.outputs].
+            ``ExplanationMetadata.outputs``.
 
             If the Model predicted output is a tensor value (for
             example, an ndarray), this is the value in the output
             located by
-            [output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index].
+            ``output_index``.
         feature_attributions (~.struct.Value):
             Output only. Attributions of each explained feature.
             Features are extracted from the [prediction
@@ -140,7 +140,7 @@ class Attribution(proto.Message):
 
             The value is a struct, whose keys are the name of the
             feature. The values are how much the feature in the
-            [instance][google.cloud.aiplatform.v1beta1.ExplainRequest.instances]
+            ``instance``
             contributed to the predicted result.
 
             The format of the value is determined by the feature's input
@@ -152,21 +152,21 @@ class Attribution(proto.Message):
 
             -  If the feature is an array of scalar values, the
                attribution value is an
-               [array][google.protobuf.Value.list_value].
+               ``array``.
 
             -  If the feature is a struct, the attribution value is a
-               [struct][google.protobuf.Value.struct_value]. The keys in
+               ``struct``. The keys in
                the attribution value struct are the same as the keys in
                the feature struct. The formats of the values in the
                attribution struct are determined by the formats of the
                values in the feature struct.
 
             The
-            [ExplanationMetadata.feature_attributions_schema_uri][google.cloud.aiplatform.v1beta1.ExplanationMetadata.feature_attributions_schema_uri]
+            ``ExplanationMetadata.feature_attributions_schema_uri``
             field, pointed to by the
-            [ExplanationSpec][google.cloud.aiplatform.v1beta1.ExplanationSpec]
+            ``ExplanationSpec``
             field of the
-            [Endpoint.deployed_models][google.cloud.aiplatform.v1beta1.Endpoint.deployed_models]
+            ``Endpoint.deployed_models``
             object, points to the schema file that describes the
             features and their attribution values (if it is populated).
         output_index (Sequence[int]):
@@ -181,7 +181,7 @@ class Attribution(proto.Message):
             dimension of the output vector. Indexes start from 0.
         output_display_name (str):
             Output only. The display name of the output identified by
-            [output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index],
+            ``output_index``,
             e.g. the predicted class name by a multi-classification
             Model.
 
@@ -191,14 +191,14 @@ class Attribution(proto.Message):
             explained output, and can be located using output_index.
         approximation_error (float):
             Output only. Error of
-            [feature_attributions][google.cloud.aiplatform.v1beta1.Attribution.feature_attributions]
+            ``feature_attributions``
             caused by approximation used in the explanation method.
             Lower value means more precise attributions.
 
             For Sampled Shapley
-            [attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.sampled_shapley_attribution],
+            ``attribution``,
             increasing
-            [path_count][google.cloud.aiplatform.v1beta1.SampledShapleyAttribution.path_count]
+            ``path_count``
             might reduce the error.
     """
 

@@ -110,13 +110,13 @@ class CustomJobSpec(proto.Message):
             The Google Cloud Storage location to store the output of
             this CustomJob or HyperparameterTuningJob. For
             HyperparameterTuningJob,
-            [base_output_directory][CustomJob.job_spec.base_output_directory]
+            ``base_output_directory``
             of each child CustomJob backing a Trial is set to a
             subdirectory of name
-            [id][google.cloud.aiplatform.v1beta1.Trial.id] under parent
+            ``id`` under parent
             HyperparameterTuningJob's
 
-            [base_output_directory][HyperparameterTuningJob.trial_job_spec.base_output_directory].
+            ``base_output_directory``.
 
             Following AI Platform environment variables will be passed
             to containers or python modules when this field is set:
