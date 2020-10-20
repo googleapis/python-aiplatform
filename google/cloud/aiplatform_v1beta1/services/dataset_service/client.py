@@ -165,7 +165,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (:class:`~.dataset_service.CreateDatasetRequest`):
                 The request object. Request message for
-                [DatasetService.CreateDataset][google.cloud.aiplatform.v1beta1.DatasetService.CreateDataset].
+                ``DatasetService.CreateDataset``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the Dataset in. Format:
@@ -190,7 +190,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.gca_dataset.Dataset``: A collection of
+                :class:`~.gca_dataset.Dataset`: A collection of
                 DataItems and Annotations on them.
 
         """
@@ -249,7 +249,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (:class:`~.dataset_service.GetDatasetRequest`):
                 The request object. Request message for
-                [DatasetService.GetDataset][google.cloud.aiplatform.v1beta1.DatasetService.GetDataset].
+                ``DatasetService.GetDataset``.
             name (:class:`str`):
                 Required. The name of the Dataset
                 resource.
@@ -319,7 +319,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (:class:`~.dataset_service.UpdateDatasetRequest`):
                 The request object. Request message for
-                [DatasetService.UpdateDataset][google.cloud.aiplatform.v1beta1.DatasetService.UpdateDataset].
+                ``DatasetService.UpdateDataset``.
             dataset (:class:`~.gca_dataset.Dataset`):
                 Required. The Dataset which replaces
                 the resource on the server.
@@ -330,8 +330,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 Required. The update mask applies to the resource. For
                 the ``FieldMask`` definition, see
 
-                [FieldMask](https:
-                //tinyurl.com/dev-google-protobuf#google.protobuf.FieldMask).
+                [FieldMask](https://tinyurl.com/dev-google-protobuf#google.protobuf.FieldMask).
                 Updatable fields:
 
                 -  ``display_name``
@@ -400,7 +399,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (:class:`~.dataset_service.ListDatasetsRequest`):
                 The request object. Request message for
-                [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
+                ``DatasetService.ListDatasets``.
             parent (:class:`str`):
                 Required. The name of the Dataset's parent resource.
                 Format: ``projects/{project}/locations/{location}``
@@ -417,7 +416,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Returns:
             ~.pagers.ListDatasetsPager:
                 Response message for
-                [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
+                ``DatasetService.ListDatasets``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -480,7 +479,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (:class:`~.dataset_service.DeleteDatasetRequest`):
                 The request object. Request message for
-                [DatasetService.DeleteDataset][google.cloud.aiplatform.v1beta1.DatasetService.DeleteDataset].
+                ``DatasetService.DeleteDataset``.
             name (:class:`str`):
                 Required. The resource name of the Dataset to delete.
                 Format:
@@ -500,7 +499,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.empty.Empty``: A generic empty message that
+                :class:`~.empty.Empty`: A generic empty message that
                 you can re-use to avoid defining duplicated empty
                 messages in your APIs. A typical example is to use it as
                 the request or the response type of an API method. For
@@ -570,7 +569,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (:class:`~.dataset_service.ImportDataRequest`):
                 The request object. Request message for
-                [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
+                ``DatasetService.ImportData``.
             name (:class:`str`):
                 Required. The name of the Dataset resource. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
@@ -596,9 +595,9 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.dataset_service.ImportDataResponse``:
+                :class:`~.dataset_service.ImportDataResponse`:
                 Response message for
-                [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
+                ``DatasetService.ImportData``.
 
         """
         # Create or coerce a protobuf request object.
@@ -655,7 +654,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (:class:`~.dataset_service.ExportDataRequest`):
                 The request object. Request message for
-                [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
+                ``DatasetService.ExportData``.
             name (:class:`str`):
                 Required. The name of the Dataset resource. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
@@ -680,9 +679,9 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.dataset_service.ExportDataResponse``:
+                :class:`~.dataset_service.ExportDataResponse`:
                 Response message for
-                [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
+                ``DatasetService.ExportData``.
 
         """
         # Create or coerce a protobuf request object.
@@ -738,7 +737,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (:class:`~.dataset_service.ListDataItemsRequest`):
                 The request object. Request message for
-                [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
+                ``DatasetService.ListDataItems``.
             parent (:class:`str`):
                 Required. The resource name of the Dataset to list
                 DataItems from. Format:
@@ -756,7 +755,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Returns:
             ~.pagers.ListDataItemsPager:
                 Response message for
-                [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
+                ``DatasetService.ListDataItems``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -819,7 +818,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (:class:`~.dataset_service.GetAnnotationSpecRequest`):
                 The request object. Request message for
-                [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1beta1.DatasetService.GetAnnotationSpec].
+                ``DatasetService.GetAnnotationSpec``.
             name (:class:`str`):
                 Required. The name of the AnnotationSpec resource.
                 Format:
@@ -892,7 +891,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (:class:`~.dataset_service.ListAnnotationsRequest`):
                 The request object. Request message for
-                [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
+                ``DatasetService.ListAnnotations``.
             parent (:class:`str`):
                 Required. The resource name of the DataItem to list
                 Annotations from. Format:
@@ -911,7 +910,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Returns:
             ~.pagers.ListAnnotationsPager:
                 Response message for
-                [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
+                ``DatasetService.ListAnnotations``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
