@@ -114,7 +114,7 @@ class ImportDataConfig(proto.Message):
             if their content bytes are identical (e.g. image bytes or
             pdf bytes). These labels will be overridden by Annotation
             labels specified inside index file refenced by
-            [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
+            ``import_schema_uri``,
             e.g. jsonl file.
         import_schema_uri (str):
             Required. Points to a YAML file stored on Google Cloud
@@ -150,7 +150,7 @@ class ExportDataConfig(proto.Message):
             to-be-exported DataItems(specified by [data_items_filter][])
             that match this filter will be exported. The filter syntax
             is the same as in
-            [ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
+            ``ListAnnotations``.
     """
 
     gcs_destination = proto.Field(proto.MESSAGE, number=1, message=io.GcsDestination,)
