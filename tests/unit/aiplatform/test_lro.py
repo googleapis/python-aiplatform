@@ -71,7 +71,7 @@ def test_constructor():
     operation_future = make_operation_future()
     test_lro = lro.LRO(operation_future)
 
-    assert test_lro._operation_future.name == TEST_OPERATION_NAME
+    assert test_lro._operation_future.operation.name == TEST_OPERATION_NAME
     assert test_lro._operation_future._result_type is empty.Empty
     assert test_lro._operation_future.metadata() is None
     assert test_lro._operation_future.done() is False
@@ -104,7 +104,7 @@ def test_operation_future():
     operation_future = make_operation_future()
     test_lro = lro.LRO(operation_future)
 
-    assert test_lro.operation_future.name == TEST_OPERATION_NAME
+    assert test_lro.operation_future.operation.name == TEST_OPERATION_NAME
     assert test_lro.operation_future._result_type is empty.Empty
     assert test_lro.operation_future.metadata() is None
     assert test_lro.operation_future.done() is False
