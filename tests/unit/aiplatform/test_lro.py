@@ -72,7 +72,6 @@ def test_constructor():
 
     assert test_lro.operation_future.operation.name == TEST_OPERATION_NAME
     assert test_lro.operation_future._result_type is struct.Struct
-    assert test_lro.operation_future.metadata() is None
     assert test_lro.operation_future.done() is False
     assert test_lro.operation_future.running()
     assert len(test_lro.operation_future._done_callbacks) is 0
