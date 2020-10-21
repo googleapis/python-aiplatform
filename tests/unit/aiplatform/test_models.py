@@ -16,17 +16,14 @@
 #
 
 
-import pytest
 import importlib
 from unittest import mock
 
 from google.api_core import operation as ga_operation
-import google.auth
 from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
-from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1.services.model_service.client import (
     ModelServiceClient,
 )
@@ -67,7 +64,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            test_model = models.Model(_TEST_MODEL_NAME)
+            models.Model(_TEST_MODEL_NAME)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
                 credentials=None,
@@ -83,7 +80,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            test_model = models.Model(_TEST_MODEL_NAME, location=_TEST_LOCATION_2)
+            models.Model(_TEST_MODEL_NAME, location=_TEST_LOCATION_2)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
                 credentials=None,
@@ -99,7 +96,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
             creds = auth_credentials.AnonymousCredentials()
-            test_model = models.Model(_TEST_MODEL_NAME, credentials=creds)
+            models.Model(_TEST_MODEL_NAME, credentials=creds)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
                 credentials=creds,
@@ -115,7 +112,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            test_model = models.Model(_TEST_MODEL_NAME)
+            models.Model(_TEST_MODEL_NAME)
             test_model_resource_name = ModelServiceClient.model_path(
                 _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_NAME
             )
@@ -131,7 +128,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            test_model = models.Model(_TEST_MODEL_NAME, project=_TEST_PROJECT_2)
+            models.Model(_TEST_MODEL_NAME, project=_TEST_PROJECT_2)
             test_model_resource_name = ModelServiceClient.model_path(
                 _TEST_PROJECT_2, _TEST_LOCATION, _TEST_MODEL_NAME
             )
@@ -147,7 +144,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            test_model = models.Model(_TEST_MODEL_NAME, location=_TEST_LOCATION_2)
+            models.Model(_TEST_MODEL_NAME, location=_TEST_LOCATION_2)
             test_model_resource_name = ModelServiceClient.model_path(
                 _TEST_PROJECT, _TEST_LOCATION_2, _TEST_MODEL_NAME
             )
@@ -172,7 +169,7 @@ class TestModel:
             api_client_mock.upload_model.return_value = mock_lro
             create_client_mock.return_value = api_client_mock
 
-            test_model = models.Model.upload(
+            models.Model.upload(
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -218,7 +215,7 @@ class TestModel:
             api_client_mock.upload_model.return_value = mock_lro
             create_client_mock.return_value = api_client_mock
 
-            test_model = models.Model.upload(
+            models.Model.upload(
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -284,7 +281,7 @@ class TestModel:
             api_client_mock.upload_model.return_value = mock_lro
             create_client_mock.return_value = api_client_mock
 
-            test_model = models.Model.upload(
+            models.Model.upload(
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -331,7 +328,7 @@ class TestModel:
             api_client_mock.upload_model.return_value = mock_lro
             create_client_mock.return_value = api_client_mock
 
-            test_model = models.Model.upload(
+            models.Model.upload(
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
