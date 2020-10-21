@@ -21,8 +21,7 @@ from google.cloud.aiplatform_v1beta1.services.model_service.client import (
     ModelServiceClient
 )
 from google.longrunning import operations_pb2
-from google.protobuf import empty_pb2 as empty
-from google.protobuf import struct_pb2
+from google.protobuf import struct_pb2 as struct
 
 TEST_OPERATION_NAME = "test/operation"
 
@@ -60,8 +59,8 @@ def make_operation_future(client_operations_responses=None):
         client_operations_responses[0],
         refresh,
         cancel,
-        result_type=struct_pb2.Struct,
-        metadata_type=struct_pb2.Struct,
+        result_type=struct.Struct,
+        metadata_type=struct.Struct,
     )
 
     return operation_future
@@ -71,12 +70,12 @@ def test_constructor():
     operation_future = make_operation_future()
     test_lro = lro.LRO(operation_future)
 
-    assert test_lro._operation_future.operation.name == TEST_OPERATION_NAME
-    assert test_lro._operation_future._result_type is empty.Empty
-    assert test_lro._operation_future.metadata() is None
-    assert test_lro._operation_future.done() is False
-    assert test_lro._operation_future.running()
-    assert len(test_lro._operation_future._done_callbacks) is 0
+    assert test_lro.operation_future.operation.name == TEST_OPERATION_NAME
+    assert test_lro.operation_future._result_type is struct.Struct
+    assert test_lro.operation_future.metadata() is None
+    assert test_lro.operation_future.done() is False
+    assert test_lro.operation_future.running()
+    assert len(test_lro.operation_future._done_callbacks) is 0
 
 
 def test_constructor_with_update():
@@ -86,7 +85,7 @@ def test_constructor_with_update():
     api_get = mock.Mock(spec=["__call__"])
     test_lro = lro.LRO(operation_future, resource_noun_obj, result_key, api_get)
 
-    assert len(test_lro._operation_future._done_callbacks) is 1
+    assert len(test_lro.operation_future._done_callbacks) is 1
 
 
 def test_add_update_resource_callback():
@@ -97,15 +96,4 @@ def test_add_update_resource_callback():
     api_get = mock.Mock(spec=["__call__"])
     test_lro.add_update_resource_callback(resource_noun_obj, result_key, api_get)
 
-    assert len(test_lro._operation_future._done_callbacks) is 1
-
-
-def test_operation_future():
-    operation_future = make_operation_future()
-    test_lro = lro.LRO(operation_future)
-
-    assert test_lro.operation_future.operation.name == TEST_OPERATION_NAME
-    assert test_lro.operation_future._result_type is empty.Empty
-    assert test_lro.operation_future.metadata() is None
-    assert test_lro.operation_future.done() is False
-    assert test_lro.operation_future.running()
+    assert len(test_lro.operation_future._done_callbacks) is 1

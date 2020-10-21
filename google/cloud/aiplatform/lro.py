@@ -30,7 +30,7 @@ class LRO:
         operation_future: ga_operation.Operation,
         resource_noun_obj: Optional[base.AiPlatformResourceNoun] = None,
         result_key: Optional[str] = None,
-        api_get: Optional[Callable[[proto.Message], proto.Message]] = None,
+        api_get: Optional[Callable[..., proto.Message]] = None,
     ):
         """Initialises class with operation and optional object to update.
 
@@ -43,23 +43,19 @@ class LRO:
             result_key (str):
                 Optional. Attribute to retrieve from result.
                 resource_noun_obj and api_get also need to be passed.
-            api_get (Callable[[proto.Message],proto.Message]):
+            api_get (Callable[...,proto.Message]):
                 Optional. Callable that takes resource name and returns object.
                 resource_noun_obj and result_key also need to be passed.
         """
         self._operation_future = operation_future
-        if (
-            resource_noun_obj is not None
-            and result_key is not None
-            and api_get is not None
-        ):
+        if all([resource_noun_obj, result_key, api_get]):
             self.add_update_resource_callback(resource_noun_obj, result_key, api_get)
 
     def add_update_resource_callback(
         self,
         resource_noun_obj: base.AiPlatformResourceNoun,
         result_key: str,
-        api_get: Callable[[proto.Message], proto.Message],
+        api_get: Callable[..., proto.Message],
     ):
         """Updates resource with result of operation.
 
@@ -68,7 +64,7 @@ class LRO:
                 Required. Resource to be updated upon operation completion.
             result_key (str):
                 Required. Attribute to retrieve from result.
-            api_get (Callable[[proto.Message],proto.Message]):
+            api_get (Callable[...,proto.Message]):
                 Required. Callable that takes resource name and returns object.
         """
 
@@ -80,6 +76,6 @@ class LRO:
         self._operation_future.add_done_callback(callback)
 
     @property
-    def operation_future(self):
+    def operation_future(self) -> ga_operation.Operation:
         """ga_operation.Operation: underlying operation future"""
         return self._operation_future
