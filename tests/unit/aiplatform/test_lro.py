@@ -12,54 +12,52 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import mock
+
 from google.api_core.tests.unit import test_operation
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import lro
 from google.protobuf import empty_pb2 as empty
 
-TEST_OPERATION_NAME = "test/operation"
-
-
-def make_lro(resource_noun_obj=None):
-    operation = test_operation.make_operation_future()
-    lro = lro.LRO(operation, resource_noun_obj)
-
-    return lro
-
 
 def test_constructor():
-    lro = make_lro()
-    operation_future = lro._operation_future
+    operation_future, _, _ = test_operation.make_operation_future()
+    lro = lro.LRO(operation_future)
 
-    assert operation_future.name == TEST_OPERATION_NAME
-    assert operation_future._result_type is empty.Empty
-    assert operation_future.metadata() is None
-    assert operation_future.done() is False
-    assert operation_future.running()
+    assert lro._operation_future.name == test_operation.TEST_OPERATION_NAME
+    assert lro._operation_future._result_type is empty.Empty
+    assert lro._operation_future.metadata() is None
+    assert lro._operation_future.done() is False
+    assert lro._operation_future.running()
+    assert len(lro._operation_future._done_callbacks) is 0
 
 
-def test_constructor_with_resource_noun():
+def test_constructor_with_update():
+    operation_future, _, _ = test_operation.make_operation_future()
     resource_noun_obj = base.AiPlatformResourceNoun()
-    lro = make_lro(resource_noun_obj)
-    operation_future = lro._operation_future
+    result_key = "name"
+    api_get = mock.Mock(spec=["__call__"])
+    lro = lro.LRO(operation_future, resource_noun_obj, result_key, api_get)
 
-    assert len(operation_future._done_callbacks) is 1
+    assert len(lro._operation_future._done_callbacks) is 1
 
 
 def test_add_update_resource_callback():
-    lro = make_lro()
+    operation_future, _, _ = test_operation.make_operation_future()
+    lro = lro.LRO(operation_future)
     resource_noun_obj = base.AiPlatformResourceNoun()
-    lro.add_update_resource_callback(resource_noun_obj)
+    result_key = "name"
+    api_get = mock.Mock(spec=["__call__"])
+    lro.add_update_resource_callback(resource_noun_obj, result_key, api_get)
 
-    operation_future = lro._operation_future
-
-    assert len(operation_future._done_callbacks) is 1
+    assert len(lro._operation_future._done_callbacks) is 1
 
 
 def test_operation_future():
-    lro = make_lro()
+    operation_future, _, _ = test_operation.make_operation_future()
+    lro = lro.LRO(operation_future)
 
-    assert lro.operation_future.name == TEST_OPERATION_NAME
+    assert lro.operation_future.name == test_operation.TEST_OPERATION_NAME
     assert lro.operation_future._result_type is empty.Empty
     assert lro.operation_future.metadata() is None
     assert lro.operation_future.done() is False
