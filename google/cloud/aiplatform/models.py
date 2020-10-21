@@ -22,7 +22,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1.services.model_service.client import (
-    ModelServiceClient,
+    ModelServiceClient
 )
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import env_var
@@ -221,4 +221,36 @@ class Model(base.AiPlatformResourceNoun):
 
 
 class Endpoint:
-    pass
+    def __init__(self, model_name, project: Optional[str], location: Optional[str]):
+        """Retrieves an AI Platform Endpoint resource."""
+
+    @classmethod
+    def create(cls, display_name) -> aiplatform.Endpoint:
+        """Creates an AI Platform Endpoint resource."""
+
+    def deploy(
+        self,
+        *,
+        model_name: Optional[str] = None,
+        model: Optional[aiplatform.Model] = None,
+        traffic_percentage: int = 0,
+        min_replica_count: int = 0,
+        max_replica_count: int = 1,
+        machine_type: str = "n1-standard-2",
+    ) -> aiplatform.Endpoint:
+        """Deploys a Model to the Endpoint."""
+
+    def undeploy(
+        self, deployed_model_id: str, traffic_split: Optional[Dict] = None
+    ) -> aiplatform.Endpoint:
+        """Undeploys a deployed model.
+
+        Proportionally adjusts the traffic_split among the remaining deployed
+        models of the endpoint.
+        """
+
+    def predict(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
+        """Online prediction."""
+
+    def explain(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
+        """Online prediction with explanation."""
