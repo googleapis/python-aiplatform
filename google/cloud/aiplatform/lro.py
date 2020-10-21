@@ -35,7 +35,7 @@ class LRO:
         """Initialises class with operation and optional object to update.
 
         Args:
-            operation (ga_operation.Operation):
+            operation_future (ga_operation.Operation):
                 Required. Operation future to handle.
             resource_noun_obj (base.AiPlatformResourceNoun):
                 Optional. Resource to be updated upon operation completion.
@@ -73,9 +73,6 @@ class LRO:
         """
 
         def callback(operation_future):
-            # result_obj = operation_future.result()
-            # resource_noun_obj._gca_resource = result_obj
-
             result_value = getattr(operation_future.result(), result_key)
             resource = api_get(name=result_value)
             resource_noun_obj._gca_resource = resource
