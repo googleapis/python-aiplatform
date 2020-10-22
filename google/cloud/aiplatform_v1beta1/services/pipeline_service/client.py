@@ -105,19 +105,19 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     from_service_account_json = from_service_account_file
 
     @staticmethod
+    def model_path(project: str, location: str, model: str,) -> str:
+        """Return a fully-qualified model string."""
+        return "projects/{project}/locations/{location}/models/{model}".format(
+            project=project, location=location, model=model,
+        )
+
+    @staticmethod
     def training_pipeline_path(
         project: str, location: str, training_pipeline: str,
     ) -> str:
         """Return a fully-qualified training_pipeline string."""
         return "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
             project=project, location=location, training_pipeline=training_pipeline,
-        )
-
-    @staticmethod
-    def model_path(project: str, location: str, model: str,) -> str:
-        """Return a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project, location=location, model=model,
         )
 
     def __init__(
@@ -176,7 +176,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Args:
             request (:class:`~.pipeline_service.CreateTrainingPipelineRequest`):
                 The request object. Request message for
-                [PipelineService.CreateTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.CreateTrainingPipeline].
+                ``PipelineService.CreateTrainingPipeline``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the TrainingPipeline in. Format:
@@ -203,7 +203,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 training a Model. It always executes the training task,
                 and optionally may also export data from AI Platform's
                 Dataset which becomes the training input,
-                [upload][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
+                ``upload``
                 the Model to AI Platform, and evaluate the Model.
 
         """
@@ -254,7 +254,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Args:
             request (:class:`~.pipeline_service.GetTrainingPipelineRequest`):
                 The request object. Request message for
-                [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.GetTrainingPipeline].
+                ``PipelineService.GetTrainingPipeline``.
             name (:class:`str`):
                 Required. The name of the TrainingPipeline resource.
                 Format:
@@ -276,7 +276,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 training a Model. It always executes the training task,
                 and optionally may also export data from AI Platform's
                 Dataset which becomes the training input,
-                [upload][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
+                ``upload``
                 the Model to AI Platform, and evaluate the Model.
 
         """
@@ -331,7 +331,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Args:
             request (:class:`~.pipeline_service.ListTrainingPipelinesRequest`):
                 The request object. Request message for
-                [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines].
+                ``PipelineService.ListTrainingPipelines``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 TrainingPipelines from. Format:
@@ -349,7 +349,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Returns:
             ~.pagers.ListTrainingPipelinesPager:
                 Response message for
-                [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines]
+                ``PipelineService.ListTrainingPipelines``
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -412,7 +412,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Args:
             request (:class:`~.pipeline_service.DeleteTrainingPipelineRequest`):
                 The request object. Request message for
-                [PipelineService.DeleteTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.DeleteTrainingPipeline].
+                ``PipelineService.DeleteTrainingPipeline``.
             name (:class:`str`):
                 Required. The name of the TrainingPipeline resource to
                 be deleted. Format:
@@ -433,7 +433,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.empty.Empty``: A generic empty message that
+                :class:`~.empty.Empty`: A generic empty message that
                 you can re-use to avoid defining duplicated empty
                 messages in your APIs. A typical example is to use it as
                 the request or the response type of an API method. For
@@ -500,21 +500,21 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         r"""Cancels a TrainingPipeline. Starts asynchronous cancellation on
         the TrainingPipeline. The server makes a best effort to cancel
         the pipeline, but success is not guaranteed. Clients can use
-        [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.GetTrainingPipeline]
+        ``PipelineService.GetTrainingPipeline``
         or other methods to check whether the cancellation succeeded or
         whether the pipeline completed despite cancellation. On
         successful cancellation, the TrainingPipeline is not deleted;
         instead it becomes a pipeline with a
-        [TrainingPipeline.error][google.cloud.aiplatform.v1beta1.TrainingPipeline.error]
-        value with a [google.rpc.Status.code][google.rpc.Status.code] of
+        ``TrainingPipeline.error``
+        value with a ``google.rpc.Status.code`` of
         1, corresponding to ``Code.CANCELLED``, and
-        [TrainingPipeline.state][google.cloud.aiplatform.v1beta1.TrainingPipeline.state]
+        ``TrainingPipeline.state``
         is set to ``CANCELLED``.
 
         Args:
             request (:class:`~.pipeline_service.CancelTrainingPipelineRequest`):
                 The request object. Request message for
-                [PipelineService.CancelTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.CancelTrainingPipeline].
+                ``PipelineService.CancelTrainingPipeline``.
             name (:class:`str`):
                 Required. The name of the TrainingPipeline to cancel.
                 Format:
