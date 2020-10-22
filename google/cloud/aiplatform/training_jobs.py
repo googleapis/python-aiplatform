@@ -49,7 +49,7 @@ def _timestamped_copy_to_gcs(
         staging_bucket (str):
             Required. The staging bucket to copy to. (should not include gs://)
         project (str):
-            Project that containers the staging bucket. Default will be used if not
+            Project that contains the staging bucket. Default will be used if not
             provided. Model Builder callers should pass this in.
         credentials (auth_credentials.Credentials):
             Custom credentials to use with bucket. Model Builder callers should pass
@@ -130,7 +130,7 @@ class _TrainingScriptPythonPackager:
     module_name = packager.module_name
 
     The package after installed can be executed as:
-    python -m trainer.task
+    python -m aiplatform_custom_trainer_script.task
 
     """
 
