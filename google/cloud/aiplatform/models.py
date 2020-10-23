@@ -19,11 +19,16 @@ from typing import Dict, Optional, Sequence
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import lro
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1.services.model_service.client import (
-    ModelServiceClient
+from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
+    EndpointServiceClient,
 )
+from google.cloud.aiplatform_v1beta1.services.model_service.client import (
+    ModelServiceClient,
+)
+from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import env_var
 
@@ -50,18 +55,22 @@ class Model(base.AiPlatformResourceNoun):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
-        """Retrieves the model resource and instanties it's representation.
+        """Retrieves the model resource and instantiates it's representation.
 
         Args:
-            model_name (str): The name of the model to retrieve.
+            model_name (str):
+                Required. A fully-qualified model resource name or model ID.
+                Example: "projects/123/locations/us-central1/models/456" or
+                "456" when project and location are initialized or passed.
             project (str):
-                Optional project to retrieve model from. If not set, project set in
-                aiplatform.init will be used.
+                Optional project to retrieve model from. If not set, project
+                set in aiplatform.init will be used.
             location (str):
-                Optional location to retrieve model from. If not set, location set in
-                aiplatform.init will be used.
-            credentials (auth_credentials.Credentials):
-                Optional credentials to use to retrieve the model.
+                Optional location to retrieve model from. If not set, location
+                set in aiplatform.init will be used.
+            credentials: Optional[auth_credentials.Credentials]=None,
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
@@ -75,12 +84,30 @@ class Model(base.AiPlatformResourceNoun):
         Returns:
             model: Managed Model resource.
         """
-        resource_name = ModelServiceClient.model_path(
-            self.project, self.location, model_name
+
+        # Fully qualified model name, i.e. "projects/.../locations/.../models/12345"
+        valid_name = utils.extract_fields_from_resource_name(
+            resource_name=model_name, resource_noun="models"
         )
 
-        # TODO(b/170954330) add optional instantiation if resource path given
-        model = self.api_client.get_model(name=resource_name)
+        # Partial model name (i.e. "12345") with known project and location
+        if (
+            not valid_name
+            and utils.validate_id(model_name)
+            and (self.project or initializer.global_config.project)
+            and (self.location or initializer.global_config.location)
+        ):
+            model_name = ModelServiceClient.model_path(
+                project=self.project or initializer.global_config.project,
+                location=self.location or initializer.global_config.location,
+                model=model_name,
+            )
+
+        # Invalid model_name parameter
+        elif not valid_name:
+            raise ValueError("Please provide a valid model name or ID")
+
+        model = self.api_client.get_model(name=model_name)
         return model
 
     # TODO(b/170979552) Add support for predict schemata
@@ -170,7 +197,7 @@ class Model(base.AiPlatformResourceNoun):
                 Custom credentials to use to upload this model. Overrides credentials
                 set in aiplatform.init.
         Returns:
-            model: Instantiated representation of the uplaoded model resource.
+            model: Instantiated representation of the uploaded model resource.
         """
 
         api_client = cls._instantiate_client(location, credentials)
@@ -220,13 +247,227 @@ class Model(base.AiPlatformResourceNoun):
         raise NotImplementedError("Deployment not implemented.")
 
 
-class Endpoint:
-    def __init__(self, model_name, project: Optional[str], location: Optional[str]):
-        """Retrieves an AI Platform Endpoint resource."""
+class Endpoint(base.AiPlatformResourceNoun):
+
+    client_class = EndpointServiceClient
+    _is_client_prediction_client = False
+
+    def __init__(
+        self,
+        endpoint_name: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Retrieves an endpoint resource.
+
+        Args:
+            endpoint_name (str):
+                Required. A fully-qualified endpoint resource name or endpoint ID.
+                Example: "projects/123/locations/us-central1/endpoints/456" or
+                "456" when project and location are initialized or passed.
+            project (str):
+                Optional. Project to retrieve endpoint from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve endpoint from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+        """
+
+        super().__init__(project=project, location=location, credentials=credentials)
+        if endpoint_name:
+            self._gca_resource = _get_endpoint(endpoint_name)
+
+    def _get_endpoint(self, endpoint_name: str) -> gca_endpoint.Endpoint:
+        """Gets the endpoint from AI Platform.
+
+        Args:
+            endpoint_name (str): The name of the endpoint to retrieve.
+        Returns:
+            endpoint (gca_endpoint.Endpoint): Managed endpoint resource.
+        """
+
+        # Fully qualified endpoint name, i.e. "projects/.../locations/.../endpoints/12345"
+        valid_name = utils.extract_fields_from_resource_name(
+            resource_name=endpoint_name, resource_noun="endpoints"
+        )
+
+        # Partial endpoint name (i.e. "12345") with known project and location
+        if (
+            not valid_name
+            and utils.validate_id(endpoint_name)
+            and (self.project or initializer.global_config.project)
+            and (self.location or initializer.global_config.location)
+        ):
+            endpoint_name = EndpointServiceClient.endpoint_path(
+                project=self.project or initializer.global_config.project,
+                location=self.location or initializer.global_config.location,
+                endpoint=endpoint_name,
+            )
+
+        # Invalid model_name parameter
+        elif not valid_name:
+            raise ValueError("Please provide a valid model name or ID")
+
+        endpoint = self.api_client.get_endpoint(name=endpoint_name)
+        return endpoint
 
     @classmethod
-    def create(cls, display_name) -> aiplatform.Endpoint:
-        """Creates an AI Platform Endpoint resource."""
+    def create(
+        cls,
+        display_name: str,
+        description: Optional[str] = None,
+        traffic_split: Optional[Dict] = None,
+        labels: Optional[Dict] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "Endpoint":
+        """Creates a new endpoint.
+
+        Args:
+            display_name (str):
+                Required. The user-defined name of the Endpoint.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            description (str):
+                Optional. The description of the Endpoint.
+            traffic_split (Dict):
+                Optional. A map from a DeployedModel's ID to the
+                percentage of this Endpoint's traffic that
+                should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this
+                map, then it receives no traffic.
+
+                The traffic percentage values must add up to
+                100, or map must be empty if the Endpoint is to
+                not accept any traffic at a moment.
+            labels (Dict):
+                Optional. The labels with user-defined metadata to
+                organize your Endpoints.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+            project (str):
+                Optional. Project to retrieve endpoint from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve endpoint from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+        Returns:
+            endpoint (Endpoint):
+                Instantiated representation of the endpoint resource.
+        """
+
+        api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        operation_future = cls._create(
+            api_client=api_client,
+            parent=initializer.global_config.common_location_path(
+                project=project, location=location
+            ),
+            display_name=display_name,
+            description=description,
+            traffic_split=traffic_split,
+            labels=labels,
+            request_metadata=metadata,
+        )
+
+        created_endpoint = None
+        endpoint_obj = cls(
+            endpoint=created_endpoint,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        create_endpoint_operation = lro.LRO(operation_future)
+        create_endpoint_operation.add_update_resource_callback(
+            resource_noun_obj=endpoint_obj,
+            result_key="name",
+            api_get=lambda name: api_client.get_endpoint(name=name),
+        )
+
+        return endpoint_obj
+
+    @classmethod
+    def _create(
+        cls,
+        api_client: EndpointServiceClient,
+        parent: str,
+        display_name: str,
+        description: Optional[str] = None,
+        traffic_split: Optional[Dict] = {},
+        labels: Optional[Dict] = {},
+        request_metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation.Operation:
+        """
+        Creates a new endpoint by calling the API client.
+
+        Args:
+            api_client (EndpointServiceClient):
+                An instance of EndpointServiceClient with the correct api_endpoint
+                already set based on user's preferences.
+            parent (str):
+                Also known as common location path, that usually contains the
+                project and location that the user provided to the upstream method.
+                Example: "projects/my-prj/locations/us-central1"
+            display_name (str):
+                Required. The user-defined name of the Endpoint.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            description (str):
+                Optional. The description of the Endpoint.
+            traffic_split (Dict):
+                Optional. A map from a DeployedModel's ID to the
+                percentage of this Endpoint's traffic that
+                should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this
+                map, then it receives no traffic.
+
+                The traffic percentage values must add up to
+                100, or map must be empty if the Endpoint is to
+                not accept any traffic at a moment.
+            labels (Dict):
+                Optional. The labels with user-defined metadata to
+                organize your Endpoints.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            request_metadata: Sequence[Tuple[str, str]] = ()
+                Strings which should be sent along with the request as metadata.
+            Returns:
+                operation (Operation):
+                    An object representing a long-running operation.
+        """
+        gapic_endpoint = gca_endpoint.Endpoint(
+            display_name=display_name,
+            description=description,
+            traffic_split=traffic_split,
+            labels=labels,
+        )
+
+        return api_client.create_endpoint(
+            parent=parent, endpoint=gapic_endpoint, metadata=request_metadata
+        )
 
     def deploy(
         self,
