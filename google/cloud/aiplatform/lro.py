@@ -51,13 +51,35 @@ class LRO:
         if all([resource_noun_obj, result_key, api_get]):
             self.add_update_resource_callback(resource_noun_obj, result_key, api_get)
 
+    def update_resource(
+        operation_future: ga_operation.Operation,
+        resource_noun_obj: base.AiPlatformResourceNoun,
+        result_key: str,
+        api_get: Callable[..., proto.Message],
+    ):
+        """Updates resource with result of operation, blocking if necessary.
+
+        Args:
+            operation_future (ga_operation.Operation):
+                Required. Operation future that contains result.
+            resource_noun_obj (base.AiPlatformResourceNoun):
+                Required. Resource to be updated upon operation completion.
+            result_key (str):
+                Required. Attribute to retrieve from result.
+            api_get (Callable[...,proto.Message]):
+                Required. Callable that takes resource name and returns object.
+        """
+        result_value = getattr(operation_future.result(), result_key)
+        resource = api_get(name=result_value)
+        resource_noun_obj._gca_resource = resource
+
     def add_update_resource_callback(
         self,
         resource_noun_obj: base.AiPlatformResourceNoun,
         result_key: str,
         api_get: Callable[..., proto.Message],
     ):
-        """Updates resource with result of operation.
+        """Updates resource with result of operation, when it completes.
 
         Args:
             resource_noun_obj (base.AiPlatformResourceNoun):
@@ -69,11 +91,10 @@ class LRO:
         """
 
         def callback(operation_future):
-            result_value = getattr(operation_future.result(), result_key)
-            resource = api_get(name=result_value)
-            resource_noun_obj._gca_resource = resource
+            update_resource(operation_future, resource_noun_obj, result_key, api_get)
 
         self._operation_future.add_done_callback(callback)
+        # TODO(b/171631203) Add support for queuing operations
 
     @property
     def operation_future(self) -> ga_operation.Operation:

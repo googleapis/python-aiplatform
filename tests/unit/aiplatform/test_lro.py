@@ -18,10 +18,12 @@ from google.api_core import operation
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import lro
 from google.cloud.aiplatform_v1beta1.services.model_service.client import (
-    ModelServiceClient
+    ModelServiceClient,
 )
+from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.longrunning import operations_pb2
 from google.protobuf import struct_pb2 as struct
+
 
 TEST_OPERATION_NAME = "test/operation"
 
@@ -95,3 +97,27 @@ def test_add_update_resource_callback():
     test_lro.add_update_resource_callback(resource_noun_obj, result_key, api_get)
 
     assert len(test_lro.operation_future._done_callbacks) is 1
+
+
+def test_update_resource():
+    expected_result = struct.Struct()
+    expected_result.update({"name": "tardigrade"})
+    responses = [
+        make_operation_proto(),
+        # Second operation response includes the result.
+        make_operation_proto(done=True, response=expected_result),
+    ]
+    operation_future = make_operation_future(responses)
+    resource_noun_obj = AiPlatformResourceNounImpl()
+    result_key = "name"
+
+    def get_object(result_value):
+        return gca_model.Model(display_name=result_value)
+
+    api_get = mock.Mock(spec=["__call__"], side_effect=get_object)
+
+    assert hasattr(resource_noun_obj, "_gca_resource") is False
+
+    lro.update_resource(operation_future.resource_noun_obj, result_key, api_get)
+
+    assert hasattr(resource_noun_obj, "_gca_resource")
