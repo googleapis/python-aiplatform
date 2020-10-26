@@ -91,7 +91,9 @@ class LRO:
         """
 
         def callback(operation_future):
-            update_resource(operation_future, resource_noun_obj, result_key, api_get)
+            self.update_resource(
+                operation_future, resource_noun_obj, result_key, api_get
+            )
 
         self._operation_future.add_done_callback(callback)
         # TODO(b/171631203) Add support for queuing operations

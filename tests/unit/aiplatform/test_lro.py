@@ -75,7 +75,7 @@ def test_constructor():
     assert test_lro.operation_future.operation.name == TEST_OPERATION_NAME
     assert test_lro.operation_future._result_type is struct.Struct
     assert test_lro.operation_future.done() is False
-    assert len(test_lro.operation_future._done_callbacks) is 0
+    assert len(test_lro.operation_future._done_callbacks) == 0
 
 
 def test_constructor_with_update():
@@ -85,7 +85,7 @@ def test_constructor_with_update():
     api_get = mock.Mock(spec=["__call__"])
     test_lro = lro.LRO(operation_future, resource_noun_obj, result_key, api_get)
 
-    assert len(test_lro.operation_future._done_callbacks) is 1
+    assert len(test_lro.operation_future._done_callbacks) == 1
 
 
 def test_add_update_resource_callback():
@@ -101,7 +101,7 @@ def test_add_update_resource_callback():
 
     test_lro.add_update_resource_callback(resource_noun_obj, result_key, api_get)
 
-    assert len(test_lro.operation_future._done_callbacks) is 1
+    assert len(test_lro.operation_future._done_callbacks) == 1
     assert hasattr(resource_noun_obj, "_gca_resource") is False
 
     expected_result = struct.Struct()
