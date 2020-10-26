@@ -35,23 +35,24 @@ def local_copy_method(path):
     return pathlib.Path(path).name
 
 
+@pytest.fixture
+def mock_client_bucket():
+    with patch.object(storage.Client, "bucket") as mock_client_bucket:
+        MockBucket = mock.Mock(autospec=storage.Bucket)
+        MockBucket.name = _TEST_BUCKET_NAME
+        MockBlob = mock.Mock(autospec=storage.Blob)
+        MockBlob.name = _TEST_LOCAL_SCRIPT_FILE_PATH
+        MockBlob.bucket = MockBucket
+        MockBucket.blob.return_value = MockBlob
+        mock_client_bucket.return_value = MockBucket
+
+        yield mock_client_bucket
+
+
 class TestTrainingScriptPythonPackagerHelpers:
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
-
-    @pytest.fixture
-    def mock_client_bucket(self):
-        with patch.object(storage.Client, "bucket") as mock_client_bucket:
-            MockBucket = mock.Mock(autospec=storage.Bucket)
-            MockBucket.name = _TEST_BUCKET_NAME
-            MockBlob = mock.Mock(autospec=storage.Blob)
-            MockBlob.name = _TEST_LOCAL_SCRIPT_FILE_PATH
-            MockBlob.bucket = MockBucket
-            MockBucket.blob.return_value = MockBlob
-            mock_client_bucket.return_value = MockBucket
-
-            yield mock_client_bucket
 
     def test_timestamp_copy_to_gcs_calls_gcs_client(self, mock_client_bucket):
 
@@ -123,3 +124,26 @@ class TestTrainingScriptPythonPackager:
                     pathlib.Path(tmpdirname, setup_py_path), stop_after="init"
                 )
                 assert _TEST_REQUIREMENTS == setup_py.install_requires
+
+    def test_packaging_fails_whith_RuntimeError(self):
+        with patch("subprocess.Popen") as mock_popen:
+            mock_subprocess = mock.Mock()
+            mock_subprocess.communicate.return_value = (b"", b"")
+            mock_subprocess.returncode = 1
+            mock_popen.return_value = mock_subprocess
+            tsp = _TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+            with pytest.raises(RuntimeError):
+                tsp.package_and_copy(copy_method=local_copy_method)
+
+    def test_package_and_copy_to_gcs_copies_to_gcs(self, mock_client_bucket):
+        tsp = _TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+
+        gcs_path = tsp.package_and_copy_to_gcs(
+            staging_bucket=_TEST_BUCKET_NAME, project=_TEST_PROJECT
+        )
+
+        mock_client_bucket.assert_called_once_with(_TEST_BUCKET_NAME)
+        mock_client_bucket.return_value.blob.assert_called_once()
+
+        assert gcs_path.endswith(pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_PATH).name)
+        assert gcs_path.startswith(f"gs://{_TEST_BUCKET_NAME}")
