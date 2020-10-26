@@ -118,6 +118,6 @@ def test_update_resource():
 
     assert hasattr(resource_noun_obj, "_gca_resource") is False
 
-    lro.update_resource(operation_future.resource_noun_obj, result_key, api_get)
+    lro.update_resource(operation_future, resource_noun_obj, result_key, api_get)
 
     assert hasattr(resource_noun_obj, "_gca_resource")
