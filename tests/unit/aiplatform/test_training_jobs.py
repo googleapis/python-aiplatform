@@ -73,7 +73,7 @@ class TestTrainingScriptPythonPackagerHelpers:
     def test_get_python_executable_raises_if_None(self):
         with patch.object(sys, "executable", new=None):
             with pytest.raises(EnvironmentError):
-                python_executable = _get_python_executable()
+                _get_python_executable()
 
     def test_get_python_executable_returns_python_executable(self):
         assert "python" in _get_python_executable().lower()

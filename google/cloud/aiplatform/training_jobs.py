@@ -21,7 +21,6 @@ import pathlib
 import shutil
 import subprocess
 import sys
-import time
 import tempfile
 from typing import Callable, Dict, Optional, Sequence
 
