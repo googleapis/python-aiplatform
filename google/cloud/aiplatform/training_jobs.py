@@ -17,9 +17,10 @@
 
 import datetime
 import functools
-import os
+import pathlib
 import shutil
 import subprocess
+import sys
 import time
 import tempfile
 from typing import Callable, Dict, Optional, Sequence
@@ -58,7 +59,7 @@ def _timestamped_copy_to_gcs(
         gcs_path (str): The path of the copied file in gcs.
     """
 
-    local_file_name = os.path.basename(local_file_path)
+    local_file_name = pathlib.Path(local_file_path).name
 
     timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
     blob_path = "-".join(["aiplatform", timestamp, local_file_name])
@@ -73,34 +74,20 @@ def _timestamped_copy_to_gcs(
     return gcs_path
 
 
-def _get_python3_alias():
-    """Finds Python 3 alias which is used to execute setuptools packaging.
+def _get_python_executable() -> str:
+    """Returns Python executable.
 
     Raises:
-        RunTimeError if Python 3 alias is not found.
+        EnvironmentError if Python executable is not found.
     Returns:
-        Python 3 command alias to use for setuptools packaging.
+        Python executable to use for setuptools packaging.
     """
 
-    def is_python3(python_cmd):
-        try:
-            check_python = subprocess.check_output([python_cmd, "--version"]).decode()
-        except FileNotFoundError:
-            return False
-        return check_python.startswith("Python 3")
+    python_executable = sys.executable
 
-    python_cmd = "python"
-    if is_python3(python_cmd):
-        return python_cmd
-
-    python_cmd = "python3"
-    if is_python3(python_cmd):
-        return python_cmd
-
-    raise EnvironmentError(
-        "Cannot find Python 3 alias for packaging."
-        'Please alias Python 3 to "python" or "python3".'
-    )
+    if not python_executable:
+        raise EnvironmentError("Cannot find Python executable for packaging.")
+    return python_executable
 
 
 class _TrainingScriptPythonPackager:
@@ -151,7 +138,9 @@ setup(
     description='My training application.'
 )"""
 
-    _SETUP_PY_SOURCE_DISTRIBUTION_CMD = "{python3} setup.py sdist --formats=gztar"
+    _SETUP_PY_SOURCE_DISTRIBUTION_CMD = (
+        "{python_executable} setup.py sdist --formats=gztar"
+    )
 
     def __init__(self, script_path: str, requirements: Optional[Sequence[str]] = None):
         """Initializes packager.
@@ -176,33 +165,35 @@ setup(
             RunTimeError if package creation fails.
         """
         # The root folder to builder the package in
-        trainer_root_path = os.path.join(package_directory, self._TRAINER_FOLDER)
+        package_path = pathlib.Path(package_directory)
+
+        # Root directory of the package
+        trainer_root_path = package_path / self._TRAINER_FOLDER
 
         # The root module of the python package
-        trainer_path = os.path.join(trainer_root_path, self._ROOT_MODULE)
+        trainer_path = trainer_root_path / self._ROOT_MODULE
 
         # __init__.py path in root module
-        init_path = os.path.join(trainer_path, "__init__.py")
+        init_path = trainer_path / "__init__.py"
 
         # The module that will contain the script
-        script_out_path = os.path.join(trainer_path, f"{self._TASK_MODULE_NAME}.py")
+        script_out_path = trainer_path / f"{self._TASK_MODULE_NAME}.py"
 
         # The path to setup.py in the package.
-        setup_py_path = os.path.join(trainer_root_path, "setup.py")
+        setup_py_path = trainer_root_path / "setup.py"
 
         # The path to the generated source distribution.
-        source_distribution_path = os.path.join(
-            trainer_root_path,
-            "dist",
-            f"{self._ROOT_MODULE}-{self._SETUP_PY_VERSION}.tar.gz",
+        source_distribution_path = (
+            trainer_root_path
+            / "dist"
+            / f"{self._ROOT_MODULE}-{self._SETUP_PY_VERSION}.tar.gz"
         )
 
-        # Make required dirs
-        os.mkdir(trainer_root_path)
-        os.mkdir(trainer_path)
+        trainer_root_path.mkdir()
+        trainer_path.mkdir()
 
         # Make empty __init__.py
-        with open(init_path, "w") as fp:
+        with init_path.open("w"):
             pass
 
         # Format the setup.py file.
@@ -213,7 +204,7 @@ setup(
         )
 
         # Write setup.py
-        with open(setup_py_path, "w") as fp:
+        with setup_py_path.open("w") as fp:
             fp.write(setup_py_output)
 
         # Copy script as module of python package.
@@ -221,7 +212,7 @@ setup(
 
         # Run setup.py to create the source distribution.
         setup_cmd = self._SETUP_PY_SOURCE_DISTRIBUTION_CMD.format(
-            python3=_get_python3_alias()
+            python_executable=_get_python_executable()
         ).split()
 
         p = subprocess.Popen(
@@ -251,8 +242,6 @@ setup(
         Returns:
             output_path str: Location of copied package.
         """
-
-        script_name = os.path.basename(self.script_path)
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             source_distribution_path = self.make_package(tmpdirname)

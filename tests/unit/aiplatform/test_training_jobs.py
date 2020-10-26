@@ -1,8 +1,9 @@
 from distutils.core import run_setup
-import os
+import pathlib
 import pytest
 import subprocess
 import shutil
+import sys
 import tarfile
 import tempfile
 
@@ -12,7 +13,7 @@ from unittest.mock import patch
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.training_jobs import _timestamped_copy_to_gcs
-from google.cloud.aiplatform.training_jobs import _get_python3_alias
+from google.cloud.aiplatform.training_jobs import _get_python_executable
 from google.cloud.aiplatform.training_jobs import _TrainingScriptPythonPackager
 from google.cloud.aiplatform import initializer
 from google.cloud import storage
@@ -31,7 +32,7 @@ _TEST_REQUIREMENTS = ["pandas", "numpy", "tensorflow"]
 
 def local_copy_method(path):
     shutil.copy(path, ".")
-    return os.path.basename(path)
+    return pathlib.Path(path).name
 
 
 class TestTrainingScriptPythonPackagerHelpers:
@@ -65,30 +66,16 @@ class TestTrainingScriptPythonPackagerHelpers:
         mock_client_bucket.return_value.blob.return_value.upload_from_filename.assert_called_once_with(
             _TEST_LOCAL_SCRIPT_FILE_PATH
         )
-        assert gcs_path.endswith(os.path.basename(_TEST_LOCAL_SCRIPT_FILE_PATH))
+        assert gcs_path.endswith(pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_PATH).name)
         assert gcs_path.startswith(f"gs://{_TEST_BUCKET_NAME}")
 
-    def test_get_python3_alias_fails_with_just_python2(self):
-        with patch.object(subprocess, "check_output") as mock_check_output:
-            mock_check_output.return_value = b"Python 2.7.3"
+    def test_get_python_executable_raises_if_None(self):
+        with patch.object(sys, "executable", new=None):
             with pytest.raises(EnvironmentError):
-                python_cmd = _get_python3_alias()
+                python_executable = _get_python_executable()
 
-    def test_get_python3_alias_fails_with_no_python(self):
-        with patch.object(subprocess, "check_output") as mock_check_output:
-            mock_check_output.side_effect = FileNotFoundError()
-            with pytest.raises(EnvironmentError):
-                python_cmd = _get_python3_alias()
-
-    def test_get_python3_alias_succeeds_with_python3(self):
-        with patch.object(subprocess, "check_output") as mock_check_output:
-            mock_check_output.side_effect = [b"Python 2.7.3", b"Python 3.6.3"]
-            assert _get_python3_alias() == "python3"
-
-    def test_get_python3_alias_succeeds_with_python(self):
-        with patch.object(subprocess, "check_output") as mock_check_output:
-            mock_check_output.side_effect = [b"Python 3.6.3", b"Python 3.6.3"]
-            assert _get_python3_alias() == "python"
+    def test_get_python_executable_returns_python_executable(self):
+        assert "python" in _get_python_executable().lower()
 
 
 class TestTrainingScriptPythonPackager:
@@ -99,10 +86,10 @@ class TestTrainingScriptPythonPackager:
             fp.write(_TEST_PYTHON_SOURCE)
 
     def teardown_method(self):
-        os.remove(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_NAME).unlink()
         python_package_file = f"{_TrainingScriptPythonPackager._ROOT_MODULE}-{_TrainingScriptPythonPackager._SETUP_PY_VERSION}.tar.gz"
-        if os.path.isfile(python_package_file):
-            os.remove(python_package_file)
+        if pathlib.Path(python_package_file).is_file():
+            pathlib.Path(python_package_file).unlink()
         subprocess.check_output(
             ["pip3", "uninstall", "-y", _TrainingScriptPythonPackager._ROOT_MODULE]
         )
@@ -110,14 +97,16 @@ class TestTrainingScriptPythonPackager:
     def test_packager_creates_and_copies_python_package(self):
         tsp = _TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
         tsp.package_and_copy(copy_method=local_copy_method)
-        assert os.path.isfile(f"{tsp._ROOT_MODULE}-{tsp._SETUP_PY_VERSION}.tar.gz")
+        assert pathlib.Path(
+            f"{tsp._ROOT_MODULE}-{tsp._SETUP_PY_VERSION}.tar.gz"
+        ).is_file()
 
     def test_created_package_module_is_installable_and_can_be_run(self):
         tsp = _TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
         source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
         subprocess.check_output(["pip3", "install", source_dist_path])
         module_output = subprocess.check_output(
-            [_get_python3_alias(), "-m", tsp.module_name]
+            [_get_python_executable(), "-m", tsp.module_name]
         )
         assert "hello world" in module_output.decode()
 
@@ -131,6 +120,6 @@ class TestTrainingScriptPythonPackager:
                 setup_py_path = f"{_TrainingScriptPythonPackager._ROOT_MODULE}-{_TrainingScriptPythonPackager._SETUP_PY_VERSION}/setup.py"
                 tf.extract(setup_py_path, path=tmpdirname)
                 setup_py = run_setup(
-                    os.path.join(tmpdirname, setup_py_path), stop_after="init"
+                    pathlib.Path(tmpdirname, setup_py_path), stop_after="init"
                 )
                 assert _TEST_REQUIREMENTS == setup_py.install_requires
