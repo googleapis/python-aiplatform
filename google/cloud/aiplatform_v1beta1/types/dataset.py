@@ -150,12 +150,13 @@ class ExportDataConfig(proto.Message):
             written to. In the given directory a new directory will be
             created with name:
             ``export-data-<dataset-display-name>-<timestamp-of-export-call>``
-            where timestamp is in YYYYMMDDHHMMSS format. All export
-            output will be written into that directory. Inside that
-            directory, annotations with the same schema will be grouped
-            into sub directories which are named with the corresponding
-            annotations' schema title. Inside these sub directories, a
-            schema.yaml will be created to describe the output format.
+            where timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601
+            format. All export output will be written into that
+            directory. Inside that directory, annotations with the same
+            schema will be grouped into sub directories which are named
+            with the corresponding annotations' schema title. Inside
+            these sub directories, a schema.yaml will be created to
+            describe the output format.
         annotations_filter (str):
             A filter on Annotations of the Dataset. Only Annotations on
             to-be-exported DataItems(specified by [data_items_filter][])

@@ -206,7 +206,8 @@ class MigrationServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        if request is not None and any([parent]):
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
                 "the individual field arguments should be set."
@@ -302,7 +303,8 @@ class MigrationServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        if request is not None and any([parent, migrate_resource_requests]):
+        has_flattened_params = any([parent, migrate_resource_requests])
+        if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
                 "the individual field arguments should be set."
@@ -315,8 +317,9 @@ class MigrationServiceAsyncClient:
 
         if parent is not None:
             request.parent = parent
-        if migrate_resource_requests is not None:
-            request.migrate_resource_requests = migrate_resource_requests
+
+        if migrate_resource_requests:
+            request.migrate_resource_requests.extend(migrate_resource_requests)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.

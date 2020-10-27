@@ -198,7 +198,8 @@ class EndpointServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        if request is not None and any([parent, endpoint]):
+        has_flattened_params = any([parent, endpoint])
+        if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
                 "the individual field arguments should be set."
@@ -280,7 +281,8 @@ class EndpointServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        if request is not None and any([name]):
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
                 "the individual field arguments should be set."
@@ -355,7 +357,8 @@ class EndpointServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        if request is not None and any([parent]):
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
                 "the individual field arguments should be set."
@@ -440,7 +443,8 @@ class EndpointServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        if request is not None and any([endpoint, update_mask]):
+        has_flattened_params = any([endpoint, update_mask])
+        if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
                 "the individual field arguments should be set."
@@ -531,7 +535,8 @@ class EndpointServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        if request is not None and any([name]):
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
                 "the individual field arguments should be set."
@@ -649,7 +654,8 @@ class EndpointServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        if request is not None and any([endpoint, deployed_model, traffic_split]):
+        has_flattened_params = any([endpoint, deployed_model, traffic_split])
+        if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
                 "the individual field arguments should be set."
@@ -664,8 +670,9 @@ class EndpointServiceAsyncClient:
             request.endpoint = endpoint
         if deployed_model is not None:
             request.deployed_model = deployed_model
-        if traffic_split is not None:
-            request.traffic_split = traffic_split
+
+        if traffic_split:
+            request.traffic_split.update(traffic_split)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -762,7 +769,8 @@ class EndpointServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        if request is not None and any([endpoint, deployed_model_id, traffic_split]):
+        has_flattened_params = any([endpoint, deployed_model_id, traffic_split])
+        if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
                 "the individual field arguments should be set."
@@ -777,8 +785,9 @@ class EndpointServiceAsyncClient:
             request.endpoint = endpoint
         if deployed_model_id is not None:
             request.deployed_model_id = deployed_model_id
-        if traffic_split is not None:
-            request.traffic_split = traffic_split
+
+        if traffic_split:
+            request.traffic_split.update(traffic_split)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.

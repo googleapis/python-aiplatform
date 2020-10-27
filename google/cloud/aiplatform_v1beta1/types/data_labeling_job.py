@@ -21,6 +21,7 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.rpc import status_pb2 as status  # type: ignore
 from google.type import money_pb2 as money  # type: ignore
 
 
@@ -98,6 +99,10 @@ class DataLabelingJob(proto.Message):
         update_time (~.timestamp.Timestamp):
             Output only. Timestamp when this
             DataLabelingJob was updated most recently.
+        error (~.status.Status):
+            Output only. DataLabelingJob errors. It is only populated
+            when job's state is ``JOB_STATE_FAILED`` or
+            ``JOB_STATE_CANCELLED``.
         labels (Sequence[~.data_labeling_job.DataLabelingJob.LabelsEntry]):
             The labels with user-defined metadata to organize your
             DataLabelingJobs.
@@ -152,6 +157,8 @@ class DataLabelingJob(proto.Message):
     create_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
 
     update_time = proto.Field(proto.MESSAGE, number=10, message=timestamp.Timestamp,)
+
+    error = proto.Field(proto.MESSAGE, number=22, message=status.Status,)
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=11)
 

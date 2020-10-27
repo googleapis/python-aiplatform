@@ -145,9 +145,16 @@ class DeployedModel(proto.Message):
             ``Model.explanation_spec``
             must be populated, otherwise explanation for this Model is
             not allowed.
+        service_account (str):
+            The service account that the DeployedModel's container runs
+            as. Specify the email address of the service account. If
+            this service account is not specified, the container runs as
+            a service account that doesn't have access to the resource
+            project.
 
-            Currently, only AutoML tabular Models support
-            explanation_spec.
+            Users deploying the Model must have the
+            ``iam.serviceAccounts.actAs`` permission on this service
+            account.
         enable_container_logging (bool):
             If true, the container of the DeployedModel instances will
             send ``stderr`` and ``stdout`` streams to Stackdriver
@@ -191,6 +198,8 @@ class DeployedModel(proto.Message):
     explanation_spec = proto.Field(
         proto.MESSAGE, number=9, message=explanation.ExplanationSpec,
     )
+
+    service_account = proto.Field(proto.STRING, number=11)
 
     enable_container_logging = proto.Field(proto.BOOL, number=12)
 

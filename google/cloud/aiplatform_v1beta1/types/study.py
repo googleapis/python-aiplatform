@@ -159,6 +159,12 @@ class StudySpec(proto.Message):
             scale_type (~.study.StudySpec.ParameterSpec.ScaleType):
                 How the parameter should be scaled. Leave unset for
                 ``CATEGORICAL`` parameters.
+            conditional_parameter_specs (Sequence[~.study.StudySpec.ParameterSpec.ConditionalParameterSpec]):
+                A conditional parameter node is active if the parameter's
+                value matches the conditional node's parent_value_condition.
+
+                If two items in conditional_parameter_specs have the same
+                name, they must have disjoint parent_value_condition.
         """
 
         class ScaleType(proto.Enum):
@@ -225,6 +231,91 @@ class StudySpec(proto.Message):
 
             values = proto.RepeatedField(proto.DOUBLE, number=1)
 
+        class ConditionalParameterSpec(proto.Message):
+            r"""Represents a parameter spec with condition from its parent
+            parameter.
+
+            Attributes:
+                parent_discrete_values (~.study.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition):
+                    The spec for matching values from a parent parameter of
+                    ``DISCRETE`` type.
+                parent_int_values (~.study.StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition):
+                    The spec for matching values from a parent parameter of
+                    ``INTEGER`` type.
+                parent_categorical_values (~.study.StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition):
+                    The spec for matching values from a parent parameter of
+                    ``CATEGORICAL`` type.
+                parameter_spec (~.study.StudySpec.ParameterSpec):
+                    Required. The spec for a conditional
+                    parameter.
+            """
+
+            class DiscreteValueCondition(proto.Message):
+                r"""Represents the spec to match discrete values from parent
+                parameter.
+
+                Attributes:
+                    values (Sequence[float]):
+                        Required. Matches values of the parent parameter of
+                        'DISCRETE' type. All values must exist in
+                        ``discrete_value_spec`` of parent parameter.
+
+                        The Epsilon of the value matching is 1e-10.
+                """
+
+                values = proto.RepeatedField(proto.DOUBLE, number=1)
+
+            class IntValueCondition(proto.Message):
+                r"""Represents the spec to match integer values from parent
+                parameter.
+
+                Attributes:
+                    values (Sequence[int]):
+                        Required. Matches values of the parent parameter of
+                        'INTEGER' type. All values must lie in
+                        ``integer_value_spec`` of parent parameter.
+                """
+
+                values = proto.RepeatedField(proto.INT64, number=1)
+
+            class CategoricalValueCondition(proto.Message):
+                r"""Represents the spec to match categorical values from parent
+                parameter.
+
+                Attributes:
+                    values (Sequence[str]):
+                        Required. Matches values of the parent parameter of
+                        'CATEGORICAL' type. All values must exist in
+                        ``categorical_value_spec`` of parent parameter.
+                """
+
+                values = proto.RepeatedField(proto.STRING, number=1)
+
+            parent_discrete_values = proto.Field(
+                proto.MESSAGE,
+                number=2,
+                oneof="parent_value_condition",
+                message="StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition",
+            )
+
+            parent_int_values = proto.Field(
+                proto.MESSAGE,
+                number=3,
+                oneof="parent_value_condition",
+                message="StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition",
+            )
+
+            parent_categorical_values = proto.Field(
+                proto.MESSAGE,
+                number=4,
+                oneof="parent_value_condition",
+                message="StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition",
+            )
+
+            parameter_spec = proto.Field(
+                proto.MESSAGE, number=1, message="StudySpec.ParameterSpec",
+            )
+
         double_value_spec = proto.Field(
             proto.MESSAGE,
             number=2,
@@ -257,6 +348,12 @@ class StudySpec(proto.Message):
 
         scale_type = proto.Field(
             proto.ENUM, number=6, enum="StudySpec.ParameterSpec.ScaleType",
+        )
+
+        conditional_parameter_specs = proto.RepeatedField(
+            proto.MESSAGE,
+            number=10,
+            message="StudySpec.ParameterSpec.ConditionalParameterSpec",
         )
 
     metrics = proto.RepeatedField(proto.MESSAGE, number=1, message=MetricSpec,)

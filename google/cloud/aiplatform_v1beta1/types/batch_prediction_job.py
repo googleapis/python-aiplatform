@@ -98,13 +98,22 @@ class BatchPredictionJob(proto.Message):
             Generate explanation along with the batch prediction
             results.
 
-            This can only be set to true for AutoML tabular Models, and
-            only when the output destination is BigQuery. When it's
-            true, the batch prediction output will include a column
-            named ``explanation``. The value is a struct that conforms
-            to the
-            ``Explanation``
-            object.
+            When it's true, the batch prediction output will change
+            based on the [output
+            format][BatchPredictionJob.output_config.predictions_format]:
+
+            -  ``bigquery``: output will include a column named
+               ``explanation``. The value is a struct that conforms to
+               the
+               ``Explanation``
+               object.
+            -  ``jsonl``: The JSON objects on each line will include an
+               additional entry keyed ``explanation``. The value of the
+               entry is a JSON object that conforms to the
+               ``Explanation``
+               object.
+            -  ``csv``: Generating explanations for CSV format is not
+               supported.
         output_info (~.batch_prediction_job.BatchPredictionJob.OutputInfo):
             Output only. Information further describing
             the output of this job.

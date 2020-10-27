@@ -206,7 +206,8 @@ class PredictionServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        if request is not None and any([endpoint, instances, parameters]):
+        has_flattened_params = any([endpoint, instances, parameters])
+        if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
                 "the individual field arguments should be set."
@@ -219,10 +220,11 @@ class PredictionServiceAsyncClient:
 
         if endpoint is not None:
             request.endpoint = endpoint
-        if instances is not None:
-            request.instances = instances
         if parameters is not None:
             request.parameters = parameters
+
+        if instances:
+            request.instances.extend(instances)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -328,9 +330,8 @@ class PredictionServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        if request is not None and any(
-            [endpoint, instances, parameters, deployed_model_id]
-        ):
+        has_flattened_params = any([endpoint, instances, parameters, deployed_model_id])
+        if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
                 "the individual field arguments should be set."
@@ -343,12 +344,13 @@ class PredictionServiceAsyncClient:
 
         if endpoint is not None:
             request.endpoint = endpoint
-        if instances is not None:
-            request.instances = instances
         if parameters is not None:
             request.parameters = parameters
         if deployed_model_id is not None:
             request.deployed_model_id = deployed_model_id
+
+        if instances:
+            request.instances.extend(instances)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.

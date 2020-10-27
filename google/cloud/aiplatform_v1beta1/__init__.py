@@ -81,8 +81,12 @@ from .types.explanation import Attribution
 from .types.explanation import Explanation
 from .types.explanation import ExplanationParameters
 from .types.explanation import ExplanationSpec
+from .types.explanation import FeatureNoiseSigma
+from .types.explanation import IntegratedGradientsAttribution
 from .types.explanation import ModelExplanation
 from .types.explanation import SampledShapleyAttribution
+from .types.explanation import SmoothGradConfig
+from .types.explanation import XraiAttribution
 from .types.explanation_metadata import ExplanationMetadata
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
 from .types.io import BigQueryDestination
@@ -118,6 +122,7 @@ from .types.job_state import JobState
 from .types.machine_resources import AutomaticResources
 from .types.machine_resources import BatchDedicatedResources
 from .types.machine_resources import DedicatedResources
+from .types.machine_resources import DiskSpec
 from .types.machine_resources import MachineSpec
 from .types.machine_resources import ResourcesConsumed
 from .types.manual_batch_tuning_parameters import ManualBatchTuningParameters
@@ -240,6 +245,7 @@ __all__ = (
     "DeployModelResponse",
     "DeployedModel",
     "DeployedModelRef",
+    "DiskSpec",
     "Endpoint",
     "EndpointServiceClient",
     "EnvVar",
@@ -256,6 +262,7 @@ __all__ = (
     "ExportModelOperationMetadata",
     "ExportModelRequest",
     "ExportModelResponse",
+    "FeatureNoiseSigma",
     "FilterSplit",
     "FractionSplit",
     "GcsDestination",
@@ -279,6 +286,7 @@ __all__ = (
     "ImportDataRequest",
     "ImportDataResponse",
     "InputDataConfig",
+    "IntegratedGradientsAttribution",
     "JobServiceClient",
     "JobState",
     "ListAnnotationsRequest",
@@ -335,6 +343,7 @@ __all__ = (
     "Scheduling",
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
+    "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
     "StudySpec",
@@ -355,5 +364,6 @@ __all__ = (
     "UploadModelResponse",
     "UserActionReference",
     "WorkerPoolSpec",
+    "XraiAttribution",
     "DatasetServiceClient",
 )

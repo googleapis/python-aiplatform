@@ -37,6 +37,7 @@ from .machine_resources import (
     AutomaticResources,
     BatchDedicatedResources,
     ResourcesConsumed,
+    DiskSpec,
 )
 from .deployed_model_ref import DeployedModelRef
 from .env_var import EnvVar
@@ -48,6 +49,10 @@ from .explanation import (
     ExplanationSpec,
     ExplanationParameters,
     SampledShapleyAttribution,
+    IntegratedGradientsAttribution,
+    XraiAttribution,
+    SmoothGradConfig,
+    FeatureNoiseSigma,
 )
 from .model import (
     Model,
@@ -231,6 +236,7 @@ __all__ = (
     "AutomaticResources",
     "BatchDedicatedResources",
     "ResourcesConsumed",
+    "DiskSpec",
     "DeployedModelRef",
     "EnvVar",
     "ExplanationMetadata",
@@ -240,6 +246,10 @@ __all__ = (
     "ExplanationSpec",
     "ExplanationParameters",
     "SampledShapleyAttribution",
+    "IntegratedGradientsAttribution",
+    "XraiAttribution",
+    "SmoothGradConfig",
+    "FeatureNoiseSigma",
     "Model",
     "PredictSchemata",
     "ModelContainerSpec",

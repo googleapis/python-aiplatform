@@ -150,6 +150,10 @@ class ExplainResponse(proto.Message):
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that
             served this explanation.
+        predictions (Sequence[~.struct.Value]):
+            The predictions that are the output of the predictions call.
+            Same as
+            ``PredictResponse.predictions``.
     """
 
     explanations = proto.RepeatedField(
@@ -157,6 +161,8 @@ class ExplainResponse(proto.Message):
     )
 
     deployed_model_id = proto.Field(proto.STRING, number=2)
+
+    predictions = proto.RepeatedField(proto.MESSAGE, number=3, message=struct.Value,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -40,12 +40,24 @@ class ExplanationMetadata(proto.Message):
             which has the name specified as the key in
             ``ExplanationMetadata.inputs``.
             The baseline of the empty feature is chosen by AI Platform.
+
+            For AI Platform provided Tensorflow images, the key can be
+            any friendly name of the feature . Once specified, [
+            featureAttributions][Attribution.feature_attributions] will
+            be keyed by this key (if not grouped with another feature).
+
+            For custom images, the key must match with the key in
+            ``instance``[].
         outputs (Sequence[~.explanation_metadata.ExplanationMetadata.OutputsEntry]):
             Required. Map from output names to output
             metadata.
-            Keys are the name of the output field in the
-            prediction to be explained. Currently only one
-            key is allowed.
+            For AI Platform provided Tensorflow images, keys
+            can be any string user defines.
+
+            For custom images, keys are the name of the
+            output field in the prediction to be explained.
+
+            Currently only one key is allowed.
         feature_attributions_schema_uri (str):
             Points to a YAML file stored on Google Cloud Storage
             describing the format of the [feature
@@ -62,6 +74,11 @@ class ExplanationMetadata(proto.Message):
     class InputMetadata(proto.Message):
         r"""Metadata of the input of a feature.
 
+        Fields other than
+        ``InputMetadata.input_baselines``
+        are applicable only for Models that are using AI Platform-provided
+        images for Tensorflow.
+
         Attributes:
             input_baselines (Sequence[~.struct.Value]):
                 Baseline inputs for this feature.
@@ -71,19 +88,270 @@ class ExplanationMetadata(proto.Message):
                 specified, AI Platform returns the average attributions
                 across them in [Attributions.baseline_attribution][].
 
-                The element of the baselines must be in the same format as
-                the feature's input in the
+                For AI Platform provided Tensorflow images (both 1.x and
+                2.x), the shape of each baseline must match the shape of the
+                input tensor. If a scalar is provided, we broadcast to the
+                same shape as the input tensor.
+
+                For custom images, the element of the baselines must be in
+                the same format as the feature's input in the
                 ``instance``[].
                 The schema of any single instance may be specified via
                 Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``instance_schema_uri``.
+            input_tensor_name (str):
+                Name of the input tensor for this feature.
+                Required and is only applicable to AI Platform
+                provided images for Tensorflow.
+            encoding (~.explanation_metadata.ExplanationMetadata.InputMetadata.Encoding):
+                Defines how the feature is encoded into the
+                input tensor. Defaults to IDENTITY.
+            modality (str):
+                Modality of the feature. Valid values are:
+                numeric, image. Defaults to numeric.
+            feature_value_domain (~.explanation_metadata.ExplanationMetadata.InputMetadata.FeatureValueDomain):
+                The domain details of the input feature
+                value. Like min/max, original mean or standard
+                deviation if normalized.
+            indices_tensor_name (str):
+                Specifies the index of the values of the input tensor.
+                Required when the input tensor is a sparse representation.
+                Refer to Tensorflow documentation for more details:
+                https://www.tensorflow.org/api_docs/python/tf/sparse/SparseTensor.
+            dense_shape_tensor_name (str):
+                Specifies the shape of the values of the input if the input
+                is a sparse representation. Refer to Tensorflow
+                documentation for more details:
+                https://www.tensorflow.org/api_docs/python/tf/sparse/SparseTensor.
+            index_feature_mapping (Sequence[str]):
+                A list of feature names for each index in the input tensor.
+                Required when the input
+                ``InputMetadata.encoding``
+                is BAG_OF_FEATURES, BAG_OF_FEATURES_SPARSE, INDICATOR.
+            encoded_tensor_name (str):
+                Encoded tensor is a transformation of the input tensor. Must
+                be provided if choosing [Integrated Gradients
+                attribution][ExplanationParameters.integrated_gradients_attribution]
+                or [XRAI
+                attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.xrai_attribution]
+                and the input tensor is not differentiable.
+
+                An encoded tensor is generated if the input tensor is
+                encoded by a lookup table.
+            encoded_baselines (Sequence[~.struct.Value]):
+                A list of baselines for the encoded tensor.
+                The shape of each baseline should match the
+                shape of the encoded tensor. If a scalar is
+                provided, AI Platform broadcast to the same
+                shape as the encoded tensor.
+            visualization (~.explanation_metadata.ExplanationMetadata.InputMetadata.Visualization):
+                Visualization configurations for image
+                explanation.
+            group_name (str):
+                Name of the group that the input belongs to. Features with
+                the same group name will be treated as one feature when
+                computing attributions. Features grouped together can have
+                different shapes in value. If provided, there will be one
+                single attribution generated in [
+                featureAttributions][Attribution.feature_attributions],
+                keyed by the group name.
         """
+
+        class Encoding(proto.Enum):
+            r"""Defines how the feature is encoded to [encoded_tensor][]. Defaults
+            to IDENTITY.
+            """
+            ENCODING_UNSPECIFIED = 0
+            IDENTITY = 1
+            BAG_OF_FEATURES = 2
+            BAG_OF_FEATURES_SPARSE = 3
+            INDICATOR = 4
+            COMBINED_EMBEDDING = 5
+            CONCAT_EMBEDDING = 6
+
+        class FeatureValueDomain(proto.Message):
+            r"""Domain details of the input feature value. Provides numeric
+            information about the feature, such as its range (min, max). If the
+            feature has been pre-processed, for example with z-scoring, then it
+            provides information about how to recover the original feature. For
+            example, if the input feature is an image and it has been
+            pre-processed to obtain 0-mean and stddev = 1 values, then
+            original_mean, and original_stddev refer to the mean and stddev of
+            the original feature (e.g. image tensor) from which input feature
+            (with mean = 0 and stddev = 1) was obtained.
+
+            Attributes:
+                min_ (float):
+                    The minimum permissible value for this
+                    feature.
+                max_ (float):
+                    The maximum permissible value for this
+                    feature.
+                original_mean (float):
+                    If this input feature has been normalized to a mean value of
+                    0, the original_mean specifies the mean value of the domain
+                    prior to normalization.
+                original_stddev (float):
+                    If this input feature has been normalized to a standard
+                    deviation of 1.0, the original_stddev specifies the standard
+                    deviation of the domain prior to normalization.
+            """
+
+            min_ = proto.Field(proto.FLOAT, number=1)
+
+            max_ = proto.Field(proto.FLOAT, number=2)
+
+            original_mean = proto.Field(proto.FLOAT, number=3)
+
+            original_stddev = proto.Field(proto.FLOAT, number=4)
+
+        class Visualization(proto.Message):
+            r"""Visualization configurations for image explanation.
+
+            Attributes:
+                type_ (~.explanation_metadata.ExplanationMetadata.InputMetadata.Visualization.Type):
+                    Type of the image visualization. Only applicable to
+                    [Integrated Gradients attribution]
+                    [ExplanationParameters.integrated_gradients_attribution].
+                    OUTLINES shows regions of attribution, while PIXELS shows
+                    per-pixel attribution. Defaults to OUTLINES.
+                polarity (~.explanation_metadata.ExplanationMetadata.InputMetadata.Visualization.Polarity):
+                    Whether to only highlight pixels with
+                    positive contributions, negative or both.
+                    Defaults to POSITIVE.
+                color_map (~.explanation_metadata.ExplanationMetadata.InputMetadata.Visualization.ColorMap):
+                    The color scheme used for the highlighted areas.
+
+                    Defaults to PINK_GREEN for [Integrated Gradients
+                    attribution][ExplanationParameters.integrated_gradients_attribution],
+                    which shows positive attributions in green and negative in
+                    pink.
+
+                    Defaults to VIRIDIS for [XRAI
+                    attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.xrai_attribution],
+                    which highlights the most influential regions in yellow and
+                    the least influential in blue.
+                clip_percent_upperbound (float):
+                    Excludes attributions above the specified percentile from
+                    the highlighted areas. Using the clip_percent_upperbound and
+                    clip_percent_lowerbound together can be useful for filtering
+                    out noise and making it easier to see areas of strong
+                    attribution. Defaults to 99.9.
+                clip_percent_lowerbound (float):
+                    Excludes attributions below the specified
+                    percentile, from the highlighted areas. Defaults
+                    to 35.
+                overlay_type (~.explanation_metadata.ExplanationMetadata.InputMetadata.Visualization.OverlayType):
+                    How the original image is displayed in the
+                    visualization. Adjusting the overlay can help
+                    increase visual clarity if the original image
+                    makes it difficult to view the visualization.
+                    Defaults to NONE.
+            """
+
+            class Type(proto.Enum):
+                r"""Type of the image visualization. Only applicable to [Integrated
+                Gradients attribution]
+                [ExplanationParameters.integrated_gradients_attribution].
+                """
+                TYPE_UNSPECIFIED = 0
+                PIXELS = 1
+                OUTLINES = 2
+
+            class Polarity(proto.Enum):
+                r"""Whether to only highlight pixels with positive contributions,
+                negative or both. Defaults to POSITIVE.
+                """
+                POLARITY_UNSPECIFIED = 0
+                POSITIVE = 1
+                NEGATIVE = 2
+                BOTH = 3
+
+            class ColorMap(proto.Enum):
+                r"""The color scheme used for highlighting areas."""
+                COLOR_MAP_UNSPECIFIED = 0
+                PINK_GREEN = 1
+                VIRIDIS = 2
+                RED = 3
+                GREEN = 4
+                RED_GREEN = 6
+                PINK_WHITE_GREEN = 5
+
+            class OverlayType(proto.Enum):
+                r"""How the original image is displayed in the visualization."""
+                OVERLAY_TYPE_UNSPECIFIED = 0
+                NONE = 1
+                ORIGINAL = 2
+                GRAYSCALE = 3
+                MASK_BLACK = 4
+
+            type_ = proto.Field(
+                proto.ENUM,
+                number=1,
+                enum="ExplanationMetadata.InputMetadata.Visualization.Type",
+            )
+
+            polarity = proto.Field(
+                proto.ENUM,
+                number=2,
+                enum="ExplanationMetadata.InputMetadata.Visualization.Polarity",
+            )
+
+            color_map = proto.Field(
+                proto.ENUM,
+                number=3,
+                enum="ExplanationMetadata.InputMetadata.Visualization.ColorMap",
+            )
+
+            clip_percent_upperbound = proto.Field(proto.FLOAT, number=4)
+
+            clip_percent_lowerbound = proto.Field(proto.FLOAT, number=5)
+
+            overlay_type = proto.Field(
+                proto.ENUM,
+                number=6,
+                enum="ExplanationMetadata.InputMetadata.Visualization.OverlayType",
+            )
 
         input_baselines = proto.RepeatedField(
             proto.MESSAGE, number=1, message=struct.Value,
         )
+
+        input_tensor_name = proto.Field(proto.STRING, number=2)
+
+        encoding = proto.Field(
+            proto.ENUM, number=3, enum="ExplanationMetadata.InputMetadata.Encoding",
+        )
+
+        modality = proto.Field(proto.STRING, number=4)
+
+        feature_value_domain = proto.Field(
+            proto.MESSAGE,
+            number=5,
+            message="ExplanationMetadata.InputMetadata.FeatureValueDomain",
+        )
+
+        indices_tensor_name = proto.Field(proto.STRING, number=6)
+
+        dense_shape_tensor_name = proto.Field(proto.STRING, number=7)
+
+        index_feature_mapping = proto.RepeatedField(proto.STRING, number=8)
+
+        encoded_tensor_name = proto.Field(proto.STRING, number=9)
+
+        encoded_baselines = proto.RepeatedField(
+            proto.MESSAGE, number=10, message=struct.Value,
+        )
+
+        visualization = proto.Field(
+            proto.MESSAGE,
+            number=11,
+            message="ExplanationMetadata.InputMetadata.Visualization",
+        )
+
+        group_name = proto.Field(proto.STRING, number=12)
 
     class OutputMetadata(proto.Message):
         r"""Metadata of the prediction output to be explained.
@@ -116,6 +384,10 @@ class ExplanationMetadata(proto.Message):
                 of the outputs, so that it can be located by
                 ``Attribution.output_index``
                 for a specific output.
+            output_tensor_name (str):
+                Name of the output tensor. Required and is
+                only applicable to AI Platform provided images
+                for Tensorflow.
         """
 
         index_display_name_mapping = proto.Field(
@@ -125,6 +397,8 @@ class ExplanationMetadata(proto.Message):
         display_name_mapping_key = proto.Field(
             proto.STRING, number=2, oneof="display_name_mapping"
         )
+
+        output_tensor_name = proto.Field(proto.STRING, number=3)
 
     inputs = proto.MapField(
         proto.STRING, proto.MESSAGE, number=1, message=InputMetadata,

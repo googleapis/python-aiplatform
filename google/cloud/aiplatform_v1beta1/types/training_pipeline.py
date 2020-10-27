@@ -190,9 +190,9 @@ class InputDataConfig(proto.Message):
             Split based on the timestamp of the input data
             pieces.
         gcs_destination (~.io.GcsDestination):
-            The Google Cloud Storage location where the output is to be
-            written to. In the given directory a new directory will be
-            created with name:
+            The Google Cloud Storage location where the training data is
+            to be written to. In the given directory a new directory
+            will be created with name:
             ``dataset-<dataset-id>-<annotation-type>-<timestamp-of-training-call>``
             where timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601
             format. All training input data will be written into that
@@ -203,18 +203,40 @@ class InputDataConfig(proto.Message):
             Google Cloud Storage wildcard format to support sharded
             data. e.g.: "gs://.../training-*.jsonl"
 
-            -  AIP_DATA_FORMAT = "jsonl".
+            -  AIP_DATA_FORMAT = "jsonl" for non-tabular data, "csv" for
+               tabular data
             -  AIP_TRAINING_DATA_URI =
 
-            "gcs_destination/dataset---/training-*.jsonl"
+            "gcs_destination/dataset---/training-*.${AIP_DATA_FORMAT}"
 
             -  AIP_VALIDATION_DATA_URI =
 
-            "gcs_destination/dataset---/validation-*.jsonl"
+            "gcs_destination/dataset---/validation-*.${AIP_DATA_FORMAT}"
 
             -  AIP_TEST_DATA_URI =
 
-            "gcs_destination/dataset---/test-*.jsonl".
+            "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
+        bigquery_destination (~.io.BigQueryDestination):
+            The BigQuery project location where the training data is to
+            be written to. In the given project a new dataset is created
+            with name
+            ``dataset_<dataset-id>_<annotation-type>_<timestamp-of-training-call>``
+            where timestamp is in YYYY_MM_DDThh_mm_ss_sssZ format. All
+            training input data will be written into that dataset. In
+            the dataset three tables will be created, ``training``,
+            ``validation`` and ``test``.
+
+            -  AIP_DATA_FORMAT = "bigquery".
+            -  AIP_TRAINING_DATA_URI =
+
+            "bigquery_destination.dataset\_\ **\ .training"
+
+            -  AIP_VALIDATION_DATA_URI =
+
+            "bigquery_destination.dataset\_\ **\ .validation"
+
+            -  AIP_TEST_DATA_URI =
+               "bigquery_destination.dataset\_\ **\ .test".
         dataset_id (str):
             Required. The ID of the Dataset in the same Project and
             Location which data will be used to train the Model. The
@@ -282,6 +304,10 @@ class InputDataConfig(proto.Message):
 
     gcs_destination = proto.Field(
         proto.MESSAGE, number=8, oneof="destination", message=io.GcsDestination,
+    )
+
+    bigquery_destination = proto.Field(
+        proto.MESSAGE, number=10, oneof="destination", message=io.BigQueryDestination,
     )
 
     dataset_id = proto.Field(proto.STRING, number=1)

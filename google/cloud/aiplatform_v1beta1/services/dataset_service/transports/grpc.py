@@ -104,6 +104,8 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
           google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
+        self._ssl_channel_credentials = ssl_channel_credentials
+
         if channel:
             # Sanity check: Ensure that channel and credentials are not both
             # provided.
@@ -111,6 +113,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
 
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
+            self._ssl_channel_credentials = None
         elif api_mtls_endpoint:
             warnings.warn(
                 "api_mtls_endpoint and client_cert_source are deprecated",
@@ -147,6 +150,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
                 scopes=scopes or self.AUTH_SCOPES,
                 quota_project_id=quota_project_id,
             )
+            self._ssl_channel_credentials = ssl_credentials
         else:
             host = host if ":" in host else host + ":443"
 
