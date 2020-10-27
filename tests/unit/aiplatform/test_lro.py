@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import mock
+import time
 
 from google.api_core import operation
 from google.cloud.aiplatform import base
@@ -108,5 +109,7 @@ def test_add_update_resource_callback():
     expected_result.update({"name": "tardigrade"})
     operation_future._operation.response.Pack(expected_result)
     operation_future._operation.done = True
+    time.sleep(1)
 
+    assert test_lro.operation_future.done()
     assert hasattr(resource_noun_obj, "_gca_resource")
