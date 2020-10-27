@@ -88,9 +88,15 @@ def test_constructor_with_update():
     assert len(test_lro.operation_future._done_callbacks) == 1
 
 
-def test_add_update_resource_callback():
-    operation_future = make_operation_future()
-    test_lro = lro.LRO(operation_future)
+def test_update_resource():
+    expected_result = struct.Struct()
+    expected_result.update({"name": "tardigrade"})
+    responses = [
+        make_operation_proto(),
+        # Second operation response includes the result.
+        make_operation_proto(done=True, response=expected_result),
+    ]
+    operation_future = make_operation_future(responses)
     resource_noun_obj = AiPlatformResourceNounImpl()
     result_key = "name"
 
@@ -99,17 +105,19 @@ def test_add_update_resource_callback():
 
     api_get = mock.Mock(spec=["__call__"], side_effect=get_object)
 
-    test_lro.add_update_resource_callback(resource_noun_obj, result_key, api_get)
-
-    assert len(test_lro.operation_future._done_callbacks) == 1
     assert hasattr(resource_noun_obj, "_gca_resource") is False
 
-    expected_result = struct.Struct()
-    expected_result.update({"name": "tardigrade"})
-    operation_future._operation.response.Pack(expected_result)
-    operation_future._operation.done = True
+    lro.LRO.update_resource(operation_future.resource_noun_obj, result_key, api_get)
 
-    assert test_lro.operation_future.done()
-    assert len(test_lro.operation_future._done_callbacks) == 0
-    get_object.assert_called_once_with("tardigrade")
     assert hasattr(resource_noun_obj, "_gca_resource")
+
+
+def test_add_update_resource_callback():
+    operation_future = make_operation_future()
+    test_lro = lro.LRO(operation_future)
+    resource_noun_obj = AiPlatformResourceNounImpl()
+    result_key = "name"
+    api_get = mock.Mock(spec=["__call__"])
+    test_lro.add_update_resource_callback(resource_noun_obj, result_key, api_get)
+
+    assert len(test_lro.operation_future._done_callbacks) is 1
