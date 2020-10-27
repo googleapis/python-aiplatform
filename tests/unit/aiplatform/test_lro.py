@@ -107,7 +107,7 @@ def test_update_resource():
 
     assert hasattr(resource_noun_obj, "_gca_resource") is False
 
-    lro.LRO.update_resource(operation_future.resource_noun_obj, result_key, api_get)
+    lro.LRO.update_resource(operation_future, resource_noun_obj, result_key, api_get)
 
     assert hasattr(resource_noun_obj, "_gca_resource")
 
@@ -120,4 +120,4 @@ def test_add_update_resource_callback():
     api_get = mock.Mock(spec=["__call__"])
     test_lro.add_update_resource_callback(resource_noun_obj, result_key, api_get)
 
-    assert len(test_lro.operation_future._done_callbacks) is 1
+    assert len(test_lro.operation_future._done_callbacks) == 1
