@@ -61,7 +61,7 @@ def make_operation_future(client_operations_responses=None):
         client_operations_responses[0],
         refresh,
         cancel,
-        result_type=struct.Struct,
+        result_type=gca_model.Model,
         metadata_type=struct.Struct,
     )
 
@@ -73,7 +73,7 @@ def test_constructor():
     test_lro = lro.LRO(operation_future)
 
     assert test_lro.operation_future.operation.name == TEST_OPERATION_NAME
-    assert test_lro.operation_future._result_type is struct.Struct
+    assert test_lro.operation_future._result_type is gca_model.Model
     assert test_lro.operation_future.done() is False
     assert len(test_lro.operation_future._done_callbacks) == 0
 
@@ -89,8 +89,7 @@ def test_constructor_with_update():
 
 
 def test_update_resource():
-    expected_result = struct.Struct()
-    expected_result.update({"name": "tardigrade"})
+    expected_result = gca_model.Model(name="tardigrade")
     responses = [
         make_operation_proto(),
         # Second operation response includes the result.
