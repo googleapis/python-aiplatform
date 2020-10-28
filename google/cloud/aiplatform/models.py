@@ -316,7 +316,7 @@ class Model(base.AiPlatformResourceNoun):
 
         """
         if endpoint_obj is None:
-            display_name = self._gca_resource.display_name + "_endpoint"
+            display_name = self.display_name + "_endpoint"
             endpoint_obj = Endpoint.create(display_name=display_name)
 
             # TODO(b/171631203) queue deploy instead of block
@@ -710,7 +710,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             )
             deployed_model = gca_endpoint.DeployedModel(
                 dedicated_resources=dedicated_resources,
-                model=model._gca_resource.name,
+                model=model.resource_name,
                 display_name=deployed_model_display_name,
             )
         else:
@@ -720,7 +720,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             )
             deployed_model = gca_endpoint.DeployedModel(
                 automatic_resources=automatic_resources,
-                model=model._gca_resource.name,
+                model=model.resource_name,
                 display_name=deployed_model_display_name,
             )
 
@@ -730,7 +730,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         )
 
         operation_future = self.api_client.deploy_model(
-            endpoint=self._gca_resource.name,
+            endpoint=self.resource_name,
             deployed_model=deployed_model,
             traffic_split=traffic_split,
             metadata=metadata,
@@ -774,7 +774,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             )
 
         operation_future = self.api_client.undeploy_model(
-            endpoint=self._gca_resource.name,
+            endpoint=self.resource_name,
             deployed_model_id=deployed_model_id,
             traffic_split=traffic_split,
             metadata=metadata,
