@@ -17,6 +17,7 @@
 
 from typing import Dict, Optional, Sequence
 
+from google.api_core import retry
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import lro
@@ -243,12 +244,100 @@ class Model(base.AiPlatformResourceNoun):
             model_name=fields.id, project=fields.project, location=fields.location
         )
 
-    # TODO(b/169782716) add support for deployment when Endpoint class complete
     def deploy(
         self,
         endpoint_obj: Optional["Endpoint"] = None,
-    ):
-        raise NotImplementedError("Deployment not implemented.")
+        deployed_model_display_name: Optional[str] = None,
+        traffic_percentage: Optional[int] = 100,
+        machine_type: Optional[str] = None,
+        min_replica_count: Optional[int] = 0,
+        max_replica_count: Optional[int] = None,
+        metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        timeout: Optional[int] = None,
+    ) -> "Endpoint":
+        """
+        Deploys model to endpoint. Endpoint will be created if unspecified.
+
+        Args:
+            endpoint_obj ("Endpoint"):
+                Optional. Endpoint to deploy model to. If not specified, endpoint
+                display name will be model display name+'_endpoint'.
+            deployed_model_display_name (str):
+                Optional. The display name of the DeployedModel. If not provided
+                upon creation, the Model's display_name is used.
+            traffic_percentage (int):
+                Optional. Desired traffic to newly deployed model. Defaults to
+                100. Traffic of previously deployed models at the endpoint  will
+                be scaled down to accommodate new deployed model's traffic.
+            machine_type (str):
+                Optional. The type of machine. Following machine types are
+                supported:
+                -  ``n1-standard-2``
+                -  ``n1-standard-4``
+                -  ``n1-standard-8``
+                -  ``n1-standard-16``
+                -  ``n1-standard-32``
+                -  ``n1-highmem-2``
+                -  ``n1-highmem-4``
+                -  ``n1-highmem-8``
+                -  ``n1-highmem-16``
+                -  ``n1-highmem-32``
+                -  ``n1-highcpu-2``
+                -  ``n1-highcpu-4``
+                -  ``n1-highcpu-8``
+                -  ``n1-highcpu-16``
+                -  ``n1-highcpu-32``
+                Not specifying machine type will result in model to be deployed
+                with automatic resources.
+            min_replica_count (int):
+                Optional. The minimum number of machine replicas this deployed
+                model will be always deployed on. If traffic against it increases,
+                it may dynamically be deployed onto more replicas, and as traffic
+                decreases, some of these extra replicas may be freed.
+            max_replica_count (int):
+                Optional. The maximum number of replicas this deployed model may
+                be deployed on when the traffic against it increases. If requested
+                value is too large, the deployment will error, but if deployment
+                succeeds then the ability to scale the model to that many replicas
+                is guaranteed (barring service outages). If traffic against the
+                deployed model increases beyond what its replicas at maximum may
+                handle, a portion of the traffic will be dropped. If this value
+                is not provided, the smaller value of min_replica_count or 1 will
+                be used.
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+            timeout (int):
+                Optional. How long (in seconds) to wait for the endpoint creation
+                operation to complete. If None, wait indefinitely.
+        Returns:
+            endpoint ("Endpoint"):
+                Endpoint with the deployed model.
+
+        """
+        if endpoint_obj is None:
+            display_name = self._gca_resource.display_name + "_endpoint"
+            endpoint_obj = Endpoint.create(display_name=display_name)
+
+            # TODO(b/171631203) queue deploy instead of block
+            @retry.Retry(deadline=timeout)
+            def endpoint_exist():
+                if endpoint_obj._gca_resource is None:
+                    raise Exception("Endpoint not yet created.")
+
+            endpoint_exist()
+
+        endpoint_obj.deploy(
+            self,
+            deployed_model_display_name=deployed_model_display_name,
+            traffic_percentage=traffic_percentage,
+            machine_type=machine_type,
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            metadata=metadata,
+        )
+
+        return endpoint_obj
 
 
 class Endpoint(base.AiPlatformResourceNoun):
@@ -277,7 +366,7 @@ class Endpoint(base.AiPlatformResourceNoun):
                 Optional. Location to retrieve endpoint from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
         """
 
@@ -289,9 +378,11 @@ class Endpoint(base.AiPlatformResourceNoun):
         """Gets the endpoint from AI Platform.
 
         Args:
-            endpoint_name (str): The name of the endpoint to retrieve.
+            endpoint_name (str):
+                Required. The name of the endpoint to retrieve.
         Returns:
-            endpoint (gca_endpoint.Endpoint): Managed endpoint resource.
+            endpoint (gca_endpoint.Endpoint):
+                Managed endpoint resource.
         """
 
         # Fully qualified endpoint name, i.e. "projects/.../locations/.../endpoints/12345"
@@ -370,7 +461,7 @@ class Endpoint(base.AiPlatformResourceNoun):
                 Optional. Location to retrieve endpoint from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
         Returns:
             endpoint (Endpoint):
@@ -379,7 +470,7 @@ class Endpoint(base.AiPlatformResourceNoun):
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
-        operation_future = cls._create(
+        create_endpoint_operation = cls._create(
             api_client=api_client,
             parent=initializer.global_config.common_location_path(
                 project=project, location=location
@@ -399,7 +490,6 @@ class Endpoint(base.AiPlatformResourceNoun):
             credentials=credentials,
         )
 
-        create_endpoint_operation = lro.LRO(operation_future)
         create_endpoint_operation.add_update_resource_callback(
             resource_noun_obj=endpoint_obj,
             result_key="name",
@@ -417,18 +507,19 @@ class Endpoint(base.AiPlatformResourceNoun):
         description: Optional[str] = None,
         traffic_split: Optional[Dict] = {},
         labels: Optional[Dict] = {},
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation.Operation:
+        metadata: Optional[Sequence[Tuple[str, str]]] = (),
+    ) -> lro.LRO:
         """
         Creates a new endpoint by calling the API client.
 
         Args:
             api_client (EndpointServiceClient):
-                An instance of EndpointServiceClient with the correct api_endpoint
-                already set based on user's preferences.
+                Required. An instance of EndpointServiceClient with the correct
+                api_endpoint already set based on user's preferences.
             parent (str):
-                Also known as common location path, that usually contains the
-                project and location that the user provided to the upstream method.
+                Required. Also known as common location path, that usually contains
+                the project and location that the user provided to the upstream
+                method.
                 Example: "projects/my-prj/locations/us-central1"
             display_name (str):
                 Required. The user-defined name of the Endpoint.
@@ -457,10 +548,11 @@ class Endpoint(base.AiPlatformResourceNoun):
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
             metadata (Sequence[Tuple[str, str]]):
-                Strings which should be sent along with the request as metadata.
-            Returns:
-                operation (Operation):
-                    An object representing a long-running operation.
+                Optional. Strings which should be sent along with the request as
+                metadata.
+        Returns:
+            operation (lro.LRO):
+                Long-running operation of endpoint creation.
         """
         gapic_endpoint = gca_endpoint.Endpoint(
             display_name=display_name,
@@ -469,12 +561,14 @@ class Endpoint(base.AiPlatformResourceNoun):
             labels=labels,
         )
 
-        return api_client.create_endpoint(
+        operation_future = api_client.create_endpoint(
             parent=parent, endpoint=gapic_endpoint, metadata=metadata
         )
 
+        return lro.LRO(operation_future)
+
     def _allocate_traffic(
-        current_traffic_split: Sequence[gca_endpoint.Endpoint.TrafficSplitEntry],
+        traffic_split: Sequence[gca_endpoint.Endpoint.TrafficSplitEntry],
         traffic_percentage: int,
     ) -> Dict:
         """
@@ -482,29 +576,68 @@ class Endpoint(base.AiPlatformResourceNoun):
         older deployed models.
 
         Args:
-            current_traffic_split (Sequence[gca_endpoint.Endpoint.TrafficSplitEntry]):
+            traffic_split (Sequence[gca_endpoint.Endpoint.TrafficSplitEntry]):
                 Required. Current traffic split of deployed models in endpoint.
             traffic_percentage (int):
                 Required. Desired traffic to new deployed model.
+        Returns:
+            traffic_split (Dict):
+                Traffic split to use.
         """
-        new_traffic_split = {"0": traffic_percentage}
-        traffic_percentage_left = 100 - traffic_percentage
-        if traffic_percentage_left:
-            old_models_traffic = traffic_percentage_left
-            for deployed_model in current_traffic_split:
-                current_traffic = current_traffic_split[deployed_model]
+        old_models_traffic = 100 - traffic_percentage
+        if old_models_traffic:
+            unallocated_traffic = old_models_traffic
+            for deployed_model in traffic_split:
+                current_traffic = traffic_split[deployed_model]
                 new_traffic = int(current_traffic / 100 * old_models_traffic)
-                new_traffic_split[deployed_model] = new_traffic
-                traffic_percentage_left -= new_traffic
+                traffic_split[deployed_model] = new_traffic
+                unallocated_traffic -= new_traffic
             # will likely under-allocate. make total 100.
-            new_traffic_split[deployed_model] += traffic_percentage_left
+            traffic_split[deployed_model] += unallocated_traffic
 
-        return new_traffic_split
+        traffic_split["0"] = traffic_percentage
+
+        return traffic_split
+
+    def _unallocate_traffic(
+        traffic_split: Sequence[gca_endpoint.Endpoint.TrafficSplitEntry],
+        deployed_model_id: str,
+    ) -> Dict:
+        """
+        Sets deployed model id's traffic to 0 and scales the traffic of other
+        deployed models.
+
+        Args:
+            traffic_split (Sequence[gca_endpoint.Endpoint.TrafficSplitEntry]):
+                Required. Current traffic split of deployed models in endpoint.
+            deployed_model_id (str):
+                Required. Desired traffic to new deployed model.
+        Returns:
+            traffic_split (Dict):
+                Traffic split to use.
+        """
+        deployed_model_id_traffic = traffic_split[deployed_model_id]
+        del traffic_split[deployed_model_id]
+        traffic_percent_left = 100 - deployed_model_id_traffic
+
+        if traffic_percent_left:
+            unallocated_traffic = traffic_percent_left
+            for deployed_model in traffic_split:
+                current_traffic = traffic_split[deployed_model]
+                new_traffic = int(current_traffic / traffic_percent_left * 100)
+                traffic_split[deployed_model] = new_traffic
+                unallocated_traffic -= new_traffic
+            # will likely under-allocate. make total 100.
+            traffic_split[deployed_model] += unallocated_traffic
+
+        traffic_split[deployed_model_id] = 0
+
+        return traffic_split
 
     def deploy(
         self,
         *,
-        model: aiplatform.Model,
+        model: "Model",
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 100,
         machine_type: Optional[str] = None,
@@ -561,7 +694,11 @@ class Endpoint(base.AiPlatformResourceNoun):
                 is not provided, the smaller value of min_replica_count or 1 will
                 be used.
             metadata (Sequence[Tuple[str, str]]):
-                Optional. Strings which should be sent along with the request as metadata.
+                Optional. Strings which should be sent along with the request as
+                metadata.
+        Returns:
+            lro (lro.LRO):
+                LRO of model deployment.
         """
         max_replica_count = min(1, min_replica_count)
         if machine_type:
@@ -588,7 +725,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             )
 
         traffic_split = self._allocate_traffic(
-            current_traffic_split=self._gca_resource.traffic_split,
+            traffic_split=self._gca_resource.traffic_split,
             traffic_percentage=traffic_percentage,
         )
 
@@ -602,13 +739,48 @@ class Endpoint(base.AiPlatformResourceNoun):
         return lro.LRO(operation_future)
 
     def undeploy(
-        self, deployed_model_id: str, traffic_split: Optional[Dict] = None
+        self,
+        deployed_model_id: str,
+        traffic_split: Optional[Dict] = None,
     ) -> lro.LRO:
         """Undeploys a deployed model.
 
         Proportionally adjusts the traffic_split among the remaining deployed
         models of the endpoint.
+
+        Args:
+            deployed_model_id (str):
+                Required. The ID of the DeployedModel to be undeployed from the
+                Endpoint.
+            traffic_split (Sequence[gca_endpoint.Endpoint.TrafficSplitEntry]`):
+                Optional. If this field is provided, then the Endpoint's traffic_split
+                will be overwritten with it. If last DeployedModel is being
+                undeployed from the Endpoint, the [Endpoint.traffic_split] will
+                always end up empty when this operation completes. A DeployedModel
+                will be successfully undeployed only if it doesn't have any traffic
+                assigned to it. If this field is not provided, the traffic of the
+                remaining deployed models will be scaled to fill 100 percent.
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+        Returns:
+            lro (lro.LRO):
+                LRO of model undeployment.
         """
+        if traffic_split is None:
+            traffic_split = self._unallocate_traffic(
+                traffic_split=self._gca_resource.traffic_split,
+                deployed_model_id=deployed_model_id,
+            )
+
+        operation_future = self.api_client.undeploy_model(
+            endpoint=self._gca_resource.name,
+            deployed_model_id=deployed_model_id,
+            traffic_split=traffic_split,
+            metadata=metadata,
+        )
+
+        return lro.LRO(operation_future)
 
     def predict(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
         """Online prediction."""
