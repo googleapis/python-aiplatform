@@ -1,4 +1,5 @@
 from distutils.core import run_setup
+import functools
 import pathlib
 import pytest
 import subprocess
@@ -19,14 +20,15 @@ from google.cloud.aiplatform import initializer
 from google.cloud import storage
 
 _TEST_BUCKET_NAME = "test-bucket"
+_TEST_GCS_PATH_WITHOUT_BUCKET = "path/to/folder"
+_TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
+_TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
 _TEST_LOCAL_SCRIPT_FILE_NAME = "____test____script.py"
-_TEST_LOCAL_SCRIPT_FILE_PATH = f"path/to/{_TEST_LOCAL_SCRIPT_FILE_NAME}.py"
-
+_TEST_LOCAL_SCRIPT_FILE_PATH = f"path/to/{_TEST_LOCAL_SCRIPT_FILE_NAME}"
 _TEST_PROJECT = "test-project"
 _TEST_PYTHON_SOURCE = """
 print('hello world')
 """
-
 _TEST_REQUIREMENTS = ["pandas", "numpy", "tensorflow"]
 
 
@@ -38,15 +40,21 @@ def local_copy_method(path):
 @pytest.fixture
 def mock_client_bucket():
     with patch.object(storage.Client, "bucket") as mock_client_bucket:
+
+        def blob_side_effect(name, mock_blob, bucket):
+            mock_blob.name = name
+            mock_blob.bucket = bucket
+            return mock_blob
+
         MockBucket = mock.Mock(autospec=storage.Bucket)
         MockBucket.name = _TEST_BUCKET_NAME
         MockBlob = mock.Mock(autospec=storage.Blob)
-        MockBlob.name = _TEST_LOCAL_SCRIPT_FILE_PATH
-        MockBlob.bucket = MockBucket
-        MockBucket.blob.return_value = MockBlob
+        MockBucket.blob.side_effect = functools.partial(
+            blob_side_effect, mock_blob=MockBlob, bucket=MockBucket
+        )
         mock_client_bucket.return_value = MockBucket
 
-        yield mock_client_bucket
+        yield mock_client_bucket, MockBlob
 
 
 class TestTrainingScriptPythonPackagerHelpers:
@@ -54,17 +62,102 @@ class TestTrainingScriptPythonPackagerHelpers:
         reload(initializer)
         reload(aiplatform)
 
-    def test_timestamp_copy_to_gcs_calls_gcs_client(self, mock_client_bucket):
+    def test_timestamp_copy_to_gcs_calls_gcs_client_with_bucket(
+        self, mock_client_bucket
+    ):
+
+        mock_client_bucket, mock_blob = mock_client_bucket
 
         gcs_path = _timestamped_copy_to_gcs(
             local_file_path=_TEST_LOCAL_SCRIPT_FILE_PATH,
-            staging_bucket=_TEST_BUCKET_NAME,
+            gcs_dir=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+        )
+
+        local_script_file_name = pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_PATH).name
+
+        mock_client_bucket.assert_called_once_with(_TEST_BUCKET_NAME)
+        mock_client_bucket.return_value.blob.assert_called_once()
+
+        blob_arg = mock_client_bucket.return_value.blob.call_args[0][0]
+        assert blob_arg.startswith("aiplatform-")
+        assert blob_arg.endswith(_TEST_LOCAL_SCRIPT_FILE_NAME)
+
+        mock_blob.upload_from_filename.assert_called_once_with(
+            _TEST_LOCAL_SCRIPT_FILE_PATH
+        )
+        assert gcs_path.endswith(local_script_file_name)
+        assert gcs_path.startswith(f"gs://{_TEST_BUCKET_NAME}/aiplatform-")
+
+    def test_timestamp_copy_to_gcs_calls_gcs_client_with_gcs_path(
+        self, mock_client_bucket
+    ):
+
+        mock_client_bucket, mock_blob = mock_client_bucket
+
+        gcs_path = _timestamped_copy_to_gcs(
+            local_file_path=_TEST_LOCAL_SCRIPT_FILE_PATH,
+            gcs_dir=_TEST_GCS_PATH_WITH_TRAILING_SLASH,
+            project=_TEST_PROJECT,
+        )
+
+        local_script_file_name = pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_PATH).name
+
+        mock_client_bucket.assert_called_once_with(_TEST_BUCKET_NAME)
+        mock_client_bucket.return_value.blob.assert_called_once()
+
+        blob_arg = mock_client_bucket.return_value.blob.call_args[0][0]
+        assert blob_arg.startswith(f"{_TEST_GCS_PATH_WITHOUT_BUCKET}/aiplatform-")
+        assert blob_arg.endswith(f"{_TEST_LOCAL_SCRIPT_FILE_NAME}")
+
+        mock_blob.upload_from_filename.assert_called_once_with(
+            _TEST_LOCAL_SCRIPT_FILE_PATH
+        )
+
+        assert gcs_path.startswith(f"gs://{_TEST_GCS_PATH}/aiplatform-")
+        assert gcs_path.endswith(local_script_file_name)
+
+    def test_timestamp_copy_to_gcs_calls_gcs_client_with_trailing_slash(
+        self, mock_client_bucket
+    ):
+
+        mock_client_bucket, mock_blob = mock_client_bucket
+
+        gcs_path = _timestamped_copy_to_gcs(
+            local_file_path=_TEST_LOCAL_SCRIPT_FILE_PATH,
+            gcs_dir=_TEST_GCS_PATH,
+            project=_TEST_PROJECT,
+        )
+
+        local_script_file_name = pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_PATH).name
+
+        mock_client_bucket.assert_called_once_with(_TEST_BUCKET_NAME)
+        mock_client_bucket.return_value.blob.assert_called_once()
+
+        blob_arg = mock_client_bucket.return_value.blob.call_args[0][0]
+        assert blob_arg.startswith(f"{_TEST_GCS_PATH_WITHOUT_BUCKET}/aiplatform-")
+        assert blob_arg.endswith(_TEST_LOCAL_SCRIPT_FILE_NAME)
+
+        mock_blob.upload_from_filename.assert_called_once_with(
+            _TEST_LOCAL_SCRIPT_FILE_PATH
+        )
+
+        assert gcs_path.startswith(f"gs://{_TEST_GCS_PATH}/aiplatform-")
+        assert gcs_path.endswith(local_script_file_name)
+
+    def test_timestamp_copy_to_gcs_calls_gcs_client(self, mock_client_bucket):
+
+        mock_client_bucket, mock_blob = mock_client_bucket
+
+        gcs_path = _timestamped_copy_to_gcs(
+            local_file_path=_TEST_LOCAL_SCRIPT_FILE_PATH,
+            gcs_dir=_TEST_BUCKET_NAME,
             project=_TEST_PROJECT,
         )
 
         mock_client_bucket.assert_called_once_with(_TEST_BUCKET_NAME)
         mock_client_bucket.return_value.blob.assert_called_once()
-        mock_client_bucket.return_value.blob.return_value.upload_from_filename.assert_called_once_with(
+        mock_blob.upload_from_filename.assert_called_once_with(
             _TEST_LOCAL_SCRIPT_FILE_PATH
         )
         assert gcs_path.endswith(pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_PATH).name)
@@ -136,14 +229,20 @@ class TestTrainingScriptPythonPackager:
                 tsp.package_and_copy(copy_method=local_copy_method)
 
     def test_package_and_copy_to_gcs_copies_to_gcs(self, mock_client_bucket):
+        mock_client_bucket, mock_blob = mock_client_bucket
+
         tsp = _TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
 
         gcs_path = tsp.package_and_copy_to_gcs(
-            staging_bucket=_TEST_BUCKET_NAME, project=_TEST_PROJECT
+            gcs_staging_dir=_TEST_BUCKET_NAME, project=_TEST_PROJECT
         )
 
         mock_client_bucket.assert_called_once_with(_TEST_BUCKET_NAME)
         mock_client_bucket.return_value.blob.assert_called_once()
 
-        assert gcs_path.endswith(pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_PATH).name)
+        mock_blob.upload_from_filename.call_args[0][0].endswith(
+            "/trainer/dist/aiplatform_custom_trainer_script-0.1.tar.gz"
+        )
+
+        assert gcs_path.endswith("-aiplatform_custom_trainer_script-0.1.tar.gz")
         assert gcs_path.startswith(f"gs://{_TEST_BUCKET_NAME}")

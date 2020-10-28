@@ -35,19 +35,19 @@ from google.cloud import storage
 
 def _timestamped_copy_to_gcs(
     local_file_path: str,
-    staging_bucket: str,
+    gcs_dir: str,
     project: Optional[str] = None,
     credentials: Optional[auth_credentials.Credentials] = None,
 ) -> str:
-    """Copies a local file to a GCS bucket.
+    """Copies a local file to a GCS path.
 
     The file copied to GCS is the name of the local file prepended with an
     "aiplatform-{timestamp}-" string.
 
     Args:
         local_file_path (str): Required. Local file to copy to GCS.
-        staging_bucket (str):
-            Required. The staging bucket to copy to. (should not include gs://)
+        gcs_dir (str):
+            Required. The GCS directory to copy to.
         project (str):
             Project that contains the staging bucket. Default will be used if not
             provided. Model Builder callers should pass this in.
@@ -57,15 +57,25 @@ def _timestamped_copy_to_gcs(
     Returns:
         gcs_path (str): The path of the copied file in gcs.
     """
+    if gcs_dir.startswith("gs://"):
+        gcs_dir = gcs_dir[5:]
+    if gcs_dir.endswith("/"):
+        gcs_dir = gcs_dir[:-1]
+
+    gcs_parts = gcs_dir.split("/", 1)
+    gcs_bucket = gcs_parts[0]
+    gcs_blob_prefix = None if len(gcs_parts) == 1 else gcs_parts[1]
 
     local_file_name = pathlib.Path(local_file_path).name
-
     timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
     blob_path = "-".join(["aiplatform", timestamp, local_file_name])
 
+    if gcs_blob_prefix:
+        blob_path = "/".join([gcs_blob_prefix, blob_path])
+
     # TODO(b/171202993) add user agent
     client = storage.Client(project=project, credentials=credentials)
-    bucket = client.bucket(staging_bucket)
+    bucket = client.bucket(gcs_bucket)
     blob = bucket.blob(blob_path)
     blob.upload_from_filename(local_file_path)
 
@@ -111,7 +121,7 @@ class _TrainingScriptPythonPackager:
 
     packager = TrainingScriptPythonPackager('my_script.py', ['pandas', 'pytorch'])
     gcs_path = packager.package_and_copy_to_gcs(
-        staging_bucket='my-bucket',
+        gcs_staging_dir='my-bucket',
         project='my-prject')
     module_name = packager.module_name
 
@@ -229,7 +239,7 @@ setup(
                 % (p.returncode, output.decode(), error.decode())
             )
 
-        return source_distribution_path
+        return str(source_distribution_path)
 
     def package_and_copy(self, copy_method: Callable[[str], str]) -> str:
         """Packages the script and executes copy with given copy_method.
@@ -248,14 +258,14 @@ setup(
 
     def package_and_copy_to_gcs(
         self,
-        staging_bucket: str,
+        gcs_staging_dir: str,
         project: str = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> str:
         """Packages script in Python package and copies package to GCS bucket.
 
         Args
-            staging_bucket (str): Required. GCS Staging bucket. Should not contain gs://
+            gcs_staging_dir (str): Required. GCS Staging directory.
             project (str): Required. Project where GCS Staging bucket is located.
             credentials (auth_credentials.Credentials):
                 Optional credentials used with GCS client.
@@ -265,7 +275,7 @@ setup(
 
         copy_method = functools.partial(
             _timestamped_copy_to_gcs,
-            staging_bucket=staging_bucket,
+            gcs_dir=gcs_staging_dir,
             project=project,
             credentials=credentials,
         )
