@@ -225,7 +225,7 @@ setup(
         ).split()
 
         p = subprocess.Popen(
-            setup_cmd,
+            args=setup_cmd,
             cwd=trainer_root_path,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
