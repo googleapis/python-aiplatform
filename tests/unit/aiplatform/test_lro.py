@@ -33,19 +33,11 @@ class AiPlatformResourceNounImpl(base.AiPlatformResourceNoun):
     _is_client_prediction_client = False
 
 
-def make_operation_proto(
-    name=TEST_OPERATION_NAME, metadata=None, response=None, error=None, **kwargs
-):
+def make_operation_proto(name=TEST_OPERATION_NAME, response=None, **kwargs):
     operation_proto = operations_pb2.Operation(name=name, **kwargs)
 
-    if metadata is not None:
-        operation_proto.metadata.Pack(metadata)
-
     if response is not None:
-        operation_proto.response.Pack(response)
-
-    if error is not None:
-        operation_proto.error.CopyFrom(error)
+        operation_proto.response = response
 
     return operation_proto
 
