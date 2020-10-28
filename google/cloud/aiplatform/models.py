@@ -784,6 +784,8 @@ class Endpoint(base.AiPlatformResourceNoun):
 
     def predict(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
         """Online prediction."""
+        raise NotImplementedError("Prediction not implemented.")
 
     def explain(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
         """Online prediction with explanation."""
+        raise NotImplementedError("Prediction not implemented.")
