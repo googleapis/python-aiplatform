@@ -246,7 +246,7 @@ class Model(base.AiPlatformResourceNoun):
 
     def deploy(
         self,
-        endpoint_obj: Optional["Endpoint"] = None,
+        endpoint: Optional["Endpoint"] = None,
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 100,
         machine_type: Optional[str] = None,
@@ -259,7 +259,7 @@ class Model(base.AiPlatformResourceNoun):
         Deploys model to endpoint. Endpoint will be created if unspecified.
 
         Args:
-            endpoint_obj ("Endpoint"):
+            endpoint ("Endpoint"):
                 Optional. Endpoint to deploy model to. If not specified, endpoint
                 display name will be model display name+'_endpoint'.
             deployed_model_display_name (str):
@@ -270,25 +270,8 @@ class Model(base.AiPlatformResourceNoun):
                 100. Traffic of previously deployed models at the endpoint  will
                 be scaled down to accommodate new deployed model's traffic.
             machine_type (str):
-                Optional. The type of machine. Following machine types are
-                supported:
-                -  ``n1-standard-2``
-                -  ``n1-standard-4``
-                -  ``n1-standard-8``
-                -  ``n1-standard-16``
-                -  ``n1-standard-32``
-                -  ``n1-highmem-2``
-                -  ``n1-highmem-4``
-                -  ``n1-highmem-8``
-                -  ``n1-highmem-16``
-                -  ``n1-highmem-32``
-                -  ``n1-highcpu-2``
-                -  ``n1-highcpu-4``
-                -  ``n1-highcpu-8``
-                -  ``n1-highcpu-16``
-                -  ``n1-highcpu-32``
-                Not specifying machine type will result in model to be deployed
-                with automatic resources.
+                Optional. The type of machine. Not specifying machine type will
+                result in model to be deployed with automatic resources.
             min_replica_count (int):
                 Optional. The minimum number of machine replicas this deployed
                 model will be always deployed on. If traffic against it increases,
@@ -315,19 +298,19 @@ class Model(base.AiPlatformResourceNoun):
                 Endpoint with the deployed model.
 
         """
-        if endpoint_obj is None:
+        if endpoint is None:
             display_name = self.display_name + "_endpoint"
-            endpoint_obj = Endpoint.create(display_name=display_name)
+            endpoint = Endpoint.create(display_name=display_name)
 
             # TODO(b/171631203) queue deploy instead of block
             @retry.Retry(deadline=timeout)
             def endpoint_exist():
-                if endpoint_obj._gca_resource is None:
+                if endpoint._gca_resource is None:
                     raise Exception("Endpoint not yet created.")
 
             endpoint_exist()
 
-        endpoint_obj.deploy(
+        endpoint.deploy(
             self,
             deployed_model_display_name=deployed_model_display_name,
             traffic_percentage=traffic_percentage,
@@ -337,7 +320,7 @@ class Model(base.AiPlatformResourceNoun):
             metadata=metadata,
         )
 
-        return endpoint_obj
+        return endpoint
 
 
 class Endpoint(base.AiPlatformResourceNoun):
@@ -407,7 +390,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         elif not valid_name:
             raise ValueError("Please provide a valid model name or ID")
 
-        endpoint = self.api_client.get_endpoint(name=endpoint_name)
+        endpoint = self.endpoint_client.get_endpoint(name=endpoint_name)
         return endpoint
 
     @classmethod
@@ -468,10 +451,18 @@ class Endpoint(base.AiPlatformResourceNoun):
                 Instantiated representation of the endpoint resource.
         """
 
-        api_client = cls._instantiate_client(location=location, credentials=credentials)
+        endpoint_client = cls._instantiate_client(
+            location=location, credentials=credentials
+        )
+
+        client_class = PredictionServiceClient
+        _is_client_prediction_client = True
+        prediction_client = cls._instantiate_client(
+            location=location, credentials=credentials
+        )
 
         create_endpoint_operation = cls._create(
-            api_client=api_client,
+            endpoint_client=endpoint_client,
             parent=initializer.global_config.common_location_path(
                 project=project, location=location
             ),
@@ -483,7 +474,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         )
 
         created_endpoint = None
-        endpoint_obj = cls(
+        endpoint = cls(
             endpoint=created_endpoint,
             project=project,
             location=location,
@@ -491,29 +482,29 @@ class Endpoint(base.AiPlatformResourceNoun):
         )
 
         create_endpoint_operation.add_update_resource_callback(
-            resource_noun_obj=endpoint_obj,
+            resource_noun_obj=endpoint,
             result_key="name",
-            api_get=lambda name: api_client.get_endpoint(name=name),
+            api_get=lambda name: endpoint_client.get_endpoint(name=name),
         )
 
-        return endpoint_obj
+        return endpoint
 
     @classmethod
     def _create(
         cls,
-        api_client: EndpointServiceClient,
+        endpoint_client: EndpointServiceClient,
         parent: str,
         display_name: str,
         description: Optional[str] = None,
-        traffic_split: Optional[Dict] = {},
-        labels: Optional[Dict] = {},
+        traffic_split: Optional[Dict] = None,
+        labels: Optional[Dict] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> lro.LRO:
         """
         Creates a new endpoint by calling the API client.
 
         Args:
-            api_client (EndpointServiceClient):
+            endpoint_client (EndpointServiceClient):
                 Required. An instance of EndpointServiceClient with the correct
                 api_endpoint already set based on user's preferences.
             parent (str):
@@ -561,7 +552,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             labels=labels,
         )
 
-        operation_future = api_client.create_endpoint(
+        operation_future = endpoint_client.create_endpoint(
             parent=parent, endpoint=gapic_endpoint, metadata=metadata
         )
 
@@ -659,25 +650,8 @@ class Endpoint(base.AiPlatformResourceNoun):
                 100. Traffic of previously deployed models at the endpoint  will
                 be scaled down to accommodate new deployed model's traffic.
             machine_type (str):
-                Optional. The type of machine. Following machine types are
-                supported:
-                -  ``n1-standard-2``
-                -  ``n1-standard-4``
-                -  ``n1-standard-8``
-                -  ``n1-standard-16``
-                -  ``n1-standard-32``
-                -  ``n1-highmem-2``
-                -  ``n1-highmem-4``
-                -  ``n1-highmem-8``
-                -  ``n1-highmem-16``
-                -  ``n1-highmem-32``
-                -  ``n1-highcpu-2``
-                -  ``n1-highcpu-4``
-                -  ``n1-highcpu-8``
-                -  ``n1-highcpu-16``
-                -  ``n1-highcpu-32``
-                Not specifying machine type will result in model to be deployed
-                with automatic resources.
+                Optional. The type of machine. Not specifying machine type will
+                result in model to be deployed with automatic resources.
             min_replica_count (int):
                 Optional. The minimum number of machine replicas this deployed
                 model will be always deployed on. If traffic against it increases,
@@ -729,7 +703,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             traffic_percentage=traffic_percentage,
         )
 
-        operation_future = self.api_client.deploy_model(
+        operation_future = self.endpoint_client.deploy_model(
             endpoint=self.resource_name,
             deployed_model=deployed_model,
             traffic_split=traffic_split,
@@ -773,7 +747,7 @@ class Endpoint(base.AiPlatformResourceNoun):
                 deployed_model_id=deployed_model_id,
             )
 
-        operation_future = self.api_client.undeploy_model(
+        operation_future = self.endpoint_client.undeploy_model(
             endpoint=self.resource_name,
             deployed_model_id=deployed_model_id,
             traffic_split=traffic_split,
