@@ -21,7 +21,6 @@ from google.cloud.aiplatform_v1beta1.services.model_service.client import (
     ModelServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
-from google.cloud.aiplatform_v1beta1.types.model_service import UploadModelResponse
 from google.longrunning import operations_pb2
 from google.protobuf import struct_pb2 as struct
 
@@ -82,15 +81,15 @@ def test_constructor_with_update():
 
 
 def test_update_resource():
-    expected_result = UploadModelResponse(model="tardigrade")
+    expected_result = gca_model.Model(name="tardigrade")
     responses = [
         make_operation_proto(),
         # Second operation response includes the result.
-        make_operation_proto(done=True, response=expected_result),
+        make_operation_proto(done=True, response=gca_model.Model.pb(expected_result)),
     ]
     operation_future = make_operation_future(responses)
     resource_noun_obj = AiPlatformResourceNounImpl()
-    result_key = "model"
+    result_key = "name"
 
     def get_object(result_value):
         return gca_model.Model(display_name=result_value)

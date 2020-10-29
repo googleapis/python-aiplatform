@@ -50,6 +50,11 @@ class LRO:
         self._operation_future = operation_future
         if all([resource_noun_obj, result_key, api_get]):
             self.add_update_resource_callback(resource_noun_obj, result_key, api_get)
+        elif any([resource_noun_obj, result_key, api_get]):
+            raise ValueError(
+                """To update resource automatically upon operation completion,
+                resource_noun_obj, result_key and api_get have to all be set."""
+            )
 
     def update_resource(
         operation_future: ga_operation.Operation,
