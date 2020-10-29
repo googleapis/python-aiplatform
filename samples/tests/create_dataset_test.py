@@ -17,6 +17,8 @@ from uuid import uuid4
 import pytest
 import os
 
+import helpers
+
 from samples import create_dataset_sample
 from samples import delete_dataset_sample
 
@@ -54,4 +56,4 @@ def test_ucaip_generated_create_dataset_sample_vision(capsys, shared_state):
     out, _ = capsys.readouterr()
     assert "create_dataset_response" in out
 
-    shared_state["dataset_name"] = out.split("name:")[1].split("\n")[0]
+    shared_state["dataset_name"] = helpers.get_name(out)

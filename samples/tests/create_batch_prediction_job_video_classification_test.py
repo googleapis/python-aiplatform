@@ -1,4 +1,3 @@
-# Generated code sample for google.cloud.aiplatform.PipelineServiceClient.create_training_pipeline
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +15,8 @@
 from uuid import uuid4
 import pytest
 import os
+
+import helpers
 
 from samples import (
     create_batch_prediction_job_video_classification_sample,
@@ -72,4 +73,4 @@ def test_ucaip_generated_create_batch_prediction_vcn_sample(capsys, shared_state
     out, _ = capsys.readouterr()
 
     # Save resource name of the newly created batch prediction job
-    shared_state["batch_prediction_job_name"] = out.split("name:")[1].split("\n")[0]
+    shared_state["batch_prediction_job_name"] = helpers.get_name(out)

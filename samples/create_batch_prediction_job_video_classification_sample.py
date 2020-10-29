@@ -52,34 +52,14 @@ def create_batch_prediction_job_video_classification_sample(
             "gcs_source": {"uris": [gcs_source_uri]},
         },
         "output_config": {
-            "predictions_format": "csv",
+            "predictions_format": "jsonl",
             "gcs_destination": {"output_uri_prefix": gcs_destination_output_uri_prefix},
         },
     }
     response = client.create_batch_prediction_job(
         parent=parent, batch_prediction_job=batch_prediction_job
     )
-    print("response")
-    print(" name:", response.name)
-    print(" display_name:", response.display_name)
-    print(" model:", response.model)
-    print(
-        " model_parameters:", json_format.MessageToDict(response._pb.model_parameters)
-    )
-    print(" generate_explanation:", response.generate_explanation)
-    print(" state:", response.state)
-    print(" start_time:", response.start_time)
-    print(" end_time:", response.end_time)
-    print(" labels:", response.labels)
-    input_config = response.input_config
-    output_config = response.output_config
-    dedicated_resources = response.dedicated_resources
-    manual_batch_tuning_parameters = response.manual_batch_tuning_parameters
-    output_info = response.output_info
-    error = response.error
-    partial_failures = response.partial_failures
-    resources_consumed = response.resources_consumed
-    completion_stats = response.completion_stats
+    print("response:", response)
 
 
 # [END aiplatform_create_batch_prediction_job_video_classification_sample]

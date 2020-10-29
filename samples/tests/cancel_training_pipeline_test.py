@@ -1,4 +1,3 @@
-# Generated code sample for google.cloud.aiplatform.PipelineServiceClient.create_training_pipeline
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +15,8 @@
 from uuid import uuid4
 import pytest
 import os
-import re
+
+import helpers
 
 from samples import (
     create_training_pipeline_sample,
@@ -43,8 +43,7 @@ def training_pipeline_id(capsys):
 
     out, _ = capsys.readouterr()
 
-    pattern = re.compile("name:\s*([\-a-zA-Z0-9/]+)")
-    training_pipeline_name = re.search(pattern, out).group(1)
+    training_pipeline_name = helpers.get_name(out)
 
     training_pipeline_id = training_pipeline_name.split("/")[-1]
 
@@ -72,7 +71,11 @@ def test_ucaip_generated_cancel_training_pipeline_sample(capsys, training_pipeli
 
     out, _ = capsys.readouterr()
 
-    pattern = re.compile("state:\s*([._a-zA-Z0-9/]+)")
-    state = re.search(pattern, out).group(1)
+    import sys
 
-    assert state == "PipelineState.PIPELINE_STATE_CANCELLED"
+    sys.stdout.write(out)
+
+    state = helpers.get_state(out)
+
+    # proto-plus>=1.10 prints Enum full name.
+    assert state in ("7", "PIPELINE_STATE_CANCELLED")

@@ -38,11 +38,7 @@ def create_dataset_tabular_gcs_sample(display_name: str, gcs_uri: str, project: 
     response = client.create_dataset(parent=parent, dataset=dataset)
     print("Long running operation:", response.operation.name)
     create_dataset_response = response.result(timeout=300)
-    print("create_dataset_response")
-    print(" name:", create_dataset_response.name)
-    print(" display_name:", create_dataset_response.display_name)
-    print(" metadata_schema_uri:", create_dataset_response.metadata_schema_uri)
-    print(" metadata:", json_format.MessageToDict(create_dataset_response._pb.metadata))
+    print("create_dataset_response:", create_dataset_response)
 
 
 # [END aiplatform_create_dataset_tabular_gcs_sample]

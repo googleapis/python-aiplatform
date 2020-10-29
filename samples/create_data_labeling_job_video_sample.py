@@ -54,20 +54,7 @@ def create_data_labeling_job_video_sample(
     response = client.create_data_labeling_job(
         parent=parent, data_labeling_job=data_labeling_job
     )
-    print("response")
-    print(" name:", response.name)
-    print(" display_name:", response.display_name)
-    print(" datasets:", response.datasets)
-    print(" labeler_count:", response.labeler_count)
-    print(" instruction_uri:", response.instruction_uri)
-    print(" inputs_schema_uri:", response.inputs_schema_uri)
-    print(" inputs:", json_format.MessageToDict(response._pb.inputs))
-    print(" state:", response.state)
-    print(" labeling_progress:", response.labeling_progress)
-    print(" labels:", response.labels)
-    print(" specialist_pools:", response.specialist_pools)
-    annotation_labels = response.annotation_labels
-    current_spend = response.current_spend
+    print("response:", response)
 
 
 # [END aiplatform_create_data_labeling_job_video_sample]
