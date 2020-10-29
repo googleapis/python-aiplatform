@@ -91,8 +91,8 @@ def test_update_resource():
     resource_noun_obj = AiPlatformResourceNounImpl()
     result_key = "name"
 
-    def get_object(result_value):
-        return gca_model.Model(display_name=result_value)
+    def get_object(name):
+        return gca_model.Model(name=name)
 
     api_get = mock.Mock(spec=["__call__"], side_effect=get_object)
 
