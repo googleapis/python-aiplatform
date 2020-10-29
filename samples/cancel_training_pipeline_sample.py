@@ -14,7 +14,6 @@
 
 # [START aiplatform_cancel_training_pipeline_sample]
 from google.cloud import aiplatform
-import time
 
 
 def cancel_training_pipeline_sample(project: str, training_pipeline_id: str):
@@ -27,7 +26,6 @@ def cancel_training_pipeline_sample(project: str, training_pipeline_id: str):
         project=project, location=location, training_pipeline=training_pipeline_id
     )
     client.cancel_training_pipeline(name=name)
-    time.sleep(90)
 
 
 # [END aiplatform_cancel_training_pipeline_sample]

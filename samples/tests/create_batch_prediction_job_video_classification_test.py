@@ -34,15 +34,12 @@ GCS_SOURCE_URI = (
 GCS_OUTPUT_URI = "gs://ucaip-samples-test-output/"
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def shared_state():
-    state = {}
-    yield state
 
+    shared_state = {}
 
-@pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
-    yield
+    yield shared_state
 
     batch_prediction_job = shared_state["batch_prediction_job_name"].split("/")[-1]
 
