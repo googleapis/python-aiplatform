@@ -15,4 +15,9 @@
 # limitations under the License.
 #
 
+# The latest GAPIC version is exported to the google.cloud.aiplatform.gapic namespace.
+from google.cloud.aiplatform_v1beta1 import *
+
+from google.cloud import aiplatform_v1beta1 as v1beta1
+
 __all__ = ()
