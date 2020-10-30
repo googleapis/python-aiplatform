@@ -21,6 +21,7 @@ import re
 from typing import Optional, TypeVar, Match
 from collections import namedtuple
 
+from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
     client as dataset_client,
 )
@@ -45,7 +46,10 @@ RESOURCE_NAME_PATTERN = re.compile(
 )
 RESOURCE_ID_PATTERN = re.compile(r"^\d+$")
 
-Fields = namedtuple("Fields", ["project", "location", "resource", "id"],)
+Fields = namedtuple(
+    "Fields",
+    ["project", "location", "resource", "id"],
+)
 
 
 def _match_to_fields(match: Match) -> Optional[Fields]:
@@ -95,6 +99,62 @@ def extract_fields_from_resource_name(
         return None
 
     return fields
+
+
+def full_name(
+    resource_name: str,
+    resource_noun: Optional[str] = None,
+    project: Optional[str] = None,
+    location: Optional[str] = None,
+) -> str:
+    """
+    Returns fully qualified resource name.
+
+    Args:
+        resource_name (str):
+            Required. A partial or fully-qualified AI Platform (Unified)
+            resource name.
+        resource_noun (str):
+            A plural resource noun to validate the resource name against.
+            For example, you would pass "datasets" to validate
+            "projects/123/locations/us-central1/datasets/456".
+        project (str):
+            Optional project to retrieve resource_noun from. If not set, project
+            set in aiplatform.init will be used.
+        location (str):
+            Optional location to retrieve resource_noun from. If not set, location
+            set in aiplatform.init will be used.
+
+    Returns:
+        resource_name (str):
+            A fully-qualified AI Platform (Unified) resource name.
+    """
+    # Fully qualified resource name, i.e. "projects/.../locations/.../datasets/12345"
+    valid_name = extract_fields_from_resource_name(
+        resource_name=resource_name, resource_noun=resource_noun
+    )
+
+    project = project or initializer.global_config.project
+    location = location or initializer.global_config.location
+    # Partial resource name (i.e. "12345") with known project and location
+    if not valid_name and validate_id(resource_name) and project and location:
+        resource_name = "projects/{project}/locations/{location}/{resource_noun}/{resource_name}".format(
+            project=project,
+            location=location,
+            resource_noun=resource_noun,
+            resource_name=resource_name,
+        )
+    # project not specified
+    elif not project:
+        raise ValueError("Please provide a project ID")
+    # Invalid resource_noun parameter
+    elif not valid_name:
+        error_message = "Please provide a valid {resource_noun} name or ID".format(
+            resource_noun=resource_noun[:-1],
+        )
+        raise ValueError(error_message)
+
+    return resource_name
 
 
 def validate_region(region: str):

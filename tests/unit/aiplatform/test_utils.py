@@ -112,3 +112,51 @@ def test_invalid_region_raises_with_invalid_region():
 
 def test_invalid_region_does_not_raise_with_valid_region():
     aiplatform.utils.validate_region(region="us-central1")
+
+
+@pytest.mark.parametrize(
+    "resource_name",
+    [
+        ("projects/123456/locations/us-central1/datasets/987654"),
+        ("projects/857392/locations/us-central1/trainingPipelines/347292"),
+    ],
+)
+def test_full_name_with_full_name(resource_name: str):
+    assert aiplatform.utils.full_name(resource_name=resource_name) == resource_name
+
+
+@pytest.mark.parametrize(
+    "partial_name, resource_noun, project, location, full_name",
+    [
+        (
+            "987654",
+            "datasets",
+            "123456",
+            "us-central1",
+            "projects/123456/locations/us-central1/datasets/987654",
+        ),
+        (
+            "347292",
+            "trainingPipelines",
+            "857392",
+            "us-central1",
+            "projects/857392/locations/us-central1/trainingPipelines/347292",
+        ),
+    ],
+)
+def test_full_name_with_partial_name(
+    partial_name: str,
+    resource_noun: str,
+    project: str,
+    location: str,
+    full_name: str,
+):
+    assert (
+        aiplatform.utils.full_name(
+            resource_name=partial_name,
+            resource_noun=resource_noun,
+            project=project,
+            location=location,
+        )
+        == full_name
+    )
