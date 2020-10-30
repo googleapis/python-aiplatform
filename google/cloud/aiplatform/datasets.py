@@ -70,7 +70,6 @@ class Dataset(base.AiPlatformResourceNoun):
             resource_noun="datasets",
             project=project,
             location=location,
-            credentials=credentials,
         )
 
         super().__init__(project=project, location=location, credentials=credentials)
