@@ -57,7 +57,7 @@ class Model(base.AiPlatformResourceNoun):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
-        """Retrieves the model resource and instantiates it's representation.
+        """Retrieves the model resource and instantiates its representation.
 
         Args:
             model_name (str):
@@ -71,8 +71,8 @@ class Model(base.AiPlatformResourceNoun):
                 Optional location to retrieve model from. If not set, location
                 set in aiplatform.init will be used.
             credentials: Optional[auth_credentials.Credentials]=None,
-                Custom credentials to use to upload this model. Overrides
-                credentials set in aiplatform.init.
+                Custom credentials to use to upload this model. If not set,
+                credentials set in aiplatform.init will be used.
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
@@ -249,6 +249,7 @@ class Model(base.AiPlatformResourceNoun):
         endpoint: Optional["Endpoint"] = None,
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 100,
+        traffic_split: Optional[Dict] = None,
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 0,
         max_replica_count: Optional[int] = None,
@@ -268,7 +269,14 @@ class Model(base.AiPlatformResourceNoun):
             traffic_percentage (int):
                 Optional. Desired traffic to newly deployed model. Defaults to
                 100. Traffic of previously deployed models at the endpoint  will
-                be scaled down to accommodate new deployed model's traffic.
+                be scaled down to accommodate new deployed model's traffic. Should
+                not be provided if traffic_split is provided.
+            traffic_split (Dict):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
             machine_type (str):
                 Optional. The type of machine. Not specifying machine type will
                 result in model to be deployed with automatic resources.
@@ -314,6 +322,7 @@ class Model(base.AiPlatformResourceNoun):
             self,
             deployed_model_display_name=deployed_model_display_name,
             traffic_percentage=traffic_percentage,
+            traffic_split=traffic_split,
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
@@ -631,6 +640,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         model: "Model",
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 100,
+        traffic_split: Optional[Dict] = None,
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 0,
         max_replica_count: Optional[int] = None,
@@ -648,7 +658,14 @@ class Endpoint(base.AiPlatformResourceNoun):
             traffic_percentage (int):
                 Optional. Desired traffic to newly deployed model. Defaults to
                 100. Traffic of previously deployed models at the endpoint  will
-                be scaled down to accommodate new deployed model's traffic.
+                be scaled down to accommodate new deployed model's traffic. Should
+                not be provided if traffic_split is provided.
+            traffic_split (Dict):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
             machine_type (str):
                 Optional. The type of machine. Not specifying machine type will
                 result in model to be deployed with automatic resources.
@@ -698,10 +715,11 @@ class Endpoint(base.AiPlatformResourceNoun):
                 display_name=deployed_model_display_name,
             )
 
-        traffic_split = self._allocate_traffic(
-            traffic_split=self._gca_resource.traffic_split,
-            traffic_percentage=traffic_percentage,
-        )
+        if traffic_split is None:
+            traffic_split = self._allocate_traffic(
+                traffic_split=self._gca_resource.traffic_split,
+                traffic_percentage=traffic_percentage,
+            )
 
         operation_future = self.endpoint_client.deploy_model(
             endpoint=self.resource_name,
