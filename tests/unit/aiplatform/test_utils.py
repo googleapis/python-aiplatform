@@ -145,11 +145,7 @@ def test_full_name_with_full_name(resource_name: str):
     ],
 )
 def test_full_name_with_partial_name(
-    partial_name: str,
-    resource_noun: str,
-    project: str,
-    location: str,
-    full_name: str,
+    partial_name: str, resource_noun: str, project: str, location: str, full_name: str,
 ):
     assert (
         aiplatform.utils.full_name(
