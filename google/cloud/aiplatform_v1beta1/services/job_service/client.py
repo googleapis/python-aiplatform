@@ -117,30 +117,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     from_service_account_json = from_service_account_file
 
     @staticmethod
-    def hyperparameter_tuning_job_path(
-        project: str, location: str, hyperparameter_tuning_job: str,
-    ) -> str:
-        """Return a fully-qualified hyperparameter_tuning_job string."""
-        return "projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}".format(
-            project=project,
-            location=location,
-            hyperparameter_tuning_job=hyperparameter_tuning_job,
-        )
-
-    @staticmethod
     def custom_job_path(project: str, location: str, custom_job: str,) -> str:
         """Return a fully-qualified custom_job string."""
         return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
             project=project, location=location, custom_job=custom_job,
-        )
-
-    @staticmethod
-    def data_labeling_job_path(
-        project: str, location: str, data_labeling_job: str,
-    ) -> str:
-        """Return a fully-qualified data_labeling_job string."""
-        return "projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}".format(
-            project=project, location=location, data_labeling_job=data_labeling_job,
         )
 
     @staticmethod
@@ -152,6 +132,26 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             project=project,
             location=location,
             batch_prediction_job=batch_prediction_job,
+        )
+
+    @staticmethod
+    def hyperparameter_tuning_job_path(
+        project: str, location: str, hyperparameter_tuning_job: str,
+    ) -> str:
+        """Return a fully-qualified hyperparameter_tuning_job string."""
+        return "projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}".format(
+            project=project,
+            location=location,
+            hyperparameter_tuning_job=hyperparameter_tuning_job,
+        )
+
+    @staticmethod
+    def data_labeling_job_path(
+        project: str, location: str, data_labeling_job: str,
+    ) -> str:
+        """Return a fully-qualified data_labeling_job string."""
+        return "projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}".format(
+            project=project, location=location, data_labeling_job=data_labeling_job,
         )
 
     def __init__(
@@ -210,7 +210,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.CreateCustomJobRequest`):
                 The request object. Request message for
-                [JobService.CreateCustomJob][google.cloud.aiplatform.v1beta1.JobService.CreateCustomJob].
+                ``JobService.CreateCustomJob``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the CustomJob in. Format:
@@ -289,7 +289,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.GetCustomJobRequest`):
                 The request object. Request message for
-                [JobService.GetCustomJob][google.cloud.aiplatform.v1beta1.JobService.GetCustomJob].
+                ``JobService.GetCustomJob``.
             name (:class:`str`):
                 Required. The name of the CustomJob resource. Format:
                 ``projects/{project}/locations/{location}/customJobs/{custom_job}``
@@ -366,7 +366,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.ListCustomJobsRequest`):
                 The request object. Request message for
-                [JobService.ListCustomJobs][google.cloud.aiplatform.v1beta1.JobService.ListCustomJobs].
+                ``JobService.ListCustomJobs``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 CustomJobs from. Format:
@@ -384,7 +384,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             ~.pagers.ListCustomJobsPager:
                 Response message for
-                [JobService.ListCustomJobs][google.cloud.aiplatform.v1beta1.JobService.ListCustomJobs]
+                ``JobService.ListCustomJobs``
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -447,7 +447,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.DeleteCustomJobRequest`):
                 The request object. Request message for
-                [JobService.DeleteCustomJob][google.cloud.aiplatform.v1beta1.JobService.DeleteCustomJob].
+                ``JobService.DeleteCustomJob``.
             name (:class:`str`):
                 Required. The name of the CustomJob resource to be
                 deleted. Format:
@@ -467,7 +467,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.empty.Empty``: A generic empty message that
+                :class:`~.empty.Empty`: A generic empty message that
                 you can re-use to avoid defining duplicated empty
                 messages in your APIs. A typical example is to use it as
                 the request or the response type of an API method. For
@@ -534,21 +534,21 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Cancels a CustomJob. Starts asynchronous cancellation on the
         CustomJob. The server makes a best effort to cancel the job, but
         success is not guaranteed. Clients can use
-        [JobService.GetCustomJob][google.cloud.aiplatform.v1beta1.JobService.GetCustomJob]
+        ``JobService.GetCustomJob``
         or other methods to check whether the cancellation succeeded or
         whether the job completed despite cancellation. On successful
         cancellation, the CustomJob is not deleted; instead it becomes a
         job with a
-        [CustomJob.error][google.cloud.aiplatform.v1beta1.CustomJob.error]
-        value with a [google.rpc.Status.code][google.rpc.Status.code] of
+        ``CustomJob.error``
+        value with a ``google.rpc.Status.code`` of
         1, corresponding to ``Code.CANCELLED``, and
-        [CustomJob.state][google.cloud.aiplatform.v1beta1.CustomJob.state]
+        ``CustomJob.state``
         is set to ``CANCELLED``.
 
         Args:
             request (:class:`~.job_service.CancelCustomJobRequest`):
                 The request object. Request message for
-                [JobService.CancelCustomJob][google.cloud.aiplatform.v1beta1.JobService.CancelCustomJob].
+                ``JobService.CancelCustomJob``.
             name (:class:`str`):
                 Required. The name of the CustomJob to cancel. Format:
                 ``projects/{project}/locations/{location}/customJobs/{custom_job}``
@@ -771,7 +771,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             ~.pagers.ListDataLabelingJobsPager:
                 Response message for
-                [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1beta1.JobService.ListDataLabelingJobs].
+                ``JobService.ListDataLabelingJobs``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -834,7 +834,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.DeleteDataLabelingJobRequest`):
                 The request object. Request message for
-                [JobService.DeleteDataLabelingJob][google.cloud.aiplatform.v1beta1.JobService.DeleteDataLabelingJob].
+                ``JobService.DeleteDataLabelingJob``.
             name (:class:`str`):
                 Required. The name of the DataLabelingJob to be deleted.
                 Format:
@@ -855,7 +855,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.empty.Empty``: A generic empty message that
+                :class:`~.empty.Empty`: A generic empty message that
                 you can re-use to avoid defining duplicated empty
                 messages in your APIs. A typical example is to use it as
                 the request or the response type of an API method. For
@@ -985,7 +985,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.CreateHyperparameterTuningJobRequest`):
                 The request object. Request message for
-                [JobService.CreateHyperparameterTuningJob][google.cloud.aiplatform.v1beta1.JobService.CreateHyperparameterTuningJob].
+                ``JobService.CreateHyperparameterTuningJob``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the HyperparameterTuningJob in. Format:
@@ -1061,7 +1061,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.GetHyperparameterTuningJobRequest`):
                 The request object. Request message for
-                [JobService.GetHyperparameterTuningJob][google.cloud.aiplatform.v1beta1.JobService.GetHyperparameterTuningJob].
+                ``JobService.GetHyperparameterTuningJob``.
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob
                 resource. Format:
@@ -1136,7 +1136,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.ListHyperparameterTuningJobsRequest`):
                 The request object. Request message for
-                [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1beta1.JobService.ListHyperparameterTuningJobs].
+                ``JobService.ListHyperparameterTuningJobs``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 HyperparameterTuningJobs from. Format:
@@ -1154,7 +1154,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             ~.pagers.ListHyperparameterTuningJobsPager:
                 Response message for
-                [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1beta1.JobService.ListHyperparameterTuningJobs]
+                ``JobService.ListHyperparameterTuningJobs``
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1217,7 +1217,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.DeleteHyperparameterTuningJobRequest`):
                 The request object. Request message for
-                [JobService.DeleteHyperparameterTuningJob][google.cloud.aiplatform.v1beta1.JobService.DeleteHyperparameterTuningJob].
+                ``JobService.DeleteHyperparameterTuningJob``.
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob
                 resource to be deleted. Format:
@@ -1238,7 +1238,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.empty.Empty``: A generic empty message that
+                :class:`~.empty.Empty`: A generic empty message that
                 you can re-use to avoid defining duplicated empty
                 messages in your APIs. A typical example is to use it as
                 the request or the response type of an API method. For
@@ -1306,21 +1306,21 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         cancellation on the HyperparameterTuningJob. The server makes a
         best effort to cancel the job, but success is not guaranteed.
         Clients can use
-        [JobService.GetHyperparameterTuningJob][google.cloud.aiplatform.v1beta1.JobService.GetHyperparameterTuningJob]
+        ``JobService.GetHyperparameterTuningJob``
         or other methods to check whether the cancellation succeeded or
         whether the job completed despite cancellation. On successful
         cancellation, the HyperparameterTuningJob is not deleted;
         instead it becomes a job with a
-        [HyperparameterTuningJob.error][google.cloud.aiplatform.v1beta1.HyperparameterTuningJob.error]
-        value with a [google.rpc.Status.code][google.rpc.Status.code] of
+        ``HyperparameterTuningJob.error``
+        value with a ``google.rpc.Status.code`` of
         1, corresponding to ``Code.CANCELLED``, and
-        [HyperparameterTuningJob.state][google.cloud.aiplatform.v1beta1.HyperparameterTuningJob.state]
+        ``HyperparameterTuningJob.state``
         is set to ``CANCELLED``.
 
         Args:
             request (:class:`~.job_service.CancelHyperparameterTuningJobRequest`):
                 The request object. Request message for
-                [JobService.CancelHyperparameterTuningJob][google.cloud.aiplatform.v1beta1.JobService.CancelHyperparameterTuningJob].
+                ``JobService.CancelHyperparameterTuningJob``.
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob to
                 cancel. Format:
@@ -1382,7 +1382,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.CreateBatchPredictionJobRequest`):
                 The request object. Request message for
-                [JobService.CreateBatchPredictionJob][google.cloud.aiplatform.v1beta1.JobService.CreateBatchPredictionJob].
+                ``JobService.CreateBatchPredictionJob``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the BatchPredictionJob in. Format:
@@ -1406,7 +1406,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             ~.gca_batch_prediction_job.BatchPredictionJob:
                 A job that uses a
-                [Model][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
+                ``Model``
                 to produce predictions on multiple [input
                 instances][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
                 If predictions for significant portion of the instances
@@ -1461,7 +1461,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.GetBatchPredictionJobRequest`):
                 The request object. Request message for
-                [JobService.GetBatchPredictionJob][google.cloud.aiplatform.v1beta1.JobService.GetBatchPredictionJob].
+                ``JobService.GetBatchPredictionJob``.
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob resource.
                 Format:
@@ -1480,7 +1480,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             ~.batch_prediction_job.BatchPredictionJob:
                 A job that uses a
-                [Model][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
+                ``Model``
                 to produce predictions on multiple [input
                 instances][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
                 If predictions for significant portion of the instances
@@ -1539,7 +1539,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.ListBatchPredictionJobsRequest`):
                 The request object. Request message for
-                [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1beta1.JobService.ListBatchPredictionJobs].
+                ``JobService.ListBatchPredictionJobs``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 BatchPredictionJobs from. Format:
@@ -1557,7 +1557,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             ~.pagers.ListBatchPredictionJobsPager:
                 Response message for
-                [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1beta1.JobService.ListBatchPredictionJobs]
+                ``JobService.ListBatchPredictionJobs``
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1621,7 +1621,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (:class:`~.job_service.DeleteBatchPredictionJobRequest`):
                 The request object. Request message for
-                [JobService.DeleteBatchPredictionJob][google.cloud.aiplatform.v1beta1.JobService.DeleteBatchPredictionJob].
+                ``JobService.DeleteBatchPredictionJob``.
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob resource to
                 be deleted. Format:
@@ -1642,7 +1642,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:``~.empty.Empty``: A generic empty message that
+                :class:`~.empty.Empty`: A generic empty message that
                 you can re-use to avoid defining duplicated empty
                 messages in your APIs. A typical example is to use it as
                 the request or the response type of an API method. For
@@ -1711,18 +1711,18 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Starts asynchronous cancellation on the BatchPredictionJob. The
         server makes the best effort to cancel the job, but success is
         not guaranteed. Clients can use
-        [JobService.GetBatchPredictionJob][google.cloud.aiplatform.v1beta1.JobService.GetBatchPredictionJob]
+        ``JobService.GetBatchPredictionJob``
         or other methods to check whether the cancellation succeeded or
         whether the job completed despite cancellation. On a successful
         cancellation, the BatchPredictionJob is not deleted;instead its
-        [BatchPredictionJob.state][google.cloud.aiplatform.v1beta1.BatchPredictionJob.state]
+        ``BatchPredictionJob.state``
         is set to ``CANCELLED``. Any files already outputted by the job
         are not deleted.
 
         Args:
             request (:class:`~.job_service.CancelBatchPredictionJobRequest`):
                 The request object. Request message for
-                [JobService.CancelBatchPredictionJob][google.cloud.aiplatform.v1beta1.JobService.CancelBatchPredictionJob].
+                ``JobService.CancelBatchPredictionJob``.
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob to cancel.
                 Format:

@@ -42,14 +42,14 @@ class ModelEvaluationSlice(proto.Message):
         metrics_schema_uri (str):
             Output only. Points to a YAML file stored on Google Cloud
             Storage describing the
-            [metrics][google.cloud.aiplatform.v1beta1.ModelEvaluationSlice.metrics]
+            ``metrics``
             of this ModelEvaluationSlice. The schema is defined as an
             OpenAPI 3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
         metrics (~.struct.Value):
             Output only. Sliced evaluation metrics of the Model. The
             schema of the metrics is stored in
-            [metrics_schema_uri][google.cloud.aiplatform.v1beta1.ModelEvaluationSlice.metrics_schema_uri]
+            ``metrics_schema_uri``
         create_time (~.timestamp.Timestamp):
             Output only. Timestamp when this
             ModelEvaluationSlice was created.
@@ -65,9 +65,9 @@ class ModelEvaluationSlice(proto.Message):
 
                 -  ``annotationSpec``: This slice is on the test data that
                    has either ground truth or prediction with
-                   [AnnotationSpec.display_name][google.cloud.aiplatform.v1beta1.AnnotationSpec.display_name]
+                   ``AnnotationSpec.display_name``
                    equals to
-                   [value][google.cloud.aiplatform.v1beta1.ModelEvaluationSlice.Slice.value].
+                   ``value``.
             value (str):
                 Output only. The value of the dimension in
                 this slice.
