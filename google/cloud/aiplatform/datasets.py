@@ -22,7 +22,6 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.utils import validate_id
 from google.cloud.aiplatform.utils import full_name
 
 from google.cloud.aiplatform_v1beta1 import GcsSource
