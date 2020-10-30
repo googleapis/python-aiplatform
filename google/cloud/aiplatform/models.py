@@ -87,29 +87,14 @@ class Model(base.AiPlatformResourceNoun):
             model: Managed Model resource.
         """
 
-        # Fully qualified model name, i.e. "projects/.../locations/.../models/12345"
-        valid_name = utils.extract_fields_from_resource_name(
-            resource_name=model_name, resource_noun="models"
+        model_name = utils.full_name(
+            resource_name=model_name,
+            resource_noun="models",
+            project=self.project,
+            location=self.location,
         )
-
-        # Partial model name (i.e. "12345") with known project and location
-        if (
-            not valid_name
-            and utils.validate_id(model_name)
-            and (self.project or initializer.global_config.project)
-            and (self.location or initializer.global_config.location)
-        ):
-            model_name = ModelServiceClient.model_path(
-                project=self.project or initializer.global_config.project,
-                location=self.location or initializer.global_config.location,
-                model=model_name,
-            )
-
-        # Invalid model_name parameter
-        elif not valid_name:
-            raise ValueError("Please provide a valid model name or ID")
-
         model = self.api_client.get_model(name=model_name)
+
         return model
 
     # TODO(b/170979552) Add support for predict schemata
@@ -377,29 +362,14 @@ class Endpoint(base.AiPlatformResourceNoun):
                 Managed endpoint resource.
         """
 
-        # Fully qualified endpoint name, i.e. "projects/.../locations/.../endpoints/12345"
-        valid_name = utils.extract_fields_from_resource_name(
-            resource_name=endpoint_name, resource_noun="endpoints"
+        endpoint_name = utils.full_name(
+            resource_name=endpoint_name,
+            resource_noun="endpoints",
+            project=self.project,
+            location=self.location,
         )
-
-        # Partial endpoint name (i.e. "12345") with known project and location
-        if (
-            not valid_name
-            and utils.validate_id(endpoint_name)
-            and (self.project or initializer.global_config.project)
-            and (self.location or initializer.global_config.location)
-        ):
-            endpoint_name = EndpointServiceClient.endpoint_path(
-                project=self.project or initializer.global_config.project,
-                location=self.location or initializer.global_config.location,
-                endpoint=endpoint_name,
-            )
-
-        # Invalid model_name parameter
-        elif not valid_name:
-            raise ValueError("Please provide a valid model name or ID")
-
         endpoint = self.endpoint_client.get_endpoint(name=endpoint_name)
+
         return endpoint
 
     @classmethod
