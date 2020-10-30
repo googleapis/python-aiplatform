@@ -36,6 +36,8 @@ def shared_state():
 def teardown(shared_state):
     yield
 
+    assert "/" in shared_state["dataset_name"]
+
     dataset_id = shared_state["dataset_name"].split("/")[-1]
 
     # Delete the created dataset

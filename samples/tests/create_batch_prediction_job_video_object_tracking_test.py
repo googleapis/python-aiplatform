@@ -44,6 +44,8 @@ def shared_state():
 def teardown(shared_state):
     yield
 
+    assert "/" in shared_state["batch_prediction_job_name"]
+
     batch_prediction_job = shared_state["batch_prediction_job_name"].split("/")[-1]
 
     # Stop the batch prediction job

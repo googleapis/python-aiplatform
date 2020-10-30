@@ -46,6 +46,8 @@ def shared_state():
 def teardown(capsys, shared_state):
     yield
 
+    assert "/" in shared_state["data_labeling_job_name"]
+
     data_labeling_job_id = shared_state["data_labeling_job_name"].split("/")[-1]
 
     client_options = {

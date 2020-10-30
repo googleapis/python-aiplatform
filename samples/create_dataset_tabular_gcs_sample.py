@@ -18,7 +18,9 @@ from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
 
-def create_dataset_tabular_gcs_sample(display_name: str, gcs_uri: str, project: str):
+def create_dataset_tabular_gcs_sample(
+    display_name: str, gcs_uri: str, project: str, timeout: int = 300
+):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
@@ -32,12 +34,12 @@ def create_dataset_tabular_gcs_sample(display_name: str, gcs_uri: str, project: 
 
     dataset = {
         "display_name": display_name,
-        "metadata_schema_uri": "gs://google-cloud-aiplatform/schema/dataset/metadata/tables_1.0.0.yaml",
+        "metadata_schema_uri": "gs://google-cloud-aiplatform/schema/dataset/metadata/tabular_1.0.0.yaml",
         "metadata": metadata,
     }
     response = client.create_dataset(parent=parent, dataset=dataset)
     print("Long running operation:", response.operation.name)
-    create_dataset_response = response.result(timeout=300)
+    create_dataset_response = response.result(timeout=timeout)
     print("create_dataset_response:", create_dataset_response)
 
 
