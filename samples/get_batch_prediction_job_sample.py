@@ -14,38 +14,20 @@
 
 # [START aiplatform_get_batch_prediction_job_sample]
 from google.cloud import aiplatform
-from google.protobuf import json_format
 
 
-def get_batch_prediction_job_sample(project: str, batch_prediction_job_id: str):
+def get_batch_prediction_job_sample(
+    project: str, batch_prediction_job_id: str, location: str = "us-central1"
+):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.JobServiceClient(client_options=client_options)
-    location = "us-central1"
     name = client.batch_prediction_job_path(
         project=project, location=location, batch_prediction_job=batch_prediction_job_id
     )
     response = client.get_batch_prediction_job(name=name)
-    print("response")
-    print(" name:", response.name)
-    print(" display_name:", response.display_name)
-    print(" model:", response.model)
-    print(
-        " model_parameters:", json_format.MessageToDict(response._pb.model_parameters)
-    )
-    print(" generate_explanation:", response.generate_explanation)
-    print(" state:", response.state)
-    print(" start_time:", response.start_time)
-    print(" end_time:", response.end_time)
-    print(" labels:", response.labels)
-    input_config = response.input_config
-    output_config = response.output_config
-    output_info = response.output_info
-    error = response.error
-    partial_failures = response.partial_failures
-    resources_consumed = response.resources_consumed
-    completion_stats = response.completion_stats
+    print("response:", response)
 
 
 # [END aiplatform_get_batch_prediction_job_sample]

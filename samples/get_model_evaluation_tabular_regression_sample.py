@@ -14,27 +14,20 @@
 
 # [START aiplatform_get_model_evaluation_tabular_regression_sample]
 from google.cloud import aiplatform
-from google.protobuf import json_format
 
 
 def get_model_evaluation_tabular_regression_sample(
-    project: str, model_id: str, evaluation_id: str
+    project: str, model_id: str, evaluation_id: str, location: str = "us-central1"
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
-    location = "us-central1"
-    name = "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}".format(
+    name = client.model_evaluation_path(
         project=project, location=location, model=model_id, evaluation=evaluation_id
     )
     response = client.get_model_evaluation(name=name)
-    print("response")
-    print(" name:", response.name)
-    print(" metrics_schema_uri:", response.metrics_schema_uri)
-    print(" metrics:", json_format.MessageToDict(response._pb.metrics))
-    print(" slice_dimensions:", response.slice_dimensions)
-    model_explanation = response.model_explanation
+    print("response:", response)
 
 
 # [END aiplatform_get_model_evaluation_tabular_regression_sample]

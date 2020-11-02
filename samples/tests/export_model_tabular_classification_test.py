@@ -1,4 +1,3 @@
-# Generated code sample for google.cloud.aiplatform.DatasetServiceClient.get_dataset
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +15,7 @@
 import pytest
 import os
 
-from samples import export_model_tables_classification_sample
+from samples import export_model_tabular_classification_sample
 from google.cloud import storage
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -35,8 +34,8 @@ def teardown():
         blob.delete()
 
 
-def test_ucaip_generated_export_model_tables_classification_sample(capsys):
-    export_model_tables_classification_sample.export_model_tables_classification_sample(
+def test_ucaip_generated_export_model_tabular_classification_sample(capsys):
+    export_model_tabular_classification_sample.export_model_tabular_classification_sample(
         project=PROJECT_ID, model_id=MODEL_ID, gcs_destination_output_uri_prefix=GCS_URI
     )
     out, _ = capsys.readouterr()

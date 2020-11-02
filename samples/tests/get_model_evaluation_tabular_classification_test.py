@@ -1,4 +1,3 @@
-# Generated code sample for google.cloud.aiplatform.DatasetServiceClient.get_dataset
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,15 +15,15 @@
 import pytest
 import os
 
-from samples import get_model_evaluation_sample
+from samples import get_model_evaluation_tabular_classification_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "3125638878883479552"  # bq all
-EVALUATION_ID = "2025948722346981108"  # bq all evaluation
+MODEL_ID = "5162251072873431040"  # permanent_safe_driver_model
+EVALUATION_ID = "5615675837586029221"  # permanent_safe_driver_model Evaluation
 
 
-def test_ucaip_generated_get_model_evaluation_sample(capsys):
-    get_model_evaluation_sample.get_model_evaluation_sample(
+def test_ucaip_generated_get_model_evaluation_tabular_classification_sample(capsys):
+    get_model_evaluation_tabular_classification_sample.get_model_evaluation_tabular_classification_sample(
         project=PROJECT_ID, model_id=MODEL_ID, evaluation_id=EVALUATION_ID
     )
     out, _ = capsys.readouterr()
