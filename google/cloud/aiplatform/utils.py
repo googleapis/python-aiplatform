@@ -131,24 +131,17 @@ def full_name(
         resource_name=resource_name, resource_noun=resource_noun
     )
 
-    project = project or initializer.global_config.project
-    location = location or initializer.global_config.location
+    user_project = project or initializer.global_config.project
+    user_location = location or initializer.global_config.location
     # Partial resource name (i.e. "12345") with known project and location
-    if not valid_name and validate_id(resource_name) and project and location:
-        resource_name = "projects/{project}/locations/{location}/{resource_noun}/{resource_name}".format(
-            project=project,
-            location=location,
-            resource_noun=resource_noun,
-            resource_name=resource_name,
-        )
-    # project not specified
-    elif not project:
+    if not valid_name and validate_id(resource_name) and user_project and user_location:
+        resource_name = f"projects/{user_project}/locations/{user_location}/{resource_noun}/{resource_name}"
+    # Project not specified
+    elif not user_project:
         raise ValueError("Please provide a project ID")
     # Invalid resource_noun parameter
     elif not valid_name:
-        error_message = "Please provide a valid {resource_noun} name or ID".format(
-            resource_noun=resource_noun[:-1],
-        )
+        error_message = f"Please provide a valid {resource_noun[:-1]} name or ID"
         raise ValueError(error_message)
 
     return resource_name
