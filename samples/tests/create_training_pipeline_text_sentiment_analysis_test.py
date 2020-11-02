@@ -77,6 +77,7 @@ def test_ucaip_generated_create_training_pipeline_text_sentiment_analysis_sample
     )
 
     out, _ = capsys.readouterr()
+    assert "response:" in out
 
     # Save resource name of the newly created training pipeline
     shared_state["training_pipeline_name"] = helpers.get_name(out)

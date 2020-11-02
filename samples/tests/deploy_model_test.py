@@ -19,6 +19,8 @@ from uuid import uuid4
 import pytest
 import os
 
+import helpers
+
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
 PARENT = f"projects/{PROJECT_ID}/locations/{LOCATION}"
@@ -64,10 +66,7 @@ def test_ucaip_generated_deploy_model_sample(capsys, shared_state):
     out, _ = capsys.readouterr()
     assert "deploy_model_response" in out
 
-    # TODO: use re.
-    shared_state["deployed_model_id"] = (
-        out.split("id:")[1].split("\n")[0].split(" ")[-1]
-    )
+    shared_state["deployed_model_id"] = helpers.get_name(out=out, key="id")
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -75,7 +74,7 @@ def teardown(shared_state):
     yield
 
     undeploy_model_operation = shared_state["endpoint_client"].undeploy_model(
-        deployed_model_id=int(shared_state["deployed_model_id"]),
+        deployed_model_id=shared_state["deployed_model_id"],
         endpoint=shared_state["endpoint"],
     )
     undeploy_model_operation.result()
