@@ -24,6 +24,8 @@ from samples import (
     delete_batch_prediction_job_sample,
 )
 
+from google.cloud import aiplatform
+
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
 MODEL_ID = "20547673299877888"  # Permanent horses model
@@ -51,6 +53,16 @@ def teardown(shared_state):
     # Stop the batch prediction job
     cancel_batch_prediction_job_sample.cancel_batch_prediction_job_sample(
         project=PROJECT_ID, batch_prediction_job_id=batch_prediction_job
+    )
+
+    job_client = aiplatform.gapic.JobServiceClient(
+        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    )
+
+    # Waiting for batch prediction job to be in CANCELLED state
+    helpers.wait_for_job_state(
+        get_job_method=job_client.get_batch_prediction_job,
+        name=shared_state["batch_prediction_job_name"],
     )
 
     # Delete the batch prediction job

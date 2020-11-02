@@ -15,7 +15,6 @@
 import pytest
 import os
 from uuid import uuid4
-from time import sleep
 from google.cloud import aiplatform
 
 import helpers
@@ -61,11 +60,9 @@ def teardown(shared_state):
     client.cancel_data_labeling_job(name=name)
 
     # Verify Data Labelling Job is cancelled, or timeout after 400 seconds
-    for i in range(40):
-        response = client.get_data_labeling_job(name=name)
-        if "CANCELLED" in str(response.state):
-            break
-        sleep(10)
+    helpers.wait_for_job_state(
+        get_job_method=client.get_data_labeling_job, name=name, timeout=400, freq=10
+    )
 
     # Delete the data labeling job
     response = client.delete_data_labeling_job(name=name)

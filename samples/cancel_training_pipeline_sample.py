@@ -16,16 +16,18 @@
 from google.cloud import aiplatform
 
 
-def cancel_training_pipeline_sample(project: str, training_pipeline_id: str):
+def cancel_training_pipeline_sample(
+    project: str, training_pipeline_id: str, location: str = "us-central1"
+):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
-    location = "us-central1"
     name = client.training_pipeline_path(
         project=project, location=location, training_pipeline=training_pipeline_id
     )
-    client.cancel_training_pipeline(name=name)
+    response = client.cancel_training_pipeline(name=name)
+    print("response:", response)
 
 
 # [END aiplatform_cancel_training_pipeline_sample]

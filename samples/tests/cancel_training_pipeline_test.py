@@ -25,7 +25,10 @@ from samples import (
     get_training_pipeline_sample,
 )
 
+from google.cloud import aiplatform
+
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+LOCATION = "us-central1"
 DATASET_ID = "1084241610289446912"  # Permanent 50 Flowers Dataset
 DISPLAY_NAME = f"temp_create_training_pipeline_test_{uuid4()}"
 TRAINING_DEFINITION_GCS_PATH = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml"
@@ -49,33 +52,27 @@ def training_pipeline_id(capsys):
 
     yield training_pipeline_id
 
-
-@pytest.fixture(scope="function", autouse=True)
-def teardown(training_pipeline_id):
-    yield
-
     delete_training_pipeline_sample.delete_training_pipeline_sample(
         project=PROJECT_ID, training_pipeline_id=training_pipeline_id
     )
 
 
 def test_ucaip_generated_cancel_training_pipeline_sample(capsys, training_pipeline_id):
+    # Run cancel pipeline sample
     cancel_training_pipeline_sample.cancel_training_pipeline_sample(
         project=PROJECT_ID, training_pipeline_id=training_pipeline_id
     )
 
-    # check the state of the training pipeline
-    training_pipeline = get_training_pipeline_sample.get_training_pipeline_sample(
-        project=PROJECT_ID, training_pipeline_id=training_pipeline_id
+    pipeline_client = aiplatform.gapic.PipelineServiceClient(
+        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     )
 
-    out, _ = capsys.readouterr()
-
-    import sys
-
-    sys.stdout.write(out)
-
-    state = helpers.get_state(out)
-
-    # proto-plus>=1.10 prints Enum full name.
-    assert state in ("7", "PIPELINE_STATE_CANCELLED")
+    # Waiting for training pipeline to be in CANCELLED state, otherwise raise error
+    helpers.wait_for_job_state(
+        get_job_method=pipeline_client.get_training_pipeline,
+        name=pipeline_client.training_pipeline_path(
+            project=PROJECT_ID,
+            location=LOCATION,
+            training_pipeline=training_pipeline_id,
+        ),
+    )

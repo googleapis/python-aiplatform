@@ -19,20 +19,17 @@ from google.protobuf.struct_pb2 import Value
 
 
 def create_batch_prediction_job_video_object_tracking_sample(
+    project: str,
     display_name: str,
     model_name: str,
     gcs_source_uri: str,
     gcs_destination_output_uri_prefix: str,
-    project: str,
+    location: str = "us-central1",
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.JobServiceClient(client_options=client_options)
-    location = "us-central1"
-    parent = "projects/{project}/locations/{location}".format(
-        project=project, location=location
-    )
     model_parameters_dict = {"confidenceThreshold": 0.0}
     model_parameters = json_format.ParseDict(model_parameters_dict, Value())
 
@@ -50,6 +47,7 @@ def create_batch_prediction_job_video_object_tracking_sample(
             "gcs_destination": {"output_uri_prefix": gcs_destination_output_uri_prefix},
         },
     }
+    parent = f"projects/{project}/locations/{location}"
     response = client.create_batch_prediction_job(
         parent=parent, batch_prediction_job=batch_prediction_job
     )
