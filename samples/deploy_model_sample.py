@@ -17,20 +17,17 @@ from google.cloud import aiplatform
 
 
 def deploy_model_sample(
-    model_name: str, deployed_model_display_name: str, project: str, endpoint_id: str
+    project: str,
+    endpoint_id: str,
+    model_name: str,
+    deployed_model_display_name: str,
+    location: str = "us-central1",
+    timeout: int = 7200,
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.EndpointServiceClient(client_options=client_options)
-    location = "us-central1"
-    name = client.endpoint_path(
-        project=project, location=location, endpoint=endpoint_id
-    )
-    # key '0' assigns traffic for the newly deployed model
-    # Traffic percentage values must add up to 100
-    # Leave dictionary empty if endpoint should not accept any traffic
-    traffic_split = {"0": 100}
     deployed_model = {
         # format: 'projects/{project}/locations/{location}/models/{model}'
         "model": model_name,
@@ -39,19 +36,19 @@ def deploy_model_sample(
         # Other model types may require `dedicated_resources` field instead
         "automatic_resources": {"min_replica_count": 1, "max_replica_count": 1},
     }
+    # key '0' assigns traffic for the newly deployed model
+    # Traffic percentage values must add up to 100
+    # Leave dictionary empty if endpoint should not accept any traffic
+    traffic_split = {"0": 100}
+    endpoint = client.endpoint_path(
+        project=project, location=location, endpoint=endpoint_id
+    )
     response = client.deploy_model(
-        endpoint=name, deployed_model=deployed_model, traffic_split=traffic_split
+        endpoint=endpoint, deployed_model=deployed_model, traffic_split=traffic_split
     )
     print("Long running operation:", response.operation.name)
-    deploy_model_response = response.result(timeout=7200)
-    print("deploy_model_response")
-    deployed_model = deploy_model_response.deployed_model
-    print(" deployed_model")
-    print("  id:", deployed_model.id)
-    print("  model:", deployed_model.model)
-    print("  display_name:", deployed_model.display_name)
-    dedicated_resources = deployed_model.dedicated_resources
-    automatic_resources = deployed_model.automatic_resources
+    deploy_model_response = response.result(timeout=timeout)
+    print("deploy_model_response:", deploy_model_response)
 
 
 # [END aiplatform_deploy_model_sample]

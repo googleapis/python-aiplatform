@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.cloud import aiplatform as aip
+from google.cloud import aiplatform
 from samples import deploy_model_sample, delete_endpoint_sample
 
 from uuid import uuid4
@@ -39,7 +39,7 @@ def shared_state():
 def setup(shared_state):
 
     # Create an temporary endpoint and store resource name
-    shared_state["endpoint_client"] = aip.EndpointServiceClient(
+    shared_state["endpoint_client"] = aiplatform.gapic.EndpointServiceClient(
         client_options=CLIENT_OPTIONS
     )
     create_endpoint_response = shared_state["endpoint_client"].create_endpoint(
@@ -64,6 +64,7 @@ def test_ucaip_generated_deploy_model_sample(capsys, shared_state):
     out, _ = capsys.readouterr()
     assert "deploy_model_response" in out
 
+    # TODO: use re.
     shared_state["deployed_model_id"] = (
         out.split("id:")[1].split("\n")[0].split(" ")[-1]
     )
@@ -74,7 +75,7 @@ def teardown(shared_state):
     yield
 
     undeploy_model_operation = shared_state["endpoint_client"].undeploy_model(
-        deployed_model_id=shared_state["deployed_model_id"],
+        deployed_model_id=int(shared_state["deployed_model_id"]),
         endpoint=shared_state["endpoint"],
     )
     undeploy_model_operation.result()

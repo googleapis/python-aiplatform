@@ -16,6 +16,8 @@ from uuid import uuid4
 import pytest
 import os
 
+import helpers
+
 from samples import (
     create_training_pipeline_image_object_detection_sample,
     cancel_training_pipeline_sample,
@@ -64,4 +66,4 @@ def test_ucaip_generated_create_training_pipeline_image_object_dectection(
     out, _ = capsys.readouterr()
 
     # Save resource name of the newly created training pipeline
-    shared_state["training_pipeline_name"] = out.split("name:")[1].split("\n")[0]
+    shared_state["training_pipeline_name"] = helpers.get_name(out)

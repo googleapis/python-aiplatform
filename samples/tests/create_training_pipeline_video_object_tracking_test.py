@@ -1,4 +1,3 @@
-# Generated code sample for google.cloud.aiplatform.PipelineServiceClient.create_training_pipeline
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +15,8 @@
 from uuid import uuid4
 import pytest
 import os
+
+import helpers
 
 from samples import (
     create_training_pipeline_video_object_tracking_sample,
@@ -66,4 +67,4 @@ def test_ucaip_generated_create_training_pipeline_video_object_tracking_sample(
     out, _ = capsys.readouterr()
 
     # Save resource name of the newly created training pipeline
-    shared_state["training_pipeline_name"] = out.split("name:")[1].split("\n")[0]
+    shared_state["training_pipeline_name"] = helpers.get_name(out)

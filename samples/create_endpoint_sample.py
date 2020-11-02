@@ -16,24 +16,19 @@
 from google.cloud import aiplatform
 
 
-def create_endpoint_sample(display_name: str, project: str):
+def create_endpoint_sample(
+    project: str, display_name: str, location: str = "us-central1", timeout: int = 300
+):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.EndpointServiceClient(client_options=client_options)
-    location = "us-central1"
-    parent = "projects/{project}/locations/{location}".format(
-        project=project, location=location
-    )
     endpoint = {"display_name": display_name}
+    parent = f"projects/{project}/locations/{location}"
     response = client.create_endpoint(parent=parent, endpoint=endpoint)
     print("Long running operation:", response.operation.name)
-    create_endpoint_response = response.result(timeout=300)
-    print("create_endpoint_response")
-    print(" name:", create_endpoint_response.name)
-    print(" display_name:", create_endpoint_response.display_name)
-    print(" description:", create_endpoint_response.description)
-    print(" labels:", create_endpoint_response.labels)
+    create_endpoint_response = response.result(timeout=timeout)
+    print("create_endpoint_response:", create_endpoint_response)
 
 
 # [END aiplatform_create_endpoint_sample]

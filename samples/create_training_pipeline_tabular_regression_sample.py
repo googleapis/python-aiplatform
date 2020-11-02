@@ -19,20 +19,17 @@ from google.protobuf.struct_pb2 import Value
 
 
 def create_training_pipeline_tabular_regression_sample(
+    project: str,
     display_name: str,
     dataset_id: str,
     model_display_name: str,
     target_column: str,
-    project: str,
+    location: str = "us-central1",
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
-    location = "us-central1"
-    parent = "projects/{project}/locations/{location}".format(
-        project=project, location=location
-    )
     # set the columns used for training and their data types
     transformations = [
         {"auto": {"column_name": "STRING_5000unique_NULLABLE"}},
@@ -81,7 +78,7 @@ def create_training_pipeline_tabular_regression_sample(
 
     training_pipeline = {
         "display_name": display_name,
-        "training_task_definition": "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_tables_1.0.0.yaml",
+        "training_task_definition": "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_tabular_1.0.0.yaml",
         "training_task_inputs": training_task_inputs,
         "input_data_config": {
             "dataset_id": dataset_id,
@@ -93,28 +90,11 @@ def create_training_pipeline_tabular_regression_sample(
         },
         "model_to_upload": {"display_name": model_display_name},
     }
+    parent = f"projects/{project}/locations/{location}"
     response = client.create_training_pipeline(
         parent=parent, training_pipeline=training_pipeline
     )
-    print("response")
-    print(" name:", response.name)
-    print(" display_name:", response.display_name)
-    print(" training_task_definition:", response.training_task_definition)
-    print(
-        " training_task_inputs:",
-        json_format.MessageToDict(response._pb.training_task_inputs),
-    )
-    print(
-        " training_task_metadata:",
-        json_format.MessageToDict(response._pb.training_task_metadata),
-    )
-    print(" state:", response.state)
-    print(" start_time:", response.start_time)
-    print(" end_time:", response.end_time)
-    print(" labels:", response.labels)
-    input_data_config = response.input_data_config
-    model_to_upload = response.model_to_upload
-    error = response.error
+    print("response:", response)
 
 
 # [END aiplatform_create_training_pipeline_tabular_regression_sample]

@@ -16,11 +16,15 @@ from uuid import uuid4
 import pytest
 import os
 
+import helpers
+
 from samples import (
     create_training_pipeline_image_classification_sample,
     cancel_training_pipeline_sample,
     delete_training_pipeline_sample,
 )
+
+from google.cloud import aiplatform
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 DATASET_ID = "1084241610289446912"  # Permanent 50 Flowers Dataset
@@ -44,6 +48,16 @@ def teardown(shared_state):
         project=PROJECT_ID, training_pipeline_id=training_pipeline_id
     )
 
+    pipeline_client = aiplatform.gapic.PipelineServiceClient(
+        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    )
+
+    # Waiting for training pipeline to be in CANCELLED state
+    helpers.wait_for_job_state(
+        get_job_method=pipeline_client.get_training_pipeline,
+        name=shared_state["training_pipeline_name"],
+    )
+
     # Delete the training pipeline
     delete_training_pipeline_sample.delete_training_pipeline_sample(
         project=PROJECT_ID, training_pipeline_id=training_pipeline_id
@@ -64,4 +78,4 @@ def test_ucaip_generated_create_training_pipeline_video_classification_sample(
     out, _ = capsys.readouterr()
 
     # Save resource name of the newly created training pipeline
-    shared_state["training_pipeline_name"] = out.split("name:")[1].split("\n")[0]
+    shared_state["training_pipeline_name"] = helpers.get_name(out)

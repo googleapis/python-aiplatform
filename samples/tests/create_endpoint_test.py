@@ -1,4 +1,3 @@
-# Generated code sample for google.cloud.aiplatform.EndpointServiceClient.create_endpoint
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +16,8 @@ import pytest
 import os
 from uuid import uuid4
 
+import helpers
+
 from samples import create_endpoint_sample, delete_endpoint_sample
 
 DISPLAY_NAME = f"temp_create_endpoint_test_{uuid4()}"
@@ -33,9 +34,11 @@ def shared_state():
 def teardown(shared_state):
     yield
 
+    endpoint_id = shared_state["endpoint_name"].split("/")[-1]
+
     # Delete the endpoint that was just created
     delete_endpoint_sample.delete_endpoint_sample(
-        project=PROJECT, endpoint_id=shared_state["endpoint_id"]
+        project=PROJECT, endpoint_id=endpoint_id
     )
 
 
@@ -48,4 +51,4 @@ def test_ucaip_generated_create_endpoint_sample(capsys, shared_state):
     out, _ = capsys.readouterr()
     assert "create_endpoint_response" in out
 
-    shared_state["endpoint_id"] = out.split("name:")[1].split("\n")[0].split("/")[-1]
+    shared_state["endpoint_name"] = helpers.get_name(out)
