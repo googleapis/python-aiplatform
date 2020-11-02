@@ -48,6 +48,8 @@ def training_pipeline_id(capsys):
 
     training_pipeline_name = helpers.get_name(out)
 
+    assert "/" in training_pipeline_name
+
     training_pipeline_id = training_pipeline_name.split("/")[-1]
 
     yield training_pipeline_id
