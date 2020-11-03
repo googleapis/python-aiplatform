@@ -98,9 +98,9 @@ def extract_fields_from_resource_name(
     return fields
 
 
-def full_name(
+def full_resource_name(
     resource_name: str,
-    resource_noun: Optional[str] = None,
+    resource_noun: str,
     project: Optional[str] = None,
     location: Optional[str] = None,
 ) -> str:
@@ -109,8 +109,8 @@ def full_name(
 
     Args:
         resource_name (str):
-            Required. A partial or fully-qualified AI Platform (Unified)
-            resource name.
+            Required. A fully-qualified AI Platform (Unified) resource name or 
+            resource ID.
         resource_noun (str):
             A plural resource noun to validate the resource name against.
             For example, you would pass "datasets" to validate
@@ -125,6 +125,10 @@ def full_name(
     Returns:
         resource_name (str):
             A fully-qualified AI Platform (Unified) resource name.
+
+    Raises:
+        ValueError:
+            If resource name, resource ID or project ID not provided.
     """
     # Fully qualified resource name, i.e. "projects/.../locations/.../datasets/12345"
     valid_name = extract_fields_from_resource_name(
@@ -133,13 +137,14 @@ def full_name(
 
     user_project = project or initializer.global_config.project
     user_location = location or initializer.global_config.location
+
     # Partial resource name (i.e. "12345") with known project and location
-    if not valid_name and validate_id(resource_name) and user_project and user_location:
+    if not valid_name and validate_id(resource_name) and user_project and validate_region(user_location):
         resource_name = f"projects/{user_project}/locations/{user_location}/{resource_noun}/{resource_name}"
     # Project not specified
     elif not user_project:
         raise ValueError("Please provide a project ID")
-    # Invalid resource_noun parameter
+    # Invalid resource_name parameter
     elif not valid_name:
         error_message = f"Please provide a valid {resource_noun[:-1]} name or ID"
         raise ValueError(error_message)

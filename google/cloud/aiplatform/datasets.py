@@ -22,7 +22,7 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.utils import full_name
+from google.cloud.aiplatform.utils import full_resource_name
 
 from google.cloud.aiplatform_v1beta1 import GcsSource
 from google.cloud.aiplatform_v1beta1 import GcsDestination
@@ -64,7 +64,7 @@ class Dataset(base.AiPlatformResourceNoun):
                 credentials set in aiplatform.init.
         """
 
-        dataset_name = full_name(
+        dataset_name = full_resource_name(
             resource_name=dataset_name,
             resource_noun="datasets",
             project=project,
