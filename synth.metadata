@@ -4,14 +4,14 @@
       "git": {
         "name": ".",
         "remote": "https://github.com/dizcology/python-aiplatform.git",
-        "sha": "b428c3bd3c19861cb431595f71aa43123e0dd1af"
+        "sha": "60263c04ffd04dabd7cc95c138b9f1c87566208c"
       }
     },
     {
       "git": {
         "name": "synthtool",
         "remote": "https://github.com/googleapis/synthtool.git",
-        "sha": "f68649c5f26bcff6817c6d21e90dac0fc71fef8e"
+        "sha": "ba9918cd22874245b55734f57470c719b577e591"
       }
     }
   ],

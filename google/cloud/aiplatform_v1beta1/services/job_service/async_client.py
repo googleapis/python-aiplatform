@@ -42,6 +42,7 @@ from google.cloud.aiplatform_v1beta1.types import data_labeling_job
 from google.cloud.aiplatform_v1beta1.types import (
     data_labeling_job as gca_data_labeling_job,
 )
+from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import hyperparameter_tuning_job
 from google.cloud.aiplatform_v1beta1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,

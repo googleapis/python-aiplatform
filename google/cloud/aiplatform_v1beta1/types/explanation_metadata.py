@@ -47,7 +47,7 @@ class ExplanationMetadata(proto.Message):
             be keyed by this key (if not grouped with another feature).
 
             For custom images, the key must match with the key in
-            ``instance``[].
+            ``instance``.
         outputs (Sequence[~.explanation_metadata.ExplanationMetadata.OutputsEntry]):
             Required. Map from output names to output
             metadata.
@@ -183,10 +183,10 @@ class ExplanationMetadata(proto.Message):
             (with mean = 0 and stddev = 1) was obtained.
 
             Attributes:
-                min_ (float):
+                min_value (float):
                     The minimum permissible value for this
                     feature.
-                max_ (float):
+                max_value (float):
                     The maximum permissible value for this
                     feature.
                 original_mean (float):
@@ -199,9 +199,9 @@ class ExplanationMetadata(proto.Message):
                     deviation of the domain prior to normalization.
             """
 
-            min_ = proto.Field(proto.FLOAT, number=1)
+            min_value = proto.Field(proto.FLOAT, number=1)
 
-            max_ = proto.Field(proto.FLOAT, number=2)
+            max_value = proto.Field(proto.FLOAT, number=2)
 
             original_mean = proto.Field(proto.FLOAT, number=3)
 

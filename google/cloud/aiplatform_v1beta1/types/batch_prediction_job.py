@@ -21,6 +21,7 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import (
     completion_stats as gca_completion_stats,
 )
+from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import machine_resources
@@ -114,6 +115,25 @@ class BatchPredictionJob(proto.Message):
                object.
             -  ``csv``: Generating explanations for CSV format is not
                supported.
+        explanation_spec (~.explanation.ExplanationSpec):
+            Explanation configuration for this BatchPredictionJob. Can
+            only be specified if
+            ``generate_explanation``
+            is set to ``true``. It's invalid to specified it with
+            generate_explanation set to false or unset.
+
+            This value overrides the value of
+            ``Model.explanation_spec``.
+            All fields of
+            ``explanation_spec``
+            are optional in the request. If a field of
+            ``explanation_spec``
+            is not populated, the value of the same field of
+            ``Model.explanation_spec``
+            is inherited. The corresponding
+            ``Model.explanation_spec``
+            must be populated, otherwise explanation for this Model is
+            not allowed.
         output_info (~.batch_prediction_job.BatchPredictionJob.OutputInfo):
             Output only. Information further describing
             the output of this job.
@@ -325,6 +345,10 @@ class BatchPredictionJob(proto.Message):
     )
 
     generate_explanation = proto.Field(proto.BOOL, number=23)
+
+    explanation_spec = proto.Field(
+        proto.MESSAGE, number=25, message=explanation.ExplanationSpec,
+    )
 
     output_info = proto.Field(proto.MESSAGE, number=9, message=OutputInfo,)
 

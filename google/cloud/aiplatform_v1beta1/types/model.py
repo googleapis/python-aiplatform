@@ -70,7 +70,7 @@ class Model(proto.Message):
         supported_export_formats (Sequence[~.model.Model.ExportFormat]):
             Output only. The formats in which this Model
             may be exported. If empty, this Model is not
-            avaiable for export.
+            available for export.
         training_pipeline (str):
             Output only. The resource name of the
             TrainingPipeline that uploaded this Model, if
@@ -390,20 +390,18 @@ class PredictSchemata(proto.Message):
 
 class ModelContainerSpec(proto.Message):
     r"""Specification of a container for serving predictions. This message
-    is a subset of the [Kubernetes Container v1 core
-
-    specification](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core).
+    is a subset of the Kubernetes Container v1 core
+    `specification <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
 
     Attributes:
         image_uri (str):
             Required. Immutable. URI of the Docker image to be used as
             the custom container for serving predictions. This URI must
             identify an image in Artifact Registry or Container
-            Registry. Learn more about the [container publishing
-
-            requirements](https://cloud.google.com/ai-platform-unified/docs/predictions/custom-container-requirements#publishing),
-            including permissions requirements for the AI Platform
-            Service Agent.
+            Registry. Learn more about the container publishing
+            requirements, including permissions requirements for the AI
+            Platform Service Agent,
+            `here <https://tinyurl.com/cust-cont-reqs#publishing>`__.
 
             The container image is ingested upon
             ``ModelService.UploadModel``,
@@ -411,14 +409,12 @@ class ModelContainerSpec(proto.Message):
             used.
 
             To learn about the requirements for the Docker image itself,
-            read [Custom container
-
-            requirements](https://cloud.google.com/ai-platform-unified/docs/predictions/custom-container-requirements).
+            see `Custom container
+            requirements <https://tinyurl.com/cust-cont-reqs>`__.
         command (Sequence[str]):
             Immutable. Specifies the command that runs when the
             container starts. This overrides the container's
-
-            [``ENTRYPOINT``](https://docs.docker.com/engine/reference/builder/#entrypoint).
+            `ENTRYPOINT <https://docs.docker.com/engine/reference/builder/#entrypoint>`__.
             Specify this field as an array of executable and arguments,
             similar to a Docker ``ENTRYPOINT``'s "exec" form, not its
             "shell" form.
@@ -430,23 +426,20 @@ class ModelContainerSpec(proto.Message):
             ```CMD`` <https://docs.docker.com/engine/reference/builder/#cmd>`__,
             if either exists. If this field is not specified and the
             container does not have an ``ENTRYPOINT``, then refer to the
-            [Docker documentation about how ``CMD`` and ``ENTRYPOINT``
-
-            interact](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact).
+            Docker documentation about how ``CMD`` and ``ENTRYPOINT``
+            `interact <https://tinyurl.com/h3kdcgs>`__.
 
             If you specify this field, then you can also specify the
             ``args`` field to provide additional arguments for this
             command. However, if you specify this field, then the
-            container's ``CMD`` is ignored. See the [Kubernetes
-            documentation about how the ``command`` and ``args`` fields
-            interact with a container's ``ENTRYPOINT`` and
+            container's ``CMD`` is ignored. See the `Kubernetes
+            documentation <https://tinyurl.com/y8bvllf4>`__ about how
+            the ``command`` and ``args`` fields interact with a
+            container's ``ENTRYPOINT`` and ``CMD``.
 
-            ``CMD``](https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes).
-
-            In this field, you can reference [environment variables set
+            In this field, you can reference environment variables `set
             by AI
-
-            Platform](https://cloud.google.com/ai-platform-unified/docs/predictions/custom-container-requirements#aip-variables)
+            Platform <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
             and environment variables set in the
             ``env``
             field. You cannot reference environment variables set in the
@@ -457,10 +450,9 @@ class ModelContainerSpec(proto.Message):
             cannot be resolved, the reference in the input string is
             used unchanged. To avoid variable expansion, you can escape
             this syntax with ``$$``; for example: $$(VARIABLE_NAME) This
-            field corresponds to the ``command`` field of the
-            [Kubernetes Containers v1 core
-
-            API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core).
+            field corresponds to the ``command`` field of the Kubernetes
+            Containers `v1 core
+            API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
         args (Sequence[str]):
             Immutable. Specifies arguments for the command that runs
             when the container starts. This overrides the container's
@@ -471,25 +463,21 @@ class ModelContainerSpec(proto.Message):
             If you don't specify this field but do specify the
             ``command``
             field, then the command from the ``command`` field runs
-            without any additional arguments. See the [Kubernetes
-            documentation about how the ``command`` and ``args`` fields
-            interact with a container's ``ENTRYPOINT`` and
-
-            ``CMD``](https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes).
+            without any additional arguments. See the `Kubernetes
+            documentation <https://tinyurl.com/y8bvllf4>`__ about how
+            the ``command`` and ``args`` fields interact with a
+            container's ``ENTRYPOINT`` and ``CMD``.
 
             If you don't specify this field and don't specify the
             ``command`` field, then the container's
             ```ENTRYPOINT`` <https://docs.docker.com/engine/reference/builder/#cmd>`__
             and ``CMD`` determine what runs based on their default
-            behavior. See the [Docker documentation about how ``CMD``
-            and ``ENTRYPOINT``
+            behavior. See the Docker documentation about how ``CMD`` and
+            ``ENTRYPOINT`` `interact <https://tinyurl.com/h3kdcgs>`__.
 
-            interact](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact).
-
-            In this field, you can reference [environment variables set
+            In this field, you can reference environment variables `set
             by AI
-
-            Platform](https://cloud.google.com/ai-platform-unified/docs/predictions/custom-container-requirements#aip-variables)
+            Platform <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
             and environment variables set in the
             ``env``
             field. You cannot reference environment variables set in the
@@ -500,10 +488,9 @@ class ModelContainerSpec(proto.Message):
             cannot be resolved, the reference in the input string is
             used unchanged. To avoid variable expansion, you can escape
             this syntax with ``$$``; for example: $$(VARIABLE_NAME) This
-            field corresponds to the ``args`` field of the [Kubernetes
-            Containers v1 core
-
-            API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core).
+            field corresponds to the ``args`` field of the Kubernetes
+            Containers `v1 core
+            API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
         env (Sequence[~.env_var.EnvVar]):
             Immutable. List of environment variables to set in the
             container. After the container starts running, code running
@@ -535,16 +522,14 @@ class ModelContainerSpec(proto.Message):
             then the expansion does not occur.
 
             This field corresponds to the ``env`` field of the
-            [Kubernetes Containers v1 core
-
-            API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core).
+            Kubernetes Containers `v1 core
+            API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
         ports (Sequence[~.model.Port]):
             Immutable. List of ports to expose from the container. AI
             Platform sends any prediction requests that it receives to
             the first port on this list. AI Platform also sends
-            [liveness and health
-
-            checks](https://cloud.google.com/ai-platform-unified/docs/predictions/custom-container-requirements#health) to
+            `liveness and health
+            checks <https://tinyurl.com/cust-cont-reqs#health>`__ to
             this port.
 
             If you do not specify this field, it defaults to following
@@ -560,9 +545,8 @@ class ModelContainerSpec(proto.Message):
 
             AI Platform does not use ports other than the first one
             listed. This field corresponds to the ``ports`` field of the
-            [Kubernetes Containers v1 core
-
-            API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core).
+            Kubernetes Containers `v1 core
+            API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
         predict_route (str):
             Immutable. HTTP path on the container to send prediction
             requests to. AI Platform forwards requests sent using
@@ -589,24 +573,21 @@ class ModelContainerSpec(proto.Message):
                the Endpoint.name][] field of the Endpoint where this
                Model has been deployed. (AI Platform makes this value
                available to your container code as the
-               [``AIP_ENDPOINT_ID`` environment
-
-            variable](https://cloud.google.com/ai-platform-unified/docs/predictions/custom-container-requirements#aip-variables).)
+               ```AIP_ENDPOINT_ID`` <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
+               environment variable.)
 
             -  DEPLOYED_MODEL:
                ``DeployedModel.id``
                of the ``DeployedModel``. (AI Platform makes this value
                available to your container code as the
-               [``AIP_DEPLOYED_MODEL_ID`` environment
-
-            variable](https://cloud.google.com/ai-platform-unified/docs/predictions/custom-container-requirements#aip-variables).)
+               ```AIP_DEPLOYED_MODEL_ID`` environment
+               variable <https://tinyurl.com/cust-cont-reqs#aip-variables>`__.)
         health_route (str):
             Immutable. HTTP path on the container to send health checkss
             to. AI Platform intermittently sends GET requests to this
             path on the container's IP address and port to check that
-            the container is healthy. Read more about [health
-
-            checks](https://cloud.google.com/ai-platform-unified/docs/predictions/custom-container-requirements#checks).
+            the container is healthy. Read more about `health
+            checks <https://tinyurl.com/cust-cont-reqs#checks>`__.
 
             For example, if you set this field to ``/bar``, then AI
             Platform intermittently sends a GET request to the following
@@ -625,17 +606,15 @@ class ModelContainerSpec(proto.Message):
                the Endpoint.name][] field of the Endpoint where this
                Model has been deployed. (AI Platform makes this value
                available to your container code as the
-               [``AIP_ENDPOINT_ID`` environment
-
-            variable](https://cloud.google.com/ai-platform-unified/docs/predictions/custom-container-requirements#aip-variables).)
+               ```AIP_ENDPOINT_ID`` <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
+               environment variable.)
 
             -  DEPLOYED_MODEL:
                ``DeployedModel.id``
                of the ``DeployedModel``. (AI Platform makes this value
                available to your container code as the
-               [``AIP_DEPLOYED_MODEL_ID`` environment
-
-            variable](https://cloud.google.com/ai-platform-unified/docs/predictions/custom-container-requirements#aip-variables).)
+               ```AIP_DEPLOYED_MODEL_ID`` <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
+               environment variable.)
     """
 
     image_uri = proto.Field(proto.STRING, number=1)
