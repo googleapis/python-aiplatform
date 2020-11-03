@@ -357,3 +357,16 @@ class TestModel:
             api_client_mock.get_model.assert_called_once_with(
                 name=test_model_resource_name
             )
+
+    def test_deploy():
+
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        with mock.patch.object(
+            initializer.global_config, "create_client"
+        ) as create_client_mock:
+            api_client_mock = mock.Mock(spec=ModelServiceClient)
+            create_client_mock.return_value = api_client_mock
+
+            test_model = models.Model(_TEST_MODEL_NAME)
+
+        test_model.deploy()

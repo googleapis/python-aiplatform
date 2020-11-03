@@ -17,7 +17,6 @@
 
 from typing import Dict, Optional, Sequence
 
-from google.api_core import retry
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import lro
@@ -295,14 +294,6 @@ class Model(base.AiPlatformResourceNoun):
             display_name = self.display_name + "_endpoint"
             endpoint = Endpoint.create(display_name=display_name)
 
-            # TODO(b/171631203) queue deploy instead of block
-            @retry.Retry(deadline=timeout)
-            def endpoint_exist():
-                if endpoint._gca_resource is None:
-                    raise Exception("Endpoint not yet created.")
-
-            endpoint_exist()
-
         endpoint.deploy(
             self,
             deployed_model_display_name=deployed_model_display_name,
@@ -434,12 +425,6 @@ class Endpoint(base.AiPlatformResourceNoun):
             location=location, credentials=credentials
         )
 
-        client_class = PredictionServiceClient
-        _is_client_prediction_client = True
-        prediction_client = cls._instantiate_client(
-            location=location, credentials=credentials
-        )
-
         create_endpoint_operation = cls._create(
             endpoint_client=endpoint_client,
             parent=initializer.global_config.common_location_path(
@@ -460,7 +445,8 @@ class Endpoint(base.AiPlatformResourceNoun):
             credentials=credentials,
         )
 
-        create_endpoint_operation.add_update_resource_callback(
+        endpoint_client.update_resource(
+            operation_future=create_endpoint_operation,
             resource_noun_obj=endpoint,
             result_key="name",
             api_get=lambda name: endpoint_client.get_endpoint(name=name),
