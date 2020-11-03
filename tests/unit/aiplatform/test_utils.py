@@ -181,7 +181,7 @@ def test_full_resource_name_with_partial_name(
 
 @pytest.mark.parametrize(
     "partial_name, resource_noun, project, location",
-    [("347292", "trainingPipelines", "857392", "us-west2020"),],
+    [("347292", "trainingPipelines", "857392", "us-west2020"), ],
 )
 def test_full_resource_name_raises_value_error(
     partial_name: str, resource_noun: str, project: str, location: str,
