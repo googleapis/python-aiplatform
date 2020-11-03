@@ -480,6 +480,7 @@ def test_predict(
         assert args[0] == prediction_service.PredictRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, prediction_service.PredictResponse)
 
     assert response.deployed_model_id == "deployed_model_id_value"
@@ -490,14 +491,16 @@ def test_predict_from_dict():
 
 
 @pytest.mark.asyncio
-async def test_predict_async(transport: str = "grpc_asyncio"):
+async def test_predict_async(
+    transport: str = "grpc_asyncio", request_type=prediction_service.PredictRequest
+):
     client = PredictionServiceAsyncClient(
         credentials=credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = prediction_service.PredictRequest()
+    request = request_type()
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.predict), "__call__") as call:
@@ -514,12 +517,17 @@ async def test_predict_async(transport: str = "grpc_asyncio"):
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
 
-        assert args[0] == request
+        assert args[0] == prediction_service.PredictRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.PredictResponse)
 
     assert response.deployed_model_id == "deployed_model_id_value"
+
+
+@pytest.mark.asyncio
+async def test_predict_async_from_dict():
+    await test_predict_async(request_type=dict)
 
 
 def test_predict_field_headers():
@@ -603,7 +611,9 @@ def test_predict_flattened():
         ]
 
         # https://github.com/googleapis/gapic-generator-python/issues/414
-        # assert args[0].parameters == struct.Value(null_value=struct.NullValue.NULL_VALUE)
+        # assert args[0].parameters == struct.Value(
+        #     null_value=struct.NullValue.NULL_VALUE
+        # )
 
 
 def test_predict_flattened_error():
@@ -702,6 +712,7 @@ def test_explain(
         assert args[0] == prediction_service.ExplainRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, prediction_service.ExplainResponse)
 
     assert response.deployed_model_id == "deployed_model_id_value"
@@ -712,14 +723,16 @@ def test_explain_from_dict():
 
 
 @pytest.mark.asyncio
-async def test_explain_async(transport: str = "grpc_asyncio"):
+async def test_explain_async(
+    transport: str = "grpc_asyncio", request_type=prediction_service.ExplainRequest
+):
     client = PredictionServiceAsyncClient(
         credentials=credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = prediction_service.ExplainRequest()
+    request = request_type()
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.explain), "__call__") as call:
@@ -736,12 +749,17 @@ async def test_explain_async(transport: str = "grpc_asyncio"):
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
 
-        assert args[0] == request
+        assert args[0] == prediction_service.ExplainRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, prediction_service.ExplainResponse)
 
     assert response.deployed_model_id == "deployed_model_id_value"
+
+
+@pytest.mark.asyncio
+async def test_explain_async_from_dict():
+    await test_explain_async(request_type=dict)
 
 
 def test_explain_field_headers():
@@ -826,7 +844,9 @@ def test_explain_flattened():
         ]
 
         # https://github.com/googleapis/gapic-generator-python/issues/414
-        # assert args[0].parameters == struct.Value(null_value=struct.NullValue.NULL_VALUE)
+        # assert args[0].parameters == struct.Value(
+        #     null_value=struct.NullValue.NULL_VALUE
+        # )
 
         assert args[0].deployed_model_id == "deployed_model_id_value"
 
@@ -1094,6 +1114,7 @@ def test_prediction_service_grpc_transport_channel():
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
+    assert transport._ssl_channel_credentials == None
 
 
 def test_prediction_service_grpc_asyncio_transport_channel():
@@ -1105,6 +1126,7 @@ def test_prediction_service_grpc_asyncio_transport_channel():
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
+    assert transport._ssl_channel_credentials == None
 
 
 @pytest.mark.parametrize(
@@ -1152,6 +1174,7 @@ def test_prediction_service_transport_channel_mtls_with_client_cert_source(
                 quota_project_id=None,
             )
             assert transport.grpc_channel == mock_grpc_channel
+            assert transport._ssl_channel_credentials == mock_ssl_cred
 
 
 @pytest.mark.parametrize(
