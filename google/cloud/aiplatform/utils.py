@@ -109,7 +109,7 @@ def full_resource_name(
 
     Args:
         resource_name (str):
-            Required. A fully-qualified AI Platform (Unified) resource name or 
+            Required. A fully-qualified AI Platform (Unified) resource name or
             resource ID.
         resource_noun (str):
             A plural resource noun to validate the resource name against.
@@ -130,6 +130,7 @@ def full_resource_name(
         ValueError:
             If resource name, resource ID or project ID not provided.
     """
+    validate_resource_noun(resource_noun)
     # Fully qualified resource name, i.e. "projects/.../locations/.../datasets/12345"
     valid_name = extract_fields_from_resource_name(
         resource_name=resource_name, resource_noun=resource_noun
@@ -143,7 +144,6 @@ def full_resource_name(
         not valid_name
         and validate_project(user_project)
         and validate_region(user_location)
-        and validate_resource_noun(resource_noun)
         and validate_id(resource_name)
     ):
         resource_name = f"projects/{user_project}/locations/{user_location}/{resource_noun}/{resource_name}"

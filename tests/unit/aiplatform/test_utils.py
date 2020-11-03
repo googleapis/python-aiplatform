@@ -118,13 +118,13 @@ def test_invalid_region_does_not_raise_with_valid_region():
     "resource_noun, project, location, full_name",
     [
         (
-            "incorectResourceNoun",
+            "datasets",
             "123456",
             "us-central1",
             "projects/123456/locations/us-central1/datasets/987654",
         ),
         (
-            "datasets",
+            "trainingPipelines",
             "857392",
             "us-west20",
             "projects/857392/locations/us-central1/trainingPipelines/347292",
@@ -181,11 +181,7 @@ def test_full_resource_name_with_partial_name(
 
 @pytest.mark.parametrize(
     "partial_name, resource_noun, project, location",
-    [
-        ("987654", "datasets", "123456", None,),
-        ("347292", "trainingPipelines", "857392", "us-west2020",),
-        ("987654", "datasets", None, "us-central1",),
-    ],
+    [("347292", "trainingPipelines", "857392", "us-west2020"),],
 )
 def test_full_resource_name_raises_value_error(
     partial_name: str, resource_noun: str, project: str, location: str,
