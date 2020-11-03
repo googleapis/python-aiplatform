@@ -139,17 +139,51 @@ def full_resource_name(
     user_location = location or initializer.global_config.location
 
     # Partial resource name (i.e. "12345") with known project and location
-    if not valid_name and validate_id(resource_name) and user_project and validate_region(user_location):
+    if (
+        not valid_name
+        and validate_project(user_project)
+        and validate_region(user_location)
+        and validate_resource_noun(resource_noun)
+        and validate_id(resource_name)
+    ):
         resource_name = f"projects/{user_project}/locations/{user_location}/{resource_noun}/{resource_name}"
-    # Project not specified
-    elif not user_project:
-        raise ValueError("Please provide a project ID")
     # Invalid resource_name parameter
     elif not valid_name:
-        error_message = f"Please provide a valid {resource_noun[:-1]} name or ID"
-        raise ValueError(error_message)
+        raise ValueError(f"Please provide a valid {resource_noun[:-1]} name or ID")
 
     return resource_name
+
+
+# TODO(b/172286889) validate resource noun
+def validate_resource_noun(resource_noun: str) -> bool:
+    """Validates resource noun.
+
+    Args:
+        resource_noun: resource noun to validate
+    Returns:
+        bool: True if no errors raised
+    Raises:
+        ValueError: If resource noun not supported.
+    """
+    if resource_noun:
+        return True
+    raise ValueError("Please provide a valid resource noun")
+
+
+# TODO(b/172288287) validate project
+def validate_project(project: str) -> bool:
+    """Validates project.
+
+    Args:
+        project: project to validate
+    Returns:
+        bool: True if no errors raised
+    Raises:
+        ValueError: If project does not exist.
+    """
+    if project:
+        return True
+    raise ValueError("Please provide a valid project ID")
 
 
 def validate_region(region: str):
@@ -157,11 +191,18 @@ def validate_region(region: str):
 
     Args:
         region: region to validate
+    Returns:
+        bool: True if no errors raised
     Raises:
-        ValueError if region is not in supported regions.
+        ValueError: If region is not in supported regions.
     """
+    if not region:
+        raise ValueError(f"Please provide a region, select from {SUPPORTED_REGIONS}")
+
     region = region.lower()
     if region not in SUPPORTED_REGIONS:
         raise ValueError(
             f"Unsupported region for AI Platform, select from {SUPPORTED_REGIONS}"
         )
+
+    return True

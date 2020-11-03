@@ -115,14 +115,35 @@ def test_invalid_region_does_not_raise_with_valid_region():
 
 
 @pytest.mark.parametrize(
-    "resource_name",
+    "resource_noun, project, location, full_name",
     [
-        ("projects/123456/locations/us-central1/datasets/987654"),
-        ("projects/857392/locations/us-central1/trainingPipelines/347292"),
+        (
+            "incorectResourceNoun",
+            "123456",
+            "us-central1",
+            "projects/123456/locations/us-central1/datasets/987654",
+        ),
+        (
+            "datasets",
+            "857392",
+            "us-west20",
+            "projects/857392/locations/us-central1/trainingPipelines/347292",
+        ),
     ],
 )
-def test_full_resource_name_with_full_name(resource_name: str):
-    assert aiplatform.utils.full_resource_name(resource_name=resource_name) == resource_name
+def test_full_resource_name_with_full_name(
+    resource_noun: str, project: str, location: str, full_name: str,
+):
+    # should ignore issues with other arguments as resource_name is full_name
+    assert (
+        aiplatform.utils.full_resource_name(
+            resource_name=full_name,
+            resource_noun=resource_noun,
+            project=project,
+            location=location,
+        )
+        == full_name
+    )
 
 
 @pytest.mark.parametrize(
@@ -161,22 +182,12 @@ def test_full_resource_name_with_partial_name(
 @pytest.mark.parametrize(
     "partial_name, resource_noun, project, location",
     [
-        (
-            "987654",
-            "datasets",
-            "123456",
-            ,
-        ),
-        (
-            "347292",
-            "trainingPipelines",
-            "857392",
-            "us-west2020",
-            "projects/857392/locations/us-central1/trainingPipelines/347292",
-        ),
+        ("987654", "datasets", "123456", None,),
+        ("347292", "trainingPipelines", "857392", "us-west2020",),
+        ("987654", "datasets", None, "us-central1",),
     ],
 )
-def test_full_resource_name_with_invalid_location(
+def test_full_resource_name_raises_value_error(
     partial_name: str, resource_noun: str, project: str, location: str,
 ):
     with pytest.raises(ValueError):
