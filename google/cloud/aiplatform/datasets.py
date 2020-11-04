@@ -23,6 +23,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import full_resource_name
+from google.cloud.aiplatform import schema
 
 from google.cloud.aiplatform_v1beta1 import GcsSource
 from google.cloud.aiplatform_v1beta1 import GcsDestination
@@ -79,7 +80,8 @@ class Dataset(base.AiPlatformResourceNoun):
         cls,
         display_name: str,
         metadata_schema_uri: str,
-        source: Optional[Sequence[str]] = None,
+        gcs_source: Optional[Sequence[str]] = None,
+        bq_source: Optional[str] = None,
         import_schema_uri: Optional[str] = None,
         metadata: Sequence[Tuple[str, str]] = (),
         labels: Optional[Dict] = None,
@@ -102,11 +104,13 @@ class Dataset(base.AiPlatformResourceNoun):
                 is defined as an OpenAPI 3.0.2 Schema Object. The schema files
                 that can be used here are found in gs://google-cloud-
                 aiplatform/schema/dataset/metadata/.
-            source: Optional[Sequence[str]]=None:
+            gcs_source: Optional[Sequence[str]]=None:
                 Google Cloud Storage URI(-s) to the
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+            bq_source: Optional[str]=None:
+                BigQuery URI to the input table.
             import_schema_uri: Optional[str] = None
                 Points to a YAML file stored on Google Cloud
                 Storage describing the import format. Validation will be
@@ -158,12 +162,32 @@ class Dataset(base.AiPlatformResourceNoun):
         """
 
         # Validate that source and import schema are passed together or not at all
-        if bool(source) ^ bool(import_schema_uri):
+        if bool(gcs_source) ^ bool(import_schema_uri):
             raise ValueError(
-                "Please provide both source and import_schema_uri to import data or omit both."
+                "Please provide both GCS source and import_schema_uri to import data or omit both."
             )
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        # If this is tabular enrich the dataset metadata with source
+        # TODO: Use interfaces to abstract away gcs and bq specific logic
+        dataset_metadata = {}
+        is_tabular_dataset_metadata = (
+            metadata_schema_uri == schema.dataset.metadata.tabular
+        )
+        if is_tabular_dataset_metadata:
+            if gcs_source:
+                dataset_metadata = {"input_config": {"gcs_source": {"uri": gcs_source}}}
+            elif bq_source:
+                dataset_metadata = {
+                    "input_config": {"bigquery_source": {"uri": bq_source}}
+                }
+
+        # TODO: Remove this and let the error propagate from up from downstream?
+        if bool(bq_source) and not is_tabular_dataset_metadata:
+            raise ValueError(
+                "A tabular metadata_schema uri must be used when using a BigQuery source"
+            )
 
         create_dataset_lro = cls._create(
             display_name=display_name,
@@ -171,6 +195,7 @@ class Dataset(base.AiPlatformResourceNoun):
                 project=project, location=location
             ),
             metadata_schema_uri=metadata_schema_uri,
+            dataset_metadata=dataset_metadata,
             request_metadata=metadata,
             labels=labels,
             api_client=api_client,
@@ -185,15 +210,14 @@ class Dataset(base.AiPlatformResourceNoun):
             credentials=credentials,
         )
 
-        # If an import source was not provided, return empty created Dataset.
-        if not source:
+        if gcs_source and not is_tabular_dataset_metadata:
+            return dataset_obj.import_data(
+                gcs_source=gcs_source,
+                import_schema_uri=import_schema_uri,
+                data_items_labels=data_items_labels,
+            )
+        else:
             return dataset_obj
-
-        return dataset_obj.import_data(
-            gcs_source=source,
-            import_schema_uri=import_schema_uri,
-            data_items_labels=data_items_labels,
-        )
 
     @classmethod
     def _create(
@@ -202,6 +226,7 @@ class Dataset(base.AiPlatformResourceNoun):
         parent: str,
         display_name: str,
         metadata_schema_uri: str,
+        dataset_metadata: Dict,
         labels: Optional[Dict] = {},
         request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
@@ -225,6 +250,8 @@ class Dataset(base.AiPlatformResourceNoun):
                 is defined as an OpenAPI 3.0.2 Schema Object. The schema files
                 that can be used here are found in gs://google-cloud-
                 aiplatform/schema/dataset/metadata/.
+            dataset_metadata (dict):
+                Required. Additional information about the Dataset.
             labels: (Optional[Dict]) = None
                 The labels with user-defined metadata to organize your
                 Datasets.
@@ -248,6 +275,7 @@ class Dataset(base.AiPlatformResourceNoun):
         gapic_dataset = GapicDataset(
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
+            metadata=dataset_metadata,
             labels=labels,
         )
 
@@ -255,7 +283,7 @@ class Dataset(base.AiPlatformResourceNoun):
             parent=parent, dataset=gapic_dataset, metadata=request_metadata
         )
 
-    def _import(
+    def _import_gcs(
         self,
         source: Sequence[str],
         import_schema_uri: str,
@@ -294,7 +322,6 @@ class Dataset(base.AiPlatformResourceNoun):
             operation (Operation):
                 An object representing a long-running operation.
         """
-        # TODO(b/171311614): Add support for BiqQuery import source
         import_config = ImportDataConfig(
             gcs_source=GcsSource(uris=[source] if type(source) == str else source),
             import_schema_uri=import_schema_uri,
@@ -345,7 +372,7 @@ class Dataset(base.AiPlatformResourceNoun):
                 Instantiated representation of the managed dataset resource.
         """
 
-        import_lro = self._import(
+        import_lro = self._import_gcs(
             source=gcs_source,
             import_schema_uri=import_schema_uri,
             data_items_labels=data_items_labels,
