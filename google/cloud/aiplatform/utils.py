@@ -42,7 +42,7 @@ PROD_API_ENDPOINT = "aiplatform.googleapis.com"
 AiPlatformServiceClient = TypeVar(
     "AiPlatformServiceClient",
     dataset_client.DatasetServiceClient,
-    endpoint_client.EndpointServiceCleint,
+    endpoint_client.EndpointServiceClient,
     model_client.ModelServiceClient,
     prediction_client.PredictionServiceClient,
 )
