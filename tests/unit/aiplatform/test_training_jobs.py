@@ -727,7 +727,7 @@ class TestCustomTrainingJob:
         )
 
         with pytest.raises(RuntimeError):
-            model = job.get_model()
+            job.get_model()
 
     def test_run_raises_if_pipeline_fails(
         self,
@@ -759,7 +759,7 @@ class TestCustomTrainingJob:
             )
 
         with pytest.raises(RuntimeError):
-            model = job.get_model()
+            job.get_model()
 
     def test_raises_before_run_is_called(
         self, mock_pipeline_service_create, mock_python_package_to_gcs

@@ -35,11 +35,9 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1 import AcceleratorType
-from google.cloud.aiplatform_v1beta1 import CustomJobSpec
 from google.cloud.aiplatform_v1beta1 import FractionSplit
 from google.cloud.aiplatform_v1beta1 import GcsDestination
 from google.cloud.aiplatform_v1beta1 import InputDataConfig
-from google.cloud.aiplatform_v1beta1 import JobServiceClient
 from google.cloud.aiplatform_v1beta1 import Model
 from google.cloud.aiplatform_v1beta1 import ModelContainerSpec
 from google.cloud.aiplatform_v1beta1 import PipelineServiceClient
@@ -341,7 +339,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
     """Class to launch a Custom Training Job in AI Platform using a script.
 
     Takes a training implementation as a python script and executes that script
-    in Cloud AI Platform Training. 
+    in Cloud AI Platform Training.
     """
 
     client_class = PipelineServiceClient
@@ -377,15 +375,15 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
 
         ds = aiplatform.Dataset(
             'projects/my-project/locations/us-central1/datasets/12345')
-        
+
         job.run(ds, replica_count=1, model_display_name='my-trained-model')
 
         Usage without Dataset:
-        
+
         job.run(replica_count=1, model_display_name='my-trained-model)
 
 
-        TODO(b/169782082) add documentation about traning utilities        
+        TODO(b/169782082) add documentation about traning utilities
         To ensure your model gets saved in AI Platform, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
 
@@ -394,11 +392,11 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             display_name (str):
                 Required. The user-defined name of this TrainingPipeline.
             script_path (str): Required. Local path to training script.
-            container_uri (str): 
+            container_uri (str):
                 Required: Uri of the training container image in the GCR.
             requirements (Sequence[str]):
                 List of python packages dependencies of script.
-            project (str): 
+            project (str):
                 Optional project to retrieve model from. If not set, project set in
                 aiplatform.init will be used.
             location (str):
@@ -428,7 +426,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
                 credentials set in aiplatform.init.
             staging_bucket (str):
                 Bucket used to stage source and training artifacts. Overrides
-                staging_bucket set in aiplatform.init.  
+                staging_bucket set in aiplatform.init.
         """
         super().__init__(project=project, location=location, credentials=credentials)
         self._display_name = display_name
@@ -477,20 +475,20 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             dataset (aiplatform.Dataset):
                 AI Platform to fit this training against. Custom training script should
                 retrieve datasets through passed in environement variables uris:
-                
+
                 os.environ["AIP_TRAINING_DATA_URI"]
                 os.environ["AIP_VALIDATION_DATA_URI"]
                 os.environ["AIP_TEST_DATA_URI"]
 
                 Additionally the dataset format is passed in as:
-                
+
                 os.environ["AIP_DATA_FORMAT"]
             model_display_name (str):
                 If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             base_output_dir (str):
-                GCS output directory of job. If not provided a 
+                GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
             args (Dict[str, str]):
                 Key-value pair or command line arguments to be passed to the Python
@@ -572,10 +570,10 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
         ):
 
             raise RuntimeError(
-                """model_display_name was provided but 
+                """model_display_name was provided but
                 model_serving_container_image_uri,
                 model_serving_container_predict_route, and
-                model_serving_container_health_route were not provided when this 
+                model_serving_container_health_route were not provided when this
                 custom pipeline was constructed.
                 """
             )
@@ -764,7 +762,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
 
         Returns:
             model: AI Platform Model produced by this training or None if a model was
-                not produced by this training.  
+                not produced by this training.
         """
         self._assert_has_run()
         if not self._gca_resource.model_to_upload:
