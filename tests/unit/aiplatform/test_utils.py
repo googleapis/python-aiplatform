@@ -112,3 +112,84 @@ def test_invalid_region_raises_with_invalid_region():
 
 def test_invalid_region_does_not_raise_with_valid_region():
     aiplatform.utils.validate_region(region="us-central1")
+
+
+@pytest.mark.parametrize(
+    "resource_noun, project, location, full_name",
+    [
+        (
+            "datasets",
+            "123456",
+            "us-central1",
+            "projects/123456/locations/us-central1/datasets/987654",
+        ),
+        (
+            "trainingPipelines",
+            "857392",
+            "us-west20",
+            "projects/857392/locations/us-central1/trainingPipelines/347292",
+        ),
+    ],
+)
+def test_full_resource_name_with_full_name(
+    resource_noun: str, project: str, location: str, full_name: str,
+):
+    # should ignore issues with other arguments as resource_name is full_name
+    assert (
+        aiplatform.utils.full_resource_name(
+            resource_name=full_name,
+            resource_noun=resource_noun,
+            project=project,
+            location=location,
+        )
+        == full_name
+    )
+
+
+@pytest.mark.parametrize(
+    "partial_name, resource_noun, project, location, full_name",
+    [
+        (
+            "987654",
+            "datasets",
+            "123456",
+            "us-central1",
+            "projects/123456/locations/us-central1/datasets/987654",
+        ),
+        (
+            "347292",
+            "trainingPipelines",
+            "857392",
+            "us-central1",
+            "projects/857392/locations/us-central1/trainingPipelines/347292",
+        ),
+    ],
+)
+def test_full_resource_name_with_partial_name(
+    partial_name: str, resource_noun: str, project: str, location: str, full_name: str,
+):
+    assert (
+        aiplatform.utils.full_resource_name(
+            resource_name=partial_name,
+            resource_noun=resource_noun,
+            project=project,
+            location=location,
+        )
+        == full_name
+    )
+
+
+@pytest.mark.parametrize(
+    "partial_name, resource_noun, project, location",
+    [("347292", "trainingPipelines", "857392", "us-west2020")],
+)
+def test_full_resource_name_raises_value_error(
+    partial_name: str, resource_noun: str, project: str, location: str,
+):
+    with pytest.raises(ValueError):
+        aiplatform.utils.full_resource_name(
+            resource_name=partial_name,
+            resource_noun=resource_noun,
+            project=project,
+            location=location,
+        )
