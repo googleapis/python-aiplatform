@@ -15,4 +15,6 @@
 # limitations under the License.
 #
 
+from google.cloud.aiplatform import gapic
+
 __all__ = ()
