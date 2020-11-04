@@ -43,6 +43,7 @@ s.move(
         "setup.py",
         "README.rst",
         "docs/index.rst",
+        "scripts/fixup_aiplatform_v1beta1_keywords.py",
         "google/cloud/aiplatform/__init__.py",
         "tests/unit/gapic/aiplatform_v1beta1/test_prediction_service.py",
     ],
