@@ -15,21 +15,16 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform import gapic
-
-from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import schema
-from google.cloud.aiplatform.models import Model
-from google.cloud.aiplatform.datasets import Dataset
-from google.cloud.aiplatform.training_jobs import CustomTrainingJob
-
-"""
-Usage:
-from google.cloud import aiplatform
-
-aiplatform.init(project='my_project')
-"""
-init = initializer.global_config.init
+"""Namespaced AI Platform Schemas."""
 
 
-__all__ = ("gapic", "Model", "Dataset")
+class training_job:
+    class definition:
+        custom_task = "gs://google-cloud-aiplatform/schema/trainingjob/definition/custom_task_1.0.0.yaml"
+
+
+class dataset:
+    class metadata:
+        tabular = (
+            "gs://google-cloud-aiplatform/schema/dataset/metadata/tabular_1.0.0.yaml"
+        )

@@ -119,6 +119,7 @@ class TestDataset:
             yield export_data_mock
 
     def test_init_dataset(self, get_dataset_mock):
+        aiplatform.init(project=_TEST_PROJECT)
         Dataset(dataset_name=_TEST_NAME)
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
 
