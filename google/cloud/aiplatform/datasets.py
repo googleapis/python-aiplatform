@@ -22,8 +22,7 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.utils import validate_id
-from google.cloud.aiplatform.utils import extract_fields_from_resource_name
+from google.cloud.aiplatform.utils import full_resource_name
 
 from google.cloud.aiplatform_v1beta1 import GcsSource
 from google.cloud.aiplatform_v1beta1 import GcsDestination
@@ -65,27 +64,12 @@ class Dataset(base.AiPlatformResourceNoun):
                 credentials set in aiplatform.init.
         """
 
-        # Fully qualified dataset name, i.e. "projects/.../locations/.../datasets/12345"
-        valid_name = extract_fields_from_resource_name(
-            resource_name=dataset_name, resource_noun="datasets"
+        dataset_name = full_resource_name(
+            resource_name=dataset_name,
+            resource_noun="datasets",
+            project=project,
+            location=location,
         )
-
-        # Partial dataset name (i.e. "12345") with known project and location
-        if (
-            not valid_name
-            and validate_id(dataset_name)
-            and (project or initializer.global_config.project)
-            and (location or initializer.global_config.location)
-        ):
-            dataset_name = DatasetServiceClient.dataset_path(
-                project=project or initializer.global_config.project,
-                location=location or initializer.global_config.location,
-                dataset=dataset_name,
-            )
-
-        # Invalid dataset_name parameter
-        elif not valid_name:
-            raise ValueError("Please provide a valid dataset name or ID")
 
         super().__init__(project=project, location=location, credentials=credentials)
         self._gca_resource = self.api_client.get_dataset(name=dataset_name)
