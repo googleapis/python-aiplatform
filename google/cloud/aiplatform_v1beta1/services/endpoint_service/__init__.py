@@ -16,5 +16,9 @@
 #
 
 from .client import EndpointServiceClient
+from .async_client import EndpointServiceAsyncClient
 
-__all__ = ("EndpointServiceClient",)
+__all__ = (
+    "EndpointServiceClient",
+    "EndpointServiceAsyncClient",
+)

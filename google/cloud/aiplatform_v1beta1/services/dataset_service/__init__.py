@@ -16,5 +16,9 @@
 #
 
 from .client import DatasetServiceClient
+from .async_client import DatasetServiceAsyncClient
 
-__all__ = ("DatasetServiceClient",)
+__all__ = (
+    "DatasetServiceClient",
+    "DatasetServiceAsyncClient",
+)

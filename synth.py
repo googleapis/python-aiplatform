@@ -35,26 +35,23 @@ common = gcp.CommonTemplates()
 #     version="v1beta1",
 #     bazel_target="//google/cloud/aiplatform/v1beta1:aiplatform-v1beta1-py",
 # )
-library = gapic.py_library("aiplatform", "v1beta1", generator_version="0.20")
+library = gapic.py_library("aiplatform", "v1beta1")
 
 s.move(
     library,
     excludes=[
-        ".kokoro",
         "setup.py",
         "README.rst",
         "docs/index.rst",
+        "scripts/fixup_aiplatform_v1beta1_keywords.py",
         "google/cloud/aiplatform/__init__.py",
-        "tests/unit/aiplatform_v1beta1/test_prediction_service.py",
+        "tests/unit/gapic/aiplatform_v1beta1/test_prediction_service.py",
     ],
 )
 
 # ----------------------------------------------------------------------------
 # Patch the library
 # ----------------------------------------------------------------------------
-
-# https://github.com/googleapis/gapic-generator-python/issues/336
-s.replace("**/client.py", " operation.from_gapic", " ga_operation.from_gapic")
 
 s.replace(
     "**/client.py",
@@ -67,6 +64,13 @@ s.replace(
     "google/cloud/aiplatform_v1beta1/services/prediction_service/client.py",
     "request.instances = instances",
     "request.instances.extend(instances)",
+)
+
+# https://github.com/googleapis/gapic-generator-python/issues/672
+s.replace(
+    "google/cloud/aiplatform_v1beta1/services/endpoint_service/client.py",
+    "request.traffic_split.extend\(traffic_split\)",
+    "request.traffic_split = traffic_split",
 )
 
 # post processing to fix the generated reference doc
@@ -125,7 +129,11 @@ s.replace("google/cloud/**/*.py", "[\n]*\s*//\s*/", "/")
 
 templated_files = common.py_library(cov_level=99, microgenerator=True)
 s.move(
-    templated_files, excludes=[".coveragerc"]
+    templated_files,
+    excludes=[
+        ".coveragerc",
+        ".kokoro/samples/**"
+    ]
 )  # the microgenerator has a good coveragerc file
 
 # Don't treat docs warnings as errors

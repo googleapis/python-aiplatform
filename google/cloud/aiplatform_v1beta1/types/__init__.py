@@ -37,6 +37,7 @@ from .machine_resources import (
     AutomaticResources,
     BatchDedicatedResources,
     ResourcesConsumed,
+    DiskSpec,
 )
 from .deployed_model_ref import DeployedModelRef
 from .env_var import EnvVar
@@ -48,6 +49,10 @@ from .explanation import (
     ExplanationSpec,
     ExplanationParameters,
     SampledShapleyAttribution,
+    IntegratedGradientsAttribution,
+    XraiAttribution,
+    SmoothGradConfig,
+    FeatureNoiseSigma,
 )
 from .model import (
     Model,
@@ -64,6 +69,20 @@ from .training_pipeline import (
     TimestampSplit,
 )
 from .model_evaluation import ModelEvaluation
+from .migratable_resource import MigratableResource
+from .operation import (
+    GenericOperationMetadata,
+    DeleteOperationMetadata,
+)
+from .migration_service import (
+    SearchMigratableResourcesRequest,
+    SearchMigratableResourcesResponse,
+    BatchMigrateResourcesRequest,
+    MigrateResourceRequest,
+    BatchMigrateResourcesResponse,
+    MigrateResourceResponse,
+    BatchMigrateResourcesOperationMetadata,
+)
 from .batch_prediction_job import BatchPredictionJob
 from .custom_job import (
     CustomJob,
@@ -114,10 +133,6 @@ from .job_service import (
 )
 from .user_action_reference import UserActionReference
 from .annotation import Annotation
-from .operation import (
-    GenericOperationMetadata,
-    DeleteOperationMetadata,
-)
 from .endpoint import (
     Endpoint,
     DeployedModel,
@@ -221,6 +236,7 @@ __all__ = (
     "AutomaticResources",
     "BatchDedicatedResources",
     "ResourcesConsumed",
+    "DiskSpec",
     "DeployedModelRef",
     "EnvVar",
     "ExplanationMetadata",
@@ -230,6 +246,10 @@ __all__ = (
     "ExplanationSpec",
     "ExplanationParameters",
     "SampledShapleyAttribution",
+    "IntegratedGradientsAttribution",
+    "XraiAttribution",
+    "SmoothGradConfig",
+    "FeatureNoiseSigma",
     "Model",
     "PredictSchemata",
     "ModelContainerSpec",
@@ -241,6 +261,16 @@ __all__ = (
     "PredefinedSplit",
     "TimestampSplit",
     "ModelEvaluation",
+    "MigratableResource",
+    "GenericOperationMetadata",
+    "DeleteOperationMetadata",
+    "SearchMigratableResourcesRequest",
+    "SearchMigratableResourcesResponse",
+    "BatchMigrateResourcesRequest",
+    "MigrateResourceRequest",
+    "BatchMigrateResourcesResponse",
+    "MigrateResourceResponse",
+    "BatchMigrateResourcesOperationMetadata",
     "BatchPredictionJob",
     "CustomJob",
     "CustomJobSpec",
@@ -283,8 +313,6 @@ __all__ = (
     "CancelBatchPredictionJobRequest",
     "UserActionReference",
     "Annotation",
-    "GenericOperationMetadata",
-    "DeleteOperationMetadata",
     "Endpoint",
     "DeployedModel",
     "PredictRequest",

@@ -57,6 +57,7 @@ class CreateEndpointRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
+
     endpoint = proto.Field(proto.MESSAGE, number=2, message=gca_endpoint.Endpoint,)
 
 
@@ -135,9 +136,13 @@ class ListEndpointsRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
+
     filter = proto.Field(proto.STRING, number=2)
+
     page_size = proto.Field(proto.INT32, number=3)
+
     page_token = proto.Field(proto.STRING, number=4)
+
     read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
@@ -161,6 +166,7 @@ class ListEndpointsResponse(proto.Message):
     endpoints = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_endpoint.Endpoint,
     )
+
     next_page_token = proto.Field(proto.STRING, number=2)
 
 
@@ -178,6 +184,7 @@ class UpdateEndpointRequest(proto.Message):
     """
 
     endpoint = proto.Field(proto.MESSAGE, number=1, message=gca_endpoint.Endpoint,)
+
     update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
 
 
@@ -230,9 +237,11 @@ class DeployModelRequest(proto.Message):
     """
 
     endpoint = proto.Field(proto.STRING, number=1)
+
     deployed_model = proto.Field(
         proto.MESSAGE, number=2, message=gca_endpoint.DeployedModel,
     )
+
     traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3)
 
 
@@ -289,7 +298,9 @@ class UndeployModelRequest(proto.Message):
     """
 
     endpoint = proto.Field(proto.STRING, number=1)
+
     deployed_model_id = proto.Field(proto.STRING, number=2)
+
     traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3)
 
 
