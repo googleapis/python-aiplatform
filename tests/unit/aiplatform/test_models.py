@@ -26,6 +26,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform_v1beta1.services.model_service.client import (
     ModelServiceClient,
+    EndpointServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
@@ -364,9 +365,12 @@ class TestModel:
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
-            api_client_mock = mock.Mock(spec=ModelServiceClient)
+            api_client_mock = mock.Mock(spec=EndpointServiceClient)
             create_client_mock.return_value = api_client_mock
 
             test_model = models.Model(_TEST_MODEL_NAME)
+            mock_endpoint = mock.Mock(autospec=models.Endpoint)
 
-        test_model.deploy()
+            assert test_model.deploy(mock_endpoint) == mock_endpoint
+            mock_endpoint.deploy.assert_called_once_with()
+            api_client_mock.deploy_model.assert_called_once()

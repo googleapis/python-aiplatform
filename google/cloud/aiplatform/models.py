@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, Optional, Sequence
+from typing import Dict, Optional, Sequence, Tuple, List
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -238,7 +238,6 @@ class Model(base.AiPlatformResourceNoun):
         min_replica_count: Optional[int] = 0,
         max_replica_count: Optional[int] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        timeout: Optional[int] = None,
     ) -> "Endpoint":
         """
         Deploys model to endpoint. Endpoint will be created if unspecified.
@@ -282,9 +281,6 @@ class Model(base.AiPlatformResourceNoun):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
-            timeout (int):
-                Optional. How long (in seconds) to wait for the endpoint creation
-                operation to complete. If None, wait indefinitely.
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
@@ -315,7 +311,7 @@ class Endpoint(base.AiPlatformResourceNoun):
 
     def __init__(
         self,
-        endpoint_name: Optional[str] = None,
+        endpoint_name: str,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -339,8 +335,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        if endpoint_name:
-            self._gca_resource = _get_endpoint(endpoint_name)
+        self._gca_resource = self._get_endpoint(endpoint_name)
 
     def _get_endpoint(self, endpoint_name: str) -> gca_endpoint.Endpoint:
         """Gets the endpoint from AI Platform.
@@ -368,9 +363,8 @@ class Endpoint(base.AiPlatformResourceNoun):
         cls,
         display_name: str,
         description: Optional[str] = None,
-        traffic_split: Optional[Dict] = None,
         labels: Optional[Dict] = None,
-        metadata: Sequence[Tuple[str, str]] = (),
+        metadata: Optional[Sequence[Tuple[str, str]]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -384,16 +378,6 @@ class Endpoint(base.AiPlatformResourceNoun):
                 of any UTF-8 characters.
             description (str):
                 Optional. The description of the Endpoint.
-            traffic_split (Dict):
-                Optional. A map from a DeployedModel's ID to the
-                percentage of this Endpoint's traffic that
-                should be forwarded to that DeployedModel.
-                If a DeployedModel's ID is not listed in this
-                map, then it receives no traffic.
-
-                The traffic percentage values must add up to
-                100, or map must be empty if the Endpoint is to
-                not accept any traffic at a moment.
             labels (Dict):
                 Optional. The labels with user-defined metadata to
                 organize your Endpoints.
@@ -432,7 +416,6 @@ class Endpoint(base.AiPlatformResourceNoun):
             ),
             display_name=display_name,
             description=description,
-            traffic_split=traffic_split,
             labels=labels,
             metadata=metadata,
         )
@@ -461,9 +444,8 @@ class Endpoint(base.AiPlatformResourceNoun):
         parent: str,
         display_name: str,
         description: Optional[str] = None,
-        traffic_split: Optional[Dict] = None,
         labels: Optional[Dict] = None,
-        metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        metadata: Optional[Sequence[Tuple[str, str]]] = None,
     ) -> lro.LRO:
         """
         Creates a new endpoint by calling the API client.
@@ -483,16 +465,6 @@ class Endpoint(base.AiPlatformResourceNoun):
                 of any UTF-8 characters.
             description (str):
                 Optional. The description of the Endpoint.
-            traffic_split (Dict):
-                Optional. A map from a DeployedModel's ID to the
-                percentage of this Endpoint's traffic that
-                should be forwarded to that DeployedModel.
-                If a DeployedModel's ID is not listed in this
-                map, then it receives no traffic.
-
-                The traffic percentage values must add up to
-                100, or map must be empty if the Endpoint is to
-                not accept any traffic at a moment.
             labels (Dict):
                 Optional. The labels with user-defined metadata to
                 organize your Endpoints.
@@ -511,10 +483,7 @@ class Endpoint(base.AiPlatformResourceNoun):
                 Long-running operation of endpoint creation.
         """
         gapic_endpoint = gca_endpoint.Endpoint(
-            display_name=display_name,
-            description=description,
-            traffic_split=traffic_split,
-            labels=labels,
+            display_name=display_name, description=description, labels=labels,
         )
 
         operation_future = endpoint_client.create_endpoint(
@@ -523,10 +492,7 @@ class Endpoint(base.AiPlatformResourceNoun):
 
         return lro.LRO(operation_future)
 
-    def _allocate_traffic(
-        traffic_split: Sequence[gca_endpoint.Endpoint.TrafficSplitEntry],
-        traffic_percentage: int,
-    ) -> Dict:
+    def _allocate_traffic(traffic_split: dict, traffic_percentage: int,) -> Dict:
         """
         Allocates desired traffic to new deployed model and scales traffic of
         older deployed models.
@@ -555,10 +521,7 @@ class Endpoint(base.AiPlatformResourceNoun):
 
         return traffic_split
 
-    def _unallocate_traffic(
-        traffic_split: Sequence[gca_endpoint.Endpoint.TrafficSplitEntry],
-        deployed_model_id: str,
-    ) -> Dict:
+    def _unallocate_traffic(traffic_split: dict, deployed_model_id: str,) -> Dict:
         """
         Sets deployed model id's traffic to 0 and scales the traffic of other
         deployed models.
@@ -672,10 +635,17 @@ class Endpoint(base.AiPlatformResourceNoun):
             )
 
         if traffic_split is None:
+            if bool(self._gca_resource.traffic_split) is False:
+                raise ValueError(
+                    """There are currently no deployed models so the traffic percentage
+                for this deployed model needs to be 100."""
+                )
             traffic_split = self._allocate_traffic(
-                traffic_split=self._gca_resource.traffic_split,
+                traffic_split=dict(self._gca_resource.traffic_split),
                 traffic_percentage=traffic_percentage,
             )
+        # else:
+        #     TODO: check traffic split provided is valid
 
         operation_future = self.endpoint_client.deploy_model(
             endpoint=self.resource_name,
@@ -690,6 +660,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         self,
         deployed_model_id: str,
         traffic_split: Optional[Dict] = None,
+        metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> lro.LRO:
         """Undeploys a deployed model.
 
@@ -717,7 +688,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         """
         if traffic_split is None:
             traffic_split = self._unallocate_traffic(
-                traffic_split=self._gca_resource.traffic_split,
+                traffic_split=dict(self._gca_resource.traffic_split),
                 deployed_model_id=deployed_model_id,
             )
 
