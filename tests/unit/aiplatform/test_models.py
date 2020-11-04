@@ -26,6 +26,8 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform_v1beta1.services.model_service.client import (
     ModelServiceClient,
+)
+from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
     EndpointServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.types import env_var

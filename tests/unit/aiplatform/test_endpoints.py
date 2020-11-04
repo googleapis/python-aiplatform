@@ -25,7 +25,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
-from google.cloud.aiplatform_v1beta1.services.model_service.client import (
+from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
     EndpointServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
