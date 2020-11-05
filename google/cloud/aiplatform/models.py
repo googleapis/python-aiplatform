@@ -86,7 +86,7 @@ class Model(base.AiPlatformResourceNoun):
             model: Managed Model resource.
         """
 
-        model_name = utils.full_name(
+        model_name = utils.full_resource_name(
             resource_name=model_name,
             resource_noun="models",
             project=self.project,
@@ -228,15 +228,16 @@ class Model(base.AiPlatformResourceNoun):
             model_name=fields.id, project=fields.project, location=fields.location
         )
 
+    # TODO(b/172502059) support deploying with endpoint resource name
     def deploy(
         self,
         endpoint: Optional["Endpoint"] = None,
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 100,
-        traffic_split: Optional[Dict] = None,
+        traffic_split: Optional[Dict[str, int]] = None,
         machine_type: Optional[str] = None,
-        min_replica_count: Optional[int] = 0,
-        max_replica_count: Optional[int] = None,
+        min_replica_count: Optional[int] = 1,
+        max_replica_count: Optional[int] = 1,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> "Endpoint":
         """
@@ -254,7 +255,7 @@ class Model(base.AiPlatformResourceNoun):
                 100. Traffic of previously deployed models at the endpoint  will
                 be scaled down to accommodate new deployed model's traffic. Should
                 not be provided if traffic_split is provided.
-            traffic_split (Dict):
+            traffic_split (Dict[str, int]):
                 Optional. A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that DeployedModel.
                 If a DeployedModel's ID is not listed in this map, then it receives
@@ -311,7 +312,7 @@ class Endpoint(base.AiPlatformResourceNoun):
 
     def __init__(
         self,
-        endpoint_name: str,
+        endpoint: Optional[gca_endpoint.Endpoint] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -319,10 +320,8 @@ class Endpoint(base.AiPlatformResourceNoun):
         """Retrieves an endpoint resource.
 
         Args:
-            endpoint_name (str):
-                Required. A fully-qualified endpoint resource name or endpoint ID.
-                Example: "projects/123/locations/us-central1/endpoints/456" or
-                "456" when project and location are initialized or passed.
+            endpoint (gca_endpoint.Endpoint):
+                Optional. Managed endpoint resource.
             project (str):
                 Optional. Project to retrieve endpoint from. If not set, project
                 set in aiplatform.init will be used.
@@ -335,7 +334,8 @@ class Endpoint(base.AiPlatformResourceNoun):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        self._gca_resource = self._get_endpoint(endpoint_name)
+        if endpoint:
+            self._gca_resource = self._get_endpoint(endpoint.name)
 
     def _get_endpoint(self, endpoint_name: str) -> gca_endpoint.Endpoint:
         """Gets the endpoint from AI Platform.
@@ -348,7 +348,7 @@ class Endpoint(base.AiPlatformResourceNoun):
                 Managed endpoint resource.
         """
 
-        endpoint_name = utils.full_name(
+        endpoint_name = utils.full_resource_name(
             resource_name=endpoint_name,
             resource_noun="endpoints",
             project=self.project,
@@ -420,15 +420,9 @@ class Endpoint(base.AiPlatformResourceNoun):
             metadata=metadata,
         )
 
-        created_endpoint = None
-        endpoint = cls(
-            endpoint=created_endpoint,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
+        endpoint = cls(project=project, location=location, credentials=credentials,)
 
-        endpoint_client.update_resource(
+        lro.LRO.update_resource(
             operation_future=create_endpoint_operation,
             resource_noun_obj=endpoint,
             result_key="name",
@@ -492,47 +486,56 @@ class Endpoint(base.AiPlatformResourceNoun):
 
         return lro.LRO(operation_future)
 
-    def _allocate_traffic(traffic_split: dict, traffic_percentage: int,) -> Dict:
+    def _allocate_traffic(
+        traffic_split: Dict[str, int], traffic_percentage: int,
+    ) -> Dict[str, int]:
         """
         Allocates desired traffic to new deployed model and scales traffic of
         older deployed models.
 
         Args:
-            traffic_split (Sequence[gca_endpoint.Endpoint.TrafficSplitEntry]):
+            traffic_split (Dict[str, int]):
                 Required. Current traffic split of deployed models in endpoint.
             traffic_percentage (int):
                 Required. Desired traffic to new deployed model.
         Returns:
-            traffic_split (Dict):
+            new_traffic_split (Dict[str, int]):
                 Traffic split to use.
         """
         old_models_traffic = 100 - traffic_percentage
         if old_models_traffic:
+            new_traffic_split = {}
             unallocated_traffic = old_models_traffic
             for deployed_model in traffic_split:
                 current_traffic = traffic_split[deployed_model]
                 new_traffic = int(current_traffic / 100 * old_models_traffic)
-                traffic_split[deployed_model] = new_traffic
+                new_traffic_split[deployed_model] = new_traffic
                 unallocated_traffic -= new_traffic
             # will likely under-allocate. make total 100.
-            traffic_split[deployed_model] += unallocated_traffic
+            for deployed_model in new_traffic_split:
+                new_traffic_split[deployed_model] += 1
+                unallocated_traffic -= 1
+                if unallocated_traffic == 0:
+                    break
 
-        traffic_split["0"] = traffic_percentage
+        new_traffic_split["0"] = traffic_percentage
 
-        return traffic_split
+        return new_traffic_split
 
-    def _unallocate_traffic(traffic_split: dict, deployed_model_id: str,) -> Dict:
+    def _unallocate_traffic(
+        traffic_split: Dict[str, int], deployed_model_id: str,
+    ) -> Dict[str, int]:
         """
         Sets deployed model id's traffic to 0 and scales the traffic of other
         deployed models.
 
         Args:
-            traffic_split (Sequence[gca_endpoint.Endpoint.TrafficSplitEntry]):
+            traffic_split (Dict[str, int]):
                 Required. Current traffic split of deployed models in endpoint.
             deployed_model_id (str):
                 Required. Desired traffic to new deployed model.
         Returns:
-            traffic_split (Dict):
+            new_traffic_split (Dict[str, int]):
                 Traffic split to use.
         """
         deployed_model_id_traffic = traffic_split[deployed_model_id]
@@ -540,18 +543,23 @@ class Endpoint(base.AiPlatformResourceNoun):
         traffic_percent_left = 100 - deployed_model_id_traffic
 
         if traffic_percent_left:
+            new_traffic_split = {}
             unallocated_traffic = traffic_percent_left
             for deployed_model in traffic_split:
                 current_traffic = traffic_split[deployed_model]
                 new_traffic = int(current_traffic / traffic_percent_left * 100)
-                traffic_split[deployed_model] = new_traffic
+                new_traffic_split[deployed_model] = new_traffic
                 unallocated_traffic -= new_traffic
             # will likely under-allocate. make total 100.
-            traffic_split[deployed_model] += unallocated_traffic
+            for deployed_model in new_traffic_split:
+                new_traffic_split[deployed_model] += 1
+                unallocated_traffic -= 1
+                if unallocated_traffic == 0:
+                    break
 
-        traffic_split[deployed_model_id] = 0
+        new_traffic_split[deployed_model_id] = 0
 
-        return traffic_split
+        return new_traffic_split
 
     def deploy(
         self,
@@ -561,8 +569,8 @@ class Endpoint(base.AiPlatformResourceNoun):
         traffic_percentage: Optional[int] = 100,
         traffic_split: Optional[Dict] = None,
         machine_type: Optional[str] = None,
-        min_replica_count: Optional[int] = 0,
-        max_replica_count: Optional[int] = None,
+        min_replica_count: Optional[int] = 1,
+        max_replica_count: Optional[int] = 1,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> lro.LRO:
         """
@@ -610,7 +618,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             lro (lro.LRO):
                 LRO of model deployment.
         """
-        max_replica_count = min(1, min_replica_count)
+        max_replica_count = min(min_replica_count, max_replica_count)
         if machine_type:
             machine_spec = machine_resources.MachineSpec(machine_type=machine_type)
             dedicated_resources = machine_resources.DedicatedResources(
@@ -635,10 +643,12 @@ class Endpoint(base.AiPlatformResourceNoun):
             )
 
         if traffic_split is None:
-            if bool(self._gca_resource.traffic_split) is False:
+            if traffic_percentage > 100:
+                raise ValueError("""Traffic percentage cannot be greater than 100.""")
+            if not self._gca_resource.traffic_split and traffic_percentage < 100:
                 raise ValueError(
                     """There are currently no deployed models so the traffic percentage
-                for this deployed model needs to be 100."""
+                    for this deployed model needs to be 100."""
                 )
             traffic_split = self._allocate_traffic(
                 traffic_split=dict(self._gca_resource.traffic_split),
@@ -647,21 +657,21 @@ class Endpoint(base.AiPlatformResourceNoun):
         # else:
         #     TODO: check traffic split provided is valid
 
-        operation_future = self.endpoint_client.deploy_model(
+        self.endpoint_client.deploy_model(
             endpoint=self.resource_name,
             deployed_model=deployed_model,
             traffic_split=traffic_split,
             metadata=metadata,
         )
 
-        return lro.LRO(operation_future)
+        return
 
     def undeploy(
         self,
         deployed_model_id: str,
-        traffic_split: Optional[Dict] = None,
+        traffic_split: Optional[Dict[str, int]] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
-    ) -> lro.LRO:
+    ):
         """Undeploys a deployed model.
 
         Proportionally adjusts the traffic_split among the remaining deployed
@@ -682,9 +692,6 @@ class Endpoint(base.AiPlatformResourceNoun):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
-        Returns:
-            lro (lro.LRO):
-                LRO of model undeployment.
         """
         if traffic_split is None:
             traffic_split = self._unallocate_traffic(
@@ -692,19 +699,21 @@ class Endpoint(base.AiPlatformResourceNoun):
                 deployed_model_id=deployed_model_id,
             )
 
-        operation_future = self.endpoint_client.undeploy_model(
+        self.endpoint_client.undeploy_model(
             endpoint=self.resource_name,
             deployed_model_id=deployed_model_id,
             traffic_split=traffic_split,
             metadata=metadata,
         )
 
-        return lro.LRO(operation_future)
+        return
 
+    # TODO(b/172265811): implement prediction
     def predict(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
         """Online prediction."""
         raise NotImplementedError("Prediction not implemented.")
 
+    # TODO(b/172265811): implement prediction
     def explain(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
         """Online prediction with explanation."""
         raise NotImplementedError("Prediction not implemented.")

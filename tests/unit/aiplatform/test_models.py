@@ -361,7 +361,7 @@ class TestModel:
                 name=test_model_resource_name
             )
 
-    def test_deploy():
+    def test_deploy(self):
 
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with mock.patch.object(
