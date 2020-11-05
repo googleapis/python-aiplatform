@@ -167,14 +167,19 @@ class Dataset(base.AiPlatformResourceNoun):
                 "Please provide both GCS source and import_schema_uri to import data or omit both."
             )
 
-        api_client = cls._instantiate_client(location=location, credentials=credentials)
-
-        # If this is tabular enrich the dataset metadata with source
-        # TODO: Use interfaces to abstract away gcs and bq specific logic
-        dataset_metadata = {}
         is_tabular_dataset_metadata = (
             metadata_schema_uri == schema.dataset.metadata.tabular
         )
+
+        if bool(bq_source) and not is_tabular_dataset_metadata:
+            raise ValueError(
+                "A tabular metadata_schema uri must be used when using a BigQuery source"
+            )
+
+        api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        # If this is tabular enrich the dataset metadata with source
+        dataset_metadata = {}
         if is_tabular_dataset_metadata:
             if gcs_source:
                 dataset_metadata = {"input_config": {"gcs_source": {"uri": gcs_source}}}
@@ -182,12 +187,6 @@ class Dataset(base.AiPlatformResourceNoun):
                 dataset_metadata = {
                     "input_config": {"bigquery_source": {"uri": bq_source}}
                 }
-
-        # TODO: Remove this and let the error propagate from up from downstream?
-        if bool(bq_source) and not is_tabular_dataset_metadata:
-            raise ValueError(
-                "A tabular metadata_schema uri must be used when using a BigQuery source"
-            )
 
         create_dataset_lro = cls._create(
             display_name=display_name,
@@ -283,7 +282,7 @@ class Dataset(base.AiPlatformResourceNoun):
             parent=parent, dataset=gapic_dataset, metadata=request_metadata
         )
 
-    def _import_gcs(
+    def _import_from_gcs(
         self,
         source: Sequence[str],
         import_schema_uri: str,
@@ -372,7 +371,7 @@ class Dataset(base.AiPlatformResourceNoun):
                 Instantiated representation of the managed dataset resource.
         """
 
-        import_lro = self._import_gcs(
+        import_lro = self._import_from_gcs(
             source=gcs_source,
             import_schema_uri=import_schema_uri,
             data_items_labels=data_items_labels,
