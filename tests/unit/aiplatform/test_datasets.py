@@ -30,6 +30,7 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import Dataset
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
+from google.cloud.aiplatform.source_config import BQTabularSourceConfig, GCSNonTabularSourceConfig, EmptyNonTabularSourceConfig
 
 from google.cloud.aiplatform_v1beta1 import GcsSource
 from google.cloud.aiplatform_v1beta1 import GcsDestination
@@ -168,7 +169,7 @@ class TestDataset:
 
         Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
-            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            source=EmptyNonTabularSourceConfig(metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR),
             labels=_TEST_LABEL,
         )
 
@@ -189,8 +190,7 @@ class TestDataset:
 
         Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
-            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
-            bq_source=_TEST_SOURCE_URI_BQ,
+            source=BQTabularSourceConfig(source_uri=_TEST_SOURCE_URI_BQ),
             labels=_TEST_LABEL,
         )
 
@@ -211,11 +211,8 @@ class TestDataset:
 
         my_dataset = Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
-            gcs_source=_TEST_SOURCE_URI_GCS,
-            labels=_TEST_LABEL,
-            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
-            data_items_labels=_TEST_DATA_LABEL_ITEMS,
+            source=GCSNonTabularSourceConfig(source_uris=[_TEST_SOURCE_URI_GCS], metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR, import_schema_uri=_TEST_IMPORT_SCHEMA_URI, data_items_labels=_TEST_DATA_LABEL_ITEMS),
+            labels=_TEST_LABEL            
         )
 
         expected_dataset = GapicDataset(
@@ -249,9 +246,7 @@ class TestDataset:
         my_dataset = Dataset(dataset_name=_TEST_NAME)
 
         my_dataset.import_data(
-            gcs_source=_TEST_SOURCE_URI_GCS,
-            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
-            data_items_labels=_TEST_DATA_LABEL_ITEMS,
+            source=GCSNonTabularSourceConfig(source_uris=[_TEST_SOURCE_URI_GCS], metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR, import_schema_uri=_TEST_IMPORT_SCHEMA_URI, data_items_labels=_TEST_DATA_LABEL_ITEMS) # TODO: Remove metadata_schema_uri as import step doesn't need it
         )
 
         expected_import_config = ImportDataConfig(
