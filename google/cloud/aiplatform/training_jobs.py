@@ -704,7 +704,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
 
         self._raise_failure()
 
-        if self._gca_resource.model_to_upload and not self.is_failed:
+        if self._gca_resource.model_to_upload and not self.has_failed:
             _LOGGER.info(
                 "Model available at %s" % self._gca_resource.model_to_upload.name
             )
@@ -729,7 +729,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
         """
         self._block_until_complete()
 
-        if self.is_failed:
+        if self.has_failed:
             raise RuntimeError(
                 f"Training Pipeline {self.resource_name} failed. No model available."
             )
@@ -789,7 +789,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
         return self._gca_resource.state
 
     @property
-    def is_failed(self) -> bool:
+    def has_failed(self) -> bool:
         """Returns True if training has failed. False otherwise."""
         self._assert_has_run()
         return self.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED

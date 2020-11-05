@@ -494,7 +494,7 @@ class TestCustomTrainingJob:
 
         assert job.get_model()._gca_resource is mock_model_service_get.return_value
 
-        assert not job.is_failed
+        assert not job.has_failed
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
@@ -804,7 +804,7 @@ class TestCustomTrainingJob:
             job.get_model()
 
         with pytest.raises(RuntimeError):
-            job.is_failed
+            job.has_failed
 
         with pytest.raises(RuntimeError):
             job.state
