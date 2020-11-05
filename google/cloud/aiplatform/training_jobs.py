@@ -24,7 +24,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from typing import Callable, Dict, List, Optional, Sequence, Union
+from typing import Callable, List, Optional, Sequence, Union
 
 
 from google.auth import credentials as auth_credentials
