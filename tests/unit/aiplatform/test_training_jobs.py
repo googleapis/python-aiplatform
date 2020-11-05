@@ -1,5 +1,23 @@
-from distutils.core import run_setup
+# -*- coding: utf-8 -*-
+
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+from distutils import core
 import functools
+import importlib
 import pathlib
 import pytest
 import subprocess
@@ -7,33 +25,29 @@ import shutil
 import sys
 import tarfile
 import tempfile
-
 from unittest import mock
-from importlib import reload
 from unittest.mock import patch
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.datasets import Dataset
+from google.cloud.aiplatform import datasets
+from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
-from google.cloud.aiplatform.training_jobs import _timestamped_copy_to_gcs
-from google.cloud.aiplatform.training_jobs import _get_python_executable
-from google.cloud.aiplatform.training_jobs import _TrainingScriptPythonPackager
-from google.cloud.aiplatform_v1beta1 import FractionSplit
-from google.cloud.aiplatform_v1beta1 import GcsDestination
-from google.cloud.aiplatform_v1beta1 import InputDataConfig
-from google.cloud.aiplatform_v1beta1 import Model
-from google.cloud.aiplatform_v1beta1 import ModelContainerSpec
-from google.cloud.aiplatform_v1beta1 import ModelServiceClient
-from google.cloud.aiplatform_v1beta1 import PipelineServiceClient
-from google.cloud.aiplatform_v1beta1 import PipelineState
-from google.cloud.aiplatform_v1beta1 import TrainingPipeline
-
-from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform_v1beta1.services.model_service import (
+    client as model_service_client,
+)
+from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
+    client as pipeline_service_client,
+)
+from google.cloud.aiplatform_v1beta1.types import io as gca_io
+from google.cloud.aiplatform_v1beta1.types import model as gca_model
+from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state
+from google.cloud.aiplatform_v1beta1.types import (
+    training_pipeline as gca_training_pipeline,
+)
 from google.cloud import storage
-
 from google.protobuf import json_format
-from google.protobuf.struct_pb2 import Value
+from google.protobuf import struct_pb2
 
 
 _TEST_BUCKET_NAME = "test-bucket"
@@ -56,7 +70,7 @@ _TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
 
 _TEST_DATASET_NAME = "test-dataset-name"
 _TEST_BASE_OUTPUT_DIR = "gs://test-base-output-dir"
-_TEST_RUN_ARGS = {"test": "arg", "foo": 1}
+_TEST_RUN_ARGS = ["-v", 0.1, "--test=arg"]
 _TEST_REPLICA_COUNT = 1
 _TEST_MACHINE_TYPE = "n1-standard-4"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_K80"
@@ -103,8 +117,8 @@ def mock_client_bucket():
 
 class TestTrainingScriptPythonPackagerHelpers:
     def setup_method(self):
-        reload(initializer)
-        reload(aiplatform)
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
 
     def test_timestamp_copy_to_gcs_calls_gcs_client_with_bucket(
         self, mock_client_bucket
@@ -112,7 +126,7 @@ class TestTrainingScriptPythonPackagerHelpers:
 
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        gcs_path = _timestamped_copy_to_gcs(
+        gcs_path = training_jobs._timestamped_copy_to_gcs(
             local_file_path=_TEST_LOCAL_SCRIPT_FILE_PATH,
             gcs_dir=_TEST_BUCKET_NAME,
             project=_TEST_PROJECT,
@@ -139,7 +153,7 @@ class TestTrainingScriptPythonPackagerHelpers:
 
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        gcs_path = _timestamped_copy_to_gcs(
+        gcs_path = training_jobs._timestamped_copy_to_gcs(
             local_file_path=_TEST_LOCAL_SCRIPT_FILE_PATH,
             gcs_dir=_TEST_GCS_PATH_WITH_TRAILING_SLASH,
             project=_TEST_PROJECT,
@@ -167,7 +181,7 @@ class TestTrainingScriptPythonPackagerHelpers:
 
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        gcs_path = _timestamped_copy_to_gcs(
+        gcs_path = training_jobs._timestamped_copy_to_gcs(
             local_file_path=_TEST_LOCAL_SCRIPT_FILE_PATH,
             gcs_dir=_TEST_GCS_PATH,
             project=_TEST_PROJECT,
@@ -193,7 +207,7 @@ class TestTrainingScriptPythonPackagerHelpers:
 
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        gcs_path = _timestamped_copy_to_gcs(
+        gcs_path = training_jobs._timestamped_copy_to_gcs(
             local_file_path=_TEST_LOCAL_SCRIPT_FILE_PATH,
             gcs_dir=_TEST_BUCKET_NAME,
             project=_TEST_PROJECT,
@@ -210,54 +224,59 @@ class TestTrainingScriptPythonPackagerHelpers:
     def test_get_python_executable_raises_if_None(self):
         with patch.object(sys, "executable", new=None):
             with pytest.raises(EnvironmentError):
-                _get_python_executable()
+                training_jobs._get_python_executable()
 
     def test_get_python_executable_returns_python_executable(self):
-        assert "python" in _get_python_executable().lower()
+        assert "python" in training_jobs._get_python_executable().lower()
 
 
 class TestTrainingScriptPythonPackager:
     def setup_method(self):
-        reload(initializer)
-        reload(aiplatform)
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
         with open(_TEST_LOCAL_SCRIPT_FILE_NAME, "w") as fp:
             fp.write(_TEST_PYTHON_SOURCE)
 
     def teardown_method(self):
         pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_NAME).unlink()
-        python_package_file = f"{_TrainingScriptPythonPackager._ROOT_MODULE}-{_TrainingScriptPythonPackager._SETUP_PY_VERSION}.tar.gz"
+        python_package_file = f"{training_jobs._TrainingScriptPythonPackager._ROOT_MODULE}-{training_jobs._TrainingScriptPythonPackager._SETUP_PY_VERSION}.tar.gz"
         if pathlib.Path(python_package_file).is_file():
             pathlib.Path(python_package_file).unlink()
         subprocess.check_output(
-            ["pip3", "uninstall", "-y", _TrainingScriptPythonPackager._ROOT_MODULE]
+            [
+                "pip3",
+                "uninstall",
+                "-y",
+                training_jobs._TrainingScriptPythonPackager._ROOT_MODULE,
+            ]
         )
 
     def test_packager_creates_and_copies_python_package(self):
-        tsp = _TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = training_jobs._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
         tsp.package_and_copy(copy_method=local_copy_method)
         assert pathlib.Path(
             f"{tsp._ROOT_MODULE}-{tsp._SETUP_PY_VERSION}.tar.gz"
         ).is_file()
 
     def test_created_package_module_is_installable_and_can_be_run(self):
-        tsp = _TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = training_jobs._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
         source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
         subprocess.check_output(["pip3", "install", source_dist_path])
         module_output = subprocess.check_output(
-            [_get_python_executable(), "-m", tsp.module_name]
+            [training_jobs._get_python_executable(), "-m", tsp.module_name]
         )
         assert "hello world" in module_output.decode()
 
     def test_requirements_are_in_package(self):
-        tsp = _TrainingScriptPythonPackager(
+        tsp = training_jobs._TrainingScriptPythonPackager(
             _TEST_LOCAL_SCRIPT_FILE_NAME, requirements=_TEST_REQUIREMENTS
         )
         source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
         with tarfile.open(source_dist_path) as tf:
             with tempfile.TemporaryDirectory() as tmpdirname:
-                setup_py_path = f"{_TrainingScriptPythonPackager._ROOT_MODULE}-{_TrainingScriptPythonPackager._SETUP_PY_VERSION}/setup.py"
+                setup_py_path = f"{training_jobs._TrainingScriptPythonPackager._ROOT_MODULE}-{training_jobs._TrainingScriptPythonPackager._SETUP_PY_VERSION}/setup.py"
                 tf.extract(setup_py_path, path=tmpdirname)
-                setup_py = run_setup(
+                setup_py = core.run_setup(
                     pathlib.Path(tmpdirname, setup_py_path), stop_after="init"
                 )
                 assert _TEST_REQUIREMENTS == setup_py.install_requires
@@ -268,14 +287,16 @@ class TestTrainingScriptPythonPackager:
             mock_subprocess.communicate.return_value = (b"", b"")
             mock_subprocess.returncode = 1
             mock_popen.return_value = mock_subprocess
-            tsp = _TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+            tsp = training_jobs._TrainingScriptPythonPackager(
+                _TEST_LOCAL_SCRIPT_FILE_NAME
+            )
             with pytest.raises(RuntimeError):
                 tsp.package_and_copy(copy_method=local_copy_method)
 
     def test_package_and_copy_to_gcs_copies_to_gcs(self, mock_client_bucket):
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        tsp = _TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = training_jobs._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
 
         gcs_path = tsp.package_and_copy_to_gcs(
             gcs_staging_dir=_TEST_BUCKET_NAME, project=_TEST_PROJECT
@@ -294,8 +315,8 @@ class TestTrainingScriptPythonPackager:
 
 class TestCustomTrainingJob:
     def setup_method(self):
-        reload(initializer)
-        reload(aiplatform)
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
         with open(_TEST_LOCAL_SCRIPT_FILE_NAME, "w") as fp:
             fp.write(_TEST_PYTHON_SOURCE)
 
@@ -305,63 +326,65 @@ class TestCustomTrainingJob:
     @pytest.fixture
     def mock_pipeline_service_create(self):
         with mock.patch.object(
-            PipelineServiceClient, "create_training_pipeline"
+            pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
         ) as mock_create_training_pipeline:
-            mock_create_training_pipeline.return_value = TrainingPipeline(
+            mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
                 name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=PipelineState.PIPELINE_STATE_SUCCEEDED,
-                model_to_upload=Model(name=_TEST_MODEL_NAME),
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
             )
             yield mock_create_training_pipeline
 
     @pytest.fixture
     def mock_pipeline_service_create_with_no_model_to_upload(self):
         with mock.patch.object(
-            PipelineServiceClient, "create_training_pipeline"
+            pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
         ) as mock_create_training_pipeline:
-            mock_create_training_pipeline.return_value = TrainingPipeline(
+            mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
                 name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=PipelineState.PIPELINE_STATE_SUCCEEDED,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
             )
             yield mock_create_training_pipeline
 
     @pytest.fixture
     def mock_pipeline_service_create_and_get_with_fail(self):
         with mock.patch.object(
-            PipelineServiceClient, "create_training_pipeline"
+            pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
         ) as mock_create_training_pipeline:
-            mock_create_training_pipeline.return_value = TrainingPipeline(
+            mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
                 name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=PipelineState.PIPELINE_STATE_RUNNING,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
             )
 
             with mock.patch.object(
-                PipelineServiceClient, "get_training_pipeline"
+                pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
             ) as mock_get_training_pipeline:
-                mock_get_training_pipeline.return_value = TrainingPipeline(
+                mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
                     name=_TEST_PIPELINE_RESOURCE_NAME,
-                    state=PipelineState.PIPELINE_STATE_FAILED,
+                    state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
                 )
 
                 yield mock_create_training_pipeline, mock_get_training_pipeline
 
     @pytest.fixture
     def mock_model_service_get(self):
-        with mock.patch.object(ModelServiceClient, "get_model") as mock_get_model:
-            mock_get_model.return_value = Model()
+        with mock.patch.object(
+            model_service_client.ModelServiceClient, "get_model"
+        ) as mock_get_model:
+            mock_get_model.return_value = gca_model.Model()
             yield mock_get_model
 
     @pytest.fixture
     def mock_python_package_to_gcs(self):
         with mock.patch.object(
-            _TrainingScriptPythonPackager, "package_and_copy_to_gcs"
+            training_jobs._TrainingScriptPythonPackager, "package_and_copy_to_gcs"
         ) as mock_package_to_copy_gcs:
             mock_package_to_copy_gcs.return_value = _TEST_OUTPUT_PYTHON_PACKAGE_PATH
             yield mock_package_to_copy_gcs
 
     @pytest.fixture
     def mock_dataset(self):
-        ds = mock.MagicMock(Dataset)
+        ds = mock.MagicMock(datasets.Dataset)
         ds.name = _TEST_DATASET_NAME
         return ds
 
@@ -403,7 +426,7 @@ class TestCustomTrainingJob:
             credentials=initializer.global_config.credentials,
         )
 
-        true_args = ["--test=arg", "--foo=1"]
+        true_args = _TEST_RUN_ARGS
 
         true_worker_pool_spec = {
             "replicaCount": _TEST_REPLICA_COUNT,
@@ -414,35 +437,37 @@ class TestCustomTrainingJob:
             },
             "pythonPackageSpec": {
                 "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": _TrainingScriptPythonPackager.module_name,
+                "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
                 "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
         }
 
-        true_fraction_split = FractionSplit(
+        true_fraction_split = gca_training_pipeline.FractionSplit(
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
         )
 
-        true_container_spec = ModelContainerSpec(
+        true_container_spec = gca_model.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
         )
 
-        true_managed_model = Model(
+        true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME, container_spec=true_container_spec
         )
 
-        true_input_data_config = InputDataConfig(
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
             dataset_id=mock_dataset.name,
-            gcs_destination=GcsDestination(output_uri_prefix=_TEST_BASE_OUTPUT_DIR),
+            gcs_destination=gca_io.GcsDestination(
+                output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+            ),
         )
 
-        true_training_pipeline = TrainingPipeline(
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
@@ -450,7 +475,7 @@ class TestCustomTrainingJob:
                     "workerPoolSpecs": [true_worker_pool_spec],
                     "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
                 },
-                Value(),
+                struct_pb2.Value(),
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -471,7 +496,7 @@ class TestCustomTrainingJob:
 
         assert not job.is_failed
 
-        assert job.state == PipelineState.PIPELINE_STATE_SUCCEEDED
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
     def test_run_called_twice_raises(
         self,
@@ -619,7 +644,7 @@ class TestCustomTrainingJob:
             credentials=initializer.global_config.credentials,
         )
 
-        true_args = ["--test=arg", "--foo=1"]
+        true_args = _TEST_RUN_ARGS
 
         true_worker_pool_spec = {
             "replicaCount": _TEST_REPLICA_COUNT,
@@ -630,23 +655,23 @@ class TestCustomTrainingJob:
             },
             "pythonPackageSpec": {
                 "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": _TrainingScriptPythonPackager.module_name,
+                "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
                 "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
         }
 
-        true_container_spec = ModelContainerSpec(
+        true_container_spec = gca_model.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
         )
 
-        true_managed_model = Model(
+        true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME, container_spec=true_container_spec
         )
 
-        true_training_pipeline = TrainingPipeline(
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
@@ -654,7 +679,7 @@ class TestCustomTrainingJob:
                     "workerPoolSpecs": [true_worker_pool_spec],
                     "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
                 },
-                Value(),
+                struct_pb2.Value(),
             ),
             model_to_upload=true_managed_model,
         )

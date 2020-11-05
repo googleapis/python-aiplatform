@@ -24,7 +24,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from typing import Callable, Dict, List, Optional, Sequence
+from typing import Callable, Dict, List, Optional, Sequence, Union
 
 
 from google.auth import credentials as auth_credentials
@@ -34,18 +34,23 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1 import AcceleratorType
-from google.cloud.aiplatform_v1beta1 import FractionSplit
-from google.cloud.aiplatform_v1beta1 import GcsDestination
-from google.cloud.aiplatform_v1beta1 import InputDataConfig
-from google.cloud.aiplatform_v1beta1 import Model
-from google.cloud.aiplatform_v1beta1 import ModelContainerSpec
-from google.cloud.aiplatform_v1beta1 import PipelineServiceClient
-from google.cloud.aiplatform_v1beta1 import PipelineState
-from google.cloud.aiplatform_v1beta1 import TrainingPipeline
+from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
+    client as pipeline_service_client,
+)
+from google.cloud.aiplatform_v1beta1.types import (
+    accelerator_type as gca_accelerator_type,
+)
+from google.cloud.aiplatform_v1beta1.types import io as gca_io
+from google.cloud.aiplatform_v1beta1.types import model as gca_model
+from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state
+from google.cloud.aiplatform_v1beta1.types import (
+    training_pipeline as gca_training_pipeline,
+)
+
+
 from google.cloud import storage
 from google.protobuf import json_format
-from google.protobuf.struct_pb2 import Value
+from google.protobuf import struct_pb2
 from google.rpc import code_pb2
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -53,10 +58,10 @@ _LOGGER = logging.getLogger(__name__)
 
 _PIPELINE_COMPLETE_STATES = set(
     [
-        PipelineState.PIPELINE_STATE_SUCCEEDED,
-        PipelineState.PIPELINE_STATE_FAILED,
-        PipelineState.PIPELINE_STATE_CANCELLED,
-        PipelineState.PIPELINE_STATE_PAUSED,
+        gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+        gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+        gca_pipeline_state.PipelineState.PIPELINE_STATE_CANCELLED,
+        gca_pipeline_state.PipelineState.PIPELINE_STATE_PAUSED,
     ]
 )
 
@@ -342,7 +347,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
     in Cloud AI Platform Training.
     """
 
-    client_class = PipelineServiceClient
+    client_class = pipeline_service_client.PipelineServiceClient
     _is_client_prediction_client = False
 
     # TODO(b/172365796) add remainder of model optional arguments
@@ -445,7 +450,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
         )
         self._gca_resource = None
 
-    # TODO(b/172365904) add filter split, training_pipline.FilterSplit
+    # TODO(b/172365904) add filter split, training_pipeline.FilterSplit
     # TODO(b/172366411) predefined filter split training_pipeline.PredfinedFilterSplit
     # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
     def run(
@@ -453,8 +458,8 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
         dataset: Optional[datasets.Dataset] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
-        args: Optional[Dict[str, str]] = None,
-        replica_count: str = 0,
+        args: Optional[List[Union[str, float, int]]] = None,
+        replica_count: int = 0,
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
@@ -490,9 +495,8 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
-            args (Dict[str, str]):
-                Key-value pair or command line arguments to be passed to the Python
-                script.
+            args (List[Unions[str, int, float]]):
+                Command line arguments to be passed to the Python script.
             replica_count (int):
                 The number of worker replicas.
             accelerator_type (str):
@@ -522,18 +526,6 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             NotImplementedError more then one replica.
             ValueError if accelerator type is not valid.
         """
-
-        def format_args(args: Dict[str, str]) -> List[str]:
-            """Formats key-value arguments.
-
-            Args:
-                args (Dict[str, str]):
-                    Required: key-value pair or arguments.
-            Returns:
-                arg_string: List of formated arguments.
-            """
-            return [f"--{key}={value}" for key, value in args.items()]
-
         if self._has_run:
             raise RuntimeError("Custom Training has already run.")
 
@@ -542,10 +534,10 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             raise NotImplementedError("Distributed training not supported.")
 
         # validate accelerator type
-        if accelerator_type not in AcceleratorType._member_names_:
+        if accelerator_type not in gca_accelerator_type.AcceleratorType._member_names_:
             raise ValueError(
                 f"accelerator_type {accelerator_type} invalid. "
-                f"Choose one of {AcceleratorType._member_names_}"
+                f"Choose one of {gca_accelerator_type.AcceleratorType._member_names_}"
             )
 
         staging_bucket = (
@@ -605,47 +597,54 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             },
         }
 
-        accelerator_enum = getattr(AcceleratorType, accelerator_type)
+        accelerator_enum = getattr(
+            gca_accelerator_type.AcceleratorType, accelerator_type
+        )
 
-        if accelerator_enum != AcceleratorType.ACCELERATOR_TYPE_UNSPECIFIED:
+        if (
+            accelerator_enum
+            != gca_accelerator_type.AcceleratorType.ACCELERATOR_TYPE_UNSPECIFIED
+        ):
             worker_pool_spec["machineSpec"]["acceleratorType"] = accelerator_type
             worker_pool_spec["machineSpec"]["acceleratorCount"] = accelerator_count
 
         if args:
-            worker_pool_spec["pythonPackageSpec"]["args"] = format_args(args)
+            worker_pool_spec["pythonPackageSpec"]["args"] = args
 
         managed_model = None
         # create model payload
         if model_display_name:
 
-            container_spec = ModelContainerSpec(
+            container_spec = gca_model.ModelContainerSpec(
                 image_uri=self._model_serving_container_image_uri,
                 predict_route=self._model_serving_container_predict_route,
                 health_route=self._model_serving_container_health_route,
             )
 
-            managed_model = Model(
+            managed_model = gca_model.Model(
                 display_name=model_display_name, container_spec=container_spec
             )
 
         input_data_config = None
         if dataset:
             # Create fraction split spec
-            fraction_split = FractionSplit(
+            fraction_split = gca_training_pipeline.FractionSplit(
                 training_fraction=training_fraction_split,
                 validation_fraction=validation_fraction_split,
                 test_fraction=test_fraction_split,
             )
 
             # create input data config
-            input_data_config = InputDataConfig(
+            input_data_config = gca_training_pipeline.InputDataConfig(
                 fraction_split=fraction_split,
                 dataset_id=dataset.name,
-                gcs_destination=GcsDestination(output_uri_prefix=base_output_dir),
+                gcs_destination=gca_io.GcsDestination(
+                    output_uri_prefix=base_output_dir
+                ),
             )
 
         # create training pipeline
-        training_pipeline = TrainingPipeline(
+        training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=self._display_name,
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
@@ -653,7 +652,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
                     "workerPoolSpecs": [worker_pool_spec],
                     "baseOutputDirectory": {"output_uri_prefix": base_output_dir},
                 },
-                Value(),
+                struct_pb2.Value(),
             ),
             model_to_upload=managed_model,
             input_data_config=input_data_config,
@@ -784,7 +783,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             )
 
     @property
-    def state(self) -> PipelineState:
+    def state(self) -> gca_pipeline_state.PipelineState:
         """Current training state."""
         self._assert_has_run()
         return self._gca_resource.state
@@ -793,7 +792,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
     def is_failed(self) -> bool:
         """Returns True if training has failed. False otherwise."""
         self._assert_has_run()
-        return self.state == PipelineState.PIPELINE_STATE_FAILED
+        return self.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED
 
     def _dashboard_uri(self) -> str:
         """Helper method to compose the dashboard uri where training can be viewed."""
