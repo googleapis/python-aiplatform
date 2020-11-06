@@ -51,7 +51,10 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
     "loss_fn": "mse",
 }
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
-_TEST_MODEL_ID = "1028944691210842416"
+_TEST_ID = "1028944691210842416"
+_TEST_ENDPOINT_NAME = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
+)
 
 
 class TestModel:
@@ -67,7 +70,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            models.Model(_TEST_MODEL_ID)
+            models.Model(_TEST_ID)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
                 credentials=None,
@@ -83,7 +86,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            models.Model(_TEST_MODEL_ID, location=_TEST_LOCATION_2)
+            models.Model(_TEST_ID, location=_TEST_LOCATION_2)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
                 credentials=None,
@@ -99,7 +102,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
             creds = auth_credentials.AnonymousCredentials()
-            models.Model(_TEST_MODEL_ID, credentials=creds)
+            models.Model(_TEST_ID, credentials=creds)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
                 credentials=creds,
@@ -115,9 +118,9 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            models.Model(_TEST_MODEL_ID)
+            models.Model(_TEST_ID)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_NAME
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
             )
             api_client_mock.get_model.assert_called_once_with(
                 name=test_model_resource_name
@@ -131,9 +134,9 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            models.Model(_TEST_MODEL_ID, project=_TEST_PROJECT_2)
+            models.Model(_TEST_ID, project=_TEST_PROJECT_2)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT_2, _TEST_LOCATION, _TEST_MODEL_NAME
+                _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
             )
             api_client_mock.get_model.assert_called_once_with(
                 name=test_model_resource_name
@@ -147,9 +150,9 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            models.Model(_TEST_MODEL_ID, location=_TEST_LOCATION_2)
+            models.Model(_TEST_ID, location=_TEST_LOCATION_2)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION_2, _TEST_MODEL_NAME
+                _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
             )
             api_client_mock.get_model.assert_called_once_with(
                 name=test_model_resource_name
@@ -164,7 +167,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             mock_lro = mock.Mock(ga_operation.Operation)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_ID
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
             )
             mock_lro.result.return_value = model_service.UploadModelResponse(
                 model=test_model_resource_name
@@ -210,7 +213,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             mock_lro = mock.Mock(ga_operation.Operation)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_ID
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
             )
             mock_lro.result.return_value = model_service.UploadModelResponse(
                 model=test_model_resource_name
@@ -276,7 +279,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             mock_lro = mock.Mock(ga_operation.Operation)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT_2, _TEST_LOCATION, _TEST_MODEL_ID
+                _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
             )
             mock_lro.result.return_value = model_service.UploadModelResponse(
                 model=test_model_resource_name
@@ -323,7 +326,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             mock_lro = mock.Mock(ga_operation.Operation)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION_2, _TEST_MODEL_ID
+                _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
             )
             mock_lro.result.return_value = model_service.UploadModelResponse(
                 model=test_model_resource_name
@@ -370,11 +373,11 @@ class TestModel:
             api_client_mock = mock.Mock(spec=EndpointServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            test_model = models.Model(_TEST_MODEL_ID)
-            mock_endpoint = mock.Mock(autospec=models.Endpoint)
+            test_model = mock.Mock(autospec=models.Model)
+            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
 
-            assert test_model.deploy(mock_endpoint) == mock_endpoint
-            mock_endpoint.deploy.assert_called_once_with(
+            assert test_model.deploy(test_endpoint) == test_endpoint
+            test_endpoint.deploy.assert_called_once_with(
                 model=test_model,
                 deployed_model_display_name=None,
                 traffic_percentage=100,

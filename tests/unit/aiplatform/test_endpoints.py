@@ -57,11 +57,10 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ID}"
 )
-_TEST_MODEL_ID = "1028944691210842416"
 _TEST_PREDICTION = [["1", "2", "3"], ["3", "3", "1"]]
 
 
-class TestEndpoints:
+class TestEndpoint:
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
@@ -137,7 +136,7 @@ class TestEndpoints:
             prediction_service_client.PredictionClient, "predict"
         ) as predict_mock:
             predict_mock.return_value = prediction_service.PredictResponse(
-                predictions=_TEST_PREDICTION, deployed_model_id=_TEST_MODEL_ID
+                predictions=_TEST_PREDICTION, deployed_model_id=_TEST_ID
             )
             yield predict_mock
 
@@ -430,22 +429,30 @@ class TestEndpoints:
         )
 
     @pytest.mark.parametrize(
-        "old_split, percent",
+        "alpaca, llama, chinchilla, percent",
         [
-            ({"alpaca": 100}, 70),
-            ({"alpaca": 50, "llama": 50}, 70),
-            ({"alpaca": 40, "llama": 60}, 75),
-            ({"alpaca": 40, "llama": 60}, 88),
-            ({"baby": 88, "shark": 12}, 36),
-            ({"baby": 11, "shark": 89}, 18),
-            ({"baby": 1, "shark": 99}, 80),
-            ({"a": 1, "b": 2, "c": 97}, 68),
-            ({"a": 99, "b": 1, "c": 0}, 22),
-            ({"a": 0, "b": 0, "c": 100}, 18),
-            ({"a": 7, "b": 87, "c": 6}, 46),
+            (100, None, None, 70),
+            (50, 50, None, 70),
+            (40, 60, None, 75),
+            (40, 60, None, 88),
+            (88, 12, None, 36),
+            (11, 89, None, 18),
+            (1, 99, None, 80),
+            (1, 2, 97, 68),
+            (99, 1, 0, 22),
+            (0, 0, 100, 18),
+            (7, 87, 6, 46),
         ],
     )
-    def test_allocate_traffic(self, old_split, percent):
+    def test_allocate_traffic(self, alpaca, llama, chinchilla, percent):
+        old_split = {}
+        if alpaca:
+            old_split["alpaca"] = alpaca
+        if llama:
+            old_split["llama"] = llama
+        if chinchilla:
+            old_split["chinchilla"] = chinchilla
+
         new_split = models.Endpoint._allocate_traffic(old_split, percent)
         new_split_sum = 0
         for model in new_split:
@@ -455,22 +462,30 @@ class TestEndpoints:
         assert new_split["0"] == percent
 
     @pytest.mark.parametrize(
-        "old_split, deployed_model",
+        "alpaca, llama, chinchilla, deployed_model",
         [
-            ({"alpaca": 100}, "alpaca"),
-            ({"alpaca": 50, "llama": 50}, "alpaca"),
-            ({"alpaca": 40, "llama": 60}, "llama"),
-            ({"alpaca": 40, "llama": 60}, "alpaca"),
-            ({"baby": 88, "shark": 12}, "baby"),
-            ({"baby": 11, "shark": 89}, "baby"),
-            ({"baby": 1, "shark": 99}, "shark"),
-            ({"a": 1, "b": 2, "c": 97}, "a"),
-            ({"a": 99, "b": 1, "c": 0}, "b"),
-            ({"a": 0, "b": 0, "c": 100}, "c"),
-            ({"a": 7, "b": 87, "c": 6}, "b"),
+            (100, None, None, "alpaca"),
+            (50, 50, None, "alpaca"),
+            (40, 60, None, "llama"),
+            (40, 60, None, "alpaca"),
+            (88, 12, None, "alpaca"),
+            (11, 89, None, "alpaca"),
+            (1, 99, None, "llama"),
+            (1, 2, 97, "alpaca"),
+            (99, 1, 0, "llama"),
+            (0, 0, 100, "chinchilla"),
+            (7, 87, 6, "llama"),
         ],
     )
-    def test_unallocate_traffic(self, old_split, deployed_model):
+    def test_unallocate_traffic(self, alpaca, llama, chinchilla, deployed_model):
+        old_split = {}
+        if alpaca:
+            old_split["alpaca"] = alpaca
+        if llama:
+            old_split["llama"] = llama
+        if chinchilla:
+            old_split["chinchilla"] = chinchilla
+
         new_split = models.Endpoint._unallocate_traffic(old_split, deployed_model)
         new_split_sum = 0
         for model in new_split:
@@ -546,7 +561,7 @@ class TestEndpoints:
         )
 
         true_prediction = models.Prediction(
-            predictions=_TEST_PREDICTION, deployed_model_id=_TEST_MODEL_ID
+            predictions=_TEST_PREDICTION, deployed_model_id=_TEST_ID
         )
 
         assert true_prediction == test_prediction
