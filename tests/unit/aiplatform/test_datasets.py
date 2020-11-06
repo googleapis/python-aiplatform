@@ -169,7 +169,9 @@ class TestDataset:
 
         Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
-            source=EmptyNonTabularSourceConfig(metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR),
+            source=EmptyNonTabularSourceConfig(
+                    metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR
+                ),
             labels=_TEST_LABEL,
         )
 
@@ -190,7 +192,9 @@ class TestDataset:
 
         Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
-            source=BQTabularSourceConfig(source_uri=_TEST_SOURCE_URI_BQ),
+            source=BQTabularSourceConfig(
+                source_uri=_TEST_SOURCE_URI_BQ
+            ),
             labels=_TEST_LABEL,
         )
 
@@ -211,7 +215,11 @@ class TestDataset:
 
         my_dataset = Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
-            source=GCSNonTabularSourceConfig(source_uris=[_TEST_SOURCE_URI_GCS], metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR, import_schema_uri=_TEST_IMPORT_SCHEMA_URI, data_items_labels=_TEST_DATA_LABEL_ITEMS),
+            source=GCSNonTabularSourceConfig(
+                source_uris=[_TEST_SOURCE_URI_GCS], 
+                metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR, 
+                import_schema_uri=_TEST_IMPORT_SCHEMA_URI, 
+                data_items_labels=_TEST_DATA_LABEL_ITEMS),
             labels=_TEST_LABEL            
         )
 
@@ -246,7 +254,10 @@ class TestDataset:
         my_dataset = Dataset(dataset_name=_TEST_NAME)
 
         my_dataset.import_data(
-            source=GCSNonTabularImportConfig(source_uris=[_TEST_SOURCE_URI_GCS], import_schema_uri=_TEST_IMPORT_SCHEMA_URI, data_items_labels=_TEST_DATA_LABEL_ITEMS)
+            source=GCSNonTabularImportConfig(
+                source_uris=[_TEST_SOURCE_URI_GCS], 
+                import_schema_uri=_TEST_IMPORT_SCHEMA_URI, 
+                data_items_labels=_TEST_DATA_LABEL_ITEMS)
         )
 
         expected_import_config = ImportDataConfig(
