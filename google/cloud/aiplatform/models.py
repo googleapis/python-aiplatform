@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
+from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -33,7 +33,9 @@ from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import env_var
 
-from google.cloud.aiplatform_v1beta1.services.prediction_service import client as prediction_service_client
+from google.cloud.aiplatform_v1beta1.services.prediction_service import (
+    client as prediction_service_client,
+)
 from google.protobuf import json_format
 
 
@@ -322,8 +324,10 @@ class Prediction(NamedTuple):
         deployed_model_id:
             ID of the Endpoint's DeployedModel that served this prediction.
     """
+
     predictions: Dict[str, List]
     deployed_model_id: str
+
 
 class Endpoint(base.AiPlatformResourceNoun):
 
@@ -358,8 +362,8 @@ class Endpoint(base.AiPlatformResourceNoun):
         super().__init__(project=project, location=location, credentials=credentials)
         self._gca_resource = self._get_endpoint(endpoint_name)
         self._prediction_client = self._instantiate_prediction_client(
-            location=location, credentials=credentials)
-
+            location=location, credentials=credentials
+        )
 
     def _get_endpoint(self, endpoint_name: str) -> gca_endpoint.Endpoint:
         """Gets the endpoint from AI Platform.
@@ -775,9 +779,9 @@ class Endpoint(base.AiPlatformResourceNoun):
 
     @staticmethod
     def _instantiate_prediction_client(
-        location: Optional[str]=None,
-        credentials: Optional[auth_credentials.Credentials]=None
-        ) -> prediction_service_client.PredictionServiceClient:
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> prediction_service_client.PredictionServiceClient:
         """Helper method to instantiates prediction client for this endpoint.
 
         Args:
@@ -790,15 +794,13 @@ class Endpoint(base.AiPlatformResourceNoun):
                 Initalized prediction client.
         """
         return initializer.global_config.create_client(
-                client_class=prediction_service_client.PredictionServiceClient,
-                credentials=credentials,
-                location_override=location,
-                prediction_client=True
-            )
+            client_class=prediction_service_client.PredictionServiceClient,
+            credentials=credentials,
+            location_override=location,
+            prediction_client=True,
+        )
 
-
-    def predict(self, instances: List,
-        parameters: Optional[Dict]=None) -> Prediction:
+    def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
         """Make a prediction against this Endpoint.
 
         Args:
@@ -825,16 +827,17 @@ class Endpoint(base.AiPlatformResourceNoun):
             prediction: Prediction with returned predictions and Model Id.
 
         """
-        prediction_response =self._prediction_client.predict(
-            endpoint=self.resource_name,
-            instances=instances,
-            parameters=parameters)
+        prediction_response = self._prediction_client.predict(
+            endpoint=self.resource_name, instances=instances, parameters=parameters
+        )
 
         return Prediction(
-            predictions= [json_format.MessageToDict(item)
-            for item in prediction_response.predictions.pb],
-            deployed_model_id= prediction_response.deployed_model_id)
-
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in prediction_response.predictions.pb
+            ],
+            deployed_model_id=prediction_response.deployed_model_id,
+        )
 
     # TODO(b/172265811): implement prediction
     def explain(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:

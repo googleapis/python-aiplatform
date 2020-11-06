@@ -31,7 +31,9 @@ from google.cloud.aiplatform_v1beta1.services.model_service.client import (
 from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
     EndpointServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.prediction_service import client as prediction_service_client
+from google.cloud.aiplatform_v1beta1.services.prediction_service import (
+    client as prediction_service_client,
+)
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import machine_resources
@@ -56,7 +58,7 @@ _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ID}"
 )
 _TEST_MODEL_ID = "1028944691210842416"
-_TEST_PREDICTION = [['1', '2', '3'], ['3', '3', '1']]
+_TEST_PREDICTION = [["1", "2", "3"], ["3", "3", "1"]]
 
 
 class TestEndpoints:
@@ -71,7 +73,6 @@ class TestEndpoints:
         ) as get_endpoint_mock:
             get_endpoint_mock.return_value = gca_endpoint.Endpoint(
                 display_name=_TEST_DISPLAY_NAME, name=_TEST_ENDPOINT_NAME,
-
             )
             yield get_endpoint_mock
 
@@ -106,7 +107,6 @@ class TestEndpoints:
             deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
             deploy_model_lro_mock.result.return_value = endpoint_service.DeployModelResponse(
                 deployed_model=deployed_model,
-
             )
             deploy_model_mock.return_value = deploy_model_lro_mock
             yield deploy_model_mock
@@ -133,14 +133,13 @@ class TestEndpoints:
 
     @pytest.fixture
     def predict_client_predict_mock(self):
-        with mock.patch.object(prediction_service_client.PredictionClient, 'predict'
-            ) as predict_mock:
+        with mock.patch.object(
+            prediction_service_client.PredictionClient, "predict"
+        ) as predict_mock:
             predict_mock.return_value = prediction_service.PredictResponse(
-                    predictions=_TEST_PREDICTION,
-                    deployed_model_id=_TEST_MODEL_ID
-                )
+                predictions=_TEST_PREDICTION, deployed_model_id=_TEST_MODEL_ID
+            )
             yield predict_mock
-
 
     def test_constructor(self, create_client_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -543,13 +542,11 @@ class TestEndpoints:
 
         test_endpoint = models.Endpoint(_TEST_ID)
         test_prediction = test_endpoint.predict(
-                instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]],
-                parameters={'param': 3.0}
-            )
+            instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]], parameters={"param": 3.0}
+        )
 
         true_prediction = models.Prediction(
-                predictions=_TEST_PREDICTION,
-                deployed_model_id=_TEST_MODEL_ID
-            )
+            predictions=_TEST_PREDICTION, deployed_model_id=_TEST_MODEL_ID
+        )
 
         assert true_prediction == test_prediction
