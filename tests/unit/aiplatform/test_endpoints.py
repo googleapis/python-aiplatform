@@ -137,12 +137,12 @@ class TestEndpoints:
     def test_constructor_with_endpoint_id(self, get_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Endpoint(_TEST_ID)
-        get_endpoint_mock.assert_called_once_with(_TEST_ENDPOINT_NAME)
+        get_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
 
     def test_constructor_with_endpoint_name(self, get_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Endpoint(_TEST_ENDPOINT_NAME)
-        get_endpoint_mock.assert_called_once_with(_TEST_ENDPOINT_NAME)
+        get_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
 
     def test_constructor_with_custom_project(self, get_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -237,42 +237,48 @@ class TestEndpoints:
             metadata=(),
         )
 
-    def test_deploy_raise_error_traffic_80(self, get_endpoint_mock):
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    def test_deploy_raise_error_traffic_80(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, traffic_percentage=80)
 
-    def test_deploy_raise_error_traffic_120(self, get_endpoint_mock):
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    def test_deploy_raise_error_traffic_120(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, traffic_percentage=120)
 
-    def test_deploy_raise_error_traffic_negative(self, get_endpoint_mock):
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    def test_deploy_raise_error_traffic_negative(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, traffic_percentage=-18)
 
-    def test_deploy_raise_error_min_replica(self, get_endpoint_mock):
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    def test_deploy_raise_error_min_replica(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, min_replica_count=-1)
 
-    def test_deploy_raise_error_max_replica(self, get_endpoint_mock):
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    def test_deploy_raise_error_max_replica(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, max_replica_count=-2)
 
-    def test_deploy_raise_error_traffic_split(self, get_endpoint_mock):
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    def test_deploy_raise_error_traffic_split(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
@@ -408,21 +414,21 @@ class TestEndpoints:
     @pytest.mark.parametrize(
         "old_split, percent",
         [
-            ([("alpaca", 100)], 70),
-            ([("alpaca", 50), ("llama", 50)], 70),
-            ([("alpaca", 40), ("llama", 60)], 75),
-            ([("alpaca", 40), ("llama", 60)], 88),
-            ([("baby", 88), ("shark", 12)], 36),
-            ([("baby", 11), ("shark", 89)], 18),
-            ([("baby", 1), ("shark", 99)], 80),
-            ([("a", 1), ("b", 2), ("c", 97)], 68),
-            ([("a", 99), ("b", 1), ("c", 0)], 22),
-            ([("a", 0), ("b", 0), ("c", 100)], 18),
-            ([("a", 7), ("b", 87), ("c", 6)], 46),
+            ({"alpaca": 100}, 70),
+            ({"alpaca": 50, "llama": 50}, 70),
+            ({"alpaca": 40, "llama": 60}, 75),
+            ({"alpaca": 40, "llama": 60}, 88),
+            ({"baby": 88, "shark": 12}, 36),
+            ({"baby": 11, "shark": 89}, 18),
+            ({"baby": 1, "shark": 99}, 80),
+            ({"a": 1, "b": 2, "c": 97}, 68),
+            ({"a": 99, "b": 1, "c": 0}, 22),
+            ({"a": 0, "b": 0, "c": 100}, 18),
+            ({"a": 7, "b": 87, "c": 6}, 46),
         ],
     )
     def test_allocate_traffic(self, old_split, percent):
-        new_split = models.Endpoint._allocate_traffic(dict(old_split), percent)
+        new_split = models.Endpoint._allocate_traffic(old_split, percent)
         new_split_sum = 0
         for model in new_split:
             new_split_sum += new_split[model]
@@ -433,21 +439,21 @@ class TestEndpoints:
     @pytest.mark.parametrize(
         "old_split, deployed_model",
         [
-            ([("alpaca", 100)], "alpaca"),
-            ([("alpaca", 50), ("llama", 50)], "alpaca"),
-            ([("alpaca", 40), ("llama", 60)], "llama"),
-            ([("alpaca", 40), ("llama", 60)], "alpaca"),
-            ([("baby", 88), ("shark", 12)], "baby"),
-            ([("baby", 11), ("shark", 89)], "baby"),
-            ([("baby", 1), ("shark", 99)], "shark"),
-            ([("a", 1), ("b", 2), ("c", 97)], "a"),
-            ([("a", 99), ("b", 1), ("c", 0)], "b"),
-            ([("a", 0), ("b", 0), ("c", 100)], "c"),
-            ([("a", 7), ("b", 87), ("c", 6)], "b"),
+            ({"alpaca": 100}, "alpaca"),
+            ({"alpaca": 50, "llama": 50}, "alpaca"),
+            ({"alpaca": 40, "llama": 60}, "llama"),
+            ({"alpaca": 40, "llama": 60}, "alpaca"),
+            ({"baby": 88, "shark": 12}, "baby"),
+            ({"baby": 11, "shark": 89}, "baby"),
+            ({"baby": 1, "shark": 99}, "shark"),
+            ({"a": 1, "b": 2, "c": 97}, "a"),
+            ({"a": 99, "b": 1, "c": 0}, "b"),
+            ({"a": 0, "b": 0, "c": 100}, "c"),
+            ({"a": 7, "b": 87, "c": 6}, "b"),
         ],
     )
     def test_unallocate_traffic(self, old_split, deployed_model):
-        new_split = models.Endpoint._unallocate_traffic(dict(old_split), deployed_model)
+        new_split = models.Endpoint._unallocate_traffic(old_split, deployed_model)
         new_split_sum = 0
         for model in new_split:
             new_split_sum += new_split[model]
@@ -495,7 +501,8 @@ class TestEndpoints:
                 metadata=(),
             )
 
-    def test_undeploy_raise_error_traffic_split_total(self, undeploy_model_mock):
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_undeploy_raise_error_traffic_split_total(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
@@ -503,7 +510,8 @@ class TestEndpoints:
                 deployed_model_id="alpaca", traffic_split={"llama": 99},
             )
 
-    def test_undeploy_raise_error_undeployed_model_traffic(self, undeploy_model_mock):
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_undeploy_raise_error_undeployed_model_traffic(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)

@@ -233,7 +233,7 @@ class Model(base.AiPlatformResourceNoun):
         self,
         endpoint: Optional["Endpoint"] = None,
         deployed_model_display_name: Optional[str] = None,
-        traffic_percentage: Optional[int] = -1,
+        traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
@@ -565,10 +565,9 @@ class Endpoint(base.AiPlatformResourceNoun):
 
     def deploy(
         self,
-        *,
         model: "Model",
         deployed_model_display_name: Optional[str] = None,
-        traffic_percentage: Optional[int] = -1,
+        traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict] = None,
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
@@ -670,7 +669,7 @@ class Endpoint(base.AiPlatformResourceNoun):
                         percentage for this deployed model needs to be 100."""
                     )
             traffic_split = self._allocate_traffic(
-                traffic_split=dict(self._gca_resource.traffic_split),
+                traffic_split=self._gca_resource.traffic_split,
                 traffic_percentage=traffic_percentage,
             )
         else:
@@ -724,7 +723,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         """
         if traffic_split is None:
             traffic_split = self._unallocate_traffic(
-                traffic_split=dict(self._gca_resource.traffic_split),
+                traffic_split=self._gca_resource.traffic_split,
                 deployed_model_id=deployed_model_id,
             )
         else:
