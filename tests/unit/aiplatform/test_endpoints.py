@@ -444,7 +444,7 @@ class TestEndpoint:
             (7, 87, 6, 46),
         ],
     )
-    def test_allocate_traffic(self, alpaca, llama, chinchilla, percent):
+    def test_allocate_traffic(alpaca, llama, chinchilla, percent):
         old_split = {}
         if alpaca:
             old_split["alpaca"] = alpaca
@@ -477,7 +477,7 @@ class TestEndpoint:
             (7, 87, 6, "llama"),
         ],
     )
-    def test_unallocate_traffic(self, alpaca, llama, chinchilla, deployed_model):
+    def test_unallocate_traffic(alpaca, llama, chinchilla, deployed_model):
         old_split = {}
         if alpaca:
             old_split["alpaca"] = alpaca

@@ -456,9 +456,6 @@ class Endpoint(base.AiPlatformResourceNoun):
             location=location,
             credentials=credentials,
         )
-
-        create_endpoint_operation.operation_future.result()
-        endpoint = cls(project=project, location=location, credentials=credentials,)
         return endpoint
 
     @classmethod
@@ -706,9 +703,9 @@ class Endpoint(base.AiPlatformResourceNoun):
             )
         elif traffic_split:
             traffic_sum = 0
-            for deployed_model in traffic_split:
+            for item in traffic_split:
                 # TODO(b/172678233) verify every referenced deployed model exists
-                traffic_sum += traffic_split[deployed_model]
+                traffic_sum += traffic_split[item]
             if traffic_sum != 100:
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
@@ -762,9 +759,9 @@ class Endpoint(base.AiPlatformResourceNoun):
             if traffic_split[deployed_model_id]:
                 raise ValueError("Model being undeployed should have 0 traffic.")
             traffic_sum = 0
-            for deployed_model in traffic_split:
+            for item in traffic_split:
                 # TODO(b/172678233) verify every referenced deployed model exists
-                traffic_sum += traffic_split[deployed_model]
+                traffic_sum += traffic_split[item]
             if traffic_sum != 100:
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
