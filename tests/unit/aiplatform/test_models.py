@@ -374,5 +374,14 @@ class TestModel:
             mock_endpoint = mock.Mock(autospec=models.Endpoint)
 
             assert test_model.deploy(mock_endpoint) == mock_endpoint
-            mock_endpoint.deploy.assert_called_once_with()
+            mock_endpoint.deploy.assert_called_once_with(
+                model=test_model,
+                deployed_model_display_name=None,
+                traffic_percentage=100,
+                traffic_split=None,
+                machine_type=None,
+                min_replica_count=1,
+                max_replica_count=1,
+                metadata=(),
+            )
             api_client_mock.deploy_model.assert_called_once()

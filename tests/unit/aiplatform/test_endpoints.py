@@ -25,10 +25,14 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
+from google.cloud.aiplatform_v1beta1.services.model_service.client import (
+    ModelServiceClient,
+)
 from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
     EndpointServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
+from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
 
@@ -41,8 +45,13 @@ _TEST_ENDPOINT_NAME = "test-endpoint"
 _TEST_DISPLAY_NAME = "test-display-name"
 _TEST_ID = "1028944691210842416"
 _TEST_DESCRIPTION = "test-description"
-_TEST_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
+_TEST_ENDPOINT_NAME = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
+)
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_MODEL_NAME = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ID}"
+)
 
 
 class TestEndpoints:
@@ -56,9 +65,17 @@ class TestEndpoints:
             EndpointServiceClient, "get_endpoint"
         ) as get_endpoint_mock:
             get_endpoint_mock.return_value = gca_endpoint.Endpoint(
-                display_name=_TEST_DISPLAY_NAME, name=_TEST_NAME,
+                display_name=_TEST_DISPLAY_NAME, name=_TEST_ENDPOINT_NAME,
             )
             yield get_endpoint_mock
+
+    @pytest.fixture
+    def get_model_mock(self):
+        with mock.patch.object(ModelServiceClient, "get_model") as get_model_mock:
+            get_model_mock.return_value = gca_model.Model(
+                display_name=_TEST_DISPLAY_NAME, name=_TEST_MODEL_NAME,
+            )
+            yield get_model_mock
 
     @pytest.fixture
     def create_endpoint_mock(self):
@@ -67,7 +84,7 @@ class TestEndpoints:
         ) as create_endpoint_mock:
             create_endpoint_lro_mock = mock.Mock(ga_operation.Operation)
             create_endpoint_lro_mock.result.return_value = gca_endpoint.Endpoint(
-                name=_TEST_NAME, display_name=_TEST_DISPLAY_NAME
+                name=_TEST_ENDPOINT_NAME, display_name=_TEST_DISPLAY_NAME
             )
             create_endpoint_mock.return_value = create_endpoint_lro_mock
             yield create_endpoint_mock
@@ -77,10 +94,12 @@ class TestEndpoints:
         with mock.patch.object(
             EndpointServiceClient, "deploy_model"
         ) as deploy_model_mock:
-            deployed_model_mock = mock.Mock(gca_endpoint.DeployedModel)
+            deployed_model = gca_endpoint.DeployedModel(
+                model=_TEST_MODEL_NAME, display_name=_TEST_DISPLAY_NAME,
+            )
             deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
             deploy_model_lro_mock.result.return_value = endpoint_service.DeployModelResponse(
-                deployed_model=deployed_model_mock,
+                deployed_model=deployed_model,
             )
             deploy_model_mock.return_value = deploy_model_lro_mock
             yield deploy_model_mock
@@ -107,7 +126,7 @@ class TestEndpoints:
 
     def test_constructor(self, create_client_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        models.Endpoint(_TEST_ENDPOINT_NAME)
+        models.Endpoint()
         create_client_mock.assert_called_once_with(
             client_class=EndpointServiceClient,
             credentials=None,
@@ -115,28 +134,36 @@ class TestEndpoints:
             prediction_client=False,
         )
 
+    def test_constructor_with_endpoint_id(self, get_endpoint_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        models.Endpoint(_TEST_ID)
+        get_endpoint_mock.assert_called_once_with(_TEST_ENDPOINT_NAME)
+
+    def test_constructor_with_endpoint_name(self, get_endpoint_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        models.Endpoint(_TEST_ENDPOINT_NAME)
+        get_endpoint_mock.assert_called_once_with(_TEST_ENDPOINT_NAME)
+
     def test_constructor_with_custom_project(self, get_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        models.Endpoint(name=_TEST_ENDPOINT_NAME, project=_TEST_PROJECT_2)
+        models.Endpoint(endpoint_name=_TEST_ID, project=_TEST_PROJECT_2)
         test_endpoint_resource_name = EndpointServiceClient.endpoint_path(
-            _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ENDPOINT_NAME
+            _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
         )
         get_endpoint_mock.assert_called_once_with(name=test_endpoint_resource_name)
 
-    def test_constructor_with_custom_location(self, create_client_mock):
+    def test_constructor_with_custom_location(self, get_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        models.Endpoint(name=_TEST_ENDPOINT_NAME, location=_TEST_LOCATION_2)
-        create_client_mock.assert_called_once_with(
-            client_class=EndpointServiceClient,
-            credentials=None,
-            location_override=_TEST_LOCATION_2,
-            prediction_client=False,
+        models.Endpoint(name=_TEST_ID, location=_TEST_LOCATION_2)
+        test_endpoint_resource_name = EndpointServiceClient.endpoint_path(
+            _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
         )
+        get_endpoint_mock.assert_called_once_with(name=test_endpoint_resource_name)
 
     def test_constructor_with_custom_credentials(self, create_client_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         creds = auth_credentials.AnonymousCredentials()
-        models.Endpoint(_TEST_ENDPOINT_NAME)
+        models.Endpoint()
         create_client_mock.assert_called_once_with(
             client_class=EndpointServiceClient,
             credentials=creds,
@@ -150,7 +177,7 @@ class TestEndpoints:
         models.Endpoint.create(display_name=_TEST_DISPLAY_NAME)
         expected_endpoint = gca_endpoint.Endpoint(display_name=_TEST_DISPLAY_NAME)
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=None,
+            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(),
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
@@ -163,14 +190,14 @@ class TestEndpoints:
             display_name=_TEST_DISPLAY_NAME, description=_TEST_DESCRIPTION,
         )
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=None,
+            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(),
         )
 
-    @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     def test_deploy(self, deploy_model_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-        test_model = mock.Mock(models.Model)
+        test_model = models.Model(_TEST_ID)
         test_endpoint.deploy(test_model)
         automatic_resources = machine_resources.AutomaticResources(
             min_replica_count=1, max_replica_count=1,
@@ -184,14 +211,14 @@ class TestEndpoints:
             endpoint=test_endpoint.resource_name,
             deployed_model=deployed_model,
             traffic_split={"0": 100},
-            metadata=None,
+            metadata=(),
         )
 
-    @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     def test_deploy_with_display_name(self, deploy_model_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-        test_model = mock.Mock(models.Model)
+        test_model = models.Model(_TEST_ID)
         test_endpoint.deploy(
             model=test_model, deployed_model_display_name=_TEST_DISPLAY_NAME
         )
@@ -207,16 +234,52 @@ class TestEndpoints:
             endpoint=test_endpoint.resource_name,
             deployed_model=deployed_model,
             traffic_split={"0": 100},
-            metadata=None,
+            metadata=(),
         )
 
-    def test_deploy_raise_error(self, get_endpoint_mock):
+    def test_deploy_raise_error_traffic_80(self, get_endpoint_mock):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-            test_model = mock.Mock(models.Model)
+            test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, traffic_percentage=80)
 
+    def test_deploy_raise_error_traffic_120(self, get_endpoint_mock):
+        with pytest.raises(ValueError):
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+            test_model = models.Model(_TEST_ID)
+            test_endpoint.deploy(model=test_model, traffic_percentage=120)
+
+    def test_deploy_raise_error_traffic_negative(self, get_endpoint_mock):
+        with pytest.raises(ValueError):
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+            test_model = models.Model(_TEST_ID)
+            test_endpoint.deploy(model=test_model, traffic_percentage=-18)
+
+    def test_deploy_raise_error_min_replica(self, get_endpoint_mock):
+        with pytest.raises(ValueError):
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+            test_model = models.Model(_TEST_ID)
+            test_endpoint.deploy(model=test_model, min_replica_count=-1)
+
+    def test_deploy_raise_error_max_replica(self, get_endpoint_mock):
+        with pytest.raises(ValueError):
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+            test_model = models.Model(_TEST_ID)
+            test_endpoint.deploy(model=test_model, max_replica_count=-2)
+
+    def test_deploy_raise_error_traffic_split(self, get_endpoint_mock):
+        with pytest.raises(ValueError):
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+            test_model = models.Model(_TEST_ID)
+            test_endpoint.deploy(model=test_model, traffic_split={"a": 99})
+
+    @pytest.mark.usefixtures("get_model_mock")
     def test_deploy_with_traffic_percent(self, deploy_model_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with mock.patch.object(
@@ -224,12 +287,12 @@ class TestEndpoints:
         ) as get_endpoint_mock:
             get_endpoint_mock.return_value = gca_endpoint.Endpoint(
                 display_name=_TEST_DISPLAY_NAME,
-                name=_TEST_NAME,
+                name=_TEST_ENDPOINT_NAME,
                 traffic_split={"alpaca": 100},
             )
 
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-            test_model = mock.Mock(models.Model)
+            test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(model=test_model, traffic_percentage=70)
             automatic_resources = machine_resources.AutomaticResources(
                 min_replica_count=1, max_replica_count=1,
@@ -243,9 +306,10 @@ class TestEndpoints:
                 endpoint=test_endpoint.resource_name,
                 deployed_model=deployed_model,
                 traffic_split={"alpaca": 30, "0": 70},
-                metadata=None,
+                metadata=(),
             )
 
+    @pytest.mark.usefixtures("get_model_mock")
     def test_deploy_with_traffic_split(self, deploy_model_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with mock.patch.object(
@@ -253,12 +317,12 @@ class TestEndpoints:
         ) as get_endpoint_mock:
             get_endpoint_mock.return_value = gca_endpoint.Endpoint(
                 display_name=_TEST_DISPLAY_NAME,
-                name=_TEST_NAME,
+                name=_TEST_ENDPOINT_NAME,
                 traffic_split={"alpaca": 100},
             )
 
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-            test_model = mock.Mock(models.Model)
+            test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(
                 model=test_model, traffic_split={"alpaca": 30, "0": 70}
             )
@@ -274,14 +338,14 @@ class TestEndpoints:
                 endpoint=test_endpoint.resource_name,
                 deployed_model=deployed_model,
                 traffic_split={"alpaca": 30, "0": 70},
-                metadata=None,
+                metadata=(),
             )
 
-    @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     def test_deploy_with_machine_type(self, deploy_model_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-        test_model = mock.Mock(models.Model)
+        test_model = models.Model(_TEST_ID)
         test_endpoint.deploy(model=test_model, machine_type="n1-standard-32")
         machine_spec = machine_resources.MachineSpec(machine_type="n1-standard-32")
         dedicated_resources = machine_resources.DedicatedResources(
@@ -296,14 +360,14 @@ class TestEndpoints:
             endpoint=test_endpoint.resource_name,
             deployed_model=deployed_model,
             traffic_split={"0": 100},
-            metadata=None,
+            metadata=(),
         )
 
-    @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     def test_deploy_with_min_replica_count(self, deploy_model_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-        test_model = mock.Mock(models.Model)
+        test_model = models.Model(_TEST_ID)
         test_endpoint.deploy(model=test_model, min_replica_count=2)
         automatic_resources = machine_resources.AutomaticResources(
             min_replica_count=2, max_replica_count=2,
@@ -317,14 +381,14 @@ class TestEndpoints:
             endpoint=test_endpoint.resource_name,
             deployed_model=deployed_model,
             traffic_split={"0": 100},
-            metadata=None,
+            metadata=(),
         )
 
-    @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     def test_deploy_with_max_replica_count(self, deploy_model_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-        test_model = mock.Mock(models.Model)
+        test_model = models.Model(_TEST_ID)
         test_endpoint.deploy(model=test_model, max_replica_count=2)
         automatic_resources = machine_resources.AutomaticResources(
             min_replica_count=1, max_replica_count=2,
@@ -338,7 +402,7 @@ class TestEndpoints:
             endpoint=test_endpoint.resource_name,
             deployed_model=deployed_model,
             traffic_split={"0": 100},
-            metadata=None,
+            metadata=(),
         )
 
     @pytest.mark.parametrize(
@@ -364,6 +428,7 @@ class TestEndpoints:
             new_split_sum += new_split[model]
 
         assert new_split_sum == 100
+        assert new_split["0"] == percent
 
     @pytest.mark.parametrize(
         "old_split, deployed_model",
@@ -388,6 +453,7 @@ class TestEndpoints:
             new_split_sum += new_split[model]
 
         assert new_split_sum == 100
+        assert new_split[deployed_model] == 0
 
     def test_undeploy(self, undeploy_model_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -396,7 +462,7 @@ class TestEndpoints:
         ) as get_endpoint_mock:
             get_endpoint_mock.return_value = gca_endpoint.Endpoint(
                 display_name=_TEST_DISPLAY_NAME,
-                name=_TEST_NAME,
+                name=_TEST_ENDPOINT_NAME,
                 traffic_split={"alpaca": 100},
             )
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
@@ -405,7 +471,7 @@ class TestEndpoints:
                 endpoint=test_endpoint.resource_name,
                 deployed_model_id="alpaca",
                 traffic_split={"alpaca": 0},
-                metadata=None,
+                metadata=(),
             )
 
     def test_undeploy_with_traffic_split(self, undeploy_model_mock):
@@ -415,7 +481,7 @@ class TestEndpoints:
         ) as get_endpoint_mock:
             get_endpoint_mock.return_value = gca_endpoint.Endpoint(
                 display_name=_TEST_DISPLAY_NAME,
-                name=_TEST_NAME,
+                name=_TEST_ENDPOINT_NAME,
                 traffic_split={"alpaca": 40, "llama": 60},
             )
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
@@ -426,5 +492,21 @@ class TestEndpoints:
                 endpoint=test_endpoint.resource_name,
                 deployed_model_id="alpaca",
                 traffic_split={"alpaca": 0, "llama": 100},
-                metadata=None,
+                metadata=(),
+            )
+
+    def test_undeploy_raise_error_traffic_split_total(self, undeploy_model_mock):
+        with pytest.raises(ValueError):
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+            test_endpoint.undeploy(
+                deployed_model_id="alpaca", traffic_split={"llama": 99},
+            )
+
+    def test_undeploy_raise_error_undeployed_model_traffic(self, undeploy_model_mock):
+        with pytest.raises(ValueError):
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+            test_endpoint.undeploy(
+                deployed_model_id="alpaca", traffic_split={"alpaca": 50, "llama": 50},
             )
