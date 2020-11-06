@@ -12,10 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
+from importlib import reload
+from unittest import mock
+
 
 from google.api_core import operation
+from google.cloud import aiplatform
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import lro
 from google.cloud.aiplatform_v1beta1.services.model_service.client import (
     ModelServiceClient,
@@ -26,6 +30,18 @@ from google.protobuf import struct_pb2 as struct
 
 
 TEST_OPERATION_NAME = "test/operation"
+_TEST_PROJECT = "test-project"
+
+
+def setup_module(module):
+    reload(initializer)
+    reload(aiplatform)
+    aiplatform.init(project=_TEST_PROJECT)
+
+
+def teardown_module(module):
+    reload(initializer)
+    reload(aiplatform)
 
 
 class AiPlatformResourceNounImpl(base.AiPlatformResourceNoun):
