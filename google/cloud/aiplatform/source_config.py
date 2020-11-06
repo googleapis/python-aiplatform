@@ -70,10 +70,10 @@ class BQTabularSourceConfig(SourceConfig):
 
 ## TODO: Move to a GCSSourceConfig file
 # Do not instantiate this abstract class
-class GCSSourceConfig(SourceConfig):
-    def __init__(self, source_uris: [str]):
-        # TODO: Add doc strings
+class GCSSourceValidating(SourceConfig):
+    """Abstract class that takes in GCS source_uri's and performs validation"""
 
+    def __init__(self, source_uris: [str]):        
         # Perform validation of URI's
         if not all([uri.startswith('gs://') for uri in source_uris]):
             raise ValueError(
@@ -82,17 +82,72 @@ class GCSSourceConfig(SourceConfig):
 
         self._source_uris = source_uris
         
+# Do not instantiate this abstract class
+class GCSSourceConfig(GCSSourceValidating, SourceConfig):
+    """Abstract class for GCS source_uri's that provides Dataset metadata"""
+
     @property
     def metadata(self) -> Dict:
         return {"input_config": {"gcs_source": {"uri": self._source_uris}}}
 
 class GCSTabularSourceConfig(GCSSourceConfig):
+    """Class for GCS source_uri's for a tabular dataset schema that provides Dataset metadata"""
+
     @property
     def metadata_schema_uri(self) -> str:
         # Always return tabular as this config only supports tabular
         return schema.dataset.metadata.tabular
 
-class GCSNonTabularSourceConfig(GCSSourceConfig, DataImportable):
+class GCSNonTabularImportConfig(GCSSourceValidating, DataImportable):
+    """Class for GCS source_uri's for a non-tabular dataset schema that provides import config"""
+
+    def __init__(self, source_uris: [str], import_schema_uri: str, data_items_labels: Optional[Dict] = None):
+        """TODO
+
+        Args:
+            source_uris (Sequence[str]):
+                Required. Google Cloud Storage URI(-s) to the
+                input file(s). May contain wildcards. For more
+                information on wildcards, see
+                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+            import_schema_uri (str):
+                Required. Points to a YAML file stored on Google Cloud
+                Storage describing the import format. Validation will be
+                done against the schema. The schema is defined as an
+                `OpenAPI 3.0.2 Schema
+                Object <https://tinyurl.com/y538mdwt>`__.
+            data_item_labels: (Optional[Dict]) = None
+                Labels that will be applied to newly imported DataItems. If
+                an identical DataItem as one being imported already exists
+                in the Dataset, then these labels will be appended to these
+                of the already existing one, and if labels with identical
+                key is imported before, the old label value will be
+                overwritten. If two DataItems are identical in the same
+                import data operation, the labels will be combined and if
+                key collision happens in this case, one of the values will
+                be picked randomly. Two DataItems are considered identical
+                if their content bytes are identical (e.g. image bytes or
+                pdf bytes). These labels will be overridden by Annotation
+                labels specified inside index file refenced by
+                [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
+                e.g. jsonl file.
+        """
+
+        GCSSourceValidating.__init__(self, source_uris)
+        self._import_schema_uri = import_schema_uri
+        self._data_items_labels = data_items_labels
+        
+    @property 
+    def import_data_config(self) -> ImportDataConfig:
+        return ImportDataConfig(
+                gcs_source=GcsSource(uris=self._source_uris),
+                import_schema_uri=self._import_schema_uri,
+                data_item_labels=self._data_items_labels,
+            )
+
+class GCSNonTabularSourceConfig(GCSSourceConfig, GCSNonTabularImportConfig):
+    """Class for GCS source_uri's for a non-tabular dataset schema that provides Dataset metadata"""
+
     def __init__(self, source_uris: [str], metadata_schema_uri: str, import_schema_uri: str, data_items_labels: Optional[Dict] = None):
         """TODO
 
@@ -137,13 +192,11 @@ class GCSNonTabularSourceConfig(GCSSourceConfig, DataImportable):
             )
         
         GCSSourceConfig.__init__(self, source_uris)
+        GCSNonTabularImportConfig.__init__(self, source_uris, import_schema_uri, data_items_labels)
         self._metadata_schema_uri = metadata_schema_uri
-        self._import_schema_uri = import_schema_uri
-        self._data_items_labels = data_items_labels
 
     @property
     def metadata_schema_uri(self) -> str:
-        # Always return tabular as this config only supports tabular
         return self._metadata_schema_uri
 
     @property
