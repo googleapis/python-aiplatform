@@ -28,8 +28,11 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
     EndpointServiceClient,
 )
+from google.cloud.aiplatform_v1beta1.services.prediction_service import client as prediction_service_client
+
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import machine_resources
+from google.cloud.aiplatform_v1beta1.types import prediction_service
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
 
 _TEST_PROJECT = "test-project"
@@ -43,6 +46,9 @@ _TEST_ID = "1028944691210842416"
 _TEST_DESCRIPTION = "test-description"
 _TEST_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+
+_TEST_MODEL_ID = "1028944691210842416"
+_TEST_PREDICTION = [['1', '2', '3'], ['3', '3', '1']]
 
 
 class TestEndpoints:
@@ -104,6 +110,17 @@ class TestEndpoints:
         ) as create_client_mock:
             create_client_mock.return_value = mock.Mock(spec=EndpointServiceClient)
             yield create_client_mock
+
+    @pytest.fixture
+    def predict_client_predict_mock(self):
+        with mock.patch.object(prediction_service_client.PredictionClient, 'predict'
+            ) as predict_mock:
+            predict_mock.return_value = prediction_service.PredictResponse(
+                    predictions=_TEST_PREDICTION,
+                    deployed_model_id=_TEST_MODEL_ID
+                )
+            yield predict_mock
+
 
     def test_constructor(self, create_client_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -428,3 +445,19 @@ class TestEndpoints:
                 traffic_split={"alpaca": 0, "llama": 100},
                 metadata=None,
             )
+
+    def test_predict(self, get_endpoint_mock, endpoint_predict_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = test_endpoint.predict(
+                instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]],
+                parameters={'param': 3.0}
+            )
+
+        true_prediction = models.Prediction(
+                predictions=_TEST_PREDICTION,
+                deployed_model_id=_TEST_MODEL_ID
+            )
+
+        assert true_prediction == test_prediction

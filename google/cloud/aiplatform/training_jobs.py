@@ -553,19 +553,10 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
         # if args need for model is incomplete
         # TODO (b/162273530) lift requirement for predict/health route when
         # validation lifted and move these args down
-        if model_display_name and not all(
-            [
-                self._model_serving_container_image_uri,
-                self._model_serving_container_predict_route,
-                self._model_serving_container_health_route,
-            ]
-        ):
-
+        if model_display_name and not self._model_serving_container_image_uri:
             raise RuntimeError(
                 """model_display_name was provided but
-                model_serving_container_image_uri,
-                model_serving_container_predict_route, and
-                model_serving_container_health_route were not provided when this
+                model_serving_container_image_uri was not provided when this
                 custom pipeline was constructed.
                 """
             )

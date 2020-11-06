@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, Optional, Sequence, Tuple, List
+from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -28,10 +28,14 @@ from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
 from google.cloud.aiplatform_v1beta1.services.model_service.client import (
     ModelServiceClient,
 )
+
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import env_var
+
+from google.cloud.aiplatform_v1beta1.services.prediction_service import client as prediction_service_client
+from google.protobuf import json_format
 
 
 class Model(base.AiPlatformResourceNoun):
@@ -305,6 +309,23 @@ class Model(base.AiPlatformResourceNoun):
         return endpoint
 
 
+class Prediction(NamedTuple):
+    """Prediction class envelopes returned Model predictions and the Model id.
+
+    Attributes:
+        predictions:
+            The predictions that are the output of the predictions
+            call. The schema of any single prediction may be specified via
+            Endpoint's DeployedModels' [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+            [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+        deployed_model_id:
+            ID of the Endpoint's DeployedModel that served this prediction.
+    """
+    predictions: Dict[str, List]
+    deployed_model_id: str
+
+
+
 class Endpoint(base.AiPlatformResourceNoun):
 
     client_class = EndpointServiceClient
@@ -334,8 +355,11 @@ class Endpoint(base.AiPlatformResourceNoun):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        if endpoint:
-            self._gca_resource = self._get_endpoint(endpoint.name)
+
+        self._prediction_client = self._instantiate_prediction_client(
+            location=location, credentials=credentials)
+
+        self._gca_resource = self._get_endpoint(endpoint)
 
     def _get_endpoint(self, endpoint_name: str) -> gca_endpoint.Endpoint:
         """Gets the endpoint from AI Platform.
@@ -354,7 +378,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             project=self.project,
             location=self.location,
         )
-        endpoint = self.endpoint_client.get_endpoint(name=endpoint_name)
+        endpoint = self.api_client.get_endpoint(name=endpoint_name)
 
         return endpoint
 
@@ -420,14 +444,17 @@ class Endpoint(base.AiPlatformResourceNoun):
             metadata=metadata,
         )
 
+        create_endpoint_operation._operation_future.result()
+
+
         endpoint = cls(project=project, location=location, credentials=credentials,)
 
-        lro.LRO.update_resource(
-            operation_future=create_endpoint_operation,
-            resource_noun_obj=endpoint,
-            result_key="name",
-            api_get=lambda name: endpoint_client.get_endpoint(name=name),
-        )
+        # lro.LRO.update_resource(
+        #     operation_future=create_endpoint_operation,
+        #     resource_noun_obj=endpoint,
+        #     result_key="name",
+        #     api_get=lambda name: endpoint_client.get_endpoint(name=name),
+        # )
 
         return endpoint
 
@@ -486,6 +513,7 @@ class Endpoint(base.AiPlatformResourceNoun):
 
         return lro.LRO(operation_future)
 
+    @staticmethod
     def _allocate_traffic(
         traffic_split: Dict[str, int], traffic_percentage: int,
     ) -> Dict[str, int]:
@@ -502,9 +530,9 @@ class Endpoint(base.AiPlatformResourceNoun):
             new_traffic_split (Dict[str, int]):
                 Traffic split to use.
         """
+        new_traffic_split = {}
         old_models_traffic = 100 - traffic_percentage
         if old_models_traffic:
-            new_traffic_split = {}
             unallocated_traffic = old_models_traffic
             for deployed_model in traffic_split:
                 current_traffic = traffic_split[deployed_model]
@@ -522,6 +550,8 @@ class Endpoint(base.AiPlatformResourceNoun):
 
         return new_traffic_split
 
+
+    @staticmethod
     def _unallocate_traffic(
         traffic_split: Dict[str, int], deployed_model_id: str,
     ) -> Dict[str, int]:
@@ -652,17 +682,19 @@ class Endpoint(base.AiPlatformResourceNoun):
                 )
             traffic_split = self._allocate_traffic(
                 traffic_split=dict(self._gca_resource.traffic_split),
-                traffic_percentage=traffic_percentage,
+                traffic_percentage=traffic_percentage
             )
         # else:
         #     TODO: check traffic split provided is valid
 
-        self.endpoint_client.deploy_model(
+        lro = self.api_client.deploy_model(
             endpoint=self.resource_name,
             deployed_model=deployed_model,
             traffic_split=traffic_split,
             metadata=metadata,
         )
+
+        lro.result()
 
         return
 
@@ -708,10 +740,68 @@ class Endpoint(base.AiPlatformResourceNoun):
 
         return
 
-    # TODO(b/172265811): implement prediction
-    def predict(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
-        """Online prediction."""
-        raise NotImplementedError("Prediction not implemented.")
+    @staticmethod
+    def _instantiate_prediction_client(
+        location: Optional[str]=None,
+        credentials: Optional[auth_credentials.Credentials]=None
+        ) -> prediction_service_client.PredictionServiceClient:
+        """Helper method to instantiates prediction client for this endpoint.
+
+        Args:
+            location (str): The location of this endpoint.
+            credentials (google.auth.credentials.Credentials):
+                Optional custom credentials to use when accessing interacting with
+                the prediction client.
+        Returns:
+            prediction_client (prediction_service_client.PredictionServiceClient):
+                Initalized prediction client.
+        """
+        return initializer.global_config.create_client(
+                client_class=prediction_service_client.PredictionServiceClient,
+                credentials=credentials,
+                location_override=location,
+                prediction_client=True
+            )
+
+
+    def predict(self, instances: List,
+        parameters: Optional[Dict]=None) -> Prediction:
+        """Make a prediction against this Endpoint.
+
+        Args:
+            instances (List):
+                Required. Required. The instances that are the input to the
+                prediction call. A DeployedModel may have an upper limit
+                on the number of instances it supports per request, and
+                when it is exceeded the prediction call errors in case
+                of AutoML Models, or, in case of customer created
+                Models, the behaviour is as documented by that Model.
+                The schema of any single instance may be specified via
+                Endpoint's DeployedModels'
+                [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``instance_schema_uri``.
+            parameters (Dict):
+                The parameters that govern the prediction. The schema of
+                the parameters may be specified via Endpoint's
+                DeployedModels' [Model's
+                ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
+                [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
+                ``parameters_schema_uri``.
+        Returns:
+            prediction: Prediction with returned predictions and Model Id.
+
+        """
+        prediction_response =self._prediction_client.predict(
+            endpoint=self.resource_name,
+            instances=instances,
+            parameters=parameters)
+
+        return Prediction(
+            predictions= [json_format.MessageToDict(item)
+            for item in prediction_response.predictions.pb],
+            deployed_model_id= prediction_response.deployed_model_id)
+
 
     # TODO(b/172265811): implement prediction
     def explain(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
