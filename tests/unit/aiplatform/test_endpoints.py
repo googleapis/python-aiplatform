@@ -154,7 +154,7 @@ class TestEndpoints:
 
     def test_constructor_with_custom_location(self, get_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        models.Endpoint(name=_TEST_ID, location=_TEST_LOCATION_2)
+        models.Endpoint(endpoint_name=_TEST_ID, location=_TEST_LOCATION_2)
         test_endpoint_resource_name = EndpointServiceClient.endpoint_path(
             _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
         )
@@ -163,7 +163,7 @@ class TestEndpoints:
     def test_constructor_with_custom_credentials(self, create_client_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         creds = auth_credentials.AnonymousCredentials()
-        models.Endpoint()
+        models.Endpoint(credentials=creds)
         create_client_mock.assert_called_once_with(
             client_class=EndpointServiceClient,
             credentials=creds,
@@ -408,21 +408,21 @@ class TestEndpoints:
     @pytest.mark.parametrize(
         "old_split, percent",
         [
-            ({"alpaca": 100}, 70),
-            ({"alpaca": 50, "llama": 50}, 70),
-            ({"alpaca": 40, "llama": 60}, 75),
-            ({"alpaca": 40, "llama": 60}, 88),
-            ({"baby": 88, "shark": 12}, 36),
-            ({"baby": 11, "shark": 89}, 18),
-            ({"baby": 1, "shark": 99}, 80),
-            ({"a": 1, "b": 2, "c": 97}, 68),
-            ({"a": 99, "b": 1, "c": 0}, 22),
-            ({"a": 0, "b": 0, "c": 100}, 18),
-            ({"a": 7, "b": 87, "c": 6}, 46),
+            ([("alpaca", 100)], 70),
+            ([("alpaca", 50), ("llama", 50)], 70),
+            ([("alpaca", 40), ("llama", 60)], 75),
+            ([("alpaca", 40), ("llama", 60)], 88),
+            ([("baby", 88), ("shark", 12)], 36),
+            ([("baby", 11), ("shark", 89)], 18),
+            ([("baby", 1), ("shark", 99)], 80),
+            ([("a", 1), ("b", 2), ("c", 97)], 68),
+            ([("a", 99), ("b", 1), ("c", 0)], 22),
+            ([("a", 0), ("b", 0), ("c", 100)], 18),
+            ([("a", 7), ("b", 87), ("c", 6)], 46),
         ],
     )
     def test_allocate_traffic(self, old_split, percent):
-        new_split = models.Endpoint._allocate_traffic(old_split, percent)
+        new_split = models.Endpoint._allocate_traffic(dict(old_split), percent)
         new_split_sum = 0
         for model in new_split:
             new_split_sum += new_split[model]
@@ -433,21 +433,21 @@ class TestEndpoints:
     @pytest.mark.parametrize(
         "old_split, deployed_model",
         [
-            ({"alpaca": 100}, "alpaca"),
-            ({"alpaca": 50, "llama": 50}, "alpaca"),
-            ({"alpaca": 40, "llama": 60}, "llama"),
-            ({"alpaca": 40, "llama": 60}, "alpaca"),
-            ({"baby": 88, "shark": 12}, "baby"),
-            ({"baby": 11, "shark": 89}, "baby"),
-            ({"baby": 1, "shark": 99}, "shark"),
-            ({"a": 1, "b": 2, "c": 97}, "a"),
-            ({"a": 99, "b": 1, "c": 0}, "b"),
-            ({"a": 0, "b": 0, "c": 100}, "c"),
-            ({"a": 7, "b": 87, "c": 6}, "b"),
+            ([("alpaca", 100)], "alpaca"),
+            ([("alpaca", 50), ("llama", 50)], "alpaca"),
+            ([("alpaca", 40), ("llama", 60)], "llama"),
+            ([("alpaca", 40), ("llama", 60)], "alpaca"),
+            ([("baby", 88), ("shark", 12)], "baby"),
+            ([("baby", 11), ("shark", 89)], "baby"),
+            ([("baby", 1), ("shark", 99)], "shark"),
+            ([("a", 1), ("b", 2), ("c", 97)], "a"),
+            ([("a", 99), ("b", 1), ("c", 0)], "b"),
+            ([("a", 0), ("b", 0), ("c", 100)], "c"),
+            ([("a", 7), ("b", 87), ("c", 6)], "b"),
         ],
     )
     def test_unallocate_traffic(self, old_split, deployed_model):
-        new_split = models.Endpoint._unallocate_traffic(old_split, deployed_model)
+        new_split = models.Endpoint._unallocate_traffic(dict(old_split), deployed_model)
         new_split_sum = 0
         for model in new_split:
             new_split_sum += new_split[model]

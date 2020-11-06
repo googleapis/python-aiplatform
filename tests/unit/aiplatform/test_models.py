@@ -67,7 +67,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            models.Model(_TEST_MODEL_NAME)
+            models.Model(_TEST_MODEL_ID)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
                 credentials=None,
@@ -83,7 +83,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            models.Model(_TEST_MODEL_NAME, location=_TEST_LOCATION_2)
+            models.Model(_TEST_MODEL_ID, location=_TEST_LOCATION_2)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
                 credentials=None,
@@ -99,7 +99,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
             creds = auth_credentials.AnonymousCredentials()
-            models.Model(_TEST_MODEL_NAME, credentials=creds)
+            models.Model(_TEST_MODEL_ID, credentials=creds)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
                 credentials=creds,
@@ -115,7 +115,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            models.Model(_TEST_MODEL_NAME)
+            models.Model(_TEST_MODEL_ID)
             test_model_resource_name = ModelServiceClient.model_path(
                 _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_NAME
             )
@@ -131,7 +131,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            models.Model(_TEST_MODEL_NAME, project=_TEST_PROJECT_2)
+            models.Model(_TEST_MODEL_ID, project=_TEST_PROJECT_2)
             test_model_resource_name = ModelServiceClient.model_path(
                 _TEST_PROJECT_2, _TEST_LOCATION, _TEST_MODEL_NAME
             )
@@ -147,7 +147,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            models.Model(_TEST_MODEL_NAME, location=_TEST_LOCATION_2)
+            models.Model(_TEST_MODEL_ID, location=_TEST_LOCATION_2)
             test_model_resource_name = ModelServiceClient.model_path(
                 _TEST_PROJECT, _TEST_LOCATION_2, _TEST_MODEL_NAME
             )
@@ -370,7 +370,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=EndpointServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            test_model = models.Model(_TEST_MODEL_NAME)
+            test_model = models.Model(_TEST_MODEL_ID)
             mock_endpoint = mock.Mock(autospec=models.Endpoint)
 
             assert test_model.deploy(mock_endpoint) == mock_endpoint

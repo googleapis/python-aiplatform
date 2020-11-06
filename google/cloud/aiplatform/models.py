@@ -358,7 +358,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             project=self.project,
             location=self.location,
         )
-        endpoint = self.endpoint_client.get_endpoint(name=endpoint_name)
+        endpoint = self.api_client.get_endpoint(name=endpoint_name)
 
         return endpoint
 
@@ -368,7 +368,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         display_name: str,
         description: Optional[str] = None,
         labels: Optional[Dict] = None,
-        metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        metadata: Optional[Sequence[Tuple[str, str]]] = (),
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -409,12 +409,10 @@ class Endpoint(base.AiPlatformResourceNoun):
                 Instantiated representation of the endpoint resource.
         """
 
-        endpoint_client = cls._instantiate_client(
-            location=location, credentials=credentials
-        )
+        api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         create_endpoint_operation = cls._create(
-            endpoint_client=endpoint_client,
+            api_client=api_client,
             parent=initializer.global_config.common_location_path(
                 project=project, location=location
             ),
@@ -430,7 +428,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             operation_future=create_endpoint_operation.operation_future,
             resource_noun_obj=endpoint,
             result_key="name",
-            api_get=lambda name: endpoint_client.get_endpoint(name=name),
+            api_get=lambda name: api_client.get_endpoint(name=name),
         )
 
         return endpoint
@@ -438,18 +436,18 @@ class Endpoint(base.AiPlatformResourceNoun):
     @classmethod
     def _create(
         cls,
-        endpoint_client: EndpointServiceClient,
+        api_client: EndpointServiceClient,
         parent: str,
         display_name: str,
         description: Optional[str] = None,
         labels: Optional[Dict] = None,
-        metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ) -> lro.LRO:
         """
         Creates a new endpoint by calling the API client.
 
         Args:
-            endpoint_client (EndpointServiceClient):
+            api_client (EndpointServiceClient):
                 Required. An instance of EndpointServiceClient with the correct
                 api_endpoint already set based on user's preferences.
             parent (str):
@@ -484,7 +482,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             display_name=display_name, description=description, labels=labels,
         )
 
-        operation_future = endpoint_client.create_endpoint(
+        operation_future = api_client.create_endpoint(
             parent=parent, endpoint=gapic_endpoint, metadata=metadata
         )
 
@@ -685,7 +683,7 @@ class Endpoint(base.AiPlatformResourceNoun):
                     "Sum of all traffic within traffic split needs to be 100."
                 )
 
-        operation_future = self.endpoint_client.deploy_model(
+        operation_future = self.api_client.deploy_model(
             endpoint=self.resource_name,
             deployed_model=deployed_model,
             traffic_split=traffic_split,
@@ -741,7 +739,7 @@ class Endpoint(base.AiPlatformResourceNoun):
                     "Sum of all traffic within traffic split needs to be 100."
                 )
 
-        operation_future = self.endpoint_client.undeploy_model(
+        operation_future = self.api_client.undeploy_model(
             endpoint=self.resource_name,
             deployed_model_id=deployed_model_id,
             traffic_split=traffic_split,
