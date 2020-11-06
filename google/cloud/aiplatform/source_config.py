@@ -24,6 +24,10 @@ class SourceConfig(ABC):
 
 ## TODO: Move to a EmptySourceConfig file
 class EmptyNonTabularSourceConfig(SourceConfig):
+    """Class for a empty, non-tabular dataset schema that provides Dataset metadata
+    Used with Dataset.create(...) to create an empty, non-tabular dataset.
+    """
+
     def __init__(self, metadata_schema_uri: str):
         """TODO
 
@@ -48,6 +52,12 @@ class EmptyNonTabularSourceConfig(SourceConfig):
 
 ## TODO: Move to a BQSourceConfig file
 class BQTabularSourceConfig(SourceConfig):
+    """Class for a tabular dataset schema that provides Dataset metadata
+    
+    Used for data storaged on BigQuery.
+    When used with Dataset.create(...), the data will be imported to the dataset at creation time.
+    """
+
     def __init__(self, source_uri: str):
         # TODO: Add doc strings
 
@@ -91,7 +101,11 @@ class GCSSourceConfig(GCSSourceValidating, SourceConfig):
         return {"input_config": {"gcs_source": {"uri": self._source_uris}}}
 
 class GCSTabularSourceConfig(GCSSourceConfig):
-    """Class for GCS source_uri's for a tabular dataset schema that provides Dataset metadata"""
+    """Class for a tabular dataset schema that provides Dataset metadata. 
+    
+    Used for CSV files on Google Cloud Storage.
+    When used with Dataset.create(...), the data will be imported to the dataset at creation time.
+    """
 
     @property
     def metadata_schema_uri(self) -> str:
@@ -99,7 +113,9 @@ class GCSTabularSourceConfig(GCSSourceConfig):
         return schema.dataset.metadata.tabular
 
 class GCSNonTabularImportConfig(GCSSourceValidating, DataImportable):
-    """Class for GCS source_uri's for a non-tabular dataset schema that provides import config"""
+    """Class for a non-tabular dataset schema that provides import metadata. 
+    Used with Dataset.import_data(...) to import files from Google Cloud Storage to an existing dataset.
+    """
 
     def __init__(self, source_uris: [str], import_schema_uri: str, data_items_labels: Optional[Dict] = None):
         """TODO
@@ -146,7 +162,9 @@ class GCSNonTabularImportConfig(GCSSourceValidating, DataImportable):
             )
 
 class GCSNonTabularSourceConfig(GCSSourceConfig, GCSNonTabularImportConfig):
-    """Class for GCS source_uri's for a non-tabular dataset schema that provides Dataset metadata"""
+    """Class for a non-tabular dataset schema that provides Dataset metadata. 
+    Used with Dataset.create(...) to import files from Google Cloud Storage to the dataset at creation time.
+    """
 
     def __init__(self, source_uris: [str], metadata_schema_uri: str, import_schema_uri: str, data_items_labels: Optional[Dict] = None):
         """TODO
