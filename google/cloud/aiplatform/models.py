@@ -359,7 +359,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         self._prediction_client = self._instantiate_prediction_client(
             location=location, credentials=credentials)
 
-        self._gca_resource = self._get_endpoint(endpoint)
+        self._gca_resource = self._get_endpoint(endpoint_name)
 
     def _get_endpoint(self, endpoint_name: str) -> gca_endpoint.Endpoint:
         """Gets the endpoint from AI Platform.
