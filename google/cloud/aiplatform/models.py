@@ -314,7 +314,7 @@ class Endpoint(base.AiPlatformResourceNoun):
 
     def __init__(
         self,
-        endpoint_name: Optional[gca_endpoint.Endpoint] = None,
+        endpoint_name: str,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -323,7 +323,7 @@ class Endpoint(base.AiPlatformResourceNoun):
 
         Args:
             endpoint_name (str):
-                Optional. A fully-qualified endpoint resource name or endpoint ID.
+                Required. A fully-qualified endpoint resource name or endpoint ID.
                 Example: "projects/123/locations/us-central1/endpoints/456" or
                 "456" when project and location are initialized or passed.
             project (str):
@@ -338,8 +338,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        if endpoint_name:
-            self._gca_resource = self._get_endpoint(endpoint_name)
+        self._gca_resource = self._get_endpoint(endpoint_name)
 
     def _get_endpoint(self, endpoint_name: str) -> gca_endpoint.Endpoint:
         """Gets the endpoint from AI Platform.
@@ -422,13 +421,13 @@ class Endpoint(base.AiPlatformResourceNoun):
             metadata=metadata,
         )
 
-        endpoint = cls(project=project, location=location, credentials=credentials)
+        created_endpoint = create_endpoint_operation.operation_future.result()
 
-        lro.LRO.update_resource(
-            operation_future=create_endpoint_operation.operation_future,
-            resource_noun_obj=endpoint,
-            result_key="name",
-            api_get=lambda name: api_client.get_endpoint(name=name),
+        endpoint = cls(
+            endpoint_name=created_endpoint.name,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
 
         return endpoint
@@ -675,7 +674,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         else:
             traffic_sum = 0
             for deployed_model in traffic_split:
-                # TODO verify every referenced deployed model exists
+                # TODO(b/172678233) verify every referenced deployed model exists
                 traffic_sum += traffic_split[deployed_model]
             if traffic_sum != 100:
                 raise ValueError(
@@ -731,7 +730,7 @@ class Endpoint(base.AiPlatformResourceNoun):
                 raise ValueError("Model being undeployed should have 0 traffic.")
             traffic_sum = 0
             for deployed_model in traffic_split:
-                # TODO verify every referenced deployed model exists
+                # TODO(b/172678233) verify every referenced deployed model exists
                 traffic_sum += traffic_split[deployed_model]
             if traffic_sum != 100:
                 raise ValueError(
