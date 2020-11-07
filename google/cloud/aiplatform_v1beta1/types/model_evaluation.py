@@ -40,23 +40,23 @@ class ModelEvaluation(proto.Message):
         metrics_schema_uri (str):
             Output only. Points to a YAML file stored on Google Cloud
             Storage describing the
-            [metrics][google.cloud.aiplatform.v1beta1.ModelEvaluation.metrics]
+            ``metrics``
             of this ModelEvaluation. The schema is defined as an OpenAPI
             3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
         metrics (~.struct.Value):
             Output only. Evaluation metrics of the Model. The schema of
             the metrics is stored in
-            [metrics_schema_uri][google.cloud.aiplatform.v1beta1.ModelEvaluation.metrics_schema_uri]
+            ``metrics_schema_uri``
         create_time (~.timestamp.Timestamp):
             Output only. Timestamp when this
             ModelEvaluation was created.
         slice_dimensions (Sequence[str]):
             Output only. All possible
-            [dimensions][ModelEvaluationSlice.slice.dimension] of
+            ``dimensions`` of
             ModelEvaluationSlices. The dimensions can be used as the
             filter of the
-            [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices]
+            ``ModelService.ListModelEvaluationSlices``
             request, in the form of ``slice.dimension = <dimension>``.
         model_explanation (~.explanation.ModelExplanation):
             Output only. Aggregated explanation metrics
