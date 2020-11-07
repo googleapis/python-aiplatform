@@ -756,7 +756,7 @@ class Endpoint(base.AiPlatformResourceNoun):
                 deployed_model_id=deployed_model_id,
             )
         else:
-            if traffic_split[deployed_model_id]:
+            if deployed_model_id in traffic_split and traffic_split[deployed_model_id]:
                 raise ValueError("Model being undeployed should have 0 traffic.")
             traffic_sum = 0
             for item in traffic_split:

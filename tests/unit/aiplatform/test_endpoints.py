@@ -143,7 +143,7 @@ class TestEndpoint:
     def test_constructor(self, create_client_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Endpoint(_TEST_ENDPOINT_NAME)
-        create_client_mock.assert_called_once_with(
+        create_client_mock.assert_called_with(
             client_class=EndpointServiceClient,
             credentials=None,
             location_override=_TEST_LOCATION,
@@ -153,12 +153,12 @@ class TestEndpoint:
     def test_constructor_with_endpoint_id(self, get_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Endpoint(_TEST_ID)
-        get_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
+        get_endpoint_mock.assert_called_with(name=_TEST_ENDPOINT_NAME)
 
     def test_constructor_with_endpoint_name(self, get_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Endpoint(_TEST_ENDPOINT_NAME)
-        get_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
+        get_endpoint_mock.assert_called_with(name=_TEST_ENDPOINT_NAME)
 
     def test_constructor_with_custom_project(self, get_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -166,7 +166,7 @@ class TestEndpoint:
         test_endpoint_resource_name = EndpointServiceClient.endpoint_path(
             _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
         )
-        get_endpoint_mock.assert_called_once_with(name=test_endpoint_resource_name)
+        get_endpoint_mock.assert_called_with(name=test_endpoint_resource_name)
 
     def test_constructor_with_custom_location(self, get_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -174,14 +174,14 @@ class TestEndpoint:
         test_endpoint_resource_name = EndpointServiceClient.endpoint_path(
             _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
         )
-        get_endpoint_mock.assert_called_once_with(name=test_endpoint_resource_name)
+        get_endpoint_mock.assert_called_with(name=test_endpoint_resource_name)
 
     def test_constructor_with_custom_credentials(self, create_client_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         creds = auth_credentials.AnonymousCredentials()
 
         models.Endpoint(_TEST_ENDPOINT_NAME)
-        create_client_mock.assert_called_once_with(
+        create_client_mock.assert_called_with(
             client_class=EndpointServiceClient,
             credentials=creds,
             location_override=_TEST_LOCATION,
@@ -429,7 +429,7 @@ class TestEndpoint:
         )
 
     @pytest.mark.parametrize(
-        "alpaca, llama, chinchilla, percent",
+        ["alpaca", "llama", "chinchilla", "percent"],
         [
             (100, None, None, 70),
             (50, 50, None, 70),
@@ -462,7 +462,7 @@ class TestEndpoint:
         assert new_split["0"] == percent
 
     @pytest.mark.parametrize(
-        "alpaca, llama, chinchilla, deployed_model",
+        ["alpaca", "llama", "chinchilla", "deployed_model"],
         [
             (100, None, None, "alpaca"),
             (50, 50, None, "alpaca"),

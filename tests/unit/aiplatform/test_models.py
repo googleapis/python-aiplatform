@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-
 import importlib
+import pytest
 from unittest import mock
 
 from google.api_core import operation as ga_operation
@@ -61,6 +61,17 @@ class TestModel:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
+
+    @pytest.fixture
+    def get_model_mock(self):
+        with mock.patch.object(ModelServiceClient, "get_model") as get_model_mock:
+            test_model_resource_name = ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            )
+            get_model_mock.return_value = gca_model.Model(
+                display_name=_TEST_MODEL_NAME, name=test_model_resource_name,
+            )
+            yield get_model_mock
 
     def test_constructor_creates_client(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -364,6 +375,7 @@ class TestModel:
                 name=test_model_resource_name
             )
 
+    @pytest.mark.usefixtures("get_model_mock")
     def test_deploy(self):
 
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -373,7 +385,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=EndpointServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            test_model = mock.Mock(autospec=models.Model)
+            test_model = models.Model(_TEST_ID)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
 
             assert test_model.deploy(test_endpoint) == test_endpoint
