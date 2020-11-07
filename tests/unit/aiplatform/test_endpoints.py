@@ -429,7 +429,7 @@ class TestEndpoint:
         )
 
     @pytest.mark.parametrize(
-        ["alpaca", "llama", "chinchilla", "percent"],
+        "alpaca, llama, chinchilla, percent",
         [
             (100, None, None, 70),
             (50, 50, None, 70),
@@ -462,7 +462,7 @@ class TestEndpoint:
         assert new_split["0"] == percent
 
     @pytest.mark.parametrize(
-        ["alpaca", "llama", "chinchilla", "deployed_model"],
+        "alpaca, llama, chinchilla, deployed_model",
         [
             (100, None, None, "alpaca"),
             (50, 50, None, "alpaca"),
@@ -505,6 +505,7 @@ class TestEndpoint:
                 traffic_split={"alpaca": 100},
             )
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+            assert dict(test_endpoint._gca_resource.traffic_split) == {"alpaca": 100}
             test_endpoint.undeploy("alpaca")
             undeploy_model_mock.assert_called_once_with(
                 endpoint=test_endpoint.resource_name,

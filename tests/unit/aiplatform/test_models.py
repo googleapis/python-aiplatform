@@ -32,6 +32,7 @@ from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
 )
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
+from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import model_service
 
 _TEST_PROJECT = "test-project"
@@ -52,15 +53,25 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
 }
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_ID = "1028944691210842416"
-_TEST_ENDPOINT_NAME = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
-)
 
 
 class TestModel:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
+
+    @pytest.fixture
+    def get_endpoint_mock(self):
+        with mock.patch.object(
+            EndpointServiceClient, "get_endpoint"
+        ) as get_endpoint_mock:
+            test_endpoint_resource_name = EndpointServiceClient.endpoint_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            )
+            get_endpoint_mock.return_value = gca_endpoint.Endpoint(
+                display_name=_TEST_MODEL_NAME, name=test_endpoint_resource_name,
+            )
+            yield get_endpoint_mock
 
     @pytest.fixture
     def get_model_mock(self):
@@ -375,28 +386,20 @@ class TestModel:
                 name=test_model_resource_name
             )
 
-    @pytest.mark.usefixtures("get_model_mock")
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     def test_deploy(self):
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        with mock.patch.object(
-            initializer.global_config, "create_client"
-        ) as create_client_mock:
-            api_client_mock = mock.Mock(spec=EndpointServiceClient)
-            create_client_mock.return_value = api_client_mock
+        test_model = models.Model(_TEST_ID)
+        test_endpoint = models.Endpoint(_TEST_ID)
 
-            test_model = models.Model(_TEST_ID)
-            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-
-            assert test_model.deploy(test_endpoint) == test_endpoint
-            test_endpoint.deploy.assert_called_once_with(
-                model=test_model,
-                deployed_model_display_name=None,
-                traffic_percentage=100,
-                traffic_split=None,
-                machine_type=None,
-                min_replica_count=1,
-                max_replica_count=1,
-                metadata=(),
-            )
-            api_client_mock.deploy_model.assert_called_once()
+        assert test_model.deploy(test_endpoint) == test_endpoint
+        test_endpoint.deploy.assert_called_once_with(
+            model=test_model,
+            deployed_model_display_name=None,
+            traffic_percentage=100,
+            traffic_split=None,
+            machine_type=None,
+            min_replica_count=1,
+            max_replica_count=1,
+            metadata=(),
+        )
