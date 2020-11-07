@@ -33,7 +33,9 @@ from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
+from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model_service
+from google.cloud.aiplatform_v1beta1.types import endpoint_service
 
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_2 = "test-project-2"
@@ -83,6 +85,24 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME, name=test_model_resource_name,
             )
             yield get_model_mock
+
+    @pytest.fixture
+    def deploy_model_mock(self):
+        with mock.patch.object(
+            EndpointServiceClient, "deploy_model"
+        ) as deploy_model_mock:
+            test_model_resource_name = ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            )
+            deployed_model = gca_endpoint.DeployedModel(
+                model=test_model_resource_name, display_name=_TEST_MODEL_NAME,
+            )
+            deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
+            deploy_model_lro_mock.result.return_value = endpoint_service.DeployModelResponse(
+                deployed_model=deployed_model,
+            )
+            deploy_model_mock.return_value = deploy_model_lro_mock
+            yield deploy_model_mock
 
     def test_constructor_creates_client(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -387,8 +407,8 @@ class TestModel:
             )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
-    def test_deploy(self):
-
+    def test_deploy(self, deploy_model_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
         test_endpoint = models.Endpoint(_TEST_ID)
 
@@ -396,10 +416,24 @@ class TestModel:
         test_endpoint.deploy.assert_called_once_with(
             model=test_model,
             deployed_model_display_name=None,
-            traffic_percentage=100,
+            traffic_percentage=0,
             traffic_split=None,
             machine_type=None,
             min_replica_count=1,
             max_replica_count=1,
+            metadata=(),
+        )
+        automatic_resources = machine_resources.AutomaticResources(
+            min_replica_count=1, max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
             metadata=(),
         )

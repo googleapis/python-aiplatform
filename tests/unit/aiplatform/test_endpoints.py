@@ -311,7 +311,7 @@ class TestEndpoint:
             get_endpoint_mock.return_value = gca_endpoint.Endpoint(
                 display_name=_TEST_DISPLAY_NAME,
                 name=_TEST_ENDPOINT_NAME,
-                traffic_split={"alpaca": 100},
+                traffic_split={"model1": 100},
             )
 
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
@@ -328,7 +328,7 @@ class TestEndpoint:
             deploy_model_mock.assert_called_once_with(
                 endpoint=test_endpoint.resource_name,
                 deployed_model=deployed_model,
-                traffic_split={"alpaca": 30, "0": 70},
+                traffic_split={"model1": 30, "0": 70},
                 metadata=(),
             )
 
@@ -341,13 +341,13 @@ class TestEndpoint:
             get_endpoint_mock.return_value = gca_endpoint.Endpoint(
                 display_name=_TEST_DISPLAY_NAME,
                 name=_TEST_ENDPOINT_NAME,
-                traffic_split={"alpaca": 100},
+                traffic_split={"model1": 100},
             )
 
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_model = models.Model(_TEST_ID)
             test_endpoint.deploy(
-                model=test_model, traffic_split={"alpaca": 30, "0": 70}
+                model=test_model, traffic_split={"model1": 30, "0": 70}
             )
             automatic_resources = machine_resources.AutomaticResources(
                 min_replica_count=1, max_replica_count=1,
@@ -360,7 +360,7 @@ class TestEndpoint:
             deploy_model_mock.assert_called_once_with(
                 endpoint=test_endpoint.resource_name,
                 deployed_model=deployed_model,
-                traffic_split={"alpaca": 30, "0": 70},
+                traffic_split={"model1": 30, "0": 70},
                 metadata=(),
             )
 
@@ -429,7 +429,7 @@ class TestEndpoint:
         )
 
     @pytest.mark.parametrize(
-        "alpaca, llama, chinchilla, percent",
+        "model1, model2, model3, percent",
         [
             (100, None, None, 70),
             (50, 50, None, 70),
@@ -444,14 +444,14 @@ class TestEndpoint:
             (7, 87, 6, 46),
         ],
     )
-    def test_allocate_traffic(self, alpaca, llama, chinchilla, percent):
+    def test_allocate_traffic(self, model1, model2, model3, percent):
         old_split = {}
-        if alpaca:
-            old_split["alpaca"] = alpaca
-        if llama:
-            old_split["llama"] = llama
-        if chinchilla:
-            old_split["chinchilla"] = chinchilla
+        if model1:
+            old_split["model1"] = model1
+        if model2:
+            old_split["model2"] = model2
+        if model3:
+            old_split["model3"] = model3
 
         new_split = models.Endpoint._allocate_traffic(old_split, percent)
         new_split_sum = 0
@@ -462,29 +462,29 @@ class TestEndpoint:
         assert new_split["0"] == percent
 
     @pytest.mark.parametrize(
-        "alpaca, llama, chinchilla, deployed_model",
+        "model1, model2, model3, deployed_model",
         [
-            (100, None, None, "alpaca"),
-            (50, 50, None, "alpaca"),
-            (40, 60, None, "llama"),
-            (40, 60, None, "alpaca"),
-            (88, 12, None, "alpaca"),
-            (11, 89, None, "alpaca"),
-            (1, 99, None, "llama"),
-            (1, 2, 97, "alpaca"),
-            (99, 1, 0, "llama"),
-            (0, 0, 100, "chinchilla"),
-            (7, 87, 6, "llama"),
+            (100, None, None, "model1"),
+            (50, 50, None, "model1"),
+            (40, 60, None, "model2"),
+            (40, 60, None, "model1"),
+            (88, 12, None, "model1"),
+            (11, 89, None, "model1"),
+            (1, 99, None, "model2"),
+            (1, 2, 97, "model1"),
+            (99, 1, 0, "model2"),
+            (0, 0, 100, "model3"),
+            (7, 87, 6, "model2"),
         ],
     )
-    def test_unallocate_traffic(self, alpaca, llama, chinchilla, deployed_model):
+    def test_unallocate_traffic(self, model1, model2, model3, deployed_model):
         old_split = {}
-        if alpaca:
-            old_split["alpaca"] = alpaca
-        if llama:
-            old_split["llama"] = llama
-        if chinchilla:
-            old_split["chinchilla"] = chinchilla
+        if model1:
+            old_split["model1"] = model1
+        if model2:
+            old_split["model2"] = model2
+        if model3:
+            old_split["model3"] = model3
 
         new_split = models.Endpoint._unallocate_traffic(old_split, deployed_model)
         new_split_sum = 0
@@ -502,15 +502,15 @@ class TestEndpoint:
             get_endpoint_mock.return_value = gca_endpoint.Endpoint(
                 display_name=_TEST_DISPLAY_NAME,
                 name=_TEST_ENDPOINT_NAME,
-                traffic_split={"alpaca": 100},
+                traffic_split={"model1": 100},
             )
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-            assert dict(test_endpoint._gca_resource.traffic_split) == {"alpaca": 100}
-            test_endpoint.undeploy("alpaca")
+            assert dict(test_endpoint._gca_resource.traffic_split) == {"model1": 100}
+            test_endpoint.undeploy("model1")
             undeploy_model_mock.assert_called_once_with(
                 endpoint=test_endpoint.resource_name,
-                deployed_model_id="alpaca",
-                traffic_split={"alpaca": 0},
+                deployed_model_id="model1",
+                traffic_split={"model1": 0},
                 metadata=(),
             )
 
@@ -522,16 +522,16 @@ class TestEndpoint:
             get_endpoint_mock.return_value = gca_endpoint.Endpoint(
                 display_name=_TEST_DISPLAY_NAME,
                 name=_TEST_ENDPOINT_NAME,
-                traffic_split={"alpaca": 40, "llama": 60},
+                traffic_split={"model1": 40, "model2": 60},
             )
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_endpoint.undeploy(
-                deployed_model_id="alpaca", traffic_split={"alpaca": 0, "llama": 100},
+                deployed_model_id="model1", traffic_split={"model1": 0, "model2": 100},
             )
             undeploy_model_mock.assert_called_once_with(
                 endpoint=test_endpoint.resource_name,
-                deployed_model_id="alpaca",
-                traffic_split={"alpaca": 0, "llama": 100},
+                deployed_model_id="model1",
+                traffic_split={"model1": 0, "model2": 100},
                 metadata=(),
             )
 
@@ -541,7 +541,7 @@ class TestEndpoint:
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_endpoint.undeploy(
-                deployed_model_id="alpaca", traffic_split={"llama": 99},
+                deployed_model_id="model1", traffic_split={"model2": 99},
             )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
@@ -550,7 +550,7 @@ class TestEndpoint:
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_endpoint.undeploy(
-                deployed_model_id="alpaca", traffic_split={"alpaca": 50, "llama": 50},
+                deployed_model_id="model1", traffic_split={"model1": 50, "model2": 50},
             )
 
     def test_predict(self, get_endpoint_mock, endpoint_predict_mock):
