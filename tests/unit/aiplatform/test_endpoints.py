@@ -491,7 +491,7 @@ class TestEndpoint:
         for model in new_split:
             new_split_sum += new_split[model]
 
-        assert new_split_sum == 100
+        assert new_split_sum == 100 or new_split_sum == 0
         assert new_split[deployed_model] == 0
 
     def test_undeploy(self, undeploy_model_mock):
