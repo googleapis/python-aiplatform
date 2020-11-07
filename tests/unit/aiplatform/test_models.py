@@ -413,16 +413,6 @@ class TestModel:
         test_endpoint = models.Endpoint(_TEST_ID)
 
         assert test_model.deploy(test_endpoint) == test_endpoint
-        test_endpoint.deploy.assert_called_once_with(
-            model=test_model,
-            deployed_model_display_name=None,
-            traffic_percentage=0,
-            traffic_split=None,
-            machine_type=None,
-            min_replica_count=1,
-            max_replica_count=1,
-            metadata=(),
-        )
         automatic_resources = machine_resources.AutomaticResources(
             min_replica_count=1, max_replica_count=1,
         )

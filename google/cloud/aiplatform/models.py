@@ -567,7 +567,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             new_traffic_split (Dict[str, int]):
                 Traffic split to use.
         """
-        new_traffic_split = traffic_split
+        new_traffic_split = traffic_split.copy()
         del new_traffic_split[deployed_model_id]
         deployed_model_id_traffic = traffic_split[deployed_model_id]
         traffic_percent_left = 100 - deployed_model_id_traffic

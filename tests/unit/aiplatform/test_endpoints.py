@@ -446,11 +446,11 @@ class TestEndpoint:
     )
     def test_allocate_traffic(self, model1, model2, model3, percent):
         old_split = {}
-        if model1:
+        if model1 is not None:
             old_split["model1"] = model1
-        if model2:
+        if model2 is not None:
             old_split["model2"] = model2
-        if model3:
+        if model3 is not None:
             old_split["model3"] = model3
 
         new_split = models.Endpoint._allocate_traffic(old_split, percent)
@@ -479,11 +479,11 @@ class TestEndpoint:
     )
     def test_unallocate_traffic(self, model1, model2, model3, deployed_model):
         old_split = {}
-        if model1:
+        if model1 is not None:
             old_split["model1"] = model1
-        if model2:
+        if model2 is not None:
             old_split["model2"] = model2
-        if model3:
+        if model3 is not None:
             old_split["model3"] = model3
 
         new_split = models.Endpoint._unallocate_traffic(old_split, deployed_model)
