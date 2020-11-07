@@ -15,7 +15,7 @@
 import pytest
 import os
 
-from samples import predict_tables_regression_sample
+from samples import predict_tabular_regression_sample
 
 ENDPOINT_ID = "1014154341088493568"  # bq all
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -47,9 +47,9 @@ INSTANCE = {
 }
 
 
-def test_ucaip_generated_predict_tables_regression_sample(capsys):
+def test_ucaip_generated_predict_tabular_regression_sample(capsys):
 
-    predict_tables_regression_sample.predict_tables_regression_sample(
+    predict_tabular_regression_sample.predict_tabular_regression_sample(
         instance_dict=INSTANCE, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
     )
 

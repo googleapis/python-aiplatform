@@ -17,20 +17,18 @@ from google.cloud import aiplatform
 
 
 def upload_model_sample(
+    project: str,
     display_name: str,
     metadata_schema_uri: str,
     image_uri: str,
     artifact_uri: str,
-    project: str,
+    location: str = "us-central1",
+    timeout: int = 180,
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
-    location = "us-central1"
-    parent = "projects/{project}/locations/{location}".format(
-        project=project, location=location
-    )
     model = {
         "display_name": display_name,
         "metadata_schema_uri": metadata_schema_uri,
@@ -49,11 +47,11 @@ def upload_model_sample(
             "health_route": "",
         },
     }
+    parent = f"projects/{project}/locations/{location}"
     response = client.upload_model(parent=parent, model=model)
     print("Long running operation:", response.operation.name)
-    upload_model_response = response.result(timeout=180)
-    print("upload_model_response")
-    print(" model:", upload_model_response.model)
+    upload_model_response = response.result(timeout=timeout)
+    print("upload_model_response:", upload_model_response)
 
 
 # [END aiplatform_upload_model_sample]

@@ -20,22 +20,25 @@ from google.protobuf.struct_pb2 import Value
 from typing import Dict
 
 
-def predict_sample(instance_dict: Dict, project: str, endpoint_id: str):
+def predict_sample(
+    project: str, endpoint_id: str, instance_dict: Dict, location: str = "us-central1"
+):
     client_options = {
         "api_endpoint": "us-central1-prediction-aiplatform.googleapis.com"
     }
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
-    location = "us-central1"
-    name = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-        project=project, location=location, endpoint=endpoint_id
-    )
-    parameters_dict = {}
-    parameters = json_format.ParseDict(parameters_dict, Value())
     instance = json_format.ParseDict(instance_dict, Value())
     instances = [instance]
-    response = client.predict(endpoint=name, instances=instances, parameters=parameters)
+    parameters_dict = {}
+    parameters = json_format.ParseDict(parameters_dict, Value())
+    endpoint = client.endpoint_path(
+        project=project, location=location, endpoint=endpoint_id
+    )
+    response = client.predict(
+        endpoint=endpoint, instances=instances, parameters=parameters
+    )
     print("response")
     print(" deployed_model_id:", response.deployed_model_id)
     predictions = response.predictions

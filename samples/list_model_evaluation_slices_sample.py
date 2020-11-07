@@ -14,29 +14,21 @@
 
 # [START aiplatform_list_model_evaluation_slices_sample]
 from google.cloud import aiplatform
-from google.protobuf import json_format
 
 
 def list_model_evaluation_slices_sample(
-    project: str, model_id: str, evaluation_id: str
+    project: str, model_id: str, evaluation_id: str, location: str = "us-central1"
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
-    location = "us-central1"
-    parent = "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}".format(
+    parent = client.model_evaluation_path(
         project=project, location=location, model=model_id, evaluation=evaluation_id
     )
     response = client.list_model_evaluation_slices(parent=parent)
     for model_evaluation_slice in response:
-        print("model_evaluation_slice")
-        print(" name:", model_evaluation_slice.name)
-        print(" metrics_schema_uri:", model_evaluation_slice.metrics_schema_uri)
-        print(
-            " metrics:", json_format.MessageToDict(model_evaluation_slice._pb.metrics)
-        )
-        slice = model_evaluation_slice.slice
+        print("model_evaluation_slice:", model_evaluation_slice)
 
 
 # [END aiplatform_list_model_evaluation_slices_sample]

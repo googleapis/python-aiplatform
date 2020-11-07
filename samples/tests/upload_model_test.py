@@ -1,4 +1,3 @@
-# Generated code sample for google.cloud.aiplatform.ModelServiceClient.upload_model
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +15,8 @@
 from uuid import uuid4
 import pytest
 import os
+
+import helpers
 
 from samples import upload_model_sample, delete_model_sample
 
@@ -35,9 +36,9 @@ def shared_state():
 def teardown(shared_state):
     yield
 
-    delete_model_sample.delete_model_sample(
-        project=PROJECT_ID, model_id=shared_state["model_id"]
-    )
+    model_id = shared_state["model_name"].split("/")[-1]
+
+    delete_model_sample.delete_model_sample(project=PROJECT_ID, model_id=model_id)
 
 
 def test_ucaip_generated_upload_model_sample(capsys, shared_state):
@@ -51,4 +52,5 @@ def test_ucaip_generated_upload_model_sample(capsys, shared_state):
     )
 
     out, _ = capsys.readouterr()
-    shared_state["model_id"] = out.split("model:")[1].split("\n")[0].split("/")[-1]
+
+    shared_state["model_name"] = helpers.get_name(out, key="model")

@@ -15,7 +15,7 @@
 import pytest
 import os
 
-from samples import predict_tables_classification_sample
+from samples import predict_tabular_classification_sample
 
 ENDPOINT_ID = "4966625964059525120"  # iris 1000
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -28,9 +28,9 @@ INSTANCE = {
 }
 
 
-def test_ucaip_generated_predict_tables_classification_sample(capsys):
+def test_ucaip_generated_predict_tabular_classification_sample(capsys):
 
-    predict_tables_classification_sample.predict_tables_classification_sample(
+    predict_tabular_classification_sample.predict_tabular_classification_sample(
         instance_dict=INSTANCE, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
     )
 

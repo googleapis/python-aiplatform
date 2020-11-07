@@ -20,7 +20,7 @@ import base64
 
 
 def predict_image_object_detection_sample(
-    filename: str, project: str, endpoint_id: str
+    project: str, endpoint_id: str, filename: str, location: str = "us-central1"
 ):
     client_options = {
         "api_endpoint": "us-central1-prediction-aiplatform.googleapis.com"
@@ -28,13 +28,6 @@ def predict_image_object_detection_sample(
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
-    location = "us-central1"
-    name = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-        project=project, location=location, endpoint=endpoint_id
-    )
-    # See gs://google-cloud-aiplatform/schema/predict/params/image_object_detection.yaml for the format of the parameters.
-    parameters_dict = {"confidence_threshold": 0.5, "max_predictions": 5}
-    parameters = json_format.ParseDict(parameters_dict, Value())
     with open(filename, "rb") as f:
         file_content = f.read()
 
@@ -44,7 +37,15 @@ def predict_image_object_detection_sample(
 
     instance = json_format.ParseDict(instance_dict, Value())
     instances = [instance]
-    response = client.predict(endpoint=name, instances=instances, parameters=parameters)
+    # See gs://google-cloud-aiplatform/schema/predict/params/image_object_detection.yaml for the format of the parameters.
+    parameters_dict = {"confidence_threshold": 0.5, "max_predictions": 5}
+    parameters = json_format.ParseDict(parameters_dict, Value())
+    endpoint = client.endpoint_path(
+        project=project, location=location, endpoint=endpoint_id
+    )
+    response = client.predict(
+        endpoint=endpoint, instances=instances, parameters=parameters
+    )
     print("response")
     print(" deployed_model_id:", response.deployed_model_id)
     # See gs://google-cloud-aiplatform/schema/predict/prediction/image_object_detection.yaml for the format of the predictions.
