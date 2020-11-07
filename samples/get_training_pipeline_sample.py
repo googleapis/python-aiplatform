@@ -14,38 +14,20 @@
 
 # [START aiplatform_get_training_pipeline_sample]
 from google.cloud import aiplatform
-from google.protobuf import json_format
 
 
-def get_training_pipeline_sample(project: str, training_pipeline_id: str):
+def get_training_pipeline_sample(
+    project: str, training_pipeline_id: str, location: str = "us-central1"
+):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
-    location = "us-central1"
     name = client.training_pipeline_path(
         project=project, location=location, training_pipeline=training_pipeline_id
     )
     response = client.get_training_pipeline(name=name)
-    print("response")
-    print(" name:", response.name)
-    print(" display_name:", response.display_name)
-    print(" training_task_definition:", response.training_task_definition)
-    print(
-        " training_task_inputs:",
-        json_format.MessageToDict(response._pb.training_task_inputs),
-    )
-    print(
-        " training_task_metadata:",
-        json_format.MessageToDict(response._pb.training_task_metadata),
-    )
-    print(" state:", response.state)
-    print(" start_time:", response.start_time)
-    print(" end_time:", response.end_time)
-    print(" labels:", response.labels)
-    input_data_config = response.input_data_config
-    model_to_upload = response.model_to_upload
-    error = response.error
+    print("response:", response)
 
 
 # [END aiplatform_get_training_pipeline_sample]

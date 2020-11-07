@@ -1,4 +1,3 @@
-# Generated code sample for google.cloud.aiplatform.PipelineServiceClient.create_training_pipeline
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

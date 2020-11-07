@@ -17,7 +17,7 @@ import pytest
 import os
 
 from uuid import uuid4
-from google.cloud import aiplatform_v1alpha1 as aip
+from google.cloud import aiplatform
 
 from samples import import_data_video_object_tracking_sample
 from samples import delete_dataset_sample
@@ -34,9 +34,9 @@ METADATA_SCHEMA_URI = (
 @pytest.fixture(scope="function", autouse=True)
 def dataset_name():
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
-    client = aip.DatasetServiceClient(client_options=client_options)
+    client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
 
-    dataset = aip.Dataset(
+    dataset = aiplatform.gapic.Dataset(
         display_name=f"temp_import_dataset_test_{uuid4()}",
         metadata_schema_uri=METADATA_SCHEMA_URI,
     )

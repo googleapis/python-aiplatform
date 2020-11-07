@@ -17,23 +17,26 @@ from google.cloud import aiplatform
 
 
 def import_data_text_sentiment_analysis_sample(
-    gcs_source_uri: str, project: str, dataset_id: str
+    project: str,
+    dataset_id: str,
+    gcs_source_uri: str,
+    location: str = "us-central1",
+    timeout: int = 1800,
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
-    location = "us-central1"
-    name = client.dataset_path(project=project, location=location, dataset=dataset_id)
     import_configs = [
         {
             "gcs_source": {"uris": [gcs_source_uri]},
             "import_schema_uri": "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_sentiment_io_format_1.0.0.yaml",
         }
     ]
+    name = client.dataset_path(project=project, location=location, dataset=dataset_id)
     response = client.import_data(name=name, import_configs=import_configs)
     print("Long running operation:", response.operation.name)
-    import_data_response = response.result(timeout=1800)
+    import_data_response = response.result(timeout=timeout)
     print("import_data_response:", import_data_response)
 
 
