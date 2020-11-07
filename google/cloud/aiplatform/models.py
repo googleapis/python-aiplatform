@@ -533,7 +533,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         new_traffic_split = {}
         old_models_traffic = 100 - traffic_percentage
         if old_models_traffic:
-            unallocated_traffic = 100
+            unallocated_traffic = old_models_traffic
             for deployed_model in traffic_split:
                 current_traffic = traffic_split[deployed_model]
                 new_traffic = int(current_traffic / 100 * old_models_traffic)
