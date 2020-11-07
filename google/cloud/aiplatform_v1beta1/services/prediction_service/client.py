@@ -151,7 +151,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Args:
             request (:class:`~.prediction_service.PredictRequest`):
                 The request object. Request message for
-                [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
+                ``PredictionService.Predict``.
             endpoint (:class:`str`):
                 Required. The name of the Endpoint requested to serve
                 the prediction. Format:
@@ -170,7 +170,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
+                ``instance_schema_uri``.
                 This corresponds to the ``instances`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -180,7 +180,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 DeployedModels' [Model's
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
+                ``parameters_schema_uri``.
                 This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -194,7 +194,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Returns:
             ~.prediction_service.PredictResponse:
                 Response message for
-                [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
+                ``PredictionService.Predict``.
 
         """
         # Create or coerce a protobuf request object.
@@ -214,7 +214,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         if endpoint is not None:
             request.endpoint = endpoint
         if instances is not None:
-            request.instances = instances
+            request.instances.extend(instances)
         if parameters is not None:
             request.parameters = parameters
 
@@ -246,17 +246,17 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         If [ExplainRequest.deployed_model_id] is specified, the
         corresponding DeployModel must have
-        [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
+        ``explanation_spec``
         populated. If [ExplainRequest.deployed_model_id] is not
         specified, all DeployedModels must have
-        [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
+        ``explanation_spec``
         populated. Only deployed AutoML tabular Models have
         explanation_spec.
 
         Args:
             request (:class:`~.prediction_service.ExplainRequest`):
                 The request object. Request message for
-                [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
+                ``PredictionService.Explain``.
             endpoint (:class:`str`):
                 Required. The name of the Endpoint requested to serve
                 the explanation. Format:
@@ -275,7 +275,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 specified via Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
+                ``instance_schema_uri``.
                 This corresponds to the ``instances`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -285,14 +285,14 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 DeployedModels' [Model's
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
+                ``parameters_schema_uri``.
                 This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             deployed_model_id (:class:`str`):
                 If specified, this ExplainRequest will be served by the
                 chosen DeployedModel, overriding
-                [Endpoint.traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split].
+                ``Endpoint.traffic_split``.
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -306,7 +306,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Returns:
             ~.prediction_service.ExplainResponse:
                 Response message for
-                [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
+                ``PredictionService.Explain``.
 
         """
         # Create or coerce a protobuf request object.
@@ -328,7 +328,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         if endpoint is not None:
             request.endpoint = endpoint
         if instances is not None:
-            request.instances = instances
+            request.instances.extend(instances)
         if parameters is not None:
             request.parameters = parameters
         if deployed_model_id is not None:
