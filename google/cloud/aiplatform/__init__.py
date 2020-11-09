@@ -20,6 +20,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 
 from google.cloud.aiplatform.datasets import Dataset
+from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
 from google.cloud.aiplatform.training_jobs import CustomTrainingJob
 
@@ -32,4 +33,4 @@ aiplatform.init(project='my_project')
 init = initializer.global_config.init
 
 
-__all__ = ("gapic", "schema", "CustomTrainingJob", "Model", "Dataset")
+__all__ = ("gapic", "schema", "CustomTrainingJob", "Model", "Dataset", "Endpoint")
