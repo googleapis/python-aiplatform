@@ -29,6 +29,8 @@ def create_training_pipeline_image_classification_sample(
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
+
+    # For more information about node hours and pricing, view here: https://cloud.google.com/ai-platform/prediction/pricing?hl=en#more-about-prediction-costs
     training_task_inputs_dict = {
         "multiLabel": True,
         "modelType": "CLOUD",
