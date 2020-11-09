@@ -841,7 +841,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             deployed_model_id=prediction_response.deployed_model_id,
         )
 
-    # TODO(b/172265811): implement prediction
+    # TODO(b/172828587): implement prediction
     def explain(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
         """Online prediction with explanation."""
         raise NotImplementedError("Prediction not implemented.")
