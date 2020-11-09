@@ -57,7 +57,9 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ID}"
 )
-_TEST_PREDICTION = [["1", "2", "3"], ["3", "3", "1"]]
+
+_TEST_MODEL_ID = "1028944691210842416"
+_TEST_PREDICTION = [[1., 2., 3.], [3., 3., 1.]]
 
 
 class TestEndpoint:
@@ -132,12 +134,12 @@ class TestEndpoint:
 
     @pytest.fixture
     def predict_client_predict_mock(self):
-        with mock.patch.object(
-            prediction_service_client.PredictionClient, "predict"
-        ) as predict_mock:
+        with mock.patch.object(prediction_service_client.PredictionServiceClient,
+            'predict') as predict_mock:
             predict_mock.return_value = prediction_service.PredictResponse(
-                predictions=_TEST_PREDICTION, deployed_model_id=_TEST_ID
-            )
+                    deployed_model_id=_TEST_MODEL_ID
+                )
+            predict_mock.return_value.predictions.extend(_TEST_PREDICTION)
             yield predict_mock
 
     def test_constructor(self, create_client_mock):
@@ -553,7 +555,16 @@ class TestEndpoint:
                 deployed_model_id="model1", traffic_split={"model1": 50, "model2": 50},
             )
 
-    def test_predict(self, get_endpoint_mock, endpoint_predict_mock):
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_undeploy_raise_error_undeployed_model_traffic(self):
+        with pytest.raises(ValueError):
+            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+            test_endpoint.undeploy(
+                deployed_model_id="alpaca", traffic_split={"alpaca": 50, "llama": 50},
+            )
+
+    def test_predict(self, get_endpoint_mock, predict_client_predict_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         test_endpoint = models.Endpoint(_TEST_ID)
@@ -566,3 +577,9 @@ class TestEndpoint:
         )
 
         assert true_prediction == test_prediction
+        predict_client_predict_mock.assert_called_once_with(
+                endpoint=_TEST_ENDPOINT_NAME,
+                instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]],
+                parameters={'param': 3.0}
+
+            )

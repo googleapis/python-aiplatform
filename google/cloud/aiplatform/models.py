@@ -752,7 +752,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         """
         if traffic_split is None:
             traffic_split = self._unallocate_traffic(
-                traffic_split=dict(self._gca_resource.traffic_split),
+                traffic_split=self._gca_resource.traffic_split,
                 deployed_model_id=deployed_model_id,
             )
         else:
