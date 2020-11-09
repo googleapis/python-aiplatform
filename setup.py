@@ -17,10 +17,11 @@
 
 import setuptools  # type: ignore
 
+version = "0.3.0"
 
 setuptools.setup(
     name="google-cloud-aiplatform",
-    version="0.3.0",
+    version=version,
     packages=setuptools.PEP420PackageFinder.find(),
     namespace_packages=("google", "google.cloud"),
     author="Google LLC",
