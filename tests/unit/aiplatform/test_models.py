@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-
 import importlib
+import pytest
 from unittest import mock
 
 from google.api_core import operation as ga_operation
@@ -27,9 +27,15 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform_v1beta1.services.model_service.client import (
     ModelServiceClient,
 )
+from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
+    EndpointServiceClient,
+)
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
+from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
+from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model_service
+from google.cloud.aiplatform_v1beta1.types import endpoint_service
 
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_2 = "test-project-2"
@@ -48,13 +54,55 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
     "loss_fn": "mse",
 }
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
-_TEST_MODEL_ID = 1234
+_TEST_ID = "1028944691210842416"
 
 
 class TestModel:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
+
+    @pytest.fixture
+    def get_endpoint_mock(self):
+        with mock.patch.object(
+            EndpointServiceClient, "get_endpoint"
+        ) as get_endpoint_mock:
+            test_endpoint_resource_name = EndpointServiceClient.endpoint_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            )
+            get_endpoint_mock.return_value = gca_endpoint.Endpoint(
+                display_name=_TEST_MODEL_NAME, name=test_endpoint_resource_name,
+            )
+            yield get_endpoint_mock
+
+    @pytest.fixture
+    def get_model_mock(self):
+        with mock.patch.object(ModelServiceClient, "get_model") as get_model_mock:
+            test_model_resource_name = ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            )
+            get_model_mock.return_value = gca_model.Model(
+                display_name=_TEST_MODEL_NAME, name=test_model_resource_name,
+            )
+            yield get_model_mock
+
+    @pytest.fixture
+    def deploy_model_mock(self):
+        with mock.patch.object(
+            EndpointServiceClient, "deploy_model"
+        ) as deploy_model_mock:
+            test_model_resource_name = ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            )
+            deployed_model = gca_endpoint.DeployedModel(
+                model=test_model_resource_name, display_name=_TEST_MODEL_NAME,
+            )
+            deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
+            deploy_model_lro_mock.result.return_value = endpoint_service.DeployModelResponse(
+                deployed_model=deployed_model,
+            )
+            deploy_model_mock.return_value = deploy_model_lro_mock
+            yield deploy_model_mock
 
     def test_constructor_creates_client(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -63,8 +111,7 @@ class TestModel:
         ) as create_client_mock:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
-
-            models.Model(_TEST_MODEL_NAME)
+            models.Model(_TEST_ID)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
                 credentials=None,
@@ -80,7 +127,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            models.Model(_TEST_MODEL_NAME, location=_TEST_LOCATION_2)
+            models.Model(_TEST_ID, location=_TEST_LOCATION_2)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
                 credentials=None,
@@ -96,7 +143,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
             creds = auth_credentials.AnonymousCredentials()
-            models.Model(_TEST_MODEL_NAME, credentials=creds)
+            models.Model(_TEST_ID, credentials=creds)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
                 credentials=creds,
@@ -112,9 +159,9 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
 
-            models.Model(_TEST_MODEL_NAME)
+            models.Model(_TEST_ID)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_NAME
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
             )
             api_client_mock.get_model.assert_called_once_with(
                 name=test_model_resource_name
@@ -127,10 +174,9 @@ class TestModel:
         ) as create_client_mock:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
-
-            models.Model(_TEST_MODEL_NAME, project=_TEST_PROJECT_2)
+            models.Model(_TEST_ID, project=_TEST_PROJECT_2)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT_2, _TEST_LOCATION, _TEST_MODEL_NAME
+                _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
             )
             api_client_mock.get_model.assert_called_once_with(
                 name=test_model_resource_name
@@ -143,10 +189,9 @@ class TestModel:
         ) as create_client_mock:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             create_client_mock.return_value = api_client_mock
-
-            models.Model(_TEST_MODEL_NAME, location=_TEST_LOCATION_2)
+            models.Model(_TEST_ID, location=_TEST_LOCATION_2)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION_2, _TEST_MODEL_NAME
+                _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
             )
             api_client_mock.get_model.assert_called_once_with(
                 name=test_model_resource_name
@@ -161,7 +206,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             mock_lro = mock.Mock(ga_operation.Operation)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_ID
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
             )
             mock_lro.result.return_value = model_service.UploadModelResponse(
                 model=test_model_resource_name
@@ -207,7 +252,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             mock_lro = mock.Mock(ga_operation.Operation)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_MODEL_ID
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
             )
             mock_lro.result.return_value = model_service.UploadModelResponse(
                 model=test_model_resource_name
@@ -273,7 +318,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             mock_lro = mock.Mock(ga_operation.Operation)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT_2, _TEST_LOCATION, _TEST_MODEL_ID
+                _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
             )
             mock_lro.result.return_value = model_service.UploadModelResponse(
                 model=test_model_resource_name
@@ -320,7 +365,7 @@ class TestModel:
             api_client_mock = mock.Mock(spec=ModelServiceClient)
             mock_lro = mock.Mock(ga_operation.Operation)
             test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION_2, _TEST_MODEL_ID
+                _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
             )
             mock_lro.result.return_value = model_service.UploadModelResponse(
                 model=test_model_resource_name
@@ -357,3 +402,25 @@ class TestModel:
             api_client_mock.get_model.assert_called_once_with(
                 name=test_model_resource_name
             )
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    def test_deploy(self, deploy_model_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+        test_endpoint = models.Endpoint(_TEST_ID)
+
+        assert test_model.deploy(test_endpoint) == test_endpoint
+        automatic_resources = machine_resources.AutomaticResources(
+            min_replica_count=1, max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+        )
