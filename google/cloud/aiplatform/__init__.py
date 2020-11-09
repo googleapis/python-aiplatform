@@ -31,5 +31,4 @@ aiplatform.init(project='my_project')
 """
 init = initializer.global_config.init
 
-
 __all__ = ("gapic", "CustomTrainingJob", "Model", "Dataset", "Endpoint")
