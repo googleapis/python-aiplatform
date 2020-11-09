@@ -198,18 +198,18 @@ class TestEndpoint:
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         creds = auth_credentials.AnonymousCredentials()
 
-        models.Endpoint(_TEST_ENDPOINT_NAME)
+        models.Endpoint(_TEST_ENDPOINT_NAME, credentials=creds)
         create_client_mock.assert_has_calls(
             [
                 mock.call(
                     client_class=EndpointServiceClient,
-                    credentials=None,
+                    credentials=creds,
                     location_override=_TEST_LOCATION,
                     prediction_client=False,
                 ),
                 mock.call(
                     client_class=prediction_service_client.PredictionServiceClient,
-                    credentials=None,
+                    credentials=creds,
                     location_override=_TEST_LOCATION,
                     prediction_client=True,
                 ),
@@ -579,15 +579,6 @@ class TestEndpoint:
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_endpoint.undeploy(
                 deployed_model_id="model1", traffic_split={"model1": 50, "model2": 50},
-            )
-
-    @pytest.mark.usefixtures("get_endpoint_mock")
-    def test_undeploy_raise_error_undeployed_model_traffic(self):
-        with pytest.raises(ValueError):
-            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-            test_endpoint.undeploy(
-                deployed_model_id="alpaca", traffic_split={"alpaca": 50, "llama": 50},
             )
 
     def test_predict(self, get_endpoint_mock, predict_client_predict_mock):
