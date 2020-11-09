@@ -25,8 +25,14 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
     client as dataset_client,
 )
+from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
+    client as endpoint_client,
+)
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     client as model_client,
+)
+from google.cloud.aiplatform_v1beta1.services.prediction_service import (
+    client as prediction_client,
 )
 
 DEFAULT_REGION = "us-central1"
@@ -36,7 +42,9 @@ PROD_API_ENDPOINT = "aiplatform.googleapis.com"
 AiPlatformServiceClient = TypeVar(
     "AiPlatformServiceClient",
     dataset_client.DatasetServiceClient,
+    endpoint_client.EndpointServiceClient,
     model_client.ModelServiceClient,
+    prediction_client.PredictionServiceClient,
 )
 
 # TODO(b/170334193): Add support for resource names with non-integer IDs
