@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
+from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -33,7 +33,9 @@ from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import env_var
 
-from google.cloud.aiplatform_v1beta1.services.prediction_service import client as prediction_service_client
+from google.cloud.aiplatform_v1beta1.services.prediction_service import (
+    client as prediction_service_client,
+)
 from google.protobuf import json_format
 
 
@@ -264,7 +266,9 @@ class Model(base.AiPlatformResourceNoun):
                 Optional. A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that DeployedModel.
                 If a DeployedModel's ID is not listed in this map, then it receives
-                no traffic. Key for model being deployed is "0". Should not be
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
                 provided if traffic_percentage is provided.
             machine_type (str):
                 Optional. The type of machine. Not specifying machine type will
@@ -322,8 +326,10 @@ class Prediction(NamedTuple):
         deployed_model_id:
             ID of the Endpoint's DeployedModel that served this prediction.
     """
+
     predictions: Dict[str, List]
     deployed_model_id: str
+
 
 class Endpoint(base.AiPlatformResourceNoun):
 
@@ -332,7 +338,7 @@ class Endpoint(base.AiPlatformResourceNoun):
 
     def __init__(
         self,
-        endpoint_name: Optional[gca_endpoint.Endpoint] = None,
+        endpoint_name: str,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -341,7 +347,7 @@ class Endpoint(base.AiPlatformResourceNoun):
 
         Args:
             endpoint_name (str):
-                Optional. A fully-qualified endpoint resource name or endpoint ID.
+                Required. A fully-qualified endpoint resource name or endpoint ID.
                 Example: "projects/123/locations/us-central1/endpoints/456" or
                 "456" when project and location are initialized or passed.
             project (str):
@@ -356,10 +362,10 @@ class Endpoint(base.AiPlatformResourceNoun):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        self._prediction_client = self._instantiate_prediction_client(
-            location=location, credentials=credentials)
-
         self._gca_resource = self._get_endpoint(endpoint_name)
+        self._prediction_client = self._instantiate_prediction_client(
+            location=location, credentials=credentials
+        )
 
     def _get_endpoint(self, endpoint_name: str) -> gca_endpoint.Endpoint:
         """Gets the endpoint from AI Platform.
@@ -442,9 +448,14 @@ class Endpoint(base.AiPlatformResourceNoun):
             metadata=metadata,
         )
 
+        created_endpoint = create_endpoint_operation.operation_future.result()
 
-        create_endpoint_operation.operation_future.result()
-        endpoint = cls(project=project, location=location, credentials=credentials,)
+        endpoint = cls(
+            endpoint_name=created_endpoint.name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
         return endpoint
 
     @classmethod
@@ -556,13 +567,13 @@ class Endpoint(base.AiPlatformResourceNoun):
             new_traffic_split (Dict[str, int]):
                 Traffic split to use.
         """
-        new_traffic_split = traffic_split
+        new_traffic_split = traffic_split.copy()
         del new_traffic_split[deployed_model_id]
         deployed_model_id_traffic = traffic_split[deployed_model_id]
         traffic_percent_left = 100 - deployed_model_id_traffic
 
         if traffic_percent_left:
-            unallocated_traffic = traffic_percent_left
+            unallocated_traffic = 100
             for deployed_model in new_traffic_split:
                 current_traffic = traffic_split[deployed_model]
                 new_traffic = int(current_traffic / traffic_percent_left * 100)
@@ -584,7 +595,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         model: "Model",
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 0,
-        traffic_split: Optional[Dict] = None,
+        traffic_split: Optional[Dict[str, int]] = None,
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
@@ -606,11 +617,13 @@ class Endpoint(base.AiPlatformResourceNoun):
                 not be provided. Traffic of previously deployed models at the endpoint
                 will be scaled down to accommodate new deployed model's traffic.
                 Should not be provided if traffic_split is provided.
-            traffic_split (Dict):
+            traffic_split (Dict[str, int]):
                 Optional. A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that DeployedModel.
                 If a DeployedModel's ID is not listed in this map, then it receives
-                no traffic. Key for model being deployed is "0". Should not be
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
                 provided if traffic_percentage is provided.
             machine_type (str):
                 Optional. The type of machine. Not specifying machine type will
@@ -685,14 +698,14 @@ class Endpoint(base.AiPlatformResourceNoun):
                         percentage for this deployed model needs to be 100."""
                     )
             traffic_split = self._allocate_traffic(
-                traffic_split=self._gca_resource.traffic_split,
+                traffic_split=dict(self._gca_resource.traffic_split),
                 traffic_percentage=traffic_percentage,
             )
-        else:
+        elif traffic_split:
             traffic_sum = 0
-            for deployed_model in traffic_split:
-                # TODO verify every referenced deployed model exists
-                traffic_sum += traffic_split[deployed_model]
+            for item in traffic_split:
+                # TODO(b/172678233) verify every referenced deployed model exists
+                traffic_sum += traffic_split[item]
             if traffic_sum != 100:
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
@@ -725,14 +738,14 @@ class Endpoint(base.AiPlatformResourceNoun):
             deployed_model_id (str):
                 Required. The ID of the DeployedModel to be undeployed from the
                 Endpoint.
-            traffic_split (Sequence[gca_endpoint.Endpoint.TrafficSplitEntry]`):
-                Optional. If this field is provided, then the Endpoint's traffic_split
-                will be overwritten with it. If last DeployedModel is being
-                undeployed from the Endpoint, the [Endpoint.traffic_split] will
-                always end up empty when this operation completes. A DeployedModel
-                will be successfully undeployed only if it doesn't have any traffic
-                assigned to it. If this field is not provided, the traffic of the
-                remaining deployed models will be scaled to fill 100 percent.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -743,12 +756,12 @@ class Endpoint(base.AiPlatformResourceNoun):
                 deployed_model_id=deployed_model_id,
             )
         else:
-            if traffic_split[deployed_model_id]:
+            if deployed_model_id in traffic_split and traffic_split[deployed_model_id]:
                 raise ValueError("Model being undeployed should have 0 traffic.")
             traffic_sum = 0
-            for deployed_model in traffic_split:
-                # TODO verify every referenced deployed model exists
-                traffic_sum += traffic_split[deployed_model]
+            for item in traffic_split:
+                # TODO(b/172678233) verify every referenced deployed model exists
+                traffic_sum += traffic_split[item]
             if traffic_sum != 100:
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
@@ -767,9 +780,9 @@ class Endpoint(base.AiPlatformResourceNoun):
 
     @staticmethod
     def _instantiate_prediction_client(
-        location: Optional[str]=None,
-        credentials: Optional[auth_credentials.Credentials]=None
-        ) -> prediction_service_client.PredictionServiceClient:
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> prediction_service_client.PredictionServiceClient:
         """Helper method to instantiates prediction client for this endpoint.
 
         Args:
@@ -782,15 +795,13 @@ class Endpoint(base.AiPlatformResourceNoun):
                 Initalized prediction client.
         """
         return initializer.global_config.create_client(
-                client_class=prediction_service_client.PredictionServiceClient,
-                credentials=credentials,
-                location_override=location,
-                prediction_client=True
-            )
+            client_class=prediction_service_client.PredictionServiceClient,
+            credentials=credentials,
+            location_override=location,
+            prediction_client=True,
+        )
 
-
-    def predict(self, instances: List,
-        parameters: Optional[Dict]=None) -> Prediction:
+    def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
         """Make a prediction against this Endpoint.
 
         Args:
@@ -817,16 +828,17 @@ class Endpoint(base.AiPlatformResourceNoun):
             prediction: Prediction with returned predictions and Model Id.
 
         """
-        prediction_response =self._prediction_client.predict(
-            endpoint=self.resource_name,
-            instances=instances,
-            parameters=parameters)
+        prediction_response = self._prediction_client.predict(
+            endpoint=self.resource_name, instances=instances, parameters=parameters
+        )
 
         return Prediction(
-            predictions= [json_format.MessageToDict(item)
-            for item in prediction_response.predictions.pb],
-            deployed_model_id= prediction_response.deployed_model_id)
-
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in prediction_response.predictions.pb
+            ],
+            deployed_model_id=prediction_response.deployed_model_id,
+        )
 
     # TODO(b/172265811): implement prediction
     def explain(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
