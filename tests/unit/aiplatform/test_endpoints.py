@@ -59,7 +59,7 @@ _TEST_MODEL_NAME = (
 )
 
 _TEST_MODEL_ID = "1028944691210842416"
-_TEST_PREDICTION = [[1., 2., 3.], [3., 3., 1.]]
+_TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
 
 
 class TestEndpoint:
@@ -129,27 +129,43 @@ class TestEndpoint:
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
-            create_client_mock.return_value = mock.Mock(spec=EndpointServiceClient)
+
+            def side_effect(client_class, *arg, **kwargs):
+                return mock.Mock(spec=client_class)
+
+            create_client_mock.side_effect = side_effect
+
             yield create_client_mock
 
     @pytest.fixture
     def predict_client_predict_mock(self):
-        with mock.patch.object(prediction_service_client.PredictionServiceClient,
-            'predict') as predict_mock:
+        with mock.patch.object(
+            prediction_service_client.PredictionServiceClient, "predict"
+        ) as predict_mock:
             predict_mock.return_value = prediction_service.PredictResponse(
-                    deployed_model_id=_TEST_MODEL_ID
-                )
+                deployed_model_id=_TEST_MODEL_ID
+            )
             predict_mock.return_value.predictions.extend(_TEST_PREDICTION)
             yield predict_mock
 
     def test_constructor(self, create_client_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Endpoint(_TEST_ENDPOINT_NAME)
-        create_client_mock.assert_called_with(
-            client_class=EndpointServiceClient,
-            credentials=None,
-            location_override=_TEST_LOCATION,
-            prediction_client=False,
+        create_client_mock.assert_has_calls(
+            [
+                mock.call(
+                    client_class=EndpointServiceClient,
+                    credentials=None,
+                    location_override=_TEST_LOCATION,
+                    prediction_client=False,
+                ),
+                mock.call(
+                    client_class=prediction_service_client.PredictionServiceClient,
+                    credentials=None,
+                    location_override=_TEST_LOCATION,
+                    prediction_client=True,
+                ),
+            ]
         )
 
     def test_constructor_with_endpoint_id(self, get_endpoint_mock):
@@ -183,11 +199,21 @@ class TestEndpoint:
         creds = auth_credentials.AnonymousCredentials()
 
         models.Endpoint(_TEST_ENDPOINT_NAME)
-        create_client_mock.assert_called_with(
-            client_class=EndpointServiceClient,
-            credentials=creds,
-            location_override=_TEST_LOCATION,
-            prediction_client=False,
+        create_client_mock.assert_has_calls(
+            [
+                mock.call(
+                    client_class=EndpointServiceClient,
+                    credentials=None,
+                    location_override=_TEST_LOCATION,
+                    prediction_client=False,
+                ),
+                mock.call(
+                    client_class=prediction_service_client.PredictionServiceClient,
+                    credentials=None,
+                    location_override=_TEST_LOCATION,
+                    prediction_client=True,
+                ),
+            ]
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
@@ -578,8 +604,7 @@ class TestEndpoint:
 
         assert true_prediction == test_prediction
         predict_client_predict_mock.assert_called_once_with(
-                endpoint=_TEST_ENDPOINT_NAME,
-                instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]],
-                parameters={'param': 3.0}
-
-            )
+            endpoint=_TEST_ENDPOINT_NAME,
+            instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]],
+            parameters={"param": 3.0},
+        )
