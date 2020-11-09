@@ -364,7 +364,8 @@ class Endpoint(base.AiPlatformResourceNoun):
         super().__init__(project=project, location=location, credentials=credentials)
         self._gca_resource = self._get_endpoint(endpoint_name)
         self._prediction_client = self._instantiate_prediction_client(
-            location=location, credentials=credentials
+            location=location or initializer.global_config.location,
+            credentials=credentials,
         )
 
     def _get_endpoint(self, endpoint_name: str) -> gca_endpoint.Endpoint:
@@ -752,7 +753,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         """
         if traffic_split is None:
             traffic_split = self._unallocate_traffic(
-                traffic_split=self._gca_resource.traffic_split,
+                traffic_split=dict(self._gca_resource.traffic_split),
                 deployed_model_id=deployed_model_id,
             )
         else:
@@ -840,7 +841,7 @@ class Endpoint(base.AiPlatformResourceNoun):
             deployed_model_id=prediction_response.deployed_model_id,
         )
 
-    # TODO(b/172265811): implement prediction
+    # TODO(b/172828587): implement prediction
     def explain(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
         """Online prediction with explanation."""
         raise NotImplementedError("Prediction not implemented.")
