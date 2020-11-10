@@ -22,8 +22,7 @@ def create_custom_job_sample(display_name: str, container_image_uri: str, projec
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.JobServiceClient(client_options=client_options)
     location = "us-central1"
-    parent = "projects/{project}/locations/{location}".format(
-        project=project, location=location
+    parent = f"projects/{project}/locations/{location}"
     )
     custom_job = {
         "display_name": display_name,
