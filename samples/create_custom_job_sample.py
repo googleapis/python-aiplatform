@@ -15,6 +15,13 @@
 # [START aiplatform_create_custom_job_sample]
 from google.cloud import aiplatform
 
+def run_sample():
+    # TODO(dev): replace these variables to run the code
+    display_name = "YOUR-DISPLAY-NAME"
+    container_image_uri = "YOUR-CONTAINER-IMAGE-URI"
+    project = "YOUR-PROJECT"
+    create_custom_job_sample(display_name, container_image_uri, project)
+
 
 def create_custom_job_sample(display_name: str, container_image_uri: str, project: str):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
