@@ -243,20 +243,6 @@ class TestDataset:
         assert my_dataset._gca_resource == expected_dataset
 
     @pytest.mark.usefixtures("get_dataset_mock")
-    def test_create_and_import_dataset_without_import_schema_uri(
-        self, create_dataset_mock
-    ):
-        with pytest.raises(ValueError):
-            aiplatform.init(project=_TEST_PROJECT)
-
-            Dataset.create(
-                display_name=_TEST_DISPLAY_NAME,
-                metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-                labels=_TEST_LABEL,
-                gcs_source=_TEST_SOURCE_URI_GCS,
-            )
-
-    @pytest.mark.usefixtures("get_dataset_mock")
     def test_import_data(self, import_data_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
