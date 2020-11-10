@@ -15,6 +15,13 @@
 # [START aiplatform_export_model_sample]
 from google.cloud import aiplatform
 
+def run_sample():
+    # TODO(dev): replace these variables to run the code
+    project = "YOUR-PROJECT-ID"
+    model_id = "YOUR-MODEL-ID"
+    gcs_destination_output_uri_prefix = "YOUR-GCS-URI-PREFIX"
+    export_model_sample(gcs_destination_output_uri_prefix, project, model_id)
+
 
 def export_model_sample(
     project: str,
