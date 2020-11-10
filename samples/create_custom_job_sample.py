@@ -53,8 +53,6 @@ def create_custom_job_sample(display_name: str, container_image_uri: str, projec
     print(" start_time:", response.start_time)
     print(" end_time:", response.end_time)
     print(" labels:", response.labels)
-    job_spec = response.job_spec
-    error = response.error
 
 
 # [END aiplatform_create_custom_job_sample]
