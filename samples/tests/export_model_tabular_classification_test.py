@@ -21,8 +21,9 @@ from samples import export_model_tabular_classification_sample
 from google.cloud import storage
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "5359002081594179584"  # iris 1000
-GCS_BUCKET = "gs://ucaip-samples-test-output"
+
+MODEL_ID = os.getenv("MODEL_ID") # "5359002081594179584" (iris 1000 dataset)
+GCS_BUCKET =  os.getenv("GCS_BUCKET") # "gs://ucaip-samples-test-output"
 GCS_PREFIX = f"tmp/export_model_test_{uuid4()}"
 
 
