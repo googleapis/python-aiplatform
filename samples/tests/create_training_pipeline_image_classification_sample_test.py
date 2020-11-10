@@ -16,7 +16,7 @@ from uuid import uuid4
 import pytest
 import os
 
-import helpers
+from samples.tests import helpers
 
 from samples import (
     create_training_pipeline_image_classification_sample,
