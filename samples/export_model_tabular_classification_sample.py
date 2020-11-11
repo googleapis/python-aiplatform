@@ -12,38 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_create_dataset_sample]
+# [START aiplatform_export_model_tabular_classification_sample]
 from google.cloud import aiplatform
 
 
 def run_sample():
     # TODO(dev): replace these variables to run the code
-    project = "YOUR-PROJECT"
-    display_name = "YOUR-DISPLAY-NAME"
-    metadata_schema_uri = "YOUR-METADATA-SCHEMA-URI"
-    create_dataset_sample(project, display_name, metadata_schema_uri)
+    project = "YOUR-PROJECT-ID"
+    model_id = "YOUR-MODEL-ID"
+    gcs_destination_output_uri_prefix = "YOUR-GCS-URI-PREFIX"
+    export_model_tabular_classification_sample(project, model_id, gcs_destination_output_uri_prefix)
 
 
-def create_dataset_sample(
+def export_model_tabular_classification_sample(
     project: str,
-    display_name: str,
-    metadata_schema_uri: str,
+    model_id: str,
+    gcs_destination_output_uri_prefix: str,
     location: str = "us-central1",
-    timeout: int = 300
+    timeout: int = 300,
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
-    dataset = {
-        "display_name": display_name,
-        "metadata_schema_uri": metadata_schema_uri,
+    client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
+    gcs_destination = {"output_uri_prefix": gcs_destination_output_uri_prefix}
+    output_config = {
+        "artifact_destination": gcs_destination,
+        "export_format_id": "tf-saved-model",
     }
-    parent = f"projects/{project}/locations/{location}"
-    response = client.create_dataset(parent=parent, dataset=dataset)
+    name = client.model_path(project=project, location=location, model=model_id)
+    response = client.export_model(name=name, output_config=output_config)
     print("Long running operation:", response.operation.name)
-    create_dataset_response = response.result(timeout=timeout)
-    print("create_dataset_response:", create_dataset_response)
+    export_model_response = response.result(timeout=timeout)
+    print("export_model_response:", export_model_response)
 
 
-# [END aiplatform_create_dataset_sample]
+# [END aiplatform_export_model_tabular_classification_sample]

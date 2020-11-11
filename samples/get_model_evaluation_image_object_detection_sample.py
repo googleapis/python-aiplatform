@@ -12,32 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_create_dataset_image_sample]
+# [START aiplatform_get_model_evaluation_image_object_detection_sample]
 from google.cloud import aiplatform
+
 
 def run_sample():
     # TODO(dev): replace these variables to run the code
-    project = "YOUR-PROJECT"
-    display_name = "YOUR-DISPLAY-NAME"
-    create_dataset_image_sample(project, display_name)
+    project = "YOUR-PROJECT-ID"
+    model_id = "YOUR-MODEL-ID"
+    evaluation_id = "YOUR-EVALUATION-ID"
+    get_model_evaluation_image_object_detection_sample(project, model_id, evaluation_id)
 
 
-def create_dataset_image_sample(
-    project: str, display_name: str, location: str = "us-central1", timeout: int = 300
+def get_model_evaluation_image_object_detection_sample(
+    project: str, model_id: str, evaluation_id: str, location: str = "us-central1"
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
-    dataset = {
-        "display_name": display_name,
-        "metadata_schema_uri": "gs://google-cloud-aiplatform/schema/dataset/metadata/image_1.0.0.yaml",
-    }
-    parent = f"projects/{project}/locations/{location}"
-    response = client.create_dataset(parent=parent, dataset=dataset)
-    print("Long running operation:", response.operation.name)
-    create_dataset_response = response.result(timeout=timeout)
-    print("create_dataset_response:", create_dataset_response)
+    client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
+    name = client.model_evaluation_path(
+        project=project, location=location, model=model_id, evaluation=evaluation_id
+    )
+    response = client.get_model_evaluation(name=name)
+    print("response:", response)
 
 
-# [END aiplatform_create_dataset_image_sample]
+# [END aiplatform_get_model_evaluation_image_object_detection_sample]

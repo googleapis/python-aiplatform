@@ -18,6 +18,16 @@ from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
 
+def run_sample():
+    # TODO(dev): replace these variables to run the code
+    project = "YOUR-PROJECT"
+    display_name = "YOUR-DISPLAY-NAME"
+    dataset = "YOUR-DATASET"
+    instruction_uri = "YOUR-INSTRUCTION-URI"
+    annotation_spec = "YOUR-ANNOTATION-SPEC"
+    create_data_labeling_job_video_sample(project, display_name, dataset, instruction_uri, annotation_spec)
+
+
 def create_data_labeling_job_video_sample(
     project: str,
     display_name: str,
