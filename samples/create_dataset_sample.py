@@ -16,12 +16,20 @@
 from google.cloud import aiplatform
 
 
+def run_sample():
+    # TODO(dev): replace these variables to run the code
+    project = "YOUR-PROJECT"
+    display_name = "YOUR-DISPLAY-NAME"
+    metadata_schema_uri = "YOUR-METADATA-SCHEMA-URI"
+    create_dataset_sample(project, display_name, metadata_schema_uri)
+
+
 def create_dataset_sample(
     project: str,
     display_name: str,
     metadata_schema_uri: str,
     location: str = "us-central1",
-    timeout: int = 300,
+    timeout: int = 300
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.

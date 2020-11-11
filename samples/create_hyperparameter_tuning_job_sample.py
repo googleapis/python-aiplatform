@@ -16,6 +16,14 @@
 from google.cloud import aiplatform
 
 
+def run_sample():
+    # TODO(dev): replace these variables to run the code
+    display_name = "YOUR-DISPLAY-NAME"
+    container_image_uri = "YOUR-CONTAINER-IMAGE-URI"
+    project = "YOUR-PROJECT"
+    create_hyperparameter_tuning_job_sample(display_name, container_image_uri, project)
+
+
 def create_hyperparameter_tuning_job_sample(
     display_name: str, container_image_uri: str, project: str
 ):

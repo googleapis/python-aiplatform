@@ -16,6 +16,13 @@
 from google.cloud import aiplatform
 
 
+def run_sample():
+    # TODO(dev): replace these variables to run the code
+    project = "YOUR-PROJECT-NAME"
+    model_id = "YOUR-MODEL-ID"
+    get_model_sample(project, model_id)
+
+
 def get_model_sample(project: str, model_id: str, location: str = "us-central1"):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.

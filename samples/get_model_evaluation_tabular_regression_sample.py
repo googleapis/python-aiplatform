@@ -16,6 +16,14 @@
 from google.cloud import aiplatform
 
 
+def run_sample():
+    # TODO(dev): replace these variables to run the code
+    project = "YOUR-PROJECT-NAME"
+    model_id = "YOUR-MODEL-ID"
+    evaluation_id = "YOUR-EVALUATION-ID"
+    get_model_evaluation_tabular_regression_sample(project, model_id, evaluation_id)
+
+
 def get_model_evaluation_tabular_regression_sample(
     project: str, model_id: str, evaluation_id: str, location: str = "us-central1"
 ):

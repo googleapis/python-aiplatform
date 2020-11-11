@@ -15,6 +15,12 @@
 # [START aiplatform_get_batch_prediction_job_sample]
 from google.cloud import aiplatform
 
+def run_sample():
+    # TODO(dev): replace these variables to run the code
+    project = "YOUR-PROJECT-ID"
+    batch_prediction_job_id = "YOUR-BATCH-PREDICTION-JOB-ID"
+    get_batch_prediction_job_sample(project, batch_prediction_job_id)
+
 
 def get_batch_prediction_job_sample(
     project: str, batch_prediction_job_id: str, location: str = "us-central1"

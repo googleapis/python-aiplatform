@@ -16,6 +16,14 @@
 from google.cloud import aiplatform
 
 
+def run_sample():
+    # TODO(dev): replace these variables to run the code
+    project = "YOUR-PROJECT-NAME"
+    model_id = "YOUR-MODEL-ID"
+    evaluation_id = "YOUR-EVALUATION-ID"
+    slice_id = "YOUR-SLICE-ID"
+    get_model_evaluation_slice_sample(project, model_id, evaluation_id, slice_id)
+
 def get_model_evaluation_slice_sample(
     project: str,
     model_id: str,
