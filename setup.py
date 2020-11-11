@@ -15,13 +15,25 @@
 # limitations under the License.
 #
 
+import io
+import os
+
 import setuptools  # type: ignore
 
+name = "google-cloud-aiplatform"
 version = "0.3.0"
+description = "Cloud AI Platform API client library"
+
+package_root = os.path.abspath(os.path.dirname(__file__))
+readme_filename = os.path.join(package_root, "README.rst")
+with io.open(readme_filename, encoding="utf-8") as readme_file:
+    readme = readme_file.read()
 
 setuptools.setup(
-    name="google-cloud-aiplatform",
+    name=name,
     version=version,
+    description=description,
+    long_description=readme,
     packages=setuptools.PEP420PackageFinder.find(),
     namespace_packages=("google", "google.cloud"),
     author="Google LLC",
