@@ -24,8 +24,9 @@ import cancel_data_labeling_job_sample
 import delete_data_labeling_job_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+API_ENDPOINT = os.getenv("DATA_LABELING_API_ENDPOINT")
 LOCATION = "us-central1"
-DATASET_ID = "1905673553261363200"  # AUTOPUSH: Permanent no label ICN dataset
+DATASET_ID = "1905673553261363200"
 DISPLAY_NAME = f"temp_create_data_labeling_job_test_{uuid4()}"
 INSTRUCTIONS_GCS_URI = (
     "gs://ucaip-sample-resources/images/datalabeling_instructions.pdf"
@@ -47,9 +48,7 @@ def teardown(capsys, shared_state):
 
     data_labeling_job_id = shared_state["data_labeling_job_name"].split("/")[-1]
 
-    client_options = {
-        "api_endpoint": "us-central1-autopush-aiplatform.sandbox.googleapis.com"
-    }
+    client_options = {"api_endpoint": API_ENDPOINT}
     client = aiplatform.gapic.JobServiceClient(client_options=client_options)
 
     name = client.data_labeling_job_path(
@@ -83,6 +82,7 @@ def test_ucaip_generated_create_data_labeling_job_sample(capsys, shared_state):
         instruction_uri=INSTRUCTIONS_GCS_URI,
         dataset=dataset_name,
         annotation_spec=ANNOTATION_SPEC,
+        api_endpoint=API_ENDPOINT,
     )
 
     out, _ = capsys.readouterr()
