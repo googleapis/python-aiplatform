@@ -16,7 +16,7 @@ from uuid import uuid4
 import pytest
 import os
 
-from samples.tests import helpers
+import helpers
 
 import create_training_pipeline_image_classification_sample
 import cancel_training_pipeline_sample

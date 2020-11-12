@@ -13,7 +13,6 @@
 # limitations under the License.
 
 
-from google.cloud import aiplatform_v1alpha1 as aip
 import pytest
 import uuid
 import os
