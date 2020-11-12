@@ -22,9 +22,10 @@ def deploy_model_sample(
     model_name: str,
     deployed_model_display_name: str,
     location: str = "us-central1",
+    api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 7200,
 ):
-    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.EndpointServiceClient(client_options=client_options)

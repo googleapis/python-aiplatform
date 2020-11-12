@@ -17,9 +17,13 @@ from google.cloud import aiplatform
 
 
 def create_dataset_text_sample(
-    project: str, display_name: str, location: str = "us-central1", timeout: int = 300
+    project: str,
+    display_name: str,
+    location: str = "us-central1",
+    api_endpoint: str = "us-central1-aiplatform.googleapis.com",
+    timeout: int = 300,
 ):
-    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)

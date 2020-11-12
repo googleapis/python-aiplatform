@@ -24,8 +24,9 @@ def create_training_pipeline_video_object_tracking_sample(
     dataset_id: str,
     model_display_name: str,
     location: str = "us-central1",
+    api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
-    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)

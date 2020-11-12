@@ -20,11 +20,13 @@ from typing import Dict
 
 
 def predict_custom_trained_model_sample(
-    project: str, endpoint_id: str, instance_dict: Dict, location: str = "us-central1"
+    project: str,
+    endpoint_id: str,
+    instance_dict: Dict,
+    location: str = "us-central1",
+    api_endpoint: str = "us-central1-prediction-aiplatform.googleapis.com",
 ):
-    client_options = {
-        "api_endpoint": "us-central1-prediction-aiplatform.googleapis.com"
-    }
+    client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)

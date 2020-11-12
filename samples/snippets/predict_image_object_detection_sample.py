@@ -20,11 +20,13 @@ import base64
 
 
 def predict_image_object_detection_sample(
-    project: str, endpoint_id: str, filename: str, location: str = "us-central1"
+    project: str,
+    endpoint_id: str,
+    filename: str,
+    location: str = "us-central1",
+    api_endpoint: str = "us-central1-prediction-aiplatform.googleapis.com",
 ):
-    client_options = {
-        "api_endpoint": "us-central1-prediction-aiplatform.googleapis.com"
-    }
+    client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)

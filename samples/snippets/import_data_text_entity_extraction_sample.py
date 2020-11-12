@@ -21,9 +21,10 @@ def import_data_text_entity_extraction_sample(
     dataset_id: str,
     gcs_source_uri: str,
     location: str = "us-central1",
+    api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 1800,
 ):
-    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+    client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
