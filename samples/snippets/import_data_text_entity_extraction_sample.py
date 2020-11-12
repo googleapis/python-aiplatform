@@ -27,14 +27,10 @@ def import_data_text_entity_extraction_sample(
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
-    import_schema_uri = (
-        "gs://google-cloud-aiplatform/schema/dataset/ioformat/"
-        "text_extraction_io_format_1.0.0.yaml"
-    )
     import_configs = [
         {
             "gcs_source": {"uris": [gcs_source_uri]},
-            "import_schema_uri": import_schema_uri,
+            "import_schema_uri": "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_extraction_io_format_1.0.0.yaml",
         }
     ]
     name = client.dataset_path(project=project, location=location, dataset=dataset_id)

@@ -18,18 +18,6 @@ from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
 
-def run_sample():
-    # TODO(dev): replace these variables to run the code
-    project = "YOUR-PROJECT"
-    display_name = "YOUR-DISPLAY-NAME"
-    dataset = "YOUR-DATASET"
-    instruction_uri = "YOUR-INSTRUCTION-URI"
-    annotation_spec = "YOUR-ANNOTATION-SPEC"
-    create_data_labeling_job_video_sample(
-        project, display_name, dataset, instruction_uri, annotation_spec
-    )
-
-
 def create_data_labeling_job_video_sample(
     project: str,
     display_name: str,
@@ -54,7 +42,7 @@ def create_data_labeling_job_video_sample(
         # labeler_count must be 1, 3, or 5
         "labeler_count": 1,
         "instruction_uri": instruction_uri,
-        "inputs_schema_uri": "gs://google-cloud-aiplatform/schema/datalabelingjob/inputs/video_classification.yaml",
+        "inputs_schema_uri": "gs://google-cloud-aiplatform/schema/datalabelingjob/inputs/video_classification_1.0.0.yaml",
         "inputs": inputs,
         "annotation_labels": {
             "aiplatform.googleapis.com/annotation_set_name": "my_test_saved_query"

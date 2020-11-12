@@ -16,14 +16,6 @@
 from google.cloud import aiplatform
 
 
-def run_sample():
-    # TODO(dev): replace these variables to run the code
-    project = "YOUR-PROJECT"
-    display_name = "YOUR-DISPLAY-NAME"
-    metadata_schema_uri = "YOUR-METADATA-SCHEMA-URI"
-    create_dataset_sample(project, display_name, metadata_schema_uri)
-
-
 def create_dataset_sample(
     project: str,
     display_name: str,

@@ -18,14 +18,6 @@ from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
 
-def run_sample():
-    # TODO(dev): replace these variables to run the code
-    project = "YOUR-PROJECT"
-    display_name = "YOUR-DISPLAY-NAME"
-    bigquery_uri = "YOUR-BIGQUERY-URI"
-    create_dataset_tabular_bigquery_sample(project, display_name, bigquery_uri)
-
-
 def create_dataset_tabular_bigquery_sample(
     project: str,
     display_name: str,

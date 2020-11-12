@@ -42,7 +42,6 @@ def predict_sample(
     print("response")
     print(" deployed_model_id:", response.deployed_model_id)
     predictions = response.predictions
-    print("predictions")
     for prediction in predictions:
         print(" prediction:", dict(prediction))
 

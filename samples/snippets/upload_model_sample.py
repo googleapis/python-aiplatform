@@ -23,7 +23,7 @@ def upload_model_sample(
     image_uri: str,
     artifact_uri: str,
     location: str = "us-central1",
-    timeout: int = 180,
+    timeout: int = 1800,
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.

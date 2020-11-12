@@ -18,22 +18,6 @@ from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
 
-def run_sample():
-    # TODO(dev): replace these variables to run the code
-    project = "YOUR-PROJECT"
-    display_name = "YOUR-DISPLAY-NAME"
-    model_name = "YOUR-MODEL-NAME"
-    gcs_source_uri = "YOUR-GCS-SOURCE-URI"
-    gcs_destination_output_uri_prefix = "YOUR-GCS-DESTINATION-OUTPUT-URI-PREFIX"
-    create_batch_prediction_job_video_object_tracking_sample(
-        project,
-        display_name,
-        model_name,
-        gcs_source_uri,
-        gcs_destination_output_uri_prefix,
-    )
-
-
 def create_batch_prediction_job_video_object_tracking_sample(
     project: str,
     display_name: str,

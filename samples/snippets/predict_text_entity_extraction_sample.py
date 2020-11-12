@@ -43,7 +43,6 @@ def predict_text_entity_extraction_sample(
     print(" deployed_model_id:", response.deployed_model_id)
     # See gs://google-cloud-aiplatform/schema/predict/prediction/text_extraction.yaml for the format of the predictions.
     predictions = response.predictions
-    print("predictions")
     for prediction in predictions:
         print(" prediction:", dict(prediction))
 

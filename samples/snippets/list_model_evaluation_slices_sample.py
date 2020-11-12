@@ -21,7 +21,7 @@ def list_model_evaluation_slices_sample(
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and should be reused for multiple requests.
+    # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
     parent = client.model_evaluation_path(
         project=project, location=location, model=model_id, evaluation=evaluation_id

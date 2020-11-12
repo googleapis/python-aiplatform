@@ -16,13 +16,6 @@
 from google.cloud import aiplatform
 
 
-def run_sample():
-    # TODO(dev): replace these variables to run the code
-    project = "YOUR-PROJECT"
-    display_name = "YOUR-DISPLAY-NAME"
-    create_dataset_image_sample(project, display_name)
-
-
 def create_dataset_image_sample(
     project: str, display_name: str, location: str = "us-central1", timeout: int = 300
 ):

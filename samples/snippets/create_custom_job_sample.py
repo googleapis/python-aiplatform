@@ -16,22 +16,16 @@
 from google.cloud import aiplatform
 
 
-def run_sample():
-    # TODO(dev): replace these variables to run the code
-    display_name = "YOUR-DISPLAY-NAME"
-    container_image_uri = "YOUR-CONTAINER-IMAGE-URI"
-    project = "YOUR-PROJECT"
-    create_custom_job_sample(display_name, container_image_uri, project)
-
-
-def create_custom_job_sample(display_name: str, container_image_uri: str, project: str):
+def create_custom_job_sample(
+    project: str,
+    display_name: str,
+    container_image_uri: str,
+    location: str = "us-central1",
+):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.JobServiceClient(client_options=client_options)
-    location = "us-central1"
-    parent = f"projects/{project}/locations/{location}"
-
     custom_job = {
         "display_name": display_name,
         "job_spec": {
@@ -52,14 +46,9 @@ def create_custom_job_sample(display_name: str, container_image_uri: str, projec
             ]
         },
     }
+    parent = f"projects/{project}/locations/{location}"
     response = client.create_custom_job(parent=parent, custom_job=custom_job)
-    print("response")
-    print(" name:", response.name)
-    print(" display_name:", response.display_name)
-    print(" state:", response.state)
-    print(" start_time:", response.start_time)
-    print(" end_time:", response.end_time)
-    print(" labels:", response.labels)
+    print("response:", response)
 
 
 # [END aiplatform_create_custom_job_sample]

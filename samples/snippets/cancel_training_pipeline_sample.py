@@ -16,13 +16,6 @@
 from google.cloud import aiplatform
 
 
-def run_sample():
-    # TODO(dev): replace these variables to run the code
-    project = "YOUR-PROJECT"
-    training_pipeline_id = "YOUR-TRAINING_PIPELINE_ID"
-    cancel_training_pipeline_sample(project, training_pipeline_id)
-
-
 def cancel_training_pipeline_sample(
     project: str, training_pipeline_id: str, location: str = "us-central1"
 ):
