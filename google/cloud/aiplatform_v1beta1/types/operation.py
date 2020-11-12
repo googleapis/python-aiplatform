@@ -43,13 +43,17 @@ class GenericOperationMetadata(proto.Message):
             created.
         update_time (~.timestamp.Timestamp):
             Output only. Time when the operation was
-            updated for the last time.
+            updated for the last time. If the operation has
+            finished (successfully or not), this is the
+            finish time.
     """
 
     partial_failures = proto.RepeatedField(
         proto.MESSAGE, number=1, message=status.Status,
     )
+
     create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp.Timestamp,)
+
     update_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
 
 
@@ -62,7 +66,7 @@ class DeleteOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=GenericOperationMetadata,
+        proto.MESSAGE, number=1, message="GenericOperationMetadata",
     )
 
 

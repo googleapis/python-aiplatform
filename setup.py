@@ -17,35 +17,40 @@
 
 import io
 import os
+
 import setuptools  # type: ignore
 
-version = "0.2.0"
+name = "google-cloud-aiplatform"
+version = "0.3.0"
+description = "Cloud AI Platform API client library"
 
 package_root = os.path.abspath(os.path.dirname(__file__))
-
 readme_filename = os.path.join(package_root, "README.rst")
 with io.open(readme_filename, encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
-
 setuptools.setup(
-    name="google-cloud-aiplatform",
+    name=name,
     version=version,
+    description=description,
     long_description=readme,
+    packages=setuptools.PEP420PackageFinder.find(),
+    namespace_packages=("google", "google.cloud"),
     author="Google LLC",
     author_email="googleapis-packages@google.com",
     license="Apache 2.0",
-    url="https://github.com/googleapis/python-documentai",
-    packages=setuptools.PEP420PackageFinder.find(),
-    namespace_packages=("google", "google.cloud"),
+    url="https://github.com/googleapis/python-aiplatform",
     platforms="Posix; MacOS X; Windows",
     include_package_data=True,
     install_requires=(
         "google-api-core[grpc] >= 1.22.2, < 2.0.0dev",
         "libcst >= 0.2.5",
-        "proto-plus >= 1.4.0",
+        "proto-plus >= 1.10.1",
+        "mock >= 4.0.2",
+        "google-cloud-storage >= 1.26.0, < 2.0.0dev",
     ),
     python_requires=">=3.6",
+    scripts=[],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",

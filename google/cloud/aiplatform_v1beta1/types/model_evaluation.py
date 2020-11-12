@@ -68,10 +68,15 @@ class ModelEvaluation(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
+
     metrics_schema_uri = proto.Field(proto.STRING, number=2)
+
     metrics = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
+
     create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
+
     slice_dimensions = proto.RepeatedField(proto.STRING, number=5)
+
     model_explanation = proto.Field(
         proto.MESSAGE, number=8, message=explanation.ModelExplanation,
     )
