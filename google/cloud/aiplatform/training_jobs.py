@@ -24,7 +24,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from typing import Callable, List, Optional, Sequence, Union
+from typing import Callable, Dict, List, Optional, NamedTuple, Sequence, Union
 
 
 from google.auth import credentials as auth_credentials
@@ -339,6 +339,96 @@ setup(
         return self.package_and_copy(copy_method=copy_method)
 
 
+class _MachineSpec(NamedTuple):
+    replica_count: int=0
+    machine_type: str='n1-standard-2',
+    accelerator_count: int=0
+    accelerator_type: str='ACCELERATOR_TYPE_UNSPECIFIED'
+    # TODO(asobran) add support for specifying container and python package
+
+    def _get_accelerator_type(self) -> Optional[str]:
+
+        # validate accelerator type
+        if self.accelerator_type not in gca_accelerator_type.AcceleratorType._member_names_:
+            raise ValueError(
+                f"accelerator_type `{self.accelerator_type}` invalid. "
+                f"Choose one of {gca_accelerator_type.AcceleratorType._member_names_}"
+            )
+
+        accelerator_enum = getattr(
+            gca_accelerator_type.AcceleratorType, self.accelerator_type)
+
+        if (
+            accelerator_enum
+            != gca_accelerator_type.AcceleratorType.ACCELERATOR_TYPE_UNSPECIFIED
+        ):
+            return self.accelerator_type
+
+    @property
+    def spec_dict(self) -> Dict[str, Union[int, str, Dict[str, Union[int, str]]]]:
+        spec = {
+            "machineSpec": {"machineType": self.machine_type},
+            "replicaCount": self.replica_count
+
+        }
+        accelerator_type = self._get_accelerator_type()
+        if accelerator_type:
+            spec["machineSpec"]["acceleratorType"] = accelerator_type
+            spec["machineSpec"]["acceleratorCount"] =  self.accelerator_count
+
+        return spec
+
+    @property
+    def is_empty(self) -> bool:
+        return self.replica_count == 0
+
+
+
+class _DistributedTrainingConfig(NamedTuple):
+    chief_spec: _MachineSpec = _MachineSpec()
+    worker_spec: _MachineSpec = _MachineSpec()
+    parameter_server_spec: _MachineSpec = _MachineSpec()
+    evaluator_spec: _MachineSpec = _MachineSpec()
+
+    @property
+    def pool_specs(self) -> List:
+        spec_order = [self.chief_spec, self.worker_spec, self.parameter_server_spec, self.evaluator_spec]
+        specs = [s.spec_dict for s in spec_order]
+        for i in reversed(range(len(spec_order))):
+            if spec_order[i].is_empty:
+                specs.pop()
+            else:
+                break
+        return specs
+
+    @classmethod
+    def chief_worker_pool(cls,
+        replica_count: int=0,
+        machine_type: str='n1-standard-2',
+        accelerator_count: int=0,
+        accelerator_type: str='ACCELERATOR_TYPE_UNSPECIFIED') -> "_DistributedTrainingConfig":
+        """Configures Config to support only chief with worker replicas"""
+        if not replica_count:
+            return cls()
+
+        chief_spec = _MachineSpec(
+                replica_count=1,
+                machine_type=machine_type,
+                accelerator_count=accelerator_count,
+                accelerator_type=accelerator_type
+            )
+
+        worker_spec = _MachineSpec(
+            replica_count=replica_count-1,
+            machine_type=machine_type,
+            accelerator_count=accelerator_count,
+            accelerator_type=accelerator_type
+        )
+
+        return cls(chief_spec=chief_spec, worker_spec=worker_spec)
+
+
+
 # TODO(b/172368325) add scheduling, custom_job.Scheduling
 class CustomTrainingJob(base.AiPlatformResourceNoun):
     """Class to launch a Custom Training Job in AI Platform using a script.
@@ -499,6 +589,8 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
                 Command line arguments to be passed to the Python script.
             replica_count (int):
                 The number of worker replicas.
+            machine_type (str):
+                The type of machine to use for training.
             accelerator_type (str):
                 Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
@@ -529,17 +621,6 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
         if self._has_run:
             raise RuntimeError("Custom Training has already run.")
 
-        # TODO(b/172369809) Add support for distributed training.
-        if replica_count > 1:
-            raise NotImplementedError("Distributed training not supported.")
-
-        # validate accelerator type
-        if accelerator_type not in gca_accelerator_type.AcceleratorType._member_names_:
-            raise ValueError(
-                f"accelerator_type {accelerator_type} invalid. "
-                f"Choose one of {gca_accelerator_type.AcceleratorType._member_names_}"
-            )
-
         staging_bucket = (
             self._staging_bucket or initializer.global_config.staging_bucket
         )
@@ -550,9 +631,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
                 "set using aiplatform.init(staging_bucket='gs://my-bucket'"
             )
 
-        # if args need for model is incomplete
-        # TODO (b/162273530) lift requirement for predict/health route when
-        # validation lifted and move these args down
+        # if args needed for model is incomplete
         if model_display_name and not self._model_serving_container_image_uri:
             raise RuntimeError(
                 """model_display_name was provided but
@@ -560,6 +639,15 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
                 custom pipeline was constructed.
                 """
             )
+
+        # validates args and will raise
+        worker_pool_specs = _DistributedTrainingConfig.chief_worker_pool(
+                replica_count=replica_count,
+                machine_type=machine_type,
+                accelerator_count=accelerator_count,
+                accelerator_type=accelerator_type
+            ).pool_specs()
+
 
         # make and copy package
         python_packager = _TrainingScriptPythonPackager(
