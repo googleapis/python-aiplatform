@@ -21,7 +21,9 @@ def run_sample():
     project = "YOUR-PROJECT-ID"
     model_id = "YOUR-MODEL-ID"
     gcs_destination_output_uri_prefix = "YOUR-GCS-URI-PREFIX"
-    export_model_tabular_classification_sample(project, model_id, gcs_destination_output_uri_prefix)
+    export_model_tabular_classification_sample(
+        project, model_id, gcs_destination_output_uri_prefix
+    )
 
 
 def export_model_tabular_classification_sample(

@@ -25,7 +25,8 @@ def run_sample():
 
 
 def get_model_evaluation_sample(
-    project: str, model_id: str, evaluation_id: str, location: str = "us-central1"):
+    project: str, model_id: str, evaluation_id: str, location: str = "us-central1"
+):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.

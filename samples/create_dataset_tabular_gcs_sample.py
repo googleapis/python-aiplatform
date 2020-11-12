@@ -17,6 +17,7 @@ from google.cloud import aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
+
 def run_sample():
     # TODO(dev): replace these variables to run the code
     project = "YOUR-PROJECT"

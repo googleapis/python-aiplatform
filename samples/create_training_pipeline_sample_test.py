@@ -18,11 +18,9 @@ import os
 
 import helpers
 
-import (
-    create_training_pipeline_sample,
-    cancel_training_pipeline_sample,
-    delete_training_pipeline_sample,
-)
+import create_training_pipeline_sample
+import cancel_training_pipeline_sample
+import delete_training_pipeline_sample
 
 from google.cloud import aiplatform
 

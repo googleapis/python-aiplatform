@@ -18,11 +18,9 @@ import os
 
 import helpers
 
-import (
-    create_batch_prediction_job_video_object_tracking_sample,
-    cancel_batch_prediction_job_sample,
-    delete_batch_prediction_job_sample,
-)
+import create_batch_prediction_job_video_object_tracking_sample
+import cancel_batch_prediction_job_sample
+import delete_batch_prediction_job_sample
 
 from google.cloud import aiplatform
 

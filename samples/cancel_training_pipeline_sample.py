@@ -15,6 +15,7 @@
 # [START aiplatform_cancel_training_pipeline_sample]
 from google.cloud import aiplatform
 
+
 def run_sample():
     # TODO(dev): replace these variables to run the code
     project = "YOUR-PROJECT"

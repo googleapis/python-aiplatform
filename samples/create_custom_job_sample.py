@@ -15,6 +15,7 @@
 # [START aiplatform_create_custom_job_sample]
 from google.cloud import aiplatform
 
+
 def run_sample():
     # TODO(dev): replace these variables to run the code
     display_name = "YOUR-DISPLAY-NAME"
@@ -30,7 +31,7 @@ def create_custom_job_sample(display_name: str, container_image_uri: str, projec
     client = aiplatform.gapic.JobServiceClient(client_options=client_options)
     location = "us-central1"
     parent = f"projects/{project}/locations/{location}"
-    )
+
     custom_job = {
         "display_name": display_name,
         "job_spec": {

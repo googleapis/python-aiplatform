@@ -15,6 +15,7 @@
 # [START aiplatform_create_dataset_image_sample]
 from google.cloud import aiplatform
 
+
 def run_sample():
     # TODO(dev): replace these variables to run the code
     project = "YOUR-PROJECT"

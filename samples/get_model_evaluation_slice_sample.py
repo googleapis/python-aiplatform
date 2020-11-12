@@ -24,6 +24,7 @@ def run_sample():
     slice_id = "YOUR-SLICE-ID"
     get_model_evaluation_slice_sample(project, model_id, evaluation_id, slice_id)
 
+
 def get_model_evaluation_slice_sample(
     project: str,
     model_id: str,

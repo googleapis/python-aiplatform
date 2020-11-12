@@ -25,7 +25,9 @@ def run_sample():
     dataset = "YOUR-DATASET"
     instruction_uri = "YOUR-INSTRUCTION-URI"
     annotation_spec = "YOUR-ANNOTATION-SPEC"
-    create_data_labeling_job_video_sample(project, display_name, dataset, instruction_uri, annotation_spec)
+    create_data_labeling_job_video_sample(
+        project, display_name, dataset, instruction_uri, annotation_spec
+    )
 
 
 def create_data_labeling_job_video_sample(

@@ -19,11 +19,9 @@ from google.cloud import aiplatform
 
 import helpers
 
-import (
-    create_data_labeling_job_images_sample,
-    cancel_data_labeling_job_sample,
-    delete_data_labeling_job_sample,
-)
+import create_data_labeling_job_images_sample
+import cancel_data_labeling_job_sample
+import delete_data_labeling_job_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"

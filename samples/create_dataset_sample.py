@@ -29,7 +29,7 @@ def create_dataset_sample(
     display_name: str,
     metadata_schema_uri: str,
     location: str = "us-central1",
-    timeout: int = 300
+    timeout: int = 300,
 ):
     client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     # Initialize client that will be used to create and send requests.
