@@ -988,7 +988,7 @@ class Test_MachineSpec:
         )
 
         true_spec_dict = {
-            "machineSpec": {"machineType": _TEST_MACHINE_TYPE,},
+            "machineSpec": {"machineType": _TEST_MACHINE_TYPE},
             "replicaCount": _TEST_REPLICA_COUNT,
         }
 
@@ -1001,15 +1001,6 @@ class Test_MachineSpec:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
         )
-
-        true_spec_dict = {
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
-            },
-            "replicaCount": _TEST_REPLICA_COUNT,
-        }
 
         with pytest.raises(ValueError):
             test_spec.spec_dict
@@ -1196,7 +1187,7 @@ class Test_DistributedTrainingSpec:
                 },
                 "replicaCount": 1,
             },
-            {"machineSpec": {"machineType": "n1-standard-2",}, "replicaCount": 0},
+            {"machineSpec": {"machineType": "n1-standard-2"}, "replicaCount": 0},
             {
                 "machineSpec": {
                     "machineType": _TEST_MACHINE_TYPE,
