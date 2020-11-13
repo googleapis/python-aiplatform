@@ -433,6 +433,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        utils.validate_display_name(self._display_name)
         super().__init__(project=project, location=location, credentials=credentials)
         self._display_name = display_name
         self._script_path = script_path
@@ -526,6 +527,8 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             NotImplementedError more then one replica.
             ValueError if accelerator type is not valid.
         """
+        utils.validate_display_name(model_display_name)
+
         if self._has_run:
             raise RuntimeError("Custom Training has already run.")
 

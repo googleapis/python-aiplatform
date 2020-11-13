@@ -193,3 +193,9 @@ def test_full_resource_name_raises_value_error(
             project=project,
             location=location,
         )
+
+def test_validate_display_name_raises_value_error():
+    with pytest.raises(ValueError):
+        aiplatform.utils.validate_display_name(
+            "slanflksdnlikh;likhq290u90rflkasndfkljashndfkl;jhowq2342;iehoiwerhowqihjer34564356o;iqwjr;oijsdalfjasl;kfjas;ldifhja;slkdfsdlkfhj"
+        )

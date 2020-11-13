@@ -22,7 +22,7 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.utils import full_resource_name
+from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import schema
 
 from google.cloud.aiplatform_v1beta1 import GcsSource
@@ -65,7 +65,7 @@ class Dataset(base.AiPlatformResourceNoun):
                 credentials set in aiplatform.init.
         """
 
-        dataset_name = full_resource_name(
+        dataset_name = utils.full_resource_name(
             resource_name=dataset_name,
             resource_noun="datasets",
             project=project,
@@ -160,6 +160,7 @@ class Dataset(base.AiPlatformResourceNoun):
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
         """
+        utils.validate_display_name(display_name)
 
         # Validate that source and import schema are passed together or not at all
         if bool(gcs_source) ^ bool(import_schema_uri):
