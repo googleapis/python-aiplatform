@@ -653,6 +653,12 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
+        Distributed Training Support:
+        If replica count = 1 then one chief replica will be provisioned. If
+        replica_count > 1 the remainder will be provisioned as a worker replica pool.
+        ie: replica_count = 10 will result in 1 chief and 9 workers
+        All replicas have same machine_type, accelerator_type, and accelerator_count
+
         Data fraction splits:
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
@@ -682,7 +688,9 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
             replica_count (int):
-                The number of worker replicas.
+                The number of worker replicas. If replica count = 1 then one chief
+                replica will be provisioned. If replica_count > 1 the remainder will be
+                provisioned as a worker replica pool.
             machine_type (str):
                 The type of machine to use for training.
             accelerator_type (str):
