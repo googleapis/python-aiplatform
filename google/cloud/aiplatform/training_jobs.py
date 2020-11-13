@@ -340,23 +340,47 @@ setup(
 
 
 class _MachineSpec(NamedTuple):
-    replica_count: int=0
-    machine_type: str='n1-standard-2',
-    accelerator_count: int=0
-    accelerator_type: str='ACCELERATOR_TYPE_UNSPECIFIED'
-    # TODO(asobran) add support for specifying container and python package
+    """Specification container for Machine specs used for distributed training.
+
+    Usage:
+
+    spec = _MachineSpec(
+                replica_count=10,
+                machine_type='n1-standard-2',
+                accelerator_count=2,
+                accelerator_type='NVIDIA_TESLA_K80')
+
+    Note that container and python package specs are not stored with this spec.
+    """
+
+    replica_count: int = 0
+    machine_type: str = "n1-standard-2"
+    accelerator_count: int = 0
+    accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED"
 
     def _get_accelerator_type(self) -> Optional[str]:
+        """Validates accelerator_type and returns the name of the accelerator.
+
+        Returns:
+            None if no accelerator or valid accelerator name.
+
+        Raise:
+            ValueError if accelerator type is invalid.
+        """
 
         # validate accelerator type
-        if self.accelerator_type not in gca_accelerator_type.AcceleratorType._member_names_:
+        if (
+            self.accelerator_type
+            not in gca_accelerator_type.AcceleratorType._member_names_
+        ):
             raise ValueError(
                 f"accelerator_type `{self.accelerator_type}` invalid. "
                 f"Choose one of {gca_accelerator_type.AcceleratorType._member_names_}"
             )
 
         accelerator_enum = getattr(
-            gca_accelerator_type.AcceleratorType, self.accelerator_type)
+            gca_accelerator_type.AcceleratorType, self.accelerator_type
+        )
 
         if (
             accelerator_enum
@@ -366,33 +390,81 @@ class _MachineSpec(NamedTuple):
 
     @property
     def spec_dict(self) -> Dict[str, Union[int, str, Dict[str, Union[int, str]]]]:
+        """Return specification as a Dict."""
         spec = {
             "machineSpec": {"machineType": self.machine_type},
-            "replicaCount": self.replica_count
-
+            "replicaCount": self.replica_count,
         }
         accelerator_type = self._get_accelerator_type()
-        if accelerator_type:
+        if accelerator_type and self.accelerator_count:
             spec["machineSpec"]["acceleratorType"] = accelerator_type
-            spec["machineSpec"]["acceleratorCount"] =  self.accelerator_count
+            spec["machineSpec"]["acceleratorCount"] = self.accelerator_count
 
         return spec
 
     @property
     def is_empty(self) -> bool:
-        return self.replica_count == 0
+        """Returns True is replica_count > 0 False otherwise."""
+        return self.replica_count <= 0
 
 
+class _DistributedTrainingSpec(NamedTuple):
+    """Configuration for distributed training worker pool specs.
 
-class _DistributedTrainingConfig(NamedTuple):
+    AI Platform Training expects configuration in this order:
+    [
+        chief spec, # can only have one replica
+        worker spec,
+        parameter server spec,
+        evaluator spec
+    ]
+
+    Usage:
+
+    dist_training_spec = _DistributedTrainingSpec(
+        chief_spec = _MachineSpec(
+                replica_count=1,
+                machine_type='n1-standard-2',
+                accelerator_count=2,
+                accelerator_type='NVIDIA_TESLA_K80'
+                ),
+        worker_spec = _MachineSpec(
+                replica_count=10,
+                machine_type='n1-standard-2',
+                accelerator_count=2,
+                accelerator_type='NVIDIA_TESLA_K80'
+                )
+    )
+
+    """
+
     chief_spec: _MachineSpec = _MachineSpec()
     worker_spec: _MachineSpec = _MachineSpec()
     parameter_server_spec: _MachineSpec = _MachineSpec()
     evaluator_spec: _MachineSpec = _MachineSpec()
 
     @property
-    def pool_specs(self) -> List:
-        spec_order = [self.chief_spec, self.worker_spec, self.parameter_server_spec, self.evaluator_spec]
+    def pool_specs(
+        self,
+    ) -> List[Dict[str, Union[int, str, Dict[str, Union[int, str]]]]]:
+        """Return each pools spec in correct order for AI Platform as a list of dicts.
+
+        Also removes specs if they are empty but leaves specs in if there unusual
+        specifications to not break the ordering in AI Platform Training.
+        ie. 0 chief replica, 10 worker replica, 3 ps replica
+
+        Returns:
+            Order list of worker pool specs suitable for AI Platform Training.
+        """
+        if self.chief_spec.replica_count > 1:
+            raise ValueError("Chief spec replica count cannot be greater than 1.")
+
+        spec_order = [
+            self.chief_spec,
+            self.worker_spec,
+            self.parameter_server_spec,
+            self.evaluator_spec,
+        ]
         specs = [s.spec_dict for s in spec_order]
         for i in reversed(range(len(spec_order))):
             if spec_order[i].is_empty:
@@ -402,31 +474,53 @@ class _DistributedTrainingConfig(NamedTuple):
         return specs
 
     @classmethod
-    def chief_worker_pool(cls,
-        replica_count: int=0,
-        machine_type: str='n1-standard-2',
-        accelerator_count: int=0,
-        accelerator_type: str='ACCELERATOR_TYPE_UNSPECIFIED') -> "_DistributedTrainingConfig":
-        """Configures Config to support only chief with worker replicas"""
-        if not replica_count:
+    def chief_worker_pool(
+        cls,
+        replica_count: int = 0,
+        machine_type: str = "n1-standard-2",
+        accelerator_count: int = 0,
+        accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
+    ) -> "_DistributedTrainingSpec":
+        """Parameterizes Config to support only chief with worker replicas.
+
+        For replica is assigned to chief and the remainder to workers. All spec have the
+        same machine type, accelerator count, and accelerator type.
+
+        Args:
+            replica_count (int):
+                The number of worker replicas. Assigns 1 chief replica and
+                replica_count - 1 worker replicas.
+            machine_type (str):
+                The type of machine to use for training.
+            accelerator_type (str):
+                Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
+                NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
+                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+            accelerator_count (int):
+                The number of accelerators to attach to a worker replica.
+
+        Returns:
+            _DistributedTrainingSpec representing one chief and n workers all of same
+            type. If replica_count <= 0 then an empty spec is returned.
+        """
+        if replica_count <= 0:
             return cls()
 
         chief_spec = _MachineSpec(
-                replica_count=1,
-                machine_type=machine_type,
-                accelerator_count=accelerator_count,
-                accelerator_type=accelerator_type
-            )
-
-        worker_spec = _MachineSpec(
-            replica_count=replica_count-1,
+            replica_count=1,
             machine_type=machine_type,
             accelerator_count=accelerator_count,
-            accelerator_type=accelerator_type
+            accelerator_type=accelerator_type,
+        )
+
+        worker_spec = _MachineSpec(
+            replica_count=replica_count - 1,
+            machine_type=machine_type,
+            accelerator_count=accelerator_count,
+            accelerator_type=accelerator_type,
         )
 
         return cls(chief_spec=chief_spec, worker_spec=worker_spec)
-
 
 
 # TODO(b/172368325) add scheduling, custom_job.Scheduling
@@ -615,8 +709,6 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             RuntimeError if Training job has already been run, staging_bucket has not
                 been set, or model_display_name was provided but required arguments
                 were not provided in constructor.
-            NotImplementedError more then one replica.
-            ValueError if accelerator type is not valid.
         """
         if self._has_run:
             raise RuntimeError("Custom Training has already run.")
@@ -641,13 +733,12 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             )
 
         # validates args and will raise
-        worker_pool_specs = _DistributedTrainingConfig.chief_worker_pool(
-                replica_count=replica_count,
-                machine_type=machine_type,
-                accelerator_count=accelerator_count,
-                accelerator_type=accelerator_type
-            ).pool_specs()
-
+        worker_pool_specs = _DistributedTrainingSpec.chief_worker_pool(
+            replica_count=replica_count,
+            machine_type=machine_type,
+            accelerator_count=accelerator_count,
+            accelerator_type=accelerator_type,
+        ).pool_specs
 
         # make and copy package
         python_packager = _TrainingScriptPythonPackager(
@@ -665,30 +756,15 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             staging_bucket, "aiplatform-custom-training"
         )
 
-        # create worker pool spec
-        worker_pool_spec = {
-            "replicaCount": replica_count,
-            "machineSpec": {"machineType": machine_type},
-            "pythonPackageSpec": {
+        for spec in worker_pool_specs:
+            spec["pythonPackageSpec"] = {
                 "executorImageUri": self._container_uri,
                 "pythonModule": python_packager.module_name,
                 "packageUris": [package_gcs_uri],
-            },
-        }
+            }
 
-        accelerator_enum = getattr(
-            gca_accelerator_type.AcceleratorType, accelerator_type
-        )
-
-        if (
-            accelerator_enum
-            != gca_accelerator_type.AcceleratorType.ACCELERATOR_TYPE_UNSPECIFIED
-        ):
-            worker_pool_spec["machineSpec"]["acceleratorType"] = accelerator_type
-            worker_pool_spec["machineSpec"]["acceleratorCount"] = accelerator_count
-
-        if args:
-            worker_pool_spec["pythonPackageSpec"]["args"] = args
+            if args:
+                spec["pythonPackageSpec"]["args"] = args
 
         managed_model = None
         # create model payload
@@ -728,7 +804,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [worker_pool_spec],
+                    "workerPoolSpecs": worker_pool_specs,
                     "baseOutputDirectory": {"output_uri_prefix": base_output_dir},
                 },
                 struct_pb2.Value(),

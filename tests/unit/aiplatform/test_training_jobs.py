@@ -831,3 +831,380 @@ class TestCustomTrainingJob:
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             )
+
+    def test_run_call_pipeline_service_create_distributed_training(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            replica_count=10,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+        )
+
+        mock_python_package_to_gcs.assert_called_once_with(
+            gcs_staging_dir=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            credentials=initializer.global_config.credentials,
+        )
+
+        true_args = _TEST_RUN_ARGS
+
+        true_worker_pool_spec = [
+            {
+                "replicaCount": 1,
+                "machineSpec": {
+                    "machineType": _TEST_MACHINE_TYPE,
+                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                },
+                "pythonPackageSpec": {
+                    "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
+                    "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
+                    "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                    "args": true_args,
+                },
+            },
+            {
+                "replicaCount": 9,
+                "machineSpec": {
+                    "machineType": _TEST_MACHINE_TYPE,
+                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                },
+                "pythonPackageSpec": {
+                    "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
+                    "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
+                    "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                    "args": true_args,
+                },
+            },
+        ]
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+
+        true_container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME, container_spec=true_container_spec
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split,
+            dataset_id=mock_dataset.name,
+            gcs_destination=gca_io.GcsDestination(
+                output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+            ),
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.custom_task,
+            training_task_inputs=json_format.ParseDict(
+                {
+                    "workerPoolSpecs": true_worker_pool_spec,
+                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                },
+                struct_pb2.Value(),
+            ),
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+        assert job._gca_resource is mock_pipeline_service_create.return_value
+
+        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+
+        assert model_from_job._gca_resource is mock_model_service_get.return_value
+
+        assert job.get_model()._gca_resource is mock_model_service_get.return_value
+
+        assert not job.has_failed
+
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+
+class Test_MachineSpec:
+    def test_machine_spec_return_spec_dict(self):
+        test_spec = training_jobs._MachineSpec(
+            replica_count=_TEST_REPLICA_COUNT,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+        )
+
+        true_spec_dict = {
+            "machineSpec": {
+                "machineType": _TEST_MACHINE_TYPE,
+                "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            },
+            "replicaCount": _TEST_REPLICA_COUNT,
+        }
+
+        assert test_spec.spec_dict == true_spec_dict
+
+    def test_machine_spec_return_spec_dict_with_no_accelerator(self):
+        test_spec = training_jobs._MachineSpec(
+            replica_count=_TEST_REPLICA_COUNT,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_count=0,
+            accelerator_type="ACCELERATOR_TYPE_UNSPECIFIED",
+        )
+
+        true_spec_dict = {
+            "machineSpec": {"machineType": _TEST_MACHINE_TYPE,},
+            "replicaCount": _TEST_REPLICA_COUNT,
+        }
+
+        assert test_spec.spec_dict == true_spec_dict
+
+    def test_machine_spec_spec_dict_raises_invalid_accelerator(self):
+        test_spec = training_jobs._MachineSpec(
+            replica_count=_TEST_REPLICA_COUNT,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
+        )
+
+        true_spec_dict = {
+            "machineSpec": {
+                "machineType": _TEST_MACHINE_TYPE,
+                "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            },
+            "replicaCount": _TEST_REPLICA_COUNT,
+        }
+
+        with pytest.raises(ValueError):
+            test_spec.spec_dict
+
+    def test_machine_spec_spec_dict_is_empty(self):
+        test_spec = training_jobs._MachineSpec(
+            replica_count=0,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
+        )
+
+        assert test_spec.is_empty
+
+    def test_machine_spec_spec_dict_is_not_empty(self):
+        test_spec = training_jobs._MachineSpec(
+            replica_count=_TEST_REPLICA_COUNT,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            accelerator_type=_TEST_INVALID_ACCELERATOR_TYPE,
+        )
+
+        assert not test_spec.is_empty
+
+
+class Test_DistributedTrainingSpec:
+    def test_machine_spec_returns_pool_spec(self):
+
+        spec = training_jobs._DistributedTrainingSpec(
+            chief_spec=training_jobs._MachineSpec(
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+            ),
+            worker_spec=training_jobs._MachineSpec(
+                replica_count=10,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+            ),
+            parameter_server_spec=training_jobs._MachineSpec(
+                replica_count=3,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+            ),
+            evaluator_spec=training_jobs._MachineSpec(
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+            ),
+        )
+
+        true_pool_spec = [
+            {
+                "machineSpec": {
+                    "machineType": _TEST_MACHINE_TYPE,
+                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                },
+                "replicaCount": 1,
+            },
+            {
+                "machineSpec": {
+                    "machineType": _TEST_MACHINE_TYPE,
+                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                },
+                "replicaCount": 10,
+            },
+            {
+                "machineSpec": {
+                    "machineType": _TEST_MACHINE_TYPE,
+                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                },
+                "replicaCount": 3,
+            },
+            {
+                "machineSpec": {
+                    "machineType": _TEST_MACHINE_TYPE,
+                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                },
+                "replicaCount": 1,
+            },
+        ]
+
+        assert spec.pool_specs == true_pool_spec
+
+    def test_chief_worker_pool_returns_spec(self):
+
+        chief_worker_spec = training_jobs._DistributedTrainingSpec.chief_worker_pool(
+            replica_count=10,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+        )
+
+        true_pool_spec = [
+            {
+                "machineSpec": {
+                    "machineType": _TEST_MACHINE_TYPE,
+                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                },
+                "replicaCount": 1,
+            },
+            {
+                "machineSpec": {
+                    "machineType": _TEST_MACHINE_TYPE,
+                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                },
+                "replicaCount": 9,
+            },
+        ]
+
+        assert chief_worker_spec.pool_specs == true_pool_spec
+
+    def test_chief_worker_pool_returns_just_chief(self):
+
+        chief_worker_spec = training_jobs._DistributedTrainingSpec.chief_worker_pool(
+            replica_count=1,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+        )
+
+        true_pool_spec = [
+            {
+                "machineSpec": {
+                    "machineType": _TEST_MACHINE_TYPE,
+                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                },
+                "replicaCount": 1,
+            }
+        ]
+
+        assert chief_worker_spec.pool_specs == true_pool_spec
+
+    def test_machine_spec_raise_with_more_than_one_chief_replica(self):
+
+        spec = training_jobs._DistributedTrainingSpec(
+            chief_spec=training_jobs._MachineSpec(
+                replica_count=2,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+            ),
+        )
+
+        with pytest.raises(ValueError):
+            spec.pool_specs
+
+    def test_machine_spec_handles_missing_pools(self):
+
+        spec = training_jobs._DistributedTrainingSpec(
+            chief_spec=training_jobs._MachineSpec(
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+            ),
+            worker_spec=training_jobs._MachineSpec(replica_count=0),
+            parameter_server_spec=training_jobs._MachineSpec(
+                replica_count=3,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+            ),
+            evaluator_spec=training_jobs._MachineSpec(replica_count=0),
+        )
+
+        true_pool_spec = [
+            {
+                "machineSpec": {
+                    "machineType": _TEST_MACHINE_TYPE,
+                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                },
+                "replicaCount": 1,
+            },
+            {"machineSpec": {"machineType": "n1-standard-2",}, "replicaCount": 0},
+            {
+                "machineSpec": {
+                    "machineType": _TEST_MACHINE_TYPE,
+                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
+                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                },
+                "replicaCount": 3,
+            },
+        ]
+
+        assert spec.pool_specs == true_pool_spec
