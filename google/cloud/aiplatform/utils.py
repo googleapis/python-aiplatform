@@ -35,9 +35,12 @@ from google.cloud.aiplatform_v1beta1.services.prediction_service import (
     client as prediction_client,
 )
 
-DEFAULT_REGION = "us-central1"
-SUPPORTED_REGIONS = ("us-central1", "europe-west4", "asia-east1")
-PROD_API_ENDPOINT = "aiplatform.googleapis.com"
+from google.cloud.aiplatform.constants import (
+    DEFAULT_REGION,
+    SUPPORTED_REGIONS,
+    PROD_API_ENDPOINT,
+)
+
 
 AiPlatformServiceClient = TypeVar(
     "AiPlatformServiceClient",
