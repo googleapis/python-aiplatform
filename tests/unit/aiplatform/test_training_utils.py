@@ -54,7 +54,7 @@ _TEST_CLUSTER_SPEC = """{
 }"""
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def test_environment():
     os.environ["AIP_TRAINING_DATA_URI"] = _TEST_TRAINING_DATA_URI
     os.environ["AIP_VALIDATION_DATA_URI"] = _TEST_VALIDATION_DATA_URI
@@ -65,29 +65,29 @@ def test_environment():
     os.environ["CLUSTER_SPEC"] = _TEST_CLUSTER_SPEC
 
 
-def test_training_data_uri():
+def test_training_data_uri(test_environment):
     assert training_utils.training_data_uri == _TEST_TRAINING_DATA_URI
 
 
-def test_validation_data_uri():
+def test_validation_data_uri(test_environment):
     assert training_utils.validation_data_uri == _TEST_VALIDATION_DATA_URI
 
 
-def test_test_data_uri():
+def test_test_data_uri(test_environment):
     assert training_utils.test_data_uri == _TEST_TEST_DATA_URI
 
 
-def test_model_dir():
+def test_model_dir(test_environment):
     assert training_utils.model_dir == _TEST_MODEL_DIR
 
 
-def test_checkpoint_dir():
+def test_checkpoint_dir(test_environment):
     assert training_utils.checkpoint_dir == _TEST_CHECKPOINT_DIR
 
 
-def test_tensorboard_log_dir():
+def test_tensorboard_log_dir(test_environment):
     assert training_utils.tensorboard_log_dir == _TEST_TENSORBOARD_LOG_DIR
 
 
-def test_cluster_spec():
+def test_cluster_spec(test_environment):
     assert training_utils.cluster_spec == _TEST_CLUSTER_SPEC
