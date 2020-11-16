@@ -433,7 +433,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
-        utils.validate_display_name(self._display_name)
+        utils.validate_display_name(display_name)
         super().__init__(project=project, location=location, credentials=credentials)
         self._display_name = display_name
         self._script_path = script_path
