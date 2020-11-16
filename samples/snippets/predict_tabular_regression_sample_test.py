@@ -54,4 +54,4 @@ def test_ucaip_generated_predict_tabular_regression_sample(capsys):
     )
 
     out, _ = capsys.readouterr()
-    assert "2982.0" in out
+    assert "prediction:" in out
