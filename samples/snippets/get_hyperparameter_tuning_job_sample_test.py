@@ -18,11 +18,15 @@ import os
 import get_hyperparameter_tuning_job_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-HYPERPARAMETER_TUNING_JOB_ID = "TODO"
-KNOWN_HYPERPARAMETER_TUNING_JOB = f"/locations/us-central1/hyperparameterTuningJobs/{CUSTOM_JOB_ID}"
+HYPERPARAMETER_TUNING_JOB_ID = "2216298782247616512"
+KNOWN_HYPERPARAMETER_TUNING_JOB = (
+    f"/locations/us-central1/hyperparameterTuningJobs/{HYPERPARAMETER_TUNING_JOB_ID}"
+)
 
 
 def test_ucaip_generated_get_hyperparameter_tuning_job_sample(capsys):
-    get_hyperparameter_tuning_job_sample.get_hyperparameter_tuning_job_sample(project=PROJECT_ID, hyperparameter_tuning_job_id=CUSTOM_JOB_ID)
+    get_hyperparameter_tuning_job_sample.get_hyperparameter_tuning_job_sample(
+        project=PROJECT_ID, hyperparameter_tuning_job_id=HYPERPARAMETER_TUNING_JOB_ID
+    )
     out, _ = capsys.readouterr()
     assert KNOWN_HYPERPARAMETER_TUNING_JOB in out
