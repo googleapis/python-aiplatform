@@ -162,12 +162,6 @@ class Dataset(base.AiPlatformResourceNoun):
         """
         utils.validate_display_name(display_name)
 
-        # Validate that source and import schema are passed together or not at all
-        if bool(gcs_source) ^ bool(import_schema_uri):
-            raise ValueError(
-                "Please provide both GCS source and import_schema_uri to import data or omit both."
-            )
-
         is_tabular_dataset_metadata = (
             metadata_schema_uri == schema.dataset.metadata.tabular
         )
