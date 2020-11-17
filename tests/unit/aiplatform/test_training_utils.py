@@ -15,10 +15,11 @@
 # limitations under the License.
 #
 
-
+import os
 import pytest
 
 from google.cloud.aiplatform import training_utils
+from unittest import mock
 
 _TEST_TRAINING_DATA_URI = "gs://training-data-uri"
 _TEST_VALIDATION_DATA_URI = "gs://test-validation-data-uri"
@@ -54,40 +55,44 @@ _TEST_CLUSTER_SPEC = """{
 
 
 class TestTrainingUtils:
-    @pytest.fixture
-    def mock_environment(monkeypatch):
-        monkeypatch.setenv("AIP_TRAINING_DATA_URI", _TEST_TRAINING_DATA_URI)
-        monkeypatch.setenv("AIP_VALIDATION_DATA_URI", _TEST_VALIDATION_DATA_URI)
-        monkeypatch.setenv("AIP_TEST_DATA_URI", _TEST_TEST_DATA_URI)
-        monkeypatch.setenv("AIP_MODEL_DIR", _TEST_MODEL_DIR)
-        monkeypatch.setenv("AIP_CHECKPOINT_DIR", _TEST_CHECKPOINT_DIR)
-        monkeypatch.setenv("AIP_TENSORBOARD_LOG_DIR", _TEST_TENSORBOARD_LOG_DIR)
-        monkeypatch.setenv("CLUSTER_SPEC", _TEST_CLUSTER_SPEC)
+    @pytest.fixture(autouse=True)
+    def mock_environment():
+        env_vars = {
+            "AIP_TRAINING_DATA_URI": _TEST_TRAINING_DATA_URI,
+            "AIP_VALIDATION_DATA_URI": _TEST_VALIDATION_DATA_URI,
+            "AIP_TEST_DATA_URI": _TEST_TEST_DATA_URI,
+            "AIP_MODEL_DIR": _TEST_MODEL_DIR,
+            "AIP_CHECKPOINT_DIR": _TEST_CHECKPOINT_DIR,
+            "AIP_TENSORBOARD_LOG_DIR": _TEST_TENSORBOARD_LOG_DIR,
+            "CLUSTER_SPEC": _TEST_CLUSTER_SPEC,
+        }
+        with mock.patch.dict(os.environ, env_vars):
+            yield
 
-    def test_training_data_uri(self, mock_environment):
+    def test_training_data_uri(self):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.training_data_uri == _TEST_TRAINING_DATA_URI
 
-    def test_validation_data_uri(self, mock_environment):
+    def test_validation_data_uri(self):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.validation_data_uri == _TEST_VALIDATION_DATA_URI
 
-    def test_test_data_uri(self, mock_environment):
+    def test_test_data_uri(self):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.test_data_uri == _TEST_TEST_DATA_URI
 
-    def test_model_dir(self, mock_environment):
+    def test_model_dir(self):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.model_dir == _TEST_MODEL_DIR
 
-    def test_checkpoint_dir(self, mock_environment):
+    def test_checkpoint_dir(self):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.checkpoint_dir == _TEST_CHECKPOINT_DIR
 
-    def test_tensorboard_log_dir(self, mock_environment):
+    def test_tensorboard_log_dir(self):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.tensorboard_log_dir == _TEST_TENSORBOARD_LOG_DIR
 
-    def test_cluster_spec(self, mock_environment):
+    def test_cluster_spec(self):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.cluster_spec == _TEST_CLUSTER_SPEC
