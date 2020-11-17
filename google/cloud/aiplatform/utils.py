@@ -193,7 +193,20 @@ def validate_project(project: str) -> bool:
     raise ValueError("Please provide a valid project ID")
 
 
-def validate_region(region: str):
+# TODO(b/172932277) verify display name only contains utf-8 chars
+def validate_display_name(display_name: str):
+    """Verify display name is at most 128 chars
+
+    Args:
+        display_name: display name to verify
+    Raises:
+        ValueError: display name is longer than 128 characters
+    """
+    if len(display_name) > 128:
+        raise ValueError("Display name needs to be less than 128 characters.")
+
+
+def validate_region(region: str) -> bool:
     """Validates region against supported regions.
 
     Args:
