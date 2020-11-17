@@ -15,57 +15,91 @@
 # limitations under the License.
 #
 
+import json
 import os
+
+from typing import Optional
 
 
 class EnvironmentVariables:
     """Passes on OS' environment variables"""
 
     @property
-    def training_data_uri(self) -> str:
+    def training_data_uri(self) -> Optional[str]:
         """
-        Returns: Cloud Storage URI of a directory intended for training data
+        Returns:
+            Cloud Storage URI of a directory intended for training data. None if
+            environment variable not set.
         """
-        return os.environ["AIP_TRAINING_DATA_URI"]
+        return os.environ.get("AIP_TRAINING_DATA_URI")
 
     @property
-    def validation_data_uri(self) -> str:
+    def validation_data_uri(self) -> Optional[str]:
         """
-        Returns: Cloud Storage URI of a directory intended for validation data
+        Returns:
+            Cloud Storage URI of a directory intended for validation data. None
+            if environment variable not set.
         """
-        return os.environ["AIP_VALIDATION_DATA_URI"]
+        return os.environ.get("AIP_VALIDATION_DATA_URI")
 
     @property
-    def test_data_uri(self) -> str:
+    def test_data_uri(self) -> Optional[str]:
         """
-        Returns: Cloud Storage URI of a directory intended for test data
+        Returns:
+            Cloud Storage URI of a directory intended for test data. None if
+            environment variable not set.
         """
-        return os.environ["AIP_TEST_DATA_URI"]
+        return os.environ.get("AIP_TEST_DATA_URI")
 
     @property
-    def model_dir(self) -> str:
+    def model_dir(self) -> Optional[str]:
         """
-        Returns: Cloud Storage URI of a directory intended for saving model artefacts
+        Returns:
+            Cloud Storage URI of a directory intended for saving model artefacts.
+            None if environment variable not set.
         """
-        return os.environ["AIP_MODEL_DIR"]
+        return os.environ.get("AIP_MODEL_DIR")
 
     @property
-    def checkpoint_dir(self) -> str:
+    def checkpoint_dir(self) -> Optional[str]:
         """
-        Returns: Cloud Storage URI of a directory intended for saving checkpoints
+        Returns:
+            Cloud Storage URI of a directory intended for saving checkpoints.
+            None if environment variable not set.
         """
-        return os.environ["AIP_CHECKPOINT_DIR"]
+        return os.environ.get("AIP_CHECKPOINT_DIR")
 
     @property
-    def tensorboard_log_dir(self) -> str:
+    def tensorboard_log_dir(self) -> Optional[str]:
         """
-        Returns: Cloud Storage URI of a directory intended for saving TensorBoard logs
+        Returns:
+            Cloud Storage URI of a directory intended for saving TensorBoard logs.
+            None if environment variable not set.
         """
-        return os.environ["AIP_TENSORBOARD_LOG_DIR"]
+        return os.environ.get("AIP_TENSORBOARD_LOG_DIR")
 
     @property
-    def cluster_spec(self) -> str:
+    def cluster_spec(self) -> Optional[str]:
         """
-        Returns: json string as described in https://cloud.google.com/ai-platform-unified/docs/training/distributed-training#cluster-variables
+        Returns:
+            json string as described in https://cloud.google.com/ai-platform-unified/docs/training/distributed-training#cluster-variables
+            None if environment variable not set.
         """
-        return os.environ["CLUSTER_SPEC"]
+        cluster_spec_env = os.environ.get("CLUSTER_SPEC")
+        if cluster_spec_env is not None:
+            return json.loads(cluster_spec_env)
+        else:
+            return None
+
+    @property
+    def tf_config(self) -> Optional[str]:
+        """
+        Returns:
+            json string as described in https://cloud.google.com/ai-platform-unified/docs/training/distributed-training#tf-config
+            None if environment variable not set.
+        """
+        tf_config_env = os.environ.get("TF_CONFIG")
+        if tf_config_env is not None:
+            return json.loads(tf_config_env)
+        else:
+            return None
