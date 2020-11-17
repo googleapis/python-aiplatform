@@ -18,50 +18,52 @@
 import os
 
 
-def training_data_uri() -> str:
-    """
-    Returns: Cloud Storage URI of a directory intended for training data
-    """
-    return os.environ["AIP_TRAINING_DATA_URI"]
+class TrainingUtils:
+    @property
+    def training_data_uri() -> str:
+        """
+        Returns: Cloud Storage URI of a directory intended for training data
+        """
+        return os.environ["AIP_TRAINING_DATA_URI"]
 
+    @property
+    def validation_data_uri() -> str:
+        """
+        Returns: Cloud Storage URI of a directory intended for validation data
+        """
+        return os.environ["AIP_VALIDATION_DATA_URI"]
 
-def validation_data_uri() -> str:
-    """
-    Returns: Cloud Storage URI of a directory intended for validation data
-    """
-    return os.environ["AIP_VALIDATION_DATA_URI"]
+    @property
+    def test_data_uri() -> str:
+        """
+        Returns: Cloud Storage URI of a directory intended for test data
+        """
+        return os.environ["AIP_TEST_DATA_URI"]
 
+    @property
+    def model_dir() -> str:
+        """
+        Returns: Cloud Storage URI of a directory intended for saving model artefacts
+        """
+        return os.environ["AIP_MODEL_DIR"]
 
-def test_data_uri() -> str:
-    """
-    Returns: Cloud Storage URI of a directory intended for test data
-    """
-    return os.environ["AIP_TEST_DATA_URI"]
+    @property
+    def checkpoint_dir() -> str:
+        """
+        Returns: Cloud Storage URI of a directory intended for saving checkpoints
+        """
+        return os.environ["AIP_CHECKPOINT_DIR"]
 
+    @property
+    def tensorboard_log_dir() -> str:
+        """
+        Returns: Cloud Storage URI of a directory intended for saving TensorBoard logs
+        """
+        return os.environ["AIP_TENSORBOARD_LOG_DIR"]
 
-def model_dir() -> str:
-    """
-    Returns: Cloud Storage URI of a directory intended for saving model artefacts
-    """
-    return os.environ["AIP_MODEL_DIR"]
-
-
-def checkpoint_dir() -> str:
-    """
-    Returns: Cloud Storage URI of a directory intended for saving checkpoints
-    """
-    return os.environ["AIP_CHECKPOINT_DIR"]
-
-
-def tensorboard_log_dir() -> str:
-    """
-    Returns: Cloud Storage URI of a directory intended for saving TensorBoard logs
-    """
-    return os.environ["AIP_TENSORBOARD_LOG_DIR"]
-
-
-def cluster_spec() -> str:
-    """
-    Returns: json string as described in https://cloud.google.com/ai-platform-unified/docs/training/distributed-training#cluster-variables
-    """
-    return os.environ["CLUSTER_SPEC"]
+    @property
+    def cluster_spec() -> str:
+        """
+        Returns: json string as described in https://cloud.google.com/ai-platform-unified/docs/training/distributed-training#cluster-variables
+        """
+        return os.environ["CLUSTER_SPEC"]
