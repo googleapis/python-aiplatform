@@ -1187,7 +1187,7 @@ class Test_DistributedTrainingSpec:
                 },
                 "replicaCount": 1,
             },
-            {"machineSpec": {"machineType": "n1-standard-2"}, "replicaCount": 0},
+            {"machineSpec": {"machineType": "n1-standard-4"}, "replicaCount": 0},
             {
                 "machineSpec": {
                     "machineType": _TEST_MACHINE_TYPE,

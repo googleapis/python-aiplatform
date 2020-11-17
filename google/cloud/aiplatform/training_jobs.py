@@ -346,7 +346,7 @@ class _MachineSpec(NamedTuple):
 
     spec = _MachineSpec(
                 replica_count=10,
-                machine_type='n1-standard-2',
+                machine_type='n1-standard-4',
                 accelerator_count=2,
                 accelerator_type='NVIDIA_TESLA_K80')
 
@@ -354,7 +354,7 @@ class _MachineSpec(NamedTuple):
     """
 
     replica_count: int = 0
-    machine_type: str = "n1-standard-2"
+    machine_type: str = "n1-standard-4"
     accelerator_count: int = 0
     accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED"
 
@@ -424,13 +424,13 @@ class _DistributedTrainingSpec(NamedTuple):
     dist_training_spec = _DistributedTrainingSpec(
         chief_spec = _MachineSpec(
                 replica_count=1,
-                machine_type='n1-standard-2',
+                machine_type='n1-standard-4',
                 accelerator_count=2,
                 accelerator_type='NVIDIA_TESLA_K80'
                 ),
         worker_spec = _MachineSpec(
                 replica_count=10,
-                machine_type='n1-standard-2',
+                machine_type='n1-standard-4',
                 accelerator_count=2,
                 accelerator_type='NVIDIA_TESLA_K80'
                 )
@@ -477,7 +477,7 @@ class _DistributedTrainingSpec(NamedTuple):
     def chief_worker_pool(
         cls,
         replica_count: int = 0,
-        machine_type: str = "n1-standard-2",
+        machine_type: str = "n1-standard-4",
         accelerator_count: int = 0,
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
     ) -> "_DistributedTrainingSpec":
