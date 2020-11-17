@@ -190,6 +190,7 @@ class Model(base.AiPlatformResourceNoun):
         Returns:
             model: Instantiated representation of the uploaded model resource.
         """
+        utils.validate_display_name(display_name)
 
         api_client = cls._instantiate_client(location, credentials)
         env = None
@@ -297,7 +298,7 @@ class Model(base.AiPlatformResourceNoun):
 
         """
         if endpoint is None:
-            display_name = self.display_name + "_endpoint"
+            display_name = self.display_name[:118] + "_endpoint"
             endpoint = Endpoint.create(display_name=display_name)
 
         endpoint.deploy(
@@ -437,6 +438,8 @@ class Endpoint(base.AiPlatformResourceNoun):
         """
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        utils.validate_display_name(display_name)
 
         create_endpoint_operation = cls._create(
             api_client=api_client,
@@ -656,6 +659,8 @@ class Endpoint(base.AiPlatformResourceNoun):
             raise ValueError("Min replica cannot be negative.")
         if max_replica_count < 0:
             raise ValueError("Max replica cannot be negative.")
+        if deployed_model_display_name is not None:
+            utils.validate_display_name(deployed_model_display_name)
 
         max_replica_count = max(min_replica_count, max_replica_count)
         if machine_type:
