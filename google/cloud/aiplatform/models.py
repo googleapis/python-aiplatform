@@ -659,7 +659,8 @@ class Endpoint(base.AiPlatformResourceNoun):
             raise ValueError("Min replica cannot be negative.")
         if max_replica_count < 0:
             raise ValueError("Max replica cannot be negative.")
-        utils.validate_display_name(deployed_model_display_name)
+        if deployed_model_display_name is not None:
+            utils.validate_display_name(deployed_model_display_name)
 
         max_replica_count = max(min_replica_count, max_replica_count)
         if machine_type:

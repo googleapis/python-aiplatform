@@ -527,7 +527,6 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
             NotImplementedError more then one replica.
             ValueError if accelerator type is not valid.
         """
-        utils.validate_display_name(model_display_name)
 
         if self._has_run:
             raise RuntimeError("Custom Training has already run.")
@@ -608,7 +607,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
         managed_model = None
         # create model payload
         if model_display_name:
-
+            utils.validate_display_name(model_display_name)
             container_spec = gca_model.ModelContainerSpec(
                 image_uri=self._model_serving_container_image_uri,
                 predict_route=self._model_serving_container_predict_route,

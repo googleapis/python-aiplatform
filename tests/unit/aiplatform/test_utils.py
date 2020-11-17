@@ -195,8 +195,12 @@ def test_full_resource_name_raises_value_error(
         )
 
 
-def test_validate_display_name_raises_value_error():
+def test_validate_display_name_raises_length():
     with pytest.raises(ValueError):
         aiplatform.utils.validate_display_name(
             "slanflksdnlikh;likhq290u90rflkasndfkljashndfkl;jhowq2342;iehoiwerhowqihjer34564356o;iqwjr;oijsdalfjasl;kfjas;ldifhja;slkdfsdlkfhj"
         )
+
+
+def test_validate_display_name():
+    aiplatform.utils.validate_display_name("my_model_abc")
