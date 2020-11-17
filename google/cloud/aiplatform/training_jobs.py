@@ -617,6 +617,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        utils.validate_display_name(display_name)
         super().__init__(project=project, location=location, credentials=credentials)
         self._display_name = display_name
         self._script_path = script_path
@@ -718,6 +719,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
                 been set, or model_display_name was provided but required arguments
                 were not provided in constructor.
         """
+
         if self._has_run:
             raise RuntimeError("Custom Training has already run.")
 
@@ -777,7 +779,7 @@ class CustomTrainingJob(base.AiPlatformResourceNoun):
         managed_model = None
         # create model payload
         if model_display_name:
-
+            utils.validate_display_name(model_display_name)
             container_spec = gca_model.ModelContainerSpec(
                 image_uri=self._model_serving_container_image_uri,
                 predict_route=self._model_serving_container_predict_route,
