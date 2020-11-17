@@ -56,7 +56,7 @@ _TEST_CLUSTER_SPEC = """{
 
 class TestTrainingUtils:
     @pytest.fixture(autouse=True)
-    def mock_environment():
+    def mock_environment(self):
         env_vars = {
             "AIP_TRAINING_DATA_URI": _TEST_TRAINING_DATA_URI,
             "AIP_VALIDATION_DATA_URI": _TEST_VALIDATION_DATA_URI,
