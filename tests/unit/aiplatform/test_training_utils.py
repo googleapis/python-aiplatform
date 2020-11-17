@@ -54,7 +54,8 @@ _TEST_CLUSTER_SPEC = """{
 
 
 class TestTrainingUtils:
-    def setup_method(self):
+    @classmethod
+    def setup_method(cls):
         os.environ["AIP_TRAINING_DATA_URI"] = _TEST_TRAINING_DATA_URI
         os.environ["AIP_VALIDATION_DATA_URI"] = _TEST_VALIDATION_DATA_URI
         os.environ["AIP_TEST_DATA_URI"] = _TEST_TEST_DATA_URI

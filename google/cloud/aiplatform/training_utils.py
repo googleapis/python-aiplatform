@@ -17,20 +17,18 @@
 
 import os
 
-from dataclasses import dataclass
 
-
-@dataclass
 class EnvironmentVariables:
     """Stores OS' environment variables"""
 
-    training_data_uri: str = os.environ["AIP_TRAINING_DATA_URI"]
-    validation_data_uri: str = os.environ["AIP_VALIDATION_DATA_URI"]
-    test_data_uri: str = os.environ["AIP_TEST_DATA_URI"]
-    model_dir: str = os.environ["AIP_MODEL_DIR"]
-    checkpoint_dir: str = os.environ["AIP_CHECKPOINT_DIR"]
-    tensorboard_log_dir: str = os.environ["AIP_TENSORBOARD_LOG_DIR"]
-    cluster_spec: str = os.environ["CLUSTER_SPEC"]
+    def __init__(self):
+        self.training_data_uri = os.environ["AIP_TRAINING_DATA_URI"]
+        self.validation_data_uri = os.environ["AIP_VALIDATION_DATA_URI"]
+        self.test_data_uri = os.environ["AIP_TEST_DATA_URI"]
+        self.model_dir = os.environ["AIP_MODEL_DIR"]
+        self.checkpoint_dir = os.environ["AIP_CHECKPOINT_DIR"]
+        self.tensorboard_log_dir = os.environ["AIP_TENSORBOARD_LOG_DIR"]
+        self.cluster_spec = os.environ["CLUSTER_SPEC"]
 
     @property
     def training_data_uri(self) -> str:
