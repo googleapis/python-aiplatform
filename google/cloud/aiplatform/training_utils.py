@@ -17,53 +17,66 @@
 
 import os
 
+from dataclasses import dataclass
 
-class TrainingUtils:
+
+@dataclass
+class EnvironmentVariables:
+    """Stores OS' environment variables"""
+
+    training_data_uri: str = os.environ["AIP_TRAINING_DATA_URI"]
+    validation_data_uri: str = os.environ["AIP_VALIDATION_DATA_URI"]
+    test_data_uri: str = os.environ["AIP_TEST_DATA_URI"]
+    model_dir: str = os.environ["AIP_MODEL_DIR"]
+    checkpoint_dir: str = os.environ["AIP_CHECKPOINT_DIR"]
+    tensorboard_log_dir: str = os.environ["AIP_TENSORBOARD_LOG_DIR"]
+    cluster_spec: str = os.environ["CLUSTER_SPEC"]
+
     @property
-    def training_data_uri() -> str:
+    def training_data_uri(self) -> str:
         """
         Returns: Cloud Storage URI of a directory intended for training data
         """
-        return os.environ["AIP_TRAINING_DATA_URI"]
+        return self.training_data_uri
 
     @property
-    def validation_data_uri() -> str:
+    def validation_data_uri(self) -> str:
         """
         Returns: Cloud Storage URI of a directory intended for validation data
         """
-        return os.environ["AIP_VALIDATION_DATA_URI"]
+        return self.validation_data_uri
 
     @property
-    def test_data_uri() -> str:
+    def test_data_uri(self) -> str:
         """
         Returns: Cloud Storage URI of a directory intended for test data
         """
-        return os.environ["AIP_TEST_DATA_URI"]
+        return self.test_data_uri
 
     @property
-    def model_dir() -> str:
+    def model_dir(self) -> str:
         """
         Returns: Cloud Storage URI of a directory intended for saving model artefacts
         """
-        return os.environ["AIP_MODEL_DIR"]
+        return self.model_dir
 
     @property
-    def checkpoint_dir() -> str:
+    def checkpoint_dir(self) -> str:
         """
         Returns: Cloud Storage URI of a directory intended for saving checkpoints
         """
-        return os.environ["AIP_CHECKPOINT_DIR"]
+        return self.checkpoint_dir
 
     @property
-    def tensorboard_log_dir() -> str:
+    def tensorboard_log_dir(self) -> str:
         """
         Returns: Cloud Storage URI of a directory intended for saving TensorBoard logs
         """
-        return os.environ["AIP_TENSORBOARD_LOG_DIR"]
+        return self.tensorboard_log_dir
 
     @property
-    def cluster_spec() -> str:
+    def cluster_spec(self) -> str:
         """
         Returns: json string as described in https://cloud.google.com/ai-platform-unified/docs/training/distributed-training#cluster-variables
         """
-        return os.environ["CLUSTER_SPEC"]
+        return self.cluster_spec

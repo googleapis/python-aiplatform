@@ -66,28 +66,35 @@ def test_environment():
 
 
 def test_training_data_uri(test_environment):
-    assert training_utils.TrainingUtils.training_data_uri == _TEST_TRAINING_DATA_URI
+    env_vars = training_utils.EnvironmentVariables()
+    assert env_vars.training_data_uri == _TEST_TRAINING_DATA_URI
 
 
 def test_validation_data_uri(test_environment):
-    assert training_utils.TrainingUtils.validation_data_uri == _TEST_VALIDATION_DATA_URI
+    env_vars = training_utils.EnvironmentVariables()
+    assert env_vars.validation_data_uri == _TEST_VALIDATION_DATA_URI
 
 
 def test_test_data_uri(test_environment):
-    assert training_utils.TrainingUtils.test_data_uri == _TEST_TEST_DATA_URI
+    env_vars = training_utils.EnvironmentVariables()
+    assert env_vars.test_data_uri == _TEST_TEST_DATA_URI
 
 
 def test_model_dir(test_environment):
-    assert training_utils.TrainingUtils.model_dir == _TEST_MODEL_DIR
+    env_vars = training_utils.EnvironmentVariables()
+    assert env_vars.model_dir == _TEST_MODEL_DIR
 
 
 def test_checkpoint_dir(test_environment):
-    assert training_utils.TrainingUtils.checkpoint_dir == _TEST_CHECKPOINT_DIR
+    env_vars = training_utils.EnvironmentVariables()
+    assert env_vars.checkpoint_dir == _TEST_CHECKPOINT_DIR
 
 
 def test_tensorboard_log_dir(test_environment):
-    assert training_utils.TrainingUtils.tensorboard_log_dir == _TEST_TENSORBOARD_LOG_DIR
+    env_vars = training_utils.EnvironmentVariables()
+    assert env_vars.tensorboard_log_dir == _TEST_TENSORBOARD_LOG_DIR
 
 
 def test_cluster_spec(test_environment):
-    assert training_utils.TrainingUtils.cluster_spec == _TEST_CLUSTER_SPEC
+    env_vars = training_utils.EnvironmentVariables()
+    assert env_vars.cluster_spec == _TEST_CLUSTER_SPEC
