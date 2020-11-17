@@ -18,7 +18,7 @@
 import json
 import os
 
-from typing import Optional
+from typing import Dict, Optional
 
 
 class EnvironmentVariables:
@@ -79,7 +79,7 @@ class EnvironmentVariables:
         return os.environ.get("AIP_TENSORBOARD_LOG_DIR")
 
     @property
-    def cluster_spec(self) -> Optional[str]:
+    def cluster_spec(self) -> Optional[Dict]:
         """
         Returns:
             json string as described in https://cloud.google.com/ai-platform-unified/docs/training/distributed-training#cluster-variables
@@ -92,7 +92,7 @@ class EnvironmentVariables:
             return None
 
     @property
-    def tf_config(self) -> Optional[str]:
+    def tf_config(self) -> Optional[Dict]:
         """
         Returns:
             json string as described in https://cloud.google.com/ai-platform-unified/docs/training/distributed-training#tf-config
