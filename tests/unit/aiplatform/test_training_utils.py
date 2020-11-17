@@ -16,7 +16,7 @@
 #
 
 
-import os
+import pytest
 
 from google.cloud.aiplatform import training_utils
 
@@ -54,40 +54,40 @@ _TEST_CLUSTER_SPEC = """{
 
 
 class TestTrainingUtils:
-    @classmethod
-    def setup_method(cls):
-        os.environ["AIP_TRAINING_DATA_URI"] = _TEST_TRAINING_DATA_URI
-        os.environ["AIP_VALIDATION_DATA_URI"] = _TEST_VALIDATION_DATA_URI
-        os.environ["AIP_TEST_DATA_URI"] = _TEST_TEST_DATA_URI
-        os.environ["AIP_MODEL_DIR"] = _TEST_MODEL_DIR
-        os.environ["AIP_CHECKPOINT_DIR"] = _TEST_CHECKPOINT_DIR
-        os.environ["AIP_TENSORBOARD_LOG_DIR"] = _TEST_TENSORBOARD_LOG_DIR
-        os.environ["CLUSTER_SPEC"] = _TEST_CLUSTER_SPEC
+    @pytest.fixture
+    def mock_environment(monkeypatch):
+        monkeypatch.setenv("AIP_TRAINING_DATA_URI", _TEST_TRAINING_DATA_URI)
+        monkeypatch.setenv("AIP_VALIDATION_DATA_URI", _TEST_VALIDATION_DATA_URI)
+        monkeypatch.setenv("AIP_TEST_DATA_URI", _TEST_TEST_DATA_URI)
+        monkeypatch.setenv("AIP_MODEL_DIR", _TEST_MODEL_DIR)
+        monkeypatch.setenv("AIP_CHECKPOINT_DIR", _TEST_CHECKPOINT_DIR)
+        monkeypatch.setenv("AIP_TENSORBOARD_LOG_DIR", _TEST_TENSORBOARD_LOG_DIR)
+        monkeypatch.setenv("CLUSTER_SPEC", _TEST_CLUSTER_SPEC)
 
-    def test_training_data_uri(self):
+    def test_training_data_uri(self, mock_environment):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.training_data_uri == _TEST_TRAINING_DATA_URI
 
-    def test_validation_data_uri(self):
+    def test_validation_data_uri(self, mock_environment):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.validation_data_uri == _TEST_VALIDATION_DATA_URI
 
-    def test_test_data_uri(self):
+    def test_test_data_uri(self, mock_environment):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.test_data_uri == _TEST_TEST_DATA_URI
 
-    def test_model_dir(self):
+    def test_model_dir(self, mock_environment):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.model_dir == _TEST_MODEL_DIR
 
-    def test_checkpoint_dir(self):
+    def test_checkpoint_dir(self, mock_environment):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.checkpoint_dir == _TEST_CHECKPOINT_DIR
 
-    def test_tensorboard_log_dir(self):
+    def test_tensorboard_log_dir(self, mock_environment):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.tensorboard_log_dir == _TEST_TENSORBOARD_LOG_DIR
 
-    def test_cluster_spec(self):
+    def test_cluster_spec(self, mock_environment):
         env_vars = training_utils.EnvironmentVariables()
         assert env_vars.cluster_spec == _TEST_CLUSTER_SPEC
