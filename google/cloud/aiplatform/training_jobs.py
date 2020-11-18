@@ -93,7 +93,7 @@ class _TrainingJob(base.AiPlatformResourceNoun):
                 Optional credentials to use to retrieve the model.
         """
         utils.validate_display_name(display_name)
-        
+
         super().__init__(project=project, location=location, credentials=credentials)
         self._display_name = display_name
         self._project = project
@@ -113,13 +113,14 @@ class _TrainingJob(base.AiPlatformResourceNoun):
         pass
 
     def _create_input_data_config(
-        self, 
+        self,
         dataset: Optional[datasets.Dataset],
-        training_fraction_split: float, 
-        validation_fraction_split: float, 
-        test_fraction_split: float) -> gca_training_pipeline.InputDataConfig:
+        training_fraction_split: float,
+        validation_fraction_split: float,
+        test_fraction_split: float,
+    ) -> gca_training_pipeline.InputDataConfig:
 
-        """Constructs a input data config to pass to the training pipeline. 
+        """Constructs a input data config to pass to the training pipeline.
         Override this to create a custom config
 
         Args:
@@ -136,7 +137,7 @@ class _TrainingJob(base.AiPlatformResourceNoun):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
         """
-        
+
         input_data_config = None
         if dataset:
             # Create fraction split spec
@@ -148,10 +149,9 @@ class _TrainingJob(base.AiPlatformResourceNoun):
 
             # create input data config
             input_data_config = gca_training_pipeline.InputDataConfig(
-                fraction_split=fraction_split,
-                dataset_id=dataset.name,
+                fraction_split=fraction_split, dataset_id=dataset.name,
             )
-        
+
         return input_data_config
 
     def _run_job(
@@ -229,9 +229,10 @@ class _TrainingJob(base.AiPlatformResourceNoun):
 
         input_data_config = self._create_input_data_config(
             dataset=dataset,
-            training_fraction_split=training_fraction_split, 
-            validation_fraction_split=validation_fraction_split, 
-            test_fraction_split=test_fraction_split)
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
+        )
 
         # create training pipeline
         training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -941,14 +942,14 @@ class CustomTrainingJob(_TrainingJob):
         self._script_path = script_path
         self._staging_bucket = staging_bucket
 
-
     def _create_input_data_config(
-        self, 
+        self,
         dataset: Optional[datasets.Dataset],
-        training_fraction_split: float, 
-        validation_fraction_split: float, 
-        test_fraction_split: float) -> gca_training_pipeline.InputDataConfig:
-            """Constructs a input data config to pass to the training pipeline. 
+        training_fraction_split: float,
+        validation_fraction_split: float,
+        test_fraction_split: float,
+    ) -> gca_training_pipeline.InputDataConfig:
+        """Constructs a input data config to pass to the training pipeline.
             Override this to create a custom config
 
             Args:
@@ -965,27 +966,27 @@ class CustomTrainingJob(_TrainingJob):
                     The fraction of the input data that is to be
                     used to evaluate the Model. This is ignored if Dataset is not provided.
             """
-            
-            input_data_config = None
 
-            if dataset:
-                # Create fraction split spec
-                fraction_split = gca_training_pipeline.FractionSplit(
-                    training_fraction=training_fraction_split,
-                    validation_fraction=validation_fraction_split,
-                    test_fraction=test_fraction_split,
-                )
+        input_data_config = None
 
-                # create input data config
-                input_data_config = gca_training_pipeline.InputDataConfig(
-                    fraction_split=fraction_split,
-                    dataset_id=dataset.name,
-                    gcs_destination=gca_io.GcsDestination(
-                        output_uri_prefix=self._base_output_dir
-                    ),
-                )
+        if dataset:
+            # Create fraction split spec
+            fraction_split = gca_training_pipeline.FractionSplit(
+                training_fraction=training_fraction_split,
+                validation_fraction=validation_fraction_split,
+                test_fraction=test_fraction_split,
+            )
 
-            return input_data_config
+            # create input data config
+            input_data_config = gca_training_pipeline.InputDataConfig(
+                fraction_split=fraction_split,
+                dataset_id=dataset.name,
+                gcs_destination=gca_io.GcsDestination(
+                    output_uri_prefix=self._base_output_dir
+                ),
+            )
+
+        return input_data_config
 
     # TODO(b/172365904) add filter split, training_pipeline.FilterSplit
     # TODO(b/172366411) predefined filter split training_pipeline.PredfinedFilterSplit
@@ -1142,7 +1143,7 @@ class CustomTrainingJob(_TrainingJob):
         managed_model = None
         if model_display_name:
             utils.validate_display_name(model_display_name)
-            
+
             container_spec = gca_model.ModelContainerSpec(
                 image_uri=self._model_serving_container_image_uri,
                 predict_route=self._model_serving_container_predict_route,
@@ -1154,7 +1155,7 @@ class CustomTrainingJob(_TrainingJob):
             )
 
         self._base_output_dir = base_output_dir
-        
+
         model = self._run_job(
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs,
@@ -1162,7 +1163,7 @@ class CustomTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
-            model=managed_model
+            model=managed_model,
         )
 
         self._base_output_dir = None
@@ -1170,7 +1171,7 @@ class CustomTrainingJob(_TrainingJob):
         _LOGGER.info("Training Output directory:\n%s " % base_output_dir)
 
         return model
-        
+
     @property
     def _model_upload_fail_string(self) -> str:
         """Helper property for model upload failure."""
