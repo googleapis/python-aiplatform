@@ -169,6 +169,7 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
         """
+        utils.validate_display_name(display_name)
 
         is_tabular_dataset_metadata = (
             metadata_schema_uri == schema.dataset.metadata.tabular
