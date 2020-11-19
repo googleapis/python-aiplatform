@@ -16,11 +16,47 @@
 #
 
 import abc
+import functools
+import threading
 from typing import Optional
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
+
+class AiPlatformFuture(metaclass=abc.ABCMeta):
+
+    def __init__(self):
+        # future creation is responsible for setting depedency flow
+        self.__latest_future_lock = threading.Lock()
+        self.__latest_future = None
+
+    def _add_future(self, future):
+        with self.__latest_future_lock:
+            self.__latest_future = future
+
+    def _clear_future(self, future):
+        with self.__latest_future_lock:
+            if self.__latest_future is future:
+                self.__latest_future = None
+
+    def _are_futures_done(self):
+        with self.__latest_future_lock:
+            return self.__latest_future is None
+
+    def wait(self):
+        while not self._are_futures_done():
+            time.sleep(5)
+
+    @property
+    def _latest_future(self):
+        with self.__latest_future_lock:
+            return self.__latest_future
+
+    @classmethod
+    @abc.abstractmethod
+    def _alternative_constructor(cls):
+        pass
 
 
 class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
@@ -108,3 +144,47 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     def display_name(self) -> str:
         """Display name of this resource."""
         return self._gca_resource.display_name
+
+
+
+class AiPlatformResourceNounWithFuture(AiPlatformResourceNoun, AiPlatformFuture):
+
+    @classmethod
+    def _alternative_constructor(
+            cls,
+            project: Optional[str] = None,
+            location: Optional[str] = None,
+            credentials: Optional[auth_credentials.Credentials] = None,
+        ):
+        self = cls.__new__(cls)
+        AiPlatformResourceNoun.__init__(self, project, location, credentials)
+        AiPlatformFuture.__init__(self)
+        self._gca_resource = None
+        return self
+
+    def _submit_with_gca_resource_sync(self, callable, *args, **kwargs):
+        def copy_gca_resource(future, obj):
+            result = future.result()
+            obj._gca_resource = result._gca_resource
+
+        future = initializer.global_pool.submit(callable, *args, **kwargs)
+        self._add_future(future)
+        future.add_done_callback(functools.partial(copy_gca_resource, obj=self))
+        future.add_done_callback(self._clear_future)
+
+    def _submit_with_dependency_on_future(self, deps, callable, *args, **kwargs):
+        def wait_for_dependencies(deps, callable, *args, **kwargs):
+            for dep in deps:
+                deps.result()
+            return callable(*args, **kwargs)
+
+        future = initializer.global_pool.submit(wait_for_dependencies,
+            deps, callable, *args, **kwargs)
+        self._add_future(future)
+        future.add_done_callback(self._clear_future)
+
+
+    def _submit(self, callable, *args, **kwargs):
+        with self.__latest_future_lock:
+            deps = [self._latest_future] if self._latest_future else []
+            self._submit_with_dependency_on_future(deps, callable, *args, **kwargs)

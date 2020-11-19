@@ -15,10 +15,12 @@
 # limitations under the License.
 #
 
+import time
 import proto
 
 from google.api_core import operation as ga_operation
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import utils
 from typing import Optional, Callable
 
 
@@ -102,6 +104,14 @@ class LRO:
 
         self._operation_future.add_done_callback(callback)
         # TODO(b/171631203) Add support for queuing operations
+
+    def wait_with_sleep(self):
+        """"""
+        while not self._operation_future.done:
+            time.sleep(utils.ASYNC_SLEEP_TIME)
+
+    def result(self):
+        return self._operation_future.result()
 
     @property
     def operation_future(self) -> ga_operation.Operation:

@@ -38,6 +38,7 @@ from google.cloud.aiplatform_v1beta1.services.prediction_service import (
 DEFAULT_REGION = "us-central1"
 SUPPORTED_REGIONS = ("us-central1", "europe-west4", "asia-east1")
 PROD_API_ENDPOINT = "aiplatform.googleapis.com"
+ASYNC_SLEEP_TIME = 1
 
 AiPlatformServiceClient = TypeVar(
     "AiPlatformServiceClient",

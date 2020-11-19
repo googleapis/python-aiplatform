@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import abc
+from concurrent import futures
 from typing import Optional, Sequence, Dict, Tuple
 
 from google.api_core import operation
@@ -22,8 +24,8 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.utils import full_resource_name
 from google.cloud.aiplatform import schema
+from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform_v1beta1 import GcsSource
 from google.cloud.aiplatform_v1beta1 import GcsDestination
@@ -33,8 +35,11 @@ from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 
 
+class DatasetFuture(initializer.WrappedFuture):
+    pass
+
 # TODO(b/171275584): Add async support to Dataset class
-class Dataset(base.AiPlatformResourceNoun):
+class Dataset(base.AiPlatformResourceNounWithFuture):
     """Managed dataset resource for AI Platform"""
 
     client_class = DatasetServiceClient
@@ -65,7 +70,7 @@ class Dataset(base.AiPlatformResourceNoun):
                 credentials set in aiplatform.init.
         """
 
-        dataset_name = full_resource_name(
+        dataset_name = utils.full_resource_name(
             resource_name=dataset_name,
             resource_noun="datasets",
             project=project,
@@ -73,7 +78,10 @@ class Dataset(base.AiPlatformResourceNoun):
         )
 
         super().__init__(project=project, location=location, credentials=credentials)
-        self._gca_resource = self.api_client.get_dataset(name=dataset_name)
+        self._gca_resource = self._get_dataset(dataset_name=dataset_name)
+
+    def _get_dataset(self, dataset_name):
+        return self.api_client.get_dataset(name=dataset_name)
 
     @classmethod
     def create(
@@ -89,6 +97,7 @@ class Dataset(base.AiPlatformResourceNoun):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        sync=True
     ) -> "Dataset":
         """Creates a new dataset and optionally imports data into dataset when
         source and import_schema_uri are passed.
@@ -182,14 +191,61 @@ class Dataset(base.AiPlatformResourceNoun):
                     "input_config": {"bigquery_source": {"uri": bq_source}}
                 }
 
+
+        kwargs={
+            'api_client': api_client,
+            'display_name': display_name,
+            'parent': initializer.global_config.common_location_path(
+                project=project, location=location),
+            'metadata_schema_uri': metadata_schema_uri,
+            'dataset_metadata': dataset_metadata,
+            'request_metadata': metadata,
+            'labels': labels,
+            'project': project or initializer.global_config.project,
+            'location': location or initializer.global_config.location,
+            'credentials': credentials or initializer.global_config.credentials,
+            'gcs_source': gcs_source,
+            'import_schema_uri': import_schema_uri,
+            'data_items_labels': data_items_labels
+        }
+
+        if sync:
+            return cls._create_and_import(**kwargs)
+
+        self = cls._alternative_constructor()
+        self._submit_with_gca_resource_sync(cls._create_and_import, **kwargs)
+        return self
+
+        # future = initializer.global_pool.submit(cls._create_and_import, **kwargs)
+        # return DatasetFuture(future)
+
+    @classmethod
+    def _create_and_import(cls,
+        api_client:DatasetServiceClient,
+        display_name: str,
+        parent: str,
+        metadata_schema_uri: str,
+        dataset_metadata: str,
+        request_metadata: str,
+        project: str,
+        location: str,
+        credentials: Optional[auth_credentials.Credentials],
+        labels: Optional[Dict] = None,
+        gcs_source: Optional[Sequence[str]] = None,
+        import_schema_uri: Optional[str] = None,
+        data_items_labels: Optional[Dict] = None,
+        ) -> "Dataset":
+
+        is_tabular_dataset_metadata = (
+            metadata_schema_uri == schema.dataset.metadata.tabular
+        )
+
         create_dataset_lro = cls._create(
             display_name=display_name,
-            parent=initializer.global_config.common_location_path(
-                project=project, location=location
-            ),
+            parent=parent,
             metadata_schema_uri=metadata_schema_uri,
             dataset_metadata=dataset_metadata,
-            request_metadata=metadata,
+            request_metadata=request_metadata,
             labels=labels,
             api_client=api_client,
         )
@@ -204,13 +260,14 @@ class Dataset(base.AiPlatformResourceNoun):
         )
 
         if gcs_source and not is_tabular_dataset_metadata:
-            return dataset_obj.import_data(
+            return dataset_obj._import_from_gcs(
                 gcs_source=gcs_source,
                 import_schema_uri=import_schema_uri,
                 data_items_labels=data_items_labels,
             )
         else:
             return dataset_obj
+
 
     @classmethod
     def _create(
@@ -281,7 +338,7 @@ class Dataset(base.AiPlatformResourceNoun):
         source: Sequence[str],
         import_schema_uri: str,
         data_items_labels: Optional[Dict] = None,
-    ) -> Optional[operation.Operation]:
+    ) -> Optional[operation.Operation]: # Import Data Response
         """Imports data into managed dataset by directly calling API client.
 
         Args:
@@ -321,15 +378,18 @@ class Dataset(base.AiPlatformResourceNoun):
             data_item_labels=data_items_labels,
         )
 
-        return self.api_client.import_data(
+        import_lro = self.api_client.import_data(
             name=self.resource_name, import_configs=[import_config]
         )
+
+        return import_lro.result()
 
     def import_data(
         self,
         gcs_source: Sequence[str],
         import_schema_uri: str,
         data_items_labels: Optional[Dict] = None,
+        sync=True,
     ) -> "Dataset":
         """Upload data to existing managed dataset.
 
@@ -365,16 +425,22 @@ class Dataset(base.AiPlatformResourceNoun):
                 Instantiated representation of the managed dataset resource.
         """
 
-        import_lro = self._import_from_gcs(
-            source=gcs_source,
-            import_schema_uri=import_schema_uri,
-            data_items_labels=data_items_labels,
-        )
+        kwargs = {
+            source: gcs_source,
+            import_schema_uri: import_schema_uri,
+            data_items_labels: data_items_labels
+        }
 
-        import_lro.result()  # An empty response upon successful import
+        if sync:
+            self._import_from_gcs(**kwargs)
+            self._gca_resource = self._get_dataset(dataset_name=self.name)
+        else:
+            self._submit(self._import_from_gcs, **kwargs)
 
         return self
 
+
+    # TODO(return as future)
     def export_data(self, output_dir: str) -> Sequence[str]:
         """Exports data to output dir to GCS.
 
