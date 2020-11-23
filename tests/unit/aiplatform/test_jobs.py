@@ -17,26 +17,21 @@
 
 import pytest
 
+from unittest import mock
 from importlib import reload
 from unittest.mock import patch
 
-from google.cloud.storage import Blob
-from google.cloud.storage import Client as StorageClient
-from google.cloud.bigquery import Client as BqClient
-from google.cloud.bigquery import QueryJob
+from google.cloud import storage
+from google.cloud import bigquery
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import BatchPredictionJob
-from google.cloud.aiplatform.jobs import _Job
 
-from google.cloud.aiplatform.gapic import JobServiceClient
-from google.cloud.aiplatform.gapic import BatchPredictionJob as GapicBatchPredictionJob
-from google.cloud.aiplatform.gapic import JobState
-from google.cloud.aiplatform.gapic import GcsSource
-from google.cloud.aiplatform.gapic import GcsDestination
-from google.cloud.aiplatform.gapic import BigQuerySource
-from google.cloud.aiplatform.gapic import BigQueryDestination
+from google.cloud.aiplatform_v1beta1 import types
+from google.cloud.aiplatform_v1beta1.types import job_state
+from google.cloud.aiplatform_v1beta1.types import batch_prediction_job
+from google.cloud.aiplatform_v1beta1.services import job_service
 
 
 _TEST_PROJECT = "test-project"
@@ -46,6 +41,7 @@ _TEST_ALT_ID = "8834795523125638878"
 _TEST_DISPLAY_NAME = "my_job_1234"
 _TEST_BQ_DATASET_ID = "bqDatasetId"
 _TEST_BQ_JOB_ID = "123459876"
+_TEST_BQ_MAX_RESULTS = 100
 _TEST_GCS_BUCKET_NAME = "my-bucket"
 
 _TEST_BQ_PATH = f"bq://projectId.{_TEST_BQ_DATASET_ID}"
@@ -58,40 +54,41 @@ _TEST_MODEL_NAME = (
 )
 _TEST_BATCH_PREDICTION_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/batchPredictionJobs/{_TEST_ID}"
 
-_TEST_JOB_STATE_SUCCESS = JobState(4)
-_TEST_JOB_STATE_RUNNING = JobState(3)
-_TEST_JOB_STATE_PENDING = JobState(2)
+_TEST_JOB_STATE_SUCCESS = job_state.JobState(4)
+_TEST_JOB_STATE_RUNNING = job_state.JobState(3)
+_TEST_JOB_STATE_PENDING = job_state.JobState(2)
 
-_TEST_GCS_INPUT_CONFIG = GapicBatchPredictionJob.InputConfig(
-    instances_format="jsonl", gcs_source=GcsSource(uris=[_TEST_GCS_JSONL_SOURCE_URI]),
+_TEST_GCS_INPUT_CONFIG = batch_prediction_job.BatchPredictionJob.InputConfig(
+    instances_format="jsonl",
+    gcs_source=types.GcsSource(uris=[_TEST_GCS_JSONL_SOURCE_URI]),
 )
-_TEST_GCS_OUTPUT_CONFIG = GapicBatchPredictionJob.OutputConfig(
+_TEST_GCS_OUTPUT_CONFIG = batch_prediction_job.BatchPredictionJob.OutputConfig(
     predictions_format="jsonl",
-    gcs_destination=GcsDestination(output_uri_prefix=_TEST_GCS_BUCKET_PATH),
+    gcs_destination=types.GcsDestination(output_uri_prefix=_TEST_GCS_BUCKET_PATH),
 )
 
-_TEST_BQ_INPUT_CONFIG = GapicBatchPredictionJob.InputConfig(
+_TEST_BQ_INPUT_CONFIG = batch_prediction_job.BatchPredictionJob.InputConfig(
     instances_format="bigquery",
-    bigquery_source=BigQuerySource(input_uri=_TEST_BQ_PATH),
+    bigquery_source=types.BigQuerySource(input_uri=_TEST_BQ_PATH),
 )
-_TEST_BQ_OUTPUT_CONFIG = GapicBatchPredictionJob.OutputConfig(
+_TEST_BQ_OUTPUT_CONFIG = batch_prediction_job.BatchPredictionJob.OutputConfig(
     predictions_format="bigquery",
-    bigquery_destination=BigQueryDestination(output_uri=_TEST_BQ_PATH),
+    bigquery_destination=types.BigQueryDestination(output_uri=_TEST_BQ_PATH),
 )
 
-_TEST_GCS_OUTPUT_INFO = GapicBatchPredictionJob.OutputInfo(
+_TEST_GCS_OUTPUT_INFO = batch_prediction_job.BatchPredictionJob.OutputInfo(
     gcs_output_directory=_TEST_GCS_BUCKET_PATH
 )
-_TEST_BQ_OUTPUT_INFO = GapicBatchPredictionJob.OutputInfo(
+_TEST_BQ_OUTPUT_INFO = batch_prediction_job.BatchPredictionJob.OutputInfo(
     bigquery_output_dataset=_TEST_BQ_PATH
 )
 
-_TEST_EMPTY_OUTPUT_INFO = GapicBatchPredictionJob.OutputInfo()
+_TEST_EMPTY_OUTPUT_INFO = batch_prediction_job.BatchPredictionJob.OutputInfo()
 
 _TEST_ITER_DIRS_BQ_QUERY = f"SELECT * FROM {_TEST_BQ_DATASET_ID}.predictions LIMIT 100"
 
 _TEST_GCS_BLOBS = [
-    Blob(name="some/path/prediction.jsonl", bucket=_TEST_GCS_BUCKET_NAME)
+    storage.Blob(name="some/path/prediction.jsonl", bucket=_TEST_GCS_BUCKET_NAME)
 ]
 
 
@@ -106,9 +103,9 @@ class TestJob:
     @pytest.fixture
     def get_batch_prediction_job_gcs_output_mock(self):
         with patch.object(
-            JobServiceClient, "get_batch_prediction_job"
+            job_service.JobServiceClient, "get_batch_prediction_job"
         ) as get_batch_prediction_job_mock:
-            get_batch_prediction_job_mock.return_value = GapicBatchPredictionJob(
+            get_batch_prediction_job_mock.return_value = batch_prediction_job.BatchPredictionJob(
                 name=_TEST_BATCH_PREDICTION_NAME,
                 display_name=_TEST_DISPLAY_NAME,
                 model=_TEST_MODEL_NAME,
@@ -122,9 +119,9 @@ class TestJob:
     @pytest.fixture
     def get_batch_prediction_job_bq_output_mock(self):
         with patch.object(
-            JobServiceClient, "get_batch_prediction_job"
+            job_service.JobServiceClient, "get_batch_prediction_job"
         ) as get_batch_prediction_job_mock:
-            get_batch_prediction_job_mock.return_value = GapicBatchPredictionJob(
+            get_batch_prediction_job_mock.return_value = batch_prediction_job.BatchPredictionJob(
                 name=_TEST_BATCH_PREDICTION_NAME,
                 display_name=_TEST_DISPLAY_NAME,
                 model=_TEST_MODEL_NAME,
@@ -138,9 +135,9 @@ class TestJob:
     @pytest.fixture
     def get_batch_prediction_job_empty_output_mock(self):
         with patch.object(
-            JobServiceClient, "get_batch_prediction_job"
+            job_service.JobServiceClient, "get_batch_prediction_job"
         ) as get_batch_prediction_job_mock:
-            get_batch_prediction_job_mock.return_value = GapicBatchPredictionJob(
+            get_batch_prediction_job_mock.return_value = batch_prediction_job.BatchPredictionJob(
                 name=_TEST_BATCH_PREDICTION_NAME,
                 display_name=_TEST_DISPLAY_NAME,
                 model=_TEST_MODEL_NAME,
@@ -154,9 +151,9 @@ class TestJob:
     @pytest.fixture
     def get_batch_prediction_job_running_bq_output_mock(self):
         with patch.object(
-            JobServiceClient, "get_batch_prediction_job"
+            job_service.JobServiceClient, "get_batch_prediction_job"
         ) as get_batch_prediction_job_mock:
-            get_batch_prediction_job_mock.return_value = GapicBatchPredictionJob(
+            get_batch_prediction_job_mock.return_value = batch_prediction_job.BatchPredictionJob(
                 name=_TEST_BATCH_PREDICTION_NAME,
                 display_name=_TEST_DISPLAY_NAME,
                 model=_TEST_MODEL_NAME,
@@ -169,30 +166,26 @@ class TestJob:
 
     @pytest.fixture
     def storage_list_blobs_mock(self):
-        with patch.object(StorageClient, "list_blobs") as list_blobs_mock:
+        with patch.object(storage.Client, "list_blobs") as list_blobs_mock:
             list_blobs_mock.return_value = _TEST_GCS_BLOBS
             yield list_blobs_mock
 
     @pytest.fixture
-    def bq_query_mock(self):
-        with patch.object(BqClient, "query") as query_mock:
+    def bq_list_rows_mock(self):
+        with patch.object(bigquery.Client, "list_rows") as list_rows_mock:
 
-            query_mock.return_value = QueryJob(
-                job_id=_TEST_BQ_JOB_ID,
-                query=_TEST_ITER_DIRS_BQ_QUERY,
-                client=query_mock,
-            )
-            yield query_mock
+            list_rows_mock.return_value = mock.Mock(bigquery.table.RowIterator)
+            yield list_rows_mock
 
     # Unit Tests
 
     def test_init_job_class(self):
         """
-        Raises TypeError since abstract property 'getter_method' is not set,
+        Raises TypeError since abstract property '_getter_method' is not set,
         the _Job class should only be instantiated through a child class.
         """
         with pytest.raises(TypeError):
-            _Job(valid_job_name=_TEST_BATCH_PREDICTION_NAME)
+            jobs._Job(valid_job_name=_TEST_BATCH_PREDICTION_NAME)
 
     def test_init_batch_prediction_job_class(
         self, get_batch_prediction_job_bq_output_mock
@@ -222,7 +215,9 @@ class TestJob:
     def test_batch_prediction_iter_dirs_gcs(
         self, get_batch_prediction_job_gcs_output_mock, storage_list_blobs_mock
     ):
-        bp = BatchPredictionJob(batch_prediction_job_name=_TEST_BATCH_PREDICTION_NAME)
+        bp = aiplatform.BatchPredictionJob(
+            batch_prediction_job_name=_TEST_BATCH_PREDICTION_NAME
+        )
         blobs = bp.iter_outputs()
 
         storage_list_blobs_mock.assert_called_once_with(
@@ -232,15 +227,17 @@ class TestJob:
         assert blobs == _TEST_GCS_BLOBS
 
     def test_batch_prediction_iter_dirs_bq(
-        self, get_batch_prediction_job_bq_output_mock, bq_query_mock
+        self, get_batch_prediction_job_bq_output_mock, bq_list_rows_mock
     ):
-        bp = BatchPredictionJob(batch_prediction_job_name=_TEST_BATCH_PREDICTION_NAME)
-        query_job = bp.iter_outputs()
+        bp = aiplatform.BatchPredictionJob(
+            batch_prediction_job_name=_TEST_BATCH_PREDICTION_NAME
+        )
 
-        bq_query_mock.assert_called_once_with(_TEST_ITER_DIRS_BQ_QUERY)
+        bp.iter_outputs()
 
-        assert query_job.query == _TEST_ITER_DIRS_BQ_QUERY
-        assert query_job.job_id == _TEST_BQ_JOB_ID
+        bq_list_rows_mock.assert_called_once_with(
+            table=f"{_TEST_BQ_DATASET_ID}.predictions", max_results=_TEST_BQ_MAX_RESULTS
+        )
 
     def test_batch_prediction_iter_dirs_while_running(
         self, get_batch_prediction_job_running_bq_output_mock
@@ -249,7 +246,7 @@ class TestJob:
         Raises RuntimeError since outputs cannot be read while BatchPredictionJob is still running
         """
         with pytest.raises(RuntimeError):
-            bp = BatchPredictionJob(
+            bp = aiplatform.BatchPredictionJob(
                 batch_prediction_job_name=_TEST_BATCH_PREDICTION_NAME
             )
             bp.iter_outputs()
@@ -262,7 +259,7 @@ class TestJob:
         contains no output GCS directory or BQ dataset.
         """
         with pytest.raises(NotImplementedError):
-            bp = BatchPredictionJob(
+            bp = aiplatform.BatchPredictionJob(
                 batch_prediction_job_name=_TEST_BATCH_PREDICTION_NAME
             )
             bp.iter_outputs()

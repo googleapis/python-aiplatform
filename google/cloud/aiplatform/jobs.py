@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from abc import abstractclassmethod
+import abc
 from typing import Iterable, Optional, Union
 
 from google.cloud import storage
@@ -24,9 +24,9 @@ from google.cloud import bigquery
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.gapic import JobState
-from google.cloud.aiplatform.gapic import JobServiceClient
-from google.cloud.aiplatform.utils import full_resource_name
+from google.cloud.aiplatform import utils
+from google.cloud.aiplatform_v1beta1.types import job_state
+from google.cloud.aiplatform_v1beta1.services import job_service
 
 
 class _Job(base.AiPlatformResourceNoun):
@@ -39,18 +39,22 @@ class _Job(base.AiPlatformResourceNoun):
 
     Subclasses requires one class attribute:
 
-    getter_method (str): The name of JobServiceClient getter method for specific
+    _getter_method (str): The name of JobServiceClient getter method for specific
     Job type, i.e. 'get_custom_job' for CustomJob
     """
 
-    client_class = JobServiceClient
+    client_class = job_service.JobServiceClient
     _is_client_prediction_client = False
 
     @property
-    @abstractclassmethod
-    def getter_method(cls) -> str:
+    @abc.abstractclassmethod
+    def _getter_method(cls) -> str:
         """Name of getter method of Job subclass, i.e. 'get_custom_job' for CustomJob"""
         pass
+
+    def _get_job(self, job_name: str):
+        """Returns GAPIC service representation of Job subclass resource"""
+        return getattr(self.api_client, self._getter_method)(name=job_name)
 
     def __init__(
         self,
@@ -78,28 +82,25 @@ class _Job(base.AiPlatformResourceNoun):
                 aiplatform.init will be used.
         """
         super().__init__(project=project, location=location, credentials=credentials)
-        self.job_subclass_getter_method = getattr(self.api_client, self.getter_method)
-        self._gca_resource = self.job_subclass_getter_method(name=valid_job_name)
+        self._gca_resource = self._get_job(job_name=valid_job_name)
 
-    def status(self) -> JobState:
+    def status(self) -> job_state.JobState:
         """Fetch Job again and return the current JobState.
 
         Returns:
-            state (JobState):
+            state (job_state.JobState):
                 Enum that describes the state of a AI Platform job.
         """
 
         # Fetch the Job again for most up-to-date job state
-        self._gca_resource = self.job_subclass_getter_method(
-            name=self._gca_resource.name
-        )
+        self._gca_resource = self._get_job(job_name=self._gca_resource.name)
 
         return self._gca_resource.state
 
 
 class BatchPredictionJob(_Job):
 
-    getter_method = "get_batch_prediction_job"
+    _getter_method = "get_batch_prediction_job"
 
     def __init__(
         self,
@@ -126,7 +127,7 @@ class BatchPredictionJob(_Job):
                 Custom credentials to use. If not set, credentials set in
                 aiplatform.init will be used.
         """
-        valid_batch_prediction_job_name = full_resource_name(
+        valid_batch_prediction_job_name = utils.full_resource_name(
             resource_name=batch_prediction_job_name,
             resource_noun="batchPredictionJobs",
             project=project,
@@ -141,22 +142,22 @@ class BatchPredictionJob(_Job):
         )
 
     def iter_outputs(
-        self, bq_query_limit: Optional[int] = 100
-    ) -> Iterable[Union[storage.Blob, bigquery.job.QueryJob]]:
+        self, bq_max_results: Optional[int] = 100
+    ) -> Union[Iterable[storage.Blob], Iterable[bigquery.table.RowIterator]]:
         """Returns an Iterable object to traverse the output files, either a list
         of GCS Blobs or a BigQuery QueryJob depending on the output config set
         when the BatchPredictionJob was created.
 
         Args:
-            bq_query_limit: Optional[int] = 100
-                Limit on rows to select from prediction table in BigQuery dataset.
+            bq_max_results: Optional[int] = 100
+                Limit on rows to retrieve from prediction table in BigQuery dataset.
                 Only used when retrieving predictions from a bigquery_destination_prefix.
                 Default is 100.
 
         Returns:
-            Iterable[Union[storage.Blob, bigquery.job.QueryJob]]:
+            Union[Iterable[storage.Blob], Iterable[bigquery.table.RowIterator]]:
                 Either a list of GCS Blob objects within the prediction output
-                directory or an iterable QueryJob with predictions.
+                directory or an iterable BigQuery RowIterator with predictions.
 
         Raises:
             RuntimeError:
@@ -169,7 +170,7 @@ class BatchPredictionJob(_Job):
 
         job_status = self.status()
 
-        if job_status != JobState.JOB_STATE_SUCCEEDED:
+        if job_status != job_state.JobState.JOB_STATE_SUCCEEDED:
             raise RuntimeError(
                 f"Cannot read outputs until BatchPredictionJob has succeeded, "
                 f"current status: {job_status}"
@@ -178,32 +179,29 @@ class BatchPredictionJob(_Job):
         output_info = self._gca_resource.output_info
 
         # GCS Destination, return Blobs
-        if output_info.gcs_output_directory not in ("", None):
+        if output_info.gcs_output_directory:
             storage_client = storage.Client()
             blobs = storage_client.list_blobs(output_info.gcs_output_directory)
             return blobs
 
         # BigQuery Destination, return QueryJob
-        elif output_info.bigquery_output_dataset not in ("", None):
+        elif output_info.bigquery_output_dataset:
             bq_client = bigquery.Client()
-            bigquery.Client
 
             # Format from service is `bq://projectId.bqDatasetId`
             bq_dataset = output_info.bigquery_output_dataset
 
             if bq_dataset.startswith("bq://"):
                 bq_dataset = bq_dataset[5:]
-            if bq_dataset.endswith(("/", ".")):
-                bq_dataset = bq_dataset[:-1]
 
             # # Split project ID and BQ dataset ID
             _, bq_dataset_id = bq_dataset.split(".", 1)
 
-            query_limit = f"LIMIT {bq_query_limit}" if bq_query_limit else ""
-            query = f"SELECT * FROM {bq_dataset_id}.predictions {query_limit}"
-            query_job = bq_client.query(query)
+            row_iterator = bq_client.list_rows(
+                table=f"{bq_dataset_id}.predictions", max_results=bq_max_results
+            )
 
-            return query_job
+            return row_iterator
 
         # Unknown Destination type
         else:
@@ -214,15 +212,15 @@ class BatchPredictionJob(_Job):
 
 
 class CustomJob(_Job):
-    getter_method = "get_custom_job"
+    _getter_method = "get_custom_job"
     pass
 
 
 class DataLabelingJob(_Job):
-    getter_method = "get_data_labeling_job"
+    _getter_method = "get_data_labeling_job"
     pass
 
 
 class HyperparameterTuningJob(_Job):
-    getter_method = "get_hyperparameter_tuning_job"
+    _getter_method = "get_hyperparameter_tuning_job"
     pass

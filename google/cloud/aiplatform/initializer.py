@@ -148,7 +148,7 @@ class _Config:
         utils.validate_region(region)
 
         return client_options.ClientOptions(
-            api_endpoint=f"{region}-{prediction}{constants.PROD_API_ENDPOINT}"
+            api_endpoint=f"{region}-{prediction}{constants.API_BASE_PATH}"
         )
 
     def common_location_path(

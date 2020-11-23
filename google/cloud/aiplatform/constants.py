@@ -17,7 +17,7 @@
 
 DEFAULT_REGION = "us-central1"
 SUPPORTED_REGIONS = ("us-central1", "europe-west4", "asia-east1")
-PROD_API_ENDPOINT = "aiplatform.googleapis.com"
+API_BASE_PATH = "aiplatform.googleapis.com"
 
 # Batch Prediction
 BATCH_PREDICTION_INPUT_STORAGE_FORMATS = (

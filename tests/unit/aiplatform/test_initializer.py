@@ -94,8 +94,7 @@ class TestInit:
         client = initializer.global_config.create_client(ModelServiceClient)
         assert isinstance(client, ModelServiceClient)
         assert (
-            client._transport._host
-            == f"{_TEST_LOCATION}-{constants.PROD_API_ENDPOINT}:443"
+            client._transport._host == f"{_TEST_LOCATION}-{constants.API_BASE_PATH}:443"
         )
 
     def test_create_client_overrides(self):
@@ -110,7 +109,7 @@ class TestInit:
         assert isinstance(client, ModelServiceClient)
         assert (
             client._transport._host
-            == f"{_TEST_LOCATION_2}-prediction-{constants.PROD_API_ENDPOINT}:443"
+            == f"{_TEST_LOCATION_2}-prediction-{constants.API_BASE_PATH}:443"
         )
         assert client._transport._credentials == creds
 

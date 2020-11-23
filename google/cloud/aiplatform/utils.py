@@ -35,7 +35,7 @@ from google.cloud.aiplatform_v1beta1.services.prediction_service import (
     client as prediction_client,
 )
 
-from google.cloud.aiplatform.constants import SUPPORTED_REGIONS
+from google.cloud.aiplatform import constants
 
 
 AiPlatformServiceClient = TypeVar(
@@ -217,12 +217,14 @@ def validate_region(region: str) -> bool:
         ValueError: If region is not in supported regions.
     """
     if not region:
-        raise ValueError(f"Please provide a region, select from {SUPPORTED_REGIONS}")
+        raise ValueError(
+            f"Please provide a region, select from {constants.SUPPORTED_REGIONS}"
+        )
 
     region = region.lower()
-    if region not in SUPPORTED_REGIONS:
+    if region not in constants.SUPPORTED_REGIONS:
         raise ValueError(
-            f"Unsupported region for AI Platform, select from {SUPPORTED_REGIONS}"
+            f"Unsupported region for AI Platform, select from {constants.SUPPORTED_REGIONS}"
         )
 
     return True
