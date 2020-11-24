@@ -1273,7 +1273,6 @@ class AutoMLTablesTrainingJob(_TrainingJob):
 
     def run(
         self,
-        model_display_name: str,
         dataset: datasets.Dataset,
         target_column: str,
         training_fraction_split: float = 0.8,
@@ -1281,6 +1280,7 @@ class AutoMLTablesTrainingJob(_TrainingJob):
         test_fraction_split: float = 0.1,
         weight_column: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
+        model_display_name: Optional[str] = None,
         disable_early_stopping=False,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -1293,10 +1293,6 @@ class AutoMLTablesTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            model_display_name (str):
-                Required. If the script produces a managed AI Platform Model. The display name of
-                the Model. The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
             dataset (aiplatform.Dataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
@@ -1333,6 +1329,12 @@ class AutoMLTablesTrainingJob(_TrainingJob):
                 Model for the given training set, the training won't be attempted and
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
+            model_display_name (str):
+                Optional. If the script produces a managed AI Platform Model. The display name of
+                the Model. The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
             disable_early_stopping (bool):
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
@@ -1363,6 +1365,9 @@ class AutoMLTablesTrainingJob(_TrainingJob):
             "optimizationObjectiveRecallValue": self._optimization_objective_recall_value,
             "optimizationObjectivePrecisionValue": self._optimization_objective_precision_value,
         }
+
+        if model_display_name is None:
+            model_display_name = self._display_name
 
         model = gca_model.Model(display_name=model_display_name)
 
