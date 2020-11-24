@@ -941,6 +941,7 @@ class CustomTrainingJob(_TrainingJob):
         training_fraction_split: float,
         validation_fraction_split: float,
         test_fraction_split: float,
+        predefined_split_column_name: Optional[str] = None,
     ) -> gca_training_pipeline.InputDataConfig:
         """Constructs a input data config to pass to the training pipeline.
             Override this to create a custom config
@@ -958,6 +959,16 @@ class CustomTrainingJob(_TrainingJob):
                 test_fraction_split (float):
                     The fraction of the input data that is to be
                     used to evaluate the Model. This is ignored if Dataset is not provided.
+                predefined_split_column_name (str):
+                    Optional. The key is a name of one of the Dataset's data
+                    columns. The value of the key (either the label's value or
+                    value in the column) must be one of {``training``,
+                    ``validation``, ``test``}, and it defines to which set the
+                    given piece of data is assigned. If for a piece of data the
+                    key is not present or has an invalid value, that piece is
+                    ignored by the pipeline.
+
+                    Supported only for tabular Datasets.
             """
 
         input_data_config = None
@@ -970,9 +981,16 @@ class CustomTrainingJob(_TrainingJob):
                 test_fraction=test_fraction_split,
             )
 
+            predefined_split = None
+            if predefined_split_column_name:
+                predefined_split = gca_training_pipeline.PredefinedSplit(
+                    key=predefined_split_column_name
+                )
+
             # create input data config
             input_data_config = gca_training_pipeline.InputDataConfig(
                 fraction_split=fraction_split,
+                predefined_split=predefined_split,
                 dataset_id=dataset.name,
                 gcs_destination=gca_io.GcsDestination(
                     output_uri_prefix=self._base_output_dir
