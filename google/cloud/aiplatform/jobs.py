@@ -145,7 +145,7 @@ class BatchPredictionJob(_Job):
         self, bq_max_results: Optional[int] = 100
     ) -> Union[Iterable[storage.Blob], Iterable[bigquery.table.RowIterator]]:
         """Returns an Iterable object to traverse the output files, either a list
-        of GCS Blobs or a BigQuery QueryJob depending on the output config set
+        of GCS Blobs or a BigQuery RowIterator depending on the output config set
         when the BatchPredictionJob was created.
 
         Args:
@@ -184,7 +184,7 @@ class BatchPredictionJob(_Job):
             blobs = storage_client.list_blobs(output_info.gcs_output_directory)
             return blobs
 
-        # BigQuery Destination, return QueryJob
+        # BigQuery Destination, return RowIterator
         elif output_info.bigquery_output_dataset:
             bq_client = bigquery.Client()
 
