@@ -193,23 +193,23 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
                 }
 
 
-        kwargs={
-            'api_client': api_client,
-            'display_name': display_name,
-            'parent': initializer.global_config.common_location_path(
+        return cls._create_and_import(
+            api_client = api_client,
+            display_name= display_name,
+            parent= initializer.global_config.common_location_path(
                 project=project, location=location),
-            'metadata_schema_uri': metadata_schema_uri,
-            'dataset_metadata': dataset_metadata,
-            'request_metadata': metadata,
-            'labels': labels,
-            'project': project or initializer.global_config.project,
-            'location': location or initializer.global_config.location,
-            'credentials': credentials or initializer.global_config.credentials,
-            'gcs_source': gcs_source,
-            'import_schema_uri': import_schema_uri,
-            'data_items_labels': data_items_labels,
-            'sync': sync
-        }
+            metadata_schema_uri= metadata_schema_uri,
+            dataset_metadata= dataset_metadata,
+            request_metadata= metadata,
+            labels= labels,
+            project= project or initializer.global_config.project,
+            location= location or initializer.global_config.location,
+            credentials= credentials or initializer.global_config.credentials,
+            gcs_source= gcs_source,
+            import_schema_uri= import_schema_uri,
+            data_items_labels= data_items_labels,
+            sync=sync
+        )
 
         return cls._create_and_import(**kwargs)
 
@@ -379,6 +379,7 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
 
         return import_lro.result()
 
+    @base.optional_async_wrapper(return_input_arg='self')
     def import_data(
         self,
         gcs_source: Sequence[str],
@@ -420,17 +421,13 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
                 Instantiated representation of the managed dataset resource.
         """
 
-        kwargs = {
-            'source': gcs_source,
-            'import_schema_uri': import_schema_uri,
-            'data_items_labels': data_items_labels
-        }
+        self._import_from_gcs(
+            source= gcs_source,
+            import_schema_uri= import_schema_uri,
+            data_items_labels= data_items_labels
+        )
 
-        if sync:
-            self._import_from_gcs(**kwargs)
-            self._gca_resource = self._get_dataset(dataset_name=self.name)
-        else:
-            self._submit(self._import_from_gcs, **kwargs)
+        self._gca_resource = self._get_dataset(dataset_name=self.name)
 
         return self
 

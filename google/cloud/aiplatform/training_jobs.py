@@ -275,7 +275,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFuture):
         return model
 
     def _is_waiting_to_run(self) -> bool:
-        self._raise_if_exception()
+        self._raise_future_exception()
         if self._latest_future:
             _LOGGER.info("Training Job is waiting for upstream SDK tasks to complete before"
                 " launching.")
@@ -290,6 +290,8 @@ class _TrainingJob(base.AiPlatformResourceNounWithFuture):
         except RuntimeError as e:
             if self._is_waiting_to_run():
                 return None
+            else:
+                raise e
 
         return self._gca_resource.state
 
@@ -305,6 +307,8 @@ class _TrainingJob(base.AiPlatformResourceNounWithFuture):
         except RuntimeError as e:
             if self._is_waiting_to_run():
                 return None
+            else:
+                raise e
 
         if not self._gca_resource.model_to_upload:
             raise RuntimeError(self._model_upload_fail_string)

@@ -38,7 +38,7 @@ class FutureCache(metaclass=abc.ABCMeta):
         self.__latest_future = None
         self._exception = None
 
-    def _raise_if_exception(self):
+    def _raise_future_exception(self):
         with self.__latest_future_lock:
             if self._exception:
                 raise self._exception
@@ -234,48 +234,6 @@ class AiPlatformResourceNounWithFuture(AiPlatformResourceNoun, FutureCache):
         self._gca_resource = None
         return self
 
-    def _submit_with_object_resource_sync(self, fn, *args, **kwargs):
-        def copy_gca_resource(future, obj):
-            result = future.result()
-            obj._gca_resource = result._gca_resource
-
-        future = initializer.global_pool.submit(fn, *args, **kwargs)
-        self._latest_future = future
-        future.add_done_callback(functools.partial(copy_gca_resource, obj=self))
-        future.add_done_callback(self._complete_future)
-        return future
-
-    def _submit_with_dependency_on_future(self, deps, fn, callbacks, *args, **kwargs):
-        def wait_for_dependencies(deps, fn, *args, **kwargs):
-            # TODO (include more informative string about dependency failing)
-            for dep in deps:
-                if dep:
-                    dep.result()
-            return fn(*args, **kwargs)
-
-        future = initializer.global_pool.submit(wait_for_dependencies,
-            deps, fn, *args, **kwargs)
-
-        self._latest_future = future
-
-        future.add_done_callback(self._complete_future)
-
-        for c in callbacks:
-            future.add_done_callback(c)
-        return future
-
-    def _full_submit(
-        self, fn, callbacks, *args, **kwargs):
-        deps = [arg._latest_future for arg in list(args) + list(kwargs.values()) if
-                isinstance(arg, FutureCache) and arg._latest_future]
-
-        # if this object already has a pending task
-        if self._latest_future:
-            deps.append(self._latest_future)
-
-        return self._submit_with_dependency_on_future(deps=deps,
-            fn=fn, callbacks=callbacks, *args, **kwargs)
-
 
 def sync_future_object_with_realized(future, empty_returned_object):
     result = future.result()
@@ -307,7 +265,7 @@ def optional_async_wrapper(
 
         functools.wraps(method)
         def wrapper(*args, **kwargs):
-            sync = kwargs.pop('sync')
+            sync = kwargs.pop('sync', True)
 
             if sync:
                 return method(*args, **kwargs)
@@ -318,8 +276,6 @@ def optional_async_wrapper(
                 # should work for the SDK because we don't pass in classes as
                 # long as we don't pass classes as arguments
                 # TODO research a better way to check
-
-                print('is class')
                 self = args[0]._alternative_constructor()
                 self._submit(
                     method,
