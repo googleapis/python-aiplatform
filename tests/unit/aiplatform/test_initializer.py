@@ -22,7 +22,7 @@ import importlib
 import google.auth
 from google.auth import credentials
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import utils
+from google.cloud.aiplatform import constants
 from google.cloud.aiplatform_v1beta1.services.model_service.client import (
     ModelServiceClient,
 )
@@ -56,7 +56,7 @@ class TestInit:
         assert initializer.global_config.location == _TEST_LOCATION
 
     def test_not_init_location_gets_default_location(self):
-        assert initializer.global_config.location == utils.DEFAULT_REGION
+        assert initializer.global_config.location == constants.DEFAULT_REGION
 
     def test_init_location_with_invalid_location_raises(self):
         with pytest.raises(ValueError):
@@ -94,7 +94,7 @@ class TestInit:
         client = initializer.global_config.create_client(ModelServiceClient)
         assert isinstance(client, ModelServiceClient)
         assert (
-            client._transport._host == f"{_TEST_LOCATION}-{utils.PROD_API_ENDPOINT}:443"
+            client._transport._host == f"{_TEST_LOCATION}-{constants.API_BASE_PATH}:443"
         )
 
     def test_create_client_overrides(self):
@@ -109,7 +109,7 @@ class TestInit:
         assert isinstance(client, ModelServiceClient)
         assert (
             client._transport._host
-            == f"{_TEST_LOCATION_2}-prediction-{utils.PROD_API_ENDPOINT}:443"
+            == f"{_TEST_LOCATION_2}-prediction-{constants.API_BASE_PATH}:443"
         )
         assert client._transport._credentials == creds
 
