@@ -207,20 +207,14 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
             'credentials': credentials or initializer.global_config.credentials,
             'gcs_source': gcs_source,
             'import_schema_uri': import_schema_uri,
-            'data_items_labels': data_items_labels
+            'data_items_labels': data_items_labels,
+            'sync': sync
         }
 
-        if sync:
-            return cls._create_and_import(**kwargs)
-
-        self = cls._alternative_constructor()
-        self._submit_with_gca_resource_sync(cls._create_and_import, **kwargs)
-        return self
-
-        # future = initializer.global_pool.submit(cls._create_and_import, **kwargs)
-        # return DatasetFuture(future)
+        return cls._create_and_import(**kwargs)
 
     @classmethod
+    @base.optional_async_wrapper()
     def _create_and_import(cls,
         api_client:DatasetServiceClient,
         display_name: str,
@@ -262,7 +256,7 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
 
         if gcs_source and not is_tabular_dataset_metadata:
             return dataset_obj._import_from_gcs(
-                gcs_source=gcs_source,
+                source=gcs_source,
                 import_schema_uri=import_schema_uri,
                 data_items_labels=data_items_labels,
             )
@@ -427,9 +421,9 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
         """
 
         kwargs = {
-            source: gcs_source,
-            import_schema_uri: import_schema_uri,
-            data_items_labels: data_items_labels
+            'source': gcs_source,
+            'import_schema_uri': import_schema_uri,
+            'data_items_labels': data_items_labels
         }
 
         if sync:
@@ -441,7 +435,7 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
         return self
 
 
-    # TODO(return as future)
+    # TODO(add async and return as future)
     def export_data(self, output_dir: str) -> Sequence[str]:
         """Exports data to output dir to GCS.
 

@@ -16,27 +16,40 @@
 #
 
 import abc
+from concurrent import futures
 import functools
+import inspect
 import threading
-from typing import Optional
+import time
+from typing import Any, Callable, Optional, Sequence, Union
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
 
-class AiPlatformFuture(metaclass=abc.ABCMeta):
+
+POLLING_SLEEP = 5
+
+class FutureCache(metaclass=abc.ABCMeta):
 
     def __init__(self):
         # future creation is responsible for setting depedency flow
         self.__latest_future_lock = threading.Lock()
         self.__latest_future = None
+        self._exception = None
 
-    def _add_future(self, future):
+    def _raise_if_exception(self):
         with self.__latest_future_lock:
-            self.__latest_future = future
+            if self._exception:
+                raise self._exception
 
-    def _clear_future(self, future):
+    def _complete_future(self, future):
         with self.__latest_future_lock:
+            try:
+                future.result() # raises
+            except Exception as e:
+                self._exception = e
+
             if self.__latest_future is future:
                 self.__latest_future = None
 
@@ -46,12 +59,67 @@ class AiPlatformFuture(metaclass=abc.ABCMeta):
 
     def wait(self):
         while not self._are_futures_done():
-            time.sleep(5)
+            time.sleep(POLLING_SLEEP)
 
     @property
     def _latest_future(self):
         with self.__latest_future_lock:
             return self.__latest_future
+
+    @_latest_future.setter
+    def _latest_future(self, future: Optional[futures.Future]):
+        with self.__latest_future_lock:
+            self.__latest_future = future
+            if future:
+                future.add_done_callback(self._complete_future)
+
+    @_latest_future.deleter
+    def _latest_future(self):
+        with self.__latest_future_lock:
+            self.__latest_future = None
+
+
+    def _submit(self,
+        fn: Callable,
+        args: Sequence,
+        kwargs: dict,
+        additional_dependencies: Optional[Sequence[futures.Future]]=None,
+        callbacks: Optional[Sequence[Callable[[futures.Future], Any]]] =None):
+
+        def wait_for_dependencies_and_invoke(deps, fn, args, kwargs):
+            for dep in deps:
+                if dep:
+                    dep.result()
+            return fn(*args, **kwargs)
+
+        # Retrieves any dependencies from arguments.
+        deps = [arg._latest_future for arg in list(args) + list(kwargs.values()) if
+                isinstance(arg, FutureCache) and arg._latest_future]
+
+        if additional_dependencies:
+            deps.extend(additional_dependencies)
+
+        with self.__latest_future_lock:
+
+            # If this instance already has a future, add that future as a dependency
+
+            if self.__latest_future:
+                deps.append(self.__latest_future)
+
+
+            future = initializer.global_pool.submit(wait_for_dependencies_and_invoke,
+                deps=deps, fn=fn, args=args, kwargs=kwargs)
+
+            self.__latest_future = future
+
+        # Clean up callback captures exception as well as removes future.
+        future.add_done_callback(self._complete_future)
+
+        if callbacks:
+            for c in callbacks:
+                future.add_done_callback(c)
+
+        return future
 
     @classmethod
     @abc.abstractmethod
@@ -146,8 +214,12 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         return self._gca_resource.display_name
 
 
+class AiPlatformResourceNounWithFuture(AiPlatformResourceNoun, FutureCache):
 
-class AiPlatformResourceNounWithFuture(AiPlatformResourceNoun, AiPlatformFuture):
+    def __init__(self, project, location, credentials):
+        AiPlatformResourceNoun.__init__(self, project=project, location=location,
+            credentials=credentials)
+        FutureCache.__init__(self)
 
     @classmethod
     def _alternative_constructor(
@@ -158,33 +230,154 @@ class AiPlatformResourceNounWithFuture(AiPlatformResourceNoun, AiPlatformFuture)
         ):
         self = cls.__new__(cls)
         AiPlatformResourceNoun.__init__(self, project, location, credentials)
-        AiPlatformFuture.__init__(self)
+        FutureCache.__init__(self)
         self._gca_resource = None
         return self
 
-    def _submit_with_gca_resource_sync(self, callable, *args, **kwargs):
+    def _submit_with_object_resource_sync(self, fn, *args, **kwargs):
         def copy_gca_resource(future, obj):
             result = future.result()
             obj._gca_resource = result._gca_resource
 
-        future = initializer.global_pool.submit(callable, *args, **kwargs)
-        self._add_future(future)
+        future = initializer.global_pool.submit(fn, *args, **kwargs)
+        self._latest_future = future
         future.add_done_callback(functools.partial(copy_gca_resource, obj=self))
-        future.add_done_callback(self._clear_future)
+        future.add_done_callback(self._complete_future)
+        return future
 
-    def _submit_with_dependency_on_future(self, deps, callable, *args, **kwargs):
-        def wait_for_dependencies(deps, callable, *args, **kwargs):
+    def _submit_with_dependency_on_future(self, deps, fn, callbacks, *args, **kwargs):
+        def wait_for_dependencies(deps, fn, *args, **kwargs):
+            # TODO (include more informative string about dependency failing)
             for dep in deps:
-                deps.result()
-            return callable(*args, **kwargs)
+                if dep:
+                    dep.result()
+            return fn(*args, **kwargs)
 
         future = initializer.global_pool.submit(wait_for_dependencies,
-            deps, callable, *args, **kwargs)
-        self._add_future(future)
-        future.add_done_callback(self._clear_future)
+            deps, fn, *args, **kwargs)
+
+        self._latest_future = future
+
+        future.add_done_callback(self._complete_future)
+
+        for c in callbacks:
+            future.add_done_callback(c)
+        return future
+
+    def _full_submit(
+        self, fn, callbacks, *args, **kwargs):
+        deps = [arg._latest_future for arg in list(args) + list(kwargs.values()) if
+                isinstance(arg, FutureCache) and arg._latest_future]
+
+        # if this object already has a pending task
+        if self._latest_future:
+            deps.append(self._latest_future)
+
+        return self._submit_with_dependency_on_future(deps=deps,
+            fn=fn, callbacks=callbacks, *args, **kwargs)
 
 
-    def _submit(self, callable, *args, **kwargs):
-        with self.__latest_future_lock:
-            deps = [self._latest_future] if self._latest_future else []
-            self._submit_with_dependency_on_future(deps, callable, *args, **kwargs)
+def sync_future_object_with_realized(future, empty_returned_object):
+    result = future.result()
+    sync_attributes = ['project', 'location', 'api_client', '_gca_resource']
+    optional_sync_attributes = ['_prediction_client']
+
+    for attribute in sync_attributes:
+        setattr(empty_returned_object, attribute, getattr(result, attribute))
+
+    for attribute in optional_sync_attributes:
+        value = getattr(result, attribute, None)
+        if value:
+            setattr(empty_returned_object, attribute, value)
+
+
+def get_annotation_class(annotation):
+    # typing.Optional
+    if getattr(annotation, '__origin__', None) is Union:
+        return annotation.__dict__['__args__'][0]
+    else:
+        return annotation
+
+def optional_async_wrapper(
+    predicate_return_on_arg =None, # ie: incase Model is None in TrainingJob.run
+    return_input_arg=None, # pass through ie: Endpoint if Model.predict
+    ):
+
+    def optional_run_in_thread(method):
+
+        functools.wraps(method)
+        def wrapper(*args, **kwargs):
+            sync = kwargs.pop('sync')
+
+            if sync:
+                return method(*args, **kwargs)
+
+            # Case 1: is a classmethod that creates the object and returns it
+            if args and inspect.isclass(args[0]):
+                # assume classmethod, but not necessarilly true
+                # should work for the SDK because we don't pass in classes as
+                # long as we don't pass classes as arguments
+                # TODO research a better way to check
+
+                print('is class')
+                self = args[0]._alternative_constructor()
+                self._submit(
+                    method,
+                    callbacks=[functools.partial(
+                        sync_future_object_with_realized,
+                        empty_returned_object=self)],
+                    args=args, kwargs=kwargs)
+                # self._submit_with_gca_resource_sync(method, *args, **kwargs)
+                return self
+
+            # Case 2: is instance method and return a different class object
+            self = args[0]
+
+
+            # check to make sure any previous async call hasn't thrown
+            if self._exception:
+                raise self._exception
+
+
+            # if there is a returned type
+            returned_object = None
+            callbacks=[]
+
+            # all method should have type signatures
+            return_type = get_annotation_class(
+                inspect.getfullargspec(method).annotations['return'])
+
+            bound_args = inspect.signature(method).bind(*args, **kwargs)
+
+            if return_input_arg:
+                returned_object = bound_args.arguments.get(return_input_arg)
+
+            should_construct = not returned_object and ((not predicate_return_on_arg) or
+                (predicate_return_on_arg and bound_args.arguments.get(predicate_return_on_arg)))
+
+            if should_construct:
+                returned_object = return_type._alternative_constructor()
+                callbacks.extend([functools.partial(
+                    sync_future_object_with_realized,
+                    empty_returned_object=returned_object)])
+
+
+            # have to call through class because arg[0] is self
+            args = args[1:]
+            fn = functools.partial(method, self=self)
+            future = self._submit(fn=fn, callbacks=callbacks, args=args, kwargs=kwargs)
+
+            if returned_object:
+                returned_object._latest_future = future
+
+            return returned_object
+        return wrapper
+    return optional_run_in_thread
+
+
+
+
+
+
+
+

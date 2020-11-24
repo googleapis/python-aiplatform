@@ -67,7 +67,7 @@ _PIPELINE_COMPLETE_STATES = set(
 )
 
 
-class _TrainingJob(base.AiPlatformResourceNoun):
+class _TrainingJob(base.AiPlatformResourceNounWithFuture):
     client_class = pipeline_service_client.PipelineServiceClient
     _is_client_prediction_client = False
 
@@ -114,11 +114,12 @@ class _TrainingJob(base.AiPlatformResourceNoun):
 
     def _create_input_data_config(
         self,
-        dataset: Optional[datasets.Dataset],
-        training_fraction_split: float,
-        validation_fraction_split: float,
-        test_fraction_split: float,
-    ) -> gca_training_pipeline.InputDataConfig:
+        dataset: Optional[datasets.Dataset]=None,
+        training_fraction_split: float=0.8,
+        validation_fraction_split: float=0.1,
+        test_fraction_split: float=0.1,
+        gcs_destination: Optional[str]=None,
+    ) -> Optional[gca_training_pipeline.InputDataConfig]:
 
         """Constructs a input data config to pass to the training pipeline.
         Override this to create a custom config
@@ -136,6 +137,8 @@ class _TrainingJob(base.AiPlatformResourceNoun):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            gcs_destination (str):
+                The destination in GCS to write preprocessed Managed Dataset.
         """
 
         input_data_config = None
@@ -149,8 +152,14 @@ class _TrainingJob(base.AiPlatformResourceNoun):
 
             # create input data config
             input_data_config = gca_training_pipeline.InputDataConfig(
-                fraction_split=fraction_split, dataset_id=dataset.name,
+                fraction_split=fraction_split,
+                dataset_id=dataset.name,
             )
+
+            if gcs_destination:
+                input_data_config.gcs_destination=gca_io.GcsDestination(
+                    output_uri_prefix=gcs_destination
+                )
 
         return input_data_config
 
@@ -158,10 +167,11 @@ class _TrainingJob(base.AiPlatformResourceNoun):
         self,
         training_task_definition: str,
         training_task_inputs: dict,
-        dataset: Optional[datasets.Dataset],
-        training_fraction_split: float,
-        validation_fraction_split: float,
-        test_fraction_split: float,
+        dataset: Optional[datasets.Dataset] = None,
+        training_fraction_split: float = 0.8,
+        validation_fraction_split: float = 0.1,
+        test_fraction_split: float = 0.1,
+        gcs_destination: Optional[str] = None,
         model: Optional[gca_model.Model] = None,
     ) -> Optional[models.Model]:
         """Runs the training job.
@@ -232,6 +242,7 @@ class _TrainingJob(base.AiPlatformResourceNoun):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            gcs_destination=gcs_destination
         )
 
         # create training pipeline
@@ -263,10 +274,23 @@ class _TrainingJob(base.AiPlatformResourceNoun):
             )
         return model
 
+    def _is_waiting_to_run(self) -> bool:
+        self._raise_if_exception()
+        if self._latest_future:
+            _LOGGER.info("Training Job is waiting for upstream SDK tasks to complete before"
+                " launching.")
+            return True
+        return False
+
     @property
-    def state(self) -> gca_pipeline_state.PipelineState:
+    def state(self) -> Optional[gca_pipeline_state.PipelineState]:
         """Current training state."""
-        self._assert_has_run()
+        try:
+            self._assert_has_run()
+        except RuntimeError as e:
+            if self._is_waiting_to_run():
+                return None
+
         return self._gca_resource.state
 
     def get_model(self) -> Optional[models.Model]:
@@ -276,7 +300,12 @@ class _TrainingJob(base.AiPlatformResourceNoun):
             model: AI Platform Model produced by this training or None if a model was
                 not produced by this training.
         """
-        self._assert_has_run()
+        try:
+            self._assert_has_run()
+        except RuntimeError as e:
+            if self._is_waiting_to_run():
+                return None
+
         if not self._gca_resource.model_to_upload:
             raise RuntimeError(self._model_upload_fail_string)
 
@@ -942,52 +971,6 @@ class CustomTrainingJob(_TrainingJob):
         self._script_path = script_path
         self._staging_bucket = staging_bucket
 
-    def _create_input_data_config(
-        self,
-        dataset: Optional[datasets.Dataset],
-        training_fraction_split: float,
-        validation_fraction_split: float,
-        test_fraction_split: float,
-    ) -> gca_training_pipeline.InputDataConfig:
-        """Constructs a input data config to pass to the training pipeline.
-            Override this to create a custom config
-
-            Args:
-                training_fraction_split (float):
-                    The fraction of the input data that is to be
-                    used to train the Model. This is ignored if Dataset is not provided.
-                training_fraction_split (float):
-                    The fraction of the input data that is to be
-                    used to train the Model. This is ignored if Dataset is not provided.
-                validation_fraction_split (float):
-                    The fraction of the input data that is to be
-                    used to validate the Model. This is ignored if Dataset is not provided.
-                test_fraction_split (float):
-                    The fraction of the input data that is to be
-                    used to evaluate the Model. This is ignored if Dataset is not provided.
-            """
-
-        input_data_config = None
-
-        if dataset:
-            # Create fraction split spec
-            fraction_split = gca_training_pipeline.FractionSplit(
-                training_fraction=training_fraction_split,
-                validation_fraction=validation_fraction_split,
-                test_fraction=test_fraction_split,
-            )
-
-            # create input data config
-            input_data_config = gca_training_pipeline.InputDataConfig(
-                fraction_split=fraction_split,
-                dataset_id=dataset.name,
-                gcs_destination=gca_io.GcsDestination(
-                    output_uri_prefix=self._base_output_dir
-                ),
-            )
-
-        return input_data_config
-
     # TODO(b/172365904) add filter split, training_pipeline.FilterSplit
     # TODO(b/172366411) predefined filter split training_pipeline.PredfinedFilterSplit
     # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
@@ -1004,6 +987,7 @@ class CustomTrainingJob(_TrainingJob):
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
+        sync=True
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -1103,20 +1087,109 @@ class CustomTrainingJob(_TrainingJob):
             accelerator_type=accelerator_type,
         ).pool_specs
 
+        # default directory if not given
+        base_output_dir = base_output_dir or _timestamped_gcs_dir(
+            staging_bucket, "aiplatform-custom-training"
+        )
+
+        _LOGGER.info("Training Output directory:\n%s " % base_output_dir)
+
+        training_task_definition = schema.training_job.definition.custom_task
+
+        # create model payload
+        managed_model = None
+        if model_display_name:
+            utils.validate_display_name(model_display_name)
+
+            container_spec = gca_model.ModelContainerSpec(
+                image_uri=self._model_serving_container_image_uri,
+                predict_route=self._model_serving_container_predict_route,
+                health_route=self._model_serving_container_health_route,
+            )
+
+            managed_model = gca_model.Model(
+                display_name=model_display_name, container_spec=container_spec
+            )
+
         # make and copy package
         python_packager = _TrainingScriptPythonPackager(
             script_path=self._script_path, requirements=self._requirements
         )
 
+        kwargs = {
+            "python_packager": python_packager,
+            "staging_bucket": staging_bucket,
+            "project":self._project or initializer.global_config.project,
+            "credentials":self._credentials or initializer.global_config.credentials,
+            "base_output_dir": base_output_dir,
+            "training_task_definition": training_task_definition,
+            "dataset": dataset,
+            "training_fraction_split": training_fraction_split,
+            "validation_fraction_split": validation_fraction_split,
+            "test_fraction_split": test_fraction_split,
+            "managed_model": managed_model,
+            "args": args,
+            "worker_pool_specs": worker_pool_specs,
+            "sync": sync
+        }
+
+        return self._run(**kwargs)
+
+        # if sync:
+        #     return self._run(**kwargs)
+        # else:
+        #     def sync_model(future, job, empty_model):
+        #         with empty_model.__latest_future_lock:
+        #             try:
+        #                 model = job._get_model()
+        #             except RunTimeError as e:
+        #                 empty_model._exception = e
+        #                 return
+
+        #             if model is None:
+        #                 empty_model._exception = RuntimeError(
+        #                     "Training pipeline {job.resource_name} did not produce a Model")
+        #                 return
+
+        #             empty_model._project = model._project
+        #             empty_model._location = model._location
+        #             empty_model._credentials = model._credentials
+        #             empty_model._gca_resource = model._gca_resource
+
+
+        #     model = models.Model._alternative_constructor()
+        #     self._submit_with_dependency_on_future(
+        #         deps=[dataset._latest_future],
+        #         callable=self._run,
+        #         callbacks=[functools.partial(sync_model, job=self, empty_model=model)],
+        #         **kwargs)
+        #     model._add_future(self._latest_future)
+
+        #     return model
+
+
+    @base.optional_async_wrapper(predicate_return_on_arg='managed_model')
+    def _run(
+            self,
+            python_packager,
+            staging_bucket,
+            base_output_dir,
+            training_task_definition,
+            dataset,
+            training_fraction_split,
+            validation_fraction_split,
+            test_fraction_split,
+            managed_model,
+            project,
+            credentials,
+            args,
+            worker_pool_specs,
+        ) -> Optional[models.Model]:
+
         package_gcs_uri = python_packager.package_and_copy_to_gcs(
             gcs_staging_dir=staging_bucket,
             project=self._project or initializer.global_config.project,
             credentials=self._credentials or initializer.global_config.credentials,
-        )
-
-        # default directory if not given
-        base_output_dir = base_output_dir or _timestamped_gcs_dir(
-            staging_bucket, "aiplatform-custom-training"
         )
 
         for spec in worker_pool_specs:
@@ -1137,25 +1210,6 @@ class CustomTrainingJob(_TrainingJob):
             struct_pb2.Value(),
         )
 
-        training_task_definition = schema.training_job.definition.custom_task
-
-        # create model payload
-        managed_model = None
-        if model_display_name:
-            utils.validate_display_name(model_display_name)
-
-            container_spec = gca_model.ModelContainerSpec(
-                image_uri=self._model_serving_container_image_uri,
-                predict_route=self._model_serving_container_predict_route,
-                health_route=self._model_serving_container_health_route,
-            )
-
-            managed_model = gca_model.Model(
-                display_name=model_display_name, container_spec=container_spec
-            )
-
-        self._base_output_dir = base_output_dir
-
         model = self._run_job(
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs,
@@ -1164,11 +1218,8 @@ class CustomTrainingJob(_TrainingJob):
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             model=managed_model,
+            gcs_destination=base_output_dir
         )
-
-        self._base_output_dir = None
-
-        _LOGGER.info("Training Output directory:\n%s " % base_output_dir)
 
         return model
 
