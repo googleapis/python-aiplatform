@@ -80,6 +80,7 @@ _TEST_MODEL_DISPLAY_NAME = "model-display-name"
 _TEST_TRAINING_FRACTION_SPLIT = 0.6
 _TEST_VALIDATION_FRACTION_SPLIT = 0.2
 _TEST_TEST_FRACTION_SPLIT = 0.2
+_TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 
 _TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
 
@@ -418,6 +419,7 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
         )
 
         mock_python_package_to_gcs.assert_called_once_with(
