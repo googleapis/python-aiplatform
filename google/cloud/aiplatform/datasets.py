@@ -211,8 +211,6 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
             sync=sync
         )
 
-        return cls._create_and_import(**kwargs)
-
     @classmethod
     @base.optional_async_wrapper()
     def _create_and_import(cls,
