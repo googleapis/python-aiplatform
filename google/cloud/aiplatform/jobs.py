@@ -180,13 +180,22 @@ class BatchPredictionJob(_Job):
 
         # GCS Destination, return Blobs
         if output_info.gcs_output_directory:
-            storage_client = storage.Client()
+
+            # Build a Storage Client using the same credentials as JobServiceClient
+            storage_client = storage.Client(
+                credentials=self.api_client._transport._credentials
+            )
+
             blobs = storage_client.list_blobs(output_info.gcs_output_directory)
             return blobs
 
         # BigQuery Destination, return RowIterator
         elif output_info.bigquery_output_dataset:
-            bq_client = bigquery.Client()
+
+            # Build a BigQuery Client using the same credentials as JobServiceClient
+            bq_client = bigquery.Client(
+                credentials=self.api_client._transport._credentials
+            )
 
             # Format from service is `bq://projectId.bqDatasetId`
             bq_dataset = output_info.bigquery_output_dataset
