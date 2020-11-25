@@ -67,7 +67,7 @@ def shared_state():
 
 
 # Creating AutoML Text Sentiment Analysis batch prediction job
-def test_ucaip_generated_create_batch_prediction_vcn_sample(capsys, shared_state):
+def test_ucaip_generated_create_batch_prediction_tsn_sample(capsys, shared_state):
 
     model_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/models/{MODEL_ID}"
 
