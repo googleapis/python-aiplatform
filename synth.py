@@ -20,9 +20,7 @@ import synthtool as s
 import synthtool.gcp as gcp
 from synthtool.languages import python
 
-# Use the microgenerator for now since we want to pin the generator version.
-# gapic = gcp.GAPICBazel()
-gapic = gcp.GAPICMicrogenerator()
+gapic = gcp.GAPICBazel()
 
 common = gcp.CommonTemplates()
 
@@ -30,12 +28,11 @@ common = gcp.CommonTemplates()
 # Generate AI Platform GAPIC layer
 # ----------------------------------------------------------------------------
 
-# library = gapic.py_library(
-#     service="aiplatform",
-#     version="v1beta1",
-#     bazel_target="//google/cloud/aiplatform/v1beta1:aiplatform-v1beta1-py",
-# )
-library = gapic.py_library("aiplatform", "v1beta1")
+library = gapic.py_library(
+    service="aiplatform",
+    version="v1beta1",
+    bazel_target="//google/cloud/aiplatform/v1beta1:aiplatform-v1beta1-py",
+)
 
 s.move(
     library,
