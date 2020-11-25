@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gapic_create_batch_prediction_job_text_classification_sample]
-from google.cloud.aiplatform import gapic
+# [START aiplatform_create_batch_prediction_job_text_classification_sample]
+from google.cloud import aiplatform
 from google.protobuf.struct_pb2 import Value
 
 
@@ -29,7 +29,7 @@ def create_batch_prediction_job_text_classification_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = gapic.JobServiceClient(client_options=client_options)
+    client = aiplatform.gapic.JobServiceClient(client_options=client_options)
 
     batch_prediction_job = {
         "display_name": display_name,
@@ -52,4 +52,4 @@ def create_batch_prediction_job_text_classification_sample(
     print("response:", response)
 
 
-# [END gapic_create_batch_prediction_job_text_classification_sample]
+# [END aiplatform_create_batch_prediction_job_text_classification_sample]
