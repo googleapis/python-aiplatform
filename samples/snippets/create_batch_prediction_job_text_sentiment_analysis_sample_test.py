@@ -74,7 +74,7 @@ def test_ucaip_generated_create_batch_prediction_vcn_sample(capsys, shared_state
     create_batch_prediction_job_text_sentiment_analysis_sample.create_batch_prediction_job_text_sentiment_analysis_sample(
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,
-        model_name=model_name,
+        model=model_name,
         gcs_source_uri=GCS_SOURCE_URI,
         gcs_destination_output_uri_prefix=GCS_OUTPUT_URI,
     )
