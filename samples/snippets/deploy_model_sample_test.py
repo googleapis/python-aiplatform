@@ -13,7 +13,8 @@
 # limitations under the License.
 
 from google.cloud import aiplatform
-import deploy_model_sample, delete_endpoint_sample
+import deploy_model_sample
+import delete_endpoint_sample
 
 from uuid import uuid4
 import pytest
