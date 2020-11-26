@@ -34,6 +34,7 @@ EXECUTOR_IMAGE_URI = "us.gcr.io/cloud-aiplatform/training/tf-gpu.2-1:latest"
 PACKAGE_URI = "gs://ucaip-test-us-central1/training/pythonpackages/trainer.tar.bz2"
 PYTHON_MODULE = "trainer.hptuning_trainer"
 
+
 @pytest.fixture
 def shared_state():
     state = {}
