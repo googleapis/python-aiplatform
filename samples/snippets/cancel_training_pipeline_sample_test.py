@@ -21,7 +21,6 @@ import pytest
 import cancel_training_pipeline_sample
 import create_training_pipeline_sample
 import delete_training_pipeline_sample
-import get_training_pipeline_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

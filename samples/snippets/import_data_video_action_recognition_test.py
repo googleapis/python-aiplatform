@@ -55,7 +55,7 @@ def teardown(shared_state, dataset_client):
         project=PROJECT_ID, location=LOCATION, dataset=shared_state["dataset_id"]
     )
     response = dataset_client.delete_dataset(name=dataset_name)
-    delete_dataset_response = response.result(timeout=120)
+    response.result(timeout=120)
 
 
 def test_import_data_video_action_recognition_sample(

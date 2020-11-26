@@ -48,6 +48,7 @@ def pipeline_client():
     )
     yield pipeline_client
 
+
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state, pipeline_client):
     yield
@@ -67,8 +68,6 @@ def teardown(shared_state, pipeline_client):
     pipeline_client.delete_training_pipeline(
         name=shared_state["training_pipeline_name"]
     )
-
-
 
 
 # Training AutoML Vision Model

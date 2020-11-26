@@ -52,7 +52,7 @@ def create_training_pipeline_custom_training_managed_dataset_sample(
     training_container_spec = {
         "imageUri": training_container_spec_image_uri,
         # AIP_MODEL_DIR is set by the service according to baseOutputDirectory.
-        "args": ["--model-dir=$(AIP_MODEL_DIR)",],
+        "args": ["--model-dir=$(AIP_MODEL_DIR)", ],
     }
 
     training_worker_pool_spec = {

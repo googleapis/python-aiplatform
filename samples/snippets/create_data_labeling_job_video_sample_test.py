@@ -18,9 +18,7 @@ from uuid import uuid4
 from google.cloud import aiplatform
 import pytest
 
-import cancel_data_labeling_job_sample
 import create_data_labeling_job_video_sample
-import delete_data_labeling_job_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
