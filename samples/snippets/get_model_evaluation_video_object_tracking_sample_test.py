@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import os
+
 
 import get_model_evaluation_video_object_tracking_sample
 

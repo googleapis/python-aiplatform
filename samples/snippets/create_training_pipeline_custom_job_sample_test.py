@@ -12,15 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uuid import uuid4
-import pytest
 import os
+from uuid import uuid4
 
-import helpers
+import pytest
+from google.cloud import aiplatform
 
 import create_training_pipeline_custom_job_sample
-
-from google.cloud import aiplatform
+import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 DISPLAY_NAME = f"temp_create_training_pipeline_custom_job_test_{uuid4()}"
@@ -44,7 +43,7 @@ def pipeline_client():
 def teardown(shared_state, pipeline_client):
     yield
 
-    training_pipeline_id = shared_state["training_pipeline_name"].split("/")[-1]
+    shared_state["training_pipeline_name"].split("/")[-1]
 
     pipeline_client.cancel_training_pipeline(
         name=shared_state["training_pipeline_name"]

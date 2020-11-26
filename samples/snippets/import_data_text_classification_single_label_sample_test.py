@@ -13,9 +13,8 @@
 # limitations under the License.
 
 
-import pytest
-import os
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import MagicMock, mock_open, patch
+
 
 import import_data_text_classification_single_label_sample
 

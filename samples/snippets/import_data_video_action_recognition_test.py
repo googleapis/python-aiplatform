@@ -13,14 +13,13 @@
 # limitations under the License.
 
 
-import pytest
 import os
-
 import uuid
+
+import pytest
 from google.cloud import aiplatform
 
 import import_data_video_action_recognition_sample
-
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"

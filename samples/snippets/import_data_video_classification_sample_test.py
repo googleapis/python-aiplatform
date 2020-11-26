@@ -13,15 +13,14 @@
 # limitations under the License.
 
 
-import pytest
 import os
-
 from uuid import uuid4
+
+import pytest
 from google.cloud import aiplatform
 
-import import_data_video_classification_sample
 import delete_dataset_sample
-
+import import_data_video_classification_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"

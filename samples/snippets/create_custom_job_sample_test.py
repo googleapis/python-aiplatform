@@ -13,17 +13,16 @@
 # limitations under the License.
 
 
-import pytest
-import uuid
 import os
+import uuid
 
-import helpers
+import pytest
+from google.cloud import aiplatform
 
 import cancel_custom_job_sample
 import create_custom_job_sample
 import delete_custom_job_sample
-
-from google.cloud import aiplatform
+import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 CONTAINER_IMAGE_URI = "gcr.io/ucaip-test/ucaip-training-test:latest"

@@ -12,13 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import os
-import base64
 import pathlib
 
-import predict_image_classification_sample
 
+import predict_image_classification_sample
 
 ENDPOINT_ID = "71213169107795968"  # permanent_50_flowers_endpoint
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

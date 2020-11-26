@@ -12,16 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from uuid import uuid4
 
 import pytest
-import os
-
-import helpers
 
 import create_dataset_video_sample
 import delete_dataset_sample
-
+import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 VIDEO_METADATA_SCHEMA_URI = (
