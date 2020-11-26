@@ -26,7 +26,7 @@ from google.cloud import aiplatform
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
-MODEL_ID = "7316519807128436736"  # Permanent economic sentiment model
+MODEL_ID = "4792568875336073216"  # Permanent economic sentiment model
 DISPLAY_NAME = f"temp_create_batch_prediction_tsn_test_{uuid4()}"
 GCS_SOURCE_URI = (
     "gs://ucaip-samples-test-output/inputs/batch_predict_TSN/tsn_inputs.jsonl"
