@@ -63,7 +63,7 @@ def create_training_pipeline_custom_job_sample(
         "training_task_inputs": training_task_inputs,
         "model_to_upload": {
             "display_name": model_display_name,
-            "container_spec": {"image_uri": image_uri, },
+            "container_spec": {"image_uri": image_uri},
         },
     }
     parent = f"projects/{project}/locations/{location}"

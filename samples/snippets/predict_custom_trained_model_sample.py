@@ -13,10 +13,11 @@
 # limitations under the License.
 
 # [START aiplatform_predict_custom_trained_model_sample]
+from typing import Dict
+
 from google.cloud import aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
-from typing import Dict
 
 
 def predict_custom_trained_model_sample(
