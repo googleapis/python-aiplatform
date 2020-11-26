@@ -25,7 +25,9 @@ import import_data_video_action_recognition_sample
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
 GCS_SOURCE = "gs://automl-video-demo-data/ucaip-var/swimrun.jsonl"
-METADATA_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/dataset/metadata/video_1.0.0.yaml"
+METADATA_SCHEMA_URI = (
+    "gs://google-cloud-aiplatform/schema/dataset/metadata/video_1.0.0.yaml"
+)
 
 API_ENDPOINT = "us-central1-aiplatform.googleapis.com"
 DISPLAY_NAME = f"temp_import_data_video_action_recognition_test_{uuid.uuid4()}"

@@ -19,9 +19,14 @@ import export_model_video_action_recognition_sample
 from google.cloud import storage
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "3422489426196955136"  # permanent_swim_run_videos_action_recognition_edge_model
-GCS_URI = "gs://ucaip-samples-test-output/tmp/export_model_video_action_recognition_sample"
+MODEL_ID = (
+    "3422489426196955136"  # permanent_swim_run_videos_action_recognition_edge_model
+)
+GCS_URI = (
+    "gs://ucaip-samples-test-output/tmp/export_model_video_action_recognition_sample"
+)
 EXPORT_FORMAT = "tf-saved-model"
+
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown():

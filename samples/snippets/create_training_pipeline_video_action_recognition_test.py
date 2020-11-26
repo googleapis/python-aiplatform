@@ -24,11 +24,16 @@ from google.cloud import aiplatform
 
 LOCATION = "us-central1"
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-DATASET_ID = "6881957627459272704"  # permanent_swim_run_videos_action_recognition_dataset
-DISPLAY_NAME = f"temp_create_training_pipeline_video_action_recognition_test_{uuid.uuid4()}"
+DATASET_ID = (
+    "6881957627459272704"  # permanent_swim_run_videos_action_recognition_dataset
+)
+DISPLAY_NAME = (
+    f"temp_create_training_pipeline_video_action_recognition_test_{uuid.uuid4()}"
+)
 MODEL_DISPLAY_NAME = f"Temp Model for {DISPLAY_NAME}"
 MODEL_TYPE = "CLOUD"
 API_ENDPOINT = "us-central1-aiplatform.googleapis.com"
+
 
 @pytest.fixture
 def shared_state():
@@ -44,27 +49,32 @@ def pipeline_client():
     )
     yield pipeline_client
 
-
-@pytest.fixture
-def model_client():
-    client_options = {"api_endpoint": API_ENDPOINT}
-    model_client = aiplatform.gapic.ModelServiceClient(
-        client_options=client_options)
-    yield model_client
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, model_client, pipeline_client):
+def teardown(shared_state, pipeline_client):
     yield
-    model_client.delete_model(name=shared_state["model_name"])
+
+    # Stop the training pipeline
+    pipeline_client.cancel_training_pipeline(
+        name=shared_state["training_pipeline_name"]
+    )
+
+    # Waiting for training pipeline to be in CANCELLED state
+    helpers.wait_for_job_state(
+        get_job_method=pipeline_client.get_training_pipeline,
+        name=shared_state["training_pipeline_name"],
+    )
+
+    # Delete the training pipeline
     pipeline_client.delete_training_pipeline(
         name=shared_state["training_pipeline_name"]
     )
 
 
+
+
 # Training AutoML Vision Model
 def test_create_training_pipeline_video_action_recognition_sample(
-    capsys, shared_state, pipeline_client
+    capsys, shared_state
 ):
     create_training_pipeline_video_action_recognition_sample.create_training_pipeline_video_action_recognition_sample(
         project=PROJECT_ID,
@@ -75,26 +85,7 @@ def test_create_training_pipeline_video_action_recognition_sample(
     )
 
     out, _ = capsys.readouterr()
-
     assert "response:" in out
 
     # Save resource name of the newly created training pipeline
     shared_state["training_pipeline_name"] = helpers.get_name(out)
-
-    # Poll until the pipeline succeeds because we want to test the model_upload step as well.
-    helpers.wait_for_job_state(
-        get_job_method=pipeline_client.get_training_pipeline,
-        name=shared_state["training_pipeline_name"],
-        expected_state="SUCCEEDED",
-        timeout=5000,
-        freq=20,
-    )
-
-    training_pipeline = pipeline_client.get_training_pipeline(
-        name=shared_state["training_pipeline_name"]
-    )
-
-    # Check that the model indeed has been uploaded.
-    assert training_pipeline.model_to_upload.name != ""
-
-    shared_state["model_name"] = training_pipeline.model_to_upload.name
