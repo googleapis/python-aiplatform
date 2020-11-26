@@ -15,8 +15,8 @@
 import os
 from uuid import uuid4
 
-import pytest
 from google.cloud import storage
+import pytest
 
 import export_model_tabular_classification_sample
 

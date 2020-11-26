@@ -16,8 +16,8 @@
 import os
 import uuid
 
-import pytest
 from google.cloud import aiplatform
+import pytest
 
 import import_data_video_action_recognition_sample
 

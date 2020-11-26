@@ -14,8 +14,8 @@
 
 import os
 
-import pytest
 from google.cloud import storage
+import pytest
 
 import export_model_video_action_recognition_sample
 

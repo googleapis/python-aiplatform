@@ -15,8 +15,8 @@
 import os
 import uuid
 
-import pytest
 from google.cloud import aiplatform
+import pytest
 
 import create_training_pipeline_custom_training_managed_dataset_sample
 import helpers

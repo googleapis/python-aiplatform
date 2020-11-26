@@ -15,8 +15,8 @@
 import os
 from uuid import uuid4
 
-import pytest
 from google.cloud import aiplatform
+import pytest
 
 import create_training_pipeline_custom_job_sample
 import helpers

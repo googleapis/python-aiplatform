@@ -15,8 +15,8 @@
 import os
 from uuid import uuid4
 
-import pytest
 from google.cloud import aiplatform
+import pytest
 
 import cancel_batch_prediction_job_sample
 import create_batch_prediction_job_text_classification_sample

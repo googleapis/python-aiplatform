@@ -15,8 +15,8 @@
 import os
 from uuid import uuid4
 
-import pytest
 from google.cloud import aiplatform
+import pytest
 
 import delete_endpoint_sample
 import deploy_model_sample

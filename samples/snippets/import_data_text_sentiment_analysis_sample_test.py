@@ -1,8 +1,8 @@
 import os
 from uuid import uuid4
 
-import pytest
 from google.cloud import aiplatform
+import pytest
 
 import delete_dataset_sample
 import import_data_text_sentiment_analysis_sample

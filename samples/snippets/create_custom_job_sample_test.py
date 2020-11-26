@@ -16,8 +16,8 @@
 import os
 import uuid
 
-import pytest
 from google.cloud import aiplatform
+import pytest
 
 import cancel_custom_job_sample
 import create_custom_job_sample

@@ -15,8 +15,8 @@
 import os
 import uuid
 
-import pytest
 from google.cloud import aiplatform
+import pytest
 
 import create_hyperparameter_tuning_job_python_package_sample
 import helpers

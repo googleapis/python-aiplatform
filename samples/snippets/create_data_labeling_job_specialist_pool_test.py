@@ -15,8 +15,8 @@
 import os
 import uuid
 
-import pytest
 from google.cloud import aiplatform
+import pytest
 
 import create_data_labeling_job_specialist_pool_sample
 import helpers

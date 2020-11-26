@@ -15,8 +15,8 @@
 import os
 from uuid import uuid4
 
-import pytest
 from google.cloud import aiplatform
+import pytest
 
 import cancel_training_pipeline_sample
 import create_training_pipeline_tabular_classification_sample
