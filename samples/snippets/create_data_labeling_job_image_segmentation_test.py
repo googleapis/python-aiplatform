@@ -34,6 +34,7 @@ INSTRUCTIONS_GCS_URI = (
 ANNOTATION_SPEC = {"color": {"red": 1.0}, "displayName": "rose"}
 ANNOTATION_SET_NAME = f"temp_image_segmentation_{uuid.uuid4()}"
 
+
 @pytest.fixture
 def shared_state():
     state = {}
