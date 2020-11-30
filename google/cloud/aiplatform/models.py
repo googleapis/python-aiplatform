@@ -115,7 +115,6 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
         return endpoint
 
     @classmethod
-    @base.optional_async_wrapper()
     def create(
         cls,
         display_name: str,
@@ -158,6 +157,8 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
+            sync (bool):
+                Whether to create this endpoint synchronously.
         Returns:
             endpoint (Endpoint):
                 Instantiated representation of the endpoint resource.
@@ -167,37 +168,36 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
 
         utils.validate_display_name(display_name)
 
-        create_endpoint_operation = cls._create(
+        project = project or initializer.global_config.project
+        location = location or initializer.global_config.location
+
+
+        return cls._create(
             api_client=api_client,
-            parent=initializer.global_config.common_location_path(
-                project=project, location=location
-            ),
             display_name=display_name,
+            project=project,
+            location=location,
             description=description,
             labels=labels,
             metadata=metadata,
-        )
-
-        created_endpoint = create_endpoint_operation.operation_future.result()
-
-        endpoint = cls(
-            endpoint_name=created_endpoint.name,
-            project=project,
-            location=location,
             credentials=credentials,
+            sync=sync
         )
-        return endpoint
 
     @classmethod
+    @base.optional_async_wrapper()
     def _create(
         cls,
         api_client: EndpointServiceClient,
-        parent: str,
         display_name: str,
+        project: str,
+        location: str,
         description: Optional[str] = None,
         labels: Optional[Dict] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
-    ) -> lro.LRO:
+        credentials: Optional[auth_credentials.Credentials] = None,
+        sync=True
+    ) -> "Endpoint":
         """
         Creates a new endpoint by calling the API client.
 
@@ -205,15 +205,16 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
             api_client (EndpointServiceClient):
                 Required. An instance of EndpointServiceClient with the correct
                 api_endpoint already set based on user's preferences.
-            parent (str):
-                Required. Also known as common location path, that usually contains
-                the project and location that the user provided to the upstream
-                method.
-                Example: "projects/my-prj/locations/us-central1"
             display_name (str):
                 Required. The user-defined name of the Endpoint.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
+            project (str):
+                Required. Project to retrieve endpoint from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Required. Location to retrieve endpoint from. If not set, location
+                set in aiplatform.init will be used.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict):
@@ -229,10 +230,20 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+            sync (bool):
+                Whether to create this endpoint synchronously.
         Returns:
-            operation (lro.LRO):
-                Long-running operation of endpoint creation.
+            endpoint (endpoint.Endpoint):
+                Created endpoint.
         """
+
+        parent=initializer.global_config.common_location_path(
+                project=project, location=location
+            )
+
         gapic_endpoint = gca_endpoint.Endpoint(
             display_name=display_name, description=description, labels=labels,
         )
@@ -241,7 +252,14 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
             parent=parent, endpoint=gapic_endpoint, metadata=metadata
         )
 
-        return lro.LRO(operation_future)
+        created_endpoint = operation_future.result()
+
+        return cls(
+            endpoint_name=created_endpoint.name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
 
     @staticmethod
     def _allocate_traffic(
@@ -320,8 +338,6 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
 
         return new_traffic_split
 
-    #TODO: break out into two methods and add async to second method
-    @base.optional_async_wrapper()
     def deploy(
         self,
         model: "Model",
@@ -380,6 +396,12 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
+            sync (bool):
+                Whether to deploy the Model synchronously.
+
+        Raises:
+            ValueError if Min or Max replica is negative. Traffic percentage > 100 or
+            < 0. Or if traffic_split does not sum to 100.
         """
         if min_replica_count < 0:
             raise ValueError("Min replica cannot be negative.")
@@ -418,6 +440,62 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
             if traffic_percentage < 0:
                 raise ValueError("Traffic percentage cannot be negative.")
 
+        elif traffic_split:
+            # TODO(b/172678233) verify every referenced deployed model exists
+            if sum(traffic_split.values()) != 100:
+                raise ValueError(
+                    "Sum of all traffic within traffic split needs to be 100."
+                )
+
+        self._deploy(
+            deployed_model=deployed_model,
+            traffic_percentage=traffic_percentage,
+            traffic_split=traffic_split,
+            metadata=metadata,
+            sync=sync
+        )
+
+    @base.optional_async_wrapper()
+    def _deploy(
+        self,
+        deployed_model: gca_endpoint.DeployedModel,
+        traffic_percentage: Optional[int] = 0,
+        traffic_split: Optional[Dict[str, int]] = None,
+        metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync=True
+    ) -> None:
+        """
+        Deploys a Model to the Endpoint.
+
+        Args:
+            deployed_model (gca_endpoint.DeployedModel):
+                Required. The Model to be deployed.
+            traffic_percentage (int):
+                Optional. Desired traffic to newly deployed model. Defaults to
+                0 if there are pre-existing deployed models. Defaults to 100 if
+                there are no pre-existing deployed models. Negative values should
+                not be provided. Traffic of previously deployed models at the endpoint
+                will be scaled down to accommodate new deployed model's traffic.
+                Should not be provided if traffic_split is provided.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+            sync (bool):
+                Whether to deploy this model synchronously.
+        Raises:
+            ValueError if there is not current traffic split and traffic percentage
+            is not 0 or 100.
+        """
+
+        if traffic_split is None:
             # new model traffic needs to be 100 if no pre-existing models
             if not self._gca_resource.traffic_split:
                 # default scenario
@@ -433,15 +511,6 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
                 traffic_split=dict(self._gca_resource.traffic_split),
                 traffic_percentage=traffic_percentage,
             )
-        elif traffic_split:
-            traffic_sum = 0
-            for item in traffic_split:
-                # TODO(b/172678233) verify every referenced deployed model exists
-                traffic_sum += traffic_split[item]
-            if traffic_sum != 100:
-                raise ValueError(
-                    "Sum of all traffic within traffic split needs to be 100."
-                )
 
         operation_future = self.api_client.deploy_model(
             endpoint=self.resource_name,
@@ -450,16 +519,66 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
             metadata=metadata,
         )
 
-        # block before returning
         operation_future.result()
-        return
+
+        # update local resource
+        self._gca_resource = self._get_endpoint(self.resource_name)
+
 
     def undeploy(
         self,
         deployed_model_id: str,
         traffic_split: Optional[Dict[str, int]] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
-    ):
+        sync=True
+    ) -> None:
+        """Undeploys a deployed model.
+
+        Proportionally adjusts the traffic_split among the remaining deployed
+        models of the endpoint.
+
+        Args:
+            deployed_model_id (str):
+                Required. The ID of the DeployedModel to be undeployed from the
+                Endpoint.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+        """
+        if traffic_split is not None:
+            if deployed_model_id in traffic_split and traffic_split[deployed_model_id]:
+                raise ValueError("Model being undeployed should have 0 traffic.")
+            traffic_sum = 0
+            if sum(traffic_split.values()) != 100:
+                # TODO(b/172678233) verify every referenced deployed model exists
+                raise ValueError(
+                    "Sum of all traffic within traffic split needs to be 100."
+                )
+
+        self._undeploy(
+            deployed_model_id=deployed_model_id,
+            traffic_split=traffic_split,
+            metadata=metadata,
+            sync=sync
+        )
+
+
+    @base.optional_async_wrapper()
+    def _undeploy(
+        self,
+        deployed_model_id: str,
+        traffic_split: Optional[Dict[str, int]] = None,
+        metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync=True
+    ) -> None:
         """Undeploys a deployed model.
 
         Proportionally adjusts the traffic_split among the remaining deployed
@@ -486,17 +605,7 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
                 traffic_split=dict(self._gca_resource.traffic_split),
                 deployed_model_id=deployed_model_id,
             )
-        else:
-            if deployed_model_id in traffic_split and traffic_split[deployed_model_id]:
-                raise ValueError("Model being undeployed should have 0 traffic.")
-            traffic_sum = 0
-            for item in traffic_split:
-                # TODO(b/172678233) verify every referenced deployed model exists
-                traffic_sum += traffic_split[item]
-            if traffic_sum != 100:
-                raise ValueError(
-                    "Sum of all traffic within traffic split needs to be 100."
-                )
+            traffic_split.pop(deployed_model_id)
 
         operation_future = self.api_client.undeploy_model(
             endpoint=self.resource_name,
@@ -507,7 +616,9 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
 
         # block before returning
         operation_future.result()
-        return
+
+        # update local resource
+        self._gca_resource = self._get_endpoint(self.resource_name)
 
     @staticmethod
     def _instantiate_prediction_client(
@@ -643,16 +754,15 @@ class Model(base.AiPlatformResourceNounWithFuture):
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
     @classmethod
+    @base.optional_async_wrapper()
     def upload(
         cls,
         display_name: str,
         artifact_uri: str,
         serving_container_image_uri: str,
-        # TODO (b/162273530) lift requirement for predict/health route when
-        # validation lifted and move these args down
-        serving_container_predict_route: str,
-        serving_container_health_route: str,
         *,
+        serving_container_predict_route: Optional[str]=None,
+        serving_container_health_route: Optional[str]=None,
         description: Optional[str] = None,
         serving_container_command: Optional[Sequence[str]] = None,
         serving_container_args: Optional[Sequence[str]] = None,
@@ -661,6 +771,7 @@ class Model(base.AiPlatformResourceNounWithFuture):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        sync=True
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model resource.
 
@@ -682,11 +793,11 @@ class Model(base.AiPlatformResourceNounWithFuture):
             serving_container_image_uri (str):
                 Required. The URI of the Model serving container.
             serving_container_predict_route (str):
-                Required. An HTTP path to send prediction requests to the container, and
+                Optional. An HTTP path to send prediction requests to the container, and
                 which must be supported by it. If not specified a default HTTP path will
                 be used by AI Platform.
             serving_container_health_route (str):
-                An HTTP path to send health check requests to the container, and which
+                Optional. An HTTP path to send health check requests to the container, and which
                 must be supported by it. If not specified a standard HTTP path will be
                 used by AI Platform.
             description (str):
@@ -774,7 +885,6 @@ class Model(base.AiPlatformResourceNounWithFuture):
         )
 
     # TODO(b/172502059) support deploying with endpoint resource name
-    @base.optional_async_wrapper(return_input_arg='endpoint')
     def deploy(
         self,
         endpoint: Optional["Endpoint"] = None,

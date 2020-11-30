@@ -813,23 +813,11 @@ class TestCustomTrainingJob:
 
         aiplatform.init(project=_TEST_PROJECT)
 
-        job = training_jobs.CustomTrainingJob(
-            display_name=_TEST_DISPLAY_NAME,
-            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
-            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
-        )
-
         with pytest.raises(RuntimeError):
-            job.run(
-                base_output_dir=_TEST_BASE_OUTPUT_DIR,
-                args=_TEST_RUN_ARGS,
-                replica_count=1,
-                machine_type=_TEST_MACHINE_TYPE,
-                accelerator_type=_TEST_ACCELERATOR_TYPE,
-                accelerator_count=_TEST_ACCELERATOR_COUNT,
-                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            job = training_jobs.CustomTrainingJob(
+                display_name=_TEST_DISPLAY_NAME,
+                script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+                container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             )
 
     def test_run_call_pipeline_service_create_distributed_training(

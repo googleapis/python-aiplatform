@@ -253,8 +253,8 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
         )
 
         if gcs_source and not is_tabular_dataset_metadata:
-            return dataset_obj._import_from_gcs(
-                source=gcs_source,
+            return dataset_obj.import_data(
+                gcs_source=gcs_source,
                 import_schema_uri=import_schema_uri,
                 data_items_labels=data_items_labels,
             )
@@ -371,11 +371,9 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
             data_item_labels=data_items_labels,
         )
 
-        import_lro = self.api_client.import_data(
+        return self.api_client.import_data(
             name=self.resource_name, import_configs=[import_config]
         )
-
-        return import_lro.result()
 
     @base.optional_async_wrapper(return_input_arg='self')
     def import_data(
@@ -419,13 +417,13 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
                 Instantiated representation of the managed dataset resource.
         """
 
-        self._import_from_gcs(
+        import_lro = self._import_from_gcs(
             source= gcs_source,
             import_schema_uri= import_schema_uri,
             data_items_labels= data_items_labels
         )
 
-        self._gca_resource = self._get_dataset(dataset_name=self.name)
+        import_lro.result()
 
         return self
 
@@ -454,6 +452,10 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
             exported_files (Sequence[str]):
                 All of the files that are exported in this export operation.
         """
+
+        # if any futures are
+        self.wait()
+
         # TODO(b/171311614): Add support for BiqQuery export path
         export_data_config = ExportDataConfig(
             gcs_destination=GcsDestination(output_uri_prefix=output_dir)

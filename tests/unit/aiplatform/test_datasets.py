@@ -239,6 +239,8 @@ class TestDataset:
             name=_TEST_NAME, import_configs=[expected_import_config]
         )
 
+        print(my_dataset)
+
         expected_dataset.name = _TEST_NAME
         assert my_dataset._gca_resource == expected_dataset
 

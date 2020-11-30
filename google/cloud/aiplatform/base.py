@@ -87,9 +87,16 @@ class FutureCache(metaclass=abc.ABCMeta):
         callbacks: Optional[Sequence[Callable[[futures.Future], Any]]] =None):
 
         def wait_for_dependencies_and_invoke(deps, fn, args, kwargs):
+            while True:
+                if all(dep.done() for dep in deps):
+                    break
+                # unblock this thread
+                time.sleep(POLLING_SLEEP)
+
+            # check for raised exceptions before moving forward
             for dep in deps:
-                if dep:
-                    dep.result()
+                dep.result()
+
             return fn(*args, **kwargs)
 
         # Retrieves any dependencies from arguments.
@@ -270,20 +277,27 @@ def optional_async_wrapper(
             if sync:
                 return method(*args, **kwargs)
 
+            callbacks=[]
+
+            # all method should have type signatures
+            return_type = get_annotation_class(
+                inspect.getfullargspec(method).annotations['return'])
+
             # Case 1: is a classmethod that creates the object and returns it
             if args and inspect.isclass(args[0]):
-                # assume classmethod, but not necessarilly true
-                # should work for the SDK because we don't pass in classes as
-                # long as we don't pass classes as arguments
-                # TODO research a better way to check
-                self = args[0]._alternative_constructor()
-                self._submit(
-                    method,
-                    callbacks=[functools.partial(
-                        sync_future_object_with_realized,
-                        empty_returned_object=self)],
-                    args=args, kwargs=kwargs)
-                # self._submit_with_gca_resource_sync(method, *args, **kwargs)
+                # the class method returns None then return None
+                if not return_type:
+                    self = None
+                else:
+                    # assumes classmethod is our resource noun
+                    self = args[0]._alternative_constructor()
+                    # sync the objects after future completes
+                    callbacks.append(functools.partial(sync_future_object_with_realized,
+                                                        empty_returned_object=self))
+
+                self._submit(method, callbacks=callbacks, args=args, kwargs=kwargs)
+
+                # we assume classmethod return an instance of itself or None
                 return self
 
             # Case 2: is instance method and return a different class object
@@ -295,15 +309,12 @@ def optional_async_wrapper(
                 raise self._exception
 
 
-            # if there is a returned type
+            # object produced by the method
             returned_object = None
-            callbacks=[]
-
-            # all method should have type signatures
-            return_type = get_annotation_class(
-                inspect.getfullargspec(method).annotations['return'])
 
             bound_args = inspect.signature(method).bind(*args, **kwargs)
+
+            print(bound_args)
 
             if return_input_arg:
                 returned_object = bound_args.arguments.get(return_input_arg)
@@ -312,10 +323,13 @@ def optional_async_wrapper(
                 (predicate_return_on_arg and bound_args.arguments.get(predicate_return_on_arg)))
 
             if should_construct:
-                returned_object = return_type._alternative_constructor()
-                callbacks.extend([functools.partial(
-                    sync_future_object_with_realized,
-                    empty_returned_object=returned_object)])
+                # if this method acts on the object itself
+                if return_type is not None:
+                    returned_object = return_type._alternative_constructor()
+
+                    callbacks.extend([functools.partial(
+                        sync_future_object_with_realized,
+                        empty_returned_object=returned_object)])
 
 
             # have to call through class because arg[0] is self
@@ -323,10 +337,11 @@ def optional_async_wrapper(
             fn = functools.partial(method, self=self)
             future = self._submit(fn=fn, callbacks=callbacks, args=args, kwargs=kwargs)
 
-            if returned_object:
+            if returned_object and returned_object is not self and not return_input_arg:
                 returned_object._latest_future = future
 
             return returned_object
+
         return wrapper
     return optional_run_in_thread
 

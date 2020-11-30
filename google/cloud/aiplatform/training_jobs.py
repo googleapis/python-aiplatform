@@ -275,6 +275,8 @@ class _TrainingJob(base.AiPlatformResourceNounWithFuture):
         return model
 
     def _is_waiting_to_run(self) -> bool:
+        """Returns True if the Job is pending on upstream tasks False otherwise.
+        """
         self._raise_future_exception()
         if self._latest_future:
             _LOGGER.info("Training Job is waiting for upstream SDK tasks to complete before"
@@ -285,13 +287,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFuture):
     @property
     def state(self) -> Optional[gca_pipeline_state.PipelineState]:
         """Current training state."""
-        try:
-            self._assert_has_run()
-        except RuntimeError as e:
-            if self._is_waiting_to_run():
-                return None
-            else:
-                raise e
+        self._assert_has_run()
 
         return self._gca_resource.state
 
@@ -302,13 +298,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFuture):
             model: AI Platform Model produced by this training or None if a model was
                 not produced by this training.
         """
-        try:
-            self._assert_has_run()
-        except RuntimeError as e:
-            if self._is_waiting_to_run():
-                return None
-            else:
-                raise e
+        self._assert_has_run()
 
         if not self._gca_resource.model_to_upload:
             raise RuntimeError(self._model_upload_fail_string)
@@ -401,6 +391,8 @@ class _TrainingJob(base.AiPlatformResourceNounWithFuture):
     def _assert_has_run(self):
         """Helper method to assert that this training has run."""
         if not self._has_run:
+            if self._is_waiting_to_run():
+                return None
             raise RuntimeError(
                 "TrainingPipeline has not been launched. You must run this"
                 " TrainingPipeline using TrainingPipeline.run. "
@@ -973,7 +965,13 @@ class CustomTrainingJob(_TrainingJob):
         )
 
         self._script_path = script_path
-        self._staging_bucket = staging_bucket
+        self._staging_bucket = staging_bucket or initializer.global_config.staging_bucket
+
+        if not self._staging_bucket:
+            raise RuntimeError(
+                "staging_bucket should be set in TrainingJob constructor or "
+                "set using aiplatform.init(staging_bucket='gs://my-bucket'"
+            )
 
     # TODO(b/172365904) add filter split, training_pipeline.FilterSplit
     # TODO(b/172366411) predefined filter split training_pipeline.PredfinedFilterSplit
@@ -1050,6 +1048,8 @@ class CustomTrainingJob(_TrainingJob):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model.
+            sync (bool):
+                Whether to run this job synchronously.
 
         Returns:
             model: The trained AI Platform Model resource or None if training did not
@@ -1061,18 +1061,11 @@ class CustomTrainingJob(_TrainingJob):
                 were not provided in constructor.
         """
 
+        if self._is_waiting_to_run():
+            raise RuntimeError("Custom Training is already scheduled to run.")
+
         if self._has_run:
             raise RuntimeError("Custom Training has already run.")
-
-        staging_bucket = (
-            self._staging_bucket or initializer.global_config.staging_bucket
-        )
-
-        if not staging_bucket:
-            raise RuntimeError(
-                "staging_bucket should be set in TrainingJob constructor or "
-                "set using aiplatform.init(staging_bucket='gs://my-bucket'"
-            )
 
         # if args needed for model is incomplete
         if model_display_name and not self._model_serving_container_image_uri:
@@ -1091,14 +1084,7 @@ class CustomTrainingJob(_TrainingJob):
             accelerator_type=accelerator_type,
         ).pool_specs
 
-        # default directory if not given
-        base_output_dir = base_output_dir or _timestamped_gcs_dir(
-            staging_bucket, "aiplatform-custom-training"
-        )
-
         _LOGGER.info("Training Output directory:\n%s " % base_output_dir)
-
-        training_task_definition = schema.training_job.definition.custom_task
 
         # create model payload
         managed_model = None
@@ -1120,80 +1106,73 @@ class CustomTrainingJob(_TrainingJob):
             script_path=self._script_path, requirements=self._requirements
         )
 
-        kwargs = {
-            "python_packager": python_packager,
-            "staging_bucket": staging_bucket,
-            "project":self._project or initializer.global_config.project,
-            "credentials":self._credentials or initializer.global_config.credentials,
-            "base_output_dir": base_output_dir,
-            "training_task_definition": training_task_definition,
-            "dataset": dataset,
-            "training_fraction_split": training_fraction_split,
-            "validation_fraction_split": validation_fraction_split,
-            "test_fraction_split": test_fraction_split,
-            "managed_model": managed_model,
-            "args": args,
-            "worker_pool_specs": worker_pool_specs,
-            "sync": sync
-        }
-
-        return self._run(**kwargs)
-
-        # if sync:
-        #     return self._run(**kwargs)
-        # else:
-        #     def sync_model(future, job, empty_model):
-        #         with empty_model.__latest_future_lock:
-        #             try:
-        #                 model = job._get_model()
-        #             except RunTimeError as e:
-        #                 empty_model._exception = e
-        #                 return
-
-        #             if model is None:
-        #                 empty_model._exception = RuntimeError(
-        #                     "Training pipeline {job.resource_name} did not produce a Model")
-        #                 return
-
-        #             empty_model._project = model._project
-        #             empty_model._location = model._location
-        #             empty_model._credentials = model._credentials
-        #             empty_model._gca_resource = model._gca_resource
-
-
-        #     model = models.Model._alternative_constructor()
-        #     self._submit_with_dependency_on_future(
-        #         deps=[dataset._latest_future],
-        #         callable=self._run,
-        #         callbacks=[functools.partial(sync_model, job=self, empty_model=model)],
-        #         **kwargs)
-        #     model._add_future(self._latest_future)
-
-        #     return model
-
+        return self._run(
+            python_packager= python_packager,
+            dataset= dataset,
+            worker_pool_specs= worker_pool_specs,
+            managed_model= managed_model,
+            args=args,
+            base_output_dir=base_output_dir,
+            training_fraction_split= training_fraction_split,
+            validation_fraction_split= validation_fraction_split,
+            test_fraction_split= test_fraction_split,
+            sync= sync)
 
     @base.optional_async_wrapper(predicate_return_on_arg='managed_model')
     def _run(
             self,
-            python_packager,
-            staging_bucket,
-            base_output_dir,
-            training_task_definition,
-            dataset,
-            training_fraction_split,
-            validation_fraction_split,
-            test_fraction_split,
-            managed_model,
-            project,
-            credentials,
-            args,
-            worker_pool_specs,
+            python_packager: _TrainingScriptPythonPackager,
+            dataset: Optional[datasets.Dataset],
+            worker_pool_specs: _DistributedTrainingSpec,
+            managed_model: Optional[gca_model.Model]=None,
+            args: Optional[List[Union[str, float, int]]]=None,
+            base_output_dir: Optional[str]=None,
+            training_fraction_split: float=0.8,
+            validation_fraction_split: float=0.1,
+            test_fraction_split: float=0.1,
+            sync=True,
         ) -> Optional[models.Model]:
+        """Packages local script and launches training_job.
+        Args:
+            python_packager (_TrainingScriptPythonPackager):
+                Required. Python Packager poiting to training script locally.
+            dataset (aiplatform.Dataset):
+                AI Platform to fit this training against.
+            worker_pools_spec (_DistributedTrainingSpec):
+                Worker pools pecs required to run job.
+            managed_model (gca_model.Model):
+                Model proto if this script produces a Managed Model.
+            args (List[Unions[str, int, float]]):
+                Command line arguments to be passed to the Python script.
+            base_output_dir (str):
+                GCS output directory of job. If not provided a
+                timestamped directory in the staging directory will be used.
+            training_fraction_split (float):
+                The fraction of the input data that is to be
+                used to train the Model.
+            validation_fraction_split (float):
+                The fraction of the input data that is to be
+                used to validate the Model.
+            test_fraction_split (float):
+                The fraction of the input data that is to be
+                used to evaluate the Model.
+            sync (bool):
+                Whether to run this job synchronously.
+
+        Returns:
+            model: The trained AI Platform Model resource or None if training did not
+                produce an AI Platform Model.
+        """
+
+        # default directory if not given
+        base_output_dir = base_output_dir or _timestamped_gcs_dir(
+            self._staging_bucket, "aiplatform-custom-training"
+        )
 
         package_gcs_uri = python_packager.package_and_copy_to_gcs(
-            gcs_staging_dir=staging_bucket,
-            project=self._project or initializer.global_config.project,
-            credentials=self._credentials or initializer.global_config.credentials,
+            gcs_staging_dir=self._staging_bucket,
+            project=self.project,
+            credentials=self._credentials,
         )
 
         for spec in worker_pool_specs:
@@ -1215,7 +1194,7 @@ class CustomTrainingJob(_TrainingJob):
         )
 
         model = self._run_job(
-            training_task_definition=training_task_definition,
+            training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=training_task_inputs,
             dataset=dataset,
             training_fraction_split=training_fraction_split,
