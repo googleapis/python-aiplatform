@@ -24,7 +24,7 @@ from google.cloud.aiplatform.models import Model
 from google.cloud.aiplatform.jobs import BatchPredictionJob
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
-    AutoMLTablesTrainingJob,
+    AutoMLTabularTrainingJob,
 )
 
 """
@@ -39,7 +39,7 @@ __all__ = (
     "gapic",
     "BatchPredictionJob",
     "CustomTrainingJob",
-    "AutoMLTablesTrainingJob",
+    "AutoMLTabularTrainingJob",
     "Model",
     "Dataset",
     "Endpoint",

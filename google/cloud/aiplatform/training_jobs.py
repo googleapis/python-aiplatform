@@ -1174,7 +1174,7 @@ class CustomTrainingJob(_TrainingJob):
         )
 
 
-class AutoMLTablesTrainingJob(_TrainingJob):
+class AutoMLTabularTrainingJob(_TrainingJob):
     def __init__(
         self,
         display_name: str,
@@ -1187,7 +1187,7 @@ class AutoMLTablesTrainingJob(_TrainingJob):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
-        """Constructs a AutoML Tables Training Job.
+        """Constructs a AutoML Tabular Training Job.
 
         Args:
             display_name (str):
