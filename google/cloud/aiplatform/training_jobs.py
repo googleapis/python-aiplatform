@@ -118,7 +118,7 @@ class _TrainingJob(base.AiPlatformResourceNoun):
         validation_fraction_split: float,
         test_fraction_split: float,
         predefined_split_column_name: Optional[str],
-        gcs_destination: Optional[gca_io.GcsDestination],
+        gcs_destination_uri_prefix: Optional[str],
     ) -> gca_training_pipeline.InputDataConfig:
 
         """Constructs a input data config to pass to the training pipeline.
@@ -146,7 +146,7 @@ class _TrainingJob(base.AiPlatformResourceNoun):
                 ignored by the pipeline.
 
                 Supported only for tabular Datasets.
-            gcs_destination (~.io.GcsDestination):
+            gcs_destination_uri_prefix (str):
                 Optional. The Google Cloud Storage location.
 
                 The AI Platform environment variables representing Google
@@ -176,6 +176,13 @@ class _TrainingJob(base.AiPlatformResourceNoun):
                     key=predefined_split_column_name
                 )
 
+            # Create GCS destination
+            gcs_destination = None
+            if gcs_destination_uri_prefix:
+                gcs_destination = gca_io.GcsDestination(
+                    output_uri_prefix=gcs_destination_uri_prefix
+                )
+
             # create input data config
             input_data_config = gca_training_pipeline.InputDataConfig(
                 fraction_split=fraction_split,
@@ -196,7 +203,7 @@ class _TrainingJob(base.AiPlatformResourceNoun):
         test_fraction_split: float,
         predefined_split_column_name: Optional[str],
         model: Optional[gca_model.Model] = None,
-        gcs_destination: Optional[gca_io.GcsDestination] = None,
+        gcs_destination_uri_prefix: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the training job.
 
@@ -266,7 +273,7 @@ class _TrainingJob(base.AiPlatformResourceNoun):
                 resource ``name``
                 is populated. The Model is always uploaded into the Project
                 and Location in which this pipeline is.
-            gcs_destination (~.io.GcsDestination):
+            gcs_destination_uri_prefix (str):
                 Optional. The Google Cloud Storage location.
 
                 The AI Platform environment variables representing Google
@@ -289,7 +296,7 @@ class _TrainingJob(base.AiPlatformResourceNoun):
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
-            gcs_destination=gcs_destination,
+            gcs_destination_uri_prefix=gcs_destination_uri_prefix,
         )
 
         # create training pipeline
@@ -1178,9 +1185,7 @@ class CustomTrainingJob(_TrainingJob):
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
             model=managed_model,
-            gcs_destination=gca_io.GcsDestination(
-                output_uri_prefix=self._base_output_dir
-            ),
+            gcs_destination_uri_prefix=self._base_output_dir,
         )
 
         self._base_output_dir = None
