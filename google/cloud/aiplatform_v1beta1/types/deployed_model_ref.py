@@ -35,6 +35,7 @@ class DeployedModelRef(proto.Message):
     """
 
     endpoint = proto.Field(proto.STRING, number=1)
+
     deployed_model_id = proto.Field(proto.STRING, number=2)
 
 

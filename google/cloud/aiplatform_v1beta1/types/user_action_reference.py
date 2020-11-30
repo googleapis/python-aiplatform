@@ -44,8 +44,10 @@ class UserActionReference(proto.Message):
             "/google.cloud.aiplatform.v1alpha1.DatasetService.CreateDataset".
     """
 
-    operation = proto.Field(proto.STRING, number=1)
-    data_labeling_job = proto.Field(proto.STRING, number=2)
+    operation = proto.Field(proto.STRING, number=1, oneof="reference")
+
+    data_labeling_job = proto.Field(proto.STRING, number=2, oneof="reference")
+
     method = proto.Field(proto.STRING, number=3)
 
 

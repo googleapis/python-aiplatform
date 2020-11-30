@@ -46,7 +46,9 @@ class CompletionStats(proto.Message):
     """
 
     successful_count = proto.Field(proto.INT64, number=1)
+
     failed_count = proto.Field(proto.INT64, number=2)
+
     incomplete_count = proto.Field(proto.INT64, number=3)
 
 

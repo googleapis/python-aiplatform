@@ -15,10 +15,10 @@
 # limitations under the License.
 #
 
-
 from .services.dataset_service import DatasetServiceClient
 from .services.endpoint_service import EndpointServiceClient
 from .services.job_service import JobServiceClient
+from .services.migration_service import MigrationServiceClient
 from .services.model_service import ModelServiceClient
 from .services.pipeline_service import PipelineServiceClient
 from .services.prediction_service import PredictionServiceClient
@@ -81,8 +81,12 @@ from .types.explanation import Attribution
 from .types.explanation import Explanation
 from .types.explanation import ExplanationParameters
 from .types.explanation import ExplanationSpec
+from .types.explanation import FeatureNoiseSigma
+from .types.explanation import IntegratedGradientsAttribution
 from .types.explanation import ModelExplanation
 from .types.explanation import SampledShapleyAttribution
+from .types.explanation import SmoothGradConfig
+from .types.explanation import XraiAttribution
 from .types.explanation_metadata import ExplanationMetadata
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
 from .types.io import BigQueryDestination
@@ -118,9 +122,18 @@ from .types.job_state import JobState
 from .types.machine_resources import AutomaticResources
 from .types.machine_resources import BatchDedicatedResources
 from .types.machine_resources import DedicatedResources
+from .types.machine_resources import DiskSpec
 from .types.machine_resources import MachineSpec
 from .types.machine_resources import ResourcesConsumed
 from .types.manual_batch_tuning_parameters import ManualBatchTuningParameters
+from .types.migratable_resource import MigratableResource
+from .types.migration_service import BatchMigrateResourcesOperationMetadata
+from .types.migration_service import BatchMigrateResourcesRequest
+from .types.migration_service import BatchMigrateResourcesResponse
+from .types.migration_service import MigrateResourceRequest
+from .types.migration_service import MigrateResourceResponse
+from .types.migration_service import SearchMigratableResourcesRequest
+from .types.migration_service import SearchMigratableResourcesResponse
 from .types.model import Model
 from .types.model import ModelContainerSpec
 from .types.model import Port
@@ -186,6 +199,9 @@ __all__ = (
     "Attribution",
     "AutomaticResources",
     "BatchDedicatedResources",
+    "BatchMigrateResourcesOperationMetadata",
+    "BatchMigrateResourcesRequest",
+    "BatchMigrateResourcesResponse",
     "BatchPredictionJob",
     "BigQueryDestination",
     "BigQuerySource",
@@ -229,6 +245,7 @@ __all__ = (
     "DeployModelResponse",
     "DeployedModel",
     "DeployedModelRef",
+    "DiskSpec",
     "Endpoint",
     "EndpointServiceClient",
     "EnvVar",
@@ -245,6 +262,7 @@ __all__ = (
     "ExportModelOperationMetadata",
     "ExportModelRequest",
     "ExportModelResponse",
+    "FeatureNoiseSigma",
     "FilterSplit",
     "FractionSplit",
     "GcsDestination",
@@ -268,6 +286,7 @@ __all__ = (
     "ImportDataRequest",
     "ImportDataResponse",
     "InputDataConfig",
+    "IntegratedGradientsAttribution",
     "JobServiceClient",
     "JobState",
     "ListAnnotationsRequest",
@@ -299,6 +318,10 @@ __all__ = (
     "MachineSpec",
     "ManualBatchTuningParameters",
     "Measurement",
+    "MigratableResource",
+    "MigrateResourceRequest",
+    "MigrateResourceResponse",
+    "MigrationServiceClient",
     "Model",
     "ModelContainerSpec",
     "ModelEvaluation",
@@ -318,6 +341,9 @@ __all__ = (
     "SampleConfig",
     "SampledShapleyAttribution",
     "Scheduling",
+    "SearchMigratableResourcesRequest",
+    "SearchMigratableResourcesResponse",
+    "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
     "StudySpec",
@@ -338,5 +364,6 @@ __all__ = (
     "UploadModelResponse",
     "UserActionReference",
     "WorkerPoolSpec",
+    "XraiAttribution",
     "DatasetServiceClient",
 )

@@ -83,12 +83,19 @@ class Dataset(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
+
     display_name = proto.Field(proto.STRING, number=2)
+
     metadata_schema_uri = proto.Field(proto.STRING, number=3)
+
     metadata = proto.Field(proto.MESSAGE, number=8, message=struct.Value,)
+
     create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
+
     update_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
+
     etag = proto.Field(proto.STRING, number=6)
+
     labels = proto.MapField(proto.STRING, proto.STRING, number=7)
 
 
@@ -124,8 +131,12 @@ class ImportDataConfig(proto.Message):
             Object <https://tinyurl.com/y538mdwt>`__.
     """
 
-    gcs_source = proto.Field(proto.MESSAGE, number=1, message=io.GcsSource,)
+    gcs_source = proto.Field(
+        proto.MESSAGE, number=1, oneof="source", message=io.GcsSource,
+    )
+
     data_item_labels = proto.MapField(proto.STRING, proto.STRING, number=2)
+
     import_schema_uri = proto.Field(proto.STRING, number=4)
 
 
@@ -139,12 +150,13 @@ class ExportDataConfig(proto.Message):
             written to. In the given directory a new directory will be
             created with name:
             ``export-data-<dataset-display-name>-<timestamp-of-export-call>``
-            where timestamp is in YYYYMMDDHHMMSS format. All export
-            output will be written into that directory. Inside that
-            directory, annotations with the same schema will be grouped
-            into sub directories which are named with the corresponding
-            annotations' schema title. Inside these sub directories, a
-            schema.yaml will be created to describe the output format.
+            where timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601
+            format. All export output will be written into that
+            directory. Inside that directory, annotations with the same
+            schema will be grouped into sub directories which are named
+            with the corresponding annotations' schema title. Inside
+            these sub directories, a schema.yaml will be created to
+            describe the output format.
         annotations_filter (str):
             A filter on Annotations of the Dataset. Only Annotations on
             to-be-exported DataItems(specified by [data_items_filter][])
@@ -153,7 +165,10 @@ class ExportDataConfig(proto.Message):
             ``ListAnnotations``.
     """
 
-    gcs_destination = proto.Field(proto.MESSAGE, number=1, message=io.GcsDestination,)
+    gcs_destination = proto.Field(
+        proto.MESSAGE, number=1, oneof="destination", message=io.GcsDestination,
+    )
+
     annotations_filter = proto.Field(proto.STRING, number=2)
 
 
