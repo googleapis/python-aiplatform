@@ -117,6 +117,7 @@ class _TrainingJob(base.AiPlatformResourceNoun):
         training_fraction_split: float,
         validation_fraction_split: float,
         test_fraction_split: float,
+        predefined_split_column_name: Optional[str],
     ) -> gca_training_pipeline.InputDataConfig:
 
         """Constructs a input data config to pass to the training pipeline.
@@ -135,6 +136,16 @@ class _TrainingJob(base.AiPlatformResourceNoun):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
         """
 
         input_data_config = None
@@ -161,6 +172,7 @@ class _TrainingJob(base.AiPlatformResourceNoun):
         training_fraction_split: float,
         validation_fraction_split: float,
         test_fraction_split: float,
+        predefined_split_column_name: Optional[str],
         model: Optional[gca_model.Model] = None,
     ) -> Optional[models.Model]:
         """Runs the training job.
@@ -201,6 +213,16 @@ class _TrainingJob(base.AiPlatformResourceNoun):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.                
             model (~.model.Model):
                 Optional. Describes the Model that may be uploaded (via
                 [ModelService.UploadMode][]) by this TrainingPipeline. The
@@ -231,6 +253,7 @@ class _TrainingJob(base.AiPlatformResourceNoun):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
         )
 
         # create training pipeline
@@ -941,7 +964,7 @@ class CustomTrainingJob(_TrainingJob):
         training_fraction_split: float,
         validation_fraction_split: float,
         test_fraction_split: float,
-        predefined_split_column_name: Optional[str] = None,
+        predefined_split_column_name: Optional[str],
     ) -> gca_training_pipeline.InputDataConfig:
         """Constructs a input data config to pass to the training pipeline.
             Override this to create a custom config
@@ -1015,6 +1038,7 @@ class CustomTrainingJob(_TrainingJob):
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
+        predefined_split_column_name: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -1073,6 +1097,16 @@ class CustomTrainingJob(_TrainingJob):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
 
         Returns:
             model: The trained AI Platform Model resource or None if training did not
@@ -1171,6 +1205,7 @@ class CustomTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
             model=managed_model,
         )
 
@@ -1396,6 +1431,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            predefined_split_column_name=None,
             model=model,
         )
 
