@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import os
-
 from uuid import uuid4
 
-import export_model_tabular_classification_sample
 from google.cloud import storage
+import pytest
+
+import export_model_tabular_classification_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 MODEL_ID = "5359002081594179584"  # iris 1000

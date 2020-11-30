@@ -12,15 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import uuid
-import pytest
 import os
-
-import helpers
-
-import create_training_pipeline_video_action_recognition_sample
+import uuid
 
 from google.cloud import aiplatform
+import pytest
+
+import create_training_pipeline_video_action_recognition_sample
+import helpers
 
 LOCATION = "us-central1"
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -49,6 +48,7 @@ def pipeline_client():
     )
     yield pipeline_client
 
+
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state, pipeline_client):
     yield
@@ -68,8 +68,6 @@ def teardown(shared_state, pipeline_client):
     pipeline_client.delete_training_pipeline(
         name=shared_state["training_pipeline_name"]
     )
-
-
 
 
 # Training AutoML Vision Model

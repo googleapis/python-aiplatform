@@ -12,15 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import uuid
-import pytest
 import os
-
-import helpers
-
-import create_batch_prediction_job_video_action_recognition_sample
+import uuid
 
 from google.cloud import aiplatform
+import pytest
+
+import create_batch_prediction_job_video_action_recognition_sample
+import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"

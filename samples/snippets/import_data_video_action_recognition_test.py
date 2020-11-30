@@ -13,14 +13,13 @@
 # limitations under the License.
 
 
-import pytest
 import os
-
 import uuid
+
 from google.cloud import aiplatform
+import pytest
 
 import import_data_video_action_recognition_sample
-
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
@@ -56,7 +55,7 @@ def teardown(shared_state, dataset_client):
         project=PROJECT_ID, location=LOCATION, dataset=shared_state["dataset_id"]
     )
     response = dataset_client.delete_dataset(name=dataset_name)
-    delete_dataset_response = response.result(timeout=120)
+    response.result(timeout=120)
 
 
 def test_import_data_video_action_recognition_sample(

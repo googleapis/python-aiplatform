@@ -12,16 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import os
 from uuid import uuid4
-from google.cloud import aiplatform
 
-import helpers
+from google.cloud import aiplatform
+import pytest
 
 import create_data_labeling_job_video_sample
-import cancel_data_labeling_job_sample
-import delete_data_labeling_job_sample
+import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 API_ENDPOINT = os.getenv("DATA_LABELING_API_ENDPOINT")

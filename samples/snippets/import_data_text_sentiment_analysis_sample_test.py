@@ -1,11 +1,11 @@
-import pytest
 import os
-
 from uuid import uuid4
-from google.cloud import aiplatform
 
-import import_data_text_sentiment_analysis_sample
+from google.cloud import aiplatform
+import pytest
+
 import delete_dataset_sample
+import import_data_text_sentiment_analysis_sample
 
 print(
     f"uCAIP Library Source:\t{aiplatform.__file__}"

@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uuid import uuid4
-import pytest
 import os
+from uuid import uuid4
 
-import helpers
+import pytest
 
-import upload_model_sample
 import delete_model_sample
+import helpers
+import upload_model_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 IMAGE_URI = "gcr.io/cloud-ml-service-public/cloud-ml-online-prediction-model-server-cpu:v1_15py3cmle_op_images_20200229_0210_RC00"

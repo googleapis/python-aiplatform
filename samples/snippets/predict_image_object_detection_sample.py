@@ -13,10 +13,11 @@
 # limitations under the License.
 
 # [START aiplatform_predict_image_object_detection_sample]
+import base64
+
 from google.cloud import aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
-import base64
 
 
 def predict_image_object_detection_sample(
