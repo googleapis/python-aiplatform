@@ -157,9 +157,18 @@ class _TrainingJob(base.AiPlatformResourceNoun):
                 test_fraction=test_fraction_split,
             )
 
+            # Create predefined split spec
+            predefined_split = None
+            if predefined_split_column_name:
+                predefined_split = gca_training_pipeline.PredefinedSplit(
+                    key=predefined_split_column_name
+                )
+
             # create input data config
             input_data_config = gca_training_pipeline.InputDataConfig(
-                fraction_split=fraction_split, dataset_id=dataset.name,
+                fraction_split=fraction_split,
+                predefined_split=predefined_split,
+                dataset_id=dataset.name,
             )
 
         return input_data_config
@@ -1023,7 +1032,6 @@ class CustomTrainingJob(_TrainingJob):
         return input_data_config
 
     # TODO(b/172365904) add filter split, training_pipeline.FilterSplit
-    # TODO(b/172366411) predefined filter split training_pipeline.PredfinedFilterSplit
     # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
     def run(
         self,
@@ -1331,6 +1339,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
+        predefined_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
@@ -1363,6 +1372,16 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             test_fraction_split (float):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.                
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -1431,7 +1450,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
-            predefined_split_column_name=None,
+            predefined_split_column_name=predefined_split_column_name,
             model=model,
         )
 
