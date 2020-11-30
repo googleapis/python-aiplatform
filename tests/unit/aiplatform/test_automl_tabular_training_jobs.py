@@ -67,6 +67,7 @@ _TEST_MODEL_DISPLAY_NAME = "model-display-name"
 _TEST_TRAINING_FRACTION_SPLIT = 0.6
 _TEST_VALIDATION_FRACTION_SPLIT = 0.2
 _TEST_TEST_FRACTION_SPLIT = 0.2
+_TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 
 _TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
 
@@ -160,6 +161,7 @@ class TestAutoMLTabularTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
@@ -174,7 +176,11 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset.name,
+            fraction_split=true_fraction_split,
+            predefined_split=gca_training_pipeline.PredefinedSplit(
+                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+            ),
+            dataset_id=mock_dataset.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
