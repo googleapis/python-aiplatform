@@ -31,6 +31,7 @@ __protobuf__ = proto.module(
         "AutomaticResources",
         "BatchDedicatedResources",
         "ResourcesConsumed",
+        "DiskSpec",
     },
 )
 
@@ -89,9 +90,11 @@ class MachineSpec(proto.Message):
     """
 
     machine_type = proto.Field(proto.STRING, number=1)
+
     accelerator_type = proto.Field(
         proto.ENUM, number=2, enum=gca_accelerator_type.AcceleratorType,
     )
+
     accelerator_count = proto.Field(proto.INT32, number=3)
 
 
@@ -128,8 +131,10 @@ class DedicatedResources(proto.Message):
             as the default value.
     """
 
-    machine_spec = proto.Field(proto.MESSAGE, number=1, message=MachineSpec,)
+    machine_spec = proto.Field(proto.MESSAGE, number=1, message="MachineSpec",)
+
     min_replica_count = proto.Field(proto.INT32, number=2)
+
     max_replica_count = proto.Field(proto.INT32, number=3)
 
 
@@ -166,6 +171,7 @@ class AutomaticResources(proto.Message):
     """
 
     min_replica_count = proto.Field(proto.INT32, number=1)
+
     max_replica_count = proto.Field(proto.INT32, number=2)
 
 
@@ -189,8 +195,10 @@ class BatchDedicatedResources(proto.Message):
             The default value is 10.
     """
 
-    machine_spec = proto.Field(proto.MESSAGE, number=1, message=MachineSpec,)
+    machine_spec = proto.Field(proto.MESSAGE, number=1, message="MachineSpec",)
+
     starting_replica_count = proto.Field(proto.INT32, number=2)
+
     max_replica_count = proto.Field(proto.INT32, number=3)
 
 
@@ -207,6 +215,25 @@ class ResourcesConsumed(proto.Message):
     """
 
     replica_hours = proto.Field(proto.DOUBLE, number=1)
+
+
+class DiskSpec(proto.Message):
+    r"""Represents the spec of disk options.
+
+    Attributes:
+        boot_disk_type (str):
+            Type of the boot disk (default is "pd-
+            tandard"). Valid values: "pd-ssd" (Persistent
+            Disk Solid State Drive) or "pd-standard"
+            (Persistent Disk Hard Disk Drive).
+        boot_disk_size_gb (int):
+            Size in GB of the boot disk (default is
+            100GB).
+    """
+
+    boot_disk_type = proto.Field(proto.STRING, number=1)
+
+    boot_disk_size_gb = proto.Field(proto.INT32, number=2)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
