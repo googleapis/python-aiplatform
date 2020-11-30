@@ -6,7 +6,7 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
-from google.cloud.aiplatform.training_jobs import AutoMLTablesTrainingJob
+from google.cloud.aiplatform.training_jobs import AutoMLTabularTrainingJob
 
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     client as model_service_client,
@@ -77,7 +77,7 @@ _TEST_PIPELINE_RESOURCE_NAME = (
 )
 
 
-class TestAutoMLTablesTrainingJob:
+class TestAutoMLTabularTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
@@ -144,7 +144,7 @@ class TestAutoMLTablesTrainingJob:
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLTablesTrainingJob(
+        job = AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
@@ -207,7 +207,7 @@ class TestAutoMLTablesTrainingJob:
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLTablesTrainingJob(
+        job = AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
@@ -258,7 +258,7 @@ class TestAutoMLTablesTrainingJob:
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLTablesTrainingJob(
+        job = AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
@@ -291,7 +291,7 @@ class TestAutoMLTablesTrainingJob:
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLTablesTrainingJob(
+        job = AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
@@ -338,7 +338,7 @@ class TestAutoMLTablesTrainingJob:
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLTablesTrainingJob(
+        job = AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
@@ -363,7 +363,7 @@ class TestAutoMLTablesTrainingJob:
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLTablesTrainingJob(
+        job = AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
@@ -390,7 +390,7 @@ class TestAutoMLTablesTrainingJob:
 
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLTablesTrainingJob(
+        job = AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
@@ -415,7 +415,7 @@ class TestAutoMLTablesTrainingJob:
     def test_raises_before_run_is_called(self, mock_pipeline_service_create):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLTablesTrainingJob(
+        job = AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
