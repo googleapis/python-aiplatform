@@ -568,78 +568,60 @@ class TestModel:
         test_model = models.Model(_TEST_ID)
         creds = auth_credentials.AnonymousCredentials()
 
-        with mock.patch.object(
-            aiplatform.initializer.global_config, "create_client"
-        ) as create_client_mock:
+        # Make SDK batch_predict method call passing all arguments
+        test_model.batch_predict(
+            job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            predictions_format="csv",
+            model_parameters={},
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
+            max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            labels=_TEST_LABEL,
+            credentials=creds,
+        )
 
-            create_client_mock.return_value = job_service.JobServiceClient(
-                credentials=creds,
-                client_options=initializer.global_config.get_client_options(
-                    location_override=_TEST_LOCATION_2
+        # Construct expected request
+        expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            model=ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            ),
+            input_config=gapic_types.BatchPredictionJob.InputConfig(
+                instances_format="jsonl",
+                gcs_source=gapic_types.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
                 ),
-            )
-
-            # Make SDK batch_predict method call passing all arguments
-            test_model.batch_predict(
-                job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-                gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-                gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            ),
+            output_config=gapic_types.BatchPredictionJob.OutputConfig(
+                gcs_destination=gapic_types.GcsDestination(
+                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+                ),
                 predictions_format="csv",
-                model_parameters={},
-                machine_type=_TEST_MACHINE_TYPE,
-                accelerator_type=_TEST_ACCELERATOR_TYPE,
-                accelerator_count=_TEST_ACCELERATOR_COUNT,
+            ),
+            dedicated_resources=gapic_types.BatchDedicatedResources(
+                machine_spec=gapic_types.MachineSpec(
+                    machine_type=_TEST_MACHINE_TYPE,
+                    accelerator_type=_TEST_ACCELERATOR_TYPE,
+                    accelerator_count=_TEST_ACCELERATOR_COUNT,
+                ),
                 starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
                 max_replica_count=_TEST_MAX_REPLICA_COUNT,
-                labels=_TEST_LABEL,
-                location=_TEST_LOCATION_2,
-                credentials=creds,
-            )
+            ),
+            labels=_TEST_LABEL,
+        )
 
-            # Construct expected request
-            expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
-                display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-                model=ModelServiceClient.model_path(
-                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-                ),
-                input_config=gapic_types.BatchPredictionJob.InputConfig(
-                    instances_format="jsonl",
-                    gcs_source=gapic_types.GcsSource(
-                        uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                    ),
-                ),
-                output_config=gapic_types.BatchPredictionJob.OutputConfig(
-                    gcs_destination=gapic_types.GcsDestination(
-                        output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
-                    ),
-                    predictions_format="csv",
-                ),
-                dedicated_resources=gapic_types.BatchDedicatedResources(
-                    machine_spec=gapic_types.MachineSpec(
-                        machine_type=_TEST_MACHINE_TYPE,
-                        accelerator_type=_TEST_ACCELERATOR_TYPE,
-                        accelerator_count=_TEST_ACCELERATOR_COUNT,
-                    ),
-                    starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
-                    max_replica_count=_TEST_MAX_REPLICA_COUNT,
-                ),
-                labels=_TEST_LABEL,
-            )
+        expected_request = gapic_types.CreateBatchPredictionJobRequest(
+            parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+        )
 
-            expected_request = gapic_types.CreateBatchPredictionJobRequest(
-                parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
-                batch_prediction_job=expected_gapic_batch_prediction_job,
-            )
-
-            create_batch_prediction_job_mock.assert_called_once_with(
-                request=expected_request
-            )
-
-            create_client_mock.assert_any_call(
-                client_class=job_service.JobServiceClient,
-                credentials=creds,
-                location_override=_TEST_LOCATION_2,
-            )
+        create_batch_prediction_job_mock.assert_called_once_with(
+            request=expected_request
+        )
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_no_source(self, create_batch_prediction_job_mock):

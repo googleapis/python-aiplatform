@@ -332,7 +332,6 @@ class Model(base.AiPlatformResourceNoun):
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
         labels: Optional[dict] = None,
-        location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> jobs.BatchPredictionJob:
         """Creates a batch prediction job using this Model and outputs prediction
@@ -440,9 +439,6 @@ class Model(base.AiPlatformResourceNoun):
                 letters, numeric characters, underscores and dashes.
                 International characters are allowed. See https://goo.gl/xmQnxf
                 for more information and examples of labels.
-            location: Optional[str] = None
-                Optional. Location to run batch prediction from. If not set,
-                location set in aiplatform.init will be used.
             credentials: Optional[auth_credentials.Credentials] = None
                 Optional. Custom credentials to use to create this batch prediction
                 job. Overrides credentials set in aiplatform.init.
@@ -552,7 +548,7 @@ class Model(base.AiPlatformResourceNoun):
         # TODO (b/174502675): Support Explainability on Batch Prediction
         # TODO (b/174502913): Support private feature once released
 
-        # Build BatchPredictionJob request
+        # Build BatchPredictionJob request and Job client in same region as Model
         create_batch_prediction_job_request = types.CreateBatchPredictionJobRequest(
             parent=f"projects/{self.project}/locations/{self.location}",
             batch_prediction_job=gapic_batch_prediction_job,
@@ -561,7 +557,7 @@ class Model(base.AiPlatformResourceNoun):
         self._job_client = initializer.global_config.create_client(
             client_class=job_service.JobServiceClient,
             credentials=credentials,
-            location_override=location,
+            location_override=self.location,
         )
 
         # Make blocking call to service
