@@ -230,7 +230,7 @@ class PredictionServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.predict,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -356,7 +356,7 @@ class PredictionServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.explain,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 

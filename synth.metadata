@@ -3,15 +3,22 @@
     {
       "git": {
         "name": ".",
-        "remote": "https://github.com/dizcology/python-aiplatform.git",
-        "sha": "81da030c0af8902fd54c8e7b5e92255a532d0efb"
+        "remote": "https://github.com/googleapis/python-aiplatform.git",
+        "sha": "e5ddd3caee3db347a233bd2678c5b4cd8d8657bc"
       }
     },
     {
       "git": {
         "name": "synthtool",
         "remote": "https://github.com/googleapis/synthtool.git",
-        "sha": "ba9918cd22874245b55734f57470c719b577e591"
+        "sha": "32af6da519a6b042e3da62008e2a75e991efb6b4"
+      }
+    },
+    {
+      "git": {
+        "name": "synthtool",
+        "remote": "https://github.com/googleapis/synthtool.git",
+        "sha": "32af6da519a6b042e3da62008e2a75e991efb6b4"
       }
     }
   ],
@@ -22,7 +29,7 @@
         "apiName": "aiplatform",
         "apiVersion": "v1beta1",
         "language": "python",
-        "generator": "gapic-generator-python"
+        "generator": "bazel"
       }
     }
   ]
