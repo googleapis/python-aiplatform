@@ -166,7 +166,10 @@ class TestAutoMLTabularTrainingJob:
         return ds
 
     def test_run_call_pipeline_service_create(
-        self, mock_pipeline_service_create, mock_dataset_tabular, mock_model_service_get,
+        self,
+        mock_pipeline_service_create,
+        mock_dataset_tabular,
+        mock_model_service_get,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -234,7 +237,10 @@ class TestAutoMLTabularTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
     def test_run_call_pipeline_if_no_model_display_name(
-        self, mock_pipeline_service_create, mock_dataset_tabular, mock_model_service_get,
+        self,
+        mock_pipeline_service_create,
+        mock_dataset_tabular,
+        mock_model_service_get,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -285,7 +291,10 @@ class TestAutoMLTabularTrainingJob:
         )
 
     def test_run_called_predefined_split_nontabular_raises(
-        self, mock_pipeline_service_create, mock_dataset_nontabular, mock_model_service_get,
+        self,
+        mock_pipeline_service_create,
+        mock_dataset_nontabular,
+        mock_model_service_get,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -306,11 +315,14 @@ class TestAutoMLTabularTrainingJob:
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             )
-            
+
     def test_run_called_twice_raises(
-        self, mock_pipeline_service_create, mock_dataset_tabular, mock_model_service_get,
+        self,
+        mock_pipeline_service_create,
+        mock_dataset_tabular,
+        mock_model_service_get,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -390,7 +402,9 @@ class TestAutoMLTabularTrainingJob:
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
     def test_run_returns_none_if_no_model_to_upload(
-        self, mock_pipeline_service_create_with_no_model_to_upload, mock_dataset_tabular,
+        self,
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_dataset_tabular,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -415,7 +429,9 @@ class TestAutoMLTabularTrainingJob:
         assert model is None
 
     def test_get_model_raises_if_no_model_to_upload(
-        self, mock_pipeline_service_create_with_no_model_to_upload, mock_dataset_tabular,
+        self,
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_dataset_tabular,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
