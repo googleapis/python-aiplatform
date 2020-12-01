@@ -117,10 +117,11 @@ class _TrainingJob(base.AiPlatformResourceNoun):
         training_fraction_split: float,
         validation_fraction_split: float,
         test_fraction_split: float,
+        predefined_split_column_name: Optional[str],
+        gcs_destination_uri_prefix: Optional[str],
     ) -> gca_training_pipeline.InputDataConfig:
 
         """Constructs a input data config to pass to the training pipeline.
-        Override this to create a custom config
 
         Args:
             training_fraction_split (float):
@@ -135,6 +136,28 @@ class _TrainingJob(base.AiPlatformResourceNoun):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
+            gcs_destination_uri_prefix (str):
+                Optional. The Google Cloud Storage location.
+
+                The AI Platform environment variables representing Google
+                Cloud Storage data URIs will always be represented in the
+                Google Cloud Storage wildcard format to support sharded
+                data.
+
+                -  AIP_DATA_FORMAT = "jsonl".
+                -  AIP_TRAINING_DATA_URI = "gcs_destination/training-*"
+                -  AIP_VALIDATION_DATA_URI = "gcs_destination/validation-*"
+                -  AIP_TEST_DATA_URI = "gcs_destination/test-*".
         """
 
         input_data_config = None
@@ -146,9 +169,26 @@ class _TrainingJob(base.AiPlatformResourceNoun):
                 test_fraction=test_fraction_split,
             )
 
+            # Create predefined split spec
+            predefined_split = None
+            if predefined_split_column_name:
+                predefined_split = gca_training_pipeline.PredefinedSplit(
+                    key=predefined_split_column_name
+                )
+
+            # Create GCS destination
+            gcs_destination = None
+            if gcs_destination_uri_prefix:
+                gcs_destination = gca_io.GcsDestination(
+                    output_uri_prefix=gcs_destination_uri_prefix
+                )
+
             # create input data config
             input_data_config = gca_training_pipeline.InputDataConfig(
-                fraction_split=fraction_split, dataset_id=dataset.name,
+                fraction_split=fraction_split,
+                predefined_split=predefined_split,
+                dataset_id=dataset.name,
+                gcs_destination=gcs_destination,
             )
 
         return input_data_config
@@ -161,7 +201,9 @@ class _TrainingJob(base.AiPlatformResourceNoun):
         training_fraction_split: float,
         validation_fraction_split: float,
         test_fraction_split: float,
+        predefined_split_column_name: Optional[str],
         model: Optional[gca_model.Model] = None,
+        gcs_destination_uri_prefix: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the training job.
 
@@ -201,6 +243,16 @@ class _TrainingJob(base.AiPlatformResourceNoun):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
             model (~.model.Model):
                 Optional. Describes the Model that may be uploaded (via
                 [ModelService.UploadMode][]) by this TrainingPipeline. The
@@ -221,6 +273,18 @@ class _TrainingJob(base.AiPlatformResourceNoun):
                 resource ``name``
                 is populated. The Model is always uploaded into the Project
                 and Location in which this pipeline is.
+            gcs_destination_uri_prefix (str):
+                Optional. The Google Cloud Storage location.
+
+                The AI Platform environment variables representing Google
+                Cloud Storage data URIs will always be represented in the
+                Google Cloud Storage wildcard format to support sharded
+                data.
+
+                -  AIP_DATA_FORMAT = "jsonl".
+                -  AIP_TRAINING_DATA_URI = "gcs_destination/training-*"
+                -  AIP_VALIDATION_DATA_URI = "gcs_destination/validation-*"
+                -  AIP_TEST_DATA_URI = "gcs_destination/test-*".
     """
 
         if self._has_run:
@@ -231,6 +295,8 @@ class _TrainingJob(base.AiPlatformResourceNoun):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
+            gcs_destination_uri_prefix=gcs_destination_uri_prefix,
         )
 
         # create training pipeline
@@ -935,54 +1001,7 @@ class CustomTrainingJob(_TrainingJob):
         self._script_path = script_path
         self._staging_bucket = staging_bucket
 
-    def _create_input_data_config(
-        self,
-        dataset: Optional[datasets.Dataset],
-        training_fraction_split: float,
-        validation_fraction_split: float,
-        test_fraction_split: float,
-    ) -> gca_training_pipeline.InputDataConfig:
-        """Constructs a input data config to pass to the training pipeline.
-            Override this to create a custom config
-
-            Args:
-                training_fraction_split (float):
-                    The fraction of the input data that is to be
-                    used to train the Model. This is ignored if Dataset is not provided.
-                training_fraction_split (float):
-                    The fraction of the input data that is to be
-                    used to train the Model. This is ignored if Dataset is not provided.
-                validation_fraction_split (float):
-                    The fraction of the input data that is to be
-                    used to validate the Model. This is ignored if Dataset is not provided.
-                test_fraction_split (float):
-                    The fraction of the input data that is to be
-                    used to evaluate the Model. This is ignored if Dataset is not provided.
-            """
-
-        input_data_config = None
-
-        if dataset:
-            # Create fraction split spec
-            fraction_split = gca_training_pipeline.FractionSplit(
-                training_fraction=training_fraction_split,
-                validation_fraction=validation_fraction_split,
-                test_fraction=test_fraction_split,
-            )
-
-            # create input data config
-            input_data_config = gca_training_pipeline.InputDataConfig(
-                fraction_split=fraction_split,
-                dataset_id=dataset.name,
-                gcs_destination=gca_io.GcsDestination(
-                    output_uri_prefix=self._base_output_dir
-                ),
-            )
-
-        return input_data_config
-
     # TODO(b/172365904) add filter split, training_pipeline.FilterSplit
-    # TODO(b/172366411) predefined filter split training_pipeline.PredfinedFilterSplit
     # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
     def run(
         self,
@@ -997,6 +1016,7 @@ class CustomTrainingJob(_TrainingJob):
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
+        predefined_split_column_name: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -1055,6 +1075,16 @@ class CustomTrainingJob(_TrainingJob):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
 
         Returns:
             model: The trained AI Platform Model resource or None if training did not
@@ -1153,7 +1183,9 @@ class CustomTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
             model=managed_model,
+            gcs_destination_uri_prefix=self._base_output_dir,
         )
 
         self._base_output_dir = None
@@ -1174,7 +1206,7 @@ class CustomTrainingJob(_TrainingJob):
         )
 
 
-class AutoMLTablesTrainingJob(_TrainingJob):
+class AutoMLTabularTrainingJob(_TrainingJob):
     def __init__(
         self,
         display_name: str,
@@ -1187,7 +1219,7 @@ class AutoMLTablesTrainingJob(_TrainingJob):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
-        """Constructs a AutoML Tables Training Job.
+        """Constructs a AutoML Tabular Training Job.
 
         Args:
             display_name (str):
@@ -1273,14 +1305,15 @@ class AutoMLTablesTrainingJob(_TrainingJob):
 
     def run(
         self,
-        model_display_name: str,
         dataset: datasets.Dataset,
         target_column: str,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
+        predefined_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
+        model_display_name: Optional[str] = None,
         disable_early_stopping=False,
     ) -> models.Model:
         """Runs the training job and returns a model.
@@ -1293,10 +1326,6 @@ class AutoMLTablesTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            model_display_name (str):
-                Required. If the script produces a managed AI Platform Model. The display name of
-                the Model. The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
             dataset (aiplatform.Dataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
@@ -1314,6 +1343,16 @@ class AutoMLTablesTrainingJob(_TrainingJob):
             test_fraction_split (float):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -1333,6 +1372,12 @@ class AutoMLTablesTrainingJob(_TrainingJob):
                 Model for the given training set, the training won't be attempted and
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
+            model_display_name (str):
+                Optional. If the script produces a managed AI Platform Model. The display name of
+                the Model. The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
             disable_early_stopping (bool):
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
@@ -1364,6 +1409,9 @@ class AutoMLTablesTrainingJob(_TrainingJob):
             "optimizationObjectivePrecisionValue": self._optimization_objective_precision_value,
         }
 
+        if model_display_name is None:
+            model_display_name = self._display_name
+
         model = gca_model.Model(display_name=model_display_name)
 
         return self._run_job(
@@ -1373,6 +1421,7 @@ class AutoMLTablesTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
             model=model,
         )
 

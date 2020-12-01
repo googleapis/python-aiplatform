@@ -64,7 +64,9 @@ class PredictRequest(proto.Message):
     """
 
     endpoint = proto.Field(proto.STRING, number=1)
+
     instances = proto.RepeatedField(proto.MESSAGE, number=2, message=struct.Value,)
+
     parameters = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
 
 
@@ -86,6 +88,7 @@ class PredictResponse(proto.Message):
     """
 
     predictions = proto.RepeatedField(proto.MESSAGE, number=1, message=struct.Value,)
+
     deployed_model_id = proto.Field(proto.STRING, number=2)
 
 
@@ -124,8 +127,11 @@ class ExplainRequest(proto.Message):
     """
 
     endpoint = proto.Field(proto.STRING, number=1)
+
     instances = proto.RepeatedField(proto.MESSAGE, number=2, message=struct.Value,)
+
     parameters = proto.Field(proto.MESSAGE, number=4, message=struct.Value,)
+
     deployed_model_id = proto.Field(proto.STRING, number=3)
 
 
@@ -135,8 +141,8 @@ class ExplainResponse(proto.Message):
 
     Attributes:
         explanations (Sequence[~.explanation.Explanation]):
-            The explanations of the [Model's
-            predictions][PredictionResponse.predictions][].
+            The explanations of the Model's
+            ``PredictResponse.predictions``.
 
             It has the same number of elements as
             ``instances``
@@ -144,12 +150,19 @@ class ExplainResponse(proto.Message):
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that
             served this explanation.
+        predictions (Sequence[~.struct.Value]):
+            The predictions that are the output of the predictions call.
+            Same as
+            ``PredictResponse.predictions``.
     """
 
     explanations = proto.RepeatedField(
         proto.MESSAGE, number=1, message=explanation.Explanation,
     )
+
     deployed_model_id = proto.Field(proto.STRING, number=2)
+
+    predictions = proto.RepeatedField(proto.MESSAGE, number=3, message=struct.Value,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

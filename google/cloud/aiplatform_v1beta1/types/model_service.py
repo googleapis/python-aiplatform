@@ -64,6 +64,7 @@ class UploadModelRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
+
     model = proto.Field(proto.MESSAGE, number=2, message=gca_model.Model,)
 
 
@@ -133,9 +134,13 @@ class ListModelsRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
+
     filter = proto.Field(proto.STRING, number=2)
+
     page_size = proto.Field(proto.INT32, number=3)
+
     page_token = proto.Field(proto.STRING, number=4)
+
     read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
@@ -157,6 +162,7 @@ class ListModelsResponse(proto.Message):
         return self
 
     models = proto.RepeatedField(proto.MESSAGE, number=1, message=gca_model.Model,)
+
     next_page_token = proto.Field(proto.STRING, number=2)
 
 
@@ -176,6 +182,7 @@ class UpdateModelRequest(proto.Message):
     """
 
     model = proto.Field(proto.MESSAGE, number=1, message=gca_model.Model,)
+
     update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
 
 
@@ -236,14 +243,17 @@ class ExportModelRequest(proto.Message):
         """
 
         export_format_id = proto.Field(proto.STRING, number=1)
+
         artifact_destination = proto.Field(
             proto.MESSAGE, number=3, message=io.GcsDestination,
         )
+
         image_destination = proto.Field(
             proto.MESSAGE, number=4, message=io.ContainerRegistryDestination,
         )
 
     name = proto.Field(proto.STRING, number=1)
+
     output_config = proto.Field(proto.MESSAGE, number=2, message=OutputConfig,)
 
 
@@ -278,11 +288,13 @@ class ExportModelOperationMetadata(proto.Message):
         """
 
         artifact_output_uri = proto.Field(proto.STRING, number=2)
+
         image_output_uri = proto.Field(proto.STRING, number=3)
 
     generic_metadata = proto.Field(
         proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
+
     output_info = proto.Field(proto.MESSAGE, number=2, message=OutputInfo,)
 
 
@@ -331,9 +343,13 @@ class ListModelEvaluationsRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
+
     filter = proto.Field(proto.STRING, number=2)
+
     page_size = proto.Field(proto.INT32, number=3)
+
     page_token = proto.Field(proto.STRING, number=4)
+
     read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
@@ -358,6 +374,7 @@ class ListModelEvaluationsResponse(proto.Message):
     model_evaluations = proto.RepeatedField(
         proto.MESSAGE, number=1, message=model_evaluation.ModelEvaluation,
     )
+
     next_page_token = proto.Field(proto.STRING, number=2)
 
 
@@ -403,9 +420,13 @@ class ListModelEvaluationSlicesRequest(proto.Message):
     """
 
     parent = proto.Field(proto.STRING, number=1)
+
     filter = proto.Field(proto.STRING, number=2)
+
     page_size = proto.Field(proto.INT32, number=3)
+
     page_token = proto.Field(proto.STRING, number=4)
+
     read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
@@ -430,6 +451,7 @@ class ListModelEvaluationSlicesResponse(proto.Message):
     model_evaluation_slices = proto.RepeatedField(
         proto.MESSAGE, number=1, message=model_evaluation_slice.ModelEvaluationSlice,
     )
+
     next_page_token = proto.Field(proto.STRING, number=2)
 
 

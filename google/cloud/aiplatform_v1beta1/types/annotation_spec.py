@@ -52,9 +52,13 @@ class AnnotationSpec(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
+
     display_name = proto.Field(proto.STRING, number=2)
+
     create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
+
     update_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
+
     etag = proto.Field(proto.STRING, number=5)
 
 
