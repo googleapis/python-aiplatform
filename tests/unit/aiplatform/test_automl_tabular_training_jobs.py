@@ -19,6 +19,7 @@ from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
+from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 
 from google.protobuf import json_format
 from google.protobuf import struct_pb2
@@ -29,8 +30,12 @@ _TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
 _TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
 _TEST_PROJECT = "test-project"
 
+_TEST_DATASET_DISPLAY_NAME = "test-dataset-display-name"
+_TEST_DATASET_NAME = "test-dataset-name"
 _TEST_DISPLAY_NAME = "test-display-name"
 _TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
+_TEST_METADATA_SCHEMA_URI_TABULAR = schema.dataset.metadata.tabular
+_TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
 
 _TEST_TRAINING_COLUMN_TRANSFORMATIONS = [
     {"auto": {"column_name": "sepal_width"}},
@@ -135,13 +140,33 @@ class TestAutoMLTabularTrainingJob:
             yield mock_get_model
 
     @pytest.fixture
-    def mock_dataset(self):
+    def mock_dataset_tabular(self):
         ds = mock.MagicMock(datasets.Dataset)
         ds.name = _TEST_DATASET_NAME
+        ds._gca_resource = GapicDataset(
+            display_name=_TEST_DATASET_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+            labels={},
+            name=_TEST_DATASET_NAME,
+            metadata={},
+        )
+        return ds
+
+    @pytest.fixture
+    def mock_dataset_nontabular(self):
+        ds = mock.MagicMock(datasets.Dataset)
+        ds.name = _TEST_DATASET_NAME
+        ds._gca_resource = GapicDataset(
+            display_name=_TEST_DATASET_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            labels={},
+            name=_TEST_DATASET_NAME,
+            metadata={},
+        )
         return ds
 
     def test_run_call_pipeline_service_create(
-        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get,
+        self, mock_pipeline_service_create, mock_dataset_tabular, mock_model_service_get,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -155,7 +180,7 @@ class TestAutoMLTabularTrainingJob:
         )
 
         model_from_job = job.run(
-            dataset=mock_dataset,
+            dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
@@ -180,7 +205,7 @@ class TestAutoMLTabularTrainingJob:
             predefined_split=gca_training_pipeline.PredefinedSplit(
                 key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
             ),
-            dataset_id=mock_dataset.name,
+            dataset_id=mock_dataset_tabular.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -209,7 +234,7 @@ class TestAutoMLTabularTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
     def test_run_call_pipeline_if_no_model_display_name(
-        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get,
+        self, mock_pipeline_service_create, mock_dataset_tabular, mock_model_service_get,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -223,7 +248,7 @@ class TestAutoMLTabularTrainingJob:
         )
 
         _ = job.run(
-            dataset=mock_dataset,
+            dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
@@ -243,7 +268,7 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset.name,
+            fraction_split=true_fraction_split, dataset_id=mock_dataset_tabular.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -259,8 +284,33 @@ class TestAutoMLTabularTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
+    def test_run_called_predefined_split_nontabular_raises(
+        self, mock_pipeline_service_create, mock_dataset_nontabular, mock_model_service_get,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        with pytest.raises(ValueError):
+            job.run(
+                dataset=mock_dataset_nontabular,
+                target_column=_TEST_TRAINING_TARGET_COLUMN,
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+            )
+            
     def test_run_called_twice_raises(
-        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get,
+        self, mock_pipeline_service_create, mock_dataset_tabular, mock_model_service_get,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -274,7 +324,7 @@ class TestAutoMLTabularTrainingJob:
         )
 
         job.run(
-            dataset=mock_dataset,
+            dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
@@ -284,7 +334,7 @@ class TestAutoMLTabularTrainingJob:
 
         with pytest.raises(RuntimeError):
             job.run(
-                dataset=mock_dataset,
+                dataset=mock_dataset_tabular,
                 target_column=_TEST_TRAINING_TARGET_COLUMN,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
@@ -340,7 +390,7 @@ class TestAutoMLTabularTrainingJob:
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
     def test_run_returns_none_if_no_model_to_upload(
-        self, mock_pipeline_service_create_with_no_model_to_upload, mock_dataset,
+        self, mock_pipeline_service_create_with_no_model_to_upload, mock_dataset_tabular,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -355,7 +405,7 @@ class TestAutoMLTabularTrainingJob:
 
         model = job.run(
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            dataset=mock_dataset,
+            dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
@@ -365,7 +415,7 @@ class TestAutoMLTabularTrainingJob:
         assert model is None
 
     def test_get_model_raises_if_no_model_to_upload(
-        self, mock_pipeline_service_create_with_no_model_to_upload, mock_dataset,
+        self, mock_pipeline_service_create_with_no_model_to_upload, mock_dataset_tabular,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -380,7 +430,7 @@ class TestAutoMLTabularTrainingJob:
 
         job.run(
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            dataset=mock_dataset,
+            dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
@@ -391,7 +441,7 @@ class TestAutoMLTabularTrainingJob:
             job.get_model()
 
     def test_run_raises_if_pipeline_fails(
-        self, mock_pipeline_service_create_and_get_with_fail, mock_dataset,
+        self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_tabular,
     ):
 
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
@@ -408,7 +458,7 @@ class TestAutoMLTabularTrainingJob:
         with pytest.raises(RuntimeError):
             job.run(
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
-                dataset=mock_dataset,
+                dataset=mock_dataset_tabular,
                 target_column=_TEST_TRAINING_TARGET_COLUMN,
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
