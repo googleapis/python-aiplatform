@@ -172,15 +172,17 @@ class _TrainingJob(base.AiPlatformResourceNoun):
             # Create predefined split spec
             predefined_split = None
             if predefined_split_column_name:
-                schema_uri = dataset._gca_resource.metadata_schema_uri
-                if schema_uri == schema.dataset.metadata.tabular:
-                    predefined_split = gca_training_pipeline.PredefinedSplit(
-                        key=predefined_split_column_name
-                    )
-                else:
+                if (
+                    dataset._gca_resource.metadata_schema_uri
+                    != schema.dataset.metadata.tabular
+                ):
                     raise ValueError(
                         "A pre-defined split may only be used with a tabular Dataset"
                     )
+
+                predefined_split = gca_training_pipeline.PredefinedSplit(
+                    key=predefined_split_column_name
+                )
 
             # Create GCS destination
             gcs_destination = None
