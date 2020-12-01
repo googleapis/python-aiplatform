@@ -538,7 +538,8 @@ class TestEndpoint:
             undeploy_model_mock.assert_called_once_with(
                 endpoint=test_endpoint.resource_name,
                 deployed_model_id="model1",
-                traffic_split={"model1": 0},
+                traffic_split={},
+                # traffic_split={"model1": 0},
                 metadata=(),
             )
 

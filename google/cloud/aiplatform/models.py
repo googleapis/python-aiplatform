@@ -885,6 +885,7 @@ class Model(base.AiPlatformResourceNounWithFuture):
         )
 
     # TODO(b/172502059) support deploying with endpoint resource name
+    @base.optional_async_wrapper(return_input_arg='endpoint', bind_future_to_self=False)
     def deploy(
         self,
         endpoint: Optional["Endpoint"] = None,
@@ -950,7 +951,7 @@ class Model(base.AiPlatformResourceNounWithFuture):
         """
         if endpoint is None:
             display_name = self.display_name[:118] + "_endpoint"
-            endpoint = Endpoint.create(display_name=display_name, sync=sync)
+            endpoint = Endpoint.create(display_name=display_name)
 
         endpoint.deploy(
             model=self,

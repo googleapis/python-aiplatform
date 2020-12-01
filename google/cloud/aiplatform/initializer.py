@@ -25,6 +25,7 @@ import google.auth
 from google.auth import credentials as auth_credentials
 from google.auth.exceptions import GoogleAuthError
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform import constants
 
 
 class _Config:
@@ -98,7 +99,7 @@ class _Config:
     @property
     def location(self) -> str:
         """Default location."""
-        return self._location or utils.DEFAULT_REGION
+        return self._location or constants.DEFAULT_REGION
 
     @property
     def experiment(self) -> Optional[str]:
@@ -148,7 +149,7 @@ class _Config:
         utils.validate_region(region)
 
         return client_options.ClientOptions(
-            api_endpoint=f"{region}-{prediction}{utils.PROD_API_ENDPOINT}"
+            api_endpoint=f"{region}-{prediction}{constants.API_BASE_PATH}"
         )
 
     def common_location_path(

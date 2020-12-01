@@ -164,13 +164,25 @@ class TestDataset:
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_create_dataset_nontabular(self, create_dataset_mock):
+        self._test_create_dataset_nontabular(create_dataset_mock)
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    def test_create_dataset_nontabular_async(self, create_dataset_mock):
+        self._test_create_dataset_nontabular(create_dataset_mock, sync=False)
+
+    def _test_create_dataset_nontabular(self, create_dataset_mock, sync=True):
         aiplatform.init(project=_TEST_PROJECT)
 
-        Dataset.create(
+        my_dataset = Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             labels=_TEST_LABEL,
+            sync=sync
         )
+
+        if not sync:
+            my_dataset.wait()
+
 
         expected_dataset = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
@@ -207,6 +219,15 @@ class TestDataset:
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_create_and_import_dataset(self, create_dataset_mock, import_data_mock):
+        self._test_create_and_import_dataset(create_dataset_mock, import_data_mock)
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    def test_create_and_import_dataset_async(self, create_dataset_mock, import_data_mock):
+        self._test_create_and_import_dataset(create_dataset_mock, import_data_mock,
+                                            sync=False)
+
+    def _test_create_and_import_dataset(self, create_dataset_mock, import_data_mock,
+                                        sync=True):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = Dataset.create(
@@ -216,7 +237,11 @@ class TestDataset:
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_items_labels=_TEST_DATA_LABEL_ITEMS,
+            sync=sync
         )
+
+        if not sync:
+            my_dataset.wait()
 
         expected_dataset = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
@@ -239,13 +264,18 @@ class TestDataset:
             name=_TEST_NAME, import_configs=[expected_import_config]
         )
 
-        print(my_dataset)
-
         expected_dataset.name = _TEST_NAME
         assert my_dataset._gca_resource == expected_dataset
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_import_data(self, import_data_mock):
+        self._test_import_data(import_data_mock)
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    def test_import_data_async(self, import_data_mock):
+        self._test_import_data(import_data_mock, sync=False)
+
+    def _test_import_data(self, import_data_mock, sync=True):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = Dataset(dataset_name=_TEST_NAME)
@@ -254,7 +284,11 @@ class TestDataset:
             gcs_source=_TEST_SOURCE_URI_GCS,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_items_labels=_TEST_DATA_LABEL_ITEMS,
+            sync=sync
         )
+
+        if not sync:
+            my_dataset.wait()
 
         expected_import_config = ImportDataConfig(
             gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),

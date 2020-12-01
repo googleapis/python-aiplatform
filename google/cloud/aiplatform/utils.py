@@ -21,6 +21,7 @@ import re
 from typing import Optional, TypeVar, Match
 from collections import namedtuple
 
+from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
     client as dataset_client,
@@ -34,11 +35,6 @@ from google.cloud.aiplatform_v1beta1.services.model_service import (
 from google.cloud.aiplatform_v1beta1.services.prediction_service import (
     client as prediction_client,
 )
-
-DEFAULT_REGION = "us-central1"
-SUPPORTED_REGIONS = ("us-central1", "europe-west4", "asia-east1")
-PROD_API_ENDPOINT = "aiplatform.googleapis.com"
-ASYNC_SLEEP_TIME = 1
 
 AiPlatformServiceClient = TypeVar(
     "AiPlatformServiceClient",
@@ -219,12 +215,14 @@ def validate_region(region: str) -> bool:
         ValueError: If region is not in supported regions.
     """
     if not region:
-        raise ValueError(f"Please provide a region, select from {SUPPORTED_REGIONS}")
+        raise ValueError(
+            f"Please provide a region, select from {constants.SUPPORTED_REGIONS}"
+        )
 
     region = region.lower()
-    if region not in SUPPORTED_REGIONS:
+    if region not in constants.SUPPORTED_REGIONS:
         raise ValueError(
-            f"Unsupported region for AI Platform, select from {SUPPORTED_REGIONS}"
+            f"Unsupported region for AI Platform, select from {constants.SUPPORTED_REGIONS}"
         )
 
     return True

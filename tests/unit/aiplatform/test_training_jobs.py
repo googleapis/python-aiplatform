@@ -388,12 +388,38 @@ class TestCustomTrainingJob:
         ds.name = _TEST_DATASET_NAME
         return ds
 
-    def test_run_call_pipeline_service_create(
+    def test_run_call_pipeline_service_create(self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get):
+
+        self._test_run_call_pipeline_service_create(
+            mock_pipeline_service_create,
+            mock_python_package_to_gcs,
+            mock_dataset,
+            mock_model_service_get)
+
+    def test_run_call_pipeline_service_create_async(self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get):
+
+        self._test_run_call_pipeline_service_create(
+            mock_pipeline_service_create,
+            mock_python_package_to_gcs,
+            mock_dataset,
+            mock_model_service_get,
+            sync=False)
+
+    def _test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
         mock_python_package_to_gcs,
         mock_dataset,
         mock_model_service_get,
+        sync=True
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -418,7 +444,11 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=sync
         )
+
+        if not sync:
+            model_from_job.wait()
 
         mock_python_package_to_gcs.assert_called_once_with(
             gcs_staging_dir=_TEST_BUCKET_NAME,
@@ -498,12 +528,44 @@ class TestCustomTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+
     def test_run_called_twice_raises(
         self,
         mock_pipeline_service_create,
         mock_python_package_to_gcs,
         mock_dataset,
         mock_model_service_get,
+    ):
+        self._test_run_called_twice_raises(
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+        )
+
+    def test_run_called_twice_raises_async(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+    ):
+        self._test_run_called_twice_raises(
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+        sync=False
+        )
+
+
+    def _test_run_called_twice_raises(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+        sync=True
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -528,6 +590,7 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=sync
         )
 
         with pytest.raises(RuntimeError):
@@ -543,7 +606,9 @@ class TestCustomTrainingJob:
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync
             )
+
 
     def test_run_with_invalid_accelerator_type_raises(
         self,
@@ -551,6 +616,35 @@ class TestCustomTrainingJob:
         mock_python_package_to_gcs,
         mock_dataset,
         mock_model_service_get,
+    ):
+        self._test_run_with_invalid_accelerator_type_raises(
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+        )
+
+    def test_run_with_invalid_accelerator_type_raises_async(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+    ):
+        self._test_run_with_invalid_accelerator_type_raises(
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+        sync=False)
+
+    def _test_run_with_invalid_accelerator_type_raises(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+        sync=True
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -576,6 +670,7 @@ class TestCustomTrainingJob:
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync
             )
 
     def test_run_with_incomplete_model_info_raises_with_model_to_upload(
@@ -585,12 +680,44 @@ class TestCustomTrainingJob:
         mock_dataset,
         mock_model_service_get,
     ):
+
+        self._test_run_with_incomplete_model_info_raises_with_model_to_upload(
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+        )
+
+    def test_run_with_incomplete_model_info_raises_with_model_to_upload_async(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+    ):
+
+        self._test_run_with_incomplete_model_info_raises_with_model_to_upload(
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+        sync=False
+        )
+
+    def _test_run_with_incomplete_model_info_raises_with_model_to_upload(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        mock_model_service_get,
+        sync=True
+    ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.CustomTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
-            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE
         )
 
         with pytest.raises(RuntimeError):
@@ -606,6 +733,7 @@ class TestCustomTrainingJob:
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync
             )
 
     def test_run_call_pipeline_service_create_with_no_dataset(
@@ -613,6 +741,35 @@ class TestCustomTrainingJob:
         mock_pipeline_service_create,
         mock_python_package_to_gcs,
         mock_model_service_get,
+    ):
+        self._test_run_call_pipeline_service_create_with_no_dataset(
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_model_service_get,
+        )
+
+    def test_run_call_pipeline_service_create_with_no_dataset(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_model_service_get,
+    ):
+        self._test_run_call_pipeline_service_create_with_no_dataset(
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_model_service_get,
+        sync=False
+        )
+
+
+
+
+    def _test_run_call_pipeline_service_create_with_no_dataset(
+        self,
+        mock_pipeline_service_create,
+        mock_python_package_to_gcs,
+        mock_model_service_get,
+        sync=True
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -636,7 +793,11 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=sync
         )
+
+        if not sync:
+            model_from_job.wait()
 
         mock_python_package_to_gcs.assert_called_once_with(
             gcs_staging_dir=_TEST_BUCKET_NAME,
@@ -701,6 +862,32 @@ class TestCustomTrainingJob:
         mock_python_package_to_gcs,
         mock_dataset,
     ):
+        self._test_run_returns_none_if_no_model_to_upload(
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_python_package_to_gcs,
+        mock_dataset)
+
+    def test_run_returns_none_if_no_model_to_upload_async(
+        self,
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_python_package_to_gcs,
+        mock_dataset,
+    ):
+        self._test_run_returns_none_if_no_model_to_upload(
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        sync=False)
+
+
+
+    def _test_run_returns_none_if_no_model_to_upload(
+        self,
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        sync=True
+    ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.CustomTrainingJob(
@@ -720,6 +907,7 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=sync
         )
 
         assert model is None
@@ -729,6 +917,30 @@ class TestCustomTrainingJob:
         mock_pipeline_service_create_with_no_model_to_upload,
         mock_python_package_to_gcs,
         mock_dataset,
+    ):
+        self._test_get_model_raises_if_no_model_to_upload(
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_python_package_to_gcs,
+        mock_dataset)
+
+    def test_get_model_raises_if_no_model_to_upload_async(
+        self,
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_python_package_to_gcs,
+        mock_dataset,
+    ):
+        self._test_get_model_raises_if_no_model_to_upload(
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        sync=False)
+
+    def _test_get_model_raises_if_no_model_to_upload(
+        self,
+        mock_pipeline_service_create_with_no_model_to_upload,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        sync=True
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -749,7 +961,11 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=sync
         )
+
+        if not sync:
+            job.wait()
 
         with pytest.raises(RuntimeError):
             job.get_model()
@@ -759,6 +975,32 @@ class TestCustomTrainingJob:
         mock_pipeline_service_create_and_get_with_fail,
         mock_python_package_to_gcs,
         mock_dataset,
+
+    ):
+        self._test_run_raises_if_pipeline_fails(
+        mock_pipeline_service_create_and_get_with_fail,
+        mock_python_package_to_gcs,
+        mock_dataset)
+
+    def test_run_raises_if_pipeline_fails_async(
+        self,
+        mock_pipeline_service_create_and_get_with_fail,
+        mock_python_package_to_gcs,
+        mock_dataset,
+    ):
+        self._test_run_raises_if_pipeline_fails(
+        mock_pipeline_service_create_and_get_with_fail,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        sync=False)
+
+
+    def _test_run_raises_if_pipeline_fails(
+        self,
+        mock_pipeline_service_create_and_get_with_fail,
+        mock_python_package_to_gcs,
+        mock_dataset,
+        sync=True
     ):
 
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
@@ -781,14 +1023,17 @@ class TestCustomTrainingJob:
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync
             )
+
+            if not sync:
+                job.wait()
 
         with pytest.raises(RuntimeError):
             job.get_model()
 
     def test_raises_before_run_is_called(
-        self, mock_pipeline_service_create, mock_python_package_to_gcs
-    ):
+        self, mock_pipeline_service_create, mock_python_package_to_gcs):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.CustomTrainingJob(

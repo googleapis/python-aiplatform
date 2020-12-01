@@ -61,6 +61,8 @@ class FutureCache(metaclass=abc.ABCMeta):
         while not self._are_futures_done():
             time.sleep(POLLING_SLEEP)
 
+        self._raise_future_exception()
+
     @property
     def _latest_future(self):
         with self.__latest_future_lock:
@@ -84,7 +86,8 @@ class FutureCache(metaclass=abc.ABCMeta):
         args: Sequence,
         kwargs: dict,
         additional_dependencies: Optional[Sequence[futures.Future]]=None,
-        callbacks: Optional[Sequence[Callable[[futures.Future], Any]]] =None):
+        callbacks: Optional[Sequence[Callable[[futures.Future], Any]]] =None,
+        bind_future_to_self: bool=True):
 
         def wait_for_dependencies_and_invoke(deps, fn, args, kwargs):
             while True:
@@ -117,10 +120,12 @@ class FutureCache(metaclass=abc.ABCMeta):
             future = initializer.global_pool.submit(wait_for_dependencies_and_invoke,
                 deps=deps, fn=fn, args=args, kwargs=kwargs)
 
-            self.__latest_future = future
+            if bind_future_to_self:
+                self.__latest_future = future
 
-        # Clean up callback captures exception as well as removes future.
-        future.add_done_callback(self._complete_future)
+        if bind_future_to_self:
+            # Clean up callback captures exception as well as removes future.
+            future.add_done_callback(self._complete_future)
 
         if callbacks:
             for c in callbacks:
@@ -265,7 +270,8 @@ def get_annotation_class(annotation):
 
 def optional_async_wrapper(
     predicate_return_on_arg =None, # ie: incase Model is None in TrainingJob.run
-    return_input_arg=None, # pass through ie: Endpoint if Model.predict
+    return_input_arg=None, # pass through ie: Endpoint in Model.deploy
+    bind_future_to_self=True, # set to false to not bind future Model.deploy (only need to bind to output arg)
     ):
 
     def optional_run_in_thread(method):
@@ -331,13 +337,10 @@ def optional_async_wrapper(
                         sync_future_object_with_realized,
                         empty_returned_object=returned_object)])
 
+            future = self._submit(fn=method, callbacks=callbacks, args=[],
+                kwargs=bound_args.arguments, bind_future_to_self=bind_future_to_self)
 
-            # have to call through class because arg[0] is self
-            args = args[1:]
-            fn = functools.partial(method, self=self)
-            future = self._submit(fn=fn, callbacks=callbacks, args=args, kwargs=kwargs)
-
-            if returned_object and returned_object is not self and not return_input_arg:
+            if returned_object and returned_object is not self:
                 returned_object._latest_future = future
 
             return returned_object
