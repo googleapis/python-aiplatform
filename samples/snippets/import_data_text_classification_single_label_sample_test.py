@@ -13,14 +13,15 @@
 # limitations under the License.
 
 
-import pytest
-import os
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import MagicMock, mock_open, patch
+
 
 import import_data_text_classification_single_label_sample
 
 # Test to assert that the import data function was called. We assert that the function was called
 # rather than wait for this LRO to complete
+
+
 def test_ucaip_generated_import_data_text_classification_single_label_sample():
     response = MagicMock()
     response.next_page_token = b""

@@ -13,46 +13,44 @@
 # limitations under the License.
 
 import os
-import uuid
+from uuid import uuid4
 
 from google.cloud import aiplatform
 import pytest
 
-import create_batch_prediction_job_video_action_recognition_sample
+import cancel_batch_prediction_job_sample
+import create_batch_prediction_job_text_classification_sample
+import delete_batch_prediction_job_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
-MODEL_ID = "3530998029718913024"  # permanent_swim_run_videos_action_recognition_model
-DISPLAY_NAME = (
-    f"temp_create_batch_prediction_job_video_action_recognition_test_{uuid.uuid4()}"
+MODEL_ID = "3863595899074641920"  # Permanent restaurant rating model
+DISPLAY_NAME = f"temp_create_batch_prediction_tcn_test_{uuid4()}"
+GCS_SOURCE_URI = (
+    "gs://ucaip-samples-test-output/inputs/batch_predict_TCN/tcn_inputs.jsonl"
 )
-GCS_SOURCE_URI = "gs://automl-video-demo-data/ucaip-var/swimrun_bp.jsonl"
 GCS_OUTPUT_URI = "gs://ucaip-samples-test-output/"
-API_ENDPOINT = "us-central1-aiplatform.googleapis.com"
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def shared_state():
-    state = {}
-    yield state
 
+    shared_state = {}
 
-@pytest.fixture
-def job_client():
-    client_options = {"api_endpoint": API_ENDPOINT}
-    job_client = aiplatform.gapic.JobServiceClient(client_options=client_options)
-    yield job_client
+    yield shared_state
 
+    assert "/" in shared_state["batch_prediction_job_name"]
 
-@pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, job_client):
-    yield
+    batch_prediction_job = shared_state["batch_prediction_job_name"].split("/")[-1]
 
     # Stop the batch prediction job
-    # Delete the batch prediction job
-    job_client.cancel_batch_prediction_job(
-        name=shared_state["batch_prediction_job_name"]
+    cancel_batch_prediction_job_sample.cancel_batch_prediction_job_sample(
+        project=PROJECT_ID, batch_prediction_job_id=batch_prediction_job
+    )
+
+    job_client = aiplatform.gapic.JobServiceClient(
+        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     )
 
     # Waiting for batch prediction job to be in CANCELLED state
@@ -62,19 +60,17 @@ def teardown(shared_state, job_client):
     )
 
     # Delete the batch prediction job
-    job_client.delete_batch_prediction_job(
-        name=shared_state["batch_prediction_job_name"]
+    delete_batch_prediction_job_sample.delete_batch_prediction_job_sample(
+        project=PROJECT_ID, batch_prediction_job_id=batch_prediction_job
     )
 
 
-# Creating AutoML Video Object Tracking batch prediction job
-def test_create_batch_prediction_job_video_action_recognition_sample(
-    capsys, shared_state, job_client
-):
+# Creating AutoML Text Classification batch prediction job
+def test_ucaip_generated_create_batch_prediction_tcn_sample(capsys, shared_state):
 
     model_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/models/{MODEL_ID}"
 
-    create_batch_prediction_job_video_action_recognition_sample.create_batch_prediction_job_video_action_recognition_sample(
+    create_batch_prediction_job_text_classification_sample.create_batch_prediction_job_text_classification_sample(
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,
         model=model_name,

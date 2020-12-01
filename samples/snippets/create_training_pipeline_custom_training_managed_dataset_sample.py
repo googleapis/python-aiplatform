@@ -32,10 +32,8 @@ def create_training_pipeline_custom_training_managed_dataset_sample(
 ):
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for
-    # multiple requests.
-    client = aiplatform.gapic.PipelineServiceClient(
-        client_options=client_options)
+    # This client only needs to be created once, and can be reused for multiple requests.
+    client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
 
     # input_data_config
     input_data_config = {
@@ -45,14 +43,13 @@ def create_training_pipeline_custom_training_managed_dataset_sample(
     }
 
     # training_task_definition
-    custom_task_definition = "gs://google-cloud-aiplatform/schema/" \
-                             "trainingjob/definition/custom_task_1.0.0.yaml"
+    custom_task_definition = "gs://google-cloud-aiplatform/schema/trainingjob/definition/custom_task_1.0.0.yaml"
 
     # training_task_inputs
     training_container_spec = {
         "imageUri": training_container_spec_image_uri,
         # AIP_MODEL_DIR is set by the service according to baseOutputDirectory.
-        "args": ["--model-dir=$(AIP_MODEL_DIR)",],
+        "args": ["--model-dir=$(AIP_MODEL_DIR)"],
     }
 
     training_worker_pool_spec = {
@@ -66,25 +63,16 @@ def create_training_pipeline_custom_training_managed_dataset_sample(
         "baseOutputDirectory": {"outputUriPrefix": base_output_uri_prefix},
     }
 
-    training_task_inputs = json_format.ParseDict(
-        training_task_inputs_dict, Value())
+    training_task_inputs = json_format.ParseDict(training_task_inputs_dict, Value())
 
     # model_to_upload
     model_container_spec = {
         "image_uri": model_container_spec_image_uri,
-        "command": ["/bin/tensorflow_model_server"],
-        "args": [
-            "--model_name=$(AIP_MODEL)",
-            "--model_base_path=$(AIP_STORAGE_URI)",
-            "--rest_api_port=8080",
-            "--port=8500",
-            "--file_system_poll_wait_seconds=31540000"
-        ],
+        "command": [],
+        "args": [],
     }
 
-    model = {
-        "display_name": model_display_name,
-        "container_spec": model_container_spec}
+    model = {"display_name": model_display_name, "container_spec": model_container_spec}
 
     training_pipeline = {
         "display_name": display_name,
