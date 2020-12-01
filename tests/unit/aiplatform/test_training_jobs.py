@@ -45,6 +45,8 @@ from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
+from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
+
 from google.cloud import storage
 from google.protobuf import json_format
 from google.protobuf import struct_pb2
@@ -62,7 +64,10 @@ print('hello world')
 """
 _TEST_REQUIREMENTS = ["pandas", "numpy", "tensorflow"]
 
+_TEST_DATASET_DISPLAY_NAME = "test-dataset-display-name"
+_TEST_DATASET_NAME = "test-dataset-name"
 _TEST_DISPLAY_NAME = "test-display-name"
+_TEST_METADATA_SCHEMA_URI_TABULAR = schema.dataset.metadata.tabular
 _TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
 _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
 _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
@@ -387,6 +392,13 @@ class TestCustomTrainingJob:
     def mock_dataset(self):
         ds = mock.MagicMock(datasets.Dataset)
         ds.name = _TEST_DATASET_NAME
+        ds._gca_resource = GapicDataset(
+            display_name=_TEST_DATASET_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+            labels={},
+            name=_TEST_DATASET_NAME,
+            metadata={},
+        )
         return ds
 
     def test_run_call_pipeline_service_create(
