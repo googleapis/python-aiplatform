@@ -484,14 +484,8 @@ def _timestamped_copy_to_gcs(
     Returns:
         gcs_path (str): The path of the copied file in gcs.
     """
-    if gcs_dir.startswith("gs://"):
-        gcs_dir = gcs_dir[5:]
-    if gcs_dir.endswith("/"):
-        gcs_dir = gcs_dir[:-1]
 
-    gcs_parts = gcs_dir.split("/", 1)
-    gcs_bucket = gcs_parts[0]
-    gcs_blob_prefix = None if len(gcs_parts) == 1 else gcs_parts[1]
+    gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(gcs_dir)
 
     local_file_name = pathlib.Path(local_file_path).name
     timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")

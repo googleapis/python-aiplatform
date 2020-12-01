@@ -186,22 +186,9 @@ class BatchPredictionJob(_Job):
                 credentials=self.api_client._transport._credentials
             )
 
-            gcs_path = output_info.gcs_output_directory
-
-            if gcs_path.startswith("gs://"):
-                gcs_path = gcs_path[5:]
-            if gcs_path.endswith("/"):
-                gcs_path = gcs_path[:-1]
-
-            split_gcs_path = gcs_path.split("/", 1)
-
-            gcs_bucket = None
-            gcs_prefix = None
-
-            if len(split_gcs_path) == 1:
-                gcs_bucket = split_gcs_path[0]
-            else:
-                gcs_bucket, gcs_prefix = split_gcs_path
+            gcs_bucket, gcs_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
+                output_info.gcs_output_directory
+            )
 
             blobs = storage_client.list_blobs(gcs_bucket, prefix=gcs_prefix)
 
