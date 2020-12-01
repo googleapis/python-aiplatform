@@ -27,7 +27,9 @@ from google.cloud.aiplatform import constants
 from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
     EndpointServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services import model_service
+from google.cloud.aiplatform_v1beta1.services.model_service import (
+    client as model_service_client,
+)
 from google.cloud.aiplatform_v1beta1.services import job_service
 from google.cloud.aiplatform_v1beta1 import types
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
@@ -43,7 +45,7 @@ from google.protobuf import json_format
 
 class Model(base.AiPlatformResourceNoun):
 
-    client_class = model_service.ModelServiceClient
+    client_class = model_service_client.ModelServiceClient
     _is_client_prediction_client = False
 
     @property
@@ -321,10 +323,10 @@ class Model(base.AiPlatformResourceNoun):
         job_display_name: str,
         gcs_source: Optional[Sequence[str]] = None,
         bigquery_source: Optional[str] = None,
-        instances_format: Optional[str] = "jsonl",
+        instances_format: str = "jsonl",
         gcs_destination_prefix: Optional[str] = None,
         bigquery_destination_prefix: Optional[str] = None,
-        predictions_format: Optional[str] = "jsonl",
+        predictions_format: str = "jsonl",
         model_parameters: Optional[Dict] = None,
         machine_type: Optional[str] = None,
         accelerator_type: Optional[str] = None,
@@ -360,10 +362,11 @@ class Model(base.AiPlatformResourceNoun):
             bigquery_source: Optional[str] = None
                 BigQuery URI to a table, up to 2000 characters long. For example:
                 `projectId.bqDatasetId.bqTableId`
-            instances_format: Optional[str] = "jsonl"
+            instances_format: str = "jsonl"
                 Required. The format in which instances are given, must be one
                 of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
-                or "file-list". Default is "jsonl".
+                or "file-list". Default is "jsonl" when using `gcs_source`. If a 
+                `bigquery_source` is provided, this is overriden to "bigquery".
             gcs_destination_prefix: Optional[str] = None
                 The Google Cloud Storage location of the directory where the
                 output is to be written to. In the given directory a new
@@ -405,10 +408,12 @@ class Model(base.AiPlatformResourceNoun):
                 followed by a single "errors" column, which as values has
                 ```google.rpc.Status`` <Status>`__ represented as a STRUCT,
                 and containing only ``code`` and ``message``.
-            predictions_format: Optional[str] = "jsonl"
+            predictions_format: str = "jsonl"
                 Required. The format in which AI Platform gives the
                 predictions, must be one of "jsonl", "csv", or "bigquery".
-                Default is "jsonl".
+                Default is "jsonl" when using `gcs_destination_prefix`. If a 
+                `bigquery_destination_prefix` is provided, this is overriden to
+                "bigquery".
             model_parameters: Optional[Dict] = None
                 Optional. The parameters that govern the predictions. The schema of
                 the parameters may be specified via the Model's `parameters_schema_uri`.
