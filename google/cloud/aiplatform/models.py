@@ -113,6 +113,9 @@ class Model(base.AiPlatformResourceNoun):
         # validation lifted and move these args down
         serving_container_predict_route: str,
         serving_container_health_route: str,
+        instance_schema_uri: Optional[str] = None,
+        parameters_schema_uri: Optional[str] = None,
+        prediction_schema_uri: Optional[str] = None,
         *,
         description: Optional[str] = None,
         serving_container_command: Optional[Sequence[str]] = None,
@@ -150,6 +153,52 @@ class Model(base.AiPlatformResourceNoun):
                 An HTTP path to send health check requests to the container, and which
                 must be supported by it. If not specified a standard HTTP path will be
                 used by AI Platform.
+            instance_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the format of a single instance, which
+                are used in
+                ``PredictRequest.instances``,
+                ``ExplainRequest.instances``
+                and
+                ``BatchPredictionJob.input_config``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform. Note: The URI given on output will be immutable
+                and probably different, including the URI scheme, than the
+                one given on input. The output URI will point to a location
+                where the user only has a read access.
+            parameters_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the parameters of prediction and
+                explanation via
+                ``PredictRequest.parameters``,
+                ``ExplainRequest.parameters``
+                and
+                ``BatchPredictionJob.model_parameters``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform, if no parameters are supported it is set to an
+                empty string. Note: The URI given on output will be
+                immutable and probably different, including the URI scheme,
+                than the one given on input. The output URI will point to a
+                location where the user only has a read access.
+            prediction_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the format of a single prediction
+                produced by this Model, which are returned via
+                ``PredictResponse.predictions``,
+                ``ExplainResponse.explanations``,
+                and
+                ``BatchPredictionJob.output_config``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform. Note: The URI given on output will be immutable
+                and probably different, including the URI scheme, than the
+                one given on input. The output URI will point to a location
+                where the user only has a read access.
             description (str):
                 The description of the model.
             serving_container_command: Optional[Sequence[str]]=None,
@@ -219,6 +268,11 @@ class Model(base.AiPlatformResourceNoun):
         managed_model = gca_model.Model(
             display_name=display_name,
             description=description,
+            predict_schemata=gca_model.PredictSchemata(
+                instance_schema_uri=instance_schema_uri,
+                parameters_schema_uri=parameters_schema_uri,
+                prediction_schema_uri=prediction_schema_uri,
+            ),
             artifact_uri=artifact_uri,
             container_spec=container_spec,
         )
