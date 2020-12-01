@@ -365,7 +365,7 @@ class Model(base.AiPlatformResourceNoun):
             instances_format: str = "jsonl"
                 Required. The format in which instances are given, must be one
                 of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
-                or "file-list". Default is "jsonl" when using `gcs_source`. If a 
+                or "file-list". Default is "jsonl" when using `gcs_source`. If a
                 `bigquery_source` is provided, this is overriden to "bigquery".
             gcs_destination_prefix: Optional[str] = None
                 The Google Cloud Storage location of the directory where the
@@ -411,7 +411,7 @@ class Model(base.AiPlatformResourceNoun):
             predictions_format: str = "jsonl"
                 Required. The format in which AI Platform gives the
                 predictions, must be one of "jsonl", "csv", or "bigquery".
-                Default is "jsonl" when using `gcs_destination_prefix`. If a 
+                Default is "jsonl" when using `gcs_destination_prefix`. If a
                 `bigquery_destination_prefix` is provided, this is overriden to
                 "bigquery".
             model_parameters: Optional[Dict] = None

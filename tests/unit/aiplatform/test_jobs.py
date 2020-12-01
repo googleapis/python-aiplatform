@@ -219,8 +219,7 @@ class TestJob:
         blobs = bp.iter_outputs()
 
         storage_list_blobs_mock.assert_called_once_with(
-            _TEST_GCS_OUTPUT_INFO.gcs_output_directory,
-            prefix=None
+            _TEST_GCS_OUTPUT_INFO.gcs_output_directory, prefix=None
         )
 
         assert blobs == _TEST_GCS_BLOBS
