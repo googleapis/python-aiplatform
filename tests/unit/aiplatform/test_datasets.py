@@ -30,7 +30,12 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import Dataset
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
-from google.cloud.aiplatform.data_source import BQTabularDataSource, GCSNonTabularDataSource, EmptyNonTabularDataSource, GCSNonTabularImportDataSource
+from google.cloud.aiplatform.data_source import (
+    BQTabularDataSource,
+    GCSNonTabularDataSource,
+    EmptyNonTabularDataSource,
+    GCSNonTabularImportDataSource,
+)
 
 from google.cloud.aiplatform_v1beta1 import GcsSource
 from google.cloud.aiplatform_v1beta1 import GcsDestination
@@ -170,8 +175,8 @@ class TestDataset:
         Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             source=EmptyNonTabularDataSource(
-                    metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR
-                ),
+                metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR
+            ),
             labels=_TEST_LABEL,
         )
 
@@ -192,9 +197,7 @@ class TestDataset:
 
         Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
-            source=BQTabularDataSource(
-                source_uri=_TEST_SOURCE_URI_BQ
-            ),
+            source=BQTabularDataSource(source_uri=_TEST_SOURCE_URI_BQ),
             labels=_TEST_LABEL,
         )
 
@@ -216,11 +219,12 @@ class TestDataset:
         my_dataset = Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             source=GCSNonTabularDataSource(
-                source_uris=[_TEST_SOURCE_URI_GCS], 
-                metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR, 
-                import_schema_uri=_TEST_IMPORT_SCHEMA_URI, 
-                data_items_labels=_TEST_DATA_LABEL_ITEMS),
-            labels=_TEST_LABEL            
+                source_uris=[_TEST_SOURCE_URI_GCS],
+                metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+                import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+                data_items_labels=_TEST_DATA_LABEL_ITEMS,
+            ),
+            labels=_TEST_LABEL,
         )
 
         expected_dataset = GapicDataset(
@@ -255,9 +259,10 @@ class TestDataset:
 
         my_dataset.import_data(
             source=GCSNonTabularImportDataSource(
-                source_uris=[_TEST_SOURCE_URI_GCS], 
-                import_schema_uri=_TEST_IMPORT_SCHEMA_URI, 
-                data_items_labels=_TEST_DATA_LABEL_ITEMS)
+                source_uris=[_TEST_SOURCE_URI_GCS],
+                import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+                data_items_labels=_TEST_DATA_LABEL_ITEMS,
+            )
         )
 
         expected_import_config = ImportDataConfig(

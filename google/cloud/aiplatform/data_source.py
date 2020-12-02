@@ -1,10 +1,11 @@
 from typing import Optional, Dict
-from abc import ABC, abstractmethod
+import abc
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform_v1beta1 import ImportDataConfig
 from google.cloud.aiplatform_v1beta1 import GcsSource
-        
-class DataSource(ABC):
+
+
+class DataSource(abc.ABC):
     @property
     def metadata_schema_uri(self) -> str:
         raise NotImplementedError
@@ -13,9 +14,10 @@ class DataSource(ABC):
     def metadata(self) -> Dict:
         raise NotImplementedError
 
+
 class EmptyNonTabularDataSource(DataSource):
     """Class for a empty, non-tabular dataset schema that provides Dataset metadata
-    
+
     To be used with the Dataset.create function to create an empty, non-tabular dataset.
     """
 
@@ -31,7 +33,7 @@ class EmptyNonTabularDataSource(DataSource):
         """
 
         self._metadata_schema_uri = metadata_schema_uri
-        
+
     @property
     def metadata_schema_uri(self) -> str:
         return self._metadata_schema_uri
@@ -40,9 +42,10 @@ class EmptyNonTabularDataSource(DataSource):
     def metadata(self) -> Dict:
         return {}
 
+
 class BQTabularDataSource(DataSource):
     """Class for a tabular dataset schema that provides Dataset metadata
-    
+
     Used for data stored on BigQuery.
     To be used with the Dataset.create function to import the dataset at creation time.
     """
@@ -58,12 +61,12 @@ class BQTabularDataSource(DataSource):
         """
 
         # Perform validation of URI
-        if not (source_uri.startswith('bq://') or source_uri.startswith('bigquery://')):
+        if not (source_uri.startswith("bq://") or source_uri.startswith("bigquery://")):
             raise ValueError(
                 "Expected source_uri to start with 'bq://' or 'bigquery://'"
             )
 
-        self._source_uri = source_uri        
+        self._source_uri = source_uri
 
     @property
     def metadata_schema_uri(self) -> str:
@@ -73,6 +76,7 @@ class BQTabularDataSource(DataSource):
     @property
     def metadata(self) -> Dict:
         return {"input_config": {"bigquery_source": {"uri": self._source_uri}}}
+
 
 # Do not instantiate this abstract class
 class GCSSourceValidating(DataSource):
@@ -89,13 +93,12 @@ class GCSSourceValidating(DataSource):
         """
 
         # Perform validation of URI's
-        if not all([uri.startswith('gs://') for uri in source_uris]):
-            raise ValueError(
-                "Expected alls URI's in source_uris to start with 'gs://'"
-            )
+        if not all([uri.startswith("gs://") for uri in source_uris]):
+            raise ValueError("Expected alls URI's in source_uris to start with 'gs://'")
 
         self._source_uris = source_uris
-        
+
+
 # Do not instantiate this abstract class
 class GCSDataSource(GCSSourceValidating, DataSource):
     """Abstract class for GCS source_uri's that provides Dataset metadata"""
@@ -104,9 +107,10 @@ class GCSDataSource(GCSSourceValidating, DataSource):
     def metadata(self) -> Dict:
         return {"input_config": {"gcs_source": {"uri": self._source_uris}}}
 
+
 class GCSTabularDataSource(GCSDataSource):
-    """Class for a tabular dataset schema that provides Dataset metadata. 
-    
+    """Class for a tabular dataset schema that provides Dataset metadata.
+
     Used for CSV files on Google Cloud Storage.
     To be used with the Dataset.create function to import the dataset at creation time.
     """
@@ -116,13 +120,15 @@ class GCSTabularDataSource(GCSDataSource):
         # Always return tabular as this config only supports tabular
         return schema.dataset.metadata.tabular
 
-class DataImportable(ABC):
-    """An abstract class that provides import_data_config for importing data to an existing database"""
 
-    @property 
+class DataImportable(abc.ABC):
+    """An abstract class that provides import_data_config for importing data to an existing dataset"""
+
+    @property
     def import_data_config(self) -> ImportDataConfig:
         raise NotImplementedError
-    
+
+
 class GCSNonTabularImportDataSource(GCSSourceValidating, DataImportable):
     """Class for a non-tabular dataset schema that provides import metadata.
 
@@ -130,7 +136,12 @@ class GCSNonTabularImportDataSource(GCSSourceValidating, DataImportable):
     To be used with the Dataset.import_data function to import files from Google Cloud Storage to an existing dataset.
     """
 
-    def __init__(self, source_uris: [str], import_schema_uri: str, data_items_labels: Optional[Dict] = None):
+    def __init__(
+        self,
+        source_uris: [str],
+        import_schema_uri: str,
+        data_items_labels: Optional[Dict] = None,
+    ):
         """
         Args:
             source_uris (Sequence[str]):
@@ -164,23 +175,30 @@ class GCSNonTabularImportDataSource(GCSSourceValidating, DataImportable):
         GCSSourceValidating.__init__(self, source_uris)
         self._import_schema_uri = import_schema_uri
         self._data_items_labels = data_items_labels
-        
-    @property 
+
+    @property
     def import_data_config(self) -> ImportDataConfig:
         return ImportDataConfig(
-                gcs_source=GcsSource(uris=self._source_uris),
-                import_schema_uri=self._import_schema_uri,
-                data_item_labels=self._data_items_labels,
-            )
+            gcs_source=GcsSource(uris=self._source_uris),
+            import_schema_uri=self._import_schema_uri,
+            data_item_labels=self._data_items_labels,
+        )
+
 
 class GCSNonTabularDataSource(GCSDataSource, GCSNonTabularImportDataSource):
-    """Class for a non-tabular dataset schema that provides Dataset metadata. 
-    
+    """Class for a non-tabular dataset schema that provides Dataset metadata.
+
     Used for files on Google Cloud Storage.
     To be used with the Dataset.create function to import data at creation time.
     """
 
-    def __init__(self, source_uris: [str], metadata_schema_uri: str, import_schema_uri: str, data_items_labels: Optional[Dict] = None):
+    def __init__(
+        self,
+        source_uris: [str],
+        metadata_schema_uri: str,
+        import_schema_uri: str,
+        data_items_labels: Optional[Dict] = None,
+    ):
         """
         Args:
             source_uris (Sequence[str]):
@@ -221,9 +239,11 @@ class GCSNonTabularDataSource(GCSDataSource, GCSNonTabularImportDataSource):
             raise ValueError(
                 "Expected non-tabular metadata schema uri. For tabular metadata schema, use GCSTabularDataSource"
             )
-        
+
         GCSDataSource.__init__(self, source_uris)
-        GCSNonTabularImportDataSource.__init__(self, source_uris, import_schema_uri, data_items_labels)
+        GCSNonTabularImportDataSource.__init__(
+            self, source_uris, import_schema_uri, data_items_labels
+        )
         self._metadata_schema_uri = metadata_schema_uri
 
     @property
@@ -235,10 +255,10 @@ class GCSNonTabularDataSource(GCSDataSource, GCSNonTabularImportDataSource):
         # Non-tabular datasets shouldn't have any metadata set
         return {}
 
-    @property 
+    @property
     def import_data_config(self) -> ImportDataConfig:
         return ImportDataConfig(
-                gcs_source=GcsSource(uris=self._source_uris),
-                import_schema_uri=self._import_schema_uri,
-                data_item_labels=self._data_items_labels,
-            )
+            gcs_source=GcsSource(uris=self._source_uris),
+            import_schema_uri=self._import_schema_uri,
+            data_item_labels=self._data_items_labels,
+        )

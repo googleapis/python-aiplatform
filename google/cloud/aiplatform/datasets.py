@@ -23,12 +23,11 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform import schema
-from google.cloud.aiplatform.data_source import DataSource, DataImportable, GCSNonTabularDataSource, GCSNonTabularImportDataSource
+
+from google.cloud.aiplatform.data_source import DataSource, DataImportable
 
 from google.cloud.aiplatform_v1beta1 import GcsDestination
 from google.cloud.aiplatform_v1beta1 import ExportDataConfig
-from google.cloud.aiplatform_v1beta1 import ImportDataConfig
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 
@@ -226,10 +225,7 @@ class Dataset(base.AiPlatformResourceNoun):
             parent=parent, dataset=gapic_dataset, metadata=request_metadata
         )
 
-    def import_data(
-        self,
-        source: DataImportable
-    ) -> "Dataset":
+    def import_data(self, source: DataImportable) -> "Dataset":
         """Upload data to existing managed dataset.
 
         Args:
