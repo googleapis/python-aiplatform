@@ -132,3 +132,4 @@ class TestTabularDataset:
         my_dataset = TabularDataset(dataset_name=_TEST_NAME)
         with pytest.raises(AttributeError):
             my_dataset.import_data
+
