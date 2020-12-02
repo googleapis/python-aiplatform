@@ -270,9 +270,7 @@ class Dataset(base.AiPlatformResourceNoun):
             labels=labels,
         )
 
-        return api_client.create_dataset(
-            parent=parent, dataset=gapic_dataset
-        )
+        return api_client.create_dataset(parent=parent, dataset=gapic_dataset)
 
     def _import_from_gcs(
         self,

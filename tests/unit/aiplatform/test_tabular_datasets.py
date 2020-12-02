@@ -88,8 +88,7 @@ class TestTabularDataset:
         ) as create_dataset_mock:
             create_dataset_lro_mock = mock.Mock(operation.Operation)
             create_dataset_lro_mock.result.return_value = GapicDataset(
-                display_name=_TEST_DISPLAY_NAME,
-                name=_TEST_NAME,
+                display_name=_TEST_DISPLAY_NAME, name=_TEST_NAME,
             )
             create_dataset_mock.return_value = create_dataset_lro_mock
             yield create_dataset_mock
