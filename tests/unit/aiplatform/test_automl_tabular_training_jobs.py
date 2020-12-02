@@ -77,84 +77,60 @@ _TEST_PIPELINE_RESOURCE_NAME = (
 )
 
 
+@pytest.fixture
+def mock_pipeline_service_create():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        )
+        yield mock_create_training_pipeline
+
+@pytest.fixture
+def mock_pipeline_service_create_and_get_with_fail():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+        )
+
+        with mock.patch.object(
+            pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+        ) as mock_get_training_pipeline:
+            mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+            )
+
+            yield mock_create_training_pipeline, mock_get_training_pipeline
+
+@pytest.fixture
+def mock_model_service_get():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as mock_get_model:
+        mock_get_model.return_value = gca_model.Model()
+        yield mock_get_model
+
+@pytest.fixture
+def mock_dataset():
+    ds = mock.MagicMock(datasets.Dataset)
+    ds.name = _TEST_DATASET_NAME
+    return ds
+
 class TestAutoMLTabularTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
 
-    @pytest.fixture
-    def mock_pipeline_service_create(self):
-        with mock.patch.object(
-            pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
-        ) as mock_create_training_pipeline:
-            mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
-            )
-            yield mock_create_training_pipeline
-
-    @pytest.fixture
-    def mock_pipeline_service_create_with_no_model_to_upload(self):
-        with mock.patch.object(
-            pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
-        ) as mock_create_training_pipeline:
-            mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            )
-            yield mock_create_training_pipeline
-
-    @pytest.fixture
-    def mock_pipeline_service_create_and_get_with_fail(self):
-        with mock.patch.object(
-            pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
-        ) as mock_create_training_pipeline:
-            mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
-            )
-
-            with mock.patch.object(
-                pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
-            ) as mock_get_training_pipeline:
-                mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                    name=_TEST_PIPELINE_RESOURCE_NAME,
-                    state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
-                )
-
-                yield mock_create_training_pipeline, mock_get_training_pipeline
-
-    @pytest.fixture
-    def mock_model_service_get(self):
-        with mock.patch.object(
-            model_service_client.ModelServiceClient, "get_model"
-        ) as mock_get_model:
-            mock_get_model.return_value = gca_model.Model()
-            yield mock_get_model
-
-    @pytest.fixture
-    def mock_dataset(self):
-        ds = mock.MagicMock(datasets.Dataset)
-        ds.name = _TEST_DATASET_NAME
-        return ds
-
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
-        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get,
-    ):
-        self._test_run_call_pipeline_service_create(
-            mock_pipeline_service_create, mock_dataset, mock_model_service_get)
-
-    def test_run_call_pipeline_service_create_async(
-        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get,
-    ):
-        self._test_run_call_pipeline_service_create(
-            mock_pipeline_service_create, mock_dataset, mock_model_service_get,
-            sync=False)
-
-    def _test_run_call_pipeline_service_create(
-        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get,
-        sync=True
+        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get, sync
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -220,25 +196,9 @@ class TestAutoMLTabularTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
-
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_if_no_model_display_name(
-        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get,
-    ):
-        self._test_run_call_pipeline_if_no_model_display_name(
-            mock_pipeline_service_create, mock_dataset, mock_model_service_get)
-
-    def test_run_call_pipeline_if_no_model_display_name_async(
-        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get,
-    ):
-        self._test_run_call_pipeline_if_no_model_display_name(
-            mock_pipeline_service_create, mock_dataset, mock_model_service_get,
-            sync=False)
-
-
-
-    def _test_run_call_pipeline_if_no_model_display_name(
-        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get,
-        sync=True
+        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get, sync
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -291,23 +251,9 @@ class TestAutoMLTabularTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get,
-    ):
-        self._test_run_called_twice_raises(
-            mock_pipeline_service_create, mock_dataset, mock_model_service_get)
-
-    def test_run_called_twice_raises_aysnc(
-        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get,
-    ):
-        self._test_run_called_twice_raises(
-            mock_pipeline_service_create, mock_dataset, mock_model_service_get,
-            sync=False)
-
-    def _test_run_called_twice_raises(
-        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get,
-        sync=True
+        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get, sync
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -341,136 +287,9 @@ class TestAutoMLTabularTrainingJob:
                 sync=sync
             )
 
-    def test_run_call_pipeline_service_create_with_no_dataset(
-        self, mock_pipeline_service_create, mock_model_service_get,
-    ):
-        self._test_run_call_pipeline_service_create_with_no_dataset(
-            mock_pipeline_service_create, mock_model_service_get)
-
-    def test_run_call_pipeline_service_create_with_no_dataset_async(
-        self, mock_pipeline_service_create, mock_model_service_get,
-    ):
-        self._test_run_call_pipeline_service_create_with_no_dataset(
-            mock_pipeline_service_create, mock_model_service_get, sync=False)
-
-
-
-    def _test_run_call_pipeline_service_create_with_no_dataset(
-        self, mock_pipeline_service_create, mock_model_service_get, sync=True
-    ):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
-
-        job = AutoMLTabularTrainingJob(
-            display_name=_TEST_DISPLAY_NAME,
-            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
-            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
-            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
-            optimization_objective_recall_value=None,
-            optimization_objective_precision_value=None,
-        )
-
-        model_from_job = job.run(
-            dataset=None,
-            target_column=_TEST_TRAINING_TARGET_COLUMN,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
-            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
-            model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
-            sync=sync
-        )
-
-        if not sync:
-            model_from_job.wait()
-
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
-
-        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
-            display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.tabular_task,
-            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
-            model_to_upload=true_managed_model,
-            input_data_config=None,
-        )
-
-        mock_pipeline_service_create.assert_called_once_with(
-            parent=initializer.global_config.common_location_path(),
-            training_pipeline=true_training_pipeline,
-        )
-
-        assert job._gca_resource is mock_pipeline_service_create.return_value
-
-        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
-
-        assert model_from_job._gca_resource is mock_model_service_get.return_value
-
-    def test_run_returns_none_if_no_model_to_upload(
-        self, mock_pipeline_service_create_with_no_model_to_upload, mock_dataset,
-    ):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
-
-        job = AutoMLTabularTrainingJob(
-            display_name=_TEST_DISPLAY_NAME,
-            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
-            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
-            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
-            optimization_objective_recall_value=None,
-            optimization_objective_precision_value=None,
-        )
-
-        model = job.run(
-            model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            dataset=mock_dataset,
-            target_column=_TEST_TRAINING_TARGET_COLUMN,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-        )
-
-        assert model is None
-
-    def test_get_model_raises_if_no_model_to_upload(
-        self, mock_pipeline_service_create_with_no_model_to_upload, mock_dataset,
-    ):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
-
-        job = AutoMLTabularTrainingJob(
-            display_name=_TEST_DISPLAY_NAME,
-            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
-            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
-            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
-            optimization_objective_recall_value=None,
-            optimization_objective_precision_value=None,
-        )
-
-        job.run(
-            model_display_name=_TEST_MODEL_DISPLAY_NAME,
-            dataset=mock_dataset,
-            target_column=_TEST_TRAINING_TARGET_COLUMN,
-            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
-        )
-
-        with pytest.raises(RuntimeError):
-            job.get_model()
-
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
-        self, mock_pipeline_service_create_and_get_with_fail, mock_dataset,
-    ):
-        self._test_run_raises_if_pipeline_fails(
-            mock_pipeline_service_create_and_get_with_fail, mock_dataset)
-
-    def test_run_raises_if_pipeline_fails_async(
-        self, mock_pipeline_service_create_and_get_with_fail, mock_dataset,
-    ):
-        self._test_run_raises_if_pipeline_fails(
-            mock_pipeline_service_create_and_get_with_fail, mock_dataset, sync=False)
-
-    def _test_run_raises_if_pipeline_fails(
-        self, mock_pipeline_service_create_and_get_with_fail, mock_dataset, sync=True,
+        self, mock_pipeline_service_create_and_get_with_fail, mock_dataset, sync,
     ):
 
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)

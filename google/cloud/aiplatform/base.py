@@ -16,6 +16,7 @@
 #
 
 import abc
+import collections
 from concurrent import futures
 import functools
 import inspect
@@ -72,14 +73,8 @@ class FutureCache(metaclass=abc.ABCMeta):
     def _latest_future(self, future: Optional[futures.Future]):
         with self.__latest_future_lock:
             self.__latest_future = future
-            if future:
-                future.add_done_callback(self._complete_future)
-
-    @_latest_future.deleter
-    def _latest_future(self):
-        with self.__latest_future_lock:
-            self.__latest_future = None
-
+        if future:
+            future.add_done_callback(self._complete_future)
 
     def _submit(self,
         fn: Callable,
@@ -120,12 +115,10 @@ class FutureCache(metaclass=abc.ABCMeta):
             future = initializer.global_pool.submit(wait_for_dependencies_and_invoke,
                 deps=deps, fn=fn, args=args, kwargs=kwargs)
 
-            if bind_future_to_self:
-                self.__latest_future = future
+            self.__latest_future = future
 
-        if bind_future_to_self:
-            # Clean up callback captures exception as well as removes future.
-            future.add_done_callback(self._complete_future)
+        # Clean up callback captures exception as well as removes future.
+        future.add_done_callback(self._complete_future)
 
         if callbacks:
             for c in callbacks:
@@ -135,7 +128,7 @@ class FutureCache(metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def _alternative_constructor(cls):
+    def _empty_constructor(cls):
         pass
 
 
@@ -234,7 +227,7 @@ class AiPlatformResourceNounWithFuture(AiPlatformResourceNoun, FutureCache):
         FutureCache.__init__(self)
 
     @classmethod
-    def _alternative_constructor(
+    def _empty_constructor(
             cls,
             project: Optional[str] = None,
             location: Optional[str] = None,
@@ -279,69 +272,71 @@ def optional_async_wrapper(
         functools.wraps(method)
         def wrapper(*args, **kwargs):
             sync = kwargs.pop('sync', True)
+            bound_args = inspect.signature(method).bind(*args, **kwargs)
+            self = bound_args.arguments.get('self')
+
+            if self:
+                self._raise_future_exception()
 
             if sync:
+                if self:
+                    self.wait()
                 return method(*args, **kwargs)
 
             callbacks=[]
+            dependencies = []
 
             # all method should have type signatures
             return_type = get_annotation_class(
                 inspect.getfullargspec(method).annotations['return'])
 
-            # Case 1: is a classmethod that creates the object and returns it
+
+            # is a classmethod that creates the object and returns it
             if args and inspect.isclass(args[0]):
-                # the class method returns None then return None
-                if not return_type:
-                    self = None
-                else:
-                    # assumes classmethod is our resource noun
-                    self = args[0]._alternative_constructor()
-                    # sync the objects after future completes
-                    callbacks.append(functools.partial(sync_future_object_with_realized,
-                                                        empty_returned_object=self))
+                # assumes classmethod is our resource noun
+                returned_object = args[0]._empty_constructor()
+                self = returned_object
 
-                self._submit(method, callbacks=callbacks, args=args, kwargs=kwargs)
-
-                # we assume classmethod return an instance of itself or None
-                return self
-
-            # Case 2: is instance method and return a different class object
-            self = args[0]
+            else: # instance method
 
 
-            # check to make sure any previous async call hasn't thrown
-            if self._exception:
-                raise self._exception
-
-
-            # object produced by the method
-            returned_object = None
-
-            bound_args = inspect.signature(method).bind(*args, **kwargs)
-
-            print(bound_args)
-
-            if return_input_arg:
+                # object produced by the method
                 returned_object = bound_args.arguments.get(return_input_arg)
 
-            should_construct = not returned_object and ((not predicate_return_on_arg) or
-                (predicate_return_on_arg and bound_args.arguments.get(predicate_return_on_arg)))
+                if returned_object and returned_object is not self:
+                    returned_object._raise_future_exception()
+                    callbacks.append(returned_object._complete_future)
 
-            if should_construct:
-                # if this method acts on the object itself
-                if return_type is not None:
-                    returned_object = return_type._alternative_constructor()
+                should_construct = not returned_object and bound_args.arguments.get(
+                        predicate_return_on_arg,
+                        not predicate_return_on_arg)
 
-                    callbacks.extend([functools.partial(
-                        sync_future_object_with_realized,
-                        empty_returned_object=returned_object)])
+                if should_construct:
+                    # if this method acts on the object itself
+                    if return_type is not None:
+                        returned_object = return_type._empty_constructor()
+                        print(returned_object)
+                        callbacks.append(returned_object._complete_future)
+
+
+            if returned_object:
+                # sync objects after future completes
+                callbacks.insert(0, functools.partial(
+                    sync_future_object_with_realized,
+                    empty_returned_object=returned_object))
+
+            if not bind_future_to_self:
+                calling_object_latest_future = self._latest_future
+                if calling_object_latest_future:
+                    dependencies.append(calling_object_latest_future)
+                self = returned_object
 
             future = self._submit(fn=method, callbacks=callbacks, args=[],
-                kwargs=bound_args.arguments, bind_future_to_self=bind_future_to_self)
+                    additional_dependencies=dependencies,
+                    kwargs=bound_args.arguments)
 
             if returned_object and returned_object is not self:
-                returned_object._latest_future = future
+                    returned_object._latest_future = future
 
             return returned_object
 

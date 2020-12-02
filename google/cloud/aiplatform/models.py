@@ -411,6 +411,98 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
             utils.validate_display_name(deployed_model_display_name)
 
         max_replica_count = max(min_replica_count, max_replica_count)
+
+        if traffic_split is None:
+            if traffic_percentage > 100:
+                raise ValueError("Traffic percentage cannot be greater than 100.")
+            if traffic_percentage < 0:
+                raise ValueError("Traffic percentage cannot be negative.")
+
+        elif traffic_split:
+            # TODO(b/172678233) verify every referenced deployed model exists
+            if sum(traffic_split.values()) != 100:
+                raise ValueError(
+                    "Sum of all traffic within traffic split needs to be 100."
+                )
+
+        self._deploy(
+            model=model,
+            deployed_model_display_name=deployed_model_display_name,
+            traffic_percentage=traffic_percentage,
+            traffic_split=traffic_split,
+            machine_type=machine_type,
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            metadata=metadata,
+            sync=sync
+        )
+
+    @base.optional_async_wrapper()
+    def _deploy(
+        self,
+        model: "Model",
+        deployed_model_display_name: Optional[str] = None,
+        traffic_percentage: Optional[int] = 0,
+        traffic_split: Optional[Dict[str, int]] = None,
+        machine_type: Optional[str] = None,
+        min_replica_count: Optional[int] = 1,
+        max_replica_count: Optional[int] = 1,
+        metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync=True
+    ) -> None:
+        """
+        Deploys a Model to the Endpoint.
+
+        Args:
+            model (aiplatform.Model):
+                Required. Model to be deployed.
+            deployed_model_display_name (str):
+                Optional. The display name of the DeployedModel. If not provided
+                upon creation, the Model's display_name is used.
+            traffic_percentage (int):
+                Optional. Desired traffic to newly deployed model. Defaults to
+                0 if there are pre-existing deployed models. Defaults to 100 if
+                there are no pre-existing deployed models. Negative values should
+                not be provided. Traffic of previously deployed models at the endpoint
+                will be scaled down to accommodate new deployed model's traffic.
+                Should not be provided if traffic_split is provided.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
+            machine_type (str):
+                Optional. The type of machine. Not specifying machine type will
+                result in model to be deployed with automatic resources.
+            min_replica_count (int):
+                Optional. The minimum number of machine replicas this deployed
+                model will be always deployed on. If traffic against it increases,
+                it may dynamically be deployed onto more replicas, and as traffic
+                decreases, some of these extra replicas may be freed.
+            max_replica_count (int):
+                Optional. The maximum number of replicas this deployed model may
+                be deployed on when the traffic against it increases. If requested
+                value is too large, the deployment will error, but if deployment
+                succeeds then the ability to scale the model to that many replicas
+                is guaranteed (barring service outages). If traffic against the
+                deployed model increases beyond what its replicas at maximum may
+                handle, a portion of the traffic will be dropped. If this value
+                is not provided, the larger value of min_replica_count or 1 will
+                be used. If value provided is smaller than min_replica_count, it
+                will automatically be increased to be min_replica_count.
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+            sync (bool):
+                Whether to deploy this model synchronously.
+        Raises:
+            ValueError if there is not current traffic split and traffic percentage
+            is not 0 or 100.
+        """
+
         if machine_type:
             machine_spec = machine_resources.MachineSpec(machine_type=machine_type)
             dedicated_resources = machine_resources.DedicatedResources(
@@ -433,67 +525,6 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
                 model=model.resource_name,
                 display_name=deployed_model_display_name,
             )
-
-        if traffic_split is None:
-            if traffic_percentage > 100:
-                raise ValueError("Traffic percentage cannot be greater than 100.")
-            if traffic_percentage < 0:
-                raise ValueError("Traffic percentage cannot be negative.")
-
-        elif traffic_split:
-            # TODO(b/172678233) verify every referenced deployed model exists
-            if sum(traffic_split.values()) != 100:
-                raise ValueError(
-                    "Sum of all traffic within traffic split needs to be 100."
-                )
-
-        self._deploy(
-            deployed_model=deployed_model,
-            traffic_percentage=traffic_percentage,
-            traffic_split=traffic_split,
-            metadata=metadata,
-            sync=sync
-        )
-
-    @base.optional_async_wrapper()
-    def _deploy(
-        self,
-        deployed_model: gca_endpoint.DeployedModel,
-        traffic_percentage: Optional[int] = 0,
-        traffic_split: Optional[Dict[str, int]] = None,
-        metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync=True
-    ) -> None:
-        """
-        Deploys a Model to the Endpoint.
-
-        Args:
-            deployed_model (gca_endpoint.DeployedModel):
-                Required. The Model to be deployed.
-            traffic_percentage (int):
-                Optional. Desired traffic to newly deployed model. Defaults to
-                0 if there are pre-existing deployed models. Defaults to 100 if
-                there are no pre-existing deployed models. Negative values should
-                not be provided. Traffic of previously deployed models at the endpoint
-                will be scaled down to accommodate new deployed model's traffic.
-                Should not be provided if traffic_split is provided.
-            traffic_split (Dict[str, int]):
-                Optional. A map from a DeployedModel's ID to the percentage of
-                this Endpoint's traffic that should be forwarded to that DeployedModel.
-                If a DeployedModel's ID is not listed in this map, then it receives
-                no traffic. The traffic percentage values must add up to 100, or
-                map must be empty if the Endpoint is to not accept any traffic at
-                the moment. Key for model being deployed is "0". Should not be
-                provided if traffic_percentage is provided.
-            metadata (Sequence[Tuple[str, str]]):
-                Optional. Strings which should be sent along with the request as
-                metadata.
-            sync (bool):
-                Whether to deploy this model synchronously.
-        Raises:
-            ValueError if there is not current traffic split and traffic percentage
-            is not 0 or 100.
-        """
 
         if traffic_split is None:
             # new model traffic needs to be 100 if no pre-existing models
@@ -962,7 +993,6 @@ class Model(base.AiPlatformResourceNounWithFuture):
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
             metadata=metadata,
-            sync=sync
         )
 
         return endpoint
