@@ -180,7 +180,7 @@ class TestDataset:
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=_TEST_PARENT, dataset=expected_dataset
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
@@ -202,7 +202,7 @@ class TestDataset:
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=_TEST_PARENT, dataset=expected_dataset
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
@@ -232,7 +232,7 @@ class TestDataset:
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=_TEST_PARENT, dataset=expected_dataset
         )
 
         import_data_mock.assert_called_once_with(

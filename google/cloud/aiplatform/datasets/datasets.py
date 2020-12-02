@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Sequence, Dict, Tuple
+from typing import Optional, Sequence, Dict
 
 from google.api_core import operation
 from google.auth import credentials as auth_credentials
@@ -75,6 +75,11 @@ class Dataset(base.AiPlatformResourceNoun):
         super().__init__(project=project, location=location, credentials=credentials)
         self._gca_resource = self.api_client.get_dataset(name=dataset_name)
 
+    @property
+    def metadata_schema_uri(self) -> str:
+        """The metadata schema uri of this dataset resource."""
+        return self._gca_resource.metadata_schema_uri
+
     @classmethod
     def create(
         cls,
@@ -83,7 +88,6 @@ class Dataset(base.AiPlatformResourceNoun):
         gcs_source: Optional[Sequence[str]] = None,
         bq_source: Optional[str] = None,
         import_schema_uri: Optional[str] = None,
-        metadata: Sequence[Tuple[str, str]] = (),
         labels: Optional[Dict] = None,
         data_items_labels: Optional[Dict] = None,
         project: Optional[str] = None,
@@ -117,8 +121,6 @@ class Dataset(base.AiPlatformResourceNoun):
                 done against the schema. The schema is defined as an
                 `OpenAPI 3.0.2 Schema
                 Object <https://tinyurl.com/y538mdwt>`__.
-            metadata: Sequence[Tuple[str, str]]=()
-                Strings which should be sent along with the request as metadata.
             labels: (Optional[Dict]) = None
                 The labels with user-defined metadata to organize your
                 Datasets.
@@ -190,7 +192,6 @@ class Dataset(base.AiPlatformResourceNoun):
             ),
             metadata_schema_uri=metadata_schema_uri,
             dataset_metadata=dataset_metadata,
-            request_metadata=metadata,
             labels=labels,
             api_client=api_client,
         )
@@ -222,7 +223,6 @@ class Dataset(base.AiPlatformResourceNoun):
         metadata_schema_uri: str,
         dataset_metadata: Dict,
         labels: Optional[Dict] = {},
-        request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
         """Creates a new managed dataset by directly calling API client.
 
@@ -259,9 +259,6 @@ class Dataset(base.AiPlatformResourceNoun):
                 See https://goo.gl/xmQnxf for more information and examples
                 of labels. System reserved label keys are prefixed with
                 "aiplatform.googleapis.com/" and are immutable.
-            request_metadata: Sequence[Tuple[str, str]] = ()
-                Strings which should be sent along with the create_dataset
-                request as metadata. Usually to specify special dataset config.
         Returns:
             operation (Operation):
                 An object representing a long-running operation.
@@ -274,7 +271,7 @@ class Dataset(base.AiPlatformResourceNoun):
         )
 
         return api_client.create_dataset(
-            parent=parent, dataset=gapic_dataset, metadata=request_metadata
+            parent=parent, dataset=gapic_dataset
         )
 
     def _import_from_gcs(
