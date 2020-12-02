@@ -24,7 +24,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import schema
-from google.cloud.aiplatform.source_config import SourceConfig, DataImportable
+from google.cloud.aiplatform.data_source import DataSource, DataImportable, GCSNonTabularDataSource, GCSNonTabularImportDataSource
 
 from google.cloud.aiplatform_v1beta1 import GcsDestination
 from google.cloud.aiplatform_v1beta1 import ExportDataConfig
@@ -79,7 +79,7 @@ class Dataset(base.AiPlatformResourceNoun):
     def create(
         cls,
         display_name: str,
-        source: SourceConfig,
+        source: DataSource,
         request_metadata: Sequence[Tuple[str, str]] = (),
         labels: Optional[Dict] = None,
         project: Optional[str] = None,
@@ -132,15 +132,6 @@ class Dataset(base.AiPlatformResourceNoun):
                 Instantiated representation of the managed dataset resource.
         """
         utils.validate_display_name(display_name)
-
-        is_tabular_dataset_metadata = (
-            metadata_schema_uri == schema.dataset.metadata.tabular
-        )
-
-        if bool(bq_source) and not is_tabular_dataset_metadata:
-            raise ValueError(
-                "A tabular metadata_schema uri must be used when using a BigQuery source"
-            )
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
