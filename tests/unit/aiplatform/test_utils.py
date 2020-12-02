@@ -23,6 +23,7 @@ from random import randint
 from string import ascii_letters
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import Fields
 from google.cloud.aiplatform.utils import extract_fields_from_resource_name
 
@@ -204,3 +205,18 @@ def test_validate_display_name_raises_length():
 
 def test_validate_display_name():
     aiplatform.utils.validate_display_name("my_model_abc")
+
+
+@pytest.mark.parametrize(
+    "gcs_path, expected",
+    [
+        ("gs://example-bucket/path/to/folder", ("example-bucket", "path/to/folder")),
+        ("example-bucket/path/to/folder/", ("example-bucket", "path/to/folder")),
+        ("gs://example-bucket", ("example-bucket", None)),
+        ("gs://example-bucket/", ("example-bucket", None)),
+        ("gs://example-bucket/path", ("example-bucket", "path")),
+    ],
+)
+def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple):
+    # Given a GCS path, ensure correct bucket and prefix are extracted
+    assert expected == utils.extract_bucket_and_prefix_from_gcs_path(gcs_path)

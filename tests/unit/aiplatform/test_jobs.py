@@ -77,15 +77,13 @@ _TEST_BQ_OUTPUT_CONFIG = batch_prediction_job.BatchPredictionJob.OutputConfig(
 )
 
 _TEST_GCS_OUTPUT_INFO = batch_prediction_job.BatchPredictionJob.OutputInfo(
-    gcs_output_directory=_TEST_GCS_BUCKET_PATH
+    gcs_output_directory=_TEST_GCS_BUCKET_NAME
 )
 _TEST_BQ_OUTPUT_INFO = batch_prediction_job.BatchPredictionJob.OutputInfo(
     bigquery_output_dataset=_TEST_BQ_PATH
 )
 
 _TEST_EMPTY_OUTPUT_INFO = batch_prediction_job.BatchPredictionJob.OutputInfo()
-
-_TEST_ITER_DIRS_BQ_QUERY = f"SELECT * FROM {_TEST_BQ_DATASET_ID}.predictions LIMIT 100"
 
 _TEST_GCS_BLOBS = [
     storage.Blob(name="some/path/prediction.jsonl", bucket=_TEST_GCS_BUCKET_NAME)
@@ -221,7 +219,7 @@ class TestJob:
         blobs = bp.iter_outputs()
 
         storage_list_blobs_mock.assert_called_once_with(
-            _TEST_GCS_OUTPUT_INFO.gcs_output_directory
+            _TEST_GCS_OUTPUT_INFO.gcs_output_directory, prefix=None
         )
 
         assert blobs == _TEST_GCS_BLOBS

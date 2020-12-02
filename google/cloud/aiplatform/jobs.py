@@ -186,7 +186,12 @@ class BatchPredictionJob(_Job):
                 credentials=self.api_client._transport._credentials
             )
 
-            blobs = storage_client.list_blobs(output_info.gcs_output_directory)
+            gcs_bucket, gcs_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
+                output_info.gcs_output_directory
+            )
+
+            blobs = storage_client.list_blobs(gcs_bucket, prefix=gcs_prefix)
+
             return blobs
 
         # BigQuery Destination, return RowIterator
