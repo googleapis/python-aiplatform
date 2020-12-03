@@ -34,7 +34,6 @@ from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 
 
-
 class Dataset(base.AiPlatformResourceNounWithFutureManager):
     """Managed dataset resource for AI Platform"""
 
@@ -240,7 +239,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         gcs_source: Optional[Sequence[str]] = None,
         import_schema_uri: Optional[str] = None,
         data_items_labels: Optional[Dict] = None,
-        sync: bool = True
+        sync: bool = True,
     ) -> "Dataset":
         """Creates a new dataset and optionally imports data into dataset when
         source and import_schema_uri are passed.

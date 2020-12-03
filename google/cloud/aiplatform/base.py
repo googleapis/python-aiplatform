@@ -424,6 +424,7 @@ def optional_sync(
         """
 
         functools.wraps(method)
+
         def wrapper(*args, **kwargs):
             """Wraps method."""
             sync = kwargs.pop("sync", True)
