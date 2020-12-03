@@ -20,7 +20,6 @@ from concurrent import futures
 import functools
 import inspect
 import threading
-import time
 from typing import Any, Callable, Dict, Optional, Sequence, Union
 
 from google.auth import credentials as auth_credentials
@@ -380,7 +379,7 @@ def get_annotation_class(annotation: type) -> type:
     """
     # typing.Optional
     if getattr(annotation, "__origin__", None) is Union:
-        return annotation.__dict__["__args__"][0]
+        return annotation.__args__[0]
     else:
         return annotation
 

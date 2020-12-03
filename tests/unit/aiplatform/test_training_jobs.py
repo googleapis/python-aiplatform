@@ -417,7 +417,6 @@ class TestCustomTrainingJob:
         mock_model_service_get,
         sync,
     ):
-        print(sync)
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.CustomTrainingJob(
@@ -876,7 +875,7 @@ class TestCustomTrainingJob:
         aiplatform.init(project=_TEST_PROJECT)
 
         with pytest.raises(RuntimeError):
-            job = training_jobs.CustomTrainingJob(
+            training_jobs.CustomTrainingJob(
                 display_name=_TEST_DISPLAY_NAME,
                 script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
                 container_uri=_TEST_TRAINING_CONTAINER_IMAGE,

@@ -15,16 +15,9 @@
 # limitations under the License.
 #
 
-import os
 import pytest
 
-from unittest import mock
 from importlib import reload
-from unittest.mock import patch
-
-from google.api_core import operation
-from google.auth.exceptions import GoogleAuthError
-from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
@@ -33,13 +26,9 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
 
 from google.cloud.aiplatform_v1beta1 import GcsSource
-from google.cloud.aiplatform_v1beta1 import GcsDestination
 from google.cloud.aiplatform_v1beta1 import ImportDataConfig
-from google.cloud.aiplatform_v1beta1 import ExportDataConfig
-from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 from google.cloud.aiplatform_v1beta1.types import io as gca_io
-from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state
 from google.cloud.aiplatform_v1beta1.types import (

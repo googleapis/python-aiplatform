@@ -19,7 +19,6 @@ from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import lro
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import jobs
@@ -743,7 +742,6 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         if traffic_split is not None:
             if deployed_model_id in traffic_split and traffic_split[deployed_model_id]:
                 raise ValueError("Model being undeployed should have 0 traffic.")
-            traffic_sum = 0
             if sum(traffic_split.values()) != 100:
                 # TODO(b/172678233) verify every referenced deployed model exists
                 raise ValueError(

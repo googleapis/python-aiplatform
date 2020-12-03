@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import time
 import proto
 
 from google.api_core import operation as ga_operation
