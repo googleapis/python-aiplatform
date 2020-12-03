@@ -46,7 +46,6 @@ from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
 
-
 import test_datasets
 from test_datasets import get_dataset_mock
 from test_datasets import create_dataset_mock
