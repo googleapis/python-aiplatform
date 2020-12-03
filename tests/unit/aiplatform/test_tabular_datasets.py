@@ -93,7 +93,6 @@ class TestTabularDataset:
             create_dataset_mock.return_value = create_dataset_lro_mock
             yield create_dataset_mock
 
-    @pytest.mark.usefixtures("get_tabular_dataset_mock")
     def test_init_tabular_dataset(self, get_tabular_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
         TabularDataset(dataset_name=_TEST_NAME)
@@ -102,7 +101,7 @@ class TestTabularDataset:
     @pytest.mark.usefixtures("get_nontabular_dataset_mock")
     def test_init_nontabular_dataset(self):
         aiplatform.init(project=_TEST_PROJECT)
-        with pytest.raises(AssertionError):
+        with pytest.raises(Exception):
             TabularDataset(dataset_name=_TEST_NAME)
 
     @pytest.mark.usefixtures("get_tabular_dataset_mock")
@@ -126,10 +125,23 @@ class TestTabularDataset:
             parent=_TEST_PARENT, dataset=expected_dataset
         )
 
+    def test_create_tabular_dataset_with_both_source(self):
+        aiplatform.init(project=_TEST_PROJECT)
+        with pytest.raises(Exception):
+            TabularDataset.create(
+                display_name=_TEST_DISPLAY_NAME,
+                gcs_source=_TEST_SOURCE_URI_GCS,
+                bq_source=_TEST_SOURCE_URI_BQ,
+            )
+
+    def test_create_tabular_dataset_with_no_source(self):
+        aiplatform.init(project=_TEST_PROJECT)
+        with pytest.raises(Exception):
+            TabularDataset.create(display_name=_TEST_DISPLAY_NAME,)
+
     @pytest.mark.usefixtures("get_tabular_dataset_mock")
     def test_no_import_data_method(self):
         aiplatform.init(project=_TEST_PROJECT)
         my_dataset = TabularDataset(dataset_name=_TEST_NAME)
-        with pytest.raises(AttributeError):
+        with pytest.raises(Exception):
             my_dataset.import_data
-

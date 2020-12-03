@@ -178,6 +178,12 @@ class Dataset(base.AiPlatformResourceNoun):
         # If this is tabular enrich the dataset metadata with source
         dataset_metadata = {}
         if is_tabular_dataset_metadata:
+            if gcs_source and bq_source:
+                raise Exception(
+                    "'gcs_source' and 'bq_source' should not be set the same time."
+                )
+            if not gcs_source and not bq_source:
+                raise Exception("Either 'gcs_source' or 'bq_source' should be set.")
             if gcs_source:
                 dataset_metadata = {"input_config": {"gcs_source": {"uri": gcs_source}}}
             elif bq_source:
@@ -205,12 +211,13 @@ class Dataset(base.AiPlatformResourceNoun):
             credentials=credentials,
         )
 
-        if gcs_source and not is_tabular_dataset_metadata:
-            return dataset_obj.import_data(
-                gcs_source=gcs_source,
-                import_schema_uri=import_schema_uri,
-                data_items_labels=data_items_labels,
-            )
+        if not is_tabular_dataset_metadata:
+            if gcs_source and import_schema_uri:
+                return dataset_obj.import_data(
+                    gcs_source=gcs_source,
+                    import_schema_uri=import_schema_uri,
+                    data_items_labels=data_items_labels,
+                )
         else:
             return dataset_obj
 

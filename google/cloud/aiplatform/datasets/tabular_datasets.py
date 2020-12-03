@@ -27,6 +27,10 @@ from google.cloud.aiplatform.datasets import datasets
 class TabularDataset(datasets.Dataset):
     """Managed tabular dataset resource for AI Platform"""
 
+    _types = [
+        schema.dataset.metadata.tabular,
+    ]
+
     def __init__(
         self,
         dataset_name: str,
@@ -50,6 +54,9 @@ class TabularDataset(datasets.Dataset):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
+        Raises:
+            Exception if the retrieved dataset type is not supported by
+            'TabularDataset' class.
         """
 
         super().__init__(
@@ -59,9 +66,11 @@ class TabularDataset(datasets.Dataset):
             credentials=credentials,
         )
 
-        assert self.metadata_schema_uri == schema.dataset.metadata.tabular, (
-            "%s is not a tabular dataset resource" % self.resource_name
-        )
+        if self.metadata_schema_uri not in self._types:
+            raise Exception(
+                f"{self.resource_name} can not be retrieved using "
+                f"'TabularDataset' class, check the dataset type"
+            )
 
     @classmethod
     def create(
