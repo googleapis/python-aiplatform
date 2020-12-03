@@ -15,8 +15,6 @@
 # limitations under the License.
 #
 
-import abc
-from concurrent import futures
 from typing import Optional, Sequence, Dict, Tuple
 
 from google.api_core import operation
@@ -31,8 +29,10 @@ from google.cloud.aiplatform_v1beta1 import GcsSource
 from google.cloud.aiplatform_v1beta1 import GcsDestination
 from google.cloud.aiplatform_v1beta1 import ExportDataConfig
 from google.cloud.aiplatform_v1beta1 import ImportDataConfig
-from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
+
+from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
+
 
 
 class Dataset(base.AiPlatformResourceNounWithFutureManager):
@@ -76,7 +76,19 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         super().__init__(project=project, location=location, credentials=credentials)
         self._gca_resource = self._get_dataset(dataset_name=dataset_name)
 
-    def _get_dataset(self, dataset_name):
+    def _get_dataset(self, dataset_name: str) -> gca_dataset.Dataset:
+        """Gets dataset.
+
+        Args:
+            dataset_name (str):
+                Required. A fully-qualified dataset resource name or dataset ID.
+                Example: "projects/123/locations/us-central1/datasets/456" or
+                "456" when project and location are initialized or passed.
+        Returns:
+            dataset (gca_dataset.Dataset):
+                AI Platform resource Dataset.
+
+        """
         return self.api_client.get_dataset(name=dataset_name)
 
     @classmethod
@@ -228,6 +240,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         gcs_source: Optional[Sequence[str]] = None,
         import_schema_uri: Optional[str] = None,
         data_items_labels: Optional[Dict] = None,
+        sync: bool = True
     ) -> "Dataset":
         """Creates a new dataset and optionally imports data into dataset when
         source and import_schema_uri are passed.
@@ -393,7 +406,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             operation (Operation):
                 An object representing a long-running operation.
         """
-        gapic_dataset = GapicDataset(
+        gapic_dataset = gca_dataset.Dataset(
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             metadata=dataset_metadata,
@@ -409,7 +422,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         source: Sequence[str],
         import_schema_uri: str,
         data_items_labels: Optional[Dict] = None,
-    ) -> Optional[operation.Operation]:  # Import Data Response
+    ) -> Optional[operation.Operation]:
         """Imports data into managed dataset by directly calling API client.
 
         Args:

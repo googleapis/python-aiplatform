@@ -215,6 +215,4 @@ class _Config:
 
 # global config to store init parameters: ie, aiplatform.init(project=..., location=...)
 global_config = _Config()
-
-
 global_pool = futures.ThreadPoolExecutor()

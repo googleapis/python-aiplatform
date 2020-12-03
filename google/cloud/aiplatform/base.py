@@ -16,7 +16,6 @@
 #
 
 import abc
-import collections
 from concurrent import futures
 import functools
 import inspect
@@ -423,8 +422,8 @@ def optional_sync(
         Args:
             method (Callable[..., Any]): Method to optinally run in another Thread.
         """
-        functools.wraps(method)
 
+        functools.wraps(method)
         def wrapper(*args, **kwargs):
             """Wraps method."""
             sync = kwargs.pop("sync", True)
