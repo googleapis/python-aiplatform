@@ -24,12 +24,8 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform.datasets import datasets
 
 
-class TabularDataset(datasets._Dataset):
+class TabularDataset(datasets.Dataset):
     """Managed tabular dataset resource for AI Platform"""
-
-    _types = [
-        schema.dataset.metadata.tabular,
-    ]
 
     def __init__(
         self,
@@ -54,10 +50,6 @@ class TabularDataset(datasets._Dataset):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-
-        Raises:
-            Exception if the retrieved dataset type is not supported by
-            'TabularDataset' class.
         """
 
         super().__init__(
@@ -67,30 +59,9 @@ class TabularDataset(datasets._Dataset):
             credentials=credentials,
         )
 
-        if self.metadata_schema_uri not in self._types:
-            raise Exception(
-                f"{self.resource_name} can not be retrieved using "
-                f"'TabularDataset' class, check the dataset type"
-            )
-
-    @staticmethod
-    def set_dataset_metadata(gcs_source: str, bq_source: str) -> Dict:
-
-        dataset_metadata = dict()
-
-        if gcs_source and bq_source:
-            raise Exception(
-                "'gcs_source' and 'bq_source' should not be set the same time."
-            )
-
-        if not gcs_source and not bq_source:
-            raise Exception("Either 'gcs_source' or 'bq_source' should be set.")
-
-        if gcs_source:
-            dataset_metadata = {"input_config": {"gcs_source": {"uri": gcs_source}}}
-        elif bq_source:
-            dataset_metadata = {"input_config": {"bigquery_source": {"uri": bq_source}}}
-        return dataset_metadata
+        assert self.metadata_schema_uri == schema.dataset.metadata.tabular, (
+            "%s is not a tabular dataset resource" % self.resource_name
+        )
 
     @classmethod
     def create(
@@ -139,19 +110,18 @@ class TabularDataset(datasets._Dataset):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-
         Returns:
             tabular_dataset (TabularDataset):
                 Instantiated representation of the managed tabular dataset resource.
         """
 
         metadata_schema_uri = schema.dataset.metadata.tabular
-        dataset_metadata = cls.set_dataset_metadata(gcs_source, bq_source)
 
         dataset_obj = super().create(
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
-            dataset_metadata=dataset_metadata,
+            gcs_source=gcs_source,
+            bq_source=bq_source,
             labels=labels,
             project=project,
             location=location,
@@ -159,3 +129,7 @@ class TabularDataset(datasets._Dataset):
         )
 
         return dataset_obj
+
+    @property
+    def import_data(self):
+        raise AttributeError("'TabularDataset' object has no 'import_data' method")
