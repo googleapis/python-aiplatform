@@ -99,7 +99,7 @@ class FutureManager(metaclass=abc.ABCMeta):
 
     def _submit(
         self,
-        fn: Callable[..., Any],
+        method: Callable[..., Any],
         args: Sequence[Any],
         kwargs: Dict[str, Any],
         additional_dependencies: Optional[Sequence[futures.Future]] = None,
@@ -109,49 +109,49 @@ class FutureManager(metaclass=abc.ABCMeta):
         """Submit a method as a future against this object.
 
         Args:
-            fn (Callable): Required. The method to submit.
+            method (Callable): Required. The method to submit.
             args (Sequence): Required. The arguments to call the method with.
             kwargs (dict): Required. The keyword arguments to call the method with.
             additional_dependencies (Optional[Sequence[futures.Future]]):
-                Optional. Additional dependent futures to wait on before executing fn.
-                Note: No validation is done on the dependencies.
+                Optional. Additional dependent futures to wait on before executing
+                method. Note: No validation is done on the dependencies.
             callbacks (Optional[Sequence[Callable[[futures.Future], Any]]]):
                 Optional. Additional Future callbacks to execute once this created
                 Future is complete.
 
         Returns:
-            future (Future): Future of the submitted fn call.
+            future (Future): Future of the submitted method call.
         """
 
         def wait_for_dependencies_and_invoke(
             deps: Optional[Sequence[futures.Future]],
-            fn: Callable[..., Any],
+            method: Callable[..., Any],
             args: Sequence[Any],
             kwargs: Dict[str, Any],
             internal_callbacks: Callable[[Any], Any],
         ) -> Any:
-            """Wrapper method to wait on any dependencies before submitting fn.
+            """Wrapper method to wait on any dependencies before submitting method.
 
             Args:
                 deps (Sequence[futures.Future]):
-                    Required. Dependent futures to wait on before executing fn.
+                    Required. Dependent futures to wait on before executing method.
                     Note: No validation is done on the dependencies.
-                fn (Callable): Required. The method to submit.
+                method (Callable): Required. The method to submit.
                 args (Sequence[Any]): Required. The arguments to call the method with.
                 kwargs (Dict[str, Any]):
                     Required. The keyword arguments to call the method with.
                 internal_callbacks: (Callable[[Any], Any]):
-                    Callbacks that take the result of fn.
+                    Callbacks that take the result of method.
 
             """
             # wait for all dependencies to complete
-            futures.wait(deps, return_when=futures.FIRST_EXCEPTION)
+            futures_results = futures.wait(deps, return_when=futures.FIRST_EXCEPTION)
 
             # check for raised exceptions before moving forward
-            for dep in deps:
-                dep.result()
+            for future in futures_results.done:
+                future.result()
 
-            result = fn(*args, **kwargs)
+            result = method(*args, **kwargs)
 
             # call callbacks from within future
             if internal_callbacks:
@@ -179,7 +179,7 @@ class FutureManager(metaclass=abc.ABCMeta):
             self.__latest_future = initializer.global_pool.submit(
                 wait_for_dependencies_and_invoke,
                 deps=deps,
-                fn=fn,
+                method=method,
                 args=args,
                 kwargs=kwargs,
                 internal_callbacks=internal_callbacks,
@@ -338,6 +338,8 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
             credentials(google.auth.crendentials.Crendentials):
                 Optional. custom credentials to use when accessing interacting with
                 resource noun.
+        Returns:
+            An instance of this class with attributes set to None.
         """
         self = cls.__new__(cls)
         AiPlatformResourceNoun.__init__(self, project, location, credentials)
@@ -396,9 +398,6 @@ def optional_sync(
     True. If called with sync=False this decorator will launch the method as a
     concurrent Future in a separate Thread.
 
-    Care should be taken to avoid when a method decorated with this decorator calls another
-    method with this decorator.
-
     Note that this is only robust enough to support our current end to end patterns
     and may not be suitable for new patterns.
 
@@ -417,10 +416,10 @@ def optional_sync(
     """
 
     def optional_run_in_thread(method: Callable[..., Any]):
-        """Optionally run this method concurrently in another Thread.
+        """Optionally run this method concurrently in separate Thread.
 
         Args:
-            method (Callable[..., Any]): Method to optinally run in another Thread.
+            method (Callable[..., Any]): Method to optionally run in separate Thread.
         """
 
         @functools.wraps(method)
@@ -449,7 +448,7 @@ def optional_sync(
             # additional Future dependencies to capture
             dependencies = []
 
-            # all method should have type signatures
+            # all methods should have type signatures
             return_type = get_annotation_class(
                 inspect.getfullargspec(method).annotations["return"]
             )
@@ -475,8 +474,6 @@ def optional_sync(
                     # if the future will be associated with both the returned object
                     # and calling object then we need to add additional callback
                     # to remove the future from the returned object
-                    if bind_future_to_self:
-                        callbacks.append(returned_object._complete_future)
 
                 # if we need to construct a new empty returned object
                 should_construct = not returned_object and bound_args.arguments.get(
@@ -486,7 +483,12 @@ def optional_sync(
                 if should_construct:
                     if return_type is not None:
                         returned_object = return_type._empty_constructor()
-                        callbacks.append(returned_object._complete_future)
+
+                # if the future will be associated with both the returned object
+                # and calling object then we need to add additional callback
+                # to remove the future from the returned object
+                if returned_object and bind_future_to_self:
+                    callbacks.append(returned_object._complete_future)
 
             if returned_object:
                 # sync objects after future completes
@@ -494,16 +496,16 @@ def optional_sync(
                     returned_object._sync_object_with_future_result
                 )
 
-            # if we are not associate the future to the calling object
+            # If the future is not associated with the calling object
             # then the return object future needs to form a dependency on the
-            # any future in the calling object
+            # the latest future in the calling object.
             if not bind_future_to_self:
                 if calling_object_latest_future:
                     dependencies.append(calling_object_latest_future)
                 self = returned_object
 
             future = self._submit(
-                fn=method,
+                method=method,
                 callbacks=callbacks,
                 internal_callbacks=internal_callbacks,
                 additional_dependencies=dependencies,
