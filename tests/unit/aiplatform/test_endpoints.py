@@ -66,8 +66,7 @@ _TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
 def get_endpoint_mock():
     with mock.patch.object(EndpointServiceClient, "get_endpoint") as get_endpoint_mock:
         get_endpoint_mock.return_value = gca_endpoint.Endpoint(
-            display_name=_TEST_DISPLAY_NAME,
-            name=_TEST_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME, name=_TEST_ENDPOINT_NAME,
         )
         yield get_endpoint_mock
 
@@ -76,8 +75,7 @@ def get_endpoint_mock():
 def get_model_mock():
     with mock.patch.object(ModelServiceClient, "get_model") as get_model_mock:
         get_model_mock.return_value = gca_model.Model(
-            display_name=_TEST_DISPLAY_NAME,
-            name=_TEST_MODEL_NAME,
+            display_name=_TEST_DISPLAY_NAME, name=_TEST_MODEL_NAME,
         )
         yield get_model_mock
 
@@ -99,14 +97,11 @@ def create_endpoint_mock():
 def deploy_model_mock():
     with mock.patch.object(EndpointServiceClient, "deploy_model") as deploy_model_mock:
         deployed_model = gca_endpoint.DeployedModel(
-            model=_TEST_MODEL_NAME,
-            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_MODEL_NAME, display_name=_TEST_DISPLAY_NAME,
         )
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = (
-            endpoint_service.DeployModelResponse(
-                deployed_model=deployed_model,
-            )
+        deploy_model_lro_mock.result.return_value = endpoint_service.DeployModelResponse(
+            deployed_model=deployed_model,
         )
         deploy_model_mock.return_value = deploy_model_lro_mock
         yield deploy_model_mock
@@ -235,9 +230,7 @@ class TestEndpoint:
 
         expected_endpoint = gca_endpoint.Endpoint(display_name=_TEST_DISPLAY_NAME)
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            endpoint=expected_endpoint,
-            metadata=(),
+            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(),
         )
 
         expected_endpoint.name = _TEST_ENDPOINT_NAME
@@ -254,13 +247,10 @@ class TestEndpoint:
             my_endpoint.wait()
 
         expected_endpoint = gca_endpoint.Endpoint(
-            display_name=_TEST_DISPLAY_NAME,
-            description=_TEST_DESCRIPTION,
+            display_name=_TEST_DISPLAY_NAME, description=_TEST_DESCRIPTION,
         )
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            endpoint=expected_endpoint,
-            metadata=(),
+            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(),
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
@@ -275,8 +265,7 @@ class TestEndpoint:
             test_endpoint.wait()
 
         automatic_resources = machine_resources.AutomaticResources(
-            min_replica_count=1,
-            max_replica_count=1,
+            min_replica_count=1, max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -304,8 +293,7 @@ class TestEndpoint:
             test_endpoint.wait()
 
         automatic_resources = machine_resources.AutomaticResources(
-            min_replica_count=1,
-            max_replica_count=1,
+            min_replica_count=1, max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -395,8 +383,7 @@ class TestEndpoint:
             if not sync:
                 test_endpoint.wait()
             automatic_resources = machine_resources.AutomaticResources(
-                min_replica_count=1,
-                max_replica_count=1,
+                min_replica_count=1, max_replica_count=1,
             )
             deployed_model = gca_endpoint.DeployedModel(
                 automatic_resources=automatic_resources,
@@ -432,8 +419,7 @@ class TestEndpoint:
             if not sync:
                 test_endpoint.wait()
             automatic_resources = machine_resources.AutomaticResources(
-                min_replica_count=1,
-                max_replica_count=1,
+                min_replica_count=1, max_replica_count=1,
             )
             deployed_model = gca_endpoint.DeployedModel(
                 automatic_resources=automatic_resources,
@@ -458,9 +444,7 @@ class TestEndpoint:
             test_endpoint.wait()
         machine_spec = machine_resources.MachineSpec(machine_type="n1-standard-32")
         dedicated_resources = machine_resources.DedicatedResources(
-            machine_spec=machine_spec,
-            min_replica_count=1,
-            max_replica_count=1,
+            machine_spec=machine_spec, min_replica_count=1, max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=dedicated_resources,
@@ -485,8 +469,7 @@ class TestEndpoint:
         if not sync:
             test_endpoint.wait()
         automatic_resources = machine_resources.AutomaticResources(
-            min_replica_count=2,
-            max_replica_count=2,
+            min_replica_count=2, max_replica_count=2,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -510,8 +493,7 @@ class TestEndpoint:
         if not sync:
             test_endpoint.wait()
         automatic_resources = machine_resources.AutomaticResources(
-            min_replica_count=1,
-            max_replica_count=2,
+            min_replica_count=1, max_replica_count=2,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,

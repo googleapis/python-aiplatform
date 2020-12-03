@@ -253,9 +253,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         )
 
         gapic_endpoint = gca_endpoint.Endpoint(
-            display_name=display_name,
-            description=description,
-            labels=labels,
+            display_name=display_name, description=description, labels=labels,
         )
 
         operation_future = api_client.create_endpoint(
@@ -273,8 +271,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
     @staticmethod
     def _allocate_traffic(
-        traffic_split: Dict[str, int],
-        traffic_percentage: int,
+        traffic_split: Dict[str, int], traffic_percentage: int,
     ) -> Dict[str, int]:
         """
         Allocates desired traffic to new deployed model and scales traffic of
@@ -311,8 +308,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
     @staticmethod
     def _unallocate_traffic(
-        traffic_split: Dict[str, int],
-        deployed_model_id: str,
+        traffic_split: Dict[str, int], deployed_model_id: str,
     ) -> Dict[str, int]:
         """
         Sets deployed model id's traffic to 0 and scales the traffic of other

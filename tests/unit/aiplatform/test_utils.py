@@ -133,10 +133,7 @@ def test_invalid_region_does_not_raise_with_valid_region():
     ],
 )
 def test_full_resource_name_with_full_name(
-    resource_noun: str,
-    project: str,
-    location: str,
-    full_name: str,
+    resource_noun: str, project: str, location: str, full_name: str,
 ):
     # should ignore issues with other arguments as resource_name is full_name
     assert (
@@ -170,11 +167,7 @@ def test_full_resource_name_with_full_name(
     ],
 )
 def test_full_resource_name_with_partial_name(
-    partial_name: str,
-    resource_noun: str,
-    project: str,
-    location: str,
-    full_name: str,
+    partial_name: str, resource_noun: str, project: str, location: str, full_name: str,
 ):
     assert (
         aiplatform.utils.full_resource_name(
@@ -192,10 +185,7 @@ def test_full_resource_name_with_partial_name(
     [("347292", "trainingPipelines", "857392", "us-west2020")],
 )
 def test_full_resource_name_raises_value_error(
-    partial_name: str,
-    resource_noun: str,
-    project: str,
-    location: str,
+    partial_name: str, resource_noun: str, project: str, location: str,
 ):
     with pytest.raises(ValueError):
         aiplatform.utils.full_resource_name(

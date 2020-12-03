@@ -119,9 +119,7 @@ class _Config:
         return self._credentials
 
     def get_client_options(
-        self,
-        location_override: Optional[str] = None,
-        prediction_client: bool = False,
+        self, location_override: Optional[str] = None, prediction_client: bool = False,
     ) -> client_options.ClientOptions:
         """Creates GAPIC client_options using location and type.
 

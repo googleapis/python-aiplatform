@@ -80,10 +80,8 @@ _TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL = (
     f"bq://{_TEST_BATCH_PREDICTION_BQ_PREFIX}"
 )
 _TEST_BATCH_PREDICTION_DISPLAY_NAME = "test-batch-prediction-job"
-_TEST_BATCH_PREDICTION_JOB_NAME = (
-    job_service.JobServiceClient.batch_prediction_job_path(
-        project=_TEST_PROJECT, location=_TEST_LOCATION, batch_prediction_job=_TEST_ID
-    )
+_TEST_BATCH_PREDICTION_JOB_NAME = job_service.JobServiceClient.batch_prediction_job_path(
+    project=_TEST_PROJECT, location=_TEST_LOCATION, batch_prediction_job=_TEST_ID
 )
 
 _TEST_INSTANCE_SCHEMA_URI = "gs://test/schema/instance.yaml"
@@ -98,8 +96,7 @@ def get_endpoint_mock():
             _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
         )
         get_endpoint_mock.return_value = gca_endpoint.Endpoint(
-            display_name=_TEST_MODEL_NAME,
-            name=test_endpoint_resource_name,
+            display_name=_TEST_MODEL_NAME, name=test_endpoint_resource_name,
         )
         yield get_endpoint_mock
 
@@ -111,8 +108,7 @@ def get_model_mock():
             _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
         )
         get_model_mock.return_value = gca_model.Model(
-            display_name=_TEST_MODEL_NAME,
-            name=test_model_resource_name,
+            display_name=_TEST_MODEL_NAME, name=test_model_resource_name,
         )
         yield get_model_mock
 
@@ -124,14 +120,11 @@ def deploy_model_mock():
             _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
         )
         deployed_model = gca_endpoint.DeployedModel(
-            model=test_model_resource_name,
-            display_name=_TEST_MODEL_NAME,
+            model=test_model_resource_name, display_name=_TEST_MODEL_NAME,
         )
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = (
-            endpoint_service.DeployModelResponse(
-                deployed_model=deployed_model,
-            )
+        deploy_model_lro_mock.result.return_value = endpoint_service.DeployModelResponse(
+            deployed_model=deployed_model,
         )
         deploy_model_mock.return_value = deploy_model_lro_mock
         yield deploy_model_mock
@@ -526,8 +519,7 @@ class TestModel:
             print("end sync")
 
         automatic_resources = machine_resources.AutomaticResources(
-            min_replica_count=1,
-            max_replica_count=1,
+            min_replica_count=1, max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -554,8 +546,7 @@ class TestModel:
             test_endpoint.wait()
 
         automatic_resources = machine_resources.AutomaticResources(
-            min_replica_count=1,
-            max_replica_count=1,
+            min_replica_count=1, max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -571,8 +562,7 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest(
-        self,
-        create_batch_prediction_job_mock,
+        self, create_batch_prediction_job_mock,
     ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)

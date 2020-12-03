@@ -28,9 +28,6 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
 
 
-POLLING_SLEEP = 5
-
-
 class FutureManager(metaclass=abc.ABCMeta):
     """Tracks concurrent futures against this object."""
 
@@ -78,8 +75,9 @@ class FutureManager(metaclass=abc.ABCMeta):
 
     def wait(self):
         """Helper method to that blocks until all futures are complete."""
-        while not self._are_futures_done():
-            time.sleep(POLLING_SLEEP)
+        future = self.__latest_future
+        if future:
+            futures.wait([future], return_when=futures.FIRST_EXCEPTION)
 
         self._raise_future_exception()
 

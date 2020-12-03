@@ -104,16 +104,14 @@ class TestJob:
         with patch.object(
             job_service.JobServiceClient, "get_batch_prediction_job"
         ) as get_batch_prediction_job_mock:
-            get_batch_prediction_job_mock.return_value = (
-                batch_prediction_job.BatchPredictionJob(
-                    name=_TEST_BATCH_PREDICTION_NAME,
-                    display_name=_TEST_DISPLAY_NAME,
-                    model=_TEST_MODEL_NAME,
-                    input_config=_TEST_GCS_INPUT_CONFIG,
-                    output_config=_TEST_GCS_OUTPUT_CONFIG,
-                    output_info=_TEST_GCS_OUTPUT_INFO,
-                    state=_TEST_JOB_STATE_SUCCESS,
-                )
+            get_batch_prediction_job_mock.return_value = batch_prediction_job.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                model=_TEST_MODEL_NAME,
+                input_config=_TEST_GCS_INPUT_CONFIG,
+                output_config=_TEST_GCS_OUTPUT_CONFIG,
+                output_info=_TEST_GCS_OUTPUT_INFO,
+                state=_TEST_JOB_STATE_SUCCESS,
             )
             yield get_batch_prediction_job_mock
 
@@ -122,16 +120,14 @@ class TestJob:
         with patch.object(
             job_service.JobServiceClient, "get_batch_prediction_job"
         ) as get_batch_prediction_job_mock:
-            get_batch_prediction_job_mock.return_value = (
-                batch_prediction_job.BatchPredictionJob(
-                    name=_TEST_BATCH_PREDICTION_NAME,
-                    display_name=_TEST_DISPLAY_NAME,
-                    model=_TEST_MODEL_NAME,
-                    input_config=_TEST_GCS_INPUT_CONFIG,
-                    output_config=_TEST_BQ_OUTPUT_CONFIG,
-                    output_info=_TEST_BQ_OUTPUT_INFO,
-                    state=_TEST_JOB_STATE_SUCCESS,
-                )
+            get_batch_prediction_job_mock.return_value = batch_prediction_job.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                model=_TEST_MODEL_NAME,
+                input_config=_TEST_GCS_INPUT_CONFIG,
+                output_config=_TEST_BQ_OUTPUT_CONFIG,
+                output_info=_TEST_BQ_OUTPUT_INFO,
+                state=_TEST_JOB_STATE_SUCCESS,
             )
             yield get_batch_prediction_job_mock
 
@@ -140,16 +136,14 @@ class TestJob:
         with patch.object(
             job_service.JobServiceClient, "get_batch_prediction_job"
         ) as get_batch_prediction_job_mock:
-            get_batch_prediction_job_mock.return_value = (
-                batch_prediction_job.BatchPredictionJob(
-                    name=_TEST_BATCH_PREDICTION_NAME,
-                    display_name=_TEST_DISPLAY_NAME,
-                    model=_TEST_MODEL_NAME,
-                    input_config=_TEST_GCS_INPUT_CONFIG,
-                    output_config=_TEST_BQ_OUTPUT_CONFIG,
-                    output_info=_TEST_EMPTY_OUTPUT_INFO,
-                    state=_TEST_JOB_STATE_SUCCESS,
-                )
+            get_batch_prediction_job_mock.return_value = batch_prediction_job.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                model=_TEST_MODEL_NAME,
+                input_config=_TEST_GCS_INPUT_CONFIG,
+                output_config=_TEST_BQ_OUTPUT_CONFIG,
+                output_info=_TEST_EMPTY_OUTPUT_INFO,
+                state=_TEST_JOB_STATE_SUCCESS,
             )
             yield get_batch_prediction_job_mock
 
@@ -158,16 +152,14 @@ class TestJob:
         with patch.object(
             job_service.JobServiceClient, "get_batch_prediction_job"
         ) as get_batch_prediction_job_mock:
-            get_batch_prediction_job_mock.return_value = (
-                batch_prediction_job.BatchPredictionJob(
-                    name=_TEST_BATCH_PREDICTION_NAME,
-                    display_name=_TEST_DISPLAY_NAME,
-                    model=_TEST_MODEL_NAME,
-                    input_config=_TEST_GCS_INPUT_CONFIG,
-                    output_config=_TEST_BQ_OUTPUT_CONFIG,
-                    output_info=_TEST_BQ_OUTPUT_INFO,
-                    state=_TEST_JOB_STATE_RUNNING,
-                )
+            get_batch_prediction_job_mock.return_value = batch_prediction_job.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                model=_TEST_MODEL_NAME,
+                input_config=_TEST_GCS_INPUT_CONFIG,
+                output_config=_TEST_BQ_OUTPUT_CONFIG,
+                output_info=_TEST_BQ_OUTPUT_INFO,
+                state=_TEST_JOB_STATE_RUNNING,
             )
             yield get_batch_prediction_job_mock
 
