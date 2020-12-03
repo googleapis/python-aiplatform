@@ -30,6 +30,9 @@ from google.cloud.aiplatform_v1beta1.services.model_service.client import (
 from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
     EndpointServiceClient,
 )
+from google.cloud.aiplatform_v1beta1.services import job_service
+from google.cloud.aiplatform_v1beta1 import types as gapic_types
+from google.cloud.aiplatform_v1beta1.types import batch_prediction_job
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
@@ -43,6 +46,7 @@ _TEST_PROJECT = "test-project"
 _TEST_PROJECT_2 = "test-project-2"
 _TEST_LOCATION = "us-central1"
 _TEST_LOCATION_2 = "europe-west4"
+_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_MODEL_NAME = "test-model"
 _TEST_ARTIFACT_URI = "gs://test/artifact/uri"
 _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
@@ -57,20 +61,48 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
 }
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_ID = "1028944691210842416"
+_TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
+
+_TEST_MACHINE_TYPE = "n1-standard-4"
+_TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
+_TEST_ACCELERATOR_COUNT = 2
+_TEST_STARTING_REPLICA_COUNT = 2
+_TEST_MAX_REPLICA_COUNT = 12
+
+_TEST_BATCH_PREDICTION_GCS_SOURCE = "gs://example-bucket/folder/instance.jsonl"
+_TEST_BATCH_PREDICTION_GCS_SOURCE_LIST = [
+    "gs://example-bucket/folder/instance1.jsonl",
+    "gs://example-bucket/folder/instance2.jsonl",
+]
+_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX = "gs://example-bucket/folder/output"
+_TEST_BATCH_PREDICTION_BQ_PREFIX = "ucaip-sample-tests"
+_TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL = (
+    f"bq://{_TEST_BATCH_PREDICTION_BQ_PREFIX}"
+)
+_TEST_BATCH_PREDICTION_DISPLAY_NAME = "test-batch-prediction-job"
+_TEST_BATCH_PREDICTION_JOB_NAME = (
+    job_service.JobServiceClient.batch_prediction_job_path(
+        project=_TEST_PROJECT, location=_TEST_LOCATION, batch_prediction_job=_TEST_ID
+    )
+)
+
+_TEST_INSTANCE_SCHEMA_URI = "gs://test/schema/instance.yaml"
+_TEST_PARAMETERS_SCHEMA_URI = "gs://test/schema/parameters.yaml"
+_TEST_PREDICTION_SCHEMA_URI = "gs://test/schema/predictions.yaml"
 
 
 @pytest.fixture
 def get_endpoint_mock():
-    with mock.patch.object(
-        EndpointServiceClient, "get_endpoint"
-    ) as get_endpoint_mock:
+    with mock.patch.object(EndpointServiceClient, "get_endpoint") as get_endpoint_mock:
         test_endpoint_resource_name = EndpointServiceClient.endpoint_path(
             _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
         )
         get_endpoint_mock.return_value = gca_endpoint.Endpoint(
-            display_name=_TEST_MODEL_NAME, name=test_endpoint_resource_name,
+            display_name=_TEST_MODEL_NAME,
+            name=test_endpoint_resource_name,
         )
         yield get_endpoint_mock
+
 
 @pytest.fixture
 def get_model_mock():
@@ -79,27 +111,56 @@ def get_model_mock():
             _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
         )
         get_model_mock.return_value = gca_model.Model(
-            display_name=_TEST_MODEL_NAME, name=test_model_resource_name,
+            display_name=_TEST_MODEL_NAME,
+            name=test_model_resource_name,
         )
         yield get_model_mock
 
+
 @pytest.fixture
 def deploy_model_mock():
-    with mock.patch.object(
-        EndpointServiceClient, "deploy_model"
-    ) as deploy_model_mock:
+    with mock.patch.object(EndpointServiceClient, "deploy_model") as deploy_model_mock:
         test_model_resource_name = ModelServiceClient.model_path(
             _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
         )
         deployed_model = gca_endpoint.DeployedModel(
-            model=test_model_resource_name, display_name=_TEST_MODEL_NAME,
+            model=test_model_resource_name,
+            display_name=_TEST_MODEL_NAME,
         )
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = endpoint_service.DeployModelResponse(
-            deployed_model=deployed_model,
+        deploy_model_lro_mock.result.return_value = (
+            endpoint_service.DeployModelResponse(
+                deployed_model=deployed_model,
+            )
         )
         deploy_model_mock.return_value = deploy_model_lro_mock
         yield deploy_model_mock
+
+
+@pytest.fixture
+def get_batch_prediction_job_mock():
+    with mock.patch.object(
+        job_service.JobServiceClient, "get_batch_prediction_job"
+    ) as get_batch_prediction_job_mock:
+        batch_prediction_mock = mock.Mock(spec=batch_prediction_job.BatchPredictionJob)
+        batch_prediction_mock.state = gapic_types.job_state.JobState.JOB_STATE_SUCCEEDED
+        batch_prediction_mock.name = _TEST_BATCH_PREDICTION_JOB_NAME
+        get_batch_prediction_job_mock.return_value = batch_prediction_mock
+        yield get_batch_prediction_job_mock
+
+
+@pytest.fixture
+def create_batch_prediction_job_mock():
+    with mock.patch.object(
+        job_service.JobServiceClient, "create_batch_prediction_job"
+    ) as create_batch_prediction_job_mock:
+        batch_prediction_job_mock = mock.Mock(
+            spec=batch_prediction_job.BatchPredictionJob
+        )
+        batch_prediction_job_mock.name = _TEST_BATCH_PREDICTION_JOB_NAME
+        create_batch_prediction_job_mock.return_value = batch_prediction_job_mock
+        yield create_batch_prediction_job_mock
+
 
 class TestModel:
     def setup_method(self):
@@ -223,7 +284,7 @@ class TestModel:
                 serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
                 serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
                 serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-                sync=sync
+                sync=sync,
             )
 
             if not sync:
@@ -239,6 +300,11 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 container_spec=container_spec,
+                predict_schemata=gca_model.PredictSchemata(
+                    instance_schema_uri=None,
+                    parameters_schema_uri=None,
+                    prediction_schema_uri=None,
+                ),
             )
 
             api_client_mock.upload_model.assert_called_once_with(
@@ -274,12 +340,15 @@ class TestModel:
                 serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
                 serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
                 serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+                instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
+                parameters_schema_uri=_TEST_PARAMETERS_SCHEMA_URI,
+                prediction_schema_uri=_TEST_PREDICTION_SCHEMA_URI,
                 description=_TEST_DESCRIPTION,
                 serving_container_command=_TEST_SERVING_CONTAINER_COMMAND,
                 serving_container_args=_TEST_SERVING_CONTAINER_ARGS,
                 serving_container_environment_variables=_TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
                 serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
-                sync=sync
+                sync=sync,
             )
 
             if not sync:
@@ -310,6 +379,11 @@ class TestModel:
                 description=_TEST_DESCRIPTION,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 container_spec=container_spec,
+                predict_schemata=gca_model.PredictSchemata(
+                    instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
+                    parameters_schema_uri=_TEST_PARAMETERS_SCHEMA_URI,
+                    prediction_schema_uri=_TEST_PREDICTION_SCHEMA_URI,
+                ),
             )
 
             api_client_mock.upload_model.assert_called_once_with(
@@ -346,7 +420,7 @@ class TestModel:
                 serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
                 serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
                 project=_TEST_PROJECT_2,
-                sync=sync
+                sync=sync,
             )
 
             if not sync:
@@ -362,6 +436,11 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 container_spec=container_spec,
+                predict_schemata=gca_model.PredictSchemata(
+                    instance_schema_uri=None,
+                    parameters_schema_uri=None,
+                    prediction_schema_uri=None,
+                ),
             )
 
             api_client_mock.upload_model.assert_called_once_with(
@@ -372,7 +451,6 @@ class TestModel:
             api_client_mock.get_model.assert_called_once_with(
                 name=test_model_resource_name
             )
-
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_custom_location(self, sync):
@@ -398,7 +476,7 @@ class TestModel:
                 serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
                 serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
                 location=_TEST_LOCATION_2,
-                sync=sync
+                sync=sync,
             )
 
             if not sync:
@@ -414,6 +492,11 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 container_spec=container_spec,
+                predict_schemata=gca_model.PredictSchemata(
+                    instance_schema_uri=None,
+                    parameters_schema_uri=None,
+                    prediction_schema_uri=None,
+                ),
             )
 
             api_client_mock.upload_model.assert_called_once_with(
@@ -432,18 +515,19 @@ class TestModel:
         test_model = models.Model(_TEST_ID)
         test_endpoint = models.Endpoint(_TEST_ID)
 
-        print('start deploy')
+        print("start deploy")
         assert test_model.deploy(test_endpoint, sync=sync) == test_endpoint
-        print('end deploy')
+        print("end deploy")
 
         if not sync:
-            print('sync')
+            print("sync")
             print(test_endpoint._latest_future)
             test_endpoint.wait()
-            print('end sync')
+            print("end sync")
 
         automatic_resources = machine_resources.AutomaticResources(
-            min_replica_count=1, max_replica_count=1,
+            min_replica_count=1,
+            max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -457,8 +541,9 @@ class TestModel:
             metadata=(),
         )
 
-    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock",
-        "create_endpoint_mock")
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_no_endpoint(self, deploy_model_mock, sync):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -469,7 +554,8 @@ class TestModel:
             test_endpoint.wait()
 
         automatic_resources = machine_resources.AutomaticResources(
-            min_replica_count=1, max_replica_count=1,
+            min_replica_count=1,
+            max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -482,3 +568,225 @@ class TestModel:
             traffic_split={"0": 100},
             metadata=(),
         )
+
+    @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
+    def test_batch_predict_gcs_source_and_dest(
+        self,
+        create_batch_prediction_job_mock,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+
+        # Make SDK batch_predict method call
+        test_model.batch_predict(
+            job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+        )
+
+        # Construct expected request
+        expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            model=ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            ),
+            input_config=gapic_types.BatchPredictionJob.InputConfig(
+                instances_format="jsonl",
+                gcs_source=gapic_types.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
+            ),
+            output_config=gapic_types.BatchPredictionJob.OutputConfig(
+                gcs_destination=gapic_types.GcsDestination(
+                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+                ),
+                predictions_format="jsonl",
+            ),
+        )
+
+        expected_request = gapic_types.CreateBatchPredictionJobRequest(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+        )
+
+        create_batch_prediction_job_mock.assert_called_once_with(
+            request=expected_request
+        )
+
+    @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
+    def test_batch_predict_gcs_source_bq_dest(self, create_batch_prediction_job_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+
+        # Make SDK batch_predict method call
+        test_model.batch_predict(
+            job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+        )
+
+        # Construct expected request
+        expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            model=ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            ),
+            input_config=gapic_types.BatchPredictionJob.InputConfig(
+                instances_format="jsonl",
+                gcs_source=gapic_types.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
+            ),
+            output_config=gapic_types.BatchPredictionJob.OutputConfig(
+                bigquery_destination=gapic_types.BigQueryDestination(
+                    output_uri=_TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL
+                ),
+                predictions_format="bigquery",
+            ),
+        )
+
+        expected_request = gapic_types.CreateBatchPredictionJobRequest(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+        )
+
+        create_batch_prediction_job_mock.assert_called_once_with(
+            request=expected_request
+        )
+
+    @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
+    def test_batch_predict_with_all_args(self, create_batch_prediction_job_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+        creds = auth_credentials.AnonymousCredentials()
+
+        # Make SDK batch_predict method call passing all arguments
+        test_model.batch_predict(
+            job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            predictions_format="csv",
+            model_parameters={},
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
+            max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            labels=_TEST_LABEL,
+            credentials=creds,
+        )
+
+        # Construct expected request
+        expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            model=ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            ),
+            input_config=gapic_types.BatchPredictionJob.InputConfig(
+                instances_format="jsonl",
+                gcs_source=gapic_types.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
+            ),
+            output_config=gapic_types.BatchPredictionJob.OutputConfig(
+                gcs_destination=gapic_types.GcsDestination(
+                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+                ),
+                predictions_format="csv",
+            ),
+            dedicated_resources=gapic_types.BatchDedicatedResources(
+                machine_spec=gapic_types.MachineSpec(
+                    machine_type=_TEST_MACHINE_TYPE,
+                    accelerator_type=_TEST_ACCELERATOR_TYPE,
+                    accelerator_count=_TEST_ACCELERATOR_COUNT,
+                ),
+                starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
+                max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            ),
+            labels=_TEST_LABEL,
+        )
+
+        expected_request = gapic_types.CreateBatchPredictionJobRequest(
+            parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+        )
+
+        create_batch_prediction_job_mock.assert_called_once_with(
+            request=expected_request
+        )
+
+    @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
+    def test_batch_predict_no_source(self, create_batch_prediction_job_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+
+        # Make SDK batch_predict method call without source
+        with pytest.raises(ValueError) as e:
+            test_model.batch_predict(
+                job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+                bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+            )
+
+        assert e.match(regexp=r"source")
+
+    @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
+    def test_batch_predict_two_sources(self, create_batch_prediction_job_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+
+        # Make SDK batch_predict method call with two sources
+        with pytest.raises(ValueError) as e:
+            test_model.batch_predict(
+                job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+                gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+                bigquery_source=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+                bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+            )
+
+        assert e.match(regexp=r"source")
+
+    @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
+    def test_batch_predict_no_destination(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+
+        # Make SDK batch_predict method call without destination
+        with pytest.raises(ValueError) as e:
+            test_model.batch_predict(
+                job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+                gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            )
+
+        assert e.match(regexp=r"destination")
+
+    @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
+    def test_batch_predict_wrong_instance_format(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+
+        # Make SDK batch_predict method call
+        with pytest.raises(ValueError) as e:
+            test_model.batch_predict(
+                job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+                gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+                instances_format="wrong",
+                bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+            )
+
+        assert e.match(regexp=r"accepted instances format")
+
+    @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
+    def test_batch_predict_wrong_prediction_format(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+
+        # Make SDK batch_predict method call
+        with pytest.raises(ValueError) as e:
+            test_model.batch_predict(
+                job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+                gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+                predictions_format="wrong",
+                bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+            )
+
+        assert e.match(regexp=r"accepted prediction format")

@@ -43,6 +43,7 @@ class EnvVar(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1)
+
     value = proto.Field(proto.STRING, number=2)
 
 

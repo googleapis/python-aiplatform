@@ -61,23 +61,26 @@ _TEST_MODEL_NAME = (
 _TEST_MODEL_ID = "1028944691210842416"
 _TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
 
+
 @pytest.fixture
 def get_endpoint_mock():
-    with mock.patch.object(
-        EndpointServiceClient, "get_endpoint"
-    ) as get_endpoint_mock:
+    with mock.patch.object(EndpointServiceClient, "get_endpoint") as get_endpoint_mock:
         get_endpoint_mock.return_value = gca_endpoint.Endpoint(
-            display_name=_TEST_DISPLAY_NAME, name=_TEST_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_ENDPOINT_NAME,
         )
         yield get_endpoint_mock
+
 
 @pytest.fixture
 def get_model_mock():
     with mock.patch.object(ModelServiceClient, "get_model") as get_model_mock:
         get_model_mock.return_value = gca_model.Model(
-            display_name=_TEST_DISPLAY_NAME, name=_TEST_MODEL_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_MODEL_NAME,
         )
         yield get_model_mock
+
 
 @pytest.fixture
 def create_endpoint_mock():
@@ -91,20 +94,23 @@ def create_endpoint_mock():
         create_endpoint_mock.return_value = create_endpoint_lro_mock
         yield create_endpoint_mock
 
+
 @pytest.fixture
 def deploy_model_mock():
-    with mock.patch.object(
-        EndpointServiceClient, "deploy_model"
-    ) as deploy_model_mock:
+    with mock.patch.object(EndpointServiceClient, "deploy_model") as deploy_model_mock:
         deployed_model = gca_endpoint.DeployedModel(
-            model=_TEST_MODEL_NAME, display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_MODEL_NAME,
+            display_name=_TEST_DISPLAY_NAME,
         )
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = endpoint_service.DeployModelResponse(
-            deployed_model=deployed_model,
+        deploy_model_lro_mock.result.return_value = (
+            endpoint_service.DeployModelResponse(
+                deployed_model=deployed_model,
+            )
         )
         deploy_model_mock.return_value = deploy_model_lro_mock
         yield deploy_model_mock
+
 
 @pytest.fixture
 def undeploy_model_mock():
@@ -118,6 +124,7 @@ def undeploy_model_mock():
         undeploy_model_mock.return_value = undeploy_model_lro_mock
         yield undeploy_model_mock
 
+
 @pytest.fixture
 def create_client_mock():
     with mock.patch.object(
@@ -130,6 +137,7 @@ def create_client_mock():
         create_client_mock.side_effect = side_effect
 
         yield create_client_mock
+
 
 @pytest.fixture
 def predict_client_predict_mock():
@@ -227,29 +235,33 @@ class TestEndpoint:
 
         expected_endpoint = gca_endpoint.Endpoint(display_name=_TEST_DISPLAY_NAME)
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(),
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
         )
 
         expected_endpoint.name = _TEST_ENDPOINT_NAME
         assert my_endpoint._gca_resource == expected_endpoint
 
-
     @pytest.mark.usefixtures("get_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_with_description(self, create_endpoint_mock, sync):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        my_endpoint =models.Endpoint.create(
-            display_name=_TEST_DISPLAY_NAME, description=_TEST_DESCRIPTION, sync=sync)
+        my_endpoint = models.Endpoint.create(
+            display_name=_TEST_DISPLAY_NAME, description=_TEST_DESCRIPTION, sync=sync
+        )
         if not sync:
             my_endpoint.wait()
 
         expected_endpoint = gca_endpoint.Endpoint(
-            display_name=_TEST_DISPLAY_NAME, description=_TEST_DESCRIPTION,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
         )
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(),
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
         )
-
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
@@ -263,7 +275,8 @@ class TestEndpoint:
             test_endpoint.wait()
 
         automatic_resources = machine_resources.AutomaticResources(
-            min_replica_count=1, max_replica_count=1,
+            min_replica_count=1,
+            max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -291,7 +304,8 @@ class TestEndpoint:
             test_endpoint.wait()
 
         automatic_resources = machine_resources.AutomaticResources(
-            min_replica_count=1, max_replica_count=1,
+            min_replica_count=1,
+            max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -381,7 +395,8 @@ class TestEndpoint:
             if not sync:
                 test_endpoint.wait()
             automatic_resources = machine_resources.AutomaticResources(
-                min_replica_count=1, max_replica_count=1,
+                min_replica_count=1,
+                max_replica_count=1,
             )
             deployed_model = gca_endpoint.DeployedModel(
                 automatic_resources=automatic_resources,
@@ -417,7 +432,8 @@ class TestEndpoint:
             if not sync:
                 test_endpoint.wait()
             automatic_resources = machine_resources.AutomaticResources(
-                min_replica_count=1, max_replica_count=1,
+                min_replica_count=1,
+                max_replica_count=1,
             )
             deployed_model = gca_endpoint.DeployedModel(
                 automatic_resources=automatic_resources,
@@ -442,7 +458,9 @@ class TestEndpoint:
             test_endpoint.wait()
         machine_spec = machine_resources.MachineSpec(machine_type="n1-standard-32")
         dedicated_resources = machine_resources.DedicatedResources(
-            machine_spec=machine_spec, min_replica_count=1, max_replica_count=1,
+            machine_spec=machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=dedicated_resources,
@@ -467,7 +485,8 @@ class TestEndpoint:
         if not sync:
             test_endpoint.wait()
         automatic_resources = machine_resources.AutomaticResources(
-            min_replica_count=2, max_replica_count=2,
+            min_replica_count=2,
+            max_replica_count=2,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -491,7 +510,8 @@ class TestEndpoint:
         if not sync:
             test_endpoint.wait()
         automatic_resources = machine_resources.AutomaticResources(
-            min_replica_count=1, max_replica_count=2,
+            min_replica_count=1,
+            max_replica_count=2,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -608,8 +628,9 @@ class TestEndpoint:
             )
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_endpoint.undeploy(
-                deployed_model_id="model1", traffic_split={"model1": 0, "model2": 100},
-                sync=sync
+                deployed_model_id="model1",
+                traffic_split={"model1": 0, "model2": 100},
+                sync=sync,
             )
 
             if not sync:
@@ -639,8 +660,9 @@ class TestEndpoint:
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_endpoint.undeploy(
-                deployed_model_id="model1", traffic_split={"model1": 50, "model2": 50},
-                sync=sync
+                deployed_model_id="model1",
+                traffic_split={"model1": 50, "model2": 50},
+                sync=sync,
             )
 
     def test_predict(self, get_endpoint_mock, predict_client_predict_mock):

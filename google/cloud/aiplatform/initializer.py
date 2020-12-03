@@ -18,9 +18,11 @@
 
 from concurrent import futures
 import logging
+import pkg_resources
 from typing import Optional, Type
 
 from google.api_core import client_options
+from google.api_core import gapic_v1
 import google.auth
 from google.auth import credentials as auth_credentials
 from google.auth.exceptions import GoogleAuthError
@@ -117,7 +119,9 @@ class _Config:
         return self._credentials
 
     def get_client_options(
-        self, location_override: Optional[str] = None, prediction_client: bool = False,
+        self,
+        location_override: Optional[str] = None,
+        prediction_client: bool = False,
     ) -> client_options.ClientOptions:
         """Creates GAPIC client_options using location and type.
 
@@ -194,13 +198,18 @@ class _Config:
         Returns:
             client: Instantiated AI Platform Service client
         """
-
-        # TODO(b/171202993) add user agent
+        gapic_version = pkg_resources.get_distribution(
+            "google-cloud-aiplatform",
+        ).version
+        client_info = gapic_v1.client_info.ClientInfo(
+            gapic_version=gapic_version, user_agent=f"model_builder/{gapic_version}"
+        )
         return client_class(
             credentials=credentials or self.credentials,
             client_options=self.get_client_options(
                 location_override=location_override, prediction_client=prediction_client
             ),
+            client_info=client_info,
         )
 
 

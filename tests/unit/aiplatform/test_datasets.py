@@ -77,6 +77,7 @@ _TEST_DATA_LABEL_ITEMS = {}
 
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
 
+
 @pytest.fixture
 def get_dataset_mock():
     with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
@@ -89,6 +90,7 @@ def get_dataset_mock():
         )
         yield get_dataset_mock
 
+
 @pytest.fixture
 def get_dataset_without_name_mock():
     with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
@@ -99,11 +101,10 @@ def get_dataset_without_name_mock():
         )
         yield get_dataset_mock
 
+
 @pytest.fixture
 def create_dataset_mock():
-    with patch.object(
-        DatasetServiceClient, "create_dataset"
-    ) as create_dataset_mock:
+    with patch.object(DatasetServiceClient, "create_dataset") as create_dataset_mock:
         create_dataset_lro_mock = mock.Mock(operation.Operation)
         create_dataset_lro_mock.result.return_value = GapicDataset(
             name=_TEST_NAME, display_name=_TEST_DISPLAY_NAME
@@ -111,11 +112,13 @@ def create_dataset_mock():
         create_dataset_mock.return_value = create_dataset_lro_mock
         yield create_dataset_mock
 
+
 @pytest.fixture
 def import_data_mock():
     with patch.object(DatasetServiceClient, "import_data") as import_data_mock:
         import_data_mock.return_value = mock.Mock(operation.Operation)
         yield import_data_mock
+
 
 @pytest.fixture
 def export_data_mock():
@@ -171,12 +174,11 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             labels=_TEST_LABEL,
-            sync=sync
+            sync=sync,
         )
 
         if not sync:
             my_dataset.wait()
-
 
         expected_dataset = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
@@ -213,8 +215,9 @@ class TestDataset:
 
     @pytest.mark.usefixtures("get_dataset_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_create_and_import_dataset(self, create_dataset_mock, import_data_mock,
-                                        sync):
+    def test_create_and_import_dataset(
+        self, create_dataset_mock, import_data_mock, sync
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = Dataset.create(
@@ -224,7 +227,7 @@ class TestDataset:
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_items_labels=_TEST_DATA_LABEL_ITEMS,
-            sync=sync
+            sync=sync,
         )
 
         if not sync:
@@ -265,7 +268,7 @@ class TestDataset:
             gcs_source=_TEST_SOURCE_URI_GCS,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_items_labels=_TEST_DATA_LABEL_ITEMS,
-            sync=sync
+            sync=sync,
         )
 
         if not sync:
@@ -297,10 +300,10 @@ class TestDataset:
             name=_TEST_NAME, export_config=expected_export_config
         )
 
-
     @pytest.mark.parametrize("sync", [True, False])
-    def test_create_then_import(self,
-        create_dataset_mock, import_data_mock, get_dataset_mock, sync):
+    def test_create_then_import(
+        self, create_dataset_mock, import_data_mock, get_dataset_mock, sync
+    ):
 
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -308,14 +311,14 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABEL,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            sync=sync
+            sync=sync,
         )
 
         my_dataset.import_data(
             gcs_source=_TEST_SOURCE_URI_GCS,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_items_labels=_TEST_DATA_LABEL_ITEMS,
-            sync=sync
+            sync=sync,
         )
 
         if not sync:
@@ -346,6 +349,3 @@ class TestDataset:
 
         expected_dataset.name = _TEST_NAME
         assert my_dataset._gca_resource == expected_dataset
-
-
-

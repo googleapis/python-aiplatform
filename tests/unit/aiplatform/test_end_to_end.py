@@ -39,6 +39,7 @@ from google.cloud.aiplatform_v1beta1 import ExportDataConfig
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 from google.cloud.aiplatform_v1beta1.types import io as gca_io
+from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state
 from google.cloud.aiplatform_v1beta1.types import (
@@ -68,15 +69,14 @@ from google.protobuf import json_format
 from google.protobuf import struct_pb2
 
 
-
 class TestEndToEnd:
-
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_dataset_create_to_model_predict(self,
+    def test_dataset_create_to_model_predict(
+        self,
         get_dataset_mock,
         create_dataset_mock,
         import_data_mock,
@@ -87,23 +87,26 @@ class TestEndToEnd:
         get_endpoint_mock,
         deploy_model_mock,
         predict_client_predict_mock,
-        sync):
+        sync,
+    ):
 
-        aiplatform.init(project=test_datasets._TEST_PROJECT,
-                        staging_bucket=test_training_jobs._TEST_BUCKET_NAME)
+        aiplatform.init(
+            project=test_datasets._TEST_PROJECT,
+            staging_bucket=test_training_jobs._TEST_BUCKET_NAME,
+        )
 
         my_dataset = aiplatform.Dataset.create(
             display_name=test_datasets._TEST_DISPLAY_NAME,
             labels=test_datasets._TEST_LABEL,
             metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            sync=sync
+            sync=sync,
         )
 
         my_dataset.import_data(
             gcs_source=test_datasets._TEST_SOURCE_URI_GCS,
             import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
             data_items_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
-            sync=sync
+            sync=sync,
         )
 
         job = aiplatform.CustomTrainingJob(
@@ -127,12 +130,12 @@ class TestEndToEnd:
             training_fraction_split=test_training_jobs._TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=test_training_jobs._TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=test_training_jobs._TEST_TEST_FRACTION_SPLIT,
-            sync=sync
+            sync=sync,
         )
 
         created_endpoint = models.Endpoint.create(
-            display_name=test_endpoints._TEST_DISPLAY_NAME,
-            sync=sync)
+            display_name=test_endpoints._TEST_DISPLAY_NAME, sync=sync
+        )
 
         my_endpoint = model_from_job.deploy(sync=sync)
 
@@ -149,7 +152,7 @@ class TestEndToEnd:
 
         true_prediction = models.Prediction(
             predictions=test_endpoints._TEST_PREDICTION,
-            deployed_model_id=test_endpoints._TEST_ID
+            deployed_model_id=test_endpoints._TEST_ID,
         )
 
         assert true_prediction == test_prediction
@@ -158,7 +161,6 @@ class TestEndToEnd:
             instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]],
             parameters={"param": 3.0},
         )
-
 
         expected_dataset = GapicDataset(
             display_name=test_datasets._TEST_DISPLAY_NAME,
@@ -220,7 +222,8 @@ class TestEndToEnd:
         )
 
         true_managed_model = gca_model.Model(
-            display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME, container_spec=true_container_spec
+            display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME,
+            container_spec=true_container_spec,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -237,7 +240,9 @@ class TestEndToEnd:
             training_task_inputs=json_format.ParseDict(
                 {
                     "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": test_training_jobs._TEST_BASE_OUTPUT_DIR},
+                    "baseOutputDirectory": {
+                        "output_uri_prefix": test_training_jobs._TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -252,7 +257,9 @@ class TestEndToEnd:
 
         assert job._gca_resource is mock_pipeline_service_create.return_value
 
-        mock_model_service_get.assert_called_once_with(name=test_training_jobs._TEST_MODEL_NAME)
+        mock_model_service_get.assert_called_once_with(
+            name=test_training_jobs._TEST_MODEL_NAME
+        )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
@@ -261,6 +268,3 @@ class TestEndToEnd:
         assert not job.has_failed
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-
-
-

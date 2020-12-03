@@ -22,13 +22,17 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import lro
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1.services.endpoint_service.client import (
-    EndpointServiceClient,
-)
-from google.cloud.aiplatform_v1beta1.services.model_service.client import (
-    ModelServiceClient,
-)
+from google.cloud.aiplatform import jobs
+from google.cloud.aiplatform import constants
 
+from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
+    client as endpoint_service_client,
+)
+from google.cloud.aiplatform_v1beta1.services.model_service import (
+    client as model_service_client,
+)
+from google.cloud.aiplatform_v1beta1.services import job_service
+from google.cloud.aiplatform_v1beta1 import types
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
@@ -59,7 +63,7 @@ class Prediction(NamedTuple):
 
 class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
-    client_class = EndpointServiceClient
+    client_class = endpoint_service_client.EndpointServiceClient
     _is_client_prediction_client = False
 
     def __init__(
@@ -125,15 +129,24 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        sync=True
-        ) -> "Endpoint":
+        sync=True,
+    ) -> "Endpoint":
         """Creates a new endpoint.
 
         Args:
+            api_client (endpoint_service_client.EndpointServiceClient):
+                Required. An instance of endpoint_service_client.EndpointServiceClient with the correct
+                api_endpoint already set based on user's preferences.
             display_name (str):
                 Required. The user-defined name of the Endpoint.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
+            project (str):
+                Required. Project to retrieve endpoint from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Required. Location to retrieve endpoint from. If not set, location
+                set in aiplatform.init will be used.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict):
@@ -149,20 +162,16 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
-            project (str):
-                Optional. Project to retrieve endpoint from. If not set, project
-                set in aiplatform.init will be used.
-            location (str):
-                Optional. Location to retrieve endpoint from. If not set, location
-                set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
             sync (bool):
-                Whether to create this endpoint synchronously.
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
         Returns:
-            endpoint (Endpoint):
-                Instantiated representation of the endpoint resource.
+            endpoint (endpoint.Endpoint):
+                Created endpoint.
         """
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
@@ -171,7 +180,6 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
-
 
         return cls._create(
             api_client=api_client,
@@ -182,14 +190,14 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             labels=labels,
             metadata=metadata,
             credentials=credentials,
-            sync=sync
+            sync=sync,
         )
 
     @classmethod
     @base.optional_sync()
     def _create(
         cls,
-        api_client: EndpointServiceClient,
+        api_client: endpoint_service_client.EndpointServiceClient,
         display_name: str,
         project: str,
         location: str,
@@ -197,11 +205,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         labels: Optional[Dict] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         credentials: Optional[auth_credentials.Credentials] = None,
-        sync=True
+        sync=True,
     ) -> "Endpoint":
         """
         Creates a new endpoint by calling the API client.
-
         Args:
             api_client (EndpointServiceClient):
                 Required. An instance of EndpointServiceClient with the correct
@@ -241,12 +248,14 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 Created endpoint.
         """
 
-        parent=initializer.global_config.common_location_path(
-                project=project, location=location
-            )
+        parent = initializer.global_config.common_location_path(
+            project=project, location=location
+        )
 
         gapic_endpoint = gca_endpoint.Endpoint(
-            display_name=display_name, description=description, labels=labels,
+            display_name=display_name,
+            description=description,
+            labels=labels,
         )
 
         operation_future = api_client.create_endpoint(
@@ -264,7 +273,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
     @staticmethod
     def _allocate_traffic(
-        traffic_split: Dict[str, int], traffic_percentage: int,
+        traffic_split: Dict[str, int],
+        traffic_percentage: int,
     ) -> Dict[str, int]:
         """
         Allocates desired traffic to new deployed model and scales traffic of
@@ -301,7 +311,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
     @staticmethod
     def _unallocate_traffic(
-        traffic_split: Dict[str, int], deployed_model_id: str,
+        traffic_split: Dict[str, int],
+        deployed_model_id: str,
     ) -> Dict[str, int]:
         """
         Sets deployed model id's traffic to 0 and scales the traffic of other
@@ -339,14 +350,14 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
         return new_traffic_split
 
-
     @staticmethod
     def _validate_deploy_args(
         min_replica_count: int,
         max_replica_count: int,
         deployed_model_display_name: Optional[str],
         traffic_split: Optional[Dict[str, int]],
-        traffic_percentage: int):
+        traffic_percentage: int,
+    ):
         """Helper method to validate deploy arguments.
 
         Args:
@@ -410,7 +421,6 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                     "Sum of all traffic within traffic split needs to be 100."
                 )
 
-
     def deploy(
         self,
         model: "Model",
@@ -421,7 +431,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         min_replica_count: int = 1,
         max_replica_count: int = 1,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync=True
+        sync=True,
     ) -> None:
         """
         Deploys a Model to the Endpoint.
@@ -479,8 +489,9 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             min_replica_count,
             max_replica_count,
             deployed_model_display_name,
-            traffic_split, traffic_percentage)
-
+            traffic_split,
+            traffic_percentage,
+        )
 
         self._deploy(
             model=model,
@@ -491,7 +502,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
             metadata=metadata,
-            sync=sync
+            sync=sync,
         )
 
     @base.optional_sync()
@@ -505,7 +516,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync=True
+        sync=True,
     ) -> None:
         """
         Deploys a Model to the Endpoint.
@@ -563,25 +574,25 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         """
 
         self._deploy_call(
-                self.api_client,
-                self.resource_name,
-                model.resource_name,
-                self._gca_resource.traffic_split,
-                deployed_model_display_name=deployed_model_display_name,
-                traffic_percentage=traffic_percentage,
-                traffic_split=traffic_split,
-                machine_type=machine_type,
-                min_replica_count=min_replica_count,
-                max_replica_count=max_replica_count,
-                metadata=metadata
-            )
+            self.api_client,
+            self.resource_name,
+            model.resource_name,
+            self._gca_resource.traffic_split,
+            deployed_model_display_name=deployed_model_display_name,
+            traffic_percentage=traffic_percentage,
+            traffic_split=traffic_split,
+            machine_type=machine_type,
+            min_replica_count=min_replica_count,
+            max_replica_count=max_replica_count,
+            metadata=metadata,
+        )
 
         self._gca_resource = self._get_endpoint(self.resource_name)
 
     @classmethod
     def _deploy_call(
         cls,
-        api_client: EndpointServiceClient,
+        api_client: endpoint_service_client.EndpointServiceClient,
         endpoint_resource_name: str,
         model_resource_name: str,
         endpoint_resource_traffic_split: Optional[proto.MapField] = None,
@@ -591,13 +602,14 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
-        metadata: Optional[Sequence[Tuple[str, str]]] = ()):
+        metadata: Optional[Sequence[Tuple[str, str]]] = (),
+    ):
         """
         Helper method to deploy model to endpoint.
 
         Args:
-            api_client (EndpointServiceClient):
-                Required. EndpointServiceClient to make call.
+            api_client (endpoint_service_client.EndpointServiceClient):
+                Required. endpoint_service_client.EndpointServiceClient to make call.
             endpoint_resource_name (str):
                 Required. Endpoint resource name to deploy model to.
             model_resource_name (str):
@@ -704,13 +716,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
         operation_future.result()
 
-
     def undeploy(
         self,
         deployed_model_id: str,
         traffic_split: Optional[Dict[str, int]] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync=True
+        sync=True,
     ) -> None:
         """Undeploys a deployed model.
 
@@ -747,9 +758,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             deployed_model_id=deployed_model_id,
             traffic_split=traffic_split,
             metadata=metadata,
-            sync=sync
+            sync=sync,
         )
-
 
     @base.optional_sync()
     def _undeploy(
@@ -757,7 +767,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         deployed_model_id: str,
         traffic_split: Optional[Dict[str, int]] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync=True
+        sync=True,
     ) -> None:
         """Undeploys a deployed model.
 
@@ -868,10 +878,9 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         raise NotImplementedError("Prediction not implemented.")
 
 
-
 class Model(base.AiPlatformResourceNounWithFutureManager):
 
-    client_class = ModelServiceClient
+    client_class = model_service_client.ModelServiceClient
     _is_client_prediction_client = False
 
     @property
@@ -941,17 +950,20 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         artifact_uri: str,
         serving_container_image_uri: str,
         *,
-        serving_container_predict_route: Optional[str]=None,
-        serving_container_health_route: Optional[str]=None,
+        serving_container_predict_route: Optional[str] = None,
+        serving_container_health_route: Optional[str] = None,
         description: Optional[str] = None,
         serving_container_command: Optional[Sequence[str]] = None,
         serving_container_args: Optional[Sequence[str]] = None,
         serving_container_environment_variables: Optional[Dict[str, str]] = None,
         serving_container_ports: Optional[Sequence[int]] = None,
+        instance_schema_uri: Optional[str] = None,
+        parameters_schema_uri: Optional[str] = None,
+        prediction_schema_uri: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        sync=True
+        sync=True,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model resource.
 
@@ -1008,6 +1020,52 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
                 the network.
+            instance_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the format of a single instance, which
+                are used in
+                ``PredictRequest.instances``,
+                ``ExplainRequest.instances``
+                and
+                ``BatchPredictionJob.input_config``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform. Note: The URI given on output will be immutable
+                and probably different, including the URI scheme, than the
+                one given on input. The output URI will point to a location
+                where the user only has a read access.
+            parameters_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the parameters of prediction and
+                explanation via
+                ``PredictRequest.parameters``,
+                ``ExplainRequest.parameters``
+                and
+                ``BatchPredictionJob.model_parameters``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform, if no parameters are supported it is set to an
+                empty string. Note: The URI given on output will be
+                immutable and probably different, including the URI scheme,
+                than the one given on input. The output URI will point to a
+                location where the user only has a read access.
+            prediction_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the format of a single prediction
+                produced by this Model, which are returned via
+                ``PredictResponse.predictions``,
+                ``ExplainResponse.explanations``,
+                and
+                ``BatchPredictionJob.output_config``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform. Note: The URI given on output will be immutable
+                and probably different, including the URI scheme, than the
+                one given on input. The output URI will point to a location
+                where the user only has a read access.
             project: Optional[str]=None,
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -1051,6 +1109,11 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             description=description,
             artifact_uri=artifact_uri,
             container_spec=container_spec,
+            predict_schemata=gca_model.PredictSchemata(
+                instance_schema_uri=instance_schema_uri,
+                parameters_schema_uri=parameters_schema_uri,
+                prediction_schema_uri=prediction_schema_uri,
+            ),
         )
 
         lro = api_client.upload_model(
@@ -1075,7 +1138,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
-        sync=True
+        sync=True,
     ) -> Endpoint:
         """
         Deploys model to endpoint. Endpoint will be created if unspecified.
@@ -1137,7 +1200,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             min_replica_count,
             max_replica_count,
             deployed_model_display_name,
-            traffic_split, traffic_percentage
+            traffic_split,
+            traffic_percentage,
         )
 
         return self._deploy(
@@ -1149,21 +1213,22 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
             metadata=metadata,
-            sync=sync)
+            sync=sync,
+        )
 
-    @base.optional_sync(return_input_arg='endpoint', bind_future_to_self=False)
+    @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
     def _deploy(
-            self,
-            endpoint: Optional["Endpoint"] = None,
-            deployed_model_display_name: Optional[str] = None,
-            traffic_percentage: Optional[int] = 0,
-            traffic_split: Optional[Dict[str, int]] = None,
-            machine_type: Optional[str] = None,
-            min_replica_count: Optional[int] = 1,
-            max_replica_count: Optional[int] = 1,
-            metadata: Optional[Sequence[Tuple[str, str]]] = (),
-            sync: bool=True
-        ) -> Endpoint:
+        self,
+        endpoint: Optional["Endpoint"] = None,
+        deployed_model_display_name: Optional[str] = None,
+        traffic_percentage: Optional[int] = 0,
+        traffic_split: Optional[Dict[str, int]] = None,
+        machine_type: Optional[str] = None,
+        min_replica_count: Optional[int] = 1,
+        max_replica_count: Optional[int] = 1,
+        metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: bool = True,
+    ) -> Endpoint:
         """
         Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -1226,7 +1291,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 display_name=display_name,
                 project=self.project,
                 location=self.location,
-                credentials=self.credentials)
+                credentials=self.credentials,
+            )
 
         Endpoint._deploy_call(
             endpoint.api_client,
@@ -1245,3 +1311,262 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         endpoint._gca_resource = endpoint._get_endpoint(endpoint.resource_name)
 
         return endpoint
+
+    def batch_predict(
+        self,
+        job_display_name: str,
+        gcs_source: Optional[Sequence[str]] = None,
+        bigquery_source: Optional[str] = None,
+        instances_format: str = "jsonl",
+        gcs_destination_prefix: Optional[str] = None,
+        bigquery_destination_prefix: Optional[str] = None,
+        predictions_format: str = "jsonl",
+        model_parameters: Optional[Dict] = None,
+        machine_type: Optional[str] = None,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        starting_replica_count: Optional[int] = None,
+        max_replica_count: Optional[int] = None,
+        labels: Optional[dict] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> jobs.BatchPredictionJob:
+        """Creates a batch prediction job using this Model and outputs prediction
+        results to the provided destination prefix in the specified
+        `predictions_format`. One source and one destination prefix are required.
+
+        Example usage:
+
+        my_model.batch_predict(
+            job_display_name="prediction-123",
+            gcs_source="gs://example-bucket/instances.csv",
+            instances_format="csv",
+            bigquery_destination_prefix="projectId.bqDatasetId.bqTableId"
+        )
+
+        Args:
+            job_display_name (str):
+                Required. The user-defined name of the BatchPredictionJob.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            gcs_source: Optional[Sequence[str]] = None
+                Google Cloud Storage URI(-s) to your instances to run
+                batch prediction on. They must match `instances_format`.
+                May contain wildcards. For more information on wildcards, see
+                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+            bigquery_source: Optional[str] = None
+                BigQuery URI to a table, up to 2000 characters long. For example:
+                `projectId.bqDatasetId.bqTableId`
+            instances_format: str = "jsonl"
+                Required. The format in which instances are given, must be one
+                of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
+                or "file-list". Default is "jsonl" when using `gcs_source`. If a
+                `bigquery_source` is provided, this is overriden to "bigquery".
+            gcs_destination_prefix: Optional[str] = None
+                The Google Cloud Storage location of the directory where the
+                output is to be written to. In the given directory a new
+                directory is created. Its name is
+                ``prediction-<model-display-name>-<job-create-time>``, where
+                timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601 format.
+                Inside of it files ``predictions_0001.<extension>``,
+                ``predictions_0002.<extension>``, ...,
+                ``predictions_N.<extension>`` are created where
+                ``<extension>`` depends on chosen ``predictions_format``,
+                and N may equal 0001 and depends on the total number of
+                successfully predicted instances. If the Model has both
+                ``instance`` and ``prediction`` schemata defined then each such
+                file contains predictions as per the ``predictions_format``.
+                If prediction for any instance failed (partially or
+                completely), then an additional ``errors_0001.<extension>``,
+                ``errors_0002.<extension>``,..., ``errors_N.<extension>``
+                files are created (N depends on total number of failed
+                predictions). These files contain the failed instances, as
+                per their schema, followed by an additional ``error`` field
+                which as value has ```google.rpc.Status`` <Status>`__
+                containing only ``code`` and ``message`` fields.
+            bigquery_destination_prefix: Optional[str] = None
+                The BigQuery project location where the output is to be
+                written to. In the given project a new dataset is created
+                with name
+                ``prediction_<model-display-name>_<job-create-time>`` where
+                is made BigQuery-dataset-name compatible (for example, most
+                special characters become underscores), and timestamp is in
+                YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
+                dataset two tables will be created, ``predictions``, and
+                ``errors``. If the Model has both ``instance`` and ``prediction``
+                schemata defined then the tables have columns as follows:
+                The ``predictions`` table contains instances for which the
+                prediction succeeded, it has columns as per a concatenation
+                of the Model's instance and prediction schemata. The
+                ``errors`` table contains rows for which the prediction has
+                failed, it has instance columns, as per the instance schema,
+                followed by a single "errors" column, which as values has
+                ```google.rpc.Status`` <Status>`__ represented as a STRUCT,
+                and containing only ``code`` and ``message``.
+            predictions_format: str = "jsonl"
+                Required. The format in which AI Platform gives the
+                predictions, must be one of "jsonl", "csv", or "bigquery".
+                Default is "jsonl" when using `gcs_destination_prefix`. If a
+                `bigquery_destination_prefix` is provided, this is overriden to
+                "bigquery".
+            model_parameters: Optional[Dict] = None
+                Optional. The parameters that govern the predictions. The schema of
+                the parameters may be specified via the Model's `parameters_schema_uri`.
+            machine_type: Optional[str] = None
+                Optional. The type of machine for running batch prediction on
+                dedicated resources. Not specifying machine type will result in
+                batch prediction job being run with automatic resources.
+            accelerator_type: Optional[str] = None
+                Optional. The type of accelerator(s) that may be attached
+                to the machine as per `accelerator_count`. Only used if
+                `machine_type` is set.
+            accelerator_count: Optional[int] = None
+                Optional. The number of accelerators to attach to the
+                `machine_type`. Only used if `machine_type` is set.
+            starting_replica_count: Optional[int] = None
+                The number of machine replicas used at the start of the batch
+                operation. If not set, AI Platform decides starting number, not
+                greater than `max_replica_count`. Only used if `machine_type` is
+                set.
+            max_replica_count: Optional[int] = None
+                The maximum number of machine replicas the batch operation may
+                be scaled to. Only used if `machine_type` is set.
+                Default is 10.
+            labels: Optional[dict] = None
+                Optional. The labels with user-defined metadata to organize your
+                BatchPredictionJobs. Label keys and values can be no longer than
+                64 characters (Unicode codepoints), can only contain lowercase
+                letters, numeric characters, underscores and dashes.
+                International characters are allowed. See https://goo.gl/xmQnxf
+                for more information and examples of labels.
+            credentials: Optional[auth_credentials.Credentials] = None
+                Optional. Custom credentials to use to create this batch prediction
+                job. Overrides credentials set in aiplatform.init.
+        Returns:
+            (BatchPredictionJob):
+                Instantiated representation of the created batch prediction job.
+
+        Raises:
+            ValueError:
+                If no or multiple source or destinations are provided. Also, if
+                provided instances_format or predictions_format are not supported
+                by AI Platform.
+        """
+
+        # Raise error if both or neither source URIs are provided
+        if bool(gcs_source) == bool(bigquery_source):
+            raise ValueError(
+                "Please provide either a gcs_source or bigquery_source, "
+                "but not both."
+            )
+
+        # Raise error if both or neither destination prefixes are provided
+        if bool(gcs_destination_prefix) == bool(bigquery_destination_prefix):
+            raise ValueError(
+                "Please provide either a gcs_destination_prefix or "
+                "bigquery_destination_prefix, but not both."
+            )
+
+        # Raise error if unsupported instance format is provided
+        if instances_format not in constants.BATCH_PREDICTION_INPUT_STORAGE_FORMATS:
+            raise ValueError(
+                f"{predictions_format} is not an accepted instances format "
+                f"type. Please choose from: {constants.BATCH_PREDICTION_INPUT_STORAGE_FORMATS}"
+            )
+
+        # Raise error if unsupported prediction format is provided
+        if predictions_format not in constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS:
+            raise ValueError(
+                f"{predictions_format} is not an accepted prediction format "
+                f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
+            )
+
+        gapic_batch_prediction_job = types.BatchPredictionJob()
+
+        # Required Fields
+        gapic_batch_prediction_job.display_name = job_display_name
+        gapic_batch_prediction_job.model = self.resource_name
+
+        input_config = types.BatchPredictionJob.InputConfig()
+        output_config = types.BatchPredictionJob.OutputConfig()
+
+        if bigquery_source:
+            input_config.instances_format = "bigquery"
+            input_config.bigquery_source = types.BigQuerySource()
+            input_config.bigquery_source.input_uri = bigquery_source
+        else:
+            input_config.instances_format = instances_format
+            input_config.gcs_source = types.GcsSource(
+                uris=gcs_source if type(gcs_source) == list else [gcs_source]
+            )
+
+        if bigquery_destination_prefix:
+            output_config.predictions_format = "bigquery"
+            output_config.bigquery_destination = types.BigQueryDestination()
+
+            bq_dest_prefix = bigquery_destination_prefix
+
+            if not bq_dest_prefix.startswith("bq://"):
+                bq_dest_prefix = f"bq://{bq_dest_prefix}"
+
+            output_config.bigquery_destination.output_uri = bq_dest_prefix
+        else:
+            output_config.predictions_format = predictions_format
+            output_config.gcs_destination = types.GcsDestination(
+                output_uri_prefix=gcs_destination_prefix
+            )
+
+        gapic_batch_prediction_job.input_config = input_config
+        gapic_batch_prediction_job.output_config = output_config
+
+        # Optional Fields
+
+        if model_parameters:
+            gapic_batch_prediction_job.model_parameters = model_parameters
+
+        # Custom Compute
+        if machine_type:
+
+            machine_spec = types.MachineSpec()
+            machine_spec.machine_type = machine_type
+            machine_spec.accelerator_type = accelerator_type
+            machine_spec.accelerator_count = accelerator_count
+
+            dedicated_resources = types.BatchDedicatedResources()
+
+            dedicated_resources.machine_spec = machine_spec
+            dedicated_resources.starting_replica_count = starting_replica_count
+            dedicated_resources.max_replica_count = max_replica_count
+
+            gapic_batch_prediction_job.dedicated_resources = dedicated_resources
+
+            gapic_batch_prediction_job.manual_batch_tuning_parameters = None
+
+        # User Labels
+        gapic_batch_prediction_job.labels = labels
+
+        # TODO (b/174502675): Support Explainability on Batch Prediction
+        # TODO (b/174502913): Support private feature once released
+
+        # Build BatchPredictionJob request and Job client in same region as Model
+        create_batch_prediction_job_request = types.CreateBatchPredictionJobRequest(
+            parent=f"projects/{self.project}/locations/{self.location}",
+            batch_prediction_job=gapic_batch_prediction_job,
+        )
+
+        self._job_client = initializer.global_config.create_client(
+            client_class=job_service.JobServiceClient,
+            credentials=credentials,
+            location_override=self.location,
+        )
+
+        # Make blocking call to service
+        gapic_batch_prediction_job = self._job_client.create_batch_prediction_job(
+            request=create_batch_prediction_job_request
+        )
+
+        # Get name of new BatchPredictionJob and return SDK representation
+        new_batch_prediction_job_name = gapic_batch_prediction_job.name
+
+        return jobs.BatchPredictionJob(
+            batch_prediction_job_name=new_batch_prediction_job_name
+        )

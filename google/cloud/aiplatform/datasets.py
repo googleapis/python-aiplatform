@@ -93,7 +93,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        sync=True
+        sync=True,
     ) -> "Dataset":
         """Creates a new dataset and optionally imports data into dataset when
         source and import_schema_uri are passed.
@@ -161,6 +161,10 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
         Returns:
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
@@ -188,29 +192,30 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                     "input_config": {"bigquery_source": {"uri": bq_source}}
                 }
 
-
         return cls._create_and_import(
-            api_client = api_client,
-            display_name= display_name,
-            parent= initializer.global_config.common_location_path(
-                project=project, location=location),
-            metadata_schema_uri= metadata_schema_uri,
-            dataset_metadata= dataset_metadata,
-            request_metadata= metadata,
-            labels= labels,
-            project= project or initializer.global_config.project,
-            location= location or initializer.global_config.location,
-            credentials= credentials or initializer.global_config.credentials,
-            gcs_source= gcs_source,
-            import_schema_uri= import_schema_uri,
-            data_items_labels= data_items_labels,
-            sync=sync
+            api_client=api_client,
+            display_name=display_name,
+            parent=initializer.global_config.common_location_path(
+                project=project, location=location
+            ),
+            metadata_schema_uri=metadata_schema_uri,
+            dataset_metadata=dataset_metadata,
+            request_metadata=metadata,
+            labels=labels,
+            project=project or initializer.global_config.project,
+            location=location or initializer.global_config.location,
+            credentials=credentials or initializer.global_config.credentials,
+            gcs_source=gcs_source,
+            import_schema_uri=import_schema_uri,
+            data_items_labels=data_items_labels,
+            sync=sync,
         )
 
     @classmethod
     @base.optional_sync()
-    def _create_and_import(cls,
-        api_client:DatasetServiceClient,
+    def _create_and_import(
+        cls,
+        api_client: DatasetServiceClient,
         display_name: str,
         parent: str,
         metadata_schema_uri: str,
@@ -223,7 +228,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         gcs_source: Optional[Sequence[str]] = None,
         import_schema_uri: Optional[str] = None,
         data_items_labels: Optional[Dict] = None,
-        ) -> "Dataset":
+    ) -> "Dataset":
         """Creates a new dataset and optionally imports data into dataset when
         source and import_schema_uri are passed.
 
@@ -294,6 +299,10 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
         Returns:
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
@@ -330,7 +339,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             )
         else:
             return dataset_obj
-
 
     @classmethod
     def _create(
@@ -401,7 +409,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         source: Sequence[str],
         import_schema_uri: str,
         data_items_labels: Optional[Dict] = None,
-    ) -> Optional[operation.Operation]: # Import Data Response
+    ) -> Optional[operation.Operation]:  # Import Data Response
         """Imports data into managed dataset by directly calling API client.
 
         Args:
@@ -445,7 +453,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             name=self.resource_name, import_configs=[import_config]
         )
 
-    @base.optional_sync(return_input_arg='self')
+    @base.optional_sync(return_input_arg="self")
     def import_data(
         self,
         gcs_source: Sequence[str],
@@ -482,15 +490,19 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 labels specified inside index file refenced by
                 [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
                 e.g. jsonl file.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
         Returns:
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
         """
 
         import_lro = self._import_from_gcs(
-            source= gcs_source,
-            import_schema_uri= import_schema_uri,
-            data_items_labels= data_items_labels
+            source=gcs_source,
+            import_schema_uri=import_schema_uri,
+            data_items_labels=data_items_labels,
         )
 
         import_lro.result()

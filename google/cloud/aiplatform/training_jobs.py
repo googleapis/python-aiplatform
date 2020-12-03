@@ -110,17 +110,16 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         """Runs the training job. Should call _run_job internally"""
         pass
 
+    @staticmethod
     def _create_input_data_config(
-        self,
-        dataset: Optional[datasets.Dataset]=None,
-        training_fraction_split: float=0.8,
-        validation_fraction_split: float=0.1,
-        test_fraction_split: float=0.1,
-        gcs_destination: Optional[str]=None,
+        dataset: Optional[datasets.Dataset] = None,
+        training_fraction_split: float = 0.8,
+        validation_fraction_split: float = 0.1,
+        test_fraction_split: float = 0.1,
+        predefined_split_column_name: Optional[str] = None,
+        gcs_destination_uri_prefix: Optional[str] = None,
     ) -> Optional[gca_training_pipeline.InputDataConfig]:
-
         """Constructs a input data config to pass to the training pipeline.
-        Override this to create a custom config
 
         Args:
             training_fraction_split (float):
@@ -135,8 +134,28 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
-            gcs_destination (str):
-                The destination in GCS to write preprocessed Managed Dataset.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
+            gcs_destination_uri_prefix (str):
+                Optional. The Google Cloud Storage location.
+
+                The AI Platform environment variables representing Google
+                Cloud Storage data URIs will always be represented in the
+                Google Cloud Storage wildcard format to support sharded
+                data.
+
+                -  AIP_DATA_FORMAT = "jsonl".
+                -  AIP_TRAINING_DATA_URI = "gcs_destination/training-*"
+                -  AIP_VALIDATION_DATA_URI = "gcs_destination/validation-*"
+                -  AIP_TEST_DATA_URI = "gcs_destination/test-*".
         """
 
         input_data_config = None
@@ -148,16 +167,35 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 test_fraction=test_fraction_split,
             )
 
+            # Create predefined split spec
+            predefined_split = None
+            if predefined_split_column_name:
+                if (
+                    dataset._gca_resource.metadata_schema_uri
+                    != schema.dataset.metadata.tabular
+                ):
+                    raise ValueError(
+                        "A pre-defined split may only be used with a tabular Dataset"
+                    )
+
+                predefined_split = gca_training_pipeline.PredefinedSplit(
+                    key=predefined_split_column_name
+                )
+
+            # Create GCS destination
+            gcs_destination = None
+            if gcs_destination_uri_prefix:
+                gcs_destination = gca_io.GcsDestination(
+                    output_uri_prefix=gcs_destination_uri_prefix
+                )
+
             # create input data config
             input_data_config = gca_training_pipeline.InputDataConfig(
                 fraction_split=fraction_split,
+                predefined_split=predefined_split,
                 dataset_id=dataset.name,
+                gcs_destination=gcs_destination,
             )
-
-            if gcs_destination:
-                input_data_config.gcs_destination=gca_io.GcsDestination(
-                    output_uri_prefix=gcs_destination
-                )
 
         return input_data_config
 
@@ -165,12 +203,13 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         self,
         training_task_definition: str,
         training_task_inputs: dict,
-        dataset: Optional[datasets.Dataset] = None,
-        training_fraction_split: float = 0.8,
-        validation_fraction_split: float = 0.1,
-        test_fraction_split: float = 0.1,
-        gcs_destination: Optional[str] = None,
+        dataset: Optional[datasets.Dataset],
+        training_fraction_split: float,
+        validation_fraction_split: float,
+        test_fraction_split: float,
+        predefined_split_column_name: Optional[str] = None,
         model: Optional[gca_model.Model] = None,
+        gcs_destination_uri_prefix: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the training job.
 
@@ -210,6 +249,16 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
             model (~.model.Model):
                 Optional. Describes the Model that may be uploaded (via
                 [ModelService.UploadMode][]) by this TrainingPipeline. The
@@ -230,14 +279,27 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 resource ``name``
                 is populated. The Model is always uploaded into the Project
                 and Location in which this pipeline is.
-    """
+            gcs_destination_uri_prefix (str):
+                Optional. The Google Cloud Storage location.
+
+                The AI Platform environment variables representing Google
+                Cloud Storage data URIs will always be represented in the
+                Google Cloud Storage wildcard format to support sharded
+                data.
+
+                -  AIP_DATA_FORMAT = "jsonl".
+                -  AIP_TRAINING_DATA_URI = "gcs_destination/training-*"
+                -  AIP_VALIDATION_DATA_URI = "gcs_destination/validation-*"
+                -  AIP_TEST_DATA_URI = "gcs_destination/test-*".
+        """
 
         input_data_config = self._create_input_data_config(
             dataset=dataset,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
-            gcs_destination=gcs_destination
+            predefined_split_column_name=predefined_split_column_name,
+            gcs_destination_uri_prefix=gcs_destination_uri_prefix,
         )
 
         # create training pipeline
@@ -269,15 +331,17 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 "Training did not produce a Managed Model returning None. "
                 + self._model_upload_fail_string
             )
+
         return model
 
     def _is_waiting_to_run(self) -> bool:
-        """Returns True if the Job is pending on upstream tasks False otherwise.
-        """
+        """Returns True if the Job is pending on upstream tasks False otherwise."""
         self._raise_future_exception()
         if self._latest_future:
-            _LOGGER.info("Training Job is waiting for upstream SDK tasks to complete before"
-                " launching.")
+            _LOGGER.info(
+                "Training Job is waiting for upstream SDK tasks to complete before"
+                " launching."
+            )
             return True
         return False
 
@@ -361,6 +425,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         Raises:
             RuntimeError: If training failed."""
+
         if self._gca_resource.error.code != code_pb2.OK:
             raise RuntimeError("Training failed with:\n%s" % self._gca_resource.error)
 
@@ -442,14 +507,8 @@ def _timestamped_copy_to_gcs(
     Returns:
         gcs_path (str): The path of the copied file in gcs.
     """
-    if gcs_dir.startswith("gs://"):
-        gcs_dir = gcs_dir[5:]
-    if gcs_dir.endswith("/"):
-        gcs_dir = gcs_dir[:-1]
 
-    gcs_parts = gcs_dir.split("/", 1)
-    gcs_bucket = gcs_parts[0]
-    gcs_blob_prefix = None if len(gcs_parts) == 1 else gcs_parts[1]
+    gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(gcs_dir)
 
     local_file_name = pathlib.Path(local_file_path).name
     timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
@@ -957,7 +1016,9 @@ class CustomTrainingJob(_TrainingJob):
         )
 
         self._script_path = script_path
-        self._staging_bucket = staging_bucket or initializer.global_config.staging_bucket
+        self._staging_bucket = (
+            staging_bucket or initializer.global_config.staging_bucket
+        )
 
         if not self._staging_bucket:
             raise RuntimeError(
@@ -966,7 +1027,6 @@ class CustomTrainingJob(_TrainingJob):
             )
 
     # TODO(b/172365904) add filter split, training_pipeline.FilterSplit
-    # TODO(b/172366411) predefined filter split training_pipeline.PredfinedFilterSplit
     # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
     def run(
         self,
@@ -981,7 +1041,8 @@ class CustomTrainingJob(_TrainingJob):
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
-        sync=True
+        predefined_split_column_name: Optional[str] = None,
+        sync=True,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -1040,8 +1101,20 @@ class CustomTrainingJob(_TrainingJob):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
             sync (bool):
-                Whether to run this job synchronously.
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
 
         Returns:
             model: The trained AI Platform Model resource or None if training did not
@@ -1052,7 +1125,6 @@ class CustomTrainingJob(_TrainingJob):
                 been set, or model_display_name was provided but required arguments
                 were not provided in constructor.
         """
-
         if self._is_waiting_to_run():
             raise RuntimeError("Custom Training is already scheduled to run.")
 
@@ -1099,31 +1171,34 @@ class CustomTrainingJob(_TrainingJob):
         )
 
         return self._run(
-            python_packager= python_packager,
-            dataset= dataset,
-            worker_pool_specs= worker_pool_specs,
-            managed_model= managed_model,
+            python_packager=python_packager,
+            dataset=dataset,
+            worker_pool_specs=worker_pool_specs,
+            managed_model=managed_model,
             args=args,
             base_output_dir=base_output_dir,
-            training_fraction_split= training_fraction_split,
-            validation_fraction_split= validation_fraction_split,
-            test_fraction_split= test_fraction_split,
-            sync= sync)
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
+            sync=sync,
+        )
 
-    @base.optional_sync(construct_object_on_arg='managed_model')
+    @base.optional_sync(construct_object_on_arg="managed_model")
     def _run(
-            self,
-            python_packager: _TrainingScriptPythonPackager,
-            dataset: Optional[datasets.Dataset],
-            worker_pool_specs: _DistributedTrainingSpec,
-            managed_model: Optional[gca_model.Model]=None,
-            args: Optional[List[Union[str, float, int]]]=None,
-            base_output_dir: Optional[str]=None,
-            training_fraction_split: float=0.8,
-            validation_fraction_split: float=0.1,
-            test_fraction_split: float=0.1,
-            sync=True,
-        ) -> Optional[models.Model]:
+        self,
+        python_packager: _TrainingScriptPythonPackager,
+        dataset: Optional[datasets.Dataset],
+        worker_pool_specs: _DistributedTrainingSpec,
+        managed_model: Optional[gca_model.Model] = None,
+        args: Optional[List[Union[str, float, int]]] = None,
+        base_output_dir: Optional[str] = None,
+        training_fraction_split: float = 0.8,
+        validation_fraction_split: float = 0.1,
+        test_fraction_split: float = 0.1,
+        predefined_split_column_name: Optional[str] = None,
+        sync=True,
+    ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
         Args:
             python_packager (_TrainingScriptPythonPackager):
@@ -1148,14 +1223,25 @@ class CustomTrainingJob(_TrainingJob):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
             sync (bool):
-                Whether to run this job synchronously.
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
 
         Returns:
             model: The trained AI Platform Model resource or None if training did not
                 produce an AI Platform Model.
         """
-
         # default directory if not given
         base_output_dir = base_output_dir or _timestamped_gcs_dir(
             self._staging_bucket, "aiplatform-custom-training"
@@ -1189,8 +1275,9 @@ class CustomTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
             model=managed_model,
-            gcs_destination=base_output_dir
+            gcs_destination_uri_prefix=base_output_dir,
         )
 
         return model
@@ -1208,7 +1295,6 @@ class CustomTrainingJob(_TrainingJob):
 
 
 class AutoMLTabularTrainingJob(_TrainingJob):
-
     def __init__(
         self,
         display_name: str,
@@ -1312,11 +1398,12 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
+        predefined_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
-        disable_early_stopping: bool=False,
-        sync: bool=True
+        disable_early_stopping: bool = False,
+        sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -1345,6 +1432,16 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             test_fraction_split (float):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -1377,8 +1474,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 used, if futrher training does no longer brings significant improvement
                 to the model.
             sync (bool):
-                Whether to run this job synchronously.
-
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained AI Platform Model resource or None if training did not
                 produce an AI Platform Model.
@@ -1399,11 +1497,12 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
             weight_column=weight_column,
             budget_milli_node_hours=budget_milli_node_hours,
             model_display_name=model_display_name,
             disable_early_stopping=disable_early_stopping,
-            sync=sync
+            sync=sync,
         )
 
     @base.optional_sync()
@@ -1414,11 +1513,12 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
+        predefined_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
-        disable_early_stopping: bool=False,
-        sync: bool=True
+        disable_early_stopping: bool = False,
+        sync: bool = True,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -1447,6 +1547,16 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             test_fraction_split (float):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -1479,7 +1589,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 used, if futrher training does no longer brings significant improvement
                 to the model.
             sync (bool):
-                Whether to run this job synchronously.
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
 
         Returns:
             model: The trained AI Platform Model resource or None if training did not
@@ -1514,6 +1626,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
             model=model,
         )
 
