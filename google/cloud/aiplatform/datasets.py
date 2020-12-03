@@ -35,9 +35,6 @@ from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 
 
-class DatasetFuture(initializer.WrappedFuture):
-    pass
-
 # TODO(b/171275584): Add async support to Dataset class
 class Dataset(base.AiPlatformResourceNounWithFuture):
     """Managed dataset resource for AI Platform"""
@@ -212,7 +209,7 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
         )
 
     @classmethod
-    @base.optional_async_wrapper()
+    @base.optional_sync_wrapper()
     def _create_and_import(cls,
         api_client:DatasetServiceClient,
         display_name: str,
@@ -375,7 +372,7 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
             name=self.resource_name, import_configs=[import_config]
         )
 
-    @base.optional_async_wrapper(return_input_arg='self')
+    @base.optional_sync_wrapper(return_input_arg='self')
     def import_data(
         self,
         gcs_source: Sequence[str],

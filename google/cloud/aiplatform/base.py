@@ -22,7 +22,7 @@ import functools
 import inspect
 import threading
 import time
-from typing import Any, Callable, Optional, Sequence, Union
+from typing import Any, Callable, Dict, Optional, Sequence, Union
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import utils
@@ -32,19 +32,31 @@ from google.cloud.aiplatform import initializer
 POLLING_SLEEP = 5
 
 class FutureCache(metaclass=abc.ABCMeta):
+    """MixIn ABC to track concurrent futures against this object."""
 
     def __init__(self):
-        # future creation is responsible for setting depedency flow
         self.__latest_future_lock = threading.Lock()
+
+        # Always points to the latest future. All submitted futures will always
+        # form a dependency on the latest future.
         self.__latest_future = None
+
+        # Caches Exception of any executed future. Once one exception occurs
+        # all additional futures should fail and any additional invocations will block.
         self._exception = None
 
     def _raise_future_exception(self):
+        """Raises exception if one of the object's futures has raised."""
         with self.__latest_future_lock:
             if self._exception:
                 raise self._exception
 
-    def _complete_future(self, future):
+    def _complete_future(self, future: futures.Future):
+        """Checks for exception of future and removes the pointer if it's still latest.
+
+        Args:
+            future (futures.Future): Required. A future to complete.
+        """
         with self.__latest_future_lock:
             try:
                 future.result() # raises
@@ -54,48 +66,93 @@ class FutureCache(metaclass=abc.ABCMeta):
             if self.__latest_future is future:
                 self.__latest_future = None
 
-    def _are_futures_done(self):
+    def _are_futures_done(self) -> bool:
+        """Helper method to check to all futures are complete.
+
+        Returns:
+            True if no latest future.
+        """
         with self.__latest_future_lock:
             return self.__latest_future is None
 
     def wait(self):
+        """Helper method to that blocks until all futures are complete."""
         while not self._are_futures_done():
+            print(self.__latest_future)
             time.sleep(POLLING_SLEEP)
 
         self._raise_future_exception()
 
     @property
-    def _latest_future(self):
+    def _latest_future(self) -> Optional[futures.Future]:
+        """Get the latest future if it exists"""
         with self.__latest_future_lock:
             return self.__latest_future
 
     @_latest_future.setter
     def _latest_future(self, future: Optional[futures.Future]):
+        """Optionally set the latest future and add a complete_future callback."""
         with self.__latest_future_lock:
             self.__latest_future = future
         if future:
             future.add_done_callback(self._complete_future)
 
     def _submit(self,
-        fn: Callable,
-        args: Sequence,
-        kwargs: dict,
+        fn: Callable[..., Any],
+        args: Sequence[Any],
+        kwargs: Dict[str, Any],
         additional_dependencies: Optional[Sequence[futures.Future]]=None,
-        callbacks: Optional[Sequence[Callable[[futures.Future], Any]]] =None,
-        bind_future_to_self: bool=True):
+        callbacks: Optional[Sequence[Callable[[futures.Future], Any]]]=None,
+        internal_callbacks = None,
+        ) -> futures.Future:
+        """Submit a method as a future against this object.
 
-        def wait_for_dependencies_and_invoke(deps, fn, args, kwargs):
-            while True:
-                if all(dep.done() for dep in deps):
-                    break
-                # unblock this thread
-                time.sleep(POLLING_SLEEP)
+        Args:
+            fn (Callable): Required. The method to submit.
+            args (Sequence): Required. The arguments to call the method with.
+            kwargs (dict): Required. The keyword arguments to call the method with.
+            additional_dependencies (Optional[Sequence[futures.Future]]):
+                Optional. Additional dependent futures to wait on before executing fn.
+                Note: No validation is done on the dependencies.
+            callbacks (Optional[Sequence[Callable[[futures.Future], Any]]]):
+                Optional. Additional Future callbacks to execute once this created
+                Future is complete.
+
+        Returns:
+            future (Future): Future of the submitted fn call.
+        """
+
+        def wait_for_dependencies_and_invoke(deps: Optional[Sequence[futures.Future]],
+                                fn: Callable[..., Any],
+                                args: Sequence[Any],
+                                kwargs: Dict[str, Any],
+                                internal_callbacks = None) -> Any:
+            """Wrapper method to wait on any dependencies before submitting fn.
+
+            Args:
+                deps (Sequence[futures.Future]):
+                    Required. Dependent futures to wait on before executing fn.
+                    Note: No validation is done on the dependencies.
+                fn (Callable): Required. The method to submit.
+                args (Sequence[Any]): Required. The arguments to call the method with.
+                kwargs (Dict[str, Any]): Required. The keyword arguments to call the
+                    method with.
+
+            """
+            # wait for all dependencies to complete
+            futures.wait(deps, return_when=futures.FIRST_EXCEPTION)
 
             # check for raised exceptions before moving forward
             for dep in deps:
                 dep.result()
 
-            return fn(*args, **kwargs)
+            result = fn(*args, **kwargs)
+
+            if internal_callbacks:
+                for callback in internal_callbacks:
+                    callback(result)
+
+            return result
 
         # Retrieves any dependencies from arguments.
         deps = [arg._latest_future for arg in list(args) + list(kwargs.values()) if
@@ -105,15 +162,12 @@ class FutureCache(metaclass=abc.ABCMeta):
             deps.extend(additional_dependencies)
 
         with self.__latest_future_lock:
-
-            # If this instance already has a future, add that future as a dependency
-
             if self.__latest_future:
                 deps.append(self.__latest_future)
 
-
             future = initializer.global_pool.submit(wait_for_dependencies_and_invoke,
-                deps=deps, fn=fn, args=args, kwargs=kwargs)
+                deps=deps, fn=fn, args=args, kwargs=kwargs,
+                internal_callbacks=internal_callbacks)
 
             self.__latest_future = future
 
@@ -240,8 +294,7 @@ class AiPlatformResourceNounWithFuture(AiPlatformResourceNoun, FutureCache):
         return self
 
 
-def sync_future_object_with_realized(future, empty_returned_object):
-    result = future.result()
+def sync_future_object_with_realized(result, empty_returned_object):
     sync_attributes = ['project', 'location', 'api_client', '_gca_resource']
     optional_sync_attributes = ['_prediction_client']
 
@@ -261,7 +314,7 @@ def get_annotation_class(annotation):
     else:
         return annotation
 
-def optional_async_wrapper(
+def optional_sync_wrapper(
     predicate_return_on_arg =None, # ie: incase Model is None in TrainingJob.run
     return_input_arg=None, # pass through ie: Endpoint in Model.deploy
     bind_future_to_self=True, # set to false to not bind future Model.deploy (only need to bind to output arg)
@@ -271,6 +324,7 @@ def optional_async_wrapper(
 
         functools.wraps(method)
         def wrapper(*args, **kwargs):
+            print(method)
             sync = kwargs.pop('sync', True)
             bound_args = inspect.signature(method).bind(*args, **kwargs)
             self = bound_args.arguments.get('self')
@@ -283,6 +337,7 @@ def optional_async_wrapper(
                     self.wait()
                 return method(*args, **kwargs)
 
+            internal_callbacks = []
             callbacks=[]
             dependencies = []
 
@@ -305,7 +360,9 @@ def optional_async_wrapper(
 
                 if returned_object and returned_object is not self:
                     returned_object._raise_future_exception()
-                    callbacks.append(returned_object._complete_future)
+
+                    if bind_future_to_self:
+                        callbacks.append(returned_object._complete_future)
 
                 should_construct = not returned_object and bound_args.arguments.get(
                         predicate_return_on_arg,
@@ -315,13 +372,12 @@ def optional_async_wrapper(
                     # if this method acts on the object itself
                     if return_type is not None:
                         returned_object = return_type._empty_constructor()
-                        print(returned_object)
                         callbacks.append(returned_object._complete_future)
 
 
             if returned_object:
                 # sync objects after future completes
-                callbacks.insert(0, functools.partial(
+                internal_callbacks.append(functools.partial(
                     sync_future_object_with_realized,
                     empty_returned_object=returned_object))
 
@@ -331,12 +387,15 @@ def optional_async_wrapper(
                     dependencies.append(calling_object_latest_future)
                 self = returned_object
 
-            future = self._submit(fn=method, callbacks=callbacks, args=[],
+            future = self._submit(fn=method, callbacks=callbacks,
+                    internal_callbacks=internal_callbacks,
                     additional_dependencies=dependencies,
+                    args=[],
                     kwargs=bound_args.arguments)
 
             if returned_object and returned_object is not self:
-                    returned_object._latest_future = future
+                print('adding latest future')
+                returned_object._latest_future = future
 
             return returned_object
 

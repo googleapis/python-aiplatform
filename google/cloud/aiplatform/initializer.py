@@ -209,35 +209,3 @@ global_config = _Config()
 
 
 global_pool = futures.ThreadPoolExecutor()
-
-class WrappedFuture(futures.Future):
-    """Used to type futures with AiPlatform Resource Nouns."""
-
-    def __init__(self, future: futures.Future):
-        self._future = future
-
-    def __getattr__(self, attr):
-        return getattr(self._future, attr)
-
-
-def submit_to_pool_with_future_dependents(
-    callable,
-    *args,
-    **kwargs
-    ):
-
-    def wait_on(callable, *args, **kwargs):
-        resolved_args = [
-            arg.result() if isinstance(arg, WrappedFuture) else arg
-            for arg in args
-
-        ]
-
-        resolved_kwargs = {
-            key: arg.result() if isinstance(arg, WrappedFuture) else arg
-            for key, arg in kwargs.items()
-        }
-
-        callable(*resolved_args, **resolved_kwargs)
-
-    global_pool.submit(wait_on, callable, *args, **kwargs)

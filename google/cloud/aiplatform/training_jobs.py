@@ -1111,7 +1111,7 @@ class CustomTrainingJob(_TrainingJob):
             test_fraction_split= test_fraction_split,
             sync= sync)
 
-    @base.optional_async_wrapper(predicate_return_on_arg='managed_model')
+    @base.optional_sync_wrapper(predicate_return_on_arg='managed_model')
     def _run(
             self,
             python_packager: _TrainingScriptPythonPackager,
@@ -1407,7 +1407,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             sync=sync
         )
 
-    @base.optional_async_wrapper()
+    @base.optional_sync_wrapper()
     def _run(
         self,
         dataset: datasets.Dataset,
