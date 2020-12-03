@@ -33,6 +33,7 @@ from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
+
 _TEST_ID = "1028944691210842416"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/datasets/{_TEST_ID}"
@@ -41,23 +42,44 @@ _TEST_METADATA_SCHEMA_URI_TABULAR = schema.dataset.metadata.tabular
 _TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
 
 _TEST_SOURCE_URI_GCS = "gs://my-bucket/my_index_file.jsonl"
-
+_TEST_SOURCE_URIS_GCS = [
+    "gs://my-bucket/index_file_1.jsonl",
+    "gs://my-bucket/index_file_2.jsonl",
+    "gs://my-bucket/index_file_3.jsonl",
+]
 _TEST_SOURCE_URI_BQ = "bigquery://my-project/my-dataset"
 
-_TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
-_TEST_DISPLAY_NAME = "my_dataset_1234"
 _TEST_METADATA_TABULAR_GCS = {
     "input_config": {"gcs_source": {"uri": [_TEST_SOURCE_URI_GCS]}}
 }
 _TEST_METADATA_TABULAR_BQ = {
     "input_config": {"bigquery_source": {"uri": _TEST_SOURCE_URI_BQ}}
 }
+_TEST_METADATA_EMPTY = {}
+
+_TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
+_TEST_DISPLAY_NAME = "my_dataset_1234"
+
+_TEST_INVALID_SOURCE_URIS = ["gs://my-bucket/index_file_1.jsonl", 123]
+_TEST_DATA_LABEL_ITEMS = {}
 
 
 class TestTabularDataset:
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
+
+    @pytest.fixture
+    def get_dataset_mock(self):
+        with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
+            get_dataset_mock.return_value = GapicDataset(
+                display_name=_TEST_DISPLAY_NAME,
+                metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+                labels=_TEST_LABEL,
+                name=_TEST_NAME,
+                metadata=_TEST_METADATA_EMPTY,
+            )
+            yield get_dataset_mock
 
     @pytest.fixture
     def get_tabular_dataset_mock(self):
@@ -67,17 +89,7 @@ class TestTabularDataset:
                 metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
                 labels=_TEST_LABEL,
                 name=_TEST_NAME,
-            )
-            yield get_dataset_mock
-
-    @pytest.fixture
-    def get_nontabular_dataset_mock(self):
-        with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
-            get_dataset_mock.return_value = GapicDataset(
-                display_name=_TEST_DISPLAY_NAME,
-                metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-                labels=_TEST_LABEL,
-                name=_TEST_NAME,
+                metadata=_TEST_METADATA_EMPTY,
             )
             yield get_dataset_mock
 
@@ -88,21 +100,20 @@ class TestTabularDataset:
         ) as create_dataset_mock:
             create_dataset_lro_mock = mock.Mock(operation.Operation)
             create_dataset_lro_mock.result.return_value = GapicDataset(
-                display_name=_TEST_DISPLAY_NAME, name=_TEST_NAME,
+                name=_TEST_NAME, display_name=_TEST_DISPLAY_NAME,
             )
             create_dataset_mock.return_value = create_dataset_lro_mock
             yield create_dataset_mock
 
-    @pytest.mark.usefixtures("get_tabular_dataset_mock")
     def test_init_tabular_dataset(self, get_tabular_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
         TabularDataset(dataset_name=_TEST_NAME)
         get_tabular_dataset_mock.assert_called_once_with(name=_TEST_NAME)
 
-    @pytest.mark.usefixtures("get_nontabular_dataset_mock")
-    def test_init_nontabular_dataset(self):
+    @pytest.mark.usefixtures("get_dataset_mock")
+    def test_init_dataset(self):
         aiplatform.init(project=_TEST_PROJECT)
-        with pytest.raises(AssertionError):
+        with pytest.raises(Exception):
             TabularDataset(dataset_name=_TEST_NAME)
 
     @pytest.mark.usefixtures("get_tabular_dataset_mock")
@@ -126,10 +137,11 @@ class TestTabularDataset:
             parent=_TEST_PARENT, dataset=expected_dataset
         )
 
-    @pytest.mark.usefixtures("get_tabular_dataset_mock")
-    def test_no_import_data_method(self):
+    def test_create_tabular_dataset_with_both_bq_gcs(self):
         aiplatform.init(project=_TEST_PROJECT)
-        my_dataset = TabularDataset(dataset_name=_TEST_NAME)
-        with pytest.raises(AttributeError):
-            my_dataset.import_data
-
+        with pytest.raises(Exception):
+            TabularDataset.create(
+                display_name=_TEST_DISPLAY_NAME,
+                bq_source=_TEST_SOURCE_URI_BQ,
+                gcs_source=_TEST_SOURCE_URI_GCS,
+            )

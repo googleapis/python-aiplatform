@@ -61,16 +61,10 @@ _TEST_SOURCE_URIS_GCS = [
     "gs://my-bucket/index_file_2.jsonl",
     "gs://my-bucket/index_file_3.jsonl",
 ]
-_TEST_SOURCE_URI_BQ = "bigquery://my-project/my-dataset"
+_TEST_METADATA_EMPTY = {}
 
 _TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
 _TEST_DISPLAY_NAME = "my_dataset_1234"
-_TEST_METADATA_TABULAR_GCS = {
-    "input_config": {"gcs_source": {"uri": [_TEST_SOURCE_URI_GCS]}}
-}
-_TEST_METADATA_TABULAR_BQ = {
-    "input_config": {"bigquery_source": {"uri": _TEST_SOURCE_URI_BQ}}
-}
 
 _TEST_INVALID_SOURCE_URIS = ["gs://my-bucket/index_file_1.jsonl", 123]
 _TEST_DATA_LABEL_ITEMS = {}
@@ -92,7 +86,19 @@ class TestDataset:
                 metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
                 labels=_TEST_LABEL,
                 name=_TEST_NAME,
-                metadata={},
+                metadata=_TEST_METADATA_EMPTY,
+            )
+            yield get_dataset_mock
+
+    @pytest.fixture
+    def get_tabular_dataset_mock(self):
+        with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
+            get_dataset_mock.return_value = GapicDataset(
+                display_name=_TEST_DISPLAY_NAME,
+                metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+                labels=_TEST_LABEL,
+                name=_TEST_NAME,
+                metadata=_TEST_METADATA_EMPTY,
             )
             yield get_dataset_mock
 
@@ -103,6 +109,7 @@ class TestDataset:
                 display_name=_TEST_DISPLAY_NAME,
                 metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
                 labels=_TEST_LABEL,
+                metadata=_TEST_METADATA_EMPTY,
             )
             yield get_dataset_mock
 
@@ -113,7 +120,7 @@ class TestDataset:
         ) as create_dataset_mock:
             create_dataset_lro_mock = mock.Mock(operation.Operation)
             create_dataset_lro_mock.result.return_value = GapicDataset(
-                name=_TEST_NAME, display_name=_TEST_DISPLAY_NAME
+                name=_TEST_NAME, display_name=_TEST_DISPLAY_NAME,
             )
             create_dataset_mock.return_value = create_dataset_lro_mock
             yield create_dataset_mock
@@ -158,13 +165,19 @@ class TestDataset:
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_init_dataset_with_invalid_name(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with pytest.raises(ValueError):
-            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             Dataset(dataset_name=_TEST_INVALID_NAME)
 
-    @pytest.mark.usefixtures("get_dataset_mock")
-    def test_create_dataset_nontabular(self, create_dataset_mock):
+    @pytest.mark.usefixtures("get_tabular_dataset_mock")
+    def test_init_tabular_dataset(self):
         aiplatform.init(project=_TEST_PROJECT)
+        with pytest.raises(Exception):
+            Dataset(dataset_name=_TEST_NAME)
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    def test_create_dataset(self, create_dataset_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
@@ -176,44 +189,28 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             labels=_TEST_LABEL,
-            metadata={},
+            metadata=_TEST_METADATA_EMPTY,
         )
 
         create_dataset_mock.assert_called_once_with(
             parent=_TEST_PARENT, dataset=expected_dataset
         )
 
-    @pytest.mark.usefixtures("get_dataset_mock")
-    def test_create_dataset_tabular(self, create_dataset_mock):
-        aiplatform.init(project=_TEST_PROJECT)
-
-        Dataset.create(
-            display_name=_TEST_DISPLAY_NAME,
-            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
-            bq_source=_TEST_SOURCE_URI_BQ,
-            labels=_TEST_LABEL,
-        )
-
-        expected_dataset = GapicDataset(
-            display_name=_TEST_DISPLAY_NAME,
-            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
-            labels=_TEST_LABEL,
-            metadata=_TEST_METADATA_TABULAR_BQ,
-        )
-
-        create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT, dataset=expected_dataset
-        )
+    def test_create_tabular_dataset(self):
+        with pytest.raises(Exception):
+            Dataset.create(
+                display_name=_TEST_DISPLAY_NAME,
+                metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+            )
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_create_and_import_dataset(self, create_dataset_mock, import_data_mock):
-        aiplatform.init(project=_TEST_PROJECT)
-
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         my_dataset = Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
-            gcs_source=_TEST_SOURCE_URI_GCS,
-            labels=_TEST_LABEL,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            labels=_TEST_LABEL,
+            gcs_source=_TEST_SOURCE_URI_GCS,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_items_labels=_TEST_DATA_LABEL_ITEMS,
         )
@@ -222,7 +219,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             labels=_TEST_LABEL,
-            metadata={},
+            metadata=_TEST_METADATA_EMPTY,
         )
 
         expected_import_config = ImportDataConfig(
