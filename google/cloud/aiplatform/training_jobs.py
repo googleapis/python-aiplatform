@@ -66,7 +66,7 @@ _PIPELINE_COMPLETE_STATES = set(
 )
 
 
-class _TrainingJob(base.AiPlatformResourceNounWithFuture):
+class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
     client_class = pipeline_service_client.PipelineServiceClient
     _is_client_prediction_client = False
 
@@ -96,7 +96,6 @@ class _TrainingJob(base.AiPlatformResourceNounWithFuture):
         super().__init__(project=project, location=location, credentials=credentials)
         self._display_name = display_name
         self._project = project
-        self._credentials = credentials
         self._gca_resource = None
 
     @property
@@ -1111,7 +1110,7 @@ class CustomTrainingJob(_TrainingJob):
             test_fraction_split= test_fraction_split,
             sync= sync)
 
-    @base.optional_sync_wrapper(predicate_return_on_arg='managed_model')
+    @base.optional_sync(construct_object_on_arg='managed_model')
     def _run(
             self,
             python_packager: _TrainingScriptPythonPackager,
@@ -1165,7 +1164,7 @@ class CustomTrainingJob(_TrainingJob):
         package_gcs_uri = python_packager.package_and_copy_to_gcs(
             gcs_staging_dir=self._staging_bucket,
             project=self.project,
-            credentials=self._credentials,
+            credentials=self.credentials,
         )
 
         for spec in worker_pool_specs:
@@ -1407,7 +1406,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             sync=sync
         )
 
-    @base.optional_sync_wrapper()
+    @base.optional_sync()
     def _run(
         self,
         dataset: datasets.Dataset,

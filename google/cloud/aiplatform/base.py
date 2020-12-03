@@ -31,8 +31,8 @@ from google.cloud.aiplatform import initializer
 
 POLLING_SLEEP = 5
 
-class FutureCache(metaclass=abc.ABCMeta):
-    """MixIn ABC to track concurrent futures against this object."""
+class FutureManager(metaclass=abc.ABCMeta):
+    """Tracks concurrent futures against this object."""
 
     def __init__(self):
         self.__latest_future_lock = threading.Lock()
@@ -78,7 +78,6 @@ class FutureCache(metaclass=abc.ABCMeta):
     def wait(self):
         """Helper method to that blocks until all futures are complete."""
         while not self._are_futures_done():
-            print(self.__latest_future)
             time.sleep(POLLING_SLEEP)
 
         self._raise_future_exception()
@@ -122,11 +121,13 @@ class FutureCache(metaclass=abc.ABCMeta):
             future (Future): Future of the submitted fn call.
         """
 
-        def wait_for_dependencies_and_invoke(deps: Optional[Sequence[futures.Future]],
-                                fn: Callable[..., Any],
-                                args: Sequence[Any],
-                                kwargs: Dict[str, Any],
-                                internal_callbacks = None) -> Any:
+        def wait_for_dependencies_and_invoke(
+            deps: Optional[Sequence[futures.Future]],
+            fn: Callable[..., Any],
+            args: Sequence[Any],
+            kwargs: Dict[str, Any],
+            internal_callbacks: Callable[[Any], Any]
+            ) -> Any:
             """Wrapper method to wait on any dependencies before submitting fn.
 
             Args:
@@ -135,8 +136,10 @@ class FutureCache(metaclass=abc.ABCMeta):
                     Note: No validation is done on the dependencies.
                 fn (Callable): Required. The method to submit.
                 args (Sequence[Any]): Required. The arguments to call the method with.
-                kwargs (Dict[str, Any]): Required. The keyword arguments to call the
-                    method with.
+                kwargs (Dict[str, Any]):
+                    Required. The keyword arguments to call the method with.
+                internal_callbacks: (Callable[[Any], Any]):
+                    Callbacks that take the result of fn.
 
             """
             # wait for all dependencies to complete
@@ -148,6 +151,7 @@ class FutureCache(metaclass=abc.ABCMeta):
 
             result = fn(*args, **kwargs)
 
+            # call callbacks from within future
             if internal_callbacks:
                 for callback in internal_callbacks:
                     callback(result)
@@ -156,22 +160,26 @@ class FutureCache(metaclass=abc.ABCMeta):
 
         # Retrieves any dependencies from arguments.
         deps = [arg._latest_future for arg in list(args) + list(kwargs.values()) if
-                isinstance(arg, FutureCache) and arg._latest_future]
+                isinstance(arg, FutureManager) and arg._latest_future]
 
         if additional_dependencies:
             deps.extend(additional_dependencies)
 
         with self.__latest_future_lock:
+
+            # form a dependency on the latest future of this object
             if self.__latest_future:
                 deps.append(self.__latest_future)
 
-            future = initializer.global_pool.submit(wait_for_dependencies_and_invoke,
+            self.__latest_future = initializer.global_pool.submit(
+                wait_for_dependencies_and_invoke,
                 deps=deps, fn=fn, args=args, kwargs=kwargs,
                 internal_callbacks=internal_callbacks)
 
-            self.__latest_future = future
+            future = self.__latest_future
 
         # Clean up callback captures exception as well as removes future.
+        # May execute immediately and take lock.
         future.add_done_callback(self._complete_future)
 
         if callbacks:
@@ -182,8 +190,13 @@ class FutureCache(metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def _empty_constructor(cls):
+    def _empty_constructor(cls) -> "FutureManager":
+        """Should construct object with all non FutureManager attributes as None"""
         pass
+
+    @abc.abstractmethod
+    def _sync_object_with_future_result(self, result: "FutureManager"):
+        """Should sync the object from _empty_constructor with result of future."""
 
 
 class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
@@ -229,6 +242,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
 
         self.project = project or initializer.global_config.project
         self.location = location or initializer.global_config.location
+        self.credentials = credentials
 
         self.api_client = self._instantiate_client(self.location, credentials)
 
@@ -273,12 +287,26 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         return self._gca_resource.display_name
 
 
-class AiPlatformResourceNounWithFuture(AiPlatformResourceNoun, FutureCache):
+class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureManager):
+    """Allows optional asynchronous calls to this AI Platform Resource Nouns."""
 
-    def __init__(self, project, location, credentials):
+    def __init__(
+        self,
+        project: Optional[str]=None,
+        location: Optional[str]=None,
+        credentials: Optional[auth_credentials.Credentials]=None):
+        """Initializes class with project, location, and api_client.
+
+        Args:
+            project (str): Optional. Project of the resource noun.
+            location (str): Optional. The location of the resource noun.
+            credentials(google.auth.crendentials.Crendentials):
+                Optional. custom credentials to use when accessing interacting with
+                resource noun.
+        """
         AiPlatformResourceNoun.__init__(self, project=project, location=location,
             credentials=credentials)
-        FutureCache.__init__(self)
+        FutureManager.__init__(self)
 
     @classmethod
     def _empty_constructor(
@@ -286,59 +314,120 @@ class AiPlatformResourceNounWithFuture(AiPlatformResourceNoun, FutureCache):
             project: Optional[str] = None,
             location: Optional[str] = None,
             credentials: Optional[auth_credentials.Credentials] = None,
-        ):
+        ) -> "AiPlatformResourceNounWithFutureManager":
+        """Initializes with all attributes set to None.
+
+        The attributes should be populated after a future is complete. This allows
+        scheduling of additional API calls before the resource is created.
+
+        Args:
+            project (str): Optional. Project of the resource noun.
+            location (str): Optional. The location of the resource noun.
+            credentials(google.auth.crendentials.Crendentials):
+                Optional. custom credentials to use when accessing interacting with
+                resource noun.
+        """
         self = cls.__new__(cls)
         AiPlatformResourceNoun.__init__(self, project, location, credentials)
-        FutureCache.__init__(self)
+        FutureManager.__init__(self)
         self._gca_resource = None
         return self
 
 
-def sync_future_object_with_realized(result, empty_returned_object):
-    sync_attributes = ['project', 'location', 'api_client', '_gca_resource']
-    optional_sync_attributes = ['_prediction_client']
+    def _sync_object_with_future_result(
+        self,
+        result: "AiPlatformResourceNounWithFutureManager"):
+        """Populates attributes from a Future result to this object.
 
-    for attribute in sync_attributes:
-        setattr(empty_returned_object, attribute, getattr(result, attribute))
+        Args:
+            result: AiPlatformResourceNounWithFutureManager
+                Required. Result of future with same type as this object.
+        """
+        sync_attributes = ['project', 'location', 'api_client', '_gca_resource',
+                            'credentials']
+        optional_sync_attributes = ['_prediction_client']
 
-    for attribute in optional_sync_attributes:
-        value = getattr(result, attribute, None)
-        if value:
-            setattr(empty_returned_object, attribute, value)
+        for attribute in sync_attributes:
+            setattr(self, attribute, getattr(result, attribute))
+
+        for attribute in optional_sync_attributes:
+            value = getattr(result, attribute, None)
+            if value:
+                setattr(self, attribute, value)
 
 
-def get_annotation_class(annotation):
+def get_annotation_class(annotation: type) -> type:
+    """Helper method to retrieve type annotation.
+
+    Args:
+        annotation (type): Type hint
+    """
     # typing.Optional
     if getattr(annotation, '__origin__', None) is Union:
         return annotation.__dict__['__args__'][0]
     else:
         return annotation
 
-def optional_sync_wrapper(
-    predicate_return_on_arg =None, # ie: incase Model is None in TrainingJob.run
-    return_input_arg=None, # pass through ie: Endpoint in Model.deploy
-    bind_future_to_self=True, # set to false to not bind future Model.deploy (only need to bind to output arg)
+def optional_sync(
+    construct_object_on_arg: Optional[str] = None,
+    return_input_arg: Optional[str] = None,
+    bind_future_to_self: bool=True,
     ):
+    """Decorator for AiPlatformResourceNounWithFutureManager with optional sync support.
 
-    def optional_run_in_thread(method):
+    Methods with this decorator should include a "sync" argument that defaults to
+    True. If called with sync=False this decorator will launch the method as a
+    concurrent Future in a separate Thread.
 
+    Care should be taken to avoid when a method decorated with this decorator calls another
+    method with this decorator.
+
+    Note that this is only robust enough to support our current end to end patterns
+    and may not be suitable for new patterns.
+
+    Args:
+        construct_object_on_arg (str):
+            Optional. If provided, will only construct output object if arg is present.
+            Example: If custom training does not produce a model.
+        return_input_arg (str):
+            Optional. If provided will return passed in argument instead of
+            constructing.
+            Example: Model.deploy(Endpoint) returns the passed in Endpoint
+        bind_future_to_self (bool):
+            Whether to add this future to the calling object.
+            Example: Model.deploy(Endpoint) would be set to False because we only
+            want the deployment Future to be associated with Endpoint.
+    """
+    def optional_run_in_thread(method: Callable[..., Any]):
+        """Optionally run this method concurrently in another Thread.
+
+        Args:
+            method (Callable[..., Any]): Method to optinally run in another Thread.
+        """
         functools.wraps(method)
         def wrapper(*args, **kwargs):
-            print(method)
+            """Wraps method."""
             sync = kwargs.pop('sync', True)
             bound_args = inspect.signature(method).bind(*args, **kwargs)
             self = bound_args.arguments.get('self')
+            calling_object_latest_future = None
 
+            # check to see if this object has any exceptions
             if self:
+                calling_object_latest_future = self._latest_future
                 self._raise_future_exception()
 
+            # if sync then wait for any Futures to complete and execute
             if sync:
                 if self:
                     self.wait()
                 return method(*args, **kwargs)
 
+            # callbacks to call within the Future (in same Thread)
             internal_callbacks = []
+            # callbacks to add to the Future (may or may not be in same Thread)
             callbacks=[]
+            # additional Future dependencies to capture
             dependencies = []
 
             # all method should have type signatures
@@ -358,18 +447,25 @@ def optional_sync_wrapper(
                 # object produced by the method
                 returned_object = bound_args.arguments.get(return_input_arg)
 
+                # if we're returning an input object
                 if returned_object and returned_object is not self:
+
+                    # make sure the input object doesn't have any exceptions
+                    # from previous futures
                     returned_object._raise_future_exception()
 
+                    # if the future will be associated with both the returned object
+                    # and calling object then we need to add additional callback
+                    # to remove the future from the returned object
                     if bind_future_to_self:
                         callbacks.append(returned_object._complete_future)
 
+                # if we need to construct a new empty returned object
                 should_construct = not returned_object and bound_args.arguments.get(
-                        predicate_return_on_arg,
-                        not predicate_return_on_arg)
+                        construct_object_on_arg,
+                        not construct_object_on_arg)
 
                 if should_construct:
-                    # if this method acts on the object itself
                     if return_type is not None:
                         returned_object = return_type._empty_constructor()
                         callbacks.append(returned_object._complete_future)
@@ -377,12 +473,13 @@ def optional_sync_wrapper(
 
             if returned_object:
                 # sync objects after future completes
-                internal_callbacks.append(functools.partial(
-                    sync_future_object_with_realized,
-                    empty_returned_object=returned_object))
+                internal_callbacks.append(
+                    returned_object._sync_object_with_future_result)
 
+            # if we are not associate the future to the calling object
+            # then the return object future needs to form a dependency on the
+            # any future in the calling object
             if not bind_future_to_self:
-                calling_object_latest_future = self._latest_future
                 if calling_object_latest_future:
                     dependencies.append(calling_object_latest_future)
                 self = returned_object
@@ -393,8 +490,9 @@ def optional_sync_wrapper(
                     args=[],
                     kwargs=bound_args.arguments)
 
+            # if the calling object is the one that submitted then add it's future
+            # to the returned object
             if returned_object and returned_object is not self:
-                print('adding latest future')
                 returned_object._latest_future = future
 
             return returned_object

@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import proto
 from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
@@ -56,7 +57,7 @@ class Prediction(NamedTuple):
     deployed_model_id: str
 
 
-class Endpoint(base.AiPlatformResourceNounWithFuture):
+class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
     client_class = EndpointServiceClient
     _is_client_prediction_client = False
@@ -185,7 +186,7 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
         )
 
     @classmethod
-    @base.optional_sync_wrapper()
+    @base.optional_sync()
     def _create(
         cls,
         api_client: EndpointServiceClient,
@@ -469,7 +470,9 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
                 Optional. Strings which should be sent along with the request as
                 metadata.
             sync (bool):
-                Whether to deploy the Model synchronously.
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
         """
 
         self._validate_deploy_args(
@@ -491,7 +494,7 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
             sync=sync
         )
 
-    @base.optional_sync_wrapper()
+    @base.optional_sync()
     def _deploy(
         self,
         model: "Model",
@@ -551,7 +554,9 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
                 Optional. Strings which should be sent along with the request as
                 metadata.
             sync (bool):
-                Whether to deploy this model synchronously.
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
         Raises:
             ValueError if there is not current traffic split and traffic percentage
             is not 0 or 100.
@@ -573,66 +578,13 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
 
         self._gca_resource = self._get_endpoint(self.resource_name)
 
-        # max_replica_count = max(min_replica_count, max_replica_count)
-
-        # if machine_type:
-        #     machine_spec = machine_resources.MachineSpec(machine_type=machine_type)
-        #     dedicated_resources = machine_resources.DedicatedResources(
-        #         machine_spec=machine_spec,
-        #         min_replica_count=min_replica_count,
-        #         max_replica_count=max_replica_count,
-        #     )
-        #     deployed_model = gca_endpoint.DeployedModel(
-        #         dedicated_resources=dedicated_resources,
-        #         model=model.resource_name,
-        #         display_name=deployed_model_display_name,
-        #     )
-        # else:
-        #     automatic_resources = machine_resources.AutomaticResources(
-        #         min_replica_count=min_replica_count,
-        #         max_replica_count=max_replica_count,
-        #     )
-        #     deployed_model = gca_endpoint.DeployedModel(
-        #         automatic_resources=automatic_resources,
-        #         model=model.resource_name,
-        #         display_name=deployed_model_display_name,
-        #     )
-
-        # if traffic_split is None:
-        #     # new model traffic needs to be 100 if no pre-existing models
-        #     if not self._gca_resource.traffic_split:
-        #         # default scenario
-        #         if traffic_percentage == 0:
-        #             traffic_percentage = 100
-        #         # verify user specified 100
-        #         elif traffic_percentage < 100:
-        #             raise ValueError(
-        #                 """There are currently no deployed models so the traffic
-        #                 percentage for this deployed model needs to be 100."""
-        #             )
-        #     traffic_split = self._allocate_traffic(
-        #         traffic_split=dict(self._gca_resource.traffic_split),
-        #         traffic_percentage=traffic_percentage,
-        #     )
-
-        # operation_future = self.api_client.deploy_model(
-        #     endpoint=self.resource_name,
-        #     deployed_model=deployed_model,
-        #     traffic_split=traffic_split,
-        #     metadata=metadata,
-        # )
-
-        # operation_future.result()
-
-        # update local resource
-
     @classmethod
     def _deploy_call(
         cls,
-        api_client,
+        api_client: EndpointServiceClient,
         endpoint_resource_name: str,
         model_resource_name: str,
-        endpoint_resource_traffic_split: Optional = None,
+        endpoint_resource_traffic_split: Optional[proto.MapField] = None,
         deployed_model_display_name: Optional[str] = None,
         traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
@@ -640,6 +592,66 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
         metadata: Optional[Sequence[Tuple[str, str]]] = ()):
+        """
+        Helper method to deploy model to endpoint.
+
+        Args:
+            api_client (EndpointServiceClient):
+                Required. EndpointServiceClient to make call.
+            endpoint_resource_name (str):
+                Required. Endpoint resource name to deploy model to.
+            model_resource_name (str):
+                Required. Model resource name of Model to deploy.
+            endpoint_resource_traffic_split (proto.MapField):
+                Optional. Endpoint current resource traffic split.
+            deployed_model_display_name (str):
+                Optional. The display name of the DeployedModel. If not provided
+                upon creation, the Model's display_name is used.
+            traffic_percentage (int):
+                Optional. Desired traffic to newly deployed model. Defaults to
+                0 if there are pre-existing deployed models. Defaults to 100 if
+                there are no pre-existing deployed models. Negative values should
+                not be provided. Traffic of previously deployed models at the endpoint
+                will be scaled down to accommodate new deployed model's traffic.
+                Should not be provided if traffic_split is provided.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
+            machine_type (str):
+                Optional. The type of machine. Not specifying machine type will
+                result in model to be deployed with automatic resources.
+            min_replica_count (int):
+                Optional. The minimum number of machine replicas this deployed
+                model will be always deployed on. If traffic against it increases,
+                it may dynamically be deployed onto more replicas, and as traffic
+                decreases, some of these extra replicas may be freed.
+            max_replica_count (int):
+                Optional. The maximum number of replicas this deployed model may
+                be deployed on when the traffic against it increases. If requested
+                value is too large, the deployment will error, but if deployment
+                succeeds then the ability to scale the model to that many replicas
+                is guaranteed (barring service outages). If traffic against the
+                deployed model increases beyond what its replicas at maximum may
+                handle, a portion of the traffic will be dropped. If this value
+                is not provided, the larger value of min_replica_count or 1 will
+                be used. If value provided is smaller than min_replica_count, it
+                will automatically be increased to be min_replica_count.
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Raises:
+            ValueError if there is not current traffic split and traffic percentage
+            is not 0 or 100.
+        """
 
         max_replica_count = max(min_replica_count, max_replica_count)
 
@@ -692,9 +704,6 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
 
         operation_future.result()
 
-        # update local resource
-        # self._gca_resource = self._get_endpoint(self.resource_name)
-
 
     def undeploy(
         self,
@@ -742,7 +751,7 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
         )
 
 
-    @base.optional_sync_wrapper()
+    @base.optional_sync()
     def _undeploy(
         self,
         deployed_model_id: str,
@@ -860,7 +869,7 @@ class Endpoint(base.AiPlatformResourceNounWithFuture):
 
 
 
-class Model(base.AiPlatformResourceNounWithFuture):
+class Model(base.AiPlatformResourceNounWithFutureManager):
 
     client_class = ModelServiceClient
     _is_client_prediction_client = False
@@ -925,7 +934,7 @@ class Model(base.AiPlatformResourceNounWithFuture):
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
     @classmethod
-    @base.optional_sync_wrapper()
+    @base.optional_sync()
     def upload(
         cls,
         display_name: str,
@@ -1056,7 +1065,6 @@ class Model(base.AiPlatformResourceNounWithFuture):
         )
 
     # TODO(b/172502059) support deploying with endpoint resource name
-    # @base.optional_sync_wrapper(return_input_arg='endpoint', bind_future_to_self=False)
     def deploy(
         self,
         endpoint: Optional["Endpoint"] = None,
@@ -1115,6 +1123,10 @@ class Model(base.AiPlatformResourceNounWithFuture):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
@@ -1139,10 +1151,10 @@ class Model(base.AiPlatformResourceNounWithFuture):
             metadata=metadata,
             sync=sync)
 
-    @base.optional_sync_wrapper(return_input_arg='endpoint', bind_future_to_self=False)
+    @base.optional_sync(return_input_arg='endpoint', bind_future_to_self=False)
     def _deploy(
             self,
-            endpoint: Optional = None,
+            endpoint: Optional["Endpoint"] = None,
             deployed_model_display_name: Optional[str] = None,
             traffic_percentage: Optional[int] = 0,
             traffic_split: Optional[Dict[str, int]] = None,
@@ -1152,10 +1164,69 @@ class Model(base.AiPlatformResourceNounWithFuture):
             metadata: Optional[Sequence[Tuple[str, str]]] = (),
             sync: bool=True
         ) -> Endpoint:
+        """
+        Deploys model to endpoint. Endpoint will be created if unspecified.
+
+        Args:
+            endpoint ("Endpoint"):
+                Optional. Endpoint to deploy model to. If not specified, endpoint
+                display name will be model display name+'_endpoint'.
+            deployed_model_display_name (str):
+                Optional. The display name of the DeployedModel. If not provided
+                upon creation, the Model's display_name is used.
+            traffic_percentage (int):
+                Optional. Desired traffic to newly deployed model. Defaults to
+                0 if there are pre-existing deployed models. Defaults to 100 if
+                there are no pre-existing deployed models. Negative values should
+                not be provided. Traffic of previously deployed models at the endpoint
+                will be scaled down to accommodate new deployed model's traffic.
+                Should not be provided if traffic_split is provided.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
+            machine_type (str):
+                Optional. The type of machine. Not specifying machine type will
+                result in model to be deployed with automatic resources.
+            min_replica_count (int):
+                Optional. The minimum number of machine replicas this deployed
+                model will be always deployed on. If traffic against it increases,
+                it may dynamically be deployed onto more replicas, and as traffic
+                decreases, some of these extra replicas may be freed.
+            max_replica_count (int):
+                Optional. The maximum number of replicas this deployed model may
+                be deployed on when the traffic against it increases. If requested
+                value is too large, the deployment will error, but if deployment
+                succeeds then the ability to scale the model to that many replicas
+                is guaranteed (barring service outages). If traffic against the
+                deployed model increases beyond what its replicas at maximum may
+                handle, a portion of the traffic will be dropped. If this value
+                is not provided, the smaller value of min_replica_count or 1 will
+                be used.
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Returns:
+            endpoint ("Endpoint"):
+                Endpoint with the deployed model.
+
+        """
 
         if endpoint is None:
             display_name = self.display_name[:118] + "_endpoint"
-            endpoint = Endpoint.create(display_name=display_name)
+            endpoint = Endpoint.create(
+                display_name=display_name,
+                project=self.project,
+                location=self.location,
+                credentials=self.credentials)
 
         Endpoint._deploy_call(
             endpoint.api_client,

@@ -35,8 +35,7 @@ from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 
 
-# TODO(b/171275584): Add async support to Dataset class
-class Dataset(base.AiPlatformResourceNounWithFuture):
+class Dataset(base.AiPlatformResourceNounWithFutureManager):
     """Managed dataset resource for AI Platform"""
 
     client_class = DatasetServiceClient
@@ -209,7 +208,7 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
         )
 
     @classmethod
-    @base.optional_sync_wrapper()
+    @base.optional_sync()
     def _create_and_import(cls,
         api_client:DatasetServiceClient,
         display_name: str,
@@ -225,6 +224,80 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
         import_schema_uri: Optional[str] = None,
         data_items_labels: Optional[Dict] = None,
         ) -> "Dataset":
+        """Creates a new dataset and optionally imports data into dataset when
+        source and import_schema_uri are passed.
+
+        Args:
+            api_client: DatasetServiceClient
+                Required: Dataset service api client,
+            display_name (str):
+                Required. The user-defined name of the Dataset.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            parent (str):
+                Required: Parent resource to created this dataset in.
+            metadata_schema_uri (str):
+                Required. Points to a YAML file stored on Google Cloud Storage
+                describing additional information about the Dataset. The schema
+                is defined as an OpenAPI 3.0.2 Schema Object. The schema files
+                that can be used here are found in gs://google-cloud-
+                aiplatform/schema/dataset/metadata/.
+            gcs_source: Optional[Sequence[str]]=None:
+                Google Cloud Storage URI(-s) to the
+                input file(s). May contain wildcards. For more
+                information on wildcards, see
+                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+            bq_source: Optional[str]=None:
+                BigQuery URI to the input table.
+            import_schema_uri: Optional[str] = None
+                Points to a YAML file stored on Google Cloud
+                Storage describing the import format. Validation will be
+                done against the schema. The schema is defined as an
+                `OpenAPI 3.0.2 Schema
+                Object <https://tinyurl.com/y538mdwt>`__.
+            metadata: Sequence[Tuple[str, str]]=()
+                Strings which should be sent along with the request as metadata.
+            labels: (Optional[Dict]) = None
+                The labels with user-defined metadata to organize your
+                Datasets.
+
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters,
+                numeric characters, underscores and dashes. International
+                characters are allowed. No more than 64 user labels can be
+                associated with one Dataset (System labels are excluded).
+
+                See https://goo.gl/xmQnxf for more information and examples
+                of labels. System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
+            data_items_labels: Optional[Dict] = None
+                Labels that will be applied to newly imported DataItems. If
+                an identical DataItem as one being imported already exists
+                in the Dataset, then these labels will be appended to these
+                of the already existing one, and if labels with identical
+                key is imported before, the old label value will be
+                overwritten. If two DataItems are identical in the same
+                import data operation, the labels will be combined and if
+                key collision happens in this case, one of the values will
+                be picked randomly. Two DataItems are considered identical
+                if their content bytes are identical (e.g. image bytes or
+                pdf bytes). These labels will be overridden by Annotation
+                labels specified inside index file refenced by
+                [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
+                e.g. jsonl file.
+            project: Optional[str]=None,
+                Project to upload this model to. Overrides project set in
+                aiplatform.init.
+            location: Optional[str]=None,
+                Location to upload this model to. Overrides location set in
+                aiplatform.init.
+            credentials: Optional[auth_credentials.Credentials]=None,
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+        Returns:
+            dataset (Dataset):
+                Instantiated representation of the managed dataset resource.
+        """
 
         is_tabular_dataset_metadata = (
             metadata_schema_uri == schema.dataset.metadata.tabular
@@ -372,7 +445,7 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
             name=self.resource_name, import_configs=[import_config]
         )
 
-    @base.optional_sync_wrapper(return_input_arg='self')
+    @base.optional_sync(return_input_arg='self')
     def import_data(
         self,
         gcs_source: Sequence[str],
@@ -424,8 +497,7 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
 
         return self
 
-
-    # TODO(add async and return as future)
+    # TODO(b/174751568) add optional sync support
     def export_data(self, output_dir: str) -> Sequence[str]:
         """Exports data to output dir to GCS.
 
@@ -449,8 +521,6 @@ class Dataset(base.AiPlatformResourceNounWithFuture):
             exported_files (Sequence[str]):
                 All of the files that are exported in this export operation.
         """
-
-        # if any futures are
         self.wait()
 
         # TODO(b/171311614): Add support for BiqQuery export path

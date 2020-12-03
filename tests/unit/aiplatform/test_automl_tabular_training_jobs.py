@@ -121,6 +121,7 @@ def mock_model_service_get():
 def mock_dataset():
     ds = mock.MagicMock(datasets.Dataset)
     ds.name = _TEST_DATASET_NAME
+    ds._latest_future = None
     return ds
 
 class TestAutoMLTabularTrainingJob:
