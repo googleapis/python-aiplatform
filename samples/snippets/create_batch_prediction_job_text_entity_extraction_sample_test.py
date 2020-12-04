@@ -25,7 +25,7 @@ import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
-MODEL_ID = "5216364637146054656"  # Permanent medical entity NL model
+MODEL_ID = "6305215400179138560"  # Permanent medical entity NL model
 DISPLAY_NAME = f"temp_create_batch_prediction_ten_test_{uuid4()}"
 GCS_SOURCE_URI = (
     "gs://ucaip-samples-test-output/inputs/batch_predict_TEN/ten_inputs.jsonl"

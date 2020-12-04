@@ -36,7 +36,7 @@ def dataset_name():
         parent=f"projects/{PROJECT_ID}/locations/{LOCATION}", dataset=dataset
     )
 
-    created_dataset = operation.result(timeout=120)
+    created_dataset = operation.result(timeout=600)
 
     yield created_dataset.name
 

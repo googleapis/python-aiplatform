@@ -23,7 +23,7 @@ import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
-MODEL_ID = "3125638878883479552"  # bq all
+MODEL_ID = "8842430840248991744"  # bq all
 DISPLAY_NAME = f"temp_create_batch_prediction_job_test_{uuid4()}"
 BIGQUERY_SOURCE_INPUT_URI = "bq://ucaip-sample-tests.table_test.all_bq_types"
 BIGQUERY_DESTINATION_OUTPUT_URI = "bq://ucaip-sample-tests"

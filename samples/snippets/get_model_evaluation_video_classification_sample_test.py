@@ -18,8 +18,8 @@ import os
 import get_model_evaluation_video_classification_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "667940119734386688"  # Permanent sports model
-EVALUATION_ID = "789396572185034752"  # Permanent sports evaluation
+MODEL_ID = "8596984660557299712"  # Permanent sports model
+EVALUATION_ID = "7092045712224944128"  # Permanent sports evaluation
 
 
 def test_ucaip_generated_get_model_evaluation_sample(capsys):

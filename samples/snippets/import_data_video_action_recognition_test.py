@@ -70,7 +70,7 @@ def test_import_data_video_action_recognition_sample(
         parent=f"projects/{PROJECT_ID}/locations/{LOCATION}", dataset=dataset
     )
 
-    create_dataset_response = response.result(timeout=120)
+    create_dataset_response = response.result(timeout=600)
 
     shared_state["dataset_name"] = create_dataset_response.name
     shared_state["dataset_id"] = create_dataset_response.name.split("/")[-1]

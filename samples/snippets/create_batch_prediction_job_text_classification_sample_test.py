@@ -25,7 +25,7 @@ import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
-MODEL_ID = "3863595899074641920"  # Permanent restaurant rating model
+MODEL_ID = "7827432074230366208"  # Permanent restaurant rating model
 DISPLAY_NAME = f"temp_create_batch_prediction_tcn_test_{uuid4()}"
 GCS_SOURCE_URI = (
     "gs://ucaip-samples-test-output/inputs/batch_predict_TCN/tcn_inputs.jsonl"

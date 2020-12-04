@@ -25,7 +25,7 @@ import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
-MODEL_ID = "667940119734386688"  # Permanent 5 class sports model
+MODEL_ID = "8596984660557299712"  # Permanent 5 class sports model
 DISPLAY_NAME = f"temp_create_batch_prediction_vcn_test_{uuid4()}"
 GCS_SOURCE_URI = (
     "gs://ucaip-samples-test-output/inputs/vcn_40_batch_prediction_input.jsonl"
