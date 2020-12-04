@@ -40,6 +40,8 @@ class Dataset(base.AiPlatformResourceNoun):
     client_class = DatasetServiceClient
     _is_client_prediction_client = False
 
+    _support_metadata_schema_uris = None
+
     def __init__(
         self,
         dataset_name: str,
@@ -79,6 +81,16 @@ class Dataset(base.AiPlatformResourceNoun):
     def metadata_schema_uri(self) -> str:
         """The metadata schema uri of this dataset resource."""
         return self._gca_resource.metadata_schema_uri
+
+    def _validate_metadata_schema_uri(self):
+        if self._support_metadata_schema_uris and (
+            self.metadata_schema_uri not in self._support_metadata_schema_uris
+        ):
+            raise Exception(
+                f"{self.resource_name} can not be retrieved using "
+                f"{self.__class__.__name__} class, check the dataset type"
+            )
+        return True
 
     @classmethod
     def create(

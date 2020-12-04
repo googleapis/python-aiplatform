@@ -143,5 +143,5 @@ class TestTabularDataset:
     def test_no_import_data_method(self):
         aiplatform.init(project=_TEST_PROJECT)
         my_dataset = TabularDataset(dataset_name=_TEST_NAME)
-        with pytest.raises(Exception):
-            my_dataset.import_data
+        with pytest.raises(NotImplementedError):
+            my_dataset.import_data()

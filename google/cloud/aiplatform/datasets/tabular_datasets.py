@@ -27,9 +27,7 @@ from google.cloud.aiplatform.datasets import datasets
 class TabularDataset(datasets.Dataset):
     """Managed tabular dataset resource for AI Platform"""
 
-    _types = [
-        schema.dataset.metadata.tabular,
-    ]
+    _support_metadata_schema_uris = (schema.dataset.metadata.tabular,)
 
     def __init__(
         self,
@@ -66,11 +64,7 @@ class TabularDataset(datasets.Dataset):
             credentials=credentials,
         )
 
-        if self.metadata_schema_uri not in self._types:
-            raise Exception(
-                f"{self.resource_name} can not be retrieved using "
-                f"'TabularDataset' class, check the dataset type"
-            )
+        self._validate_metadata_schema_uri()
 
     @classmethod
     def create(
@@ -139,6 +133,7 @@ class TabularDataset(datasets.Dataset):
 
         return dataset_obj
 
-    @property
     def import_data(self):
-        raise AttributeError("'TabularDataset' object has no 'import_data' method")
+        raise NotImplementedError(
+            f"{self.__class__.__name__} class does not support 'import_data'"
+        )
