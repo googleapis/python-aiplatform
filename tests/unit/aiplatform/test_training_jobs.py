@@ -86,6 +86,7 @@ _TEST_TRAINING_FRACTION_SPLIT = 0.6
 _TEST_VALIDATION_FRACTION_SPLIT = 0.2
 _TEST_TEST_FRACTION_SPLIT = 0.2
 _TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
+_TEST_ANNOTATION_SCHEMA_URI = "dummy.yaml"
 
 _TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
 
@@ -441,6 +442,7 @@ class TestCustomTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             sync=sync,
         )
 
@@ -495,6 +497,7 @@ class TestCustomTrainingJob:
             gcs_destination=gca_io.GcsDestination(
                 output_uri_prefix=_TEST_BASE_OUTPUT_DIR
             ),
+            annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(

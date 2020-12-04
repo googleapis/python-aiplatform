@@ -118,6 +118,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         test_fraction_split: float = 0.1,
         predefined_split_column_name: Optional[str] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
+        annotation_schema_uri: Optional[str] = None,
     ) -> Optional[gca_training_pipeline.InputDataConfig]:
         """Constructs a input data config to pass to the training pipeline.
 
@@ -156,6 +157,30 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 -  AIP_TRAINING_DATA_URI = "gcs_destination/training-*"
                 -  AIP_VALIDATION_DATA_URI = "gcs_destination/validation-*"
                 -  AIP_TEST_DATA_URI = "gcs_destination/test-*".
+            annotation_schema_uri (str):
+                Optional. Only applicable to custom training.
+
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema. The schema is defined as an OpenAPI 3.0.2
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                that can be used here are found in
+                gs://google-cloud-aiplatform/schema/dataset/annotation/,
+                note that the chosen schema must be consistent with
+                ``metadata``
+                of the Dataset specified by
+                ``dataset_id``.
+
+                Only Annotations that both match this schema and belong to
+                DataItems not ignored by the split method are used in
+                respectively training, validation or test role, depending on
+                the role of the DataItem they are on.
+
+                When used in conjunction with
+                ``annotations_filter``,
+                the Annotations used for training are filtered by both
+                ``annotations_filter``
+                and
+                ``annotation_schema_uri``.
         """
 
         input_data_config = None
@@ -195,6 +220,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 predefined_split=predefined_split,
                 dataset_id=dataset.name,
                 gcs_destination=gcs_destination,
+                annotation_schema_uri=annotation_schema_uri,
             )
 
         return input_data_config
@@ -210,6 +236,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         predefined_split_column_name: Optional[str] = None,
         model: Optional[gca_model.Model] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
+        annotation_schema_uri: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the training job.
 
@@ -291,7 +318,31 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 -  AIP_TRAINING_DATA_URI = "gcs_destination/training-*"
                 -  AIP_VALIDATION_DATA_URI = "gcs_destination/validation-*"
                 -  AIP_TEST_DATA_URI = "gcs_destination/test-*".
-        """
+            annotation_schema_uri (str):
+                Optional. Only applicable to custom training.
+
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema. The schema is defined as an OpenAPI 3.0.2
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                that can be used here are found in
+                gs://google-cloud-aiplatform/schema/dataset/annotation/,
+                note that the chosen schema must be consistent with
+                ``metadata``
+                of the Dataset specified by
+                ``dataset_id``.
+
+                Only Annotations that both match this schema and belong to
+                DataItems not ignored by the split method are used in
+                respectively training, validation or test role, depending on
+                the role of the DataItem they are on.
+
+                When used in conjunction with
+                ``annotations_filter``,
+                the Annotations used for training are filtered by both
+                ``annotations_filter``
+                and
+                ``annotation_schema_uri``.
+    """
 
         input_data_config = self._create_input_data_config(
             dataset=dataset,
@@ -300,6 +351,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
             gcs_destination_uri_prefix=gcs_destination_uri_prefix,
+            annotation_schema_uri=annotation_schema_uri,
         )
 
         # create training pipeline
@@ -1042,6 +1094,7 @@ class CustomTrainingJob(_TrainingJob):
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
         predefined_split_column_name: Optional[str] = None,
+        annotation_schema_uri: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
@@ -1111,11 +1164,34 @@ class CustomTrainingJob(_TrainingJob):
                 ignored by the pipeline.
 
                 Supported only for tabular Datasets.
+            annotation_schema_uri (str):
+                Optional. Only applicable to custom training.
+
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema. The schema is defined as an OpenAPI 3.0.2
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                that can be used here are found in
+                gs://google-cloud-aiplatform/schema/dataset/annotation/,
+                note that the chosen schema must be consistent with
+                ``metadata``
+                of the Dataset specified by
+                ``dataset_id``.
+
+                Only Annotations that both match this schema and belong to
+                DataItems not ignored by the split method are used in
+                respectively training, validation or test role, depending on
+                the role of the DataItem they are on.
+
+                When used in conjunction with
+                ``annotations_filter``,
+                the Annotations used for training are filtered by both
+                ``annotations_filter``
+                and
+                ``annotation_schema_uri``.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
-
         Returns:
             model: The trained AI Platform Model resource or None if training did not
                 produce an AI Platform Model.
@@ -1179,6 +1255,7 @@ class CustomTrainingJob(_TrainingJob):
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
+            annotation_schema_uri=annotation_schema_uri,
             sync=sync,
         )
 
@@ -1195,6 +1272,7 @@ class CustomTrainingJob(_TrainingJob):
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
         predefined_split_column_name: Optional[str] = None,
+        annotation_schema_uri: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -1231,6 +1309,30 @@ class CustomTrainingJob(_TrainingJob):
                 ignored by the pipeline.
 
                 Supported only for tabular Datasets.
+            annotation_schema_uri (str):
+                Optional. Only applicable to custom training.
+
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema. The schema is defined as an OpenAPI 3.0.2
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                that can be used here are found in
+                gs://google-cloud-aiplatform/schema/dataset/annotation/,
+                note that the chosen schema must be consistent with
+                ``metadata``
+                of the Dataset specified by
+                ``dataset_id``.
+
+                Only Annotations that both match this schema and belong to
+                DataItems not ignored by the split method are used in
+                respectively training, validation or test role, depending on
+                the role of the DataItem they are on.
+
+                When used in conjunction with
+                ``annotations_filter``,
+                the Annotations used for training are filtered by both
+                ``annotations_filter``
+                and
+                ``annotation_schema_uri``.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -1278,6 +1380,7 @@ class CustomTrainingJob(_TrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
+            annotation_schema_uri=annotation_schema_uri,
         )
 
         return model
