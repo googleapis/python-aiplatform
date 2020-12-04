@@ -18,7 +18,7 @@ import os
 import get_model_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "1478306577684365312"  # permanent_50_flowers_model
+MODEL_ID = "3512561418744365056"  # permanent_50_flowers_model
 KNOWN_MODEL = f"/locations/us-central1/models/{MODEL_ID}"
 
 

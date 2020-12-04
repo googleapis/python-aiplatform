@@ -18,8 +18,8 @@ import os
 import get_model_evaluation_video_object_tracking_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "20547673299877888"  # Permanent horses model
-EVALUATION_ID = "1165447141070471168"  # Permanent horses evaluation
+MODEL_ID = "8609932509485989888"  # Permanent horses model
+EVALUATION_ID = "6016811301190238208"  # Permanent horses evaluation
 
 
 def test_ucaip_generated_get_model_evaluation_sample(capsys):

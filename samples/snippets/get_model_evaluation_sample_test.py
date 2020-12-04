@@ -18,8 +18,8 @@ import os
 import get_model_evaluation_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "5162251072873431040"  # permanent_safe_driver_model
-EVALUATION_ID = "5615675837586029221"  # permanent_safe_driver_model Evaluation
+MODEL_ID = "3512561418744365056"  # permanent_safe_driver_model
+EVALUATION_ID = "9035588644970168320"  # permanent_safe_driver_model Evaluation
 
 
 def test_ucaip_generated_get_model_evaluation_sample(capsys):

@@ -25,7 +25,7 @@ import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
-MODEL_ID = "20547673299877888"  # Permanent horses model
+MODEL_ID = "8609932509485989888"  # Permanent horses model
 DISPLAY_NAME = f"temp_create_batch_prediction_vot_test_{uuid4()}"
 GCS_SOURCE_URI = (
     "gs://ucaip-samples-test-output/inputs/vot_batch_prediction_input.jsonl"

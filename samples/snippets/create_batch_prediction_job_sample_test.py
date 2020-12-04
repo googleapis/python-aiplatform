@@ -23,7 +23,7 @@ import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
-MODEL_ID = "1478306577684365312"  # Permanent 50 flowers model
+MODEL_ID = "3512561418744365056"  # Permanent 50 flowers model
 DISPLAY_NAME = f"temp_create_batch_prediction_job_test_{uuid4()}"
 GCS_SOURCE_URI = (
     "gs://ucaip-samples-test-output/inputs/icn_batch_prediction_input.jsonl"
