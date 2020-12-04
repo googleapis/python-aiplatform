@@ -1148,8 +1148,6 @@ class CustomTrainingJob(_TrainingJob):
             accelerator_type=accelerator_type,
         ).pool_specs
 
-        _LOGGER.info("Training Output directory:\n%s " % base_output_dir)
-
         # create model payload
         managed_model = None
         if model_display_name:
@@ -1246,6 +1244,8 @@ class CustomTrainingJob(_TrainingJob):
         base_output_dir = base_output_dir or _timestamped_gcs_dir(
             self._staging_bucket, "aiplatform-custom-training"
         )
+
+        _LOGGER.info("Training Output directory:\n%s " % base_output_dir)
 
         package_gcs_uri = python_packager.package_and_copy_to_gcs(
             gcs_staging_dir=self._staging_bucket,
