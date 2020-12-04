@@ -36,8 +36,8 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 
 import test_datasets
-from test_datasets import get_dataset_mock  # pylint: disable=F401
 from test_datasets import create_dataset_mock  # pylint: disable=F401
+from test_datasets import get_dataset_mock  # pylint: disable=F401
 from test_datasets import import_data_mock  # pylint: disable=F401
 
 import test_endpoints
@@ -48,9 +48,12 @@ from test_endpoints import predict_client_predict_mock  # pylint: disable=F401
 from test_models import deploy_model_mock  # pylint: disable=F401
 
 import test_training_jobs
-from test_training_jobs import mock_pipeline_service_create  # pylint: disable=F401
-from test_training_jobs import mock_python_package_to_gcs  # pylint: disable=F401
 from test_training_jobs import mock_model_service_get  # pylint: disable=F401
+from test_training_jobs import mock_pipeline_service_create  # pylint: disable=F401
+from test_training_jobs import (
+    mock_pipeline_service_create_and_get_with_fail,
+)  # pylint: disable=F401
+from test_training_jobs import mock_python_package_to_gcs  # pylint: disable=F401
 
 
 from google.protobuf import json_format
@@ -258,3 +261,187 @@ class TestEndToEnd:
         assert not job.has_failed
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @pytest.mark.usefixtures(
+        "get_dataset_mock",
+        "create_endpoint_mock",
+        "get_endpoint_mock",
+        "deploy_model_mock",
+    )
+    def test_dataset_create_to_model_predict_with_pipeline_fail(
+        self,
+        create_dataset_mock,  # pylint: disable=F811
+        import_data_mock,  # pylint: disable=F811
+        predict_client_predict_mock,  # pylint: disable=F811
+        mock_python_package_to_gcs,  # pylint: disable=F811
+        mock_pipeline_service_create_and_get_with_fail,  # pylint: disable=F811
+        mock_model_service_get,  # pylint: disable=F811
+    ):
+
+        sync = False
+
+        aiplatform.init(
+            project=test_datasets._TEST_PROJECT,
+            staging_bucket=test_training_jobs._TEST_BUCKET_NAME,
+        )
+
+        my_dataset = aiplatform.Dataset.create(
+            display_name=test_datasets._TEST_DISPLAY_NAME,
+            labels=test_datasets._TEST_LABEL,
+            metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            sync=sync,
+        )
+
+        my_dataset.import_data(
+            gcs_source=test_datasets._TEST_SOURCE_URI_GCS,
+            import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
+            data_items_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
+            sync=sync,
+        )
+
+        job = aiplatform.CustomTrainingJob(
+            display_name=test_training_jobs._TEST_DISPLAY_NAME,
+            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
+            model_serving_container_image_uri=test_training_jobs._TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=test_training_jobs._TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=test_training_jobs._TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+        )
+
+        created_endpoint = models.Endpoint.create(
+            display_name=test_endpoints._TEST_DISPLAY_NAME, sync=sync
+        )
+
+        model_from_job = job.run(
+            dataset=my_dataset,
+            base_output_dir=test_training_jobs._TEST_BASE_OUTPUT_DIR,
+            args=test_training_jobs._TEST_RUN_ARGS,
+            replica_count=1,
+            machine_type=test_training_jobs._TEST_MACHINE_TYPE,
+            accelerator_type=test_training_jobs._TEST_ACCELERATOR_TYPE,
+            accelerator_count=test_training_jobs._TEST_ACCELERATOR_COUNT,
+            model_display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=test_training_jobs._TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=test_training_jobs._TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=test_training_jobs._TEST_TEST_FRACTION_SPLIT,
+            sync=sync,
+        )
+
+        my_endpoint = model_from_job.deploy(sync=sync)
+
+        endpoint_deploy_return = created_endpoint.deploy(model_from_job, sync=sync)
+
+        assert endpoint_deploy_return is None
+
+        with pytest.raises(RuntimeError):
+            my_endpoint.wait()
+
+        with pytest.raises(RuntimeError):
+            created_endpoint.wait()
+
+        expected_dataset = GapicDataset(
+            display_name=test_datasets._TEST_DISPLAY_NAME,
+            metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            labels=test_datasets._TEST_LABEL,
+            metadata={},
+        )
+
+        expected_import_config = ImportDataConfig(
+            gcs_source=GcsSource(uris=[test_datasets._TEST_SOURCE_URI_GCS]),
+            import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=test_datasets._TEST_PARENT, dataset=expected_dataset, metadata=()
+        )
+
+        import_data_mock.assert_called_once_with(
+            name=test_datasets._TEST_NAME, import_configs=[expected_import_config]
+        )
+
+        expected_dataset.name = test_datasets._TEST_NAME
+        assert my_dataset._gca_resource == expected_dataset
+
+        mock_python_package_to_gcs.assert_called_once_with(
+            gcs_staging_dir=test_training_jobs._TEST_BUCKET_NAME,
+            project=test_training_jobs._TEST_PROJECT,
+            credentials=initializer.global_config.credentials,
+        )
+
+        true_args = test_training_jobs._TEST_RUN_ARGS
+
+        true_worker_pool_spec = {
+            "replicaCount": test_training_jobs._TEST_REPLICA_COUNT,
+            "machineSpec": {
+                "machineType": test_training_jobs._TEST_MACHINE_TYPE,
+                "acceleratorType": test_training_jobs._TEST_ACCELERATOR_TYPE,
+                "acceleratorCount": test_training_jobs._TEST_ACCELERATOR_COUNT,
+            },
+            "pythonPackageSpec": {
+                "executorImageUri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
+                "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
+                "packageUris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "args": true_args,
+            },
+        }
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=test_training_jobs._TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=test_training_jobs._TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=test_training_jobs._TEST_TEST_FRACTION_SPLIT,
+        )
+
+        true_container_spec = gca_model.ModelContainerSpec(
+            image_uri=test_training_jobs._TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=test_training_jobs._TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=test_training_jobs._TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME,
+            container_spec=true_container_spec,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split,
+            dataset_id=my_dataset.name,
+            gcs_destination=gca_io.GcsDestination(
+                output_uri_prefix=test_training_jobs._TEST_BASE_OUTPUT_DIR
+            ),
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=test_training_jobs._TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.custom_task,
+            training_task_inputs=json_format.ParseDict(
+                {
+                    "workerPoolSpecs": [true_worker_pool_spec],
+                    "baseOutputDirectory": {
+                        "output_uri_prefix": test_training_jobs._TEST_BASE_OUTPUT_DIR
+                    },
+                },
+                struct_pb2.Value(),
+            ),
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+        )
+
+        mock_pipeline_service_create_and_get_with_fail[0].assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+        assert (
+            job._gca_resource
+            is mock_pipeline_service_create_and_get_with_fail[1].return_value
+        )
+
+        mock_model_service_get.assert_not_called()
+
+        with pytest.raises(RuntimeError):
+            job.get_model()
+
+        assert job.has_failed
+
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED
