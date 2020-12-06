@@ -22,14 +22,12 @@ from proto.marshal import Marshal
 from proto.marshal.rules.struct import ValueRule
 from google.protobuf.struct_pb2 import Value
 
-import ipdb
 
 class ConversionValueRule(ValueRule):
     def to_python(self, value, *, absent: bool = None):
-        ipdb.set_trace()
         return super().to_python(value, absent=absent)
+
     def to_proto(self, value):
-        ipdb.set_trace()
 
         # Need to check whether value is an instance
         # of an enhanced type
@@ -41,8 +39,8 @@ class ConversionValueRule(ValueRule):
 
 def add_methods_to_classes_in_package(pkg):
     classes = dict([(name, cls)
-        for name, cls in pkg.__dict__.items() 
-        if isinstance(cls, type)])
+                    for name, cls in pkg.__dict__.items()
+                    if isinstance(cls, type)])
 
     for class_name, cls in classes.items():
         # Add to_value() method to class with docstring
@@ -61,15 +59,14 @@ def add_methods_to_classes_in_package(pkg):
 def add_from_value_to_class(cls):
     def _from_value(value):
         return from_value(cls, value)
-    return _from_value 
+    return _from_value
+
 
 def add_from_map_to_class(cls):
     def _from_map(map_):
         return from_map(cls, map_)
     return _from_map
 
-ipdb.set_trace()
+
 marshal = Marshal(name='google.cloud.aiplatform.v1beta1')
 marshal.register(Value, ConversionValueRule(marshal=marshal))
-
-
