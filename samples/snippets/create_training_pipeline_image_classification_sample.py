@@ -52,6 +52,3 @@ def create_training_pipeline_image_classification_sample(
     )
     print("response:", response)
 # [END aiplatform_create_training_pipeline_image_classification_sample]
-
-
-# [END aiplatform_create_training_pipeline_image_classification_sample]
