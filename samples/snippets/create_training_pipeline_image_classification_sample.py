@@ -48,7 +48,6 @@ def create_training_pipeline_image_classification_sample(
         "input_data_config": {"dataset_id": dataset_id},
         "model_to_upload": {"display_name": model_display_name},
     }
-
     parent = f"projects/{project}/locations/{location}"
     response = client.create_training_pipeline(
         parent=parent, training_pipeline=training_pipeline

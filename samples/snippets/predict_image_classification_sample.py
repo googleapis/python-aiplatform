@@ -14,6 +14,7 @@
 
 # [START aiplatform_predict_image_classification_sample]
 import base64
+
 from google.cloud import aiplatform
 from google.cloud.aiplatform.v1beta1.schema.predict import instance
 from google.cloud.aiplatform.v1beta1.schema.predict import params
@@ -57,7 +58,6 @@ def predict_image_classification_sample(
     # See gs://google-cloud-aiplatform/schema/predict/prediction/classification.yaml for the format of the predictions.
     predictions = response.predictions
     for prediction_ in predictions:
-        print(" prediction:", dict(prediction_))
         prediction_obj = prediction.ClassificationPredictionResult.from_map(prediction_)
         print(prediction_obj)
 
