@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from google.cloud.aiplatform_helpers import add_methods_to_classes_in_package
+import google.cloud.aiplatform.v1beta1.schema.predict.params_v1beta1.types as pkg
 
 from google.cloud.aiplatform.v1beta1.schema.predict.params_v1beta1.types.image_classification import (
     ImageClassificationPredictionParams,
@@ -42,3 +44,4 @@ __all__ = (
     "VideoClassificationPredictionParams",
     "VideoObjectTrackingPredictionParams",
 )
+add_methods_to_classes_in_package(pkg)
