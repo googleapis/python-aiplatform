@@ -45,7 +45,7 @@ def predict_image_classification_sample(
 
     params_obj = params.ImageClassificationPredictionParams({
         "confidence_threshold": 0.5, "max_predictions": 5})
-    
+
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
     )
