@@ -30,7 +30,7 @@ def predict_image_classification_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aip.PredictionServiceClient(client_options=client_options)
+    client = aip.gapic.PredictionServiceClient(client_options=client_options)
     with open(filename, "rb") as f:
         file_content = f.read()
 
@@ -58,7 +58,6 @@ def predict_image_classification_sample(
     predictions = response.predictions
     for prediction_ in predictions:
         print(" prediction:", dict(prediction_))
-        ipdb.set_trace()
         prediction_obj = prediction.ClassificationPredictionResult.from_map(prediction_)
         print(prediction_obj)
 
