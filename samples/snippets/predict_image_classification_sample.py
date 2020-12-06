@@ -13,11 +13,11 @@
 # limitations under the License.
 
 # [START aiplatform_predict_image_classification_sample]
+import base64
+from google.cloud import aiplatform
 from google.cloud.aiplatform.v1beta1.schema.predict import instance
 from google.cloud.aiplatform.v1beta1.schema.predict import params
 from google.cloud.aiplatform.v1beta1.schema.predict import prediction
-from google.cloud import aiplatform as aip
-import base64
 
 
 def predict_image_classification_sample(
@@ -30,7 +30,7 @@ def predict_image_classification_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aip.gapic.PredictionServiceClient(client_options=client_options)
+    client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
     with open(filename, "rb") as f:
         file_content = f.read()
 

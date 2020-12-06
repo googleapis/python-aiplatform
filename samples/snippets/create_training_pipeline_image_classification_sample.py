@@ -22,14 +22,17 @@ ModelType = definition.AutoMlImageClassificationInputs().ModelType
 
 
 def create_training_pipeline_image_classification_sample(
-    display_name: str, dataset_id: str, model_display_name: str, project: str
+    project: str,
+    display_name: str,
+    dataset_id: str,
+    model_display_name: str,
+    location: str = "us-central1",
+    api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
-    client_options = dict(api_endpoint="us-central1-aiplatform.googleapis.com")
+    client_options = {"api_endpoint": api_endpoint}
+    # Initialize client that will be used to create and send requests.
+    # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
-    location = "us-central1"
-    parent = "projects/{project}/locations/{location}".format(
-        project=project, location=location
-    )
 
     icn_training_inputs = definition.AutoMlImageClassificationInputs(
         multi_label=True,
@@ -46,8 +49,11 @@ def create_training_pipeline_image_classification_sample(
         "model_to_upload": {"display_name": model_display_name},
     }
 
+    parent = f"projects/{project}/locations/{location}"
     response = client.create_training_pipeline(
         parent=parent, training_pipeline=training_pipeline
     )
     print("response:", response)
+
+
 # [END aiplatform_create_training_pipeline_image_classification_sample]
