@@ -14,7 +14,6 @@
 
 # [START aiplatform_create_training_pipeline_image_classification_sample]
 from google.cloud import aiplatform
-from google.cloud.aiplatform_v1beta1.services import pipeline_service
 from google.protobuf import json_format
 
 # Import the enhanced types
@@ -26,7 +25,7 @@ def create_training_pipeline_image_classification_sample(
     display_name: str, dataset_id: str, model_display_name: str, project: str
 ):
     client_options = dict(api_endpoint="us-central1-aiplatform.googleapis.com")
-    client = pipeline_service.PipelineServiceClient(client_options=client_options)
+    client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
     location = "us-central1"
     parent = "projects/{project}/locations/{location}".format(
         project=project, location=location
