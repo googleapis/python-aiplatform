@@ -63,6 +63,7 @@ class ValueConverterTests(unittest.TestCase):
         # Following assert fails.
         # `expected_type` is `test_value_converter.SomeMessage` while
         # `actual_from_value_output` is just `SomeMessage`
+        # Use `isinstance()` instead.
         #assert(type(actual_from_value_output) is type(expected_type))
 
         # Check property-level equivalency
