@@ -18,6 +18,8 @@ from google.cloud import aiplatform
 from google.cloud import storage
 import pytest
 
+import helpers
+
 
 @pytest.fixture()
 def shared_state():
@@ -78,3 +80,25 @@ def dataset_client():
         client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     )
     yield dataset_client
+
+
+# Shared setup/teardown.
+
+
+@pytest.fixture()
+def teardown_batch_prediction_job(shared_state, job_client):
+    yield
+
+    job_client.cancel_batch_prediction_job(
+        name=shared_state["batch_prediction_job_name"]
+    )
+
+    # Waiting until the job is in CANCELLED state.
+    helpers.wait_for_job_state(
+        get_job_method=job_client.get_batch_prediction_job,
+        name=shared_state["batch_prediction_job_name"],
+    )
+
+    job_client.delete_batch_prediction_job(
+        name=shared_state["batch_prediction_job_name"]
+    )

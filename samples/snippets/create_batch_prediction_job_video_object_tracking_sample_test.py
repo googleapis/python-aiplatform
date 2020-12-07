@@ -30,24 +30,9 @@ GCS_SOURCE_URI = (
 GCS_OUTPUT_URI = "gs://ucaip-samples-test-output/"
 
 
-@pytest.fixture(autouse=True)
-def teardown(shared_state, job_client):
+@pytest.fixture(scope="function", autouse=True)
+def teardown(teardown_batch_prediction_job):
     yield
-
-    job_client.cancel_batch_prediction_job(
-        name=shared_state["batch_prediction_job_name"]
-    )
-
-    # Waiting for batch prediction job to be in CANCELLED state
-    helpers.wait_for_job_state(
-        get_job_method=job_client.get_batch_prediction_job,
-        name=shared_state["batch_prediction_job_name"],
-    )
-
-    # Delete the batch prediction job
-    job_client.delete_batch_prediction_job(
-        name=shared_state["batch_prediction_job_name"]
-    )
 
 
 # Creating AutoML Video Object Tracking batch prediction job
