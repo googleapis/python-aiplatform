@@ -14,9 +14,6 @@
 
 # [START aiplatform_create_training_pipeline_image_classification_sample]
 from google.cloud import aiplatform
-from google.protobuf import json_format
-
-# Import the enhanced types
 from google.cloud.aiplatform.v1beta1.schema.trainingjob import definition
 ModelType = definition.AutoMlImageClassificationInputs().ModelType
 
