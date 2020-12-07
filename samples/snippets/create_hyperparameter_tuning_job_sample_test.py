@@ -18,9 +18,7 @@ import uuid
 from google.cloud import aiplatform
 import pytest
 
-import cancel_hyperparameter_tuning_job_sample
 import create_hyperparameter_tuning_job_sample
-import delete_hyperparameter_tuning_job_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -31,13 +29,9 @@ CONTAINER_IMAGE_URI = "gcr.io/ucaip-test/ucaip-training-test:latest"
 def teardown(shared_state, job_client):
     yield
 
-    hyperparameter_tuning_job_id = shared_state["hyperparameter_tuning_job_name"].split(
-        "/"
-    )[-1]
-
     # Cancel the created hyperparameter tuning job
-    cancel_hyperparameter_tuning_job_sample.cancel_hyperparameter_tuning_job_sample(
-        project=PROJECT_ID, hyperparameter_tuning_job_id=hyperparameter_tuning_job_id
+    job_client.cancel_hyperparameter_tuning_job(
+        name=shared_state["hyperparameter_tuning_job_name"]
     )
 
     # Waiting for hyperparameter tuning job to be in CANCELLED state
@@ -47,8 +41,8 @@ def teardown(shared_state, job_client):
     )
 
     # Delete the created hyperparameter tuning job
-    delete_hyperparameter_tuning_job_sample.delete_hyperparameter_tuning_job_sample(
-        project=PROJECT_ID, hyperparameter_tuning_job_id=hyperparameter_tuning_job_id
+    job_client.delete_hyperparameter_tuning_job(
+        name=shared_state["hyperparameter_tuning_job_name"]
     )
 
 

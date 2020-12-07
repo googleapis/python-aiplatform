@@ -18,7 +18,6 @@ from uuid import uuid4
 from google.cloud import aiplatform
 import pytest
 
-import delete_endpoint_sample
 import deploy_model_sample
 import helpers
 
@@ -39,6 +38,20 @@ def setup(shared_state, endpoint_client):
     shared_state["endpoint"] = create_endpoint_response.result().name
 
 
+@pytest.fixture(scope="function", autouse=True)
+def teardown(shared_state, endpoint_client):
+    yield
+
+    undeploy_model_operation = endpoint_client.undeploy_model(
+        deployed_model_id=shared_state["deployed_model_id"],
+        endpoint=shared_state["endpoint"],
+    )
+    undeploy_model_operation.result()
+
+    # Delete the endpoint
+    endpoint_client.delete_endpoint(name=shared_state["endpoint"])
+
+
 def test_ucaip_generated_deploy_model_sample(capsys, shared_state):
 
     assert shared_state["endpoint"] is not None
@@ -56,19 +69,3 @@ def test_ucaip_generated_deploy_model_sample(capsys, shared_state):
     assert "deploy_model_response" in out
 
     shared_state["deployed_model_id"] = helpers.get_name(out=out, key="id")
-
-
-@pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, endpoint_client):
-    yield
-
-    undeploy_model_operation = endpoint_client.undeploy_model(
-        deployed_model_id=shared_state["deployed_model_id"],
-        endpoint=shared_state["endpoint"],
-    )
-    undeploy_model_operation.result()
-
-    # Delete the endpoint
-    delete_endpoint_sample.delete_endpoint_sample(
-        project=PROJECT_ID, endpoint_id=shared_state["endpoint"].split("/")[-1]
-    )

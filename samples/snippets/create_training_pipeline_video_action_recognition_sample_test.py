@@ -37,7 +37,6 @@ MODEL_TYPE = "CLOUD"
 def teardown(shared_state, pipeline_client):
     yield
 
-    # Stop the training pipeline
     pipeline_client.cancel_training_pipeline(
         name=shared_state["training_pipeline_name"]
     )

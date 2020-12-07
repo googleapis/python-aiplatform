@@ -29,8 +29,6 @@ DISPLAY_NAME = f"temp_create_training_pipeline_custom_job_test_{uuid4()}"
 def teardown(shared_state, pipeline_client):
     yield
 
-    shared_state["training_pipeline_name"].split("/")[-1]
-
     pipeline_client.cancel_training_pipeline(
         name=shared_state["training_pipeline_name"]
     )

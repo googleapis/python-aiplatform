@@ -78,4 +78,3 @@ def dataset_client():
         client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     )
     yield dataset_client
-

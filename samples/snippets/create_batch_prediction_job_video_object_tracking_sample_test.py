@@ -18,9 +18,7 @@ from uuid import uuid4
 from google.cloud import aiplatform
 import pytest
 
-import cancel_batch_prediction_job_sample
 import create_batch_prediction_job_video_object_tracking_sample
-import delete_batch_prediction_job_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -33,17 +31,12 @@ GCS_SOURCE_URI = (
 GCS_OUTPUT_URI = "gs://ucaip-samples-test-output/"
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(autouse=True)
 def teardown(shared_state, job_client):
     yield
 
-    assert "/" in shared_state["batch_prediction_job_name"]
-
-    batch_prediction_job = shared_state["batch_prediction_job_name"].split("/")[-1]
-
-    # Stop the batch prediction job
-    cancel_batch_prediction_job_sample.cancel_batch_prediction_job_sample(
-        project=PROJECT_ID, batch_prediction_job_id=batch_prediction_job
+    job_client.cancel_batch_prediction_job(
+        name=shared_state["batch_prediction_job_name"]
     )
 
     # Waiting for batch prediction job to be in CANCELLED state
@@ -53,8 +46,8 @@ def teardown(shared_state, job_client):
     )
 
     # Delete the batch prediction job
-    delete_batch_prediction_job_sample.delete_batch_prediction_job_sample(
-        project=PROJECT_ID, batch_prediction_job_id=batch_prediction_job
+    job_client.delete_batch_prediction_job(
+        name=shared_state["batch_prediction_job_name"]
     )
 
 

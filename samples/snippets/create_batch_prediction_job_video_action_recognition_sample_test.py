@@ -31,12 +31,10 @@ GCS_SOURCE_URI = "gs://automl-video-demo-data/ucaip-var/swimrun_bp.jsonl"
 GCS_OUTPUT_URI = "gs://ucaip-samples-test-output/"
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(autouse=True)
 def teardown(shared_state, job_client):
     yield
 
-    # Stop the batch prediction job
-    # Delete the batch prediction job
     job_client.cancel_batch_prediction_job(
         name=shared_state["batch_prediction_job_name"]
     )

@@ -32,37 +32,37 @@ DISPLAY_NAME = f"temp_import_data_video_action_recognition_test_{uuid.uuid4()}"
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, dataset_client):
+def setup(shared_state, dataset_client):
+    dataset = aiplatform.gapic.Dataset(
+        display_name=f"temp_import_dataset_test_{uuid4()}",
+        metadata_schema_uri=METADATA_SCHEMA_URI,
+    )
+
+    operation = dataset_client.create_dataset(
+        parent=f"projects/{PROJECT_ID}/locations/{LOCATION}", dataset=dataset
+    )
+
+    dataset = operation.result(timeout=300)
+    shared_state["dataset_name"] = dataset.name
 
     yield
-    dataset_name = dataset_client.dataset_path(
-        project=PROJECT_ID, location=LOCATION, dataset=shared_state["dataset_id"]
-    )
-    response = dataset_client.delete_dataset(name=dataset_name)
-    response.result(timeout=120)
+
+
+@pytest.fixture(scope="function", autouse=True)
+def teardown(shared_state, dataset_client):
+    yield
+
+    # Delete the created dataset
+    dataset_client.delete_dataset(name=shared_state["dataset_name"])
 
 
 def test_import_data_video_action_recognition_sample(
     capsys, shared_state, dataset_client
 ):
-
-    dataset = aiplatform.gapic.Dataset(
-        display_name=DISPLAY_NAME, metadata_schema_uri=METADATA_SCHEMA_URI,
-    )
-
-    response = dataset_client.create_dataset(
-        parent=f"projects/{PROJECT_ID}/locations/{LOCATION}", dataset=dataset
-    )
-
-    create_dataset_response = response.result(timeout=600)
-
-    shared_state["dataset_name"] = create_dataset_response.name
-    shared_state["dataset_id"] = create_dataset_response.name.split("/")[-1]
+    dataset_id = shared_state["dataset_name"].split("/")[-1]
 
     import_data_video_action_recognition_sample.import_data_video_action_recognition_sample(
-        project=PROJECT_ID,
-        dataset_id=shared_state["dataset_id"],
-        gcs_source_uri=GCS_SOURCE,
+        project=PROJECT_ID, dataset_id=dataset_id, gcs_source_uri=GCS_SOURCE,
     )
     out, _ = capsys.readouterr()
 

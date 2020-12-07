@@ -38,6 +38,20 @@ def setup(shared_state, endpoint_client):
     shared_state["endpoint"] = create_endpoint_response.result().name
 
 
+@pytest.fixture(scope="function", autouse=True)
+def teardown(shared_state, endpoint_client):
+    yield
+
+    undeploy_model_operation = endpoint_client.undeploy_model(
+        deployed_model_id=shared_state["deployed_model_id"],
+        endpoint=shared_state["endpoint"],
+    )
+    undeploy_model_operation.result()
+
+    # Delete the endpoint
+    endpoint_client.delete_endpoint(name=shared_state["endpoint"])
+
+
 def test_ucaip_generated_deploy_model_custom_trained_model_sample(capsys, shared_state):
 
     assert shared_state["endpoint"] is not None
@@ -55,17 +69,3 @@ def test_ucaip_generated_deploy_model_custom_trained_model_sample(capsys, shared
     assert "deploy_model_response" in out
 
     shared_state["deployed_model_id"] = helpers.get_name(out=out, key="id")
-
-
-@pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, endpoint_client):
-    yield
-
-    undeploy_model_operation = endpoint_client.undeploy_model(
-        deployed_model_id=shared_state["deployed_model_id"],
-        endpoint=shared_state["endpoint"],
-    )
-    undeploy_model_operation.result()
-
-    # Delete the endpoint
-    endpoint_client.delete_endpoint(name=shared_state["endpoint"])

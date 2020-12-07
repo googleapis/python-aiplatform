@@ -4,7 +4,6 @@ from uuid import uuid4
 from google.cloud import aiplatform
 import pytest
 
-import delete_dataset_sample
 import import_data_text_sentiment_analysis_sample
 
 print(
@@ -23,7 +22,7 @@ METADATA_SCHEMA_URI = (
 
 
 @pytest.fixture(scope="function", autouse=True)
-def dataset_name(dataset_client):
+def setup(shared_state, dataset_client):
     dataset = aiplatform.gapic.Dataset(
         display_name=f"temp_import_dataset_test_{uuid4()}",
         metadata_schema_uri=METADATA_SCHEMA_URI,
@@ -33,22 +32,24 @@ def dataset_name(dataset_client):
         parent=f"projects/{PROJECT_ID}/locations/{LOCATION}", dataset=dataset
     )
 
-    created_dataset = operation.result(timeout=600)
+    dataset = operation.result(timeout=300)
+    shared_state["dataset_name"] = dataset.name
 
-    yield created_dataset.name
+    yield
 
-    dataset_id = created_dataset.name.split("/")[-1]
+
+@pytest.fixture(scope="function", autouse=True)
+def teardown(shared_state, dataset_client):
+    yield
 
     # Delete the created dataset
-    delete_dataset_sample.delete_dataset_sample(
-        project=PROJECT_ID, dataset_id=dataset_id
-    )
+    dataset_client.delete_dataset(name=shared_state["dataset_name"])
 
 
 def test_ucaip_generated_import_data_text_sentiment_analysis_sample(
-    capsys, dataset_name
+    capsys, shared_state
 ):
-    dataset_id = dataset_name.split("/")[-1]
+    dataset_id = shared_state["dataset_name"].split("/")[-1]
 
     import_data_text_sentiment_analysis_sample.import_data_text_sentiment_analysis_sample(
         gcs_source_uri=GCS_SOURCE, project=PROJECT_ID, dataset_id=dataset_id

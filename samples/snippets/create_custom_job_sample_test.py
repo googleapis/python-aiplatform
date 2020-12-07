@@ -32,12 +32,8 @@ CONTAINER_IMAGE_URI = "gcr.io/ucaip-test/ucaip-training-test:latest"
 def teardown(shared_state, job_client):
     yield
 
-    custom_job_id = shared_state["custom_job_name"].split("/")[-1]
-
     # Cancel the created custom job
-    cancel_custom_job_sample.cancel_custom_job_sample(
-        project=PROJECT_ID, custom_job_id=custom_job_id
-    )
+    job_client.cancel_custom_job(name=shared_state["custom_job_name"])
 
     # Waiting for custom job to be in CANCELLED state
     helpers.wait_for_job_state(
@@ -45,9 +41,7 @@ def teardown(shared_state, job_client):
     )
 
     # Delete the created custom job
-    delete_custom_job_sample.delete_custom_job_sample(
-        project=PROJECT_ID, custom_job_id=custom_job_id
-    )
+    job_client.delete_custom_job(name=shared_state["custom_job_name"])
 
 
 def test_ucaip_generated_create_custom_job(capsys, shared_state):

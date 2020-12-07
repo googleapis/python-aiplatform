@@ -18,9 +18,7 @@ from uuid import uuid4
 from google.cloud import aiplatform
 import pytest
 
-import cancel_training_pipeline_sample
 import create_training_pipeline_tabular_regression_sample
-import delete_training_pipeline_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -34,11 +32,8 @@ PREDICTION_TYPE = "regression"
 def teardown(shared_state, pipeline_client):
     yield
 
-    training_pipeline_id = shared_state["training_pipeline_name"].split("/")[-1]
-
-    # Stop the training pipeline
-    cancel_training_pipeline_sample.cancel_training_pipeline_sample(
-        project=PROJECT_ID, training_pipeline_id=training_pipeline_id
+    pipeline_client.cancel_training_pipeline(
+        name=shared_state["training_pipeline_name"]
     )
 
     # Waiting for training pipeline to be in CANCELLED state
@@ -48,8 +43,8 @@ def teardown(shared_state, pipeline_client):
     )
 
     # Delete the training pipeline
-    delete_training_pipeline_sample.delete_training_pipeline_sample(
-        project=PROJECT_ID, training_pipeline_id=training_pipeline_id
+    pipeline_client.delete_training_pipeline(
+        name=shared_state["training_pipeline_name"]
     )
 
 

@@ -18,7 +18,6 @@ from uuid import uuid4
 import pytest
 
 import create_dataset_tabular_bigquery_sample
-import delete_dataset_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -26,17 +25,11 @@ BIGQUERY_URI = "bq://ucaip-sample-tests.table_test.all_bq_types"
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(shared_state, dataset_client):
     yield
 
-    assert "/" in shared_state["dataset_name"]
-
-    dataset_id = shared_state["dataset_name"].split("/")[-1]
-
     # Delete the created dataset
-    delete_dataset_sample.delete_dataset_sample(
-        project=PROJECT_ID, dataset_id=dataset_id
-    )
+    dataset_client.delete_dataset(name=shared_state["dataset_name"])
 
 
 def test_ucaip_generated_create_dataset_tabular_bigquery(capsys, shared_state):

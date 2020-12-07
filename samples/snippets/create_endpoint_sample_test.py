@@ -18,7 +18,6 @@ from uuid import uuid4
 import pytest
 
 import create_endpoint_sample
-import delete_endpoint_sample
 import helpers
 
 DISPLAY_NAME = f"temp_create_endpoint_test_{uuid4()}"
@@ -26,15 +25,11 @@ PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(shared_state, endpoint_client):
     yield
 
-    endpoint_id = shared_state["endpoint_name"].split("/")[-1]
-
     # Delete the endpoint that was just created
-    delete_endpoint_sample.delete_endpoint_sample(
-        project=PROJECT, endpoint_id=endpoint_id
-    )
+    endpoint_client.delete_endpoint(name=name)
 
 
 def test_ucaip_generated_create_endpoint_sample(capsys, shared_state):

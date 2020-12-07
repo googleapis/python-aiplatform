@@ -16,11 +16,11 @@ import os
 from uuid import uuid4
 
 from google.cloud import aiplatform
+from google.protobuf import json_format
+from google.protobuf.struct_pb2 import Value
 import pytest
 
 import cancel_training_pipeline_sample
-import create_training_pipeline_sample
-import delete_training_pipeline_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -30,47 +30,46 @@ DISPLAY_NAME = f"temp_create_training_pipeline_test_{uuid4()}"
 TRAINING_DEFINITION_GCS_PATH = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml"
 
 
-@pytest.fixture(scope="function")
-def training_pipeline_id(capsys):
-    create_training_pipeline_sample.create_training_pipeline_sample(
-        project=PROJECT_ID,
-        display_name=DISPLAY_NAME,
-        training_task_definition=TRAINING_DEFINITION_GCS_PATH,
-        dataset_id=DATASET_ID,
-        model_display_name=f"Temp Model for {DISPLAY_NAME}",
+@pytest.fixture(autouse=True)
+def setup(shared_state, pipeline_client):
+    training_task_inputs = json_format.ParseDict({}, Value())
+    training_pipeline = pipeline_client.create_training_pipeline(
+        parent=f"projects/{PROJECT_ID}/locations/{LOCATION}",
+        training_pipeline={
+            "display_name": DISPLAY_NAME,
+            "training_task_definition": TRAINING_DEFINITION_GCS_PATH,
+            "training_task_inputs": training_task_inputs,
+            "input_data_config": {"dataset_id": DATASET_ID},
+            "model_to_upload": {"display_name": f"Temp Model for {DISPLAY_NAME}"},
+        },
     )
 
-    out, _ = capsys.readouterr()
+    shared_state["training_pipeline_name"] = training_pipeline.name
 
-    training_pipeline_name = helpers.get_name(out)
+    yield
 
-    assert "/" in training_pipeline_name
 
-    training_pipeline_id = training_pipeline_name.split("/")[-1]
+@pytest.fixture(autouse=True)
+def teardown(shared_state, pipeline_client):
+    yield
 
-    yield training_pipeline_id
-
-    delete_training_pipeline_sample.delete_training_pipeline_sample(
-        project=PROJECT_ID, training_pipeline_id=training_pipeline_id
+    pipeline_client.delete_training_pipeline(
+        name=shared_state["training_pipeline_name"]
     )
 
 
-def test_ucaip_generated_cancel_training_pipeline_sample(capsys, training_pipeline_id):
+def test_ucaip_generated_cancel_training_pipeline_sample(
+    capsys, shared_state, pipeline_client
+):
     # Run cancel pipeline sample
+    training_pipeline_id = shared_state["training_pipeline_name"].split("/")[-1]
+
     cancel_training_pipeline_sample.cancel_training_pipeline_sample(
         project=PROJECT_ID, training_pipeline_id=training_pipeline_id
-    )
-
-    pipeline_client = aiplatform.gapic.PipelineServiceClient(
-        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     )
 
     # Waiting for training pipeline to be in CANCELLED state, otherwise raise error
     helpers.wait_for_job_state(
         get_job_method=pipeline_client.get_training_pipeline,
-        name=pipeline_client.training_pipeline_path(
-            project=PROJECT_ID,
-            location=LOCATION,
-            training_pipeline=training_pipeline_id,
-        ),
+        name=shared_state["training_pipeline_name"],
     )
