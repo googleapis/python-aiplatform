@@ -29,20 +29,6 @@ DISPLAY_NAME = (
 )
 GCS_SOURCE_URI = "gs://automl-video-demo-data/ucaip-var/swimrun_bp.jsonl"
 GCS_OUTPUT_URI = "gs://ucaip-samples-test-output/"
-API_ENDPOINT = "us-central1-aiplatform.googleapis.com"
-
-
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
-@pytest.fixture
-def job_client():
-    client_options = {"api_endpoint": API_ENDPOINT}
-    job_client = aiplatform.gapic.JobServiceClient(client_options=client_options)
-    yield job_client
 
 
 @pytest.fixture(scope="function", autouse=True)

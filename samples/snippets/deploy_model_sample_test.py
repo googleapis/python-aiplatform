@@ -29,23 +29,11 @@ DISPLAY_NAME = f"temp_deploy_model_test_{uuid4()}"
 
 # Resource Name of "permanent_50_flowers_new_model"
 MODEL_NAME = "projects/580378083368/locations/us-central1/models/4190810559500779520"
-CLIENT_OPTIONS = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
-
-
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
 
 
 @pytest.fixture(scope="function", autouse=True)
-def setup(shared_state):
-
-    # Create an temporary endpoint and store resource name
-    shared_state["endpoint_client"] = aiplatform.gapic.EndpointServiceClient(
-        client_options=CLIENT_OPTIONS
-    )
-    create_endpoint_response = shared_state["endpoint_client"].create_endpoint(
+def setup(shared_state, endpoint_client):
+    create_endpoint_response = endpoint_client.create_endpoint(
         parent=PARENT, endpoint={"display_name": DISPLAY_NAME}
     )
     shared_state["endpoint"] = create_endpoint_response.result().name
@@ -71,10 +59,10 @@ def test_ucaip_generated_deploy_model_sample(capsys, shared_state):
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(shared_state, endpoint_client):
     yield
 
-    undeploy_model_operation = shared_state["endpoint_client"].undeploy_model(
+    undeploy_model_operation = endpoint_client.undeploy_model(
         deployed_model_id=shared_state["deployed_model_id"],
         endpoint=shared_state["endpoint"],
     )

@@ -32,35 +32,28 @@ INSTRUCTIONS_GCS_URI = (
 ANNOTATION_SPEC = "cartwheel"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(shared_state, data_labeling_job_client):
     yield
 
     assert "/" in shared_state["data_labeling_job_name"]
 
-    data_labeling_job_id = shared_state["data_labeling_job_name"].split("/")[-1]
-
-    client_options = {"api_endpoint": API_ENDPOINT}
-    client = aiplatform.gapic.JobServiceClient(client_options=client_options)
-
-    name = client.data_labeling_job_path(
-        project=PROJECT_ID, location=LOCATION, data_labeling_job=data_labeling_job_id
+    data_labeling_job_client.cancel_data_labeling_job(
+        name=shared_state["data_labeling_job_name"]
     )
-    client.cancel_data_labeling_job(name=name)
 
     # Verify Data Labelling Job is cancelled, or timeout after 400 seconds
     helpers.wait_for_job_state(
-        get_job_method=client.get_data_labeling_job, name=name, timeout=400, freq=10
+        get_job_method=data_labeling_job_client.get_data_labeling_job,
+        name=shared_state["data_labeling_job_name"],
+        timeout=400,
+        freq=10,
     )
 
     # Delete the data labeling job
-    response = client.delete_data_labeling_job(name=name)
+    response = client.delete_data_labeling_job(
+        name=shared_state["data_labeling_job_name"]
+    )
     print("Delete LRO:", response.operation.name)
     delete_data_labeling_job_response = response.result(timeout=300)
     print("delete_data_labeling_job_response", delete_data_labeling_job_response)

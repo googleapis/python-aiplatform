@@ -27,12 +27,6 @@ ARTIFACT_URI = "gs://ucaip-samples-us-central1/model/explain/"
 DISPLAY_NAME = f"temp_upload_model_test_{uuid4()}"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state):
     yield

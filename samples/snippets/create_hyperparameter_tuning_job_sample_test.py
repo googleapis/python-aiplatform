@@ -27,14 +27,8 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 CONTAINER_IMAGE_URI = "gcr.io/ucaip-test/ucaip-training-test:latest"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(shared_state, job_client):
     yield
 
     hyperparameter_tuning_job_id = shared_state["hyperparameter_tuning_job_name"].split(
@@ -44,10 +38,6 @@ def teardown(shared_state):
     # Cancel the created hyperparameter tuning job
     cancel_hyperparameter_tuning_job_sample.cancel_hyperparameter_tuning_job_sample(
         project=PROJECT_ID, hyperparameter_tuning_job_id=hyperparameter_tuning_job_id
-    )
-
-    job_client = aiplatform.gapic.JobServiceClient(
-        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     )
 
     # Waiting for hyperparameter tuning job to be in CANCELLED state

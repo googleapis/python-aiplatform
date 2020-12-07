@@ -33,12 +33,9 @@ GCS_SOURCE_URI = (
 GCS_OUTPUT_URI = "gs://ucaip-samples-test-output/"
 
 
-@pytest.fixture(scope="function")
-def shared_state():
-
-    shared_state = {}
-
-    yield shared_state
+@pytest.fixture(autouse=True)
+def teardown(shared_state, job_client):
+    yield
 
     assert "/" in shared_state["batch_prediction_job_name"]
 
@@ -47,10 +44,6 @@ def shared_state():
     # Stop the batch prediction job
     cancel_batch_prediction_job_sample.cancel_batch_prediction_job_sample(
         project=PROJECT_ID, batch_prediction_job_id=batch_prediction_job
-    )
-
-    job_client = aiplatform.gapic.JobServiceClient(
-        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     )
 
     # Waiting for batch prediction job to be in CANCELLED state

@@ -25,12 +25,6 @@ DISPLAY_NAME = f"temp_create_endpoint_test_{uuid4()}"
 PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state):
     yield

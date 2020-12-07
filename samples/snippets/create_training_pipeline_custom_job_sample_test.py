@@ -25,20 +25,6 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 DISPLAY_NAME = f"temp_create_training_pipeline_custom_job_test_{uuid4()}"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
-@pytest.fixture
-def pipeline_client():
-    pipeline_client = aiplatform.gapic.PipelineServiceClient(
-        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
-    )
-    return pipeline_client
-
-
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state, pipeline_client):
     yield
@@ -61,14 +47,16 @@ def teardown(shared_state, pipeline_client):
     )
 
 
-def test_ucaip_generated_create_training_pipeline_custom_job_sample(capsys, shared_state):
+def test_ucaip_generated_create_training_pipeline_custom_job_sample(
+    capsys, shared_state
+):
 
     create_training_pipeline_custom_job_sample.create_training_pipeline_custom_job_sample(
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,
         model_display_name=f"Temp Model for {DISPLAY_NAME}",
-        container_image_uri='gcr.io/ucaip-sample-tests/mnist-custom-job:latest',
-        base_output_directory_prefix='gs://ucaip-samples-us-central1/training_pipeline_output'
+        container_image_uri="gcr.io/ucaip-sample-tests/mnist-custom-job:latest",
+        base_output_directory_prefix="gs://ucaip-samples-us-central1/training_pipeline_output",
     )
 
     out, _ = capsys.readouterr()

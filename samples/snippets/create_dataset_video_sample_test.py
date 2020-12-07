@@ -27,12 +27,6 @@ VIDEO_METADATA_SCHEMA_URI = (
 )
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state):
     yield

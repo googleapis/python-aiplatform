@@ -28,14 +28,8 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 CONTAINER_IMAGE_URI = "gcr.io/ucaip-test/ucaip-training-test:latest"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(shared_state, job_client):
     yield
 
     custom_job_id = shared_state["custom_job_name"].split("/")[-1]
@@ -44,9 +38,6 @@ def teardown(shared_state):
     cancel_custom_job_sample.cancel_custom_job_sample(
         project=PROJECT_ID, custom_job_id=custom_job_id
     )
-
-    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
-    job_client = aiplatform.gapic.JobServiceClient(client_options=client_options)
 
     # Waiting for custom job to be in CANCELLED state
     helpers.wait_for_job_state(

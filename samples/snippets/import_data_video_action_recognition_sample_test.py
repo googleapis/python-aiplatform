@@ -28,23 +28,7 @@ METADATA_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/dataset/metadata/video_1.0.0.yaml"
 )
 
-API_ENDPOINT = "us-central1-aiplatform.googleapis.com"
 DISPLAY_NAME = f"temp_import_data_video_action_recognition_test_{uuid.uuid4()}"
-
-
-@pytest.fixture
-def shared_state():
-    shared_state = {}
-    yield shared_state
-
-
-@pytest.fixture
-def dataset_client():
-    client_options = {"api_endpoint": API_ENDPOINT}
-    dataset_client = aiplatform.gapic.DatasetServiceClient(
-        client_options=client_options
-    )
-    yield dataset_client
 
 
 @pytest.fixture(scope="function", autouse=True)

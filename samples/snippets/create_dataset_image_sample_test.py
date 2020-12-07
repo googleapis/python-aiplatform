@@ -24,12 +24,6 @@ import helpers
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
 
-@pytest.fixture
-def shared_state():
-    shared_state = {}
-    yield shared_state
-
-
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state):
     yield

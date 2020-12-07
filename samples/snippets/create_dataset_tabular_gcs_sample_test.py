@@ -25,12 +25,6 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 GCS_URI = "gs://ucaip-sample-resources/iris_1000.csv"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state):
     yield

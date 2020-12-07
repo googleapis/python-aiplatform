@@ -29,14 +29,8 @@ DISPLAY_NAME = f"temp_create_training_pipeline_test_{uuid4()}"
 TRAINING_DEFINITION_GCS_PATH = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(shared_state, pipeline_client):
     yield
 
     training_pipeline_id = shared_state["training_pipeline_name"].split("/")[-1]
@@ -44,10 +38,6 @@ def teardown(shared_state):
     # Stop the training pipeline
     cancel_training_pipeline_sample.cancel_training_pipeline_sample(
         project=PROJECT_ID, training_pipeline_id=training_pipeline_id
-    )
-
-    pipeline_client = aiplatform.gapic.PipelineServiceClient(
-        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
     )
 
     # Waiting for training pipeline to be in CANCELLED state

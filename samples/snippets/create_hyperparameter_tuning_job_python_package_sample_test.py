@@ -22,9 +22,6 @@ import create_hyperparameter_tuning_job_python_package_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-
-API_ENDPOINT = "us-central1-aiplatform.googleapis.com"
-
 DISPLAY_NAME = (
     f"temp_create_hyperparameter_tuning_job_python_package_test_{uuid.uuid4()}"
 )
@@ -32,20 +29,6 @@ DISPLAY_NAME = (
 EXECUTOR_IMAGE_URI = "us.gcr.io/cloud-aiplatform/training/tf-gpu.2-1:latest"
 PACKAGE_URI = "gs://ucaip-test-us-central1/training/pythonpackages/trainer.tar.bz2"
 PYTHON_MODULE = "trainer.hptuning_trainer"
-
-
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
-@pytest.fixture
-def job_client():
-    client_options = {"api_endpoint": API_ENDPOINT}
-    job_client = aiplatform.gapic.JobServiceClient(
-        client_options=client_options)
-    yield job_client
 
 
 @pytest.fixture(scope="function", autouse=True)

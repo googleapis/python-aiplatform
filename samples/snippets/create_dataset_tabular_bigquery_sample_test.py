@@ -25,12 +25,6 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 BIGQUERY_URI = "bq://ucaip-sample-tests.table_test.all_bq_types"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state):
     yield

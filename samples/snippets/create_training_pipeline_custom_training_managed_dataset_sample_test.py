@@ -21,42 +21,21 @@ import pytest
 import create_training_pipeline_custom_training_managed_dataset_sample
 import helpers
 
-API_ENDPOINT = "us-central1-aiplatform.googleapis.com"
-
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-DISPLAY_NAME = f"temp_create_training_pipeline_custom_training_managed_dataset_test_{uuid.uuid4()}"
+DISPLAY_NAME = (
+    f"temp_create_training_pipeline_custom_training_managed_dataset_test_{uuid.uuid4()}"
+)
 MODEL_DISPLAY_NAME = f"Temp Model for {DISPLAY_NAME}"
 
 DATASET_ID = "1084241610289446912"  # permanent_50_flowers_dataset
 ANNOTATION_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/dataset/annotation/image_classification_1.0.0.yaml"
 
-TRAINING_CONTAINER_SPEC_IMAGE_URI = "gcr.io/ucaip-test/custom-container-managed-dataset:latest"
+TRAINING_CONTAINER_SPEC_IMAGE_URI = (
+    "gcr.io/ucaip-test/custom-container-managed-dataset:latest"
+)
 MODEL_CONTAINER_SPEC_IMAGE_URI = "gcr.io/cloud-aiplatform/prediction/tf-gpu.1-15:latest"
 
 BASE_OUTPUT_URI_PREFIX = "gs://ucaip-samples-us-central1/training_pipeline_output/custom_training_managed_dataset"
-
-
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
-@pytest.fixture
-def pipeline_client():
-    client_options = {"api_endpoint": API_ENDPOINT}
-    pipeline_client = aiplatform.gapic.PipelineServiceClient(
-        client_options=client_options
-    )
-    yield pipeline_client
-
-
-@pytest.fixture
-def model_client():
-    client_options = {"api_endpoint": API_ENDPOINT}
-    model_client = aiplatform.gapic.ModelServiceClient(
-        client_options=client_options)
-    yield model_client
 
 
 @pytest.fixture(scope="function", autouse=True)

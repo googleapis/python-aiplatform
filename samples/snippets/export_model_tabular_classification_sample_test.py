@@ -15,7 +15,6 @@
 import os
 from uuid import uuid4
 
-from google.cloud import storage
 import pytest
 
 import export_model_tabular_classification_sample
@@ -27,10 +26,9 @@ GCS_PREFIX = f"tmp/export_model_test_{uuid4()}"
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown():
+def teardown(storage_client):
     yield
 
-    storage_client = storage.Client()
     bucket = storage_client.get_bucket("ucaip-samples-test-output")
     blobs = bucket.list_blobs(prefix=GCS_PREFIX)
     for blob in blobs:

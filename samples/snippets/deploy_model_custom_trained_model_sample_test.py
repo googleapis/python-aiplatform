@@ -30,21 +30,6 @@ DISPLAY_NAME = f"temp_deploy_model_custom_trained_model_test_{uuid4()}"
 MODEL_NAME = "projects/580378083368/locations/us-central1/models/4992732768149438464"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
-@pytest.fixture
-def endpoint_client():
-    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
-    endpoint_client = aiplatform.gapic.EndpointServiceClient(
-        client_options=client_options
-    )
-    return endpoint_client
-
-
 @pytest.fixture(scope="function", autouse=True)
 def setup(shared_state, endpoint_client):
     create_endpoint_response = endpoint_client.create_endpoint(
@@ -83,6 +68,4 @@ def teardown(shared_state, endpoint_client):
     undeploy_model_operation.result()
 
     # Delete the endpoint
-    endpoint_client.delete_endpoint(
-        name=shared_state["endpoint"]
-    )
+    endpoint_client.delete_endpoint(name=shared_state["endpoint"])

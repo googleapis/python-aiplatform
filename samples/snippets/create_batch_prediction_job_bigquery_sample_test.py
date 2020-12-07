@@ -31,25 +31,13 @@ INSTANCES_FORMAT = "bigquery"
 PREDICTIONS_FORMAT = "bigquery"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
-@pytest.fixture
-def job_client():
-    job_client = aiplatform.gapic.JobServiceClient(
-        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
-    )
-    return job_client
-
-
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state, job_client):
     yield
 
-    job_client.cancel_batch_prediction_job(name=shared_state["batch_prediction_job_name"])
+    job_client.cancel_batch_prediction_job(
+        name=shared_state["batch_prediction_job_name"]
+    )
 
     # Waiting until the job is in CANCELLED state.
     helpers.wait_for_job_state(
@@ -57,7 +45,9 @@ def teardown(shared_state, job_client):
         name=shared_state["batch_prediction_job_name"],
     )
 
-    job_client.delete_batch_prediction_job(name=shared_state["batch_prediction_job_name"])
+    job_client.delete_batch_prediction_job(
+        name=shared_state["batch_prediction_job_name"]
+    )
 
 
 def test_ucaip_generated_create_batch_prediction_job_bigquery_sample(

@@ -23,16 +23,13 @@ METADATA_SCHEMA_URI = (
 
 
 @pytest.fixture(scope="function", autouse=True)
-def dataset_name():
-    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
-    client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
-
+def dataset_name(dataset_client):
     dataset = aiplatform.gapic.Dataset(
         display_name=f"temp_import_dataset_test_{uuid4()}",
         metadata_schema_uri=METADATA_SCHEMA_URI,
     )
 
-    operation = client.create_dataset(
+    operation = dataset_client.create_dataset(
         parent=f"projects/{PROJECT_ID}/locations/{LOCATION}", dataset=dataset
     )
 

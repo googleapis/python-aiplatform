@@ -27,12 +27,6 @@ IMAGE_METADATA_SCHEMA_URI = (
 )
 
 
-@pytest.fixture
-def shared_state():
-    shared_state = {}
-    yield shared_state
-
-
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state):
     yield
