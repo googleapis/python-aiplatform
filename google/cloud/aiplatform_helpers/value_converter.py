@@ -16,9 +16,12 @@ from google.protobuf.struct_pb2 import Value
 from proto.marshal.collections.maps import MapComposite
 from proto.marshal import Marshal
 from google.protobuf import json_format
+from google.protobuf.struct_pb2 import Value
+from proto import Message
+from proto.message import MessageMeta
 
 
-def to_value(self):
+def to_value(self: Message) -> Value:
     """Converts a message type to a :class:`~google.protobuf.struct_pb2.Value` object.
 
     Args:
@@ -43,7 +46,7 @@ def to_value(self):
     return json_format.ParseDict(props_dict, Value())
 
 
-def from_value(cls, value):
+def from_value(cls: MessageMeta, value: Value) -> Message:
     """Creates instance of class from a :class:`~google.protobuf.struct_pb2.Value` object.
 
     Args:
@@ -56,7 +59,7 @@ def from_value(cls, value):
     return json_format.ParseDict(value_dict, cls()._pb)
 
 
-def from_map(cls, map_):
+def from_map(cls: MessageMeta, map_: MapComposite) -> Message:
     """Creates instance of class from a :class:`~proto.marshal.collections.maps.MapComposite` object.
 
     Args:
