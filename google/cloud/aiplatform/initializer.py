@@ -199,7 +199,7 @@ class _Config:
             "google-cloud-aiplatform",
         ).version
         client_info = gapic_v1.client_info.ClientInfo(
-            gapic_version=gapic_version, user_agent=f"model_builder/{gapic_version}"
+            gapic_version=gapic_version, user_agent=f"model-builder/{gapic_version}"
         )
         return client_class(
             credentials=credentials or self.credentials,
