@@ -19,7 +19,6 @@ from uuid import uuid4
 from google.cloud import aiplatform
 import pytest
 
-import delete_dataset_sample
 import import_data_video_object_tracking_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

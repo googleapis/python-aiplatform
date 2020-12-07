@@ -15,7 +15,6 @@
 import os
 from uuid import uuid4
 
-from google.cloud import aiplatform
 import pytest
 
 import create_training_pipeline_text_entity_extraction_sample

@@ -15,7 +15,6 @@
 import os
 import uuid
 
-from google.cloud import aiplatform
 import pytest
 
 import create_data_labeling_job_active_learning_sample

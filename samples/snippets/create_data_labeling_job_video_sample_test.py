@@ -15,7 +15,6 @@
 import os
 from uuid import uuid4
 
-from google.cloud import aiplatform
 import pytest
 
 import create_data_labeling_job_video_sample
@@ -51,7 +50,7 @@ def teardown(shared_state, data_labeling_job_client):
     )
 
     # Delete the data labeling job
-    response = client.delete_data_labeling_job(
+    response = data_labeling_job_client.delete_data_labeling_job(
         name=shared_state["data_labeling_job_name"]
     )
     print("Delete LRO:", response.operation.name)

@@ -15,7 +15,6 @@
 import os
 import uuid
 
-from google.cloud import aiplatform
 import pytest
 
 import create_training_pipeline_video_action_recognition_sample

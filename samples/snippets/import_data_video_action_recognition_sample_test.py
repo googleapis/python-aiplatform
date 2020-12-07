@@ -14,7 +14,7 @@
 
 
 import os
-import uuid
+from uuid import uuid4
 
 from google.cloud import aiplatform
 import pytest
@@ -28,7 +28,7 @@ METADATA_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/dataset/metadata/video_1.0.0.yaml"
 )
 
-DISPLAY_NAME = f"temp_import_data_video_action_recognition_test_{uuid.uuid4()}"
+DISPLAY_NAME = f"temp_import_data_video_action_recognition_test_{uuid4()}"
 
 
 @pytest.fixture(scope="function", autouse=True)

@@ -16,12 +16,9 @@
 import os
 import uuid
 
-from google.cloud import aiplatform
 import pytest
 
-import cancel_custom_job_sample
 import create_custom_job_sample
-import delete_custom_job_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

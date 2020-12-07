@@ -15,7 +15,6 @@
 import os
 from uuid import uuid4
 
-from google.cloud import aiplatform
 import pytest
 
 import create_batch_prediction_job_text_sentiment_analysis_sample

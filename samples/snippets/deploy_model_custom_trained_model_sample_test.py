@@ -15,7 +15,6 @@
 import os
 from uuid import uuid4
 
-from google.cloud import aiplatform
 import pytest
 
 import deploy_model_custom_trained_model_sample

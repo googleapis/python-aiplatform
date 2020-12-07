@@ -15,7 +15,6 @@
 import os
 from uuid import uuid4
 
-from google.cloud import aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 import pytest

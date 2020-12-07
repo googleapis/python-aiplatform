@@ -15,7 +15,6 @@
 import os
 from uuid import uuid4
 
-from google.cloud import aiplatform
 import pytest
 
 import create_data_labeling_job_images_sample

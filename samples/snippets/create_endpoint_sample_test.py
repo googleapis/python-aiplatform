@@ -29,7 +29,7 @@ def teardown(shared_state, endpoint_client):
     yield
 
     # Delete the endpoint that was just created
-    endpoint_client.delete_endpoint(name=name)
+    endpoint_client.delete_endpoint(name=shared_state['endpoint_name'])
 
 
 def test_ucaip_generated_create_endpoint_sample(capsys, shared_state):
