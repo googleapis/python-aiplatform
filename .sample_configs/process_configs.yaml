@@ -73,6 +73,7 @@ create_training_pipeline_image_classification_sample: {}
 create_training_pipeline_image_object_detection_sample: {}
 create_training_pipeline_sample: {}
 create_training_pipeline_tabular_classification_sample: {}
+create_training_pipeline_tabular_forecasting_sample: {}
 create_training_pipeline_tabular_regression_sample: {}
 create_training_pipeline_text_classification_sample: {}
 create_training_pipeline_text_entity_extraction_sample:
@@ -182,6 +183,7 @@ get_model_evaluation_sample:
   - model_explanation
 get_model_evaluation_slice_sample: {}
 get_model_evaluation_tabular_classification_sample: {}
+get_model_evaluation_tabular_forecasting_sample: {}
 get_model_evaluation_tabular_regression_sample: {}
 get_model_evaluation_text_classification_sample:
   skip:
@@ -288,6 +290,7 @@ predict_tabular_classification_sample:
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/tables_classification.yaml
       for the format of the predictions.
+predict_tabular_forecasting_sample: {}
 predict_tabular_regression_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1

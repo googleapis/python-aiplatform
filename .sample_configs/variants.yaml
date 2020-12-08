@@ -59,6 +59,7 @@ create_training_pipeline:
 - image_classification
 - image_object_detection
 - tabular_classification
+- tabular_forecasting
 - tabular_regression
 - text_classification
 - text_entity_extraction
@@ -131,6 +132,7 @@ get_model_evaluation:
 - image_classification
 - image_object_detection
 - tabular_classification
+- tabular_forecasting
 - tabular_regression
 - text_classification
 - text_entity_extraction
@@ -189,6 +191,7 @@ predict:
 - image_file
 - image_object_detection
 - tabular_classification
+- tabular_forecasting
 - tabular_regression
 - text_classification_single_label
 - text_entity_extraction
