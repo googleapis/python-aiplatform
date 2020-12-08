@@ -49,7 +49,6 @@ class _Job(base.AiPlatformResourceNoun):
     def __init__(
         self,
         job_name: str,
-        job_type: str,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -62,9 +61,6 @@ class _Job(base.AiPlatformResourceNoun):
                 Required. A fully-qualified job resource name or job ID.
                 Example: "projects/123/locations/us-central1/batchPredictionJobs/456" or
                 "456" when project, location and job_type are initialized or passed.
-            job_type (str):
-                Required. A fully-qualified job resource name or job ID.
-                Example: batchPredictionJobs
             project: Optional[str] = None,
                 Optional project to retrieve Job subclass from. If not set,
                 project set in aiplatform.init will be used.
@@ -76,14 +72,7 @@ class _Job(base.AiPlatformResourceNoun):
                 aiplatform.init will be used.
         """
         super().__init__(project=project, location=location, credentials=credentials)
-        if (
-            self._resource_noun
-            and self._resource_noun == job_type
-            and self._getter_method
-        ):
-            self._get_gca_resource(resource_name=job_name)
-        else:
-            raise Exception("")
+        self._gca_resource = self._get_gca_resource(resource_name=job_name)
 
     def status(self) -> job_state.JobState:
         """Fetch Job again and return the current JobState.
@@ -94,7 +83,7 @@ class _Job(base.AiPlatformResourceNoun):
         """
 
         # Fetch the Job again for most up-to-date job state
-        self._get_gca_resource(resource_name=self._gca_resource.name)
+        self._sync_gca_resource()
 
         return self._gca_resource.state
 
@@ -132,7 +121,6 @@ class BatchPredictionJob(_Job):
 
         super().__init__(
             job_name=batch_prediction_job_name,
-            job_type=self._resource_noun,
             project=project,
             location=location,
             credentials=credentials,

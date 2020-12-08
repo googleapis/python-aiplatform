@@ -106,7 +106,10 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
             prediction_client=cls._is_client_prediction_client,
         )
 
-    def _get_gca_resource(self, resource_name):
+    def _get_gca_resource(
+        self,
+        resource_name: str
+    ):
         """Returns GAPIC service representation of client class resource."""
         """
         Args:
@@ -121,9 +124,15 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
             location=self.location,
         )
 
-        self._gca_resource = getattr(self.api_client, self._getter_method)(
+        return getattr(self.api_client, self._getter_method)(
             name=resource_name
         )
+
+    def _sync_gca_resource(self):
+        """Sync GAPIC service representation of client class resource."""
+
+        self._gca_resource = self._get_gca_resource(
+            resource_name=self.resource_name)
 
     @property
     def name(self) -> str:

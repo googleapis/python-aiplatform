@@ -86,7 +86,7 @@ class Model(base.AiPlatformResourceNoun):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        self._get_gca_resource(resource_name=model_name)
+        self._gca_resource = self._get_gca_resource(resource_name=model_name)
 
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
@@ -665,7 +665,7 @@ class Endpoint(base.AiPlatformResourceNoun):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        self._get_gca_resource(resource_name=endpoint_name)
+        self._gca_resource = self._get_gca_resource(resource_name=endpoint_name)
         self._prediction_client = self._instantiate_prediction_client(
             location=location or initializer.global_config.location,
             credentials=credentials,

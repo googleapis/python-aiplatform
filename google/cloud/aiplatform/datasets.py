@@ -68,7 +68,7 @@ class Dataset(base.AiPlatformResourceNoun):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        self._get_gca_resource(resource_name=dataset_name)
+        self._gca_resource = self._get_gca_resource(resource_name=dataset_name)
 
     @classmethod
     def create(
