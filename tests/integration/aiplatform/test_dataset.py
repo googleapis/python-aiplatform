@@ -195,7 +195,7 @@ class TestDataset:
             parent=my_dataset.resource_name
         )
 
-        assert len(list(data_items_post_import)) > 400  # Expected value 469
+        assert len(list(data_items_post_import)) == 469
 
     @pytest.mark.usefixtures("delete_new_dataset")
     def test_create_and_import_image_dataset(self, dataset_gapic_client, shared_state):
@@ -211,13 +211,13 @@ class TestDataset:
             import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
         )
 
+        shared_state["dataset_name"] = img_dataset.resource_name
+
         data_items_iterator = dataset_gapic_client.list_data_items(
             parent=img_dataset.resource_name
         )
 
-        assert len(list(data_items_iterator)) > 10  # Expected value 14
-
-        shared_state["dataset_name"] = img_dataset.resource_name
+        assert len(list(data_items_iterator)) == 14
 
     @pytest.mark.usefixtures("delete_new_dataset")
     def test_create_tabular_dataset(self, dataset_gapic_client, shared_state):
@@ -233,17 +233,17 @@ class TestDataset:
         )
 
         gapic_dataset = tabular_dataset._gca_resource
+        shared_state["dataset_name"] = tabular_dataset.resource_name
 
         gapic_metadata = json_format.MessageToDict(gapic_dataset._pb.metadata)
         gcs_source_uris = gapic_metadata["inputConfig"]["gcsSource"]["uri"]
 
-        assert _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE in gcs_source_uris
+        assert len(gcs_source_uris) == 1
+        assert _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE == gcs_source_uris[0]
         assert (
             gapic_dataset.metadata_schema_uri
             == aiplatform.schema.dataset.metadata.tabular
         )
-
-        shared_state["dataset_name"] = tabular_dataset.resource_name
 
     @pytest.mark.usefixtures("create_staging_bucket", "delete_staging_bucket")
     def test_export_data(self, shared_state):
