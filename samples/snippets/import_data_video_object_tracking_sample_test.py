@@ -14,9 +14,7 @@
 
 
 import os
-from uuid import uuid4
 
-from google.cloud import aiplatform
 import pytest
 
 import import_data_video_object_tracking_sample
@@ -30,19 +28,8 @@ METADATA_SCHEMA_URI = (
 
 
 @pytest.fixture(scope="function", autouse=True)
-def setup(shared_state, dataset_client):
-    dataset = aiplatform.gapic.Dataset(
-        display_name=f"temp_import_dataset_test_{uuid4()}",
-        metadata_schema_uri=METADATA_SCHEMA_URI,
-    )
-
-    operation = dataset_client.create_dataset(
-        parent=f"projects/{PROJECT_ID}/locations/{LOCATION}", dataset=dataset
-    )
-
-    dataset = operation.result(timeout=300)
-    shared_state["dataset_name"] = dataset.name
-
+def setup(create_dataset):
+    create_dataset(PROJECT_ID, LOCATION, METADATA_SCHEMA_URI)
     yield
 
 

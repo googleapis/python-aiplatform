@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+from uuid import uuid4
 
 from google.cloud import aiplatform
 from google.cloud import storage
@@ -174,11 +175,45 @@ def teardown_training_pipeline(shared_state, pipeline_client):
 
 
 @pytest.fixture()
+def create_dataset(shared_state, dataset_client):
+    def create(
+        project, location, metadata_schema_uri, test_name="temp_import_dataset_test"
+    ):
+        parent = f"projects/{project}/locations/{location}"
+        dataset = aiplatform.gapic.Dataset(
+            display_name=f"{test_name}_{uuid4()}",
+            metadata_schema_uri=metadata_schema_uri,
+        )
+
+        operation = dataset_client.create_dataset(parent=parent, dataset=dataset)
+
+        dataset = operation.result(timeout=300)
+        shared_state["dataset_name"] = dataset.name
+
+    yield create
+
+
+@pytest.fixture()
 def teardown_dataset(shared_state, dataset_client):
     yield
 
     # Delete the created dataset
     dataset_client.delete_dataset(name=shared_state["dataset_name"])
+
+
+@pytest.fixture()
+def create_endpoint(shared_state, endpoint_client):
+    def create(project, location, test_name="temp_deploy_model_test"):
+        parent = f"projects/{project}/locations/{location}"
+        endpoint = aiplatform.gapic.Endpoint(display_name=f"{test_name}_{uuid4()}",)
+        create_endpoint_response = endpoint_client.create_endpoint(
+            parent=parent, endpoint=endpoint
+        )
+
+        endpoint = create_endpoint_response.result()
+        shared_state["endpoint_name"] = endpoint.name
+
+    yield create
 
 
 @pytest.fixture()

@@ -1,17 +1,9 @@
 import os
-from uuid import uuid4
 
-from google.cloud import aiplatform
 import pytest
 
 import import_data_text_entity_extraction_sample
 
-print(
-    f"uCAIP Library Source:\t{aiplatform.__file__}"
-)  # Package source location sanity check
-print(
-    f"uCAIP Import Source:\t{import_data_text_entity_extraction_sample.__file__}"
-)  # Package source location sanity check
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
@@ -22,19 +14,8 @@ METADATA_SCHEMA_URI = (
 
 
 @pytest.fixture(scope="function", autouse=True)
-def setup(shared_state, dataset_client):
-    dataset = aiplatform.gapic.Dataset(
-        display_name=f"temp_import_dataset_test_{uuid4()}",
-        metadata_schema_uri=METADATA_SCHEMA_URI,
-    )
-
-    operation = dataset_client.create_dataset(
-        parent=f"projects/{PROJECT_ID}/locations/{LOCATION}", dataset=dataset
-    )
-
-    dataset = operation.result(timeout=300)
-    shared_state["dataset_name"] = dataset.name
-
+def setup(create_dataset):
+    create_dataset(PROJECT_ID, LOCATION, METADATA_SCHEMA_URI)
     yield
 
 

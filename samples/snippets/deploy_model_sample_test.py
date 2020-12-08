@@ -22,19 +22,15 @@ import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
-PARENT = f"projects/{PROJECT_ID}/locations/{LOCATION}"
-DISPLAY_NAME = f"temp_deploy_model_test_{uuid4()}"
 
 # Resource Name of "permanent_50_flowers_new_model"
 MODEL_NAME = "projects/580378083368/locations/us-central1/models/4190810559500779520"
 
 
 @pytest.fixture(scope="function", autouse=True)
-def setup(shared_state, endpoint_client):
-    create_endpoint_response = endpoint_client.create_endpoint(
-        parent=PARENT, endpoint={"display_name": DISPLAY_NAME}
-    )
-    shared_state["endpoint_name"] = create_endpoint_response.result().name
+def setup(create_endpoint):
+    create_endpoint(PROJECT_ID, LOCATION)
+    yield
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -50,7 +46,7 @@ def test_ucaip_generated_deploy_model_sample(capsys, shared_state):
     deploy_model_sample.deploy_model_sample(
         project=PROJECT_ID,
         model_name=MODEL_NAME,
-        deployed_model_display_name=DISPLAY_NAME,
+        deployed_model_display_name=f"temp_deploy_model_test_{uuid4()}",
         endpoint_id=shared_state["endpoint_name"].split("/")[-1],
     )
 
