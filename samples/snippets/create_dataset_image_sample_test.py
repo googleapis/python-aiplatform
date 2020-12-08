@@ -18,30 +18,14 @@ from uuid import uuid4
 import pytest
 
 import create_dataset_image_sample
-import delete_dataset_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
 
-@pytest.fixture
-def shared_state():
-    shared_state = {}
-    yield shared_state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(teardown_dataset):
     yield
-
-    assert "/" in shared_state["dataset_name"]
-
-    dataset_id = shared_state["dataset_name"].split("/")[-1]
-
-    # Delete the created dataset
-    delete_dataset_sample.delete_dataset_sample(
-        project=PROJECT_ID, dataset_id=dataset_id
-    )
 
 
 def test_ucaip_generated_create_dataset_image(capsys, shared_state):

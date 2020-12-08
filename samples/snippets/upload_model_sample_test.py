@@ -17,7 +17,6 @@ from uuid import uuid4
 
 import pytest
 
-import delete_model_sample
 import helpers
 import upload_model_sample
 
@@ -27,19 +26,9 @@ ARTIFACT_URI = "gs://ucaip-samples-us-central1/model/explain/"
 DISPLAY_NAME = f"temp_upload_model_test_{uuid4()}"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(teardown_model):
     yield
-
-    model_id = shared_state["model_name"].split("/")[-1]
-
-    delete_model_sample.delete_model_sample(project=PROJECT_ID, model_id=model_id)
 
 
 def test_ucaip_generated_upload_model_sample(capsys, shared_state):

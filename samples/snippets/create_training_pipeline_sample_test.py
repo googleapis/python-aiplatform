@@ -15,12 +15,9 @@
 import os
 from uuid import uuid4
 
-from google.cloud import aiplatform
 import pytest
 
-import cancel_training_pipeline_sample
 import create_training_pipeline_sample
-import delete_training_pipeline_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -29,37 +26,9 @@ DISPLAY_NAME = f"temp_create_training_pipeline_test_{uuid4()}"
 TRAINING_DEFINITION_GCS_PATH = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(teardown_training_pipeline):
     yield
-
-    training_pipeline_id = shared_state["training_pipeline_name"].split("/")[-1]
-
-    # Stop the training pipeline
-    cancel_training_pipeline_sample.cancel_training_pipeline_sample(
-        project=PROJECT_ID, training_pipeline_id=training_pipeline_id
-    )
-
-    pipeline_client = aiplatform.gapic.PipelineServiceClient(
-        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
-    )
-
-    # Waiting for training pipeline to be in CANCELLED state
-    helpers.wait_for_job_state(
-        get_job_method=pipeline_client.get_training_pipeline,
-        name=shared_state["training_pipeline_name"],
-    )
-
-    # Delete the training pipeline
-    delete_training_pipeline_sample.delete_training_pipeline_sample(
-        project=PROJECT_ID, training_pipeline_id=training_pipeline_id
-    )
 
 
 # Training AutoML Vision Model

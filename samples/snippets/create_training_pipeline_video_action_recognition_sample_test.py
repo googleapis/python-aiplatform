@@ -15,7 +15,6 @@
 import os
 import uuid
 
-from google.cloud import aiplatform
 import pytest
 
 import create_training_pipeline_video_action_recognition_sample
@@ -31,49 +30,15 @@ DISPLAY_NAME = (
 )
 MODEL_DISPLAY_NAME = f"Temp Model for {DISPLAY_NAME}"
 MODEL_TYPE = "CLOUD"
-API_ENDPOINT = "us-central1-aiplatform.googleapis.com"
-
-
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
-@pytest.fixture
-def pipeline_client():
-    client_options = {"api_endpoint": API_ENDPOINT}
-    pipeline_client = aiplatform.gapic.PipelineServiceClient(
-        client_options=client_options
-    )
-    yield pipeline_client
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, pipeline_client):
+def teardown(teardown_training_pipeline):
     yield
-
-    # Stop the training pipeline
-    pipeline_client.cancel_training_pipeline(
-        name=shared_state["training_pipeline_name"]
-    )
-
-    # Waiting for training pipeline to be in CANCELLED state
-    helpers.wait_for_job_state(
-        get_job_method=pipeline_client.get_training_pipeline,
-        name=shared_state["training_pipeline_name"],
-    )
-
-    # Delete the training pipeline
-    pipeline_client.delete_training_pipeline(
-        name=shared_state["training_pipeline_name"]
-    )
 
 
 # Training AutoML Vision Model
-def test_create_training_pipeline_video_action_recognition_sample(
-    capsys, shared_state
-):
+def test_create_training_pipeline_video_action_recognition_sample(capsys, shared_state):
     create_training_pipeline_video_action_recognition_sample.create_training_pipeline_video_action_recognition_sample(
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,

@@ -15,7 +15,6 @@
 import os
 import uuid
 
-from google.cloud import aiplatform
 import pytest
 
 import create_data_labeling_job_active_learning_sample
@@ -34,44 +33,9 @@ INSTRUCTIONS_GCS_URI = (
 ANNOTATION_SPEC = "rose"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
-@pytest.fixture
-def job_client():
-    client_options = {"api_endpoint": API_ENDPOINT}
-    job_client = aiplatform.gapic.JobServiceClient(client_options=client_options)
-    yield job_client
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(capsys, shared_state, job_client):
+def teardown(teardown_data_labeling_job):
     yield
-
-    job_client.cancel_data_labeling_job(name=shared_state["data_labeling_job_name"])
-
-    # Verify Data Labelling Job is cancelled, or timeout after 400 seconds
-    helpers.wait_for_job_state(
-        get_job_method=job_client.get_data_labeling_job,
-        name=shared_state["data_labeling_job_name"],
-        timeout=400,
-        freq=10,
-    )
-
-    # Delete the data labeling job
-    response = job_client.delete_data_labeling_job(
-        name=shared_state["data_labeling_job_name"]
-    )
-
-    print("Delete LRO:", response.operation.name)
-    delete_data_labeling_job_response = response.result(timeout=300)
-    print("delete_data_labeling_job_response", delete_data_labeling_job_response)
-
-    out, _ = capsys.readouterr()
-    assert "delete_data_labeling_job_response" in out
 
 
 # Creating a data labeling job for images
