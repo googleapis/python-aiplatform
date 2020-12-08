@@ -47,11 +47,8 @@ def setup(shared_state, dataset_client):
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, dataset_client):
+def teardown(teardown_dataset):
     yield
-
-    # Delete the created dataset
-    dataset_client.delete_dataset(name=shared_state["dataset_name"])
 
 
 def test_ucaip_generated_import_data_video_object_tracking_sample_single_label_image(

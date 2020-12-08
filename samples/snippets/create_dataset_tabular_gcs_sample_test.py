@@ -25,11 +25,8 @@ GCS_URI = "gs://ucaip-sample-resources/iris_1000.csv"
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, dataset_client):
+def teardown(teardown_dataset):
     yield
-
-    # Delete the created dataset
-    dataset_client.delete_dataset(name=shared_state["dataset_name"])
 
 
 def test_ucaip_generated_create_dataset_tabular_gcs(capsys, shared_state):

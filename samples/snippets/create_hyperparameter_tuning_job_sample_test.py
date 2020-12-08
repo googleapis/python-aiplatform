@@ -25,24 +25,8 @@ CONTAINER_IMAGE_URI = "gcr.io/ucaip-test/ucaip-training-test:latest"
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, job_client):
+def teardown(teardown_hyperparameter_tuning_job):
     yield
-
-    # Cancel the created hyperparameter tuning job
-    job_client.cancel_hyperparameter_tuning_job(
-        name=shared_state["hyperparameter_tuning_job_name"]
-    )
-
-    # Waiting for hyperparameter tuning job to be in CANCELLED state
-    helpers.wait_for_job_state(
-        get_job_method=job_client.get_hyperparameter_tuning_job,
-        name=shared_state["hyperparameter_tuning_job_name"],
-    )
-
-    # Delete the created hyperparameter tuning job
-    job_client.delete_hyperparameter_tuning_job(
-        name=shared_state["hyperparameter_tuning_job_name"]
-    )
 
 
 def test_ucaip_generated_create_hyperparameter_tuning_job(capsys, shared_state):

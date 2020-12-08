@@ -32,30 +32,8 @@ ANNOTATION_SPEC = "cartwheel"
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, data_labeling_job_client):
+def teardown(teardown_data_labeling_job):
     yield
-
-    assert "/" in shared_state["data_labeling_job_name"]
-
-    data_labeling_job_client.cancel_data_labeling_job(
-        name=shared_state["data_labeling_job_name"]
-    )
-
-    # Verify Data Labelling Job is cancelled, or timeout after 400 seconds
-    helpers.wait_for_job_state(
-        get_job_method=data_labeling_job_client.get_data_labeling_job,
-        name=shared_state["data_labeling_job_name"],
-        timeout=400,
-        freq=10,
-    )
-
-    # Delete the data labeling job
-    response = data_labeling_job_client.delete_data_labeling_job(
-        name=shared_state["data_labeling_job_name"]
-    )
-    print("Delete LRO:", response.operation.name)
-    delete_data_labeling_job_response = response.result(timeout=300)
-    print("delete_data_labeling_job_response", delete_data_labeling_job_response)
 
 
 # Creating a data labeling job for images

@@ -34,33 +34,24 @@ def setup(shared_state, endpoint_client):
     create_endpoint_response = endpoint_client.create_endpoint(
         parent=PARENT, endpoint={"display_name": DISPLAY_NAME}
     )
-    shared_state["endpoint"] = create_endpoint_response.result().name
+    shared_state["endpoint_name"] = create_endpoint_response.result().name
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, endpoint_client):
+def teardown(teardown_endpoint):
     yield
-
-    undeploy_model_operation = endpoint_client.undeploy_model(
-        deployed_model_id=shared_state["deployed_model_id"],
-        endpoint=shared_state["endpoint"],
-    )
-    undeploy_model_operation.result()
-
-    # Delete the endpoint
-    endpoint_client.delete_endpoint(name=shared_state["endpoint"])
 
 
 def test_ucaip_generated_deploy_model_sample(capsys, shared_state):
 
-    assert shared_state["endpoint"] is not None
+    assert shared_state["endpoint_name"] is not None
 
     # Deploy existing image classification model to endpoint
     deploy_model_sample.deploy_model_sample(
         project=PROJECT_ID,
         model_name=MODEL_NAME,
         deployed_model_display_name=DISPLAY_NAME,
-        endpoint_id=shared_state["endpoint"].split("/")[-1],
+        endpoint_id=shared_state["endpoint_name"].split("/")[-1],
     )
 
     # Store deployed model ID for undeploying

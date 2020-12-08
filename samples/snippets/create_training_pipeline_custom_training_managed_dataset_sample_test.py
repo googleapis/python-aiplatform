@@ -38,12 +38,8 @@ BASE_OUTPUT_URI_PREFIX = "gs://ucaip-samples-us-central1/training_pipeline_outpu
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, model_client, pipeline_client):
+def teardown(teardown_training_pipeline):
     yield
-    model_client.delete_model(name=shared_state["model_name"])
-    pipeline_client.delete_training_pipeline(
-        name=shared_state["training_pipeline_name"]
-    )
 
 
 def test_create_training_pipeline_custom_training_managed_dataset_sample(
@@ -61,24 +57,7 @@ def test_create_training_pipeline_custom_training_managed_dataset_sample(
     )
 
     out, _ = capsys.readouterr()
+    assert "response:" in out
 
     # Save resource name of the newly created training pipeline
     shared_state["training_pipeline_name"] = helpers.get_name(out)
-
-    # Poll until the pipeline succeeds because we want to test the model_upload step as well.
-    helpers.wait_for_job_state(
-        get_job_method=pipeline_client.get_training_pipeline,
-        name=shared_state["training_pipeline_name"],
-        expected_state="SUCCEEDED",
-        timeout=1800,
-        freq=20,
-    )
-
-    training_pipeline = pipeline_client.get_training_pipeline(
-        name=shared_state["training_pipeline_name"]
-    )
-
-    # Check that the model indeed has been uploaded.
-    assert training_pipeline.model_to_upload.name != ""
-
-    shared_state["model_name"] = training_pipeline.model_to_upload.name

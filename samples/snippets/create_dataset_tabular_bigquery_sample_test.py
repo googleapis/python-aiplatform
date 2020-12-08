@@ -25,11 +25,8 @@ BIGQUERY_URI = "bq://ucaip-sample-tests.table_test.all_bq_types"
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, dataset_client):
+def teardown(teardown_dataset):
     yield
-
-    # Delete the created dataset
-    dataset_client.delete_dataset(name=shared_state["dataset_name"])
 
 
 def test_ucaip_generated_create_dataset_tabular_bigquery(capsys, shared_state):

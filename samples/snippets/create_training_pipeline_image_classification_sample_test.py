@@ -26,23 +26,8 @@ DISPLAY_NAME = f"temp_create_training_pipeline_image_classification_test_{uuid4(
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, pipeline_client):
+def teardown(teardown_training_pipeline):
     yield
-
-    pipeline_client.cancel_training_pipeline(
-        name=shared_state["training_pipeline_name"]
-    )
-
-    # Waiting for training pipeline to be in CANCELLED state
-    helpers.wait_for_job_state(
-        get_job_method=pipeline_client.get_training_pipeline,
-        name=shared_state["training_pipeline_name"],
-    )
-
-    # Delete the training pipeline
-    pipeline_client.delete_training_pipeline(
-        name=shared_state["training_pipeline_name"]
-    )
 
 
 def test_ucaip_generated_create_training_pipeline_video_classification_sample(

@@ -83,8 +83,6 @@ def dataset_client():
 
 
 # Shared setup/teardown.
-
-
 @pytest.fixture()
 def teardown_batch_prediction_job(shared_state, job_client):
     yield
@@ -102,3 +100,103 @@ def teardown_batch_prediction_job(shared_state, job_client):
     job_client.delete_batch_prediction_job(
         name=shared_state["batch_prediction_job_name"]
     )
+
+
+@pytest.fixture()
+def teardown_data_labeling_job(capsys, shared_state, data_labeling_job_client):
+    yield
+
+    assert "/" in shared_state["data_labeling_job_name"]
+
+    data_labeling_job_client.cancel_data_labeling_job(
+        name=shared_state["data_labeling_job_name"]
+    )
+
+    # Verify Data Labelling Job is cancelled, or timeout after 400 seconds
+    helpers.wait_for_job_state(
+        get_job_method=data_labeling_job_client.get_data_labeling_job,
+        name=shared_state["data_labeling_job_name"],
+        timeout=400,
+        freq=10,
+    )
+
+    # Delete the data labeling job
+    response = data_labeling_job_client.delete_data_labeling_job(
+        name=shared_state["data_labeling_job_name"]
+    )
+    print("Delete LRO:", response.operation.name)
+    delete_data_labeling_job_response = response.result(timeout=300)
+    print("delete_data_labeling_job_response", delete_data_labeling_job_response)
+
+    out, _ = capsys.readouterr()
+    assert "delete_data_labeling_job_response" in out
+
+
+@pytest.fixture()
+def teardown_hyperparameter_tuning_job(shared_state, job_client):
+    yield
+
+    # Cancel the created hyperparameter tuning job
+    job_client.cancel_hyperparameter_tuning_job(
+        name=shared_state["hyperparameter_tuning_job_name"]
+    )
+
+    # Waiting for hyperparameter tuning job to be in CANCELLED state
+    helpers.wait_for_job_state(
+        get_job_method=job_client.get_hyperparameter_tuning_job,
+        name=shared_state["hyperparameter_tuning_job_name"],
+    )
+
+    # Delete the created hyperparameter tuning job
+    job_client.delete_hyperparameter_tuning_job(
+        name=shared_state["hyperparameter_tuning_job_name"]
+    )
+
+
+@pytest.fixture()
+def teardown_training_pipeline(shared_state, pipeline_client):
+    yield
+
+    pipeline_client.cancel_training_pipeline(
+        name=shared_state["training_pipeline_name"]
+    )
+
+    # Waiting for training pipeline to be in CANCELLED state
+    helpers.wait_for_job_state(
+        get_job_method=pipeline_client.get_training_pipeline,
+        name=shared_state["training_pipeline_name"],
+    )
+
+    # Delete the training pipeline
+    pipeline_client.delete_training_pipeline(
+        name=shared_state["training_pipeline_name"]
+    )
+
+
+@pytest.fixture()
+def teardown_dataset(shared_state, dataset_client):
+    yield
+
+    # Delete the created dataset
+    dataset_client.delete_dataset(name=shared_state["dataset_name"])
+
+
+@pytest.fixture()
+def teardown_endpoint(shared_state, endpoint_client):
+    yield
+
+    undeploy_model_operation = endpoint_client.undeploy_model(
+        deployed_model_id=shared_state["deployed_model_id"],
+        endpoint=shared_state["endpoint_name"],
+    )
+    undeploy_model_operation.result()
+
+    # Delete the endpoint
+    endpoint_client.delete_endpoint(name=shared_state["endpoint_name"])
+
+
+@pytest.fixture()
+def teardown_model(shared_state, model_client):
+    yield
+
+    model_client.delete_model(name=shared_state["model_name"])

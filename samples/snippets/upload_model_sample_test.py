@@ -27,10 +27,8 @@ DISPLAY_NAME = f"temp_upload_model_test_{uuid4()}"
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, model_client):
+def teardown(teardown_model):
     yield
-
-    model_client.delete_model(name=shared_state["model_name"])
 
 
 def test_ucaip_generated_upload_model_sample(capsys, shared_state):

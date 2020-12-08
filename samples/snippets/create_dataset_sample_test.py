@@ -27,11 +27,8 @@ IMAGE_METADATA_SCHEMA_URI = (
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, dataset_client):
+def teardown(teardown_dataset):
     yield
-
-    # Delete the created dataset
-    dataset_client.delete_dataset(name=shared_state["dataset_name"])
 
 
 def test_ucaip_generated_create_dataset_sample_vision(capsys, shared_state):
