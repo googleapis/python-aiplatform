@@ -28,6 +28,11 @@ class SomeMessage(proto.Message):
     test_int64 = proto.Field(proto.INT64, number=2)
     test_bool = proto.Field(proto.BOOL, number=3)
 
+class SomeInType(proto.Message):
+    test_map = proto.MapField(proto.STRING, proto.INT32, number=1)
+
+class SomeOutType(proto.Message):
+    test_int = proto.Field(proto.INT32, number=1)
 
 class ValueConverterTests(unittest.TestCase):
     def setUp(self):
@@ -63,13 +68,23 @@ class ValueConverterTests(unittest.TestCase):
         # Following assert fails.
         # `expected_type` is `test_value_converter.SomeMessage` while
         # `actual_from_value_output` is just `SomeMessage`
-        # Use `isinstance()` instead.
         #assert(type(actual_from_value_output) is type(expected_type))
 
-        # Check property-level equivalency
+        # Check property-level ("duck-typing") equivalency
         assert(actual_from_value_output.test_str == expected_type.test_str)
         assert(actual_from_value_output.test_bool == expected_type.test_bool)
         assert(actual_from_value_output.test_int64 == expected_type.test_int64)
 
     def test_convert_map_to_message(self):
-        pass  # TODO: Figure out how to create an instance of MapComposite :/
+        message_with_map = SomeInType()
+        message_with_map.test_map['test_int'] = 42
+        map_composite = message_with_map.test_map
+        actual_output = value_converter.from_map(
+            SomeOutType, map_composite)
+
+        # Following assert fails.
+        # `actual_output` evaluates to 'test_int: 42'
+        #assert(isinstance(actual_output, SomeOutType))
+
+        # Check property-to-key/value equivalency
+        assert(actual_output.test_int == map_composite['test_int'])

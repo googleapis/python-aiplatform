@@ -85,7 +85,7 @@ class AutoMlForecastingInputs(proto.Message):
             (RMSLE).   "minimize-rmspe" - Minimize root-
             mean-squared percentage error (RMSPE).
             "minimize-wape-mae" - Minimize the combination
-            of weighted absolute     percentage error (WAPE)
+            of weighted absolute percentage error (WAPE)
             and mean-absolute-error (MAE).
         train_budget_milli_node_hours (int):
             Required. The train budget of creating this
