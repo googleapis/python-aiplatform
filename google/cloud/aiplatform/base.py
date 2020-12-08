@@ -49,6 +49,18 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         """Flag to indicate whether to use prediction endpoint with client."""
         pass
 
+    @property
+    @abc.abstractmethod
+    def _getter_method(cls) -> str:
+        """Name of getter method of client class for retrieving the resource."""
+        pass
+
+    @property
+    @abc.abstractmethod
+    def _resource_noun(cls) -> str:
+        """Resource noun"""
+        pass
+
     def __init__(
         self,
         project: Optional[str] = None,
@@ -92,6 +104,25 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
             credentials=credentials,
             location_override=location,
             prediction_client=cls._is_client_prediction_client,
+        )
+
+    def _get_gca_resource(self, resource_name):
+        """Returns GAPIC service representation of client class resource."""
+        """
+        Args:
+            resource_name (str):
+            Required. A fully-qualified resource name or ID.
+        """
+
+        resource_name = utils.full_resource_name(
+            resource_name=resource_name,
+            resource_noun=self._resource_noun,
+            project=self.project,
+            location=self.location,
+        )
+
+        self._gca_resource = getattr(self.api_client, self._getter_method)(
+            name=resource_name
         )
 
     @property

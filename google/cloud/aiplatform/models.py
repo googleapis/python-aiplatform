@@ -47,6 +47,8 @@ class Model(base.AiPlatformResourceNoun):
 
     client_class = model_service_client.ModelServiceClient
     _is_client_prediction_client = False
+    _resource_noun = "models"
+    _getter_method = "get_model"
 
     @property
     def uri(self):
@@ -56,7 +58,7 @@ class Model(base.AiPlatformResourceNoun):
     @property
     def description(self):
         """Description of the model."""
-        return self._gca_model.description
+        return self._gca_resource.description
 
     def __init__(
         self,
@@ -84,26 +86,7 @@ class Model(base.AiPlatformResourceNoun):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        self._gca_resource = self._get_model(model_name)
-
-    def _get_model(self, model_name: str) -> gca_model.Model:
-        """Gets the model from AI Platform.
-
-        Args:
-            model_name (str): The name of the model to retrieve.
-        Returns:
-            model: Managed Model resource.
-        """
-
-        model_name = utils.full_resource_name(
-            resource_name=model_name,
-            resource_noun="models",
-            project=self.project,
-            location=self.location,
-        )
-        model = self.api_client.get_model(name=model_name)
-
-        return model
+        self._get_gca_resource(resource_name=model_name)
 
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
@@ -653,6 +636,8 @@ class Endpoint(base.AiPlatformResourceNoun):
 
     client_class = EndpointServiceClient
     _is_client_prediction_client = False
+    _resource_noun = "endpoints"
+    _getter_method = "get_endpoint"
 
     def __init__(
         self,
@@ -680,32 +665,11 @@ class Endpoint(base.AiPlatformResourceNoun):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        self._gca_resource = self._get_endpoint(endpoint_name)
+        self._get_gca_resource(resource_name=endpoint_name)
         self._prediction_client = self._instantiate_prediction_client(
             location=location or initializer.global_config.location,
             credentials=credentials,
         )
-
-    def _get_endpoint(self, endpoint_name: str) -> gca_endpoint.Endpoint:
-        """Gets the endpoint from AI Platform.
-
-        Args:
-            endpoint_name (str):
-                Required. The name of the endpoint to retrieve.
-        Returns:
-            endpoint (gca_endpoint.Endpoint):
-                Managed endpoint resource.
-        """
-
-        endpoint_name = utils.full_resource_name(
-            resource_name=endpoint_name,
-            resource_noun="endpoints",
-            project=self.project,
-            location=self.location,
-        )
-        endpoint = self.api_client.get_endpoint(name=endpoint_name)
-
-        return endpoint
 
     @classmethod
     def create(
@@ -825,7 +789,9 @@ class Endpoint(base.AiPlatformResourceNoun):
                 Long-running operation of endpoint creation.
         """
         gapic_endpoint = gca_endpoint.Endpoint(
-            display_name=display_name, description=description, labels=labels,
+            display_name=display_name,
+            description=description,
+            labels=labels,
         )
 
         operation_future = api_client.create_endpoint(
@@ -836,7 +802,8 @@ class Endpoint(base.AiPlatformResourceNoun):
 
     @staticmethod
     def _allocate_traffic(
-        traffic_split: Dict[str, int], traffic_percentage: int,
+        traffic_split: Dict[str, int],
+        traffic_percentage: int,
     ) -> Dict[str, int]:
         """
         Allocates desired traffic to new deployed model and scales traffic of
@@ -873,7 +840,8 @@ class Endpoint(base.AiPlatformResourceNoun):
 
     @staticmethod
     def _unallocate_traffic(
-        traffic_split: Dict[str, int], deployed_model_id: str,
+        traffic_split: Dict[str, int],
+        deployed_model_id: str,
     ) -> Dict[str, int]:
         """
         Sets deployed model id's traffic to 0 and scales the traffic of other
