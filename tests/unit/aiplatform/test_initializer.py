@@ -119,9 +119,9 @@ class TestInit:
 
         for wrapped_method in client._transport._wrapped_methods.values():
             # wrapped_method._metadata looks like:
-            # [('x-goog-api-client', 'model_builder/0.3.1 gl-python/3.7.6 grpc/1.30.0 gax/1.22.2 gapic/0.3.1')]
+            # [('x-goog-api-client', 'model-builder/0.3.1 gl-python/3.7.6 grpc/1.30.0 gax/1.22.2 gapic/0.3.1')]
             user_agent = wrapped_method._metadata[0][1]
-            assert user_agent.startswith("model_builder/")
+            assert user_agent.startswith("model-builder/")
 
     @pytest.mark.parametrize(
         "init_location, location_override, prediction, expected_endpoint",
