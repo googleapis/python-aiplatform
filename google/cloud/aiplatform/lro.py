@@ -19,7 +19,6 @@ import proto
 
 from google.api_core import operation as ga_operation
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import utils
 from typing import Optional, Callable
 
 
