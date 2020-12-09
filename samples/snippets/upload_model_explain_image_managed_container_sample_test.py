@@ -13,20 +13,23 @@
 # limitations under the License.
 
 from uuid import uuid4
-import pytest
+
 import os
+
+import pytest
 
 import helpers
 
-import upload_model_explain_image_managed_container_sample, delete_model_sample
+import delete_model_sample
+import upload_model_explain_image_managed_container_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 IMAGE_URI = "gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-1:latest"
 ARTIFACT_URI = "gs://ucaip-samples-us-central1/model/cifar"
 DISPLAY_NAME = f"temp_upload_model_explain_image_managed_container_sample_{uuid4()}"
 
-INPUT_TENSOR_NAME="bytes_inputs"
-OUTPUT_TENSOR_NAME="output_0"
+INPUT_TENSOR_NAME = "bytes_inputs"
+OUTPUT_TENSOR_NAME = "output_0"
 
 
 @pytest.fixture

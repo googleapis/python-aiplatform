@@ -13,20 +13,23 @@
 # limitations under the License.
 
 from uuid import uuid4
-import pytest
+
 import os
+
+import pytest
 
 import helpers
 
-import upload_model_explain_tabular_managed_container_sample, delete_model_sample
+import delete_model_sample
+import upload_model_explain_tabular_managed_container_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 IMAGE_URI = "gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-1:latest"
 ARTIFACT_URI = "gs://ucaip-samples-us-central1/model/boston_housing/"
 DISPLAY_NAME = f"temp_upload_model_test_{uuid4()}"
 
-INPUT_TENSOR_NAME="dense_input"
-OUTPUT_TENSOR_NAME="dense_2"
+INPUT_TENSOR_NAME = "dense_input"
+OUTPUT_TENSOR_NAME = "dense_2"
 
 
 @pytest.fixture
@@ -46,7 +49,6 @@ def teardown(shared_state):
 
 def test_ucaip_generated_upload_model_explain_tabular_managed_constainer_sample(capsys, shared_state):
 
-
     upload_model_explain_tabular_managed_container_sample.upload_model_explain_tabular_managed_container_sample(
         display_name=DISPLAY_NAME,
         artifact_uri=ARTIFACT_URI,
@@ -55,7 +57,7 @@ def test_ucaip_generated_upload_model_explain_tabular_managed_constainer_sample(
         input_tensor_name=INPUT_TENSOR_NAME,
         output_tensor_name=OUTPUT_TENSOR_NAME,
         feature_names=["crim", "zn", "indus", "chas", "nox", "rm", "age", 
-                                            "dis", "rad", "tax", "ptratio", "b", "lstat"]
+                       "dis", "rad", "tax", "ptratio", "b", "lstat"]
     )
 
     out, _ = capsys.readouterr()
