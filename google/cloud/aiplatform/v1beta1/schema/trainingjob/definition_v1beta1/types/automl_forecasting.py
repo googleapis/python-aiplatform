@@ -78,7 +78,7 @@ class AutoMlForecastingInputs(proto.Message):
             function over the validation set.
 
             The supported optimization objectives:
-              "minimize-rmse" (default) - Minimize root-
+            "minimize-rmse" (default) - Minimize root-
             mean-squared error (RMSE).   "minimize-mae" -
             Minimize mean-absolute error (MAE).   "minimize-
             rmsle" - Minimize root-mean-squared log error
