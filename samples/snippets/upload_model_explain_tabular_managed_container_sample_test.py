@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uuid import uuid4
-
 import os
+
+from uuid import uuid4
 
 import pytest
 
+import delete_model_sample
+
 import helpers
 
-import delete_model_sample
 import upload_model_explain_tabular_managed_container_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -56,7 +57,7 @@ def test_ucaip_generated_upload_model_explain_tabular_managed_constainer_sample(
         project=PROJECT_ID,
         input_tensor_name=INPUT_TENSOR_NAME,
         output_tensor_name=OUTPUT_TENSOR_NAME,
-        feature_names=["crim", "zn", "indus", "chas", "nox", "rm", "age", 
+        feature_names=["crim", "zn", "indus", "chas", "nox", "rm", "age",
                        "dis", "rad", "tax", "ptratio", "b", "lstat"]
     )
 

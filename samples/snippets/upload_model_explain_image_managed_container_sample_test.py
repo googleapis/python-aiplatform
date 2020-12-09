@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uuid import uuid4
-
 import os
+
+from uuid import uuid4
 
 import pytest
 
+import delete_model_sample
+
 import helpers
 
-import delete_model_sample
 import upload_model_explain_image_managed_container_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
