@@ -50,9 +50,9 @@ from test_models import deploy_model_mock  # noqa: F401
 import test_training_jobs
 from test_training_jobs import mock_model_service_get  # noqa: F401
 from test_training_jobs import mock_pipeline_service_create  # noqa: F401
-from test_training_jobs import (
+from test_training_jobs import (  # noqa: F401
     mock_pipeline_service_create_and_get_with_fail,
-)  # noqa: F401
+)
 from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
 
 
@@ -130,7 +130,7 @@ class TestEndToEnd:
             display_name=test_endpoints._TEST_DISPLAY_NAME, sync=sync
         )
 
-        my_endpoint = model_from_job.deploy(sync=sync)
+        model_from_job.deploy(sync=sync)
 
         endpoint_deploy_return = created_endpoint.deploy(model_from_job, sync=sync)
 

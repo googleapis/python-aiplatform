@@ -62,15 +62,6 @@ class _TestClassDownStream(_TestClass):
             return _TestClass(self.x + a.x)
         return None
 
-    @base.optional_sync(construct_object_on_arg="a")
-    def add_and_create_new(
-        self, a: Optional["_TestClass"] = None, sync=True
-    ) -> _TestClass:
-        time.sleep(1)
-        if a:
-            return _TestClass(self.x + a.x)
-        return None
-
     @base.optional_sync(return_input_arg="a", bind_future_to_self=False)
     def add_to_input_arg(self, a: "_TestClass", sync=True) -> _TestClass:
         time.sleep(1)

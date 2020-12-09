@@ -40,7 +40,7 @@ from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model_service
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
 
-from test_endpoints import create_endpoint_mock
+from test_endpoints import create_endpoint_mock  # noqa: F401
 
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_2 = "test-project-2"
