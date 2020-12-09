@@ -319,6 +319,85 @@ class TestTrainingScriptPythonPackager:
         assert gcs_path.startswith(f"gs://{_TEST_BUCKET_NAME}")
 
 
+@pytest.fixture
+def mock_pipeline_service_create():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        )
+        yield mock_create_training_pipeline
+
+
+@pytest.fixture
+def mock_pipeline_service_create_with_no_model_to_upload():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+        )
+        yield mock_create_training_pipeline
+
+
+@pytest.fixture
+def mock_pipeline_service_create_and_get_with_fail():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+        )
+
+        with mock.patch.object(
+            pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+        ) as mock_get_training_pipeline:
+            mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+            )
+
+            yield mock_create_training_pipeline, mock_get_training_pipeline
+
+
+@pytest.fixture
+def mock_model_service_get():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as mock_get_model:
+        mock_get_model.return_value = gca_model.Model()
+        yield mock_get_model
+
+
+@pytest.fixture
+def mock_python_package_to_gcs():
+    with mock.patch.object(
+        training_jobs._TrainingScriptPythonPackager, "package_and_copy_to_gcs"
+    ) as mock_package_to_copy_gcs:
+        mock_package_to_copy_gcs.return_value = _TEST_OUTPUT_PYTHON_PACKAGE_PATH
+        yield mock_package_to_copy_gcs
+
+
+@pytest.fixture
+def mock_dataset():
+    ds = mock.MagicMock(datasets.Dataset)
+    ds.name = _TEST_DATASET_NAME
+    ds._latest_future = None
+    ds._gca_resource = GapicDataset(
+        display_name=_TEST_DATASET_DISPLAY_NAME,
+        metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+        labels={},
+        name=_TEST_DATASET_NAME,
+        metadata={},
+    )
+    return ds
+
+
 class TestCustomTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -329,84 +408,14 @@ class TestCustomTrainingJob:
     def teardown_method(self):
         pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_NAME).unlink()
 
-    @pytest.fixture
-    def mock_pipeline_service_create(self):
-        with mock.patch.object(
-            pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
-        ) as mock_create_training_pipeline:
-            mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
-            )
-            yield mock_create_training_pipeline
-
-    @pytest.fixture
-    def mock_pipeline_service_create_with_no_model_to_upload(self):
-        with mock.patch.object(
-            pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
-        ) as mock_create_training_pipeline:
-            mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            )
-            yield mock_create_training_pipeline
-
-    @pytest.fixture
-    def mock_pipeline_service_create_and_get_with_fail(self):
-        with mock.patch.object(
-            pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
-        ) as mock_create_training_pipeline:
-            mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
-            )
-
-            with mock.patch.object(
-                pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
-            ) as mock_get_training_pipeline:
-                mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                    name=_TEST_PIPELINE_RESOURCE_NAME,
-                    state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
-                )
-
-                yield mock_create_training_pipeline, mock_get_training_pipeline
-
-    @pytest.fixture
-    def mock_model_service_get(self):
-        with mock.patch.object(
-            model_service_client.ModelServiceClient, "get_model"
-        ) as mock_get_model:
-            mock_get_model.return_value = gca_model.Model()
-            yield mock_get_model
-
-    @pytest.fixture
-    def mock_python_package_to_gcs(self):
-        with mock.patch.object(
-            training_jobs._TrainingScriptPythonPackager, "package_and_copy_to_gcs"
-        ) as mock_package_to_copy_gcs:
-            mock_package_to_copy_gcs.return_value = _TEST_OUTPUT_PYTHON_PACKAGE_PATH
-            yield mock_package_to_copy_gcs
-
-    @pytest.fixture
-    def mock_dataset(self):
-        ds = mock.MagicMock(datasets.Dataset)
-        ds.name = _TEST_DATASET_NAME
-        ds._gca_resource = GapicDataset(
-            display_name=_TEST_DATASET_DISPLAY_NAME,
-            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
-            labels={},
-            name=_TEST_DATASET_NAME,
-            metadata={},
-        )
-        return ds
-
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
         mock_python_package_to_gcs,
         mock_dataset,
         mock_model_service_get,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -432,7 +441,11 @@ class TestCustomTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            sync=sync,
         )
+
+        if not sync:
+            model_from_job.wait()
 
         mock_python_package_to_gcs.assert_called_once_with(
             gcs_staging_dir=_TEST_BUCKET_NAME,
@@ -515,12 +528,14 @@ class TestCustomTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
         self,
         mock_pipeline_service_create,
         mock_python_package_to_gcs,
         mock_dataset,
         mock_model_service_get,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -545,6 +560,7 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=sync,
         )
 
         with pytest.raises(RuntimeError):
@@ -560,14 +576,17 @@ class TestCustomTrainingJob:
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync,
             )
 
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_with_invalid_accelerator_type_raises(
         self,
         mock_pipeline_service_create,
         mock_python_package_to_gcs,
         mock_dataset,
         mock_model_service_get,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -593,14 +612,17 @@ class TestCustomTrainingJob:
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync,
             )
 
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_with_incomplete_model_info_raises_with_model_to_upload(
         self,
         mock_pipeline_service_create,
         mock_python_package_to_gcs,
         mock_dataset,
         mock_model_service_get,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -623,13 +645,16 @@ class TestCustomTrainingJob:
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync,
             )
 
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_no_dataset(
         self,
         mock_pipeline_service_create,
         mock_python_package_to_gcs,
         mock_model_service_get,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -653,7 +678,11 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=sync,
         )
+
+        if not sync:
+            model_from_job.wait()
 
         mock_python_package_to_gcs.assert_called_once_with(
             gcs_staging_dir=_TEST_BUCKET_NAME,
@@ -712,11 +741,13 @@ class TestCustomTrainingJob:
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
         self,
         mock_pipeline_service_create_with_no_model_to_upload,
         mock_python_package_to_gcs,
         mock_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -737,15 +768,18 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=sync,
         )
 
         assert model is None
 
+    @pytest.mark.parametrize("sync", [True, False])
     def test_get_model_raises_if_no_model_to_upload(
         self,
         mock_pipeline_service_create_with_no_model_to_upload,
         mock_python_package_to_gcs,
         mock_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -766,16 +800,22 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=sync,
         )
+
+        if not sync:
+            job.wait()
 
         with pytest.raises(RuntimeError):
             job.get_model()
 
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
         self,
         mock_pipeline_service_create_and_get_with_fail,
         mock_python_package_to_gcs,
         mock_dataset,
+        sync,
     ):
 
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
@@ -798,7 +838,11 @@ class TestCustomTrainingJob:
                 training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                sync=sync,
             )
+
+            if not sync:
+                job.wait()
 
         with pytest.raises(RuntimeError):
             job.get_model()
@@ -830,31 +874,21 @@ class TestCustomTrainingJob:
 
         aiplatform.init(project=_TEST_PROJECT)
 
-        job = training_jobs.CustomTrainingJob(
-            display_name=_TEST_DISPLAY_NAME,
-            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
-            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
-        )
-
         with pytest.raises(RuntimeError):
-            job.run(
-                base_output_dir=_TEST_BASE_OUTPUT_DIR,
-                args=_TEST_RUN_ARGS,
-                replica_count=1,
-                machine_type=_TEST_MACHINE_TYPE,
-                accelerator_type=_TEST_ACCELERATOR_TYPE,
-                accelerator_count=_TEST_ACCELERATOR_COUNT,
-                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
-                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
-                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            training_jobs.CustomTrainingJob(
+                display_name=_TEST_DISPLAY_NAME,
+                script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+                container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             )
 
+    @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training(
         self,
         mock_pipeline_service_create,
         mock_python_package_to_gcs,
         mock_dataset,
         mock_model_service_get,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -879,7 +913,11 @@ class TestCustomTrainingJob:
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=sync,
         )
+
+        if not sync:
+            model_from_job.wait()
 
         mock_python_package_to_gcs.assert_called_once_with(
             gcs_staging_dir=_TEST_BUCKET_NAME,

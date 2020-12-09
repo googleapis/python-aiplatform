@@ -21,6 +21,7 @@ import re
 from typing import Optional, TypeVar, Match, Tuple
 from collections import namedtuple
 
+from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
     client as dataset_client,
@@ -34,9 +35,6 @@ from google.cloud.aiplatform_v1beta1.services.model_service import (
 from google.cloud.aiplatform_v1beta1.services.prediction_service import (
     client as prediction_client,
 )
-
-from google.cloud.aiplatform import constants
-
 
 AiPlatformServiceClient = TypeVar(
     "AiPlatformServiceClient",

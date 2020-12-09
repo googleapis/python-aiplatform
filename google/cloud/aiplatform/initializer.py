@@ -16,6 +16,7 @@
 #
 
 
+from concurrent import futures
 import logging
 import pkg_resources
 from typing import Optional, Type
@@ -212,3 +213,4 @@ class _Config:
 
 # global config to store init parameters: ie, aiplatform.init(project=..., location=...)
 global_config = _Config()
+global_pool = futures.ThreadPoolExecutor()

@@ -78,57 +78,60 @@ _TEST_DATA_LABEL_ITEMS = {}
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
 
 
+@pytest.fixture
+def get_dataset_mock():
+    with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
+        get_dataset_mock.return_value = GapicDataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            labels=_TEST_LABEL,
+            name=_TEST_NAME,
+            metadata={},
+        )
+        yield get_dataset_mock
+
+
+@pytest.fixture
+def get_dataset_without_name_mock():
+    with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
+        get_dataset_mock.return_value = GapicDataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            labels=_TEST_LABEL,
+        )
+        yield get_dataset_mock
+
+
+@pytest.fixture
+def create_dataset_mock():
+    with patch.object(DatasetServiceClient, "create_dataset") as create_dataset_mock:
+        create_dataset_lro_mock = mock.Mock(operation.Operation)
+        create_dataset_lro_mock.result.return_value = GapicDataset(
+            name=_TEST_NAME, display_name=_TEST_DISPLAY_NAME
+        )
+        create_dataset_mock.return_value = create_dataset_lro_mock
+        yield create_dataset_mock
+
+
+@pytest.fixture
+def import_data_mock():
+    with patch.object(DatasetServiceClient, "import_data") as import_data_mock:
+        import_data_mock.return_value = mock.Mock(operation.Operation)
+        yield import_data_mock
+
+
+@pytest.fixture
+def export_data_mock():
+    with patch.object(DatasetServiceClient, "export_data") as export_data_mock:
+        export_data_mock.return_value = mock.Mock(operation.Operation)
+        yield export_data_mock
+
+
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
 class TestDataset:
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
-
-    @pytest.fixture
-    def get_dataset_mock(self):
-        with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
-            get_dataset_mock.return_value = GapicDataset(
-                display_name=_TEST_DISPLAY_NAME,
-                metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-                labels=_TEST_LABEL,
-                name=_TEST_NAME,
-                metadata={},
-            )
-            yield get_dataset_mock
-
-    @pytest.fixture
-    def get_dataset_without_name_mock(self):
-        with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
-            get_dataset_mock.return_value = GapicDataset(
-                display_name=_TEST_DISPLAY_NAME,
-                metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-                labels=_TEST_LABEL,
-            )
-            yield get_dataset_mock
-
-    @pytest.fixture
-    def create_dataset_mock(self):
-        with patch.object(
-            DatasetServiceClient, "create_dataset"
-        ) as create_dataset_mock:
-            create_dataset_lro_mock = mock.Mock(operation.Operation)
-            create_dataset_lro_mock.result.return_value = GapicDataset(
-                name=_TEST_NAME, display_name=_TEST_DISPLAY_NAME
-            )
-            create_dataset_mock.return_value = create_dataset_lro_mock
-            yield create_dataset_mock
-
-    @pytest.fixture
-    def import_data_mock(self):
-        with patch.object(DatasetServiceClient, "import_data") as import_data_mock:
-            import_data_mock.return_value = mock.Mock(operation.Operation)
-            yield import_data_mock
-
-    @pytest.fixture
-    def export_data_mock(self):
-        with patch.object(DatasetServiceClient, "export_data") as export_data_mock:
-            export_data_mock.return_value = mock.Mock(operation.Operation)
-            yield export_data_mock
 
     def test_init_dataset(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
@@ -163,14 +166,19 @@ class TestDataset:
             Dataset(dataset_name=_TEST_INVALID_NAME)
 
     @pytest.mark.usefixtures("get_dataset_mock")
-    def test_create_dataset_nontabular(self, create_dataset_mock):
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dataset_nontabular(self, create_dataset_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
-        Dataset.create(
+        my_dataset = Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             labels=_TEST_LABEL,
+            sync=sync,
         )
+
+        if not sync:
+            my_dataset.wait()
 
         expected_dataset = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
@@ -206,7 +214,10 @@ class TestDataset:
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
-    def test_create_and_import_dataset(self, create_dataset_mock, import_data_mock):
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_and_import_dataset(
+        self, create_dataset_mock, import_data_mock, sync
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = Dataset.create(
@@ -216,7 +227,11 @@ class TestDataset:
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_items_labels=_TEST_DATA_LABEL_ITEMS,
+            sync=sync,
         )
+
+        if not sync:
+            my_dataset.wait()
 
         expected_dataset = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
@@ -243,7 +258,8 @@ class TestDataset:
         assert my_dataset._gca_resource == expected_dataset
 
     @pytest.mark.usefixtures("get_dataset_mock")
-    def test_import_data(self, import_data_mock):
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_import_data(self, import_data_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = Dataset(dataset_name=_TEST_NAME)
@@ -252,7 +268,11 @@ class TestDataset:
             gcs_source=_TEST_SOURCE_URI_GCS,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_items_labels=_TEST_DATA_LABEL_ITEMS,
+            sync=sync,
         )
+
+        if not sync:
+            my_dataset.wait()
 
         expected_import_config = ImportDataConfig(
             gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
@@ -279,3 +299,53 @@ class TestDataset:
         export_data_mock.assert_called_once_with(
             name=_TEST_NAME, export_config=expected_export_config
         )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_then_import(
+        self, create_dataset_mock, import_data_mock, get_dataset_mock, sync
+    ):
+
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = Dataset.create(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABEL,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            sync=sync,
+        )
+
+        my_dataset.import_data(
+            gcs_source=_TEST_SOURCE_URI_GCS,
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_items_labels=_TEST_DATA_LABEL_ITEMS,
+            sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_dataset = GapicDataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            labels=_TEST_LABEL,
+            metadata={},
+        )
+
+        expected_import_config = ImportDataConfig(
+            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT, dataset=expected_dataset, metadata=()
+        )
+
+        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+
+        import_data_mock.assert_called_once_with(
+            name=_TEST_NAME, import_configs=[expected_import_config]
+        )
+
+        expected_dataset.name = _TEST_NAME
+        assert my_dataset._gca_resource == expected_dataset
