@@ -854,6 +854,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             prediction: Prediction with returned predictions and Model Id.
 
         """
+        self.wait()
+
         prediction_response = self._prediction_client.predict(
             endpoint=self.resource_name, instances=instances, parameters=parameters
         )
@@ -1445,6 +1447,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 provided instances_format or predictions_format are not supported
                 by AI Platform.
         """
+        self.wait()
 
         # Raise error if both or neither source URIs are provided
         if bool(gcs_source) == bool(bigquery_source):
