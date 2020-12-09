@@ -418,11 +418,11 @@ class AutoMlForecastingInputs(proto.Message):
             unit (str):
                 The time granularity unit of this time
                 period. The supported unit are:
-                 "hour"
-                 "day"
-                 "week"
-                 "month"
-                 "year".
+                "hour"
+                "day"
+                "week"
+                "month"
+                "year".
             quantity (int):
                 The number of units per period, e.g. 3 weeks
                 or 2 months.
