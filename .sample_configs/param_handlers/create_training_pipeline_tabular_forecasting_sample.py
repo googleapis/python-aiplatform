@@ -18,42 +18,60 @@ def make_parent(parent: str) -> str:
 
     return parent
 
-def make_training_pipeline(display_name: str, dataset_id: str, model_display_name: str, target_column: str) -> google.cloud.aiplatform_v1alpha1.types.training_pipeline.TrainingPipeline:
+def make_training_pipeline(
+            display_name: str, 
+            dataset_id: str, 
+            model_display_name: str, 
+            target_column: str, 
+            time_series_identifier_column: str,
+            time_column: str,
+            static_columns: str,
+            time_variant_past_only_columns: str,
+            time_variant_past_and_future_columns: str,
+            forecast_window_end: int,
+            ) -> google.cloud.aiplatform_v1alpha1.types.training_pipeline.TrainingPipeline:
     # set the columns used for training and their data types
     transformations = [
-        {"auto": {"column_name": "sepal_width"}},
-        {"auto": {"column_name": "sepal_length"}},
-        {"auto": {"column_name": "petal_length"}},
-        {"auto": {"column_name": "petal_width"}}
+        {"auto": {"column_name": "date"}},
+        {"auto": {"column_name": "state_name"}},
+        {"auto": {"column_name": "county_fips_code"}},
+        {"auto": {"column_name": "confirmed_cases"}},
+        {"auto": {"column_name": "deaths"}}
     ]
+
+    period = {"unit": "day", "quantity": 1}
 
     training_task_inputs_dict = {
         # required inputs
         "targetColumn": target_column,
-        "predictionType": "classification",
+        "timeSeriesIdentifierColumn": time_series_identifier_column,
+        "timeColumn": time_column,
         "transformations": transformations,
-        "trainBudgetMilliNodeHours": 8000,
+        "period": period,
 
-        # optional inputs
-        "disableEarlyStopping": False,
-        # supported binary classification optimisation objectives: 
-        # maximize-au-roc, minimize-log-loss, maximize-au-prc, 
-        # maximize-precision-at-recall, maximize-recall-at-precision
-        # supported multi-class classification optimisation objective: 
-        # minimize-log-loss
-        "optimizationObjective": "minimize-log-loss",
-
-        # possibly required inputs
-        # required when using maximize-precision-at-recall
-        # "optimizationObjectiveRecallValue": 0.5, # 0.0 - 1.0
-        # required when using maximize-recall-at-precision
-        # "optimizationObjectivePrecisionValue": 0.5, # 0.0 - 1.0
+        # Objective function the model is to be optimized towards.
+        # The training process creates a Model that optimizes the value of the objective
+        # function over the validation set. The supported optimization objectives:
+        # "minimize-rmse" (default) - Minimize root-mean-squared error (RMSE).
+        # "minimize-mae" - Minimize mean-absolute error (MAE).
+        # "minimize-rmsle" - Minimize root-mean-squared log error (RMSLE).
+        # "minimize-rmspe" - Minimize root-mean-squared percentage error (RMSPE).
+        # "minimize-wape-mae" - Minimize the combination of weighted absolute percentage error (WAPE)
+        # and mean-absolute-error (MAE).
+        # "minimize-quantile-loss" - Minimize the quantile loss at the defined quantiles.
+        "optimizationObjective": "minimize-rmse",
+        "budgetMilliNodeHours": 8000,
+        "staticColumns": static_columns,
+        "timeVariantPastOnlyColumns": time_variant_past_only_columns,
+        "timeVariantPastAndFutureColumns": time_variant_past_and_future_columns,
+        "forecastWindowEnd": forecast_window_end,
     }
+
     training_task_inputs = to_protobuf_value(training_task_inputs_dict)
 
     training_pipeline = {
         'display_name': display_name,
-        'training_task_definition': "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_tabular_1.0.0.yaml",
+        'training_task_definition': "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_time_series_forecasting_1.0.0.yaml",
         'training_task_inputs': training_task_inputs,
         'input_data_config': {
             'dataset_id': dataset_id,
