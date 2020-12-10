@@ -18,8 +18,6 @@ from uuid import uuid4
 
 import pytest
 
-import delete_model_sample
-
 import helpers
 
 import upload_model_explain_tabular_managed_container_sample
@@ -33,19 +31,9 @@ INPUT_TENSOR_NAME = "dense_input"
 OUTPUT_TENSOR_NAME = "dense_2"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(teardown_model):
     yield
-
-    model_id = shared_state["model_name"].split("/")[-1]
-
-    delete_model_sample.delete_model_sample(project=PROJECT_ID, model_id=model_id)
 
 
 def test_ucaip_generated_upload_model_explain_tabular_managed_constainer_sample(capsys, shared_state):
