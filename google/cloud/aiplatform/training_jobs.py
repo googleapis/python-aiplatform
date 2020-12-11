@@ -928,14 +928,14 @@ class CustomTrainingJob(_TrainingJob):
         display_name: str,
         script_path: str,
         container_uri: str,
-        requirements: Optional[Sequence[str]] = None,        
+        requirements: Optional[Sequence[str]] = None,
         model_serving_container_image_uri: Optional[str] = None,
         model_serving_container_predict_route: Optional[str] = None,
         model_serving_container_health_route: Optional[str] = None,
-        model_serving_container_command: Optional[Sequence[str]]=None,
-        model_serving_container_args: Optional[Sequence[str]]=None,
-        model_serving_container_environment_variables: Optional[Sequence[str]]=None,
-        model_serving_container_ports: Optional[Sequence[int]]=None,
+        model_serving_container_command: Optional[Sequence[str]] = None,
+        model_serving_container_args: Optional[Sequence[str]] = None,
+        model_serving_container_environment_variables: Optional[Sequence[str]] = None,
+        model_serving_container_ports: Optional[Sequence[int]] = None,
         model_description: Optional[str] = None,
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
@@ -1020,9 +1020,9 @@ class CustomTrainingJob(_TrainingJob):
                 network connections the container uses. Listing or not a port here has
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
-                the network.                
+                the network.
             model_description (str):
-                The description of the Model.                
+                The description of the Model.
             model_instance_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the format of a single instance, which
@@ -1078,7 +1078,7 @@ class CustomTrainingJob(_TrainingJob):
                 underscores and dashes. International characters
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
-                and examples of labels.                 
+                and examples of labels.
             project (str):
                 Project to run training in. Overrides project set in aiplatform.init.
             location (str):
@@ -1109,7 +1109,9 @@ class CustomTrainingJob(_TrainingJob):
 
         self._model_serving_container_command = model_serving_container_command
         self._model_serving_container_args = model_serving_container_args
-        self._model_serving_container_environment_variables = model_serving_container_environment_variables
+        self._model_serving_container_environment_variables = (
+            model_serving_container_environment_variables
+        )
         self._model_serving_container_ports = model_serving_container_ports
 
         self._model_description = model_description
@@ -1273,7 +1275,7 @@ class CustomTrainingJob(_TrainingJob):
                 description=self._model_description,
                 predict_schemata=self._model_predict_schemata,
                 container_spec=container_spec,
-                labels=self._model_labels
+                labels=self._model_labels,
             )
 
         # make and copy package
