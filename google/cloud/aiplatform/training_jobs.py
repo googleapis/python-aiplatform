@@ -928,11 +928,14 @@ class CustomTrainingJob(_TrainingJob):
         display_name: str,
         script_path: str,
         container_uri: str,
-        requirements: Optional[Sequence[str]] = None,
+        requirements: Optional[Sequence[str]] = None,        
         model_serving_container_image_uri: Optional[str] = None,
         model_serving_container_predict_route: Optional[str] = None,
         model_serving_container_health_route: Optional[str] = None,
-        model_labels: Optional[Sequence[gca_model.model.Model.LabelsEntry]] = None,
+        model_instance_schema_uri: Optional[str] = None,
+        model_parameters_schema_uri: Optional[str] = None,
+        model_prediction_schema_uri: Optional[str] = None,
+        model_labels: Optional[Sequence[gca_model.Model.LabelsEntry]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -987,6 +990,52 @@ class CustomTrainingJob(_TrainingJob):
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
+            model_instance_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the format of a single instance, which
+                are used in
+                ``PredictRequest.instances``,
+                ``ExplainRequest.instances``
+                and
+                ``BatchPredictionJob.input_config``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform. Note: The URI given on output will be immutable
+                and probably different, including the URI scheme, than the
+                one given on input. The output URI will point to a location
+                where the user only has a read access.
+            model_parameters_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the parameters of prediction and
+                explanation via
+                ``PredictRequest.parameters``,
+                ``ExplainRequest.parameters``
+                and
+                ``BatchPredictionJob.model_parameters``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform, if no parameters are supported it is set to an
+                empty string. Note: The URI given on output will be
+                immutable and probably different, including the URI scheme,
+                than the one given on input. The output URI will point to a
+                location where the user only has a read access.
+            model_prediction_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the format of a single prediction
+                produced by this Model, which are returned via
+                ``PredictResponse.predictions``,
+                ``ExplainResponse.explanations``,
+                and
+                ``BatchPredictionJob.output_config``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform. Note: The URI given on output will be immutable
+                and probably different, including the URI scheme, than the
+                one given on input. The output URI will point to a location
+                where the user only has a read access.
             model_labels (Sequence[~.model.Model.LabelsEntry]):
                 The labels with user-defined metadata to
                 organize your Models.
@@ -1025,6 +1074,11 @@ class CustomTrainingJob(_TrainingJob):
             model_serving_container_health_route
         )
         self._model_labels = model_labels
+        self._model_predict_schemata = gca_model.PredictSchemata(
+            instance_schema_uri=self.model_instance_schema_uri,
+            parameters_schema_uri=self.model_parameters_schema_uri,
+            prediction_schema_uri=self.model_prediction_schema_uri,
+        )
 
         self._script_path = script_path
         self._staging_bucket = (
@@ -1172,6 +1226,7 @@ class CustomTrainingJob(_TrainingJob):
 
             managed_model = gca_model.Model(
                 display_name=model_display_name, 
+                predict_schemata=self._model_predict_schemata,
                 container_spec=container_spec,
                 labels=self._model_labels
             )
