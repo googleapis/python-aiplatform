@@ -923,7 +923,6 @@ class CustomTrainingJob(_TrainingJob):
     in Cloud AI Platform Training.
     """
 
-    # TODO(b/172365796) add remainder of model optional arguments
     def __init__(
         self,
         display_name: str,
@@ -933,6 +932,8 @@ class CustomTrainingJob(_TrainingJob):
         model_serving_container_image_uri: Optional[str] = None,
         model_serving_container_predict_route: Optional[str] = None,
         model_serving_container_health_route: Optional[str] = None,
+        model_etag: Optional[str] = None,
+        model_labels: Optional[Sequence[gca_model.model.Model.LabelsEntry]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -987,6 +988,20 @@ class CustomTrainingJob(_TrainingJob):
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
+            model_etag (str):
+                Used to perform consistent read-modify-write
+                updates. If not set, a blind "overwrite" update
+                happens.
+            model_labels (Sequence[~.model.Model.LabelsEntry]):
+                The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.                 
             project (str):
                 Project to run training in. Overrides project set in aiplatform.init.
             location (str):
@@ -1014,6 +1029,8 @@ class CustomTrainingJob(_TrainingJob):
         self._model_serving_container_health_route = (
             model_serving_container_health_route
         )
+        self._model_etag = model_etag
+        self._model_labels = model_labels
 
         self._script_path = script_path
         self._staging_bucket = (
@@ -1160,7 +1177,10 @@ class CustomTrainingJob(_TrainingJob):
             )
 
             managed_model = gca_model.Model(
-                display_name=model_display_name, container_spec=container_spec
+                display_name=model_display_name, 
+                container_spec=container_spec,
+                etag=self._model_etag,
+                labels=self._model_labels
             )
 
         # make and copy package
