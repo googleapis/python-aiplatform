@@ -932,7 +932,6 @@ class CustomTrainingJob(_TrainingJob):
         model_serving_container_image_uri: Optional[str] = None,
         model_serving_container_predict_route: Optional[str] = None,
         model_serving_container_health_route: Optional[str] = None,
-        model_etag: Optional[str] = None,
         model_labels: Optional[Sequence[gca_model.model.Model.LabelsEntry]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -988,10 +987,6 @@ class CustomTrainingJob(_TrainingJob):
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
-            model_etag (str):
-                Used to perform consistent read-modify-write
-                updates. If not set, a blind "overwrite" update
-                happens.
             model_labels (Sequence[~.model.Model.LabelsEntry]):
                 The labels with user-defined metadata to
                 organize your Models.
@@ -1029,7 +1024,6 @@ class CustomTrainingJob(_TrainingJob):
         self._model_serving_container_health_route = (
             model_serving_container_health_route
         )
-        self._model_etag = model_etag
         self._model_labels = model_labels
 
         self._script_path = script_path
@@ -1179,7 +1173,6 @@ class CustomTrainingJob(_TrainingJob):
             managed_model = gca_model.Model(
                 display_name=model_display_name, 
                 container_spec=container_spec,
-                etag=self._model_etag,
                 labels=self._model_labels
             )
 
