@@ -932,6 +932,7 @@ class CustomTrainingJob(_TrainingJob):
         model_serving_container_image_uri: Optional[str] = None,
         model_serving_container_predict_route: Optional[str] = None,
         model_serving_container_health_route: Optional[str] = None,
+        model_description: Optional[str] = None,
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
@@ -990,6 +991,8 @@ class CustomTrainingJob(_TrainingJob):
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
+            model_description (str):
+                The description of the Model.                
             model_instance_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the format of a single instance, which
@@ -1073,12 +1076,14 @@ class CustomTrainingJob(_TrainingJob):
         self._model_serving_container_health_route = (
             model_serving_container_health_route
         )
-        self._model_labels = model_labels
+
+        self._model_description = model_description
         self._model_predict_schemata = gca_model.PredictSchemata(
-            instance_schema_uri=self.model_instance_schema_uri,
-            parameters_schema_uri=self.model_parameters_schema_uri,
-            prediction_schema_uri=self.model_prediction_schema_uri,
+            instance_schema_uri=model_instance_schema_uri,
+            parameters_schema_uri=model_parameters_schema_uri,
+            prediction_schema_uri=model_prediction_schema_uri,
         )
+        self._model_labels = model_labels
 
         self._script_path = script_path
         self._staging_bucket = (
@@ -1225,7 +1230,8 @@ class CustomTrainingJob(_TrainingJob):
             )
 
             managed_model = gca_model.Model(
-                display_name=model_display_name, 
+                display_name=model_display_name,
+                description=self._model_description,
                 predict_schemata=self._model_predict_schemata,
                 container_spec=container_spec,
                 labels=self._model_labels
