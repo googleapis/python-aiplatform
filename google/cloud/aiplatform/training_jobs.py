@@ -932,6 +932,10 @@ class CustomTrainingJob(_TrainingJob):
         model_serving_container_image_uri: Optional[str] = None,
         model_serving_container_predict_route: Optional[str] = None,
         model_serving_container_health_route: Optional[str] = None,
+        model_serving_container_command: Optional[Sequence[str]]=None,
+        model_serving_container_args: Optional[Sequence[str]]=None,
+        model_serving_container_environment_variables: Optional[Sequence[str]]=None,
+        model_serving_container_ports: Optional[Sequence[int]]=None,
         model_description: Optional[str] = None,
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
@@ -991,6 +995,32 @@ class CustomTrainingJob(_TrainingJob):
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
+            model_serving_container_command: Optional[Sequence[str]]=None,
+                The command with which the container is run. Not executed within a
+                shell. The Docker image's ENTRYPOINT is used if this is not provided.
+                Variable references $(VAR_NAME) are expanded using the container's
+                environment. If a variable cannot be resolved, the reference in the
+                input string will be unchanged. The $(VAR_NAME) syntax can be escaped
+                with a double $$, ie: $$(VAR_NAME). Escaped references will never be
+                expanded, regardless of whether the variable exists or not.
+            model_serving_container_args: Optional[Sequence[str]]=None,
+                The arguments to the command. The Docker image's CMD is used if this is
+                not provided. Variable references $(VAR_NAME) are expanded using the
+                container's environment. If a variable cannot be resolved, the reference
+                in the input string will be unchanged. The $(VAR_NAME) syntax can be
+                escaped with a double $$, ie: $$(VAR_NAME). Escaped references will
+                never be expanded, regardless of whether the variable exists or not.
+            model_serving_container_environment_variables: Optional[Dict[str, str]]=None,
+                The environment variables that are to be present in the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+            model_serving_container_ports: Optional[Sequence[int]]=None,
+                Declaration of ports that are exposed by the container. This field is
+                primarily informational, it gives AI Platform information about the
+                network connections the container uses. Listing or not a port here has
+                no impact on whether the port is actually exposed, any port listening on
+                the default "0.0.0.0" address inside a container will be accessible from
+                the network.                
             model_description (str):
                 The description of the Model.                
             model_instance_schema_uri (str):
@@ -1076,6 +1106,11 @@ class CustomTrainingJob(_TrainingJob):
         self._model_serving_container_health_route = (
             model_serving_container_health_route
         )
+
+        self._model_serving_container_command = model_serving_container_command
+        self._model_serving_container_args = model_serving_container_args
+        self._model_serving_container_environment_variables = model_serving_container_environment_variables
+        self._model_serving_container_ports = model_serving_container_ports
 
         self._model_description = model_description
         self._model_predict_schemata = gca_model.PredictSchemata(
@@ -1225,6 +1260,10 @@ class CustomTrainingJob(_TrainingJob):
 
             container_spec = gca_model.ModelContainerSpec(
                 image_uri=self._model_serving_container_image_uri,
+                command=self._model_serving_container_command,
+                args=self._model_serving_container_args,
+                env=self._model_serving_container_environment_variables,
+                ports=self._model_serving_container_ports,
                 predict_route=self._model_serving_container_predict_route,
                 health_route=self._model_serving_container_health_route,
             )
