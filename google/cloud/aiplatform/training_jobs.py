@@ -47,6 +47,7 @@ from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
+from google.cloud.aiplatform_v1beta1.types import env_var
 
 from google.cloud import storage
 from google.protobuf import json_format
@@ -934,7 +935,7 @@ class CustomTrainingJob(_TrainingJob):
         model_serving_container_health_route: Optional[str] = None,
         model_serving_container_command: Optional[Sequence[str]] = None,
         model_serving_container_args: Optional[Sequence[str]] = None,
-        model_serving_container_environment_variables: Optional[Sequence[str]] = None,
+        model_serving_container_environment_variables: Optional[Dict[str, str]] = None,
         model_serving_container_ports: Optional[Sequence[int]] = None,
         model_description: Optional[str] = None,
         model_instance_schema_uri: Optional[str] = None,
@@ -1260,12 +1261,26 @@ class CustomTrainingJob(_TrainingJob):
         if model_display_name:
             utils.validate_display_name(model_display_name)
 
+            env = None
+            ports = None
+
+            if self._model_serving_container_environment_variables:
+                env = [
+                    env_var.EnvVar(name=str(key), value=str(value))
+                    for key, value in self._model_serving_container_environment_variables.items()
+                ]
+            
+            if self._model_serving_container_ports:
+                ports = [
+                    gca_model.Port(container_port=port) for port in self._model_serving_container_ports
+                ]
+
             container_spec = gca_model.ModelContainerSpec(
                 image_uri=self._model_serving_container_image_uri,
                 command=self._model_serving_container_command,
                 args=self._model_serving_container_args,
-                env=self._model_serving_container_environment_variables,
-                ports=self._model_serving_container_ports,
+                env=env,
+                ports=ports,
                 predict_route=self._model_serving_container_predict_route,
                 health_route=self._model_serving_container_health_route,
             )
