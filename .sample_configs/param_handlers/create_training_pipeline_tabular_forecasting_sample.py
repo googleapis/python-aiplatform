@@ -60,7 +60,7 @@ def make_training_pipeline(
         # and mean-absolute-error (MAE).
         # "minimize-quantile-loss" - Minimize the quantile loss at the defined quantiles.
         "optimizationObjective": "minimize-rmse",
-        "budgetMilliNodeHours": 8000,
+        "trainBudgetMilliNodeHours": 8000,
         "staticColumns": static_columns,
         "timeVariantPastOnlyColumns": time_variant_past_only_columns,
         "timeVariantPastAndFutureColumns": time_variant_past_and_future_columns,
@@ -71,7 +71,7 @@ def make_training_pipeline(
 
     training_pipeline = {
         'display_name': display_name,
-        'training_task_definition': "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_time_series_forecasting_1.0.0.yaml",
+        'training_task_definition': "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_forecasting_1.0.0.yaml",
         'training_task_inputs': training_task_inputs,
         'input_data_config': {
             'dataset_id': dataset_id,

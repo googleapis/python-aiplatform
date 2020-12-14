@@ -28,7 +28,7 @@ INSTANCE = {
 }
 
 
-def test_ucaip_generated_predict_tabular_classification_sample(capsys):
+def test_ucaip_generated_predict_tabular_forecasting_sample(capsys):
 
     predict_tabular_classification_sample.predict_tabular_classification_sample(
         instance_dict=INSTANCE, project=PROJECT_ID, endpoint_id=ENDPOINT_ID

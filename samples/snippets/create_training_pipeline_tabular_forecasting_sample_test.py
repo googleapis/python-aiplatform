@@ -70,14 +70,14 @@ def test_ucaip_generated_create_training_pipeline_sample(capsys, shared_state):
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,
         dataset_id=DATASET_ID,
-        model_display_name=f"Temp Model for {DISPLAY_NAME}",
+        model_display_name=f"permanent_tabular_forecasting_model",
         target_column=TARGET_COLUMN,
         time_series_identifier_column="county",
         time_column="date",
         static_columns=["state_name"],
         time_variant_past_only_columns=["deaths"],
-        time_variant_past_and_future_columns=[],
-        forecast_window_end=10
+        time_variant_past_and_future_columns=["date"],
+        forecast_window_end=10,
     )
 
     out, _ = capsys.readouterr()
