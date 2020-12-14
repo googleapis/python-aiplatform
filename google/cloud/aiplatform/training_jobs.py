@@ -1106,11 +1106,19 @@ class CustomTrainingJob(_TrainingJob):
 
         self._model_description = model_description
 
-        model_predict_schemata = gca_model.PredictSchemata(
-            instance_schema_uri=model_instance_schema_uri,
-            parameters_schema_uri=model_parameters_schema_uri,
-            prediction_schema_uri=model_prediction_schema_uri,
-        )
+        model_predict_schemata = None
+        if any(
+            [
+                model_instance_schema_uri,
+                model_parameters_schema_uri,
+                model_prediction_schema_uri,
+            ]
+        ):
+            model_predict_schemata = gca_model.PredictSchemata(
+                instance_schema_uri=model_instance_schema_uri,
+                parameters_schema_uri=model_parameters_schema_uri,
+                prediction_schema_uri=model_prediction_schema_uri,
+            )
 
         # Create the container spec
         env = None
