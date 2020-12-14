@@ -38,6 +38,7 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
     client as pipeline_service_client,
 )
+from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import (
     accelerator_type as gca_accelerator_type,
 )
@@ -47,7 +48,6 @@ from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
-from google.cloud.aiplatform_v1beta1.types import env_var
 
 from google.cloud import storage
 from google.protobuf import json_format
