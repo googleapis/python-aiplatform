@@ -1105,7 +1105,8 @@ class CustomTrainingJob(_TrainingJob):
         self._model_serving_container_ports = model_serving_container_ports
 
         self._model_description = model_description
-        self._model_predict_schemata = gca_model.PredictSchemata(
+
+        model_predict_schemata = gca_model.PredictSchemata(
             instance_schema_uri=model_instance_schema_uri,
             parameters_schema_uri=model_parameters_schema_uri,
             prediction_schema_uri=model_prediction_schema_uri,
@@ -1127,7 +1128,7 @@ class CustomTrainingJob(_TrainingJob):
                 for port in model_serving_container_ports
             ]
 
-        self._container_spec = gca_model.ModelContainerSpec(
+        container_spec = gca_model.ModelContainerSpec(
             image_uri=model_serving_container_image_uri,
             command=model_serving_container_command,
             args=model_serving_container_args,
@@ -1135,6 +1136,13 @@ class CustomTrainingJob(_TrainingJob):
             ports=ports,
             predict_route=model_serving_container_predict_route,
             health_route=model_serving_container_health_route,
+        )
+
+        # create model payload
+        self._managed_model = gca_model.Model(
+            description=model_description,
+            predict_schemata=model_predict_schemata,
+            container_spec=container_spec,
         )
 
         self._script_path = script_path
@@ -1270,22 +1278,15 @@ class CustomTrainingJob(_TrainingJob):
             accelerator_type=accelerator_type,
         ).pool_specs
 
-        # create model payload
-        managed_model = None
-        if model_display_name:
-            utils.validate_display_name(model_display_name)
-
-            managed_model = gca_model.Model(
-                display_name=model_display_name,
-                description=self._model_description,
-                predict_schemata=self._model_predict_schemata,
-                container_spec=self._container_spec,
-            )
-
         # make and copy package
         python_packager = _TrainingScriptPythonPackager(
             script_path=self._script_path, requirements=self._requirements
         )
+
+        managed_model = self._managed_model
+        if model_display_name:
+            utils.validate_display_name(model_display_name)
+            managed_model.display_name = model_display_name
 
         return self._run(
             python_packager=python_packager,
