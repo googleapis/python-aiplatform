@@ -28,11 +28,14 @@ class SomeMessage(proto.Message):
     test_int64 = proto.Field(proto.INT64, number=2)
     test_bool = proto.Field(proto.BOOL, number=3)
 
+
 class SomeInType(proto.Message):
     test_map = proto.MapField(proto.STRING, proto.INT32, number=1)
 
+
 class SomeOutType(proto.Message):
     test_int = proto.Field(proto.INT32, number=1)
+
 
 class ValueConverterTests(unittest.TestCase):
     def setUp(self):
