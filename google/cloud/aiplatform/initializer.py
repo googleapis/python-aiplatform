@@ -19,6 +19,7 @@
 from concurrent import futures
 import logging
 import pkg_resources
+import os
 from typing import Optional, Type
 
 from google.api_core import client_options
@@ -213,4 +214,5 @@ class _Config:
 
 # global config to store init parameters: ie, aiplatform.init(project=..., location=...)
 global_config = _Config()
-global_pool = futures.ThreadPoolExecutor()
+global_pool = futures.ThreadPoolExecutor(
+    max_workers=min(32, max(4, (os.cpu_count() or 0) * 5)))
