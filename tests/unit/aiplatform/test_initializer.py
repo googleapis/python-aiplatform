@@ -15,9 +15,10 @@
 # limitations under the License.
 #
 
-
-import pytest
 import importlib
+import os
+import pytest
+from unittest import mock
 
 import google.auth
 from google.auth import credentials
@@ -157,3 +158,14 @@ class TestInit:
             ).api_endpoint
             == expected_endpoint
         )
+
+
+class TestThreadPool:
+    @pytest.mark.parametrize(
+        "cpu_count, expected", [(4, 20), (32, 32), (None, 4), (2, 10)]
+    )
+    def test_max_workers(self, cpu_count, expected):
+        with mock.patch.object(os, "cpu_count") as cpu_count_mock:
+            cpu_count_mock.return_value = cpu_count
+            importlib.reload(initializer)
+            assert initializer.global_pool._max_workers == expected
