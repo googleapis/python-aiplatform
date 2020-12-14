@@ -1111,6 +1111,32 @@ class CustomTrainingJob(_TrainingJob):
             prediction_schema_uri=model_prediction_schema_uri,
         )
 
+        # Create the container spec
+        env = None
+        ports = None
+
+        if model_serving_container_environment_variables:
+            env = [
+                env_var.EnvVar(name=str(key), value=str(value))
+                for key, value in model_serving_container_environment_variables.items()
+            ]
+
+        if model_serving_container_ports:
+            ports = [
+                gca_model.Port(container_port=port)
+                for port in model_serving_container_ports
+            ]
+
+        self._container_spec = gca_model.ModelContainerSpec(
+            image_uri=model_serving_container_image_uri,
+            command=model_serving_container_command,
+            args=model_serving_container_args,
+            env=env,
+            ports=ports,
+            predict_route=model_serving_container_predict_route,
+            health_route=model_serving_container_health_route,
+        )
+
         self._script_path = script_path
         self._staging_bucket = (
             staging_bucket or initializer.global_config.staging_bucket
@@ -1249,36 +1275,11 @@ class CustomTrainingJob(_TrainingJob):
         if model_display_name:
             utils.validate_display_name(model_display_name)
 
-            env = None
-            ports = None
-
-            if self._model_serving_container_environment_variables:
-                env = [
-                    env_var.EnvVar(name=str(key), value=str(value))
-                    for key, value in self._model_serving_container_environment_variables.items()
-                ]
-
-            if self._model_serving_container_ports:
-                ports = [
-                    gca_model.Port(container_port=port)
-                    for port in self._model_serving_container_ports
-                ]
-
-            container_spec = gca_model.ModelContainerSpec(
-                image_uri=self._model_serving_container_image_uri,
-                command=self._model_serving_container_command,
-                args=self._model_serving_container_args,
-                env=env,
-                ports=ports,
-                predict_route=self._model_serving_container_predict_route,
-                health_route=self._model_serving_container_health_route,
-            )
-
             managed_model = gca_model.Model(
                 display_name=model_display_name,
                 description=self._model_description,
                 predict_schemata=self._model_predict_schemata,
-                container_spec=container_spec,
+                container_spec=self._container_spec,
             )
 
         # make and copy package
