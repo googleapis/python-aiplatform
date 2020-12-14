@@ -941,7 +941,6 @@ class CustomTrainingJob(_TrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
-        model_labels: Optional[Sequence[gca_model.Model.LabelsEntry]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1070,16 +1069,6 @@ class CustomTrainingJob(_TrainingJob):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
-            model_labels (Sequence[~.model.Model.LabelsEntry]):
-                The labels with user-defined metadata to
-                organize your Models.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
             project (str):
                 Project to run training in. Overrides project set in aiplatform.init.
             location (str):
@@ -1121,7 +1110,6 @@ class CustomTrainingJob(_TrainingJob):
             parameters_schema_uri=model_parameters_schema_uri,
             prediction_schema_uri=model_prediction_schema_uri,
         )
-        self._model_labels = model_labels
 
         self._script_path = script_path
         self._staging_bucket = (
@@ -1269,10 +1257,11 @@ class CustomTrainingJob(_TrainingJob):
                     env_var.EnvVar(name=str(key), value=str(value))
                     for key, value in self._model_serving_container_environment_variables.items()
                 ]
-            
+
             if self._model_serving_container_ports:
                 ports = [
-                    gca_model.Port(container_port=port) for port in self._model_serving_container_ports
+                    gca_model.Port(container_port=port)
+                    for port in self._model_serving_container_ports
                 ]
 
             container_spec = gca_model.ModelContainerSpec(
@@ -1290,7 +1279,6 @@ class CustomTrainingJob(_TrainingJob):
                 description=self._model_description,
                 predict_schemata=self._model_predict_schemata,
                 container_spec=container_spec,
-                labels=self._model_labels,
             )
 
         # make and copy package
