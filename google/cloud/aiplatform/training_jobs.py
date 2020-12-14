@@ -986,7 +986,7 @@ class CustomTrainingJob(_TrainingJob):
                 If the training produces a managed AI Platform Model, the URI of the
                 Model serving container suitable for serving the model produced by the
                 training script.
-            model_serving_container_predict_route (str):.
+            model_serving_container_predict_route (str):
                 If the training produces a managed AI Platform Model, An HTTP path to
                 send prediction requests to the container, and which must be supported
                 by it. If not specified a default HTTP path will be used by AI Platform.
@@ -995,7 +995,7 @@ class CustomTrainingJob(_TrainingJob):
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
-            model_serving_container_command: Optional[Sequence[str]]=None,
+            model_serving_container_command (Sequence[str]),
                 The command with which the container is run. Not executed within a
                 shell. The Docker image's ENTRYPOINT is used if this is not provided.
                 Variable references $(VAR_NAME) are expanded using the container's
@@ -1003,18 +1003,18 @@ class CustomTrainingJob(_TrainingJob):
                 input string will be unchanged. The $(VAR_NAME) syntax can be escaped
                 with a double $$, ie: $$(VAR_NAME). Escaped references will never be
                 expanded, regardless of whether the variable exists or not.
-            model_serving_container_args: Optional[Sequence[str]]=None,
+            model_serving_container_args (Sequence[str]),
                 The arguments to the command. The Docker image's CMD is used if this is
                 not provided. Variable references $(VAR_NAME) are expanded using the
                 container's environment. If a variable cannot be resolved, the reference
                 in the input string will be unchanged. The $(VAR_NAME) syntax can be
                 escaped with a double $$, ie: $$(VAR_NAME). Escaped references will
                 never be expanded, regardless of whether the variable exists or not.
-            model_serving_container_environment_variables: Optional[Dict[str, str]]=None,
+            model_serving_container_environment_variables (Dict[str, str]),
                 The environment variables that are to be present in the container.
                 Should be a dictionary where keys are environment variable names
                 and values are environment variable values for those names.
-            model_serving_container_ports: Optional[Sequence[int]]=None,
+            model_serving_container_ports (Sequence[int]),
                 Declaration of ports that are exposed by the container. This field is
                 primarily informational, it gives AI Platform information about the
                 network connections the container uses. Listing or not a port here has
