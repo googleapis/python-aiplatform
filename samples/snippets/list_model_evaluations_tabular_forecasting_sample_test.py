@@ -36,7 +36,9 @@ def teardown(shared_state):
     yield
 
 
-def test_ucaip_generated_create_training_pipeline_sample(capsys, shared_state):
+def test_ucaip_generated_list_model_evaluations_tabular_forecasting_sample(
+    capsys, shared_state
+):
 
     list_model_evaluations_tabular_forecasting_sample.list_model_evaluations_tabular_forecasting_sample(
         project=PROJECT_ID, model_id=MODEL_ID
