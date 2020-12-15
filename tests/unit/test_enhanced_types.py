@@ -15,6 +15,7 @@ from __future__ import absolute_import
 import unittest
 
 from google.cloud.aiplatform.v1beta1.schema.trainingjob import definition
+
 ModelType = definition.AutoMlImageClassificationInputs().ModelType
 
 
@@ -24,14 +25,14 @@ class EnhancedTypesTests(unittest.TestCase):
             multi_label=True,
             model_type=ModelType.CLOUD,
             budget_milli_node_hours=8000,
-            disable_early_stopping=False
+            disable_early_stopping=False,
         )
 
     def test_exposes_to_value_method(self):
-        assert(hasattr(self.test_training_input, 'to_value'))
+        assert hasattr(self.test_training_input, "to_value")
 
     def test_exposes_from_value_method(self):
-        assert(hasattr(self.test_training_input, 'from_value'))
+        assert hasattr(self.test_training_input, "from_value")
 
     def test_exposes_from_map_method(self):
-        assert(hasattr(self.test_training_input, 'from_map'))
+        assert hasattr(self.test_training_input, "from_map")

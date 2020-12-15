@@ -40,9 +40,9 @@ class SomeOutType(proto.Message):
 class ValueConverterTests(unittest.TestCase):
     def setUp(self):
         self.input_dict = {
-            'test_str': 'Omnia Gallia est divisa',
-            'test_int64': 3,
-            'test_bool': True
+            "test_str": "Omnia Gallia est divisa",
+            "test_int64": 3,
+            "test_bool": True,
         }
         self.input_value = json_format.ParseDict(self.input_dict, Value())
         self.input_message = SomeMessage(self.input_dict)
@@ -50,44 +50,44 @@ class ValueConverterTests(unittest.TestCase):
     def test_convert_message_to_value(self):
         actual_to_value_output = value_converter.to_value(self.input_message)
         expected_type = Value()
-        assert(isinstance(expected_type, type(actual_to_value_output)))
+        assert isinstance(expected_type, type(actual_to_value_output))
 
         actual_inner_fields = actual_to_value_output.struct_value.fields
 
-        actual_bool_type = actual_inner_fields['test_bool']
-        assert(hasattr(actual_bool_type, 'bool_value'))
+        actual_bool_type = actual_inner_fields["test_bool"]
+        assert hasattr(actual_bool_type, "bool_value")
 
-        actual_int64_type = actual_inner_fields['test_int64']
-        assert(hasattr(actual_int64_type, 'number_value'))
+        actual_int64_type = actual_inner_fields["test_int64"]
+        assert hasattr(actual_int64_type, "number_value")
 
-        actual_string_type = actual_inner_fields['test_str']
-        assert(hasattr(actual_string_type, 'string_value'))
+        actual_string_type = actual_inner_fields["test_str"]
+        assert hasattr(actual_string_type, "string_value")
 
     def test_convert_value_to_message(self):
         actual_from_value_output = value_converter.from_value(
-            SomeMessage, self.input_value)
+            SomeMessage, self.input_value
+        )
         expected_type = SomeMessage(self.input_dict)
 
         # Following assert fails.
         # `expected_type` is `test_value_converter.SomeMessage` while
         # `actual_from_value_output` is just `SomeMessage`
-        #assert(type(actual_from_value_output) is type(expected_type))
+        # assert(type(actual_from_value_output) is type(expected_type))
 
         # Check property-level ("duck-typing") equivalency
-        assert(actual_from_value_output.test_str == expected_type.test_str)
-        assert(actual_from_value_output.test_bool == expected_type.test_bool)
-        assert(actual_from_value_output.test_int64 == expected_type.test_int64)
+        assert actual_from_value_output.test_str == expected_type.test_str
+        assert actual_from_value_output.test_bool == expected_type.test_bool
+        assert actual_from_value_output.test_int64 == expected_type.test_int64
 
     def test_convert_map_to_message(self):
         message_with_map = SomeInType()
-        message_with_map.test_map['test_int'] = 42
+        message_with_map.test_map["test_int"] = 42
         map_composite = message_with_map.test_map
-        actual_output = value_converter.from_map(
-            SomeOutType, map_composite)
+        actual_output = value_converter.from_map(SomeOutType, map_composite)
 
         # Following assert fails.
         # `actual_output` evaluates to 'test_int: 42'
-        #assert(isinstance(actual_output, SomeOutType))
+        # assert(isinstance(actual_output, SomeOutType))
 
         # Check property-to-key/value equivalency
-        assert(actual_output.test_int == map_composite['test_int'])
+        assert actual_output.test_int == map_composite["test_int"]

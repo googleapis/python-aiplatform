@@ -404,7 +404,9 @@ def test_specialist_pool_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(scopes=["1", "2"],)
+    options = client_options.ClientOptions(
+        scopes=["1", "2"],
+    )
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options)
@@ -477,7 +479,8 @@ def test_create_specialist_pool(
     request_type=specialist_pool_service.CreateSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -513,7 +516,8 @@ async def test_create_specialist_pool_async(
     request_type=specialist_pool_service.CreateSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -571,7 +575,10 @@ def test_create_specialist_pool_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -602,7 +609,10 @@ async def test_create_specialist_pool_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_create_specialist_pool_flattened():
@@ -707,7 +717,8 @@ def test_get_specialist_pool(
     request_type=specialist_pool_service.GetSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -760,7 +771,8 @@ async def test_get_specialist_pool_async(
     request_type=specialist_pool_service.GetSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -834,7 +846,10 @@ def test_get_specialist_pool_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -865,7 +880,10 @@ async def test_get_specialist_pool_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_get_specialist_pool_flattened():
@@ -882,7 +900,9 @@ def test_get_specialist_pool_flattened():
 
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_specialist_pool(name="name_value",)
+        client.get_specialist_pool(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -901,7 +921,8 @@ def test_get_specialist_pool_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_specialist_pool(
-            specialist_pool_service.GetSpecialistPoolRequest(), name="name_value",
+            specialist_pool_service.GetSpecialistPoolRequest(),
+            name="name_value",
         )
 
 
@@ -923,7 +944,9 @@ async def test_get_specialist_pool_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_specialist_pool(name="name_value",)
+        response = await client.get_specialist_pool(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -943,7 +966,8 @@ async def test_get_specialist_pool_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_specialist_pool(
-            specialist_pool_service.GetSpecialistPoolRequest(), name="name_value",
+            specialist_pool_service.GetSpecialistPoolRequest(),
+            name="name_value",
         )
 
 
@@ -952,7 +976,8 @@ def test_list_specialist_pools(
     request_type=specialist_pool_service.ListSpecialistPoolsRequest,
 ):
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -993,7 +1018,8 @@ async def test_list_specialist_pools_async(
     request_type=specialist_pool_service.ListSpecialistPoolsRequest,
 ):
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1055,7 +1081,10 @@ def test_list_specialist_pools_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1086,7 +1115,10 @@ async def test_list_specialist_pools_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent/value",
+    ) in kw["metadata"]
 
 
 def test_list_specialist_pools_flattened():
@@ -1103,7 +1135,9 @@ def test_list_specialist_pools_flattened():
 
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_specialist_pools(parent="parent_value",)
+        client.list_specialist_pools(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1122,7 +1156,8 @@ def test_list_specialist_pools_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_specialist_pools(
-            specialist_pool_service.ListSpecialistPoolsRequest(), parent="parent_value",
+            specialist_pool_service.ListSpecialistPoolsRequest(),
+            parent="parent_value",
         )
 
 
@@ -1144,7 +1179,9 @@ async def test_list_specialist_pools_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_specialist_pools(parent="parent_value",)
+        response = await client.list_specialist_pools(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1164,12 +1201,15 @@ async def test_list_specialist_pools_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_specialist_pools(
-            specialist_pool_service.ListSpecialistPoolsRequest(), parent="parent_value",
+            specialist_pool_service.ListSpecialistPoolsRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_specialist_pools_pager():
-    client = SpecialistPoolServiceClient(credentials=credentials.AnonymousCredentials,)
+    client = SpecialistPoolServiceClient(
+        credentials=credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1186,10 +1226,13 @@ def test_list_specialist_pools_pager():
                 next_page_token="abc",
             ),
             specialist_pool_service.ListSpecialistPoolsResponse(
-                specialist_pools=[], next_page_token="def",
+                specialist_pools=[],
+                next_page_token="def",
             ),
             specialist_pool_service.ListSpecialistPoolsResponse(
-                specialist_pools=[specialist_pool.SpecialistPool(),],
+                specialist_pools=[
+                    specialist_pool.SpecialistPool(),
+                ],
                 next_page_token="ghi",
             ),
             specialist_pool_service.ListSpecialistPoolsResponse(
@@ -1215,7 +1258,9 @@ def test_list_specialist_pools_pager():
 
 
 def test_list_specialist_pools_pages():
-    client = SpecialistPoolServiceClient(credentials=credentials.AnonymousCredentials,)
+    client = SpecialistPoolServiceClient(
+        credentials=credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1232,10 +1277,13 @@ def test_list_specialist_pools_pages():
                 next_page_token="abc",
             ),
             specialist_pool_service.ListSpecialistPoolsResponse(
-                specialist_pools=[], next_page_token="def",
+                specialist_pools=[],
+                next_page_token="def",
             ),
             specialist_pool_service.ListSpecialistPoolsResponse(
-                specialist_pools=[specialist_pool.SpecialistPool(),],
+                specialist_pools=[
+                    specialist_pool.SpecialistPool(),
+                ],
                 next_page_token="ghi",
             ),
             specialist_pool_service.ListSpecialistPoolsResponse(
@@ -1274,10 +1322,13 @@ async def test_list_specialist_pools_async_pager():
                 next_page_token="abc",
             ),
             specialist_pool_service.ListSpecialistPoolsResponse(
-                specialist_pools=[], next_page_token="def",
+                specialist_pools=[],
+                next_page_token="def",
             ),
             specialist_pool_service.ListSpecialistPoolsResponse(
-                specialist_pools=[specialist_pool.SpecialistPool(),],
+                specialist_pools=[
+                    specialist_pool.SpecialistPool(),
+                ],
                 next_page_token="ghi",
             ),
             specialist_pool_service.ListSpecialistPoolsResponse(
@@ -1288,7 +1339,9 @@ async def test_list_specialist_pools_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_specialist_pools(request={},)
+        async_pager = await client.list_specialist_pools(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
         async for response in async_pager:
@@ -1321,10 +1374,13 @@ async def test_list_specialist_pools_async_pages():
                 next_page_token="abc",
             ),
             specialist_pool_service.ListSpecialistPoolsResponse(
-                specialist_pools=[], next_page_token="def",
+                specialist_pools=[],
+                next_page_token="def",
             ),
             specialist_pool_service.ListSpecialistPoolsResponse(
-                specialist_pools=[specialist_pool.SpecialistPool(),],
+                specialist_pools=[
+                    specialist_pool.SpecialistPool(),
+                ],
                 next_page_token="ghi",
             ),
             specialist_pool_service.ListSpecialistPoolsResponse(
@@ -1347,7 +1403,8 @@ def test_delete_specialist_pool(
     request_type=specialist_pool_service.DeleteSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1383,7 +1440,8 @@ async def test_delete_specialist_pool_async(
     request_type=specialist_pool_service.DeleteSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1441,7 +1499,10 @@ def test_delete_specialist_pool_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1472,7 +1533,10 @@ async def test_delete_specialist_pool_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name/value",
+    ) in kw["metadata"]
 
 
 def test_delete_specialist_pool_flattened():
@@ -1489,7 +1553,9 @@ def test_delete_specialist_pool_flattened():
 
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_specialist_pool(name="name_value",)
+        client.delete_specialist_pool(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1508,7 +1574,8 @@ def test_delete_specialist_pool_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_specialist_pool(
-            specialist_pool_service.DeleteSpecialistPoolRequest(), name="name_value",
+            specialist_pool_service.DeleteSpecialistPoolRequest(),
+            name="name_value",
         )
 
 
@@ -1530,7 +1597,9 @@ async def test_delete_specialist_pool_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_specialist_pool(name="name_value",)
+        response = await client.delete_specialist_pool(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1550,7 +1619,8 @@ async def test_delete_specialist_pool_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_specialist_pool(
-            specialist_pool_service.DeleteSpecialistPoolRequest(), name="name_value",
+            specialist_pool_service.DeleteSpecialistPoolRequest(),
+            name="name_value",
         )
 
 
@@ -1559,7 +1629,8 @@ def test_update_specialist_pool(
     request_type=specialist_pool_service.UpdateSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1595,7 +1666,8 @@ async def test_update_specialist_pool_async(
     request_type=specialist_pool_service.UpdateSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1797,7 +1869,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = SpecialistPoolServiceClient(
-            credentials=credentials.AnonymousCredentials(), transport=transport,
+            credentials=credentials.AnonymousCredentials(),
+            transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -1816,7 +1889,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = SpecialistPoolServiceClient(
-            client_options={"scopes": ["1", "2"]}, transport=transport,
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
         )
 
 
@@ -1864,7 +1938,10 @@ def test_transport_grpc_default():
     client = SpecialistPoolServiceClient(
         credentials=credentials.AnonymousCredentials(),
     )
-    assert isinstance(client.transport, transports.SpecialistPoolServiceGrpcTransport,)
+    assert isinstance(
+        client.transport,
+        transports.SpecialistPoolServiceGrpcTransport,
+    )
 
 
 def test_specialist_pool_service_base_transport_error():
@@ -1915,7 +1992,8 @@ def test_specialist_pool_service_base_transport_with_credentials_file():
         Transport.return_value = None
         load_creds.return_value = (credentials.AnonymousCredentials(), None)
         transport = transports.SpecialistPoolServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -1985,7 +2063,8 @@ def test_specialist_pool_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.SpecialistPoolServiceGrpcTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -1997,7 +2076,8 @@ def test_specialist_pool_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.SpecialistPoolServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -2094,12 +2174,16 @@ def test_specialist_pool_service_transport_channel_mtls_with_adc(transport_class
 
 def test_specialist_pool_service_grpc_lro_client():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
+        credentials=credentials.AnonymousCredentials(),
+        transport="grpc",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -2107,12 +2191,16 @@ def test_specialist_pool_service_grpc_lro_client():
 
 def test_specialist_pool_service_grpc_lro_async_client():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsAsyncClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsAsyncClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -2124,7 +2212,9 @@ def test_specialist_pool_path():
     specialist_pool = "whelk"
 
     expected = "projects/{project}/locations/{location}/specialistPools/{specialist_pool}".format(
-        project=project, location=location, specialist_pool=specialist_pool,
+        project=project,
+        location=location,
+        specialist_pool=specialist_pool,
     )
     actual = SpecialistPoolServiceClient.specialist_pool_path(
         project, location, specialist_pool
@@ -2169,7 +2259,9 @@ def test_parse_common_billing_account_path():
 def test_common_folder_path():
     folder = "winkle"
 
-    expected = "folders/{folder}".format(folder=folder,)
+    expected = "folders/{folder}".format(
+        folder=folder,
+    )
     actual = SpecialistPoolServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -2188,7 +2280,9 @@ def test_parse_common_folder_path():
 def test_common_organization_path():
     organization = "scallop"
 
-    expected = "organizations/{organization}".format(organization=organization,)
+    expected = "organizations/{organization}".format(
+        organization=organization,
+    )
     actual = SpecialistPoolServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -2207,7 +2301,9 @@ def test_parse_common_organization_path():
 def test_common_project_path():
     project = "squid"
 
-    expected = "projects/{project}".format(project=project,)
+    expected = "projects/{project}".format(
+        project=project,
+    )
     actual = SpecialistPoolServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -2228,7 +2324,8 @@ def test_common_location_path():
     location = "octopus"
 
     expected = "projects/{project}/locations/{location}".format(
-        project=project, location=location,
+        project=project,
+        location=location,
     )
     actual = SpecialistPoolServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -2253,7 +2350,8 @@ def test_client_withDEFAULT_CLIENT_INFO():
         transports.SpecialistPoolServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = SpecialistPoolServiceClient(
-            credentials=credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -2262,6 +2360,7 @@ def test_client_withDEFAULT_CLIENT_INFO():
     ) as prep:
         transport_class = SpecialistPoolServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
