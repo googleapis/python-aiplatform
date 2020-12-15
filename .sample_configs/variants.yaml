@@ -177,7 +177,7 @@ list_hyperparameter_tuning_jobs:
 list_model_evaluation_slices:
 - ''
 list_model_evaluations:
-- ''
+- tabular_forecasting
 list_models:
 - ''
 list_specialist_pools:

@@ -248,6 +248,7 @@ list_endpoints_sample: {}
 list_hyperparameter_tuning_jobs_sample: {}
 list_model_evaluation_slices_sample: {}
 list_model_evaluations_sample: {}
+list_model_evaluations_tabular_forecasting_sample: {}
 list_models_sample: {}
 list_specialist_pools_sample: {}
 list_training_pipelines_sample: {}

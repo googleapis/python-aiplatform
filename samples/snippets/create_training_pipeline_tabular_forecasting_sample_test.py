@@ -24,7 +24,7 @@ import delete_training_pipeline_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-DATASET_ID = "7172228697192136704"  # COVID Dataset
+DATASET_ID = "3003302817130610688"  # COVID Dataset
 DISPLAY_NAME = f"temp_create_training_pipeline_test_{uuid4()}"
 TARGET_COLUMN = "deaths"
 PREDICTION_TYPE = "forecasting"
