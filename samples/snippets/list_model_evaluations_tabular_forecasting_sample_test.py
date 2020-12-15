@@ -43,7 +43,7 @@ def test_ucaip_generated_list_model_evaluations_tabular_forecasting_sample(
     )
 
     out, _ = capsys.readouterr()
-    assert "response:" in out
+    assert "model_evaluation:" in out
 
     # Save resource name of the newly created training pipeline
     shared_state["training_pipeline_name"] = helpers.get_name(out)
