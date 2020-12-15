@@ -1107,7 +1107,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         )
 
         model_predict_schemata = None
-        if any([instance_schema_uri, parameters_schema_uri, prediction_schema_uri,]):
+        if any([instance_schema_uri, parameters_schema_uri, prediction_schema_uri]):
             model_predict_schemata = gca_model.PredictSchemata(
                 instance_schema_uri=instance_schema_uri,
                 parameters_schema_uri=parameters_schema_uri,
