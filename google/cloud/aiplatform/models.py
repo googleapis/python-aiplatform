@@ -832,7 +832,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
         Args:
             instances (List):
-                Required. Required. The instances that are the input to the
+                Required. The instances that are the input to the
                 prediction call. A DeployedModel may have an upper limit
                 on the number of instances it supports per request, and
                 when it is exceeded the prediction call errors in case
@@ -1031,6 +1031,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
+
+                Currently not used.
             parameters_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the parameters of prediction and
@@ -1047,6 +1049,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 immutable and probably different, including the URI scheme,
                 than the one given on input. The output URI will point to a
                 location where the user only has a read access.
+
+                Currently not used.
             prediction_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the format of a single prediction
@@ -1062,6 +1066,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
+
+                Currently not used.
             project: Optional[str]=None,
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
