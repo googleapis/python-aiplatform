@@ -24,7 +24,10 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"ModelEvaluation",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "ModelEvaluation",
+    },
 )
 
 
@@ -71,14 +74,24 @@ class ModelEvaluation(proto.Message):
 
     metrics_schema_uri = proto.Field(proto.STRING, number=2)
 
-    metrics = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
+    metrics = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=struct.Value,
+    )
 
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp.Timestamp,
+    )
 
     slice_dimensions = proto.RepeatedField(proto.STRING, number=5)
 
     model_explanation = proto.Field(
-        proto.MESSAGE, number=8, message=explanation.ModelExplanation,
+        proto.MESSAGE,
+        number=8,
+        message=explanation.ModelExplanation,
     )
 
 

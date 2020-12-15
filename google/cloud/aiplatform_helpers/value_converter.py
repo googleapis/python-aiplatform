@@ -30,10 +30,11 @@ def to_value(self: Message) -> Value:
     Returns:
       the message as a :class:`~google.protobuf.struct_pb2.Value` object
     """
+
     def is_prop(prop):
         if prop[0].isupper():
             return False
-        if prop.startswith('_'):
+        if prop.startswith("_"):
             return False
         return True
 
@@ -69,6 +70,6 @@ def from_map(cls: MessageMeta, map_: MapComposite) -> Message:
       Instance of class
     """
     map_dict = dict(map_)
-    marshal = Marshal(name='marshal')
+    marshal = Marshal(name="marshal")
     pb = marshal.to_proto(Value, map_)
     return from_value(cls, pb)

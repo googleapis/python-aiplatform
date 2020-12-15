@@ -82,7 +82,9 @@ class SearchMigratableResourcesResponse(proto.Message):
         return self
 
     migratable_resources = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=gca_migratable_resource.MigratableResource,
+        proto.MESSAGE,
+        number=1,
+        message=gca_migratable_resource.MigratableResource,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -106,7 +108,9 @@ class BatchMigrateResourcesRequest(proto.Message):
     parent = proto.Field(proto.STRING, number=1)
 
     migrate_resource_requests = proto.RepeatedField(
-        proto.MESSAGE, number=2, message="MigrateResourceRequest",
+        proto.MESSAGE,
+        number=2,
+        message="MigrateResourceRequest",
     )
 
 
@@ -251,11 +255,17 @@ class MigrateResourceRequest(proto.Message):
     )
 
     migrate_automl_model_config = proto.Field(
-        proto.MESSAGE, number=2, oneof="request", message=MigrateAutomlModelConfig,
+        proto.MESSAGE,
+        number=2,
+        oneof="request",
+        message=MigrateAutomlModelConfig,
     )
 
     migrate_automl_dataset_config = proto.Field(
-        proto.MESSAGE, number=3, oneof="request", message=MigrateAutomlDatasetConfig,
+        proto.MESSAGE,
+        number=3,
+        oneof="request",
+        message=MigrateAutomlDatasetConfig,
     )
 
     migrate_data_labeling_dataset_config = proto.Field(
@@ -276,7 +286,9 @@ class BatchMigrateResourcesResponse(proto.Message):
     """
 
     migrate_resource_responses = proto.RepeatedField(
-        proto.MESSAGE, number=1, message="MigrateResourceResponse",
+        proto.MESSAGE,
+        number=1,
+        message="MigrateResourceResponse",
     )
 
 
@@ -299,7 +311,9 @@ class MigrateResourceResponse(proto.Message):
     model = proto.Field(proto.STRING, number=2, oneof="migrated_resource")
 
     migratable_resource = proto.Field(
-        proto.MESSAGE, number=3, message=gca_migratable_resource.MigratableResource,
+        proto.MESSAGE,
+        number=3,
+        message=gca_migratable_resource.MigratableResource,
     )
 
 
@@ -313,7 +327,9 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
