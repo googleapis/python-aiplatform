@@ -13,17 +13,22 @@
 # limitations under the License.
 
 import os
+
 from uuid import uuid4
 
 import pytest
 
 import helpers
-import upload_model_sample
+
+import upload_model_explain_image_managed_container_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-IMAGE_URI = "gcr.io/cloud-ml-service-public/cloud-ml-online-prediction-model-server-cpu:v1_15py3cmle_op_images_20200229_0210_RC00"
-ARTIFACT_URI = "gs://ucaip-samples-us-central1/model/explain/"
-DISPLAY_NAME = f"temp_upload_model_test_{uuid4()}"
+IMAGE_URI = "gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-1:latest"
+ARTIFACT_URI = "gs://ucaip-samples-us-central1/model/cifar"
+DISPLAY_NAME = f"temp_upload_model_explain_image_managed_container_sample_{uuid4()}"
+
+INPUT_TENSOR_NAME = "bytes_inputs"
+OUTPUT_TENSOR_NAME = "output_0"
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -31,14 +36,15 @@ def teardown(teardown_model):
     yield
 
 
-def test_ucaip_generated_upload_model_sample(capsys, shared_state):
+def test_ucaip_generated_upload_model_explain_image_managed_container_sample(capsys, shared_state):
 
-    upload_model_sample.upload_model_sample(
+    upload_model_explain_image_managed_container_sample.upload_model_explain_image_managed_container_sample(
         display_name=DISPLAY_NAME,
-        metadata_schema_uri="",
-        image_uri=IMAGE_URI,
         artifact_uri=ARTIFACT_URI,
+        container_spec_image_uri=IMAGE_URI,
         project=PROJECT_ID,
+        input_tensor_name=INPUT_TENSOR_NAME,
+        output_tensor_name=OUTPUT_TENSOR_NAME
     )
 
     out, _ = capsys.readouterr()

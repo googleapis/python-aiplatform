@@ -14,20 +14,24 @@
 
 import os
 
-import get_model_evaluation_slice_sample
+import explain_tabular_sample
 
+ENDPOINT_ID = "4966625964059525120"  # iris 1000
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "3512561418744365056"  # permanent_safe_driver_model
-EVALUATION_ID = "9035588644970168320"  # permanent_safe_driver_model Evaluation
-SLICE_ID = "6481571820677004173"  # permanent_safe_driver_model Eval Slice
+
+INSTANCE = {
+    "petal_length": "1.4",
+    "petal_width": "1.3",
+    "sepal_length": "5.1",
+    "sepal_width": "2.8",
+}
 
 
-def test_ucaip_generated_get_model_evaluation_slice_sample(capsys):
-    get_model_evaluation_slice_sample.get_model_evaluation_slice_sample(
-        project=PROJECT_ID,
-        model_id=MODEL_ID,
-        evaluation_id=EVALUATION_ID,
-        slice_id=SLICE_ID,
+def test_ucaip_generated_explain_tabular_sample(capsys):
+
+    explain_tabular_sample.explain_tabular_sample(
+        instance_dict=INSTANCE, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
     )
+
     out, _ = capsys.readouterr()
-    assert "metrics_schema_uri" in out
+    assert 'attribution' in out

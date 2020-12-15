@@ -14,7 +14,6 @@
 
 import os
 
-from google.cloud import storage
 import pytest
 
 import export_model_video_action_recognition_sample
@@ -30,10 +29,9 @@ EXPORT_FORMAT = "tf-saved-model"
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown():
+def teardown(storage_client):
     yield
 
-    storage_client = storage.Client()
     bucket = storage_client.get_bucket("ucaip-samples-test-output")
     blobs = bucket.list_blobs(prefix="tmp/export_model_video_action_recognition_sample")
     for blob in blobs:

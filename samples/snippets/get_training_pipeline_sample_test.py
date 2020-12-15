@@ -14,7 +14,6 @@
 
 import os
 
-
 import get_training_pipeline_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

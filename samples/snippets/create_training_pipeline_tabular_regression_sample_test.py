@@ -15,12 +15,9 @@
 import os
 from uuid import uuid4
 
-from google.cloud import aiplatform
 import pytest
 
-import cancel_training_pipeline_sample
 import create_training_pipeline_tabular_regression_sample
-import delete_training_pipeline_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -30,37 +27,9 @@ TARGET_COLUMN = "FLOAT_5000unique_REQUIRED"
 PREDICTION_TYPE = "regression"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(teardown_training_pipeline):
     yield
-
-    training_pipeline_id = shared_state["training_pipeline_name"].split("/")[-1]
-
-    # Stop the training pipeline
-    cancel_training_pipeline_sample.cancel_training_pipeline_sample(
-        project=PROJECT_ID, training_pipeline_id=training_pipeline_id
-    )
-
-    pipeline_client = aiplatform.gapic.PipelineServiceClient(
-        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
-    )
-
-    # Waiting for training pipeline to be in CANCELLED state
-    helpers.wait_for_job_state(
-        get_job_method=pipeline_client.get_training_pipeline,
-        name=shared_state["training_pipeline_name"],
-    )
-
-    # Delete the training pipeline
-    delete_training_pipeline_sample.delete_training_pipeline_sample(
-        project=PROJECT_ID, training_pipeline_id=training_pipeline_id
-    )
 
 
 def test_ucaip_generated_create_training_pipeline_sample(capsys, shared_state):

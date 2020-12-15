@@ -17,11 +17,11 @@ import os
 
 import pytest
 
-import import_data_video_classification_sample
+import import_data_video_action_recognition_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
-GCS_SOURCE = "gs://ucaip-sample-resources/video_classification_train.jsonl"
+GCS_SOURCE = "gs://automl-video-demo-data/ucaip-var/swimrun.jsonl"
 METADATA_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/dataset/metadata/video_1.0.0.yaml"
 )
@@ -38,13 +38,14 @@ def teardown(teardown_dataset):
     yield
 
 
-def test_ucaip_generated_import_data_video_classification_sample_single_label_image(
-    capsys, shared_state
+def test_import_data_video_action_recognition_sample(
+    capsys, shared_state, dataset_client
 ):
     dataset_id = shared_state["dataset_name"].split("/")[-1]
 
-    import_data_video_classification_sample.import_data_video_classification_sample(
+    import_data_video_action_recognition_sample.import_data_video_action_recognition_sample(
         project=PROJECT_ID, dataset_id=dataset_id, gcs_source_uri=GCS_SOURCE,
     )
     out, _ = capsys.readouterr()
+
     assert "import_data_response" in out

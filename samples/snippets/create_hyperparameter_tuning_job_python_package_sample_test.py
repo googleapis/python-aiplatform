@@ -15,16 +15,12 @@
 import os
 import uuid
 
-from google.cloud import aiplatform
 import pytest
 
 import create_hyperparameter_tuning_job_python_package_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-
-API_ENDPOINT = "us-central1-aiplatform.googleapis.com"
-
 DISPLAY_NAME = (
     f"temp_create_hyperparameter_tuning_job_python_package_test_{uuid.uuid4()}"
 )
@@ -34,39 +30,9 @@ PACKAGE_URI = "gs://ucaip-test-us-central1/training/pythonpackages/trainer.tar.b
 PYTHON_MODULE = "trainer.hptuning_trainer"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
-@pytest.fixture
-def job_client():
-    client_options = {"api_endpoint": API_ENDPOINT}
-    job_client = aiplatform.gapic.JobServiceClient(
-        client_options=client_options)
-    yield job_client
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, job_client):
+def teardown(teardown_hyperparameter_tuning_job):
     yield
-
-    # Cancel the created hyperparameter tuning job
-    job_client.cancel_hyperparameter_tuning_job(
-        name=shared_state["hyperparameter_tuning_job_name"]
-    )
-
-    # Waiting for hyperparameter tuning job to be in CANCELLED state
-    helpers.wait_for_job_state(
-        get_job_method=job_client.get_hyperparameter_tuning_job,
-        name=shared_state["hyperparameter_tuning_job_name"],
-    )
-
-    # Delete the created hyperparameter tuning job
-    job_client.delete_hyperparameter_tuning_job(
-        name=shared_state["hyperparameter_tuning_job_name"]
-    )
 
 
 def test_create_hyperparameter_tuning_job_python_package_sample(capsys, shared_state):

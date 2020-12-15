@@ -15,12 +15,9 @@
 import os
 from uuid import uuid4
 
-from google.cloud import aiplatform
 import pytest
 
-import cancel_batch_prediction_job_sample
 import create_batch_prediction_job_video_object_tracking_sample
-import delete_batch_prediction_job_sample
 import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -33,39 +30,9 @@ GCS_SOURCE_URI = (
 GCS_OUTPUT_URI = "gs://ucaip-samples-test-output/"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(teardown_batch_prediction_job):
     yield
-
-    assert "/" in shared_state["batch_prediction_job_name"]
-
-    batch_prediction_job = shared_state["batch_prediction_job_name"].split("/")[-1]
-
-    # Stop the batch prediction job
-    cancel_batch_prediction_job_sample.cancel_batch_prediction_job_sample(
-        project=PROJECT_ID, batch_prediction_job_id=batch_prediction_job
-    )
-
-    job_client = aiplatform.gapic.JobServiceClient(
-        client_options={"api_endpoint": "us-central1-aiplatform.googleapis.com"}
-    )
-
-    # Waiting for batch prediction job to be in CANCELLED state
-    helpers.wait_for_job_state(
-        get_job_method=job_client.get_batch_prediction_job,
-        name=shared_state["batch_prediction_job_name"],
-    )
-
-    # Delete the batch prediction job
-    delete_batch_prediction_job_sample.delete_batch_prediction_job_sample(
-        project=PROJECT_ID, batch_prediction_job_id=batch_prediction_job
-    )
 
 
 # Creating AutoML Video Object Tracking batch prediction job

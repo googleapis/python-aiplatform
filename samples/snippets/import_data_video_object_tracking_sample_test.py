@@ -14,12 +14,9 @@
 
 
 import os
-from uuid import uuid4
 
-from google.cloud import aiplatform
 import pytest
 
-import delete_dataset_sample
 import import_data_video_object_tracking_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -31,35 +28,20 @@ METADATA_SCHEMA_URI = (
 
 
 @pytest.fixture(scope="function", autouse=True)
-def dataset_name():
-    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
-    client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
+def setup(create_dataset):
+    create_dataset(PROJECT_ID, LOCATION, METADATA_SCHEMA_URI)
+    yield
 
-    dataset = aiplatform.gapic.Dataset(
-        display_name=f"temp_import_dataset_test_{uuid4()}",
-        metadata_schema_uri=METADATA_SCHEMA_URI,
-    )
 
-    operation = client.create_dataset(
-        parent=f"projects/{PROJECT_ID}/locations/{LOCATION}", dataset=dataset
-    )
-
-    created_dataset = operation.result(timeout=120)
-
-    yield created_dataset.name
-
-    dataset_id = created_dataset.name.split("/")[-1]
-
-    # Delete the created dataset
-    delete_dataset_sample.delete_dataset_sample(
-        project=PROJECT_ID, dataset_id=dataset_id
-    )
+@pytest.fixture(scope="function", autouse=True)
+def teardown(teardown_dataset):
+    yield
 
 
 def test_ucaip_generated_import_data_video_object_tracking_sample_single_label_image(
-    capsys, dataset_name
+    capsys, shared_state
 ):
-    dataset_id = dataset_name.split("/")[-1]
+    dataset_id = shared_state["dataset_name"].split("/")[-1]
 
     import_data_video_object_tracking_sample.import_data_video_object_tracking_sample(
         project=PROJECT_ID, dataset_id=dataset_id, gcs_source_uri=GCS_SOURCE,
