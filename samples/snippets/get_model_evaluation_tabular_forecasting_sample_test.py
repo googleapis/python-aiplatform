@@ -17,7 +17,7 @@ import os
 
 import get_model_evaluation_tabular_forecasting_sample
 
-PROJECT_ID = "ucaip-sample-tests"  # os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 MODEL_ID = "8531330622239539200"  # COVID model
 EVALUATION_ID = "5651454056920760520"
 
