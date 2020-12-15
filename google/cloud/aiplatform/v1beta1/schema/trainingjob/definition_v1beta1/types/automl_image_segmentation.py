@@ -40,11 +40,15 @@ class AutoMlImageSegmentation(proto.Message):
     """
 
     inputs = proto.Field(
-        proto.MESSAGE, number=1, message="AutoMlImageSegmentationInputs",
+        proto.MESSAGE,
+        number=1,
+        message="AutoMlImageSegmentationInputs",
     )
 
     metadata = proto.Field(
-        proto.MESSAGE, number=2, message="AutoMlImageSegmentationMetadata",
+        proto.MESSAGE,
+        number=2,
+        message="AutoMlImageSegmentationMetadata",
     )
 
 
@@ -83,7 +87,11 @@ class AutoMlImageSegmentationInputs(proto.Message):
         CLOUD_HIGH_ACCURACY_1 = 1
         CLOUD_LOW_ACCURACY_1 = 2
 
-    model_type = proto.Field(proto.ENUM, number=1, enum=ModelType,)
+    model_type = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum=ModelType,
+    )
 
     budget_milli_node_hours = proto.Field(proto.INT64, number=2)
 
@@ -114,7 +122,9 @@ class AutoMlImageSegmentationMetadata(proto.Message):
     cost_milli_node_hours = proto.Field(proto.INT64, number=1)
 
     successful_stop_reason = proto.Field(
-        proto.ENUM, number=2, enum=SuccessfulStopReason,
+        proto.ENUM,
+        number=2,
+        enum=SuccessfulStopReason,
     )
 
 

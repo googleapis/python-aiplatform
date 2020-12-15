@@ -23,7 +23,9 @@ from google.cloud.aiplatform.v1beta1.schema.predict.instance import text_sentime
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.prediction",
-    manifest={"TextSentimentPredictionResult",},
+    manifest={
+        "TextSentimentPredictionResult",
+    },
 )
 
 
@@ -62,7 +64,11 @@ class TextSentimentPredictionResult(proto.Message):
         message=gcaspi_text_sentiment.TextSentimentPredictionInstance,
     )
 
-    prediction = proto.Field(proto.MESSAGE, number=2, message=Prediction,)
+    prediction = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=Prediction,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -71,7 +71,11 @@ class Explanation(proto.Message):
             in the same order as they appear in the output_indices.
     """
 
-    attributions = proto.RepeatedField(proto.MESSAGE, number=1, message="Attribution",)
+    attributions = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="Attribution",
+    )
 
 
 class ModelExplanation(proto.Message):
@@ -109,7 +113,9 @@ class ModelExplanation(proto.Message):
     """
 
     mean_attributions = proto.RepeatedField(
-        proto.MESSAGE, number=1, message="Attribution",
+        proto.MESSAGE,
+        number=1,
+        message="Attribution",
     )
 
 
@@ -233,7 +239,11 @@ class Attribution(proto.Message):
 
     instance_output_value = proto.Field(proto.DOUBLE, number=2)
 
-    feature_attributions = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
+    feature_attributions = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=struct.Value,
+    )
 
     output_index = proto.RepeatedField(proto.INT32, number=4)
 
@@ -256,10 +266,16 @@ class ExplanationSpec(proto.Message):
             input and output for explanation.
     """
 
-    parameters = proto.Field(proto.MESSAGE, number=1, message="ExplanationParameters",)
+    parameters = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="ExplanationParameters",
+    )
 
     metadata = proto.Field(
-        proto.MESSAGE, number=2, message=explanation_metadata.ExplanationMetadata,
+        proto.MESSAGE,
+        number=2,
+        message=explanation_metadata.ExplanationMetadata,
     )
 
 
@@ -317,7 +333,10 @@ class ExplanationParameters(proto.Message):
     """
 
     sampled_shapley_attribution = proto.Field(
-        proto.MESSAGE, number=1, oneof="method", message="SampledShapleyAttribution",
+        proto.MESSAGE,
+        number=1,
+        oneof="method",
+        message="SampledShapleyAttribution",
     )
 
     integrated_gradients_attribution = proto.Field(
@@ -328,12 +347,19 @@ class ExplanationParameters(proto.Message):
     )
 
     xrai_attribution = proto.Field(
-        proto.MESSAGE, number=3, oneof="method", message="XraiAttribution",
+        proto.MESSAGE,
+        number=3,
+        oneof="method",
+        message="XraiAttribution",
     )
 
     top_k = proto.Field(proto.INT32, number=4)
 
-    output_indices = proto.Field(proto.MESSAGE, number=5, message=struct.ListValue,)
+    output_indices = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=struct.ListValue,
+    )
 
 
 class SampledShapleyAttribution(proto.Message):
@@ -381,7 +407,9 @@ class IntegratedGradientsAttribution(proto.Message):
     step_count = proto.Field(proto.INT32, number=1)
 
     smooth_grad_config = proto.Field(
-        proto.MESSAGE, number=2, message="SmoothGradConfig",
+        proto.MESSAGE,
+        number=2,
+        message="SmoothGradConfig",
     )
 
 
@@ -416,7 +444,9 @@ class XraiAttribution(proto.Message):
     step_count = proto.Field(proto.INT32, number=1)
 
     smooth_grad_config = proto.Field(
-        proto.MESSAGE, number=2, message="SmoothGradConfig",
+        proto.MESSAGE,
+        number=2,
+        message="SmoothGradConfig",
     )
 
 
@@ -508,7 +538,9 @@ class FeatureNoiseSigma(proto.Message):
         sigma = proto.Field(proto.FLOAT, number=2)
 
     noise_sigma = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=NoiseSigmaForFeature,
+        proto.MESSAGE,
+        number=1,
+        message=NoiseSigmaForFeature,
     )
 
 

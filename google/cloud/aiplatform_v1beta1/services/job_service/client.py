@@ -80,7 +80,10 @@ class JobServiceClientMeta(type):
     _transport_registry["grpc"] = JobServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = JobServiceGrpcAsyncIOTransport
 
-    def get_transport_class(cls, label: str = None,) -> Type[JobServiceTransport]:
+    def get_transport_class(
+        cls,
+        label: str = None,
+    ) -> Type[JobServiceTransport]:
         """Return an appropriate transport class.
 
         Args:
@@ -167,7 +170,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def batch_prediction_job_path(
-        project: str, location: str, batch_prediction_job: str,
+        project: str,
+        location: str,
+        batch_prediction_job: str,
     ) -> str:
         """Return a fully-qualified batch_prediction_job string."""
         return "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
@@ -186,10 +191,16 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def custom_job_path(project: str, location: str, custom_job: str,) -> str:
+    def custom_job_path(
+        project: str,
+        location: str,
+        custom_job: str,
+    ) -> str:
         """Return a fully-qualified custom_job string."""
         return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
-            project=project, location=location, custom_job=custom_job,
+            project=project,
+            location=location,
+            custom_job=custom_job,
         )
 
     @staticmethod
@@ -203,11 +214,15 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def data_labeling_job_path(
-        project: str, location: str, data_labeling_job: str,
+        project: str,
+        location: str,
+        data_labeling_job: str,
     ) -> str:
         """Return a fully-qualified data_labeling_job string."""
         return "projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}".format(
-            project=project, location=location, data_labeling_job=data_labeling_job,
+            project=project,
+            location=location,
+            data_labeling_job=data_labeling_job,
         )
 
     @staticmethod
@@ -220,10 +235,16 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def dataset_path(project: str, location: str, dataset: str,) -> str:
+    def dataset_path(
+        project: str,
+        location: str,
+        dataset: str,
+    ) -> str:
         """Return a fully-qualified dataset string."""
         return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project, location=location, dataset=dataset,
+            project=project,
+            location=location,
+            dataset=dataset,
         )
 
     @staticmethod
@@ -237,7 +258,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def hyperparameter_tuning_job_path(
-        project: str, location: str, hyperparameter_tuning_job: str,
+        project: str,
+        location: str,
+        hyperparameter_tuning_job: str,
     ) -> str:
         """Return a fully-qualified hyperparameter_tuning_job string."""
         return "projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}".format(
@@ -256,10 +279,16 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def model_path(project: str, location: str, model: str,) -> str:
+    def model_path(
+        project: str,
+        location: str,
+        model: str,
+    ) -> str:
         """Return a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project, location=location, model=model,
+            project=project,
+            location=location,
+            model=model,
         )
 
     @staticmethod
@@ -272,7 +301,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(
+        billing_account: str,
+    ) -> str:
         """Return a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
@@ -285,9 +316,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(
+        folder: str,
+    ) -> str:
         """Return a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(
+            folder=folder,
+        )
 
     @staticmethod
     def parse_common_folder_path(path: str) -> Dict[str, str]:
@@ -296,9 +331,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(
+        organization: str,
+    ) -> str:
         """Return a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(
+            organization=organization,
+        )
 
     @staticmethod
     def parse_common_organization_path(path: str) -> Dict[str, str]:
@@ -307,9 +346,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(
+        project: str,
+    ) -> str:
         """Return a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(
+            project=project,
+        )
 
     @staticmethod
     def parse_common_project_path(path: str) -> Dict[str, str]:
@@ -318,10 +361,14 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(
+        project: str,
+        location: str,
+    ) -> str:
         """Return a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
+            project=project,
+            location=location,
         )
 
     @staticmethod
@@ -531,7 +578,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -610,7 +662,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -687,12 +744,20 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListCustomJobsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -782,7 +847,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -870,7 +940,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         # Send the request.
         rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     def create_data_labeling_job(
@@ -951,7 +1024,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1026,7 +1104,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1102,12 +1185,20 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListDataLabelingJobsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1198,7 +1289,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -1276,7 +1372,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         # Send the request.
         rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     def create_hyperparameter_tuning_job(
@@ -1361,7 +1460,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1440,7 +1544,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1519,12 +1628,20 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListHyperparameterTuningJobsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1617,7 +1734,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -1710,7 +1832,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         # Send the request.
         rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     def create_batch_prediction_job(
@@ -1799,7 +1924,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1879,7 +2009,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1958,12 +2093,20 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListBatchPredictionJobsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2057,7 +2200,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -2148,7 +2296,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         # Send the request.
         rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
 
