@@ -40,7 +40,9 @@ def lint(session):
     """
     session.install("flake8", BLACK_VERSION)
     session.run(
-        "black", "--check", *BLACK_PATHS,
+        "black",
+        "--check",
+        *BLACK_PATHS,
     )
     session.run("flake8", "google", "tests")
 
@@ -57,7 +59,8 @@ def blacken(session):
     """
     session.install(BLACK_VERSION)
     session.run(
-        "black", *BLACK_PATHS,
+        "black",
+        *BLACK_PATHS,
     )
 
 
@@ -73,7 +76,9 @@ def default(session):
     session.install("asyncmock", "pytest-asyncio")
 
     session.install(
-        "mock", "pytest", "pytest-cov",
+        "mock",
+        "pytest",
+        "pytest-cov",
     )
     session.install("-e", ".")
 
@@ -123,7 +128,9 @@ def system(session):
     # Install all test dependencies, then install this package into the
     # virtualenv's dist-packages.
     session.install(
-        "mock", "pytest", "google-cloud-testutils",
+        "mock",
+        "pytest",
+        "google-cloud-testutils",
     )
     session.install("-e", ".")
 
