@@ -758,12 +758,7 @@ class TestCustomTrainingJob:
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
-            container_spec=true_container_spec,
-            predict_schemata=gca_model.PredictSchemata(
-                instance_schema_uri=None,
-                parameters_schema_uri=None,
-                prediction_schema_uri=None,
-            ),
+            container_spec=true_container_spec
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
