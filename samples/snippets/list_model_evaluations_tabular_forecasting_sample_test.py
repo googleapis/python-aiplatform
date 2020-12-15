@@ -13,13 +13,11 @@
 # limitations under the License.
 
 import os
-from uuid import uuid4
 
-from google.cloud import aiplatform
 import pytest
 
-import list_model_evaluations_tabular_forecasting_sample
 import helpers
+import list_model_evaluations_tabular_forecasting_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 MODEL_ID = "8531330622239539200"  # COVID Dataset

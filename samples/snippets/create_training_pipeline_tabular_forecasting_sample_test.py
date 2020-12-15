@@ -70,7 +70,7 @@ def test_ucaip_generated_create_training_pipeline_sample(capsys, shared_state):
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,
         dataset_id=DATASET_ID,
-        model_display_name=f"permanent_tabular_forecasting_model",
+        model_display_name="permanent_tabular_forecasting_model",
         target_column=TARGET_COLUMN,
         time_series_identifier_column="county",
         time_column="date",
