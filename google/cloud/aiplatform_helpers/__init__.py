@@ -14,9 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from google.cloud.aiplatform_helpers.value_converter import to_value
-from google.cloud.aiplatform_helpers.value_converter import from_value
-from google.cloud.aiplatform_helpers.value_converter import from_map
+from google.cloud.aiplatform_helpers import value_converter
 
 from proto.marshal import Marshal
 from proto.marshal.rules.struct import ValueRule
@@ -37,35 +35,35 @@ class ConversionValueRule(ValueRule):
             return super().to_proto(value)
 
 
-def add_methods_to_classes_in_package(pkg):
+def _add_methods_to_classes_in_package(pkg):
     classes = dict(
         [(name, cls) for name, cls in pkg.__dict__.items() if isinstance(cls, type)]
     )
 
     for class_name, cls in classes.items():
         # Add to_value() method to class with docstring
-        setattr(cls, "to_value", to_value)
-        cls.to_value.__doc__ = to_value.__doc__
+        setattr(cls, "to_value", value_converter.to_value)
+        cls.to_value.__doc__ = value_converter.to_value.__doc__
 
         # Add from_value() method to class with docstring
-        cls.from_value = add_from_value_to_class(cls)
-        cls.from_value.__doc__ = from_value.__doc__
+        setattr(cls, "from_value", _add_from_value_to_class(cls))
+        cls.from_value.__doc__ = value_converter.from_value.__doc__
 
         # Add from_map() method to class with docstring
-        setattr(cls, "from_map", add_from_map_to_class(cls))
-        cls.from_map.__doc__ = from_map.__doc__
+        setattr(cls, "from_map", _add_from_map_to_class(cls))
+        cls.from_map.__doc__ = value_converter.from_map.__doc__
 
 
-def add_from_value_to_class(cls):
+def _add_from_value_to_class(cls):
     def _from_value(value):
-        return from_value(cls, value)
+        return value_converter.from_value(cls, value)
 
     return _from_value
 
 
-def add_from_map_to_class(cls):
+def _add_from_map_to_class(cls):
     def _from_map(map_):
-        return from_map(cls, map_)
+        return value_converter.from_map(cls, map_)
 
     return _from_map
 
