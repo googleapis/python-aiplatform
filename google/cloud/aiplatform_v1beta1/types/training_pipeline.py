@@ -146,67 +146,27 @@ class TrainingPipeline(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=2)
 
-    input_data_config = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        message="InputDataConfig",
-    )
+    input_data_config = proto.Field(proto.MESSAGE, number=3, message="InputDataConfig",)
 
     training_task_definition = proto.Field(proto.STRING, number=4)
 
-    training_task_inputs = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=struct.Value,
-    )
+    training_task_inputs = proto.Field(proto.MESSAGE, number=5, message=struct.Value,)
 
-    training_task_metadata = proto.Field(
-        proto.MESSAGE,
-        number=6,
-        message=struct.Value,
-    )
+    training_task_metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
 
-    model_to_upload = proto.Field(
-        proto.MESSAGE,
-        number=7,
-        message=model.Model,
-    )
+    model_to_upload = proto.Field(proto.MESSAGE, number=7, message=model.Model,)
 
-    state = proto.Field(
-        proto.ENUM,
-        number=9,
-        enum=pipeline_state.PipelineState,
-    )
+    state = proto.Field(proto.ENUM, number=9, enum=pipeline_state.PipelineState,)
 
-    error = proto.Field(
-        proto.MESSAGE,
-        number=10,
-        message=status.Status,
-    )
+    error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
 
-    create_time = proto.Field(
-        proto.MESSAGE,
-        number=11,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
 
-    start_time = proto.Field(
-        proto.MESSAGE,
-        number=12,
-        message=timestamp.Timestamp,
-    )
+    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
 
-    end_time = proto.Field(
-        proto.MESSAGE,
-        number=13,
-        message=timestamp.Timestamp,
-    )
+    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
 
-    update_time = proto.Field(
-        proto.MESSAGE,
-        number=14,
-        message=timestamp.Timestamp,
-    )
+    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=15)
 
@@ -327,45 +287,27 @@ class InputDataConfig(proto.Message):
     """
 
     fraction_split = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        oneof="split",
-        message="FractionSplit",
+        proto.MESSAGE, number=2, oneof="split", message="FractionSplit",
     )
 
     filter_split = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        oneof="split",
-        message="FilterSplit",
+        proto.MESSAGE, number=3, oneof="split", message="FilterSplit",
     )
 
     predefined_split = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        oneof="split",
-        message="PredefinedSplit",
+        proto.MESSAGE, number=4, oneof="split", message="PredefinedSplit",
     )
 
     timestamp_split = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        oneof="split",
-        message="TimestampSplit",
+        proto.MESSAGE, number=5, oneof="split", message="TimestampSplit",
     )
 
     gcs_destination = proto.Field(
-        proto.MESSAGE,
-        number=8,
-        oneof="destination",
-        message=io.GcsDestination,
+        proto.MESSAGE, number=8, oneof="destination", message=io.GcsDestination,
     )
 
     bigquery_destination = proto.Field(
-        proto.MESSAGE,
-        number=10,
-        oneof="destination",
-        message=io.BigQueryDestination,
+        proto.MESSAGE, number=10, oneof="destination", message=io.BigQueryDestination,
     )
 
     dataset_id = proto.Field(proto.STRING, number=1)
