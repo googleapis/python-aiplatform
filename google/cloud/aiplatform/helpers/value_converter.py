@@ -30,21 +30,8 @@ def to_value(self: Message) -> Value:
     Returns:
       the message as a :class:`~google.protobuf.struct_pb2.Value` object
     """
-
-    def is_prop(prop):
-        if prop[0].isupper():
-            return False
-        if prop.startswith("_"):
-            return False
-        return True
-
-    props = list(filter(is_prop, dir(self._pb)))
-
-    props_dict = {}
-    for prop in props:
-        props_dict[prop] = getattr(self._pb, prop)
-
-    return json_format.ParseDict(props_dict, Value())
+    tmp_dict = json_format.MessageToDict(self._pb)
+    return json_format.ParseDict(tmp_dict, Value())
 
 
 def from_value(cls: MessageMeta, value: Value) -> Message:

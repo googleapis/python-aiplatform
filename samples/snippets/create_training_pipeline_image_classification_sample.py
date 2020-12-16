@@ -37,11 +37,12 @@ def create_training_pipeline_image_classification_sample(
         budget_milli_node_hours=8000,
         disable_early_stopping=False
     )
+    training_task_inputs = icn_training_inputs.to_value()
 
     training_pipeline = {
         "display_name": display_name,
         "training_task_definition": "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml",
-        "training_task_inputs": icn_training_inputs.to_value(),
+        "training_task_inputs": training_task_inputs,
         "input_data_config": {"dataset_id": dataset_id},
         "model_to_upload": {"display_name": model_display_name},
     }
