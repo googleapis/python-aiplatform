@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from google.cloud import aiplatform_helpers
+from google.cloud.aiplatform.helpers import _decorators
 import google.cloud.aiplatform.v1beta1.schema.predict.instance_v1beta1.types as pkg
 
 from google.cloud.aiplatform.v1beta1.schema.predict.instance_v1beta1.types.image_classification import (
@@ -56,4 +56,4 @@ __all__ = (
     "VideoClassificationPredictionInstance",
     "VideoObjectTrackingPredictionInstance",
 )
-aiplatform_helpers._add_methods_to_classes_in_package(pkg)
+_decorators._add_methods_to_classes_in_package(pkg)

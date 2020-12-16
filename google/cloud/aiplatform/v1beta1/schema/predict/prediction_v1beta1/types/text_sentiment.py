@@ -25,9 +25,7 @@ from google.cloud.aiplatform.v1beta1.schema.predict.instance import (
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.prediction",
-    manifest={
-        "TextSentimentPredictionResult",
-    },
+    manifest={"TextSentimentPredictionResult",},
 )
 
 
@@ -61,16 +59,10 @@ class TextSentimentPredictionResult(proto.Message):
         sentiment = proto.Field(proto.INT32, number=1)
 
     instance = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=TextSentimentPredictionInstance,
+        proto.MESSAGE, number=1, message=TextSentimentPredictionInstance,
     )
 
-    prediction = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=Prediction,
-    )
+    prediction = proto.Field(proto.MESSAGE, number=2, message=Prediction,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

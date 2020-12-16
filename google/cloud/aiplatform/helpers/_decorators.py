@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-from google.cloud.aiplatform_helpers import value_converter
+from __future__ import absolute_import
+from google.cloud.aiplatform.helpers import value_converter
 
 from proto.marshal import Marshal
 from proto.marshal.rules.struct import ValueRule
