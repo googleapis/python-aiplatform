@@ -54,7 +54,7 @@ def predict_image_classification_sample(
         endpoint=endpoint, instances=instances, parameters=params_obj
     )
     print("response")
-    print(" deployed_model_id:", response.deployed_model_id)
+    print("\tdeployed_model_id:", response.deployed_model_id)
     # See gs://google-cloud-aiplatform/schema/predict/prediction/classification.yaml for the format of the predictions.
     predictions = response.predictions
     for prediction_ in predictions:
