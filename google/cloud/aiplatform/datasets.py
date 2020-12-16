@@ -75,113 +75,18 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         cls,
         display_name: str,
         metadata_schema_uri: str,
-        gcs_source: Optional[Sequence[str]] = None,
-        bq_source: Optional[str] = None,
-        import_schema_uri: Optional[str] = None,
+        dataset_metadata: Dict,  # TODO: Replace with EPCL class
         metadata: Sequence[Tuple[str, str]] = (),
         labels: Optional[Dict] = None,
-        data_items_labels: Optional[Dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        import_config: Optional[ImportDataConfig] = None,
         sync=True,
     ) -> "Dataset":
-        """Creates a new dataset and optionally imports data into dataset when
-        source and import_schema_uri are passed.
-
-        Args:
-            display_name (str):
-                Required. The user-defined name of the Dataset.
-                The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
-            metadata_schema_uri (str):
-                Required. Points to a YAML file stored on Google Cloud Storage
-                describing additional information about the Dataset. The schema
-                is defined as an OpenAPI 3.0.2 Schema Object. The schema files
-                that can be used here are found in gs://google-cloud-
-                aiplatform/schema/dataset/metadata/.
-            gcs_source: Optional[Sequence[str]]=None:
-                Google Cloud Storage URI(-s) to the
-                input file(s). May contain wildcards. For more
-                information on wildcards, see
-                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
-            bq_source: Optional[str]=None:
-                BigQuery URI to the input table.
-            import_schema_uri: Optional[str] = None
-                Points to a YAML file stored on Google Cloud
-                Storage describing the import format. Validation will be
-                done against the schema. The schema is defined as an
-                `OpenAPI 3.0.2 Schema
-                Object <https://tinyurl.com/y538mdwt>`__.
-            metadata: Sequence[Tuple[str, str]]=()
-                Strings which should be sent along with the request as metadata.
-            labels: (Optional[Dict]) = None
-                The labels with user-defined metadata to organize your
-                Datasets.
-
-                Label keys and values can be no longer than 64 characters
-                (Unicode codepoints), can only contain lowercase letters,
-                numeric characters, underscores and dashes. International
-                characters are allowed. No more than 64 user labels can be
-                associated with one Dataset (System labels are excluded).
-
-                See https://goo.gl/xmQnxf for more information and examples
-                of labels. System reserved label keys are prefixed with
-                "aiplatform.googleapis.com/" and are immutable.
-            data_items_labels: Optional[Dict] = None
-                Labels that will be applied to newly imported DataItems. If
-                an identical DataItem as one being imported already exists
-                in the Dataset, then these labels will be appended to these
-                of the already existing one, and if labels with identical
-                key is imported before, the old label value will be
-                overwritten. If two DataItems are identical in the same
-                import data operation, the labels will be combined and if
-                key collision happens in this case, one of the values will
-                be picked randomly. Two DataItems are considered identical
-                if their content bytes are identical (e.g. image bytes or
-                pdf bytes). These labels will be overridden by Annotation
-                labels specified inside index file refenced by
-                [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
-                e.g. jsonl file.
-            project: Optional[str]=None,
-                Project to upload this model to. Overrides project set in
-                aiplatform.init.
-            location: Optional[str]=None,
-                Location to upload this model to. Overrides location set in
-                aiplatform.init.
-            credentials: Optional[auth_credentials.Credentials]=None,
-                Custom credentials to use to upload this model. Overrides
-                credentials set in aiplatform.init.
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-        Returns:
-            dataset (Dataset):
-                Instantiated representation of the managed dataset resource.
-        """
         utils.validate_display_name(display_name)
 
-        is_tabular_dataset_metadata = (
-            metadata_schema_uri == schema.dataset.metadata.tabular
-        )
-
-        if bool(bq_source) and not is_tabular_dataset_metadata:
-            raise ValueError(
-                "A tabular metadata_schema uri must be used when using a BigQuery source"
-            )
-
         api_client = cls._instantiate_client(location=location, credentials=credentials)
-
-        # If this is tabular enrich the dataset metadata with source
-        dataset_metadata = {}
-        if is_tabular_dataset_metadata:
-            if gcs_source:
-                dataset_metadata = {"input_config": {"gcs_source": {"uri": gcs_source}}}
-            elif bq_source:
-                dataset_metadata = {
-                    "input_config": {"bigquery_source": {"uri": bq_source}}
-                }
 
         return cls._create_and_import(
             api_client=api_client,
@@ -196,9 +101,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             project=project or initializer.global_config.project,
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,
-            gcs_source=gcs_source,
-            import_schema_uri=import_schema_uri,
-            data_items_labels=data_items_labels,
+            import_config=import_config,
             sync=sync,
         )
 
@@ -210,15 +113,13 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         display_name: str,
         parent: str,
         metadata_schema_uri: str,
-        dataset_metadata: str,
+        dataset_metadata: Dict,
         request_metadata: str,
         project: str,
         location: str,
         credentials: Optional[auth_credentials.Credentials],
         labels: Optional[Dict] = None,
-        gcs_source: Optional[Sequence[str]] = None,
-        import_schema_uri: Optional[str] = None,
-        data_items_labels: Optional[Dict] = None,
+        import_config: Optional[ImportDataConfig] = None,
         sync: bool = True,
     ) -> "Dataset":
         """Creates a new dataset and optionally imports data into dataset when
@@ -300,10 +201,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 Instantiated representation of the managed dataset resource.
         """
 
-        is_tabular_dataset_metadata = (
-            metadata_schema_uri == schema.dataset.metadata.tabular
-        )
-
         create_dataset_lro = cls._create(
             display_name=display_name,
             parent=parent,
@@ -323,11 +220,10 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             credentials=credentials,
         )
 
-        if gcs_source and not is_tabular_dataset_metadata:
-            return dataset_obj.import_data(
-                gcs_source=gcs_source,
-                import_schema_uri=import_schema_uri,
-                data_items_labels=data_items_labels,
+        # Import if import data config is provided
+        if import_config:
+            return dataset_obj.api_client.import_data(
+                name=dataset_obj.resource_name, import_configs=[import_config]
             )
         else:
             return dataset_obj
