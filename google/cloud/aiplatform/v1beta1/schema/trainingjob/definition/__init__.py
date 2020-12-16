@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from google.cloud import aiplatform_helpers
+from google.cloud.aiplatform.helpers import _decorators
 import google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types as pkg
 
 from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_forecasting import (
@@ -132,4 +132,4 @@ __all__ = (
     "AutoMlVideoObjectTrackingInputs",
     "ExportEvaluatedDataItemsConfig",
 )
-aiplatform_helpers._add_methods_to_classes_in_package(pkg)
+_decorators._add_methods_to_classes_in_package(pkg)
