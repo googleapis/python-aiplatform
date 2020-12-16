@@ -38,14 +38,14 @@ def predict_image_classification_sample(
     # The format of each instance should conform to the deployed model's prediction input schema.
     encoded_content = base64.b64encode(file_content).decode("utf-8")
 
-    instance_obj = instance.ImageClassificationPredictionInstance({
-        "content": encoded_content})
+    instance_obj = instance.ImageClassificationPredictionInstance(
+        content=encoded_content)
 
     instance_val = instance_obj.to_value()
     instances = [instance_val]
 
-    params_obj = params.ImageClassificationPredictionParams({
-        "confidence_threshold": 0.5, "max_predictions": 5})
+    params_obj = params.ImageClassificationPredictionParams(
+        confidence_threshold=0.5, max_predictions=5)
 
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
