@@ -21,12 +21,13 @@ from google.protobuf.struct_pb2 import Value
 def create_batch_prediction_job_text_sentiment_analysis_sample(
     project: str,
     display_name: str,
-    model: str,
+    model_name: str,
     gcs_source_uri: str,
     gcs_destination_output_uri_prefix: str,
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
+    # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
@@ -37,7 +38,7 @@ def create_batch_prediction_job_text_sentiment_analysis_sample(
     batch_prediction_job = {
         "display_name": display_name,
         # Format: 'projects/{project}/locations/{location}/models/{model_id}'
-        "model": model,
+        "model": model_name,
         "model_parameters": model_parameters,
         "input_config": {
             "instances_format": "jsonl",

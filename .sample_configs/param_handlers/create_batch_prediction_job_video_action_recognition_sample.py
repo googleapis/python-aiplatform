@@ -22,7 +22,7 @@ def make_parent(parent: str) -> str:
 
 def make_batch_prediction_job(
     display_name: str,
-    model: str,
+    model_name: str,
     gcs_source_uri: str,
     gcs_destination_output_uri_prefix: str,
 ) -> google.cloud.aiplatform_v1beta1.types.batch_prediction_job.BatchPredictionJob:
@@ -34,7 +34,7 @@ def make_batch_prediction_job(
     batch_prediction_job = {
         "display_name": display_name,
         # Format: 'projects/{project}/locations/{location}/models/{model_id}'
-        "model": model,
+        "model": model_name,
         "model_parameters": model_parameters,
         "input_config": {
             "instances_format": "jsonl",
