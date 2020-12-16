@@ -69,10 +69,9 @@ class ValueConverterTests(unittest.TestCase):
         )
         expected_type = SomeMessage(self.input_dict)
 
-        # Following assert fails.
-        # `expected_type` is `test_value_converter.SomeMessage` while
-        # `actual_from_value_output` is just `SomeMessage`
-        # assert(type(actual_from_value_output) is type(expected_type))
+        # TODO: compare instance of SomeMessage against
+        # actual_from_value_output.
+        # See https://github.com/googleapis/python-aiplatform/issues/136
 
         # Check property-level ("duck-typing") equivalency
         assert actual_from_value_output.test_str == expected_type.test_str
@@ -85,9 +84,9 @@ class ValueConverterTests(unittest.TestCase):
         map_composite = message_with_map.test_map
         actual_output = value_converter.from_map(SomeOutType, map_composite)
 
-        # Following assert fails.
-        # `actual_output` evaluates to 'test_int: 42'
-        # assert(isinstance(actual_output, SomeOutType))
+        # TODO: compare instance of SomeMessage against
+        # actual_from_value_output.
+        # See https://github.com/googleapis/python-aiplatform/issues/136
 
         # Check property-to-key/value equivalency
         assert actual_output.test_int == map_composite["test_int"]
