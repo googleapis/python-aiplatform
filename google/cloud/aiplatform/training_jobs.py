@@ -995,7 +995,7 @@ class CustomTrainingJob(_TrainingJob):
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
-            model_serving_container_command (Sequence[str]),
+            model_serving_container_command (Sequence[str]):
                 The command with which the container is run. Not executed within a
                 shell. The Docker image's ENTRYPOINT is used if this is not provided.
                 Variable references $(VAR_NAME) are expanded using the container's
@@ -1003,18 +1003,18 @@ class CustomTrainingJob(_TrainingJob):
                 input string will be unchanged. The $(VAR_NAME) syntax can be escaped
                 with a double $$, ie: $$(VAR_NAME). Escaped references will never be
                 expanded, regardless of whether the variable exists or not.
-            model_serving_container_args (Sequence[str]),
+            model_serving_container_args (Sequence[str]):
                 The arguments to the command. The Docker image's CMD is used if this is
                 not provided. Variable references $(VAR_NAME) are expanded using the
                 container's environment. If a variable cannot be resolved, the reference
                 in the input string will be unchanged. The $(VAR_NAME) syntax can be
                 escaped with a double $$, ie: $$(VAR_NAME). Escaped references will
                 never be expanded, regardless of whether the variable exists or not.
-            model_serving_container_environment_variables (Dict[str, str]),
+            model_serving_container_environment_variables (Dict[str, str]):
                 The environment variables that are to be present in the container.
                 Should be a dictionary where keys are environment variable names
                 and values are environment variable values for those names.
-            model_serving_container_ports (Sequence[int]),
+            model_serving_container_ports (Sequence[int]):
                 Declaration of ports that are exposed by the container. This field is
                 primarily informational, it gives AI Platform information about the
                 network connections the container uses. Listing or not a port here has
@@ -1089,22 +1089,6 @@ class CustomTrainingJob(_TrainingJob):
 
         self._container_uri = container_uri
         self._requirements = requirements
-        self._model_serving_container_image_uri = model_serving_container_image_uri
-        self._model_serving_container_predict_route = (
-            model_serving_container_predict_route
-        )
-        self._model_serving_container_health_route = (
-            model_serving_container_health_route
-        )
-
-        self._model_serving_container_command = model_serving_container_command
-        self._model_serving_container_args = model_serving_container_args
-        self._model_serving_container_environment_variables = (
-            model_serving_container_environment_variables
-        )
-        self._model_serving_container_ports = model_serving_container_ports
-
-        self._model_description = model_description
 
         model_predict_schemata = None
         if any(
@@ -1270,7 +1254,7 @@ class CustomTrainingJob(_TrainingJob):
             raise RuntimeError("Custom Training has already run.")
 
         # if args needed for model is incomplete
-        if model_display_name and not self._model_serving_container_image_uri:
+        if model_display_name and not self._managed_model.container_spec.image_uri:
             raise RuntimeError(
                 """model_display_name was provided but
                 model_serving_container_image_uri was not provided when this
