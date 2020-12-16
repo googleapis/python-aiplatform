@@ -393,9 +393,7 @@ def test_migration_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(
-        scopes=["1", "2"],
-    )
+    options = client_options.ClientOptions(scopes=["1", "2"],)
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options)
@@ -464,8 +462,7 @@ def test_search_migratable_resources(
     request_type=migration_service.SearchMigratableResourcesRequest,
 ):
     client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -506,8 +503,7 @@ async def test_search_migratable_resources_async(
     request_type=migration_service.SearchMigratableResourcesRequest,
 ):
     client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -545,9 +541,7 @@ async def test_search_migratable_resources_async_from_dict():
 
 
 def test_search_migratable_resources_field_headers():
-    client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(),
-    )
+    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -569,10 +563,7 @@ def test_search_migratable_resources_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "parent=parent/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -603,16 +594,11 @@ async def test_search_migratable_resources_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "parent=parent/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
 
 
 def test_search_migratable_resources_flattened():
-    client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(),
-    )
+    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -623,9 +609,7 @@ def test_search_migratable_resources_flattened():
 
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.search_migratable_resources(
-            parent="parent_value",
-        )
+        client.search_migratable_resources(parent="parent_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -636,16 +620,13 @@ def test_search_migratable_resources_flattened():
 
 
 def test_search_migratable_resources_flattened_error():
-    client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(),
-    )
+    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.search_migratable_resources(
-            migration_service.SearchMigratableResourcesRequest(),
-            parent="parent_value",
+            migration_service.SearchMigratableResourcesRequest(), parent="parent_value",
         )
 
 
@@ -667,9 +648,7 @@ async def test_search_migratable_resources_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.search_migratable_resources(
-            parent="parent_value",
-        )
+        response = await client.search_migratable_resources(parent="parent_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -689,15 +668,12 @@ async def test_search_migratable_resources_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.search_migratable_resources(
-            migration_service.SearchMigratableResourcesRequest(),
-            parent="parent_value",
+            migration_service.SearchMigratableResourcesRequest(), parent="parent_value",
         )
 
 
 def test_search_migratable_resources_pager():
-    client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials,
-    )
+    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials,)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -714,13 +690,10 @@ def test_search_migratable_resources_pager():
                 next_page_token="abc",
             ),
             migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[],
-                next_page_token="def",
+                migratable_resources=[], next_page_token="def",
             ),
             migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
-                ],
+                migratable_resources=[migratable_resource.MigratableResource(),],
                 next_page_token="ghi",
             ),
             migration_service.SearchMigratableResourcesResponse(
@@ -748,9 +721,7 @@ def test_search_migratable_resources_pager():
 
 
 def test_search_migratable_resources_pages():
-    client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials,
-    )
+    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials,)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -767,13 +738,10 @@ def test_search_migratable_resources_pages():
                 next_page_token="abc",
             ),
             migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[],
-                next_page_token="def",
+                migratable_resources=[], next_page_token="def",
             ),
             migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
-                ],
+                migratable_resources=[migratable_resource.MigratableResource(),],
                 next_page_token="ghi",
             ),
             migration_service.SearchMigratableResourcesResponse(
@@ -791,9 +759,7 @@ def test_search_migratable_resources_pages():
 
 @pytest.mark.asyncio
 async def test_search_migratable_resources_async_pager():
-    client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials,
-    )
+    client = MigrationServiceAsyncClient(credentials=credentials.AnonymousCredentials,)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -812,13 +778,10 @@ async def test_search_migratable_resources_async_pager():
                 next_page_token="abc",
             ),
             migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[],
-                next_page_token="def",
+                migratable_resources=[], next_page_token="def",
             ),
             migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
-                ],
+                migratable_resources=[migratable_resource.MigratableResource(),],
                 next_page_token="ghi",
             ),
             migration_service.SearchMigratableResourcesResponse(
@@ -829,9 +792,7 @@ async def test_search_migratable_resources_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.search_migratable_resources(
-            request={},
-        )
+        async_pager = await client.search_migratable_resources(request={},)
         assert async_pager.next_page_token == "abc"
         responses = []
         async for response in async_pager:
@@ -845,9 +806,7 @@ async def test_search_migratable_resources_async_pager():
 
 @pytest.mark.asyncio
 async def test_search_migratable_resources_async_pages():
-    client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials,
-    )
+    client = MigrationServiceAsyncClient(credentials=credentials.AnonymousCredentials,)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -866,13 +825,10 @@ async def test_search_migratable_resources_async_pages():
                 next_page_token="abc",
             ),
             migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[],
-                next_page_token="def",
+                migratable_resources=[], next_page_token="def",
             ),
             migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
-                ],
+                migratable_resources=[migratable_resource.MigratableResource(),],
                 next_page_token="ghi",
             ),
             migration_service.SearchMigratableResourcesResponse(
@@ -894,8 +850,7 @@ def test_batch_migrate_resources(
     transport: str = "grpc", request_type=migration_service.BatchMigrateResourcesRequest
 ):
     client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -931,8 +886,7 @@ async def test_batch_migrate_resources_async(
     request_type=migration_service.BatchMigrateResourcesRequest,
 ):
     client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -966,9 +920,7 @@ async def test_batch_migrate_resources_async_from_dict():
 
 
 def test_batch_migrate_resources_field_headers():
-    client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(),
-    )
+    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -990,10 +942,7 @@ def test_batch_migrate_resources_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "parent=parent/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1024,16 +973,11 @@ async def test_batch_migrate_resources_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "parent=parent/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
 
 
 def test_batch_migrate_resources_flattened():
-    client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(),
-    )
+    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1072,9 +1016,7 @@ def test_batch_migrate_resources_flattened():
 
 
 def test_batch_migrate_resources_flattened_error():
-    client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(),
-    )
+    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -1166,8 +1108,7 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = MigrationServiceClient(
-            credentials=credentials.AnonymousCredentials(),
-            transport=transport,
+            credentials=credentials.AnonymousCredentials(), transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -1186,8 +1127,7 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = MigrationServiceClient(
-            client_options={"scopes": ["1", "2"]},
-            transport=transport,
+            client_options={"scopes": ["1", "2"]}, transport=transport,
         )
 
 
@@ -1232,13 +1172,8 @@ def test_transport_adc(transport_class):
 
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(),
-    )
-    assert isinstance(
-        client.transport,
-        transports.MigrationServiceGrpcTransport,
-    )
+    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
+    assert isinstance(client.transport, transports.MigrationServiceGrpcTransport,)
 
 
 def test_migration_service_base_transport_error():
@@ -1286,8 +1221,7 @@ def test_migration_service_base_transport_with_credentials_file():
         Transport.return_value = None
         load_creds.return_value = (credentials.AnonymousCredentials(), None)
         transport = transports.MigrationServiceTransport(
-            credentials_file="credentials.json",
-            quota_project_id="octopus",
+            credentials_file="credentials.json", quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -1357,8 +1291,7 @@ def test_migration_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.MigrationServiceGrpcTransport(
-        host="squid.clam.whelk",
-        channel=channel,
+        host="squid.clam.whelk", channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -1370,8 +1303,7 @@ def test_migration_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.MigrationServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk",
-        channel=channel,
+        host="squid.clam.whelk", channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -1468,16 +1400,12 @@ def test_migration_service_transport_channel_mtls_with_adc(transport_class):
 
 def test_migration_service_grpc_lro_client():
     client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(),
-        transport="grpc",
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.OperationsClient,
-    )
+    assert isinstance(transport.operations_client, operations_v1.OperationsClient,)
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -1485,16 +1413,12 @@ def test_migration_service_grpc_lro_client():
 
 def test_migration_service_grpc_lro_async_client():
     client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
+        credentials=credentials.AnonymousCredentials(), transport="grpc_asyncio",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.OperationsAsyncClient,
-    )
+    assert isinstance(transport.operations_client, operations_v1.OperationsAsyncClient,)
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -1506,9 +1430,7 @@ def test_annotated_dataset_path():
     annotated_dataset = "whelk"
 
     expected = "projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}".format(
-        project=project,
-        dataset=dataset,
-        annotated_dataset=annotated_dataset,
+        project=project, dataset=dataset, annotated_dataset=annotated_dataset,
     )
     actual = MigrationServiceClient.annotated_dataset_path(
         project, dataset, annotated_dataset
@@ -1535,9 +1457,7 @@ def test_dataset_path():
     dataset = "winkle"
 
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project,
-        location=location,
-        dataset=dataset,
+        project=project, location=location, dataset=dataset,
     )
     actual = MigrationServiceClient.dataset_path(project, location, dataset)
     assert expected == actual
@@ -1561,8 +1481,7 @@ def test_dataset_path():
     dataset = "clam"
 
     expected = "projects/{project}/datasets/{dataset}".format(
-        project=project,
-        dataset=dataset,
+        project=project, dataset=dataset,
     )
     actual = MigrationServiceClient.dataset_path(project, dataset)
     assert expected == actual
@@ -1586,9 +1505,7 @@ def test_dataset_path():
     dataset = "cuttlefish"
 
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project,
-        location=location,
-        dataset=dataset,
+        project=project, location=location, dataset=dataset,
     )
     actual = MigrationServiceClient.dataset_path(project, location, dataset)
     assert expected == actual
@@ -1613,9 +1530,7 @@ def test_model_path():
     model = "squid"
 
     expected = "projects/{project}/locations/{location}/models/{model}".format(
-        project=project,
-        location=location,
-        model=model,
+        project=project, location=location, model=model,
     )
     actual = MigrationServiceClient.model_path(project, location, model)
     assert expected == actual
@@ -1640,9 +1555,7 @@ def test_model_path():
     model = "cuttlefish"
 
     expected = "projects/{project}/locations/{location}/models/{model}".format(
-        project=project,
-        location=location,
-        model=model,
+        project=project, location=location, model=model,
     )
     actual = MigrationServiceClient.model_path(project, location, model)
     assert expected == actual
@@ -1667,9 +1580,7 @@ def test_version_path():
     version = "squid"
 
     expected = "projects/{project}/models/{model}/versions/{version}".format(
-        project=project,
-        model=model,
-        version=version,
+        project=project, model=model, version=version,
     )
     actual = MigrationServiceClient.version_path(project, model, version)
     assert expected == actual
@@ -1712,9 +1623,7 @@ def test_parse_common_billing_account_path():
 def test_common_folder_path():
     folder = "cuttlefish"
 
-    expected = "folders/{folder}".format(
-        folder=folder,
-    )
+    expected = "folders/{folder}".format(folder=folder,)
     actual = MigrationServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -1733,9 +1642,7 @@ def test_parse_common_folder_path():
 def test_common_organization_path():
     organization = "winkle"
 
-    expected = "organizations/{organization}".format(
-        organization=organization,
-    )
+    expected = "organizations/{organization}".format(organization=organization,)
     actual = MigrationServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -1754,9 +1661,7 @@ def test_parse_common_organization_path():
 def test_common_project_path():
     project = "scallop"
 
-    expected = "projects/{project}".format(
-        project=project,
-    )
+    expected = "projects/{project}".format(project=project,)
     actual = MigrationServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -1777,8 +1682,7 @@ def test_common_location_path():
     location = "clam"
 
     expected = "projects/{project}/locations/{location}".format(
-        project=project,
-        location=location,
+        project=project, location=location,
     )
     actual = MigrationServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -1803,8 +1707,7 @@ def test_client_withDEFAULT_CLIENT_INFO():
         transports.MigrationServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = MigrationServiceClient(
-            credentials=credentials.AnonymousCredentials(),
-            client_info=client_info,
+            credentials=credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -1813,7 +1716,6 @@ def test_client_withDEFAULT_CLIENT_INFO():
     ) as prep:
         transport_class = MigrationServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=credentials.AnonymousCredentials(),
-            client_info=client_info,
+            credentials=credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)

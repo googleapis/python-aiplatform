@@ -62,10 +62,7 @@ class EndpointServiceClientMeta(type):
     _transport_registry["grpc"] = EndpointServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = EndpointServiceGrpcAsyncIOTransport
 
-    def get_transport_class(
-        cls,
-        label: str = None,
-    ) -> Type[EndpointServiceTransport]:
+    def get_transport_class(cls, label: str = None,) -> Type[EndpointServiceTransport]:
         """Return an appropriate transport class.
 
         Args:
@@ -151,16 +148,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return self._transport
 
     @staticmethod
-    def endpoint_path(
-        project: str,
-        location: str,
-        endpoint: str,
-    ) -> str:
+    def endpoint_path(project: str, location: str, endpoint: str,) -> str:
         """Return a fully-qualified endpoint string."""
         return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-            project=project,
-            location=location,
-            endpoint=endpoint,
+            project=project, location=location, endpoint=endpoint,
         )
 
     @staticmethod
@@ -173,16 +164,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def model_path(
-        project: str,
-        location: str,
-        model: str,
-    ) -> str:
+    def model_path(project: str, location: str, model: str,) -> str:
         """Return a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project,
-            location=location,
-            model=model,
+            project=project, location=location, model=model,
         )
 
     @staticmethod
@@ -195,9 +180,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(
-        billing_account: str,
-    ) -> str:
+    def common_billing_account_path(billing_account: str,) -> str:
         """Return a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
@@ -210,13 +193,9 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(
-        folder: str,
-    ) -> str:
+    def common_folder_path(folder: str,) -> str:
         """Return a fully-qualified folder string."""
-        return "folders/{folder}".format(
-            folder=folder,
-        )
+        return "folders/{folder}".format(folder=folder,)
 
     @staticmethod
     def parse_common_folder_path(path: str) -> Dict[str, str]:
@@ -225,13 +204,9 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(
-        organization: str,
-    ) -> str:
+    def common_organization_path(organization: str,) -> str:
         """Return a fully-qualified organization string."""
-        return "organizations/{organization}".format(
-            organization=organization,
-        )
+        return "organizations/{organization}".format(organization=organization,)
 
     @staticmethod
     def parse_common_organization_path(path: str) -> Dict[str, str]:
@@ -240,13 +215,9 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(
-        project: str,
-    ) -> str:
+    def common_project_path(project: str,) -> str:
         """Return a fully-qualified project string."""
-        return "projects/{project}".format(
-            project=project,
-        )
+        return "projects/{project}".format(project=project,)
 
     @staticmethod
     def parse_common_project_path(path: str) -> Dict[str, str]:
@@ -255,14 +226,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(
-        project: str,
-        location: str,
-    ) -> str:
+    def common_location_path(project: str, location: str,) -> str:
         """Return a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
-            project=project,
-            location=location,
+            project=project, location=location,
         )
 
     @staticmethod
@@ -469,12 +436,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -556,12 +518,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
@@ -638,20 +595,12 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListEndpointsPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
@@ -737,12 +686,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
@@ -831,12 +775,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -961,12 +900,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(
@@ -1082,12 +1016,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = ga_operation.from_gapic(

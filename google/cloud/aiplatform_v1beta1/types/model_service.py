@@ -65,11 +65,7 @@ class UploadModelRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    model = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_model.Model,
-    )
+    model = proto.Field(proto.MESSAGE, number=2, message=gca_model.Model,)
 
 
 class UploadModelOperationMetadata(proto.Message):
@@ -83,9 +79,7 @@ class UploadModelOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=operation.GenericOperationMetadata,
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
 
 
@@ -147,11 +141,7 @@ class ListModelsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
 class ListModelsResponse(proto.Message):
@@ -171,11 +161,7 @@ class ListModelsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    models = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_model.Model,
-    )
+    models = proto.RepeatedField(proto.MESSAGE, number=1, message=gca_model.Model,)
 
     next_page_token = proto.Field(proto.STRING, number=2)
 
@@ -195,17 +181,9 @@ class UpdateModelRequest(proto.Message):
             [FieldMask](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask).
     """
 
-    model = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=gca_model.Model,
-    )
+    model = proto.Field(proto.MESSAGE, number=1, message=gca_model.Model,)
 
-    update_mask = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=field_mask.FieldMask,
-    )
+    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
 
 
 class DeleteModelRequest(proto.Message):
@@ -267,24 +245,16 @@ class ExportModelRequest(proto.Message):
         export_format_id = proto.Field(proto.STRING, number=1)
 
         artifact_destination = proto.Field(
-            proto.MESSAGE,
-            number=3,
-            message=io.GcsDestination,
+            proto.MESSAGE, number=3, message=io.GcsDestination,
         )
 
         image_destination = proto.Field(
-            proto.MESSAGE,
-            number=4,
-            message=io.ContainerRegistryDestination,
+            proto.MESSAGE, number=4, message=io.ContainerRegistryDestination,
         )
 
     name = proto.Field(proto.STRING, number=1)
 
-    output_config = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=OutputConfig,
-    )
+    output_config = proto.Field(proto.MESSAGE, number=2, message=OutputConfig,)
 
 
 class ExportModelOperationMetadata(proto.Message):
@@ -322,16 +292,10 @@ class ExportModelOperationMetadata(proto.Message):
         image_output_uri = proto.Field(proto.STRING, number=3)
 
     generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=operation.GenericOperationMetadata,
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
 
-    output_info = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=OutputInfo,
-    )
+    output_info = proto.Field(proto.MESSAGE, number=2, message=OutputInfo,)
 
 
 class ExportModelResponse(proto.Message):
@@ -386,11 +350,7 @@ class ListModelEvaluationsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
 class ListModelEvaluationsResponse(proto.Message):
@@ -412,9 +372,7 @@ class ListModelEvaluationsResponse(proto.Message):
         return self
 
     model_evaluations = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=model_evaluation.ModelEvaluation,
+        proto.MESSAGE, number=1, message=model_evaluation.ModelEvaluation,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -469,11 +427,7 @@ class ListModelEvaluationSlicesRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
 class ListModelEvaluationSlicesResponse(proto.Message):
@@ -495,9 +449,7 @@ class ListModelEvaluationSlicesResponse(proto.Message):
         return self
 
     model_evaluation_slices = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=model_evaluation_slice.ModelEvaluationSlice,
+        proto.MESSAGE, number=1, message=model_evaluation_slice.ModelEvaluationSlice,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
