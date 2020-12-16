@@ -12,14 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import absolute_import
-import pytest
 
-from google.cloud import aiplatform
 from google.cloud.aiplatform.helpers import value_converter
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
-from proto.marshal.collections.maps import MapComposite
-from proto.marshal import Marshal
 import proto
 
 

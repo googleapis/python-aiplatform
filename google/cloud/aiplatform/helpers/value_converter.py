@@ -13,10 +13,9 @@
 # limitations under the License.
 from __future__ import absolute_import
 from google.protobuf.struct_pb2 import Value
+from google.protobuf import json_format
 from proto.marshal.collections.maps import MapComposite
 from proto.marshal import Marshal
-from google.protobuf import json_format
-from google.protobuf.struct_pb2 import Value
 from proto import Message
 from proto.message import MessageMeta
 
@@ -56,7 +55,6 @@ def from_map(cls: MessageMeta, map_: MapComposite) -> Message:
     Returns:
       Instance of class
     """
-    map_dict = dict(map_)
     marshal = Marshal(name="marshal")
     pb = marshal.to_proto(Value, map_)
     return from_value(cls, pb)
