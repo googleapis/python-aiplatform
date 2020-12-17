@@ -205,17 +205,17 @@ class _Config:
         )
 
         kwargs = {
-            'credentials':credentials or self.credentials,
-            'client_options':self.get_client_options(
+            "credentials": credentials or self.credentials,
+            "client_options": self.get_client_options(
                 location_override=location_override, prediction_client=prediction_client
             ),
-            'client_info':client_info
+            "client_info": client_info,
         }
 
         if prediction_client:
             return client_class(**kwargs)
         else:
-            kwargs['client_class'] = client_class
+            kwargs["client_class"] = client_class
             return utils.WrappedClient(**kwargs)
 
 
