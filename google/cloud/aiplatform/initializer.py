@@ -20,7 +20,7 @@ from concurrent import futures
 import logging
 import pkg_resources
 import os
-from typing import Optional, Type
+from typing import Optional, Type, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -184,7 +184,7 @@ class _Config:
         credentials: Optional[auth_credentials.Credentials] = None,
         location_override: Optional[str] = None,
         prediction_client: bool = False,
-    ) -> utils.AiPlatformServiceClient:
+    ) -> Union[utils.WrappedClient, utils.AiPlatformServiceClient]:
         """Instantiates a given AiPlatformServiceClient with optional overrides.
 
         Args:
@@ -203,13 +203,20 @@ class _Config:
         client_info = gapic_v1.client_info.ClientInfo(
             gapic_version=gapic_version, user_agent=f"model-builder/{gapic_version}"
         )
-        return client_class(
-            credentials=credentials or self.credentials,
-            client_options=self.get_client_options(
+
+        kwargs = {
+            "credentials": credentials or self.credentials,
+            "client_options": self.get_client_options(
                 location_override=location_override, prediction_client=prediction_client
             ),
-            client_info=client_info,
-        )
+            "client_info": client_info,
+        }
+
+        if prediction_client:
+            return client_class(**kwargs)
+        else:
+            kwargs["client_class"] = client_class
+            return utils.WrappedClient(**kwargs)
 
 
 # global config to store init parameters: ie, aiplatform.init(project=..., location=...)
