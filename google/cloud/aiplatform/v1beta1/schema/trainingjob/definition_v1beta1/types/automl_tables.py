@@ -61,7 +61,7 @@ class AutoMlTablesInputs(proto.Message):
             produce.   "classification" - Predict one out of
             multiple target values is
             picked for each row.
-              "regression" - Predict a value based on its
+            "regression" - Predict a value based on its
             relation to other values.                  This
             type is available only to columns that contain
             semantically numeric values, i.e. integers or
@@ -87,11 +87,11 @@ class AutoMlTablesInputs(proto.Message):
             the prediction type. If the field is not set, a
             default objective function is used.
             classification (binary):
-              "maximize-au-roc" (default) - Maximize the
+            "maximize-au-roc" (default) - Maximize the
             area under the receiver
             operating characteristic (ROC) curve.
             "minimize-log-loss" - Minimize log loss.
-              "maximize-au-prc" - Maximize the area under
+            "maximize-au-prc" - Maximize the area under
             the precision-recall curve.   "maximize-
             precision-at-recall" - Maximize precision for a
             specified
@@ -99,10 +99,10 @@ class AutoMlTablesInputs(proto.Message):
             Maximize recall for a specified
             precision value.
             classification (multi-class):
-              "minimize-log-loss" (default) - Minimize log
+            "minimize-log-loss" (default) - Minimize log
             loss.
             regression:
-              "minimize-rmse" (default) - Minimize root-
+            "minimize-rmse" (default) - Minimize root-
             mean-squared error (RMSE).   "minimize-mae" -
             Minimize mean-absolute error (MAE).   "minimize-
             rmsle" - Minimize root-mean-squared log error

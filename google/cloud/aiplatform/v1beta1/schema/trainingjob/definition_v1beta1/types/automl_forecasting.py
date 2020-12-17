@@ -78,14 +78,14 @@ class AutoMlForecastingInputs(proto.Message):
             function over the validation set.
 
             The supported optimization objectives:
-              "minimize-rmse" (default) - Minimize root-
+            "minimize-rmse" (default) - Minimize root-
             mean-squared error (RMSE).   "minimize-mae" -
             Minimize mean-absolute error (MAE).   "minimize-
             rmsle" - Minimize root-mean-squared log error
             (RMSLE).   "minimize-rmspe" - Minimize root-
             mean-squared percentage error (RMSPE).
             "minimize-wape-mae" - Minimize the combination
-            of weighted absolute     percentage error (WAPE)
+            of weighted absolute percentage error (WAPE)
             and mean-absolute-error (MAE).
         train_budget_milli_node_hours (int):
             Required. The train budget of creating this
@@ -418,11 +418,11 @@ class AutoMlForecastingInputs(proto.Message):
             unit (str):
                 The time granularity unit of this time
                 period. The supported unit are:
-                 "hour"
-                 "day"
-                 "week"
-                 "month"
-                 "year".
+                "hour"
+                "day"
+                "week"
+                "month"
+                "year".
             quantity (int):
                 The number of units per period, e.g. 3 weeks
                 or 2 months.

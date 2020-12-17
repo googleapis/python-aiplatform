@@ -84,6 +84,21 @@ s.replace(
     "request.traffic_split = traffic_split",
 )
 
+
+# Generator adds a bad import statement to enhanced type;
+# need to fix in post-processing steps.
+s.replace(
+    "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/text_sentiment.py",
+    "text_sentiment_pb2 as gcaspi_text_sentiment  # type: ignore",
+    "TextSentimentPredictionInstance")
+
+s.replace(
+    "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/text_sentiment.py",
+    "message=gcaspi_text_sentiment.TextSentimentPredictionInstance,",
+    "message=TextSentimentPredictionInstance,")
+
+
+
 # post processing to fix the generated reference doc
 from synthtool import transforms as st
 import re
