@@ -1279,6 +1279,8 @@ class CustomTrainingJob(_TrainingJob):
         if model_display_name:
             utils.validate_display_name(model_display_name)
             managed_model.display_name = model_display_name
+        else:
+            managed_model = None
 
         return self._run(
             python_packager=python_packager,
