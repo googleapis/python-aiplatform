@@ -293,11 +293,6 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 container_spec=container_spec,
-                predict_schemata=gca_model.PredictSchemata(
-                    instance_schema_uri=None,
-                    parameters_schema_uri=None,
-                    prediction_schema_uri=None,
-                ),
             )
 
             api_client_mock.upload_model.assert_called_once_with(
@@ -429,11 +424,6 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 container_spec=container_spec,
-                predict_schemata=gca_model.PredictSchemata(
-                    instance_schema_uri=None,
-                    parameters_schema_uri=None,
-                    prediction_schema_uri=None,
-                ),
             )
 
             api_client_mock.upload_model.assert_called_once_with(
@@ -485,11 +475,6 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 container_spec=container_spec,
-                predict_schemata=gca_model.PredictSchemata(
-                    instance_schema_uri=None,
-                    parameters_schema_uri=None,
-                    prediction_schema_uri=None,
-                ),
             )
 
             api_client_mock.upload_model.assert_called_once_with(
