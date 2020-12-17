@@ -20,7 +20,7 @@ from concurrent import futures
 import logging
 import pkg_resources
 import os
-from typing import Optional, Type
+from typing import Optional, Type, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
