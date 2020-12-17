@@ -260,3 +260,20 @@ def extract_bucket_and_prefix_from_gcs_path(gcs_path: str) -> Tuple[str, Optiona
     gcs_blob_prefix = None if len(gcs_parts) == 1 else gcs_parts[1]
 
     return (gcs_bucket, gcs_blob_prefix)
+
+class WrappedClient:
+    """Wraps client."""
+    def __init__(self, client_class, credentials, client_options, client_info):
+
+        self._client_class = client_class
+        self._credentials = credentials
+        self._client_options = client_options
+        self._client_info = client_info
+
+    def __getattr__(self, name):
+        temporary_client = self._client_class(
+            credentials=self._credentials,
+            client_options=self._client_options,
+            client_info=self._client_info
+        )
+        return getattr(temporary_client, name)

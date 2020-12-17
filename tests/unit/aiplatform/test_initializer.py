@@ -93,7 +93,8 @@ class TestInit:
     def test_create_client_returns_client(self):
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         client = initializer.global_config.create_client(ModelServiceClient)
-        assert isinstance(client, ModelServiceClient)
+        assert client._client_class is ModelServiceClient
+        assert isinstance(client, initializer.WrappedClient)
         assert (
             client._transport._host == f"{_TEST_LOCATION}-{constants.API_BASE_PATH}:443"
         )
