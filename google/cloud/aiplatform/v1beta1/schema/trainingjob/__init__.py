@@ -13,13 +13,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-from google.cloud.aiplatform import gapic
-from google.cloud.aiplatform import schema
 
+from google.cloud.aiplatform.v1beta1.schema.trainingjob import definition
 
 __all__ = (
-	gapic,
-	schema
+    "definition",
 )
