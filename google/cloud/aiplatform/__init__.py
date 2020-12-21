@@ -19,7 +19,4 @@ from google.cloud.aiplatform import gapic
 from google.cloud.aiplatform import schema
 
 
-__all__ = (
-	gapic,
-	schema
-)
+__all__ = (gapic, schema)

@@ -17,6 +17,4 @@
 
 from google.cloud.aiplatform.v1beta1.schema.trainingjob import definition
 
-__all__ = (
-    "definition",
-)
+__all__ = ("definition",)
