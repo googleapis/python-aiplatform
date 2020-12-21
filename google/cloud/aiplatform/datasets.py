@@ -71,7 +71,68 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         self._gca_resource = self._get_gca_resource(resource_name=dataset_name)
 
     @classmethod
-    def create(
+    def _create_tabular(
+        cls,
+        display_name: str,
+        dataset_metadata: Dict,  # TODO: Replace with EPCL class or split into BQ and GCS uris
+        metadata: Sequence[Tuple[str, str]] = (),
+        labels: Optional[Dict] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        sync=True,
+    ) -> "Dataset":
+        cls._create_and_import_with_defaults(
+            display_name=display_name,
+            metadata_schema_uri=schema.dataset.metadata.tabular,
+            dataset_metadata=dataset_metadata,
+            metadata=metadata,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            import_config=None,
+            sync=sync,
+        )
+
+    @classmethod
+    def _create_nontabular(
+        cls,
+        display_name: str,
+        gcs_source_uris: Sequence[str],
+        metadata_schema_uri: str,
+        import_schema_uri: str,
+        data_items_labels: Optional[Dict] = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+        labels: Optional[Dict] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        import_config: Optional[ImportDataConfig] = None,
+        sync=True,
+    ) -> "Dataset":
+
+        import_config = {
+            "gcs_source": {"uris": gcs_source_uris},
+            "import_schema_uri": import_schema_uri,
+            "data_items_labels": data_items_labels,
+        }
+
+        cls._create_and_import_with_defaults(
+            display_name=display_name,
+            metadata_schema_uri="gs://google-cloud-aiplatform/schema/dataset/metadata/image_1.0.0.yaml",
+            dataset_metadata=None,
+            metadata=metadata,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            import_config=import_config,
+            sync=sync,
+        )
+
+    @classmethod
+    def _create_and_import_with_defaults(
         cls,
         display_name: str,
         metadata_schema_uri: str,
