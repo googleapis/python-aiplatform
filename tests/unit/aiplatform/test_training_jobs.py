@@ -40,6 +40,7 @@ from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
     client as pipeline_service_client,
 )
 from google.cloud.aiplatform_v1beta1.types import io as gca_io
+from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state
 from google.cloud.aiplatform_v1beta1.types import (
@@ -87,9 +88,22 @@ _TEST_VALIDATION_FRACTION_SPLIT = 0.2
 _TEST_TEST_FRACTION_SPLIT = 0.2
 _TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 
+_TEST_MODEL_INSTANCE_SCHEMA_URI = "instance_schema_uri.yaml"
+_TEST_MODEL_PARAMETERS_SCHEMA_URI = "parameters_schema_uri.yaml"
+_TEST_MODEL_PREDICTION_SCHEMA_URI = "prediction_schema_uri.yaml"
+_TEST_MODEL_SERVING_CONTAINER_COMMAND = ["test_command"]
+_TEST_MODEL_SERVING_CONTAINER_ARGS = ["test_args"]
+_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
+    "learning_rate": 0.01,
+    "loss_fn": "mse",
+}
+_TEST_MODEL_SERVING_CONTAINER_PORTS = [8888, 10000]
+_TEST_MODEL_DESCRIPTION = "test description"
+
 _TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
 
 _TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
+_TEST_MODEL_LABELS = {"label_key": "label_value"}
 
 _TEST_PIPELINE_RESOURCE_NAME = (
     "projects/my-project/locations/us-central1/trainingPipeline/12345"
@@ -426,6 +440,14 @@ class TestCustomTrainingJob:
             model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
         )
 
         model_from_job = job.run(
@@ -476,14 +498,35 @@ class TestCustomTrainingJob:
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
         )
 
+        env = [
+            env_var.EnvVar(name=str(key), value=str(value))
+            for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        ports = [
+            gca_model.Port(container_port=port)
+            for port in _TEST_MODEL_SERVING_CONTAINER_PORTS
+        ]
+
         true_container_spec = gca_model.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            env=env,
+            ports=ports,
         )
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, container_spec=true_container_spec
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            description=_TEST_MODEL_DESCRIPTION,
+            container_spec=true_container_spec,
+            predict_schemata=gca_model.PredictSchemata(
+                instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+                parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+                prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            ),
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -899,6 +942,9 @@ class TestCustomTrainingJob:
             model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
         )
 
         model_from_job = job.run(
@@ -971,7 +1017,13 @@ class TestCustomTrainingJob:
         )
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, container_spec=true_container_spec
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            container_spec=true_container_spec,
+            predict_schemata=gca_model.PredictSchemata(
+                instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+                parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+                prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            ),
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(

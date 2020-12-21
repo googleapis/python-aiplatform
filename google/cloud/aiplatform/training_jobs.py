@@ -38,6 +38,7 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
     client as pipeline_service_client,
 )
+from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import (
     accelerator_type as gca_accelerator_type,
 )
@@ -923,7 +924,6 @@ class CustomTrainingJob(_TrainingJob):
     in Cloud AI Platform Training.
     """
 
-    # TODO(b/172365796) add remainder of model optional arguments
     def __init__(
         self,
         display_name: str,
@@ -933,6 +933,14 @@ class CustomTrainingJob(_TrainingJob):
         model_serving_container_image_uri: Optional[str] = None,
         model_serving_container_predict_route: Optional[str] = None,
         model_serving_container_health_route: Optional[str] = None,
+        model_serving_container_command: Optional[Sequence[str]] = None,
+        model_serving_container_args: Optional[Sequence[str]] = None,
+        model_serving_container_environment_variables: Optional[Dict[str, str]] = None,
+        model_serving_container_ports: Optional[Sequence[int]] = None,
+        model_description: Optional[str] = None,
+        model_instance_schema_uri: Optional[str] = None,
+        model_parameters_schema_uri: Optional[str] = None,
+        model_prediction_schema_uri: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -978,7 +986,7 @@ class CustomTrainingJob(_TrainingJob):
                 If the training produces a managed AI Platform Model, the URI of the
                 Model serving container suitable for serving the model produced by the
                 training script.
-            model_serving_container_predict_route (str):.
+            model_serving_container_predict_route (str):
                 If the training produces a managed AI Platform Model, An HTTP path to
                 send prediction requests to the container, and which must be supported
                 by it. If not specified a default HTTP path will be used by AI Platform.
@@ -987,6 +995,80 @@ class CustomTrainingJob(_TrainingJob):
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
+            model_serving_container_command (Sequence[str]):
+                The command with which the container is run. Not executed within a
+                shell. The Docker image's ENTRYPOINT is used if this is not provided.
+                Variable references $(VAR_NAME) are expanded using the container's
+                environment. If a variable cannot be resolved, the reference in the
+                input string will be unchanged. The $(VAR_NAME) syntax can be escaped
+                with a double $$, ie: $$(VAR_NAME). Escaped references will never be
+                expanded, regardless of whether the variable exists or not.
+            model_serving_container_args (Sequence[str]):
+                The arguments to the command. The Docker image's CMD is used if this is
+                not provided. Variable references $(VAR_NAME) are expanded using the
+                container's environment. If a variable cannot be resolved, the reference
+                in the input string will be unchanged. The $(VAR_NAME) syntax can be
+                escaped with a double $$, ie: $$(VAR_NAME). Escaped references will
+                never be expanded, regardless of whether the variable exists or not.
+            model_serving_container_environment_variables (Dict[str, str]):
+                The environment variables that are to be present in the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+            model_serving_container_ports (Sequence[int]):
+                Declaration of ports that are exposed by the container. This field is
+                primarily informational, it gives AI Platform information about the
+                network connections the container uses. Listing or not a port here has
+                no impact on whether the port is actually exposed, any port listening on
+                the default "0.0.0.0" address inside a container will be accessible from
+                the network.
+            model_description (str):
+                The description of the Model.
+            model_instance_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the format of a single instance, which
+                are used in
+                ``PredictRequest.instances``,
+                ``ExplainRequest.instances``
+                and
+                ``BatchPredictionJob.input_config``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform. Note: The URI given on output will be immutable
+                and probably different, including the URI scheme, than the
+                one given on input. The output URI will point to a location
+                where the user only has a read access.
+            model_parameters_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the parameters of prediction and
+                explanation via
+                ``PredictRequest.parameters``,
+                ``ExplainRequest.parameters``
+                and
+                ``BatchPredictionJob.model_parameters``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform, if no parameters are supported it is set to an
+                empty string. Note: The URI given on output will be
+                immutable and probably different, including the URI scheme,
+                than the one given on input. The output URI will point to a
+                location where the user only has a read access.
+            model_prediction_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the format of a single prediction
+                produced by this Model, which are returned via
+                ``PredictResponse.predictions``,
+                ``ExplainResponse.explanations``,
+                and
+                ``BatchPredictionJob.output_config``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform. Note: The URI given on output will be immutable
+                and probably different, including the URI scheme, than the
+                one given on input. The output URI will point to a location
+                where the user only has a read access.
             project (str):
                 Project to run training in. Overrides project set in aiplatform.init.
             location (str):
@@ -1007,12 +1089,52 @@ class CustomTrainingJob(_TrainingJob):
 
         self._container_uri = container_uri
         self._requirements = requirements
-        self._model_serving_container_image_uri = model_serving_container_image_uri
-        self._model_serving_container_predict_route = (
-            model_serving_container_predict_route
+
+        model_predict_schemata = None
+        if any(
+            [
+                model_instance_schema_uri,
+                model_parameters_schema_uri,
+                model_prediction_schema_uri,
+            ]
+        ):
+            model_predict_schemata = gca_model.PredictSchemata(
+                instance_schema_uri=model_instance_schema_uri,
+                parameters_schema_uri=model_parameters_schema_uri,
+                prediction_schema_uri=model_prediction_schema_uri,
+            )
+
+        # Create the container spec
+        env = None
+        ports = None
+
+        if model_serving_container_environment_variables:
+            env = [
+                env_var.EnvVar(name=str(key), value=str(value))
+                for key, value in model_serving_container_environment_variables.items()
+            ]
+
+        if model_serving_container_ports:
+            ports = [
+                gca_model.Port(container_port=port)
+                for port in model_serving_container_ports
+            ]
+
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=model_serving_container_image_uri,
+            command=model_serving_container_command,
+            args=model_serving_container_args,
+            env=env,
+            ports=ports,
+            predict_route=model_serving_container_predict_route,
+            health_route=model_serving_container_health_route,
         )
-        self._model_serving_container_health_route = (
-            model_serving_container_health_route
+
+        # create model payload
+        self._managed_model = gca_model.Model(
+            description=model_description,
+            predict_schemata=model_predict_schemata,
+            container_spec=container_spec,
         )
 
         self._script_path = script_path
@@ -1132,7 +1254,7 @@ class CustomTrainingJob(_TrainingJob):
             raise RuntimeError("Custom Training has already run.")
 
         # if args needed for model is incomplete
-        if model_display_name and not self._model_serving_container_image_uri:
+        if model_display_name and not self._managed_model.container_spec.image_uri:
             raise RuntimeError(
                 """model_display_name was provided but
                 model_serving_container_image_uri was not provided when this
@@ -1148,25 +1270,17 @@ class CustomTrainingJob(_TrainingJob):
             accelerator_type=accelerator_type,
         ).pool_specs
 
-        # create model payload
-        managed_model = None
-        if model_display_name:
-            utils.validate_display_name(model_display_name)
-
-            container_spec = gca_model.ModelContainerSpec(
-                image_uri=self._model_serving_container_image_uri,
-                predict_route=self._model_serving_container_predict_route,
-                health_route=self._model_serving_container_health_route,
-            )
-
-            managed_model = gca_model.Model(
-                display_name=model_display_name, container_spec=container_spec
-            )
-
         # make and copy package
         python_packager = _TrainingScriptPythonPackager(
             script_path=self._script_path, requirements=self._requirements
         )
+
+        managed_model = self._managed_model
+        if model_display_name:
+            utils.validate_display_name(model_display_name)
+            managed_model.display_name = model_display_name
+        else:
+            managed_model = None
 
         return self._run(
             python_packager=python_packager,
