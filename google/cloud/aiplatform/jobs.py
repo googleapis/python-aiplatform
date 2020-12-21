@@ -26,7 +26,9 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1.types import job_state
-from google.cloud.aiplatform_v1beta1.services import job_service
+from google.cloud.aiplatform_v1beta1.services.job_service import (
+    client as job_service_client,
+)
 
 
 class _Job(base.AiPlatformResourceNoun):
@@ -43,7 +45,7 @@ class _Job(base.AiPlatformResourceNoun):
     Job type, i.e. 'get_custom_job' for CustomJob
     """
 
-    client_class = job_service.JobServiceClient
+    client_class = job_service_client.JobServiceClient
     _is_client_prediction_client = False
 
     @property
