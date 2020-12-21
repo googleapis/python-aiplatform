@@ -15,4 +15,11 @@
 # limitations under the License.
 
 
-from google.cloud.aiplatform.v1beta1.schema import *
+from google.cloud.aiplatform.v1beta1.schema import predict
+from google.cloud.aiplatform.v1beta1.schema import trainingjob
+
+
+__all__ = (
+    "predict",
+    "trainingjob",
+)
