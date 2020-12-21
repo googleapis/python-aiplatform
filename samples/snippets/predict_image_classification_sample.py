@@ -16,9 +16,7 @@
 import base64
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.v1beta1.schema.predict import instance
-from google.cloud.aiplatform.v1beta1.schema.predict import params
-from google.cloud.aiplatform.v1beta1.schema.predict import prediction
+from google.cloud.aiplatform.schema import predict
 
 
 def predict_image_classification_sample(
@@ -39,13 +37,13 @@ def predict_image_classification_sample(
     # The format of each instance should conform to the deployed model's prediction input schema.
     encoded_content = base64.b64encode(file_content).decode("utf-8")
 
-    instance_obj = instance.ImageClassificationPredictionInstance(
+    instance_obj = predict.instance.ImageClassificationPredictionInstance(
         content=encoded_content)
 
     instance_val = instance_obj.to_value()
     instances = [instance_val]
 
-    params_obj = params.ImageClassificationPredictionParams(
+    params_obj = predict.params.ImageClassificationPredictionParams(
         confidence_threshold=0.5, max_predictions=5)
 
     endpoint = client.endpoint_path(
@@ -59,7 +57,7 @@ def predict_image_classification_sample(
     # See gs://google-cloud-aiplatform/schema/predict/prediction/classification.yaml for the format of the predictions.
     predictions = response.predictions
     for prediction_ in predictions:
-        prediction_obj = prediction.ClassificationPredictionResult.from_map(prediction_)
+        prediction_obj = predict.prediction.ClassificationPredictionResult.from_map(prediction_)
         print(prediction_obj)
 
 
