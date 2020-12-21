@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import abc
 from typing import Iterable, Optional, Union
 
 from google.cloud import storage
@@ -48,19 +47,9 @@ class _Job(base.AiPlatformResourceNoun):
     client_class = job_service_client.JobServiceClient
     _is_client_prediction_client = False
 
-    @property
-    @abc.abstractclassmethod
-    def _getter_method(cls) -> str:
-        """Name of getter method of Job subclass, i.e. 'get_custom_job' for CustomJob"""
-        pass
-
-    def _get_job(self, job_name: str):
-        """Returns GAPIC service representation of Job subclass resource"""
-        return getattr(self.api_client, self._getter_method)(name=job_name)
-
     def __init__(
         self,
-        valid_job_name: str,
+        job_name: str,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -69,10 +58,10 @@ class _Job(base.AiPlatformResourceNoun):
         Retrives Job subclass resource by calling a subclass-specific getter method.
 
         Args:
-             valid_job_name (str):
-                A validated, fully-qualified Job resource name. For example:
-                'projects/.../locations/.../batchPredictionJobs/456' or
-                'projects/.../locations/.../customJobs/789'
+            job_name (str):
+                Required. A fully-qualified job resource name or job ID.
+                Example: "projects/123/locations/us-central1/batchPredictionJobs/456" or
+                "456" when project, location and job_type are initialized or passed.
             project: Optional[str] = None,
                 Optional project to retrieve Job subclass from. If not set,
                 project set in aiplatform.init will be used.
@@ -84,7 +73,7 @@ class _Job(base.AiPlatformResourceNoun):
                 aiplatform.init will be used.
         """
         super().__init__(project=project, location=location, credentials=credentials)
-        self._gca_resource = self._get_job(job_name=valid_job_name)
+        self._gca_resource = self._get_gca_resource(resource_name=job_name)
 
     def status(self) -> job_state.JobState:
         """Fetch Job again and return the current JobState.
@@ -95,13 +84,14 @@ class _Job(base.AiPlatformResourceNoun):
         """
 
         # Fetch the Job again for most up-to-date job state
-        self._gca_resource = self._get_job(job_name=self._gca_resource.name)
+        self._sync_gca_resource()
 
         return self._gca_resource.state
 
 
 class BatchPredictionJob(_Job):
 
+    _resource_noun = "batchPredictionJobs"
     _getter_method = "get_batch_prediction_job"
 
     def __init__(
@@ -129,15 +119,9 @@ class BatchPredictionJob(_Job):
                 Custom credentials to use. If not set, credentials set in
                 aiplatform.init will be used.
         """
-        valid_batch_prediction_job_name = utils.full_resource_name(
-            resource_name=batch_prediction_job_name,
-            resource_noun="batchPredictionJobs",
-            project=project,
-            location=location,
-        )
 
         super().__init__(
-            valid_job_name=valid_batch_prediction_job_name,
+            job_name=batch_prediction_job_name,
             project=project,
             location=location,
             credentials=credentials,
@@ -228,15 +212,18 @@ class BatchPredictionJob(_Job):
 
 
 class CustomJob(_Job):
+    _resource_noun = "customJobs"
     _getter_method = "get_custom_job"
     pass
 
 
 class DataLabelingJob(_Job):
+    _resource_noun = "dataLabelingJobs"
     _getter_method = "get_data_labeling_job"
     pass
 
 
 class HyperparameterTuningJob(_Job):
+    _resource_noun = "hyperparameterTuningJobs"
     _getter_method = "get_hyperparameter_tuning_job"
     pass
