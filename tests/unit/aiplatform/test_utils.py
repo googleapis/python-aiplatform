@@ -22,10 +22,13 @@ from random import choice
 from random import randint
 from string import ascii_letters
 
+from google.api_core import client_options
+from google.api_core import gapic_v1
 from google.cloud import aiplatform
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import Fields
-from google.cloud.aiplatform.utils import extract_fields_from_resource_name
+from google.cloud.aiplatform_v1beta1.services.model_service import (
+    client as model_service_client,
+)
 
 
 @pytest.mark.parametrize(
@@ -43,12 +46,12 @@ from google.cloud.aiplatform.utils import extract_fields_from_resource_name
 )
 def test_extract_fields_from_resource_name(resource_name: str, expected: bool):
     # Given a resource name and expected validity, test extract_fields_from_resource_name()
-    assert expected == bool(extract_fields_from_resource_name(resource_name))
+    assert expected == bool(utils.extract_fields_from_resource_name(resource_name))
 
 
 @pytest.fixture
 def generated_resource_fields():
-    generated_fields = Fields(
+    generated_fields = utils.Fields(
         project=str(uuid4()),
         location=str(uuid4()),
         resource="".join(choice(ascii_letters) for i in range(10)),  # 10 random letters
@@ -59,7 +62,7 @@ def generated_resource_fields():
 
 
 @pytest.fixture
-def generated_resource_name(generated_resource_fields: Fields):
+def generated_resource_name(generated_resource_fields: utils.Fields):
     name = (
         f"projects/{generated_resource_fields.project}/"
         f"locations/{generated_resource_fields.location}"
@@ -70,12 +73,12 @@ def generated_resource_name(generated_resource_fields: Fields):
 
 
 def test_extract_fields_from_resource_name_with_extracted_fields(
-    generated_resource_name: str, generated_resource_fields: Fields
+    generated_resource_name: str, generated_resource_fields: utils.Fields
 ):
     """Verify fields extracted from resource name match the original fields"""
 
     assert (
-        extract_fields_from_resource_name(resource_name=generated_resource_name)
+        utils.extract_fields_from_resource_name(resource_name=generated_resource_name)
         == generated_resource_fields
     )
 
@@ -98,7 +101,7 @@ def test_extract_fields_from_resource_name_with_resource_noun(
 ):
     assert (
         bool(
-            extract_fields_from_resource_name(
+            utils.extract_fields_from_resource_name(
                 resource_name=resource_name, resource_noun=resource_noun
             )
         )
@@ -220,3 +223,18 @@ def test_validate_display_name():
 def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple):
     # Given a GCS path, ensure correct bucket and prefix are extracted
     assert expected == utils.extract_bucket_and_prefix_from_gcs_path(gcs_path)
+
+
+def test_wrapped_client():
+    test_client_info = gapic_v1.client_info.ClientInfo()
+    test_client_options = client_options.ClientOptions()
+
+    wrapped_client = utils.WrappedClient(
+        client_class=model_service_client.ModelServiceClient,
+        client_options=test_client_options,
+        client_info=test_client_info,
+    )
+
+    assert isinstance(
+        wrapped_client.get_model.__self__, model_service_client.ModelServiceClient
+    )

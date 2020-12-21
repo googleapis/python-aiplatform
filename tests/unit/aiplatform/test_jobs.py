@@ -95,6 +95,7 @@ class TestJob:
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
     # Test Fixtures
 
