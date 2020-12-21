@@ -39,6 +39,8 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
     client_class = DatasetServiceClient
     _is_client_prediction_client = False
+    _resource_noun = "datasets"
+    _getter_method = "get_dataset"
 
     def __init__(
         self,
@@ -65,30 +67,8 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
         """
 
-        dataset_name = utils.full_resource_name(
-            resource_name=dataset_name,
-            resource_noun="datasets",
-            project=project,
-            location=location,
-        )
-
         super().__init__(project=project, location=location, credentials=credentials)
-        self._gca_resource = self._get_dataset(dataset_name=dataset_name)
-
-    def _get_dataset(self, dataset_name: str) -> gca_dataset.Dataset:
-        """Gets dataset.
-
-        Args:
-            dataset_name (str):
-                Required. A fully-qualified dataset resource name or dataset ID.
-                Example: "projects/123/locations/us-central1/datasets/456" or
-                "456" when project and location are initialized or passed.
-        Returns:
-            dataset (gca_dataset.Dataset):
-                AI Platform resource Dataset.
-
-        """
-        return self.api_client.get_dataset(name=dataset_name)
+        self._gca_resource = self._get_gca_resource(resource_name=dataset_name)
 
     @classmethod
     def create(
