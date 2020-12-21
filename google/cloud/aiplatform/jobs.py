@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import abc
 from typing import Iterable, Optional, Union
 
 from google.cloud import storage
