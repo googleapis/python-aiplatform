@@ -1064,16 +1064,20 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             health_route=serving_container_health_route,
         )
 
+        model_predict_schemata = None
+        if any([instance_schema_uri, parameters_schema_uri, prediction_schema_uri]):
+            model_predict_schemata = gca_model.PredictSchemata(
+                instance_schema_uri=instance_schema_uri,
+                parameters_schema_uri=parameters_schema_uri,
+                prediction_schema_uri=prediction_schema_uri,
+            )
+
         managed_model = gca_model.Model(
             display_name=display_name,
             description=description,
             artifact_uri=artifact_uri,
             container_spec=container_spec,
-            predict_schemata=gca_model.PredictSchemata(
-                instance_schema_uri=instance_schema_uri,
-                parameters_schema_uri=parameters_schema_uri,
-                prediction_schema_uri=prediction_schema_uri,
-            ),
+            predict_schemata=model_predict_schemata,
         )
 
         lro = api_client.upload_model(
