@@ -48,6 +48,7 @@ def create_training_pipeline_tabular_forecasting_sample(
 
     period = {"unit": "day", "quantity": 1}
 
+    # the inputs should be formatted according to the training_task_definition yaml file
     training_task_inputs_dict = {
         # required inputs
         "targetColumn": target_column,
@@ -55,16 +56,6 @@ def create_training_pipeline_tabular_forecasting_sample(
         "timeColumn": time_column,
         "transformations": transformations,
         "period": period,
-        # Objective function the model is to be optimized towards.
-        # The training process creates a Model that optimizes the value of the objective
-        # function over the validation set. The supported optimization objectives:
-        # "minimize-rmse" (default) - Minimize root-mean-squared error (RMSE).
-        # "minimize-mae" - Minimize mean-absolute error (MAE).
-        # "minimize-rmsle" - Minimize root-mean-squared log error (RMSLE).
-        # "minimize-rmspe" - Minimize root-mean-squared percentage error (RMSPE).
-        # "minimize-wape-mae" - Minimize the combination of weighted absolute percentage error (WAPE)
-        # and mean-absolute-error (MAE).
-        # "minimize-quantile-loss" - Minimize the quantile loss at the defined quantiles.
         "optimizationObjective": "minimize-rmse",
         "trainBudgetMilliNodeHours": 8000,
         "staticColumns": static_columns,
