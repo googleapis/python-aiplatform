@@ -18,6 +18,7 @@ create_batch_prediction_job_custom_image_explain_sample: {}
 create_batch_prediction_job_custom_tabular_explain_sample: {}
 create_batch_prediction_job_sample: {}
 create_batch_prediction_job_tabular_explain_sample: {}
+create_batch_prediction_job_tabular_forecasting_sample: {}
 create_batch_prediction_job_text_classification_sample: {}
 create_batch_prediction_job_text_entity_extraction_sample: {}
 create_batch_prediction_job_text_sentiment_analysis_sample: {}
