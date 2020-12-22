@@ -75,7 +75,8 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         cls,
         display_name: str,
         metadata_schema_uri: str,
-        dataset_metadata: Dict,  # TODO: Replace with EPCL class or split into BQ and GCS uris
+        gcs_source_uri: Optional[str],
+        bq_source_uri: Optional[str],
         metadata: Sequence[Tuple[str, str]] = (),
         labels: Optional[Dict] = None,
         project: Optional[str] = None,
@@ -83,6 +84,21 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         sync=True,
     ) -> "Dataset":
+
+        if gcs_source_uri and bq_source_uri:
+            raise ValueError("Only one of gcs_source_uri or bq_source_uri can be set.")
+
+        if not any([gcs_source_uri, bq_source_uri]):
+            raise ValueError("One of gcs_source_uri or bq_source_uri must be set.")
+
+        dataset_metadata = None
+        if gcs_source_uri:
+            dataset_metadata = {"input_config": {"gcs_source": {"uri": gcs_source_uri}}}
+        elif bq_source_uri:
+            dataset_metadata = {
+                "input_config": {"bigquery_source": {"uri": bq_source_uri}}
+            }
+
         cls._create_and_import_with_defaults(
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,

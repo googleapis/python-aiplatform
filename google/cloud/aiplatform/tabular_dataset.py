@@ -38,24 +38,10 @@ class TabularDataset(Dataset):
         import_config: Optional[ImportDataConfig] = None,
         sync=True,
     ) -> "Dataset":
-
-        if gcs_source_uri and bq_source_uri:
-            raise ValueError("Only one of gcs_source_uri or bq_source_uri can be set.")
-
-        if not any([gcs_source_uri, bq_source_uri]):
-            raise ValueError("One of gcs_source_uri or bq_source_uri must be set.")
-
-        dataset_metadata = None
-        if gcs_source_uri:
-            dataset_metadata = {"input_config": {"gcs_source": {"uri": gcs_source_uri}}}
-        elif bq_source_uri:
-            dataset_metadata = {
-                "input_config": {"bigquery_source": {"uri": bq_source_uri}}
-            }
-
         cls._create_tabular(
             display_name=display_name,
-            dataset_metadata=dataset_metadata,
+            gcs_source_uri=gcs_source_uri,
+            bq_source_uri=bq_source_uri,
             metadata_schema_uri=schema.dataset.metadata.tabular,
             metadata=metadata,
             labels=labels,
