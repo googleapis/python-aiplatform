@@ -35,7 +35,6 @@ class TabularDataset(Dataset):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        import_config: Optional[ImportDataConfig] = None,
         sync=True,
     ) -> "Dataset":
         cls._create_tabular(
@@ -48,6 +47,5 @@ class TabularDataset(Dataset):
             project=project,
             location=location,
             credentials=credentials,
-            import_config=import_config,
             sync=True,
         )

@@ -75,6 +75,19 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         cls,
         display_name: str,
         metadata_schema_uri: str,
+        metadata: Sequence[Tuple[str, str]] = (),
+        labels: Optional[Dict] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        sync=True,
+    ) -> "Dataset":
+    
+    @classmethod
+    def _create_tabular(
+        cls,
+        display_name: str,
+        metadata_schema_uri: str,
         gcs_source_uri: Optional[str],
         bq_source_uri: Optional[str],
         metadata: Sequence[Tuple[str, str]] = (),
@@ -125,7 +138,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        import_config: Optional[ImportDataConfig] = None,
         sync=True,
     ) -> "Dataset":
 
