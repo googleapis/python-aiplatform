@@ -125,23 +125,14 @@ explain_custom_tabular_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
-  comments:
-    approximation_error: This is the approximation error.
-    attributions: Feature attributions.
 explain_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
-  comments:
-    approximation_error: This is the approximation error.
-    attributions: Feature attributions.
 explain_tabular_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 2
   resource_name: endpoint
-  comments:
-    approximation_error: This is the approximation error.
-    attributions: Feature attributions.
 export_data_sample:
   resource_name: dataset
 export_evaluated_data_items_sample:
@@ -242,6 +233,9 @@ predict_custom_trained_model_sample:
   comments:
     predictions: The predictions are a google.protobuf.Value representation of the
       model's predictions.
+  schema_types:
+    instance_dict: predict.instance.ImageClassificationPredictionInstance
+    parameters_dict: predict.params.ImageClassificationPredictionParams
 predict_image_classification_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
@@ -249,10 +243,16 @@ predict_image_classification_sample:
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/classification.yaml
       for the format of the predictions.
+  schema_types:
+    instance_dict: predict.instance.ImageClassificationPredictionInstance
+    parameters_dict: predict.params.ImageClassificationPredictionParams
 predict_image_file_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
+  schema_types:
+    instance_dict: predict.instance.ImageClassificationPredictionInstance
+    parameters_dict: predict.params.ImageClassificationPredictionParams
 predict_image_object_detection_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
@@ -260,6 +260,9 @@ predict_image_object_detection_sample:
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/image_object_detection.yaml
       for the format of the predictions.
+  schema_types:
+    instance_dict: predict.instance.ImageObjectDetectionPredictionInstance
+    parameters_dict: predict.params.ImageObjectDetectionPredictionParams
 predict_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
@@ -267,6 +270,9 @@ predict_sample:
   region_tags:
   - aiplatform_predict_sample
   - aiplatform_predict_tutorial
+  schema_types:
+    instance_dict: predict.instance.ImageClassificationPredictionInstance
+    parameters_dict: predict.params.ImageClassificationPredictionParams
 predict_tabular_classification_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
@@ -288,6 +294,8 @@ predict_text_classification_single_label_sample:
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_classification.yaml
       for the format of the predictions.
+  schema_types:
+    instance_dict: predict.instance.TextClassificationPredictionInstance
 predict_text_entity_extraction_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
@@ -295,6 +303,8 @@ predict_text_entity_extraction_sample:
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_extraction.yaml
       for the format of the predictions.
+  schema_types:
+    instance_dict: predict.instance.TextExtractionPredictionInstance
 predict_text_sentiment_analysis_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
@@ -302,6 +312,8 @@ predict_text_sentiment_analysis_sample:
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_sentiment.yaml
       for the format of the predictions.
+  schema_types:
+    instance_dict: predict.instance.TextSentimentPredictionInstance
 search_migratable_resources_sample: {}
 undeploy_model_sample:
   resource_name: endpoint

@@ -36,29 +36,26 @@ def predict_image_classification_sample(
 
     # The format of each instance should conform to the deployed model's prediction input schema.
     encoded_content = base64.b64encode(file_content).decode("utf-8")
-
-    instance_obj = predict.instance.ImageClassificationPredictionInstance(
-        content=encoded_content)
-
-    instance_val = instance_obj.to_value()
-    instances = [instance_val]
-
-    params_obj = predict.params.ImageClassificationPredictionParams(
-        confidence_threshold=0.5, max_predictions=5)
-
+    instance = predict.instance.ImageClassificationPredictionInstance(
+        content=encoded_content
+    )
+    instances = [instance]
+    # See gs://google-cloud-aiplatform/schema/predict/params/image_classification_1.0.0.yaml for the format of the parameters.
+    parameters = predict.params.ImageClassificationPredictionParams(
+        confidence_threshold=0.5, max_predictions=5
+    )
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
     )
     response = client.predict(
-        endpoint=endpoint, instances=instances, parameters=params_obj
+        endpoint=endpoint, instances=instances, parameters=parameters
     )
     print("response")
-    print("\tdeployed_model_id:", response.deployed_model_id)
+    print(" deployed_model_id:", response.deployed_model_id)
     # See gs://google-cloud-aiplatform/schema/predict/prediction/classification.yaml for the format of the predictions.
     predictions = response.predictions
-    for prediction_ in predictions:
-        prediction_obj = predict.prediction.ClassificationPredictionResult.from_map(prediction_)
-        print(prediction_obj)
+    for prediction in predictions:
+        print(" prediction:", dict(prediction))
 
 
 # [END aiplatform_predict_image_classification_sample]

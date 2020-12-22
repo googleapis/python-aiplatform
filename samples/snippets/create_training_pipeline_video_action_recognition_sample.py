@@ -32,10 +32,9 @@ def create_training_pipeline_video_action_recognition_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
     # modelType can be either 'CLOUD' or 'MOBILE_VERSATILE_1'
-    training_task_inputs_object = trainingjob.definition.AutoMlVideoActionRecognitionInputs(
+    training_task_inputs = trainingjob.definition.AutoMlVideoActionRecognitionInputs(
         model_type=model_type
     )
-    training_task_inputs = training_task_inputs_object.to_value()
 
     training_pipeline = {
         "display_name": display_name,

@@ -49,7 +49,6 @@ def explain_tabular_sample(
     explanations = response.explanations
     for explanation in explanations:
         print(" explanation")
-        # Feature attributions.
         attributions = explanation.attributions
         for attribution in attributions:
             print("  attribution")

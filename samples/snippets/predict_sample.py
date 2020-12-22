@@ -17,8 +17,7 @@
 from typing import Dict
 
 from google.cloud import aiplatform
-from google.protobuf import json_format
-from google.protobuf.struct_pb2 import Value
+from google.cloud.aiplatform.schema import predict
 
 
 def predict_sample(
@@ -33,10 +32,9 @@ def predict_sample(
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
-    instance = json_format.ParseDict(instance_dict, Value())
+    instance = predict.instance.ImageClassificationPredictionInstance(instance_dict)
     instances = [instance]
-    parameters_dict = {}
-    parameters = json_format.ParseDict(parameters_dict, Value())
+    parameters = predict.params.ImageClassificationPredictionParams()
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
     )

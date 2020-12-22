@@ -16,8 +16,7 @@
 import base64
 
 from google.cloud import aiplatform
-from google.protobuf import json_format
-from google.protobuf.struct_pb2 import Value
+from google.cloud.aiplatform.schema import predict
 
 
 def predict_image_object_detection_sample(
@@ -37,13 +36,14 @@ def predict_image_object_detection_sample(
 
     # The format of each instance should conform to the deployed model's prediction input schema.
     encoded_content = base64.b64encode(file_content).decode("utf-8")
-    instance_dict = {"content": encoded_content}
-
-    instance = json_format.ParseDict(instance_dict, Value())
+    instance = predict.instance.ImageObjectDetectionPredictionInstance(
+        content=encoded_content
+    )
     instances = [instance]
     # See gs://google-cloud-aiplatform/schema/predict/params/image_object_detection_1.0.0.yaml for the format of the parameters.
-    parameters_dict = {"confidence_threshold": 0.5, "max_predictions": 5}
-    parameters = json_format.ParseDict(parameters_dict, Value())
+    parameters = predict.params.ImageObjectDetectionPredictionParams(
+        confidence_threshold=0.5, max_predictions=5
+    )
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
     )

@@ -31,10 +31,9 @@ def create_training_pipeline_text_sentiment_analysis_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
     # Use sentiment_max of 4
-    training_task_inputs_object = trainingjob.definition.AutoMlTextSentimentInputs(
+    training_task_inputs = trainingjob.definition.AutoMlTextSentimentInputs(
         sentiment_max=4
     )
-    training_task_inputs = training_task_inputs_object.to_value()
 
     training_pipeline = {
         "display_name": display_name,
