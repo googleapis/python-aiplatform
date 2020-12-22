@@ -69,48 +69,33 @@ create_hyperparameter_tuning_job_sample: {}
 create_specialist_pool_sample: {}
 create_training_pipeline_custom_job_sample: {}
 create_training_pipeline_custom_training_managed_dataset_sample: {}
-create_training_pipeline_entity_extraction_sample: {}
-create_training_pipeline_image_classification_sample: {}
-create_training_pipeline_image_object_detection_sample: {}
+create_training_pipeline_image_classification_sample:
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlImageClassificationInputs
+create_training_pipeline_image_object_detection_sample:
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlImageObjectDetectionInputs
 create_training_pipeline_sample: {}
 create_training_pipeline_tabular_classification_sample: {}
 create_training_pipeline_tabular_regression_sample: {}
-create_training_pipeline_text_classification_sample: {}
+create_training_pipeline_text_classification_sample:
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlTextClassificationInputs
 create_training_pipeline_text_entity_extraction_sample:
-  skip:
-  - predict_schemata
-  - supported_export_formats
-  - container_spec
-  - deployed_models
-  - explanation_spec
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlTextExtractionInputs
 create_training_pipeline_text_sentiment_analysis_sample:
-  skip:
-  - predict_schemata
-  - supported_export_formats
-  - container_spec
-  - deployed_models
-  - explanation_spec
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlTextSentimentInputs
 create_training_pipeline_video_action_recognition_sample:
-  skip:
-  - predict_schemata
-  - supported_export_formats
-  - container_spec
-  - deployed_models
-  - explanation_spec
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlVideoActionRecognitionInputs
 create_training_pipeline_video_classification_sample:
-  skip:
-  - predict_schemata
-  - supported_export_formats
-  - container_spec
-  - deployed_models
-  - explanation_spec
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlVideoClassificationInputs
 create_training_pipeline_video_object_tracking_sample:
-  skip:
-  - predict_schemata
-  - supported_export_formats
-  - container_spec
-  - deployed_models
-  - explanation_spec
+  schema_types:
+    training_task_inputs_dict: trainingjob.definition.AutoMlVideoObjectTrackingInputs
 delete_batch_prediction_job_sample: {}
 delete_custom_job_sample: {}
 delete_data_labeling_job_sample: {}
