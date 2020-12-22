@@ -70,6 +70,8 @@ _PIPELINE_COMPLETE_STATES = set(
 class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
     client_class = pipeline_service_client.PipelineServiceClient
     _is_client_prediction_client = False
+    _resource_noun = "trainingPipelines"
+    _getter_method = "get_training_pipeline"
 
     def __init__(
         self,
