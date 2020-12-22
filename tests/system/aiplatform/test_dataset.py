@@ -149,6 +149,8 @@ class TestDataset:
 
         shared_state["dataset_name"] = None
 
+    # TODO(vinnys): Remove pytest skip once persistent resources are accessible
+    @pytest.mark.skip(reason="System tests cannot access persistent test resources")
     def test_get_existing_dataset(self):
         """Retrieve a known existing dataset, ensure SDK successfully gets the
         dataset resource."""
@@ -245,6 +247,8 @@ class TestDataset:
             == aiplatform.schema.dataset.metadata.tabular
         )
 
+    # TODO(vinnys): Remove pytest skip once persistent resources are accessible
+    @pytest.mark.skip(reason="System tests cannot access persistent test resources")
     @pytest.mark.usefixtures("create_staging_bucket", "delete_staging_bucket")
     def test_export_data(self, shared_state):
         """Get an existing dataset, export data to a newly created folder in
