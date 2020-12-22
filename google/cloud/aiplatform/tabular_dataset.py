@@ -56,6 +56,7 @@ class TabularDataset(Dataset):
         cls._create_tabular(
             display_name=display_name,
             dataset_metadata=dataset_metadata,
+            metadata_schema_uri=schema.dataset.metadata.tabular,
             metadata=metadata,
             labels=labels,
             project=project,
