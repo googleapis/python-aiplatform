@@ -74,6 +74,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
     def _create_tabular(
         cls,
         display_name: str,
+        metadata_schema_uri: str,
         dataset_metadata: Dict,  # TODO: Replace with EPCL class or split into BQ and GCS uris
         metadata: Sequence[Tuple[str, str]] = (),
         labels: Optional[Dict] = None,
@@ -84,7 +85,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
     ) -> "Dataset":
         cls._create_and_import_with_defaults(
             display_name=display_name,
-            metadata_schema_uri=schema.dataset.metadata.tabular,
+            metadata_schema_uri=metadata_schema_uri,
             dataset_metadata=dataset_metadata,
             metadata=metadata,
             labels=labels,
