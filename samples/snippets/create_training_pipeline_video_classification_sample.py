@@ -30,7 +30,9 @@ def create_training_pipeline_video_classification_sample(
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
-    training_task_inputs = trainingjob.definition.AutoMlVideoClassificationInputs()
+    training_task_inputs = (
+        trainingjob.definition.AutoMlVideoClassificationInputs().to_value()
+    )
 
     training_pipeline = {
         "display_name": display_name,

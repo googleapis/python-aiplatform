@@ -32,7 +32,9 @@ def predict_text_entity_extraction_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
     # The format of each instance should conform to the deployed model's prediction input schema
-    instance = predict.instance.TextExtractionPredictionInstance(content=content)
+    instance = predict.instance.TextExtractionPredictionInstance(
+        content=content
+    ).to_value()
     instances = [instance]
     parameters_dict = {}
     parameters = json_format.ParseDict(parameters_dict, Value())

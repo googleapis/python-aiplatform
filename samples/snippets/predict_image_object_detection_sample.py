@@ -38,12 +38,12 @@ def predict_image_object_detection_sample(
     encoded_content = base64.b64encode(file_content).decode("utf-8")
     instance = predict.instance.ImageObjectDetectionPredictionInstance(
         content=encoded_content
-    )
+    ).to_value()
     instances = [instance]
     # See gs://google-cloud-aiplatform/schema/predict/params/image_object_detection_1.0.0.yaml for the format of the parameters.
     parameters = predict.params.ImageObjectDetectionPredictionParams(
         confidence_threshold=0.5, max_predictions=5
-    )
+    ).to_value()
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
     )

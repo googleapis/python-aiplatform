@@ -34,7 +34,7 @@ def create_training_pipeline_image_object_detection_sample(
         model_type="CLOUD_HIGH_ACCURACY_1",
         budget_milli_node_hours=20000,
         disable_early_stopping=False,
-    )
+    ).to_value()
 
     training_pipeline = {
         "display_name": display_name,

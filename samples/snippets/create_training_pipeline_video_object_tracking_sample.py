@@ -32,7 +32,7 @@ def create_training_pipeline_video_object_tracking_sample(
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
     training_task_inputs = trainingjob.definition.AutoMlVideoObjectTrackingInputs(
         model_type="CLOUD"
-    )
+    ).to_value()
 
     training_pipeline = {
         "display_name": display_name,

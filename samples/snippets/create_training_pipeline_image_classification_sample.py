@@ -35,7 +35,7 @@ def create_training_pipeline_image_classification_sample(
         model_type="CLOUD",
         budget_milli_node_hours=8000,
         disable_early_stopping=False,
-    )
+    ).to_value()
 
     training_pipeline = {
         "display_name": display_name,

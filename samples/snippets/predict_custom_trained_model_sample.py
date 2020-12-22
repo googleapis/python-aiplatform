@@ -31,9 +31,11 @@ def predict_custom_trained_model_sample(
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
-    instance = predict.instance.ImageClassificationPredictionInstance(instance_dict)
+    instance = predict.instance.ImageClassificationPredictionInstance(
+        instance_dict
+    ).to_value()
     instances = [instance]
-    parameters = predict.params.ImageClassificationPredictionParams()
+    parameters = predict.params.ImageClassificationPredictionParams().to_value()
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
     )

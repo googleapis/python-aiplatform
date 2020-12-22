@@ -31,7 +31,9 @@ def predict_text_sentiment_analysis_sample(
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
-    instance = predict.instance.TextSentimentPredictionInstance(content=content)
+    instance = predict.instance.TextSentimentPredictionInstance(
+        content=content
+    ).to_value()
     instances = [instance]
     parameters_dict = {}
     parameters = json_format.ParseDict(parameters_dict, Value())

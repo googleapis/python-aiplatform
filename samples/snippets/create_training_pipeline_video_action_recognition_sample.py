@@ -34,7 +34,7 @@ def create_training_pipeline_video_action_recognition_sample(
     # modelType can be either 'CLOUD' or 'MOBILE_VERSATILE_1'
     training_task_inputs = trainingjob.definition.AutoMlVideoActionRecognitionInputs(
         model_type=model_type
-    )
+    ).to_value()
 
     training_pipeline = {
         "display_name": display_name,

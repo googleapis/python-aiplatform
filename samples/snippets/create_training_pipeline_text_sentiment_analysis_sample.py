@@ -33,7 +33,7 @@ def create_training_pipeline_text_sentiment_analysis_sample(
     # Use sentiment_max of 4
     training_task_inputs = trainingjob.definition.AutoMlTextSentimentInputs(
         sentiment_max=4
-    )
+    ).to_value()
 
     training_pipeline = {
         "display_name": display_name,
