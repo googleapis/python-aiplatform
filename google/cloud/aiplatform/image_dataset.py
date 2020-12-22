@@ -39,9 +39,20 @@ class ImageDataset(Dataset):
         import_config: Optional[ImportDataConfig] = None,
         sync=True,
     ) -> "Dataset":
+
+        # Validate import_schema_uri
+        if not import_schema_uri in [
+            schema.dataset.import_metadata.image.multi_label_classification,
+            schema.dataset.import_metadata.image.single_label_classification,
+            schema.dataset.import_metadata.image.bounding_box,
+            schema.dataset.import_metadata.image.image_segmentation,
+        ]:
+            raise ValueError("Invalid import_schema_uri provided")
+
         cls._create_nontabular(
             display_name=display_name,
             gcs_source_uris=gcs_source_uris,
+            # Provide proper metadata_schema_uri
             metadata_schema_uri=schema.dataset.metadata.image,
             import_schema_uri=import_schema_uri,
             data_items_labels=data_items_labels,
