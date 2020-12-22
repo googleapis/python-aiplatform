@@ -22,6 +22,7 @@ create_batch_prediction_job:
 - custom_image_explain
 - custom_tabular_explain
 - tabular_explain
+- tabular_forecasting
 - text_classification
 - text_entity_extraction
 - text_sentiment_analysis
@@ -59,6 +60,7 @@ create_training_pipeline:
 - image_classification
 - image_object_detection
 - tabular_classification
+- tabular_forecasting
 - tabular_regression
 - text_classification
 - text_entity_extraction

@@ -19,6 +19,7 @@ create_batch_prediction_job_custom_image_explain_sample: {}
 create_batch_prediction_job_custom_tabular_explain_sample: {}
 create_batch_prediction_job_sample: {}
 create_batch_prediction_job_tabular_explain_sample: {}
+create_batch_prediction_job_tabular_forecasting_sample: {}
 create_batch_prediction_job_text_classification_sample: {}
 create_batch_prediction_job_text_entity_extraction_sample: {}
 create_batch_prediction_job_text_sentiment_analysis_sample: {}
@@ -77,6 +78,7 @@ create_training_pipeline_image_object_detection_sample:
     training_task_inputs_dict: trainingjob.definition.AutoMlImageObjectDetectionInputs
 create_training_pipeline_sample: {}
 create_training_pipeline_tabular_classification_sample: {}
+create_training_pipeline_tabular_forecasting_sample: {}
 create_training_pipeline_tabular_regression_sample: {}
 create_training_pipeline_text_classification_sample:
   schema_types:
@@ -168,6 +170,7 @@ get_model_evaluation_sample:
   - model_explanation
 get_model_evaluation_slice_sample: {}
 get_model_evaluation_tabular_classification_sample: {}
+get_model_evaluation_tabular_forecasting_sample: {}
 get_model_evaluation_tabular_regression_sample: {}
 get_model_evaluation_text_classification_sample:
   skip:
@@ -232,6 +235,7 @@ list_endpoints_sample: {}
 list_hyperparameter_tuning_jobs_sample: {}
 list_model_evaluation_slices_sample: {}
 list_model_evaluations_sample: {}
+list_model_evaluations_tabular_forecasting_sample: {}
 list_models_sample: {}
 list_specialist_pools_sample: {}
 list_training_pipelines_sample: {}
@@ -274,6 +278,7 @@ predict_tabular_classification_sample:
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/tables_classification.yaml
       for the format of the predictions.
+predict_tabular_forecasting_sample: {}
 predict_tabular_regression_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
