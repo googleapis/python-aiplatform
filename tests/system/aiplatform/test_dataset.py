@@ -20,6 +20,7 @@ import uuid
 import pytest
 import importlib
 
+from google import auth as google_auth
 from google.protobuf import json_format
 from google.api_core import exceptions
 from google.api_core import client_options
@@ -31,7 +32,9 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1beta1.types import dataset
 from google.cloud.aiplatform_v1beta1.services import dataset_service
 
-_TEST_PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+# TODO(vinnys): Replace with env var `BUILD_SPECIFIC_GCP_PROJECT` once supported
+_, _TEST_PROJECT = google_auth.default()
+
 _TEST_LOCATION = "us-central1"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_API_ENDPOINT = f"{_TEST_LOCATION}-aiplatform.googleapis.com"
