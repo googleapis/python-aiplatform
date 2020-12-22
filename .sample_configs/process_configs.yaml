@@ -92,7 +92,7 @@ create_training_pipeline_video_action_recognition_sample:
     training_task_inputs_dict: trainingjob.definition.AutoMlVideoActionRecognitionInputs
 create_training_pipeline_video_classification_sample:
   schema_types:
-    training_task_inputs_dict: trainingjob.definition.AutoMlVideoClassificat
+    training_task_inputs_dict: trainingjob.definition.AutoMlVideoClassificationInputs
 create_training_pipeline_video_object_tracking_sample:
   schema_types:
     training_task_inputs_dict: trainingjob.definition.AutoMlVideoObjectTrackingInputs
