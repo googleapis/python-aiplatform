@@ -12,16 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from uuid import uuid4
 
 import pytest
-import os
-
-import helpers
 
 import create_dataset_video_sample
-import delete_dataset_sample
-
+import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 VIDEO_METADATA_SCHEMA_URI = (
@@ -29,24 +26,9 @@ VIDEO_METADATA_SCHEMA_URI = (
 )
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(teardown_dataset):
     yield
-
-    assert "/" in shared_state["dataset_name"]
-
-    dataset_id = shared_state["dataset_name"].split("/")[-1]
-
-    # Delete the created dataset
-    delete_dataset_sample.delete_dataset_sample(
-        project=PROJECT_ID, dataset_id=dataset_id
-    )
 
 
 def test_ucaip_generated_create_dataset_video_sample_vision(capsys, shared_state):

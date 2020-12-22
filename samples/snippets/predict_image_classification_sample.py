@@ -13,10 +13,10 @@
 # limitations under the License.
 
 # [START aiplatform_predict_image_classification_sample]
-from google.cloud import aiplatform
-from google.protobuf import json_format
-from google.protobuf.struct_pb2 import Value
 import base64
+
+from google.cloud import aiplatform
+from google.cloud.aiplatform.schema import predict
 
 
 def predict_image_classification_sample(
@@ -26,6 +26,7 @@ def predict_image_classification_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-prediction-aiplatform.googleapis.com",
 ):
+    # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
@@ -35,25 +36,29 @@ def predict_image_classification_sample(
 
     # The format of each instance should conform to the deployed model's prediction input schema.
     encoded_content = base64.b64encode(file_content).decode("utf-8")
-    instance_dict = {"content": encoded_content}
 
-    instance = json_format.ParseDict(instance_dict, Value())
-    instances = [instance]
-    # See gs://google-cloud-aiplatform/schema/predict/params/image_classification_1.0.0.yaml for the format of the parameters.
-    parameters_dict = {"confidence_threshold": 0.5, "max_predictions": 5}
-    parameters = json_format.ParseDict(parameters_dict, Value())
+    instance_obj = predict.instance.ImageClassificationPredictionInstance(
+        content=encoded_content)
+
+    instance_val = instance_obj.to_value()
+    instances = [instance_val]
+
+    params_obj = predict.params.ImageClassificationPredictionParams(
+        confidence_threshold=0.5, max_predictions=5)
+
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
     )
     response = client.predict(
-        endpoint=endpoint, instances=instances, parameters=parameters
+        endpoint=endpoint, instances=instances, parameters=params_obj
     )
     print("response")
-    print(" deployed_model_id:", response.deployed_model_id)
+    print("\tdeployed_model_id:", response.deployed_model_id)
     # See gs://google-cloud-aiplatform/schema/predict/prediction/classification.yaml for the format of the predictions.
     predictions = response.predictions
-    for prediction in predictions:
-        print(" prediction:", dict(prediction))
+    for prediction_ in predictions:
+        prediction_obj = predict.prediction.ClassificationPredictionResult.from_map(prediction_)
+        print(prediction_obj)
 
 
 # [END aiplatform_predict_image_classification_sample]

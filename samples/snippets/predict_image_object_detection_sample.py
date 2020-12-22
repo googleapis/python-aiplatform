@@ -13,10 +13,11 @@
 # limitations under the License.
 
 # [START aiplatform_predict_image_object_detection_sample]
+import base64
+
 from google.cloud import aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
-import base64
 
 
 def predict_image_object_detection_sample(
@@ -26,6 +27,7 @@ def predict_image_object_detection_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-prediction-aiplatform.googleapis.com",
 ):
+    # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.

@@ -14,10 +14,11 @@
 
 # [START aiplatform_predict_tutorial]
 # [START aiplatform_predict_sample]
+from typing import Dict
+
 from google.cloud import aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
-from typing import Dict
 
 
 def predict_sample(
@@ -27,6 +28,7 @@ def predict_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-prediction-aiplatform.googleapis.com",
 ):
+    # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.

@@ -12,14 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uuid import uuid4
-import pytest
 import os
+from uuid import uuid4
+
+import pytest
 
 import helpers
-
 import upload_model_sample
-import delete_model_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 IMAGE_URI = "gcr.io/cloud-ml-service-public/cloud-ml-online-prediction-model-server-cpu:v1_15py3cmle_op_images_20200229_0210_RC00"
@@ -27,19 +26,9 @@ ARTIFACT_URI = "gs://ucaip-samples-us-central1/model/explain/"
 DISPLAY_NAME = f"temp_upload_model_test_{uuid4()}"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(teardown_model):
     yield
-
-    model_id = shared_state["model_name"].split("/")[-1]
-
-    delete_model_sample.delete_model_sample(project=PROJECT_ID, model_id=model_id)
 
 
 def test_ucaip_generated_upload_model_sample(capsys, shared_state):

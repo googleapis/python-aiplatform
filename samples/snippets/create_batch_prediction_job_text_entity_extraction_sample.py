@@ -14,28 +14,32 @@
 
 # [START aiplatform_create_batch_prediction_job_text_entity_extraction_sample]
 from google.cloud import aiplatform
+from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
 
 def create_batch_prediction_job_text_entity_extraction_sample(
     project: str,
     display_name: str,
-    model: str,
+    model_name: str,
     gcs_source_uri: str,
     gcs_destination_output_uri_prefix: str,
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
+    # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.JobServiceClient(client_options=client_options)
+    model_parameters_dict = {}
+    model_parameters = json_format.ParseDict(model_parameters_dict, Value())
 
     batch_prediction_job = {
         "display_name": display_name,
         # Format: 'projects/{project}/locations/{location}/models/{model_id}'
-        "model": model,
-        "model_parameters": Value(),
+        "model": model_name,
+        "model_parameters": model_parameters,
         "input_config": {
             "instances_format": "jsonl",
             "gcs_source": {"uris": [gcs_source_uri]},
