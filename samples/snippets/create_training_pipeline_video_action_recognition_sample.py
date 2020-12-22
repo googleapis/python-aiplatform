@@ -14,8 +14,7 @@
 
 # [START aiplatform_create_training_pipeline_video_action_recognition_sample]
 from google.cloud import aiplatform
-from google.protobuf import json_format
-from google.protobuf.struct_pb2 import Value
+from google.cloud.aiplatform.schema import trainingjob
 
 
 def create_training_pipeline_video_action_recognition_sample(
@@ -32,11 +31,11 @@ def create_training_pipeline_video_action_recognition_sample(
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
-    training_task_inputs_dict = {
-        # modelType can be either 'CLOUD' or 'MOBILE_VERSATILE_1'
-        "modelType": model_type
-    }
-    training_task_inputs = json_format.ParseDict(training_task_inputs_dict, Value())
+    # modelType can be either 'CLOUD' or 'MOBILE_VERSATILE_1'
+    training_task_inputs_object = trainingjob.definition.AutoMlVideoActionRecognitionInputs(
+        model_type=model_type
+    )
+    training_task_inputs = training_task_inputs_object.to_value()
 
     training_pipeline = {
         "display_name": display_name,
