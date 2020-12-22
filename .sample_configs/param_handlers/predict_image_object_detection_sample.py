@@ -32,8 +32,8 @@ def make_instances(filename: str) -> typing.Sequence[google.protobuf.struct_pb2.
 def make_parameters() -> google.protobuf.struct_pb2.Value:
     # See gs://google-cloud-aiplatform/schema/predict/params/image_object_detection_1.0.0.yaml for the format of the parameters.
     parameters_dict = {
-        "confidence_threshold": 0.5,
-        "max_predictions": 5
+        "confidenceThreshold": 0.5,
+        "maxPredictions": 5
     }
     parameters = to_protobuf_value(parameters_dict)
 
