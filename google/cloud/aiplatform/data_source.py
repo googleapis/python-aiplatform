@@ -42,6 +42,15 @@ class TabularDatasource(Datasource):
         return self._dataset_metadata
 
 
+class EmptyNonTabularDatasource(Datasource):
+    def __init__(self):
+        pass
+
+    @property
+    def dataset_metadata(self) -> Optional[Dict]:
+        return None
+
+
 class NonTabularDatasource(Datasource, DatasourceImportable):
     def __init__(
         self,
