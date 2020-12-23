@@ -149,7 +149,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
         cls._create_and_import_with_defaults(
             display_name=display_name,
-            metadata_schema_uri="gs://google-cloud-aiplatform/schema/dataset/metadata/image_1.0.0.yaml",
+            metadata_schema_uri=metadata_schema_uri,
             dataset_metadata=None,
             metadata=metadata,
             labels=labels,
