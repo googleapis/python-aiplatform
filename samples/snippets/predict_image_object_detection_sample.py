@@ -42,7 +42,7 @@ def predict_image_object_detection_sample(
     instance = json_format.ParseDict(instance_dict, Value())
     instances = [instance]
     # See gs://google-cloud-aiplatform/schema/predict/params/image_object_detection_1.0.0.yaml for the format of the parameters.
-    parameters_dict = {"confidence_threshold": 0.5, "max_predictions": 5}
+    parameters_dict = {"confidenceThreshold": 0.5, "maxPredictions": 5}
     parameters = json_format.ParseDict(parameters_dict, Value())
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
