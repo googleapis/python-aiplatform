@@ -18,7 +18,7 @@
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import Dataset, schema
-from google.cloud.aiplatform_v1beta1 import ImportDataConfig
+from google.cloud.aiplatform.data_source import TabularDatasource
 
 from typing import Optional, Sequence, Dict, Tuple
 
@@ -37,15 +37,17 @@ class TabularDataset(Dataset):
         credentials: Optional[auth_credentials.Credentials] = None,
         sync=True,
     ) -> "Dataset":
-        cls._create_tabular(
+        cls.create(
+            cls,
             display_name=display_name,
-            gcs_source_uri=gcs_source_uri,
-            bq_source_uri=bq_source_uri,
             metadata_schema_uri=schema.dataset.metadata.tabular,
+            datasource=TabularDatasource(
+                gcs_source_uri=gcs_source_uri, bq_source_uri=bq_source_uri
+            ),
             metadata=metadata,
             labels=labels,
             project=project,
             location=location,
             credentials=credentials,
-            sync=True,
+            sync=sync,
         )

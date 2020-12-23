@@ -18,7 +18,7 @@
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import Dataset, schema
-from google.cloud.aiplatform_v1beta1 import ImportDataConfig
+from google.cloud.aiplatform.data_source import NonTabularDatasource
 
 from typing import Optional, Sequence, Dict, Tuple
 
@@ -48,17 +48,19 @@ class ImageDataset(Dataset):
         ]:
             raise ValueError("Invalid import_schema_uri provided")
 
-        cls._create_nontabular(
+        cls.create(
+            cls,
             display_name=display_name,
-            gcs_source_uris=gcs_source_uris,
-            # Provide proper metadata_schema_uri
             metadata_schema_uri=schema.dataset.metadata.image,
-            import_schema_uri=import_schema_uri,
-            data_items_labels=data_items_labels,
+            datasource=NonTabularDatasource(
+                gcs_source_uris=gcs_source_uris,
+                import_schema_uri=import_schema_uri,
+                data_items_labels=data_items_labels,
+            ),
             metadata=metadata,
             labels=labels,
             project=project,
             location=location,
             credentials=credentials,
-            sync=True,
+            sync=sync,
         )
