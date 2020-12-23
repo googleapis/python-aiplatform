@@ -25,7 +25,11 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
-from google.cloud.aiplatform.data_source import Datasource, DatasourceImportable
+from google.cloud.aiplatform.data_source import (
+    Datasource,
+    DatasourceImportable,
+    EmptyNontabularDatasource,
+)
 
 from google.cloud.aiplatform_v1beta1 import GcsSource
 from google.cloud.aiplatform_v1beta1 import GcsDestination
@@ -77,7 +81,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         cls,
         display_name: str,
         metadata_schema_uri: str,
-        datasource: Datasource,
+        datasource: Datasource = EmptyNontabularDatasource(),
         metadata: Sequence[Tuple[str, str]] = (),
         labels: Optional[Dict] = None,
         project: Optional[str] = None,
