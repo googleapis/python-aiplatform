@@ -16,7 +16,8 @@
 from typing import Dict
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.schema import predict
+from google.protobuf import json_format
+from google.protobuf.struct_pb2 import Value
 
 
 def predict_custom_trained_model_sample(
@@ -31,11 +32,11 @@ def predict_custom_trained_model_sample(
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
-    instance = predict.instance.ImageClassificationPredictionInstance(
-        instance_dict
-    ).to_value()
+    # The format of each instance should conform to the deployed model's prediction input schema.
+    instance = json_format.ParseDict(instance_dict, Value())
     instances = [instance]
-    parameters = predict.params.ImageClassificationPredictionParams().to_value()
+    parameters_dict = {}
+    parameters = json_format.ParseDict(parameters_dict, Value())
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
     )

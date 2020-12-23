@@ -233,9 +233,6 @@ predict_custom_trained_model_sample:
   comments:
     predictions: The predictions are a google.protobuf.Value representation of the
       model's predictions.
-  schema_types:
-    instance_dict: predict.instance.ImageClassificationPredictionInstance
-    parameters_dict: predict.params.ImageClassificationPredictionParams
 predict_image_classification_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
