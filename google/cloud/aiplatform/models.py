@@ -854,6 +854,42 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         """Online prediction with explanation."""
         raise NotImplementedError("Prediction not implemented.")
 
+    def list_models() -> Sequence[gca_endpoint.DeployedModel]:
+        """Returns the models deployed in this Endpoint.
+
+        Returns:
+            deployed_models (Sequence[aiplatform.gapic.DeployedModel]):
+                A list of the models deployed in this Endpoint.
+        """
+        self._sync_gca_resource()
+        return self._gca_resource.deployed_models
+
+    def undeploy_all():
+        """Undeploys every model on this Endpoint."""
+        self._sync_gca_resource()
+
+        for deployed_model in self._gca_resource.deployed_models:
+            self.undeploy(deployed_model_id=deployed_model.id)
+
+    def delete_endpoint(force: bool = False):
+        """Deletes this AI Platform Endpoint resource. If force is set to True,
+        all models on this Endpoint will be undeployed prior to deletion.
+        
+        Args:
+            force: bool = False
+                Required. If force is set to True, all deployed models on this
+                Endpoint will be undeployed first. Default is False.
+
+        Raises:
+            RuntimeError: If models are deployed on this Endpoint and force = False.
+        """
+        if force:
+            self.undeploy_all()
+
+        lro = self.api_client.delete_endpoint(name=self.resource_name)
+        lro.result()
+        del self
+
 
 class Model(base.AiPlatformResourceNounWithFutureManager):
 
