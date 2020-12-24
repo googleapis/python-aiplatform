@@ -64,6 +64,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
     client_class = endpoint_service_client.EndpointServiceClient
     _is_client_prediction_client = False
+    _resource_noun = "endpoints"
+    _getter_method = "get_endpoint"
 
     def __init__(
         self,
@@ -91,32 +93,11 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        self._gca_resource = self._get_endpoint(endpoint_name)
+        self._gca_resource = self._get_gca_resource(resource_name=endpoint_name)
         self._prediction_client = self._instantiate_prediction_client(
             location=location or initializer.global_config.location,
             credentials=credentials,
         )
-
-    def _get_endpoint(self, endpoint_name: str) -> gca_endpoint.Endpoint:
-        """Gets the endpoint from AI Platform.
-
-        Args:
-            endpoint_name (str):
-                Required. The name of the endpoint to retrieve.
-        Returns:
-            endpoint (gca_endpoint.Endpoint):
-                Managed endpoint resource.
-        """
-
-        endpoint_name = utils.full_resource_name(
-            resource_name=endpoint_name,
-            resource_noun="endpoints",
-            project=self.project,
-            location=self.location,
-        )
-        endpoint = self.api_client.get_endpoint(name=endpoint_name)
-
-        return endpoint
 
     @classmethod
     def create(
@@ -582,7 +563,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             metadata=metadata,
         )
 
-        self._gca_resource = self._get_endpoint(self.resource_name)
+        self._sync_gca_resource()
 
     @classmethod
     def _deploy_call(
@@ -802,7 +783,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         operation_future.result()
 
         # update local resource
-        self._gca_resource = self._get_endpoint(self.resource_name)
+        self._sync_gca_resource()
 
     @staticmethod
     def _instantiate_prediction_client(
@@ -832,7 +813,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
         Args:
             instances (List):
-                Required. The instances that are the input to the
+                Required. Required. The instances that are the input to the
                 prediction call. A DeployedModel may have an upper limit
                 on the number of instances it supports per request, and
                 when it is exceeded the prediction call errors in case
@@ -878,6 +859,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
 
     client_class = model_service_client.ModelServiceClient
     _is_client_prediction_client = False
+    _resource_noun = "models"
+    _getter_method = "get_model"
 
     @property
     def uri(self):
@@ -887,7 +870,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
     @property
     def description(self):
         """Description of the model."""
-        return self._gca_model.description
+        return self._gca_resource.description
 
     def __init__(
         self,
@@ -915,26 +898,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        self._gca_resource = self._get_model(model_name)
-
-    def _get_model(self, model_name: str) -> gca_model.Model:
-        """Gets the model from AI Platform.
-
-        Args:
-            model_name (str): The name of the model to retrieve.
-        Returns:
-            model: Managed Model resource.
-        """
-
-        model_name = utils.full_resource_name(
-            resource_name=model_name,
-            resource_noun="models",
-            project=self.project,
-            location=self.location,
-        )
-        model = self.api_client.get_model(name=model_name)
-
-        return model
+        self._gca_resource = self._get_gca_resource(resource_name=model_name)
 
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
@@ -1031,8 +995,6 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
-
-                Currently not used.
             parameters_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the parameters of prediction and
@@ -1049,8 +1011,6 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 immutable and probably different, including the URI scheme,
                 than the one given on input. The output URI will point to a
                 location where the user only has a read access.
-
-                Currently not used.
             prediction_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the format of a single prediction
@@ -1066,8 +1026,6 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
-
-                Currently not used.
             project: Optional[str]=None,
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -1314,7 +1272,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             metadata=metadata,
         )
 
-        endpoint._gca_resource = endpoint._get_endpoint(endpoint.resource_name)
+        endpoint._sync_gca_resource()
 
         return endpoint
 

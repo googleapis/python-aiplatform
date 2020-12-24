@@ -47,6 +47,8 @@ def teardown_module(module):
 class AiPlatformResourceNounImpl(base.AiPlatformResourceNoun):
     client_class = ModelServiceClient
     _is_client_prediction_client = False
+    _resource_noun = None
+    _getter_method = None
 
 
 def make_operation_proto(name=TEST_OPERATION_NAME, response=None, **kwargs):
