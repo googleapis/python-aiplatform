@@ -1,49 +1,84 @@
-from typing import Optional, Dict
 import abc
-from google.cloud.aiplatform import schema
-from google.cloud.aiplatform_v1beta1 import ImportDataConfig
-from google.cloud.aiplatform_v1beta1 import GcsSource
+from typing import Optional, Dict, Sequence
+from google.cloud.aiplatform_v1beta1 import (
+    GcsSource,
+    ImportDataConfig,
+)
 
 
-class Datasource(abc.ABC):
-    @property
-    def dataset_metadata(self) -> Optional[Dict]:
-        raise NotImplementedError
-
-
-class DatasourceImportable(abc.ABC):
-    """An abstract class that provides import_data_config for importing data to an existing dataset"""
+class _Datasource(abc.ABC):
+    """An abstract class that sets dataset_metadata"""
 
     @property
-    def import_data_config(self) -> ImportDataConfig:
-        raise NotImplementedError
+    @abc.abstractmethod
+    def dataset_metadata(self):
+        """Dataset Metadata."""
+        pass
 
 
-class TabularDatasource(Datasource):
-    def __init__(self, gcs_source_uri: Optional[str], bq_source_uri: Optional[str]):
-        if gcs_source_uri and bq_source_uri:
-            raise ValueError("Only one of gcs_source_uri or bq_source_uri can be set.")
+class _DatasourceImportable(abc.ABC):
+    """An abstract class that sets import_data_config"""
 
-        if not any([gcs_source_uri, bq_source_uri]):
-            raise ValueError("One of gcs_source_uri or bq_source_uri must be set.")
+    @property
+    @abc.abstractmethod
+    def import_data_config(self):
+        """Import Data Config."""
+        pass
+
+
+class TabularDatasource(_Datasource):
+    """Datasource for creating a tabular dataset for AI Platform"""
+
+    def __init__(
+        self,
+        gcs_source: Optional[Sequence[str]] = None,
+        bq_source: Optional[str] = None,
+    ):
+        """Creates a tabular datasource
+
+        Args:
+            gcs_source: Optional[Sequence[str]]=None:
+                Cloud Storage URI of one or more files. Only CSV files are supported.
+                The first line of the CSV file is used as the header.
+                If there are multiple files, the header is the first line of
+                the lexicographically first file, the other files must either
+                contain the exact same header or omit the header.
+            bq_source: Optional[str]=None:
+                The URI of a BigQuery table.
+
+        Raises:
+            ValueError if source configuration is not valid.
+        """
 
         dataset_metadata = None
-        if gcs_source_uri:
-            dataset_metadata = {"input_config": {"gcs_source": {"uri": gcs_source_uri}}}
-        elif bq_source_uri:
-            dataset_metadata = {
-                "input_config": {"bigquery_source": {"uri": bq_source_uri}}
-            }
+
+        if gcs_source:
+            gcs_source = list(gcs_source)
+
+        if gcs_source and bq_source:
+            raise ValueError("Only one of gcs_source or bq_source can be set.")
+
+        if not any([gcs_source, bq_source]):
+            raise ValueError("One of gcs_source or bq_source must be set.")
+
+        if gcs_source:
+            dataset_metadata = {"input_config": {"gcs_source": {"uri": gcs_source}}}
+        elif bq_source:
+            dataset_metadata = {"input_config": {"bigquery_source": {"uri": bq_source}}}
 
         self._dataset_metadata = dataset_metadata
 
     @property
     def dataset_metadata(self) -> Optional[Dict]:
+        """Dataset Metadata."""
         return self._dataset_metadata
 
 
-class EmptyNonTabularDatasource(Datasource):
+class NonTabularDatasource(_Datasource):
+    """Datasource for creating a non-tabular dataset for AI Platform"""
+
     def __init__(self):
+        """Creates an empty non-tabular datasource"""
         pass
 
     @property
@@ -51,26 +86,54 @@ class EmptyNonTabularDatasource(Datasource):
         return None
 
 
-class NonTabularDatasource(Datasource, DatasourceImportable):
+class NonTabularDatasourceImportable(NonTabularDatasource, _DatasourceImportable):
+    """Datasource for creating a non-tabular dataset for AI Platform and importing data to the dataset"""
+
     def __init__(
         self,
-        gcs_source_uris: Sequence[str],
+        gcs_source: Sequence[str],
         import_schema_uri: str,
-        data_items_labels: Optional[Dict] = None,
+        data_item_labels: Optional[Dict] = None,
     ):
-        self._gcs_source_uris = gcs_source_uris
-        self._import_schema_uri = import_schema_uri
-        self._data_items_labels = data_items_labels
+        """Creates a non-tabular datasource
 
-    @property
-    def dataset_metadata(self) -> Optional[Dict]:
-        return None
+        Args:
+            gcs_source: Sequence[str]:
+                Required. The Google Cloud Storage location for the input content.
+                Google Cloud Storage URI(-s) to the input file(s). May contain
+                wildcards. For more information on wildcards, see
+                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+            import_schema_uri: str:
+                Required. Points to a YAML file stored on Google Cloud
+                Storage describing the import format. Validation will be
+                done against the schema. The schema is defined as an
+                `OpenAPI 3.0.2 Schema
+            data_item_labels:
+                Labels that will be applied to newly imported DataItems. If
+                an identical DataItem as one being imported already exists
+                in the Dataset, then these labels will be appended to these
+                of the already existing one, and if labels with identical
+                key is imported before, the old label value will be
+                overwritten. If two DataItems are identical in the same
+                import data operation, the labels will be combined and if
+                key collision happens in this case, one of the values will
+                be picked randomly. Two DataItems are considered identical
+                if their content bytes are identical (e.g. image bytes or
+                pdf bytes). These labels will be overridden by Annotation
+                labels specified inside index file refenced by
+                ``import_schema_uri``,
+                e.g. jsonl file.
+        """
+        super().__init__()
+        self._gcs_source = gcs_source
+        self._import_schema_uri = import_schema_uri
+        self._data_item_labels = data_item_labels
 
     @property
     def import_data_config(self) -> ImportDataConfig:
+        """Import Data Config."""
         return ImportDataConfig(
-            gcs_source=GcsSource(uris=self._gcs_source_uris),
+            gcs_source=GcsSource(uris=self._gcs_source),
             import_schema_uri=self._import_schema_uri,
-            data_item_labels=self._data_items_labels,
+            data_item_labels=self._data_item_labels,
         )
-
