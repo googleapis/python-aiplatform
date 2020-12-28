@@ -31,7 +31,7 @@ class dataset:
         )
         image = "gs://google-cloud-aiplatform/schema/dataset/metadata/image_1.0.0.yaml"
 
-    class import_metadata:
+    class ioformat:
         class image:
             multi_label_classification = "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_classification_multi_label_io_format_1.0.0.yaml"
             single_label_classification = "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_classification_single_label_io_format_1.0.0.yaml"
