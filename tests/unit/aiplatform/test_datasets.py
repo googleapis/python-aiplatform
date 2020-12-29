@@ -229,7 +229,7 @@ class TestDataset:
             labels=_TEST_LABEL,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
-            data_items_labels=_TEST_DATA_LABEL_ITEMS,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
             sync=sync,
         )
 
@@ -270,7 +270,7 @@ class TestDataset:
         my_dataset.import_data(
             gcs_source=_TEST_SOURCE_URI_GCS,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
-            data_items_labels=_TEST_DATA_LABEL_ITEMS,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
             sync=sync,
         )
 
@@ -320,7 +320,7 @@ class TestDataset:
         my_dataset.import_data(
             gcs_source=_TEST_SOURCE_URI_GCS,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
-            data_items_labels=_TEST_DATA_LABEL_ITEMS,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
             sync=sync,
         )
 
