@@ -77,7 +77,7 @@ class TabularDataset(Dataset):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
-    ) -> "Dataset":
+    ) -> "TabularDataset":
         """Creates a new tabular dataset.
 
         Args:
@@ -128,12 +128,12 @@ class TabularDataset(Dataset):
         """
 
         utils.validate_display_name(display_name)
-
+        cls.metadata_schema_uri = schema.dataset.metadata.tabular
         datasource = TabularDatasource(gcs_source, bq_source)
 
         return cls._create_and_import(
             display_name=display_name,
-            metadata_schema_uri=schema.dataset.metadata.tabular,
+            metadata_schema_uri=cls.metadata_schema_uri,
             dataset_metadata=datasource.dataset_metadata,
             labels=labels,
             project=project,

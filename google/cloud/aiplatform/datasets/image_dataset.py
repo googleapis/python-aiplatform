@@ -80,7 +80,7 @@ class ImageDataset(Dataset):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
-    ) -> "Dataset":
+    ) -> "ImageDataset":
         """Creates a new image dataset and optionally imports data into dataset when
         source and import_schema_uri are passed.
 
@@ -147,18 +147,16 @@ class ImageDataset(Dataset):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            dataset (Dataset):
-                Instantiated representation of the managed dataset resource.
+            image_dataset: ImageDataset
+                Instantiated representation of the managed image dataset resource.
 
-        Raises:
-            ValueError if import_schema_uri is set when creating a tabular dataset.
         """
 
         utils.validate_display_name(display_name)
         cls.metadata_schema_uri = schema.dataset.metadata.image
-        import_data_config = None
 
         datasource = NonTabularDatasource()
+        import_data_config = None
         if import_schema_uri:
             cls.import_schema_uri = import_schema_uri
             datasource = NonTabularDatasourceImportable(

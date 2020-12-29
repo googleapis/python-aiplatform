@@ -127,7 +127,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
     def import_schema_uri(self, import_schema_uri):
         if not self._support_import_schema_classes:
             raise ValueError(
-                f"{self.__class__.__name__} class does not support " f"importing data"
+                f"{self.__class__.__name__} class does not support importing data"
             )
 
         for import_schema_class in self._support_import_schema_classes:
@@ -468,7 +468,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         self,
         gcs_source: Sequence[str],
         import_schema_uri: str,
-        data_item_labels: Optional[Dict] = None,
+        data_item_labels: Optional[Dict] = {},
         sync: bool = True,
     ) -> "Dataset":
         """Upload data to existing managed dataset.

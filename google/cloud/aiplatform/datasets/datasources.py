@@ -94,22 +94,22 @@ class NonTabularDatasourceImportable(NonTabularDatasource, _DatasourceImportable
         self,
         gcs_source: Sequence[str],
         import_schema_uri: str,
-        data_item_labels: Optional[Dict] = None,
+        data_item_labels: Optional[Dict] = {},
     ):
         """Creates a non-tabular datasource
 
         Args:
-            gcs_source: Sequence[str]:
+            gcs_source: Sequence[str]
                 Required. The Google Cloud Storage location for the input content.
                 Google Cloud Storage URI(-s) to the input file(s). May contain
                 wildcards. For more information on wildcards, see
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
-            import_schema_uri: str:
+            import_schema_uri: (str)
                 Required. Points to a YAML file stored on Google Cloud
                 Storage describing the import format. Validation will be
                 done against the schema. The schema is defined as an
                 `OpenAPI 3.0.2 Schema
-            data_item_labels:
+            data_item_labels: Optional[Dict] = {}
                 Labels that will be applied to newly imported DataItems. If
                 an identical DataItem as one being imported already exists
                 in the Dataset, then these labels will be appended to these
