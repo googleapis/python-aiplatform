@@ -21,8 +21,8 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.datasets import Dataset
-from google.cloud.aiplatform.datasources import (
+from google.cloud.aiplatform.datasets import (
+    Dataset,
     NonTabularDatasource,
     NonTabularDatasourceImportable,
 )

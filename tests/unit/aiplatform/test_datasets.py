@@ -54,7 +54,7 @@ _TEST_INVALID_NAME = f"prj/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/{_TEST_ID}
 _TEST_METADATA_SCHEMA_URI_TABULAR = schema.dataset.metadata.tabular
 _TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
 
-_TEST_IMPORT_SCHEMA_URI = "gs://google-cloud-aiplatform/schemas/1.0.0.yaml"
+_TEST_IMPORT_SCHEMA_URI = schema.dataset.ioformat.image.single_label_classification
 _TEST_SOURCE_URI_GCS = "gs://my-bucket/my_index_file.jsonl"
 _TEST_SOURCE_URIS_GCS = [
     "gs://my-bucket/index_file_1.jsonl",

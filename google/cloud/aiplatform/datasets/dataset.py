@@ -25,7 +25,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
-from google.cloud.aiplatform.datasources import (
+from google.cloud.aiplatform.datasets import (
     TabularDatasource,
     NonTabularDatasource,
     NonTabularDatasourceImportable,
