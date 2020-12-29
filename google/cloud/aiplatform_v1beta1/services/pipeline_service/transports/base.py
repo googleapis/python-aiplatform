@@ -76,10 +76,10 @@ class PipelineServiceTransport(abc.ABC):
             scope (Optional[Sequence[str]]): A list of scopes.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
-            client_info (google.api_core.gapic_v1.client_info.ClientInfo):	
-                The client info used to send a user-agent string along with	
-                API requests. If ``None``, then default info will be used.	
-                Generally, you only need to set this if you're developing	
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
+                The client info used to send a user-agent string along with
+                API requests. If ``None``, then default info will be used.
+                Generally, you only need to set this if you're developing
                 your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
@@ -115,27 +115,27 @@ class PipelineServiceTransport(abc.ABC):
         self._wrapped_methods = {
             self.create_training_pipeline: gapic_v1.method.wrap_method(
                 self.create_training_pipeline,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.get_training_pipeline: gapic_v1.method.wrap_method(
                 self.get_training_pipeline,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.list_training_pipelines: gapic_v1.method.wrap_method(
                 self.list_training_pipelines,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.delete_training_pipeline: gapic_v1.method.wrap_method(
                 self.delete_training_pipeline,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.cancel_training_pipeline: gapic_v1.method.wrap_method(
                 self.cancel_training_pipeline,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
         }

@@ -622,6 +622,9 @@ class TestCustomTrainingJob:
                 sync=sync,
             )
 
+        if not sync:
+            job.wait()
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_with_invalid_accelerator_type_raises(
         self,

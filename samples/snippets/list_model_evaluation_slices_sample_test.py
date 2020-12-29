@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import os
+
 
 import list_model_evaluation_slices_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "5162251072873431040"
-EVALUATION_ID = "5615675837586029221"
+MODEL_ID = "3512561418744365056"
+EVALUATION_ID = "9035588644970168320"
 
-KNOWN_EVALUATION_SLICE = "/locations/us-central1/models/5162251072873431040/evaluations/5615675837586029221/slices/4322488217836113260"
+KNOWN_EVALUATION_SLICE = "projects/580378083368/locations/us-central1/models/3512561418744365056/evaluations/9035588644970168320/slices/6481571820677004173"
 
 
 def test_ucaip_generated_get_model_evaluation_slices_sample(capsys):
