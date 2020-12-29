@@ -309,6 +309,7 @@ class WrappedClient:
         )
         return getattr(temporary_client, name)
 
+
 def sequence_to_list(
     sequence_of_strings: Sequence[str],
     delimiter: str = ",",

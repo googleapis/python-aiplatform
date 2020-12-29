@@ -6,6 +6,7 @@ from google.cloud.aiplatform_v1beta1 import (
 )
 from google.cloud.aiplatform.utils import sequence_to_list
 
+
 class _Datasource(abc.ABC):
     """An abstract class that sets dataset_metadata"""
 
@@ -79,11 +80,11 @@ class NonTabularDatasource(_Datasource):
 
     def __init__(self):
         """Creates an empty non-tabular datasource"""
-        pass
+        self._dataset_metadata = {}
 
     @property
     def dataset_metadata(self) -> Optional[Dict]:
-        return None
+        return self._dataset_metadata
 
 
 class NonTabularDatasourceImportable(NonTabularDatasource, _DatasourceImportable):
