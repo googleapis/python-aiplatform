@@ -15,39 +15,133 @@
 # limitations under the License.
 #
 
+from typing import Optional, Sequence, Dict, Tuple
+
 from google.auth import credentials as auth_credentials
 
-from google.cloud.aiplatform import Dataset, schema
-from google.cloud.aiplatform.data_source import TabularDatasource
-
-from typing import Optional, Sequence, Dict, Tuple
+from google.cloud.aiplatform import schema
+from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.datasets import Dataset
+from google.cloud.aiplatform.datasources import TabularDatasource
 
 
 class TabularDataset(Dataset):
+    """Managed tabular dataset resource for AI Platform"""
+
+    _support_metadata_schema_uris = (schema.dataset.metadata.tabular,)
+
+    _support_import_schema_classes = None
+
+    def __init__(
+        self,
+        dataset_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Retrieves an existing managed tabular dataset given a dataset name or ID.
+
+        Args:
+            dataset_name: (str)
+                Required. A fully-qualified dataset resource name or dataset ID.
+                Example: "projects/123/locations/us-central1/datasets/456" or
+                "456" when project and location are initialized or passed.
+            project: (str) = None
+                Optional project to retrieve dataset from. If not set, project
+                set in aiplatform.init will be used.
+            location: (str) = None
+                Optional location to retrieve dataset from. If not set, location
+                set in aiplatform.init will be used.
+            credentials: Optional[auth_credentials.Credentials] = None,
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+        """
+        super().__init__(
+            dataset_name=dataset_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
     @classmethod
     def create(
         cls,
         display_name: str,
-        gcs_source_uri: Optional[str],
-        bq_source_uri: Optional[str],
-        metadata: Sequence[Tuple[str, str]] = (),
-        labels: Optional[Dict] = None,
+        gcs_source: Optional[Sequence[str]] = None,
+        bq_source: Optional[str] = None,
+        labels: Optional[Dict] = {},
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        sync=True,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: bool = True,
     ) -> "Dataset":
-        cls.create(
-            cls,
+        """Creates a new tabular dataset.
+
+        Args:
+            display_name: (str)
+                Required. The user-defined name of the Dataset.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            gcs_source: Optional[Sequence[str]] = None:
+                Google Cloud Storage URI(-s) to the
+                input file(s). May contain wildcards. For more
+                information on wildcards, see
+                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+            bq_source: Optional[str] = None:
+                BigQuery URI to the input table.
+            labels: Optional[Dict] = {}
+                The labels with user-defined metadata to organize your
+                Datasets.
+
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters,
+                numeric characters, underscores and dashes. International
+                characters are allowed. No more than 64 user labels can be
+                associated with one Dataset (System labels are excluded).
+
+                See https://goo.gl/xmQnxf for more information and examples
+                of labels. System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
+            project: Optional[str] = None,
+                Project to upload this model to. Overrides project set in
+                aiplatform.init.
+            location: Optional[str] = None,
+                Location to upload this model to. Overrides location set in
+                aiplatform.init.
+            credentials: Optional[auth_credentials.Credentials] = None,
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+            request_metadata: Optional[Sequence[Tuple[str, str]]] = ()
+                Strings which should be sent along with the request as metadata.
+            sync: (bool) = True
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            tabular_dataset: TabularDataset
+                Instantiated representation of the managed tabular dataset resource.
+
+        """
+
+        utils.validate_display_name(display_name)
+
+        datasource = TabularDatasource(gcs_source, bq_source)
+
+        return cls._create_and_import(
             display_name=display_name,
             metadata_schema_uri=schema.dataset.metadata.tabular,
-            datasource=TabularDatasource(
-                gcs_source_uri=gcs_source_uri, bq_source_uri=bq_source_uri
-            ),
-            metadata=metadata,
+            dataset_metadata=datasource.dataset_metadata,
             labels=labels,
             project=project,
             location=location,
             credentials=credentials,
+            request_metadata=request_metadata,
             sync=sync,
+        )
+
+    def import_data(self):
+        raise NotImplementedError(
+            f"{self.__class__.__name__} class does not support 'import_data'"
         )

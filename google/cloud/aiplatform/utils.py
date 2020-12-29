@@ -316,7 +316,7 @@ def sequence_to_list(
     strip_characters: str = " ",
 ) -> list:
     """Given an input sequence, return the sequence as a list.
-    
+
     Example Usage:
 
         list = sequence_to_list(sequence_of_strings)
@@ -330,7 +330,7 @@ def sequence_to_list(
         # list = ["example1", "example2"]
 
     Args:
-        input_sequence Sequence[str]:
+        input_sequence: Sequence[str]
             Required. A sequence of strings
 
     Returns:
