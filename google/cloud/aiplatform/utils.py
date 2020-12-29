@@ -18,7 +18,7 @@
 
 import re
 
-from typing import Any, Match, Optional, Type, TypeVar, Tuple
+from typing import Any, Match, Optional, Type, TypeVar, Tuple, Sequence
 from collections import namedtuple
 
 from google.api_core import client_options
@@ -308,3 +308,36 @@ class WrappedClient:
             client_info=self._client_info,
         )
         return getattr(temporary_client, name)
+
+def sequence_to_list(
+    sequence_of_strings: Sequence[str],
+    delimiter: str = ",",
+    strip_characters: str = " ",
+) -> list:
+    """Given an input sequence, return the sequence as a list.
+    
+    Example Usage:
+
+        list = sequence_to_list(sequence_of_strings)
+        # sequence_of_strings = ["example1"]
+        # list = ["example1"]
+
+        # sequence_of_strings = "example2"
+        # list = ["example2"]
+
+        # sequence_of_strings = "example1, example2"
+        # list = ["example1", "example2"]
+
+    Args:
+        input_sequence Sequence[str]:
+            Required. A sequence of strings
+
+    Returns:
+        List[str1, Optional[st2], Optional[str3], ...]
+            A list of string(s) of the input sequence of string(s).
+    """
+
+    if isinstance(sequence_of_strings, list):
+        return sequence_of_strings
+    if isinstance(sequence_of_strings, str):
+        return [x.strip(strip_characters) for x in sequence_of_strings.split(delimiter)]

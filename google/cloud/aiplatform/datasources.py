@@ -4,7 +4,7 @@ from google.cloud.aiplatform_v1beta1 import (
     GcsSource,
     ImportDataConfig,
 )
-
+from google.cloud.aiplatform.utils import sequence_to_list
 
 class _Datasource(abc.ABC):
     """An abstract class that sets dataset_metadata"""
@@ -53,7 +53,7 @@ class TabularDatasource(_Datasource):
         dataset_metadata = None
 
         if gcs_source:
-            gcs_source = list(gcs_source)
+            gcs_source = sequence_to_list(gcs_source)
 
         if gcs_source and bq_source:
             raise ValueError("Only one of gcs_source or bq_source can be set.")
@@ -125,7 +125,7 @@ class NonTabularDatasourceImportable(NonTabularDatasource, _DatasourceImportable
                 e.g. jsonl file.
         """
         super().__init__()
-        self._gcs_source = gcs_source
+        self._gcs_source = sequence_to_list(gcs_source)
         self._import_schema_uri = import_schema_uri
         self._data_item_labels = data_item_labels
 
