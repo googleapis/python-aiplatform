@@ -71,6 +71,7 @@ _TEST_METADATA_TABULAR_GCS = {
 _TEST_METADATA_TABULAR_BQ = {
     "input_config": {"bigquery_source": {"uri": _TEST_SOURCE_URI_BQ}}
 }
+_TEST_NONTABULAR_DATASET_METADATA = None
 
 _TEST_INVALID_SOURCE_URIS = ["gs://my-bucket/index_file_1.jsonl", 123]
 _TEST_DATA_LABEL_ITEMS = {}
@@ -86,7 +87,7 @@ def get_dataset_mock():
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             labels=_TEST_LABEL,
             name=_TEST_NAME,
-            metadata={},
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
         )
         yield get_dataset_mock
 
@@ -187,7 +188,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             labels=_TEST_LABEL,
-            metadata={},
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
         )
 
         create_dataset_mock.assert_called_once_with(
@@ -240,7 +241,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             labels=_TEST_LABEL,
-            metadata={},
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
         )
 
         expected_import_config = ImportDataConfig(
@@ -331,7 +332,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             labels=_TEST_LABEL,
-            metadata={},
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
         )
 
         expected_import_config = ImportDataConfig(

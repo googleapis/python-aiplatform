@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Sequence, Dict, Tuple
+from typing import Optional, Sequence, Dict, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
@@ -31,47 +31,20 @@ from google.cloud.aiplatform.datasets import (
 class ImageDataset(Dataset):
     """Managed image dataset resource for AI Platform"""
 
-    _support_metadata_schema_uris = (schema.dataset.metadata.image,)
+    _support_metadata_schema_uris = schema.dataset.metadata.image
 
-    _support_import_schema_classes = ("image",)
-
-    def __init__(
-        self,
-        dataset_name: str,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ):
-        """Retrieves an existing managed image dataset given a dataset name or ID.
-
-        Args:
-            dataset_name: (str)
-                Required. A fully-qualified dataset resource name or dataset ID.
-                Example: "projects/123/locations/us-central1/datasets/456" or
-                "456" when project and location are initialized or passed.
-            project: (str) = None
-                Optional project to retrieve dataset from. If not set, project
-                set in aiplatform.init will be used.
-            location: (str) = None
-                Optional location to retrieve dataset from. If not set, location
-                set in aiplatform.init will be used.
-            credentials: Optional[auth_credentials.Credentials] = None,
-                Custom credentials to use to upload this model. Overrides
-                credentials set in aiplatform.init.
-        """
-        super().__init__(
-            dataset_name=dataset_name,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
+    _support_import_schema_uris = (
+        schema.dataset.ioformat.image.single_label_classification,
+        schema.dataset.ioformat.image.multi_label_classification,
+        schema.dataset.ioformat.image.bounding_box,
+        schema.dataset.ioformat.image.image_segmentation,
+    )
 
     @classmethod
     def create(
         cls,
         display_name: str,
-        gcs_source: Optional[Sequence[str]] = None,
-        bq_source: Optional[str] = None,
+        gcs_source: Optional[Union[str, Sequence[str]]] = None,
         labels: Optional[Dict] = {},
         import_schema_uri: Optional[str] = None,
         data_item_labels: Optional[Dict] = {},
@@ -89,13 +62,11 @@ class ImageDataset(Dataset):
                 Required. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
-            gcs_source: Optional[Sequence[str]] = None:
+            gcs_source: Optional[Union[str, Sequence[str]]] = None:
                 Google Cloud Storage URI(-s) to the
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
-            bq_source: Optional[str] = None:
-                BigQuery URI to the input table.
             labels: Optional[Dict] = {}
                 The labels with user-defined metadata to organize your
                 Datasets.
@@ -153,23 +124,19 @@ class ImageDataset(Dataset):
         """
 
         utils.validate_display_name(display_name)
-        cls.metadata_schema_uri = schema.dataset.metadata.image
 
         datasource = NonTabularDatasource()
-        import_data_config = None
-        if import_schema_uri:
-            cls.import_schema_uri = import_schema_uri
+        # Validate the import_schema_uri for specialized dataset subclass
+        if import_schema_uri and cls._validate_import_schema_uri(import_schema_uri):
             datasource = NonTabularDatasourceImportable(
                 gcs_source, import_schema_uri, data_item_labels
             )
-            import_data_config = datasource.import_data_config
 
-        return cls._create_and_import(
+        return cls._create_encapsulated(
             display_name=display_name,
-            metadata_schema_uri=cls.metadata_schema_uri,
-            dataset_metadata=datasource.dataset_metadata,
+            metadata_schema_uri=schema.dataset.metadata.image,
+            datasource=datasource,
             labels=labels,
-            import_data_config=import_data_config,
             project=project,
             location=location,
             credentials=credentials,

@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Sequence, Dict, Tuple
+from typing import Optional, Sequence, Dict, Tuple, Union
 
 from google.api_core import operation
 from google.auth import credentials as auth_credentials
@@ -33,7 +33,6 @@ from google.cloud.aiplatform.datasets import (
 
 from google.cloud.aiplatform_v1beta1 import GcsDestination
 from google.cloud.aiplatform_v1beta1 import ExportDataConfig
-from google.cloud.aiplatform_v1beta1 import ImportDataConfig
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
@@ -52,7 +51,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         schema.dataset.metadata.image,
     )
 
-    _support_import_schema_classes = ("image",)
+    _support_import_schema_uris = None
 
     def __init__(
         self,
@@ -85,16 +84,17 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
         super().__init__(project=project, location=location, credentials=credentials)
         self._gca_resource = self._get_gca_resource(resource_name=dataset_name)
-        self._validate_resource_metadata_schema_uri()
+        self._validate_metadata_schema_uri()
 
     @property
-    def resource_metadata_schema_uri(self) -> str:
+    def metadata_schema_uri(self) -> str:
         """The metadata schema uri of this dataset resource."""
         return self._gca_resource.metadata_schema_uri
 
-    def _validate_resource_metadata_schema_uri(self) -> bool:
+    def _validate_metadata_schema_uri(self) -> bool:
+        """Validate the metadata_schema_uri of retrieved dataset resource."""
         if self._support_metadata_schema_uris and (
-            self.resource_metadata_schema_uri not in self._support_metadata_schema_uris
+            self.metadata_schema_uri not in self._support_metadata_schema_uris
         ):
             raise ValueError(
                 f"{self.__class__.__name__} class can not be used to retrieve "
@@ -102,58 +102,24 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             )
         return True
 
-    @property
-    def metadata_schema_uri(self) -> str:
-        """The metadata schema uri for creating dataset."""
-        return self._metadata_schema_uri
-
-    @metadata_schema_uri.setter
-    def metadata_schema_uri(self, metadata_schema_uri):
-        if self._support_metadata_schema_uris and (
-            metadata_schema_uri not in self._support_metadata_schema_uris
+    def _validate_import_schema_uri(self, import_schema_uri: str) -> bool:
+        # TODO: validate metadata_schema_uri and import_schema_uri for creating dataset and importing data
+        # Validate metadata_schema_uri and import_schema_uri for Dataset class
+        # Validate the import_schema_uri for specialized dataset subclass
+        if self._support_import_schema_uris and (
+            import_schema_uri not in self._support_import_schema_uris
         ):
             raise ValueError(
-                f"{self.__class__.__name__} class does not support "
-                f"{metadata_schema_uri}"
+                f"{self.__class__.__name__} class can not support {import_schema_uri}"
             )
-        self._metadata_schema_uri = metadata_schema_uri
-
-    @property
-    def import_schema_uri(self) -> str:
-        """The import schema uri for importing data."""
-        return self._import_schema_uri
-
-    @import_schema_uri.setter
-    def import_schema_uri(self, import_schema_uri):
-        if not self._support_import_schema_classes:
-            raise ValueError(
-                f"{self.__class__.__name__} class does not support importing data"
-            )
-
-        for import_schema_class in self._support_import_schema_classes:
-            if (
-                self.metadata_schema_uri
-                == getattr(schema.dataset.metadata, import_schema_class)
-            ) and (
-                import_schema_uri
-                in getattr(
-                    schema.dataset.ioformat, import_schema_class
-                ).__dict__.values()
-            ):
-                self._import_schema_uri = import_schema_uri
-                return
-
-        raise ValueError(
-            f"{self.metadata_schema_uri} is not compatible with "
-            f"import_schema_uri {import_schema_uri}."
-        )
+        return True
 
     @classmethod
     def create(
         cls,
         display_name: str,
         metadata_schema_uri: str,
-        gcs_source: Optional[Sequence[str]] = None,
+        gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
         labels: Optional[Dict] = {},
         import_schema_uri: Optional[str] = None,
@@ -178,7 +144,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 is defined as an OpenAPI 3.0.2 Schema Object. The schema files
                 that can be used here are found in gs://google-cloud-
                 aiplatform/schema/dataset/metadata/.
-            gcs_source: Optional[Sequence[str]] = None:
+            gcs_source: Optional[Union[str, Sequence[str]]] = None:
                 Google Cloud Storage URI(-s) to the
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
@@ -244,30 +210,24 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         """
 
         utils.validate_display_name(display_name)
-        cls.metadata_schema_uri = metadata_schema_uri
-        import_data_config = None
 
-        if cls.metadata_schema_uri in [schema.dataset.metadata.tabular]:
-            if import_schema_uri:
-                raise ValueError(
-                    f"{cls.metadata_schema_uri} does not support import_schema_uri."
-                )
+        # Validate metadata_schema_uri and import_schema_uri for Dataset class
+        cls._validate_import_schema_uri(import_schema_uri)
+
+        if metadata_schema_uri == schema.dataset.metadata.tabular:
             datasource = TabularDatasource(gcs_source, bq_source)
-        elif cls.metadata_schema_uri in [schema.dataset.metadata.image]:
+        else:
             datasource = NonTabularDatasource()
             if import_schema_uri:
-                cls.import_schema_uri = import_schema_uri
                 datasource = NonTabularDatasourceImportable(
                     gcs_source, import_schema_uri, data_item_labels
                 )
-                import_data_config = datasource.import_data_config
 
-        return cls._create_and_import(
+        return cls._create_encapsulated(
             display_name=display_name,
-            metadata_schema_uri=cls.metadata_schema_uri,
-            dataset_metadata=datasource.dataset_metadata,
+            metadata_schema_uri=metadata_schema_uri,
+            datasource=datasource,
             labels=labels,
-            import_data_config=import_data_config,
             project=project,
             location=location,
             credentials=credentials,
@@ -277,13 +237,14 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
     @classmethod
     @base.optional_sync()
-    def _create_and_import(
+    def _create_encapsulated(
         cls,
         display_name: str,
         metadata_schema_uri: str,
-        dataset_metadata: Optional[Dict] = {},
+        datasource: Union[
+            TabularDatasource, NonTabularDatasource, NonTabularDatasourceImportable
+        ],
         labels: Optional[Dict] = {},
-        import_data_config: Optional[ImportDataConfig] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -304,8 +265,8 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 is defined as an OpenAPI 3.0.2 Schema Object. The schema files
                 that can be used here are found in gs://google-cloud-
                 aiplatform/schema/dataset/metadata/.
-            dataset_metadata: Optional[Dict] = {}
-                Additional information about the Dataset.
+            datasource: Union[TabularDatasource,NonTabularDatasource,NonTabularDatasourceImportable]
+                Required. Datasource for creating a dataset for AI Platform.
             labels: Optional[Dict] = {}
                 The labels with user-defined metadata to organize your
                 Datasets.
@@ -319,10 +280,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 See https://goo.gl/xmQnxf for more information and examples
                 of labels. System reserved label keys are prefixed with
                 "aiplatform.googleapis.com/" and are immutable.
-            import_data_config: Optional[ImportDataConfig] = None
-                Describes the location from where we import data into a
-                Dataset, together with the labels that will be applied to the
-                DataItems and the Annotations.
             project: Optional[str] = None,
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -346,7 +303,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
-        credentials = (credentials or initializer.global_config.credentials,)
+        credentials = credentials or initializer.global_config.credentials
 
         parent = initializer.global_config.common_location_path(
             project=project, location=location
@@ -359,7 +316,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             parent=parent,
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
-            dataset_metadata=dataset_metadata,
+            datasource=datasource,
             labels=labels,
             request_metadata=request_metadata,
         )
@@ -373,9 +330,9 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             credentials=credentials,
         )
 
-        # Import if import data config is provided
-        if import_data_config:
-            import_lro = dataset_obj._import_data(import_data_config)
+        # Import if import datasource is NonTabularDatasourceImportable
+        if isinstance(datasource, NonTabularDatasourceImportable):
+            import_lro = dataset_obj._import_data(datasource=datasource)
             import_lro.result()
 
         return dataset_obj
@@ -387,7 +344,9 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         parent: str,
         display_name: str,
         metadata_schema_uri: str,
-        dataset_metadata: Optional[Dict] = {},
+        datasource: Union[
+            TabularDatasource, NonTabularDatasource, NonTabularDatasourceImportable
+        ],
         labels: Optional[Dict] = {},
         request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
@@ -411,8 +370,8 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 is defined as an OpenAPI 3.0.2 Schema Object. The schema files
                 that can be used here are found in gs://google-cloud-
                 aiplatform/schema/dataset/metadata/.
-            dataset_metadata: Optional[dict] = {}
-                Additional information about the Dataset.
+            datasource: Union[TabularDatasource,NonTabularDatasource,NonTabularDatasourceImportable]
+                Required. Datasource for creating a dataset for AI Platform.
             labels: Optional[Dict] = {}
                 The labels with user-defined metadata to organize your
                 Datasets.
@@ -437,7 +396,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         gapic_dataset = gca_dataset.Dataset(
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
-            metadata=dataset_metadata,
+            metadata=datasource.dataset_metadata,
             labels=labels,
         )
 
@@ -446,27 +405,26 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         )
 
     def _import_data(
-        self, import_config: ImportDataConfig
+        self, datasource: NonTabularDatasourceImportable,
     ) -> Optional[operation.Operation]:
         """Imports data into managed dataset by directly calling API client.
 
         Args:
-            import_config: ImportDataConfig
-                Required. The desired input locations. The contents of
-                all input locations will be imported in one batch.
+            datasource: NonTabularDatasourceImportable
+                Required. Datasource for importing data to an existing dataset for AI Platform.
 
         Returns:
             operation (Operation):
                 An object representing a long-running operation.
         """
         return self.api_client.import_data(
-            name=self.resource_name, import_configs=[import_config]
+            name=self.resource_name, import_configs=[datasource.import_data_config]
         )
 
     @base.optional_sync(return_input_arg="self")
     def import_data(
         self,
-        gcs_source: Sequence[str],
+        gcs_source: Union[str, Sequence[str]],
         import_schema_uri: str,
         data_item_labels: Optional[Dict] = {},
         sync: bool = True,
@@ -474,7 +432,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         """Upload data to existing managed dataset.
 
         Args:
-            gcs_source: Sequence[str]
+            gcs_source: Union[str, Sequence[str]]
                 Required. Google Cloud Storage URI(-s) to the
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
@@ -509,13 +467,13 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
         """
-        self.import_schema_uri = import_schema_uri
+        # Validate metadata_schema_uri and import_schema_uri for Dataset class
+        self._validate_import_schema_uri(import_schema_uri)
         datasource = NonTabularDatasourceImportable(
             gcs_source, import_schema_uri, data_item_labels
         )
 
-        import_lro = self._import_data(datasource.import_data_config)
-
+        import_lro = self._import_data(datasource=datasource)
         import_lro.result()
 
         return self

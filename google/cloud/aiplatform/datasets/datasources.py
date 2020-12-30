@@ -1,10 +1,9 @@
 import abc
-from typing import Optional, Dict, Sequence
+from typing import Optional, Dict, Sequence, Union
 from google.cloud.aiplatform_v1beta1 import (
     GcsSource,
     ImportDataConfig,
 )
-from google.cloud.aiplatform import utils
 
 
 class _Datasource(abc.ABC):
@@ -32,19 +31,19 @@ class TabularDatasource(_Datasource):
 
     def __init__(
         self,
-        gcs_source: Optional[Sequence[str]] = None,
+        gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
     ):
         """Creates a tabular datasource
 
         Args:
-            gcs_source: Optional[Sequence[str]]=None:
+            gcs_source: Optional[Union[str, Sequence[str]]] = None
                 Cloud Storage URI of one or more files. Only CSV files are supported.
                 The first line of the CSV file is used as the header.
                 If there are multiple files, the header is the first line of
                 the lexicographically first file, the other files must either
                 contain the exact same header or omit the header.
-            bq_source: Optional[str]=None:
+            bq_source: Optional[str]=None
                 The URI of a BigQuery table.
 
         Raises:
@@ -53,8 +52,8 @@ class TabularDatasource(_Datasource):
 
         dataset_metadata = None
 
-        if gcs_source:
-            gcs_source = utils.sequence_to_list(gcs_source)
+        if gcs_source and isinstance(gcs_source, str):
+            gcs_source = [gcs_source]
 
         if gcs_source and bq_source:
             raise ValueError("Only one of gcs_source or bq_source can be set.")
@@ -76,15 +75,11 @@ class TabularDatasource(_Datasource):
 
 
 class NonTabularDatasource(_Datasource):
-    """Datasource for creating a non-tabular dataset for AI Platform"""
-
-    def __init__(self):
-        """Creates an empty non-tabular datasource"""
-        self._dataset_metadata = {}
+    """Datasource for creating an empty non-tabular dataset for AI Platform"""
 
     @property
     def dataset_metadata(self) -> Optional[Dict]:
-        return self._dataset_metadata
+        return None
 
 
 class NonTabularDatasourceImportable(NonTabularDatasource, _DatasourceImportable):
@@ -92,14 +87,14 @@ class NonTabularDatasourceImportable(NonTabularDatasource, _DatasourceImportable
 
     def __init__(
         self,
-        gcs_source: Sequence[str],
+        gcs_source: Union[str, Sequence[str]],
         import_schema_uri: str,
         data_item_labels: Optional[Dict] = {},
     ):
         """Creates a non-tabular datasource
 
         Args:
-            gcs_source: Sequence[str]
+            gcs_source: Union[str, Sequence[str]]
                 Required. The Google Cloud Storage location for the input content.
                 Google Cloud Storage URI(-s) to the input file(s). May contain
                 wildcards. For more information on wildcards, see
@@ -126,7 +121,7 @@ class NonTabularDatasourceImportable(NonTabularDatasource, _DatasourceImportable
                 e.g. jsonl file.
         """
         super().__init__()
-        self._gcs_source = utils.sequence_to_list(gcs_source)
+        self._gcs_source = [gcs_source] if isinstance(gcs_source, str) else gcs_source
         self._import_schema_uri = import_schema_uri
         self._data_item_labels = data_item_labels
 

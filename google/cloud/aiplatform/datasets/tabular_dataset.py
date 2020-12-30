@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Sequence, Dict, Tuple
+from typing import Optional, Sequence, Dict, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
@@ -30,46 +30,15 @@ from google.cloud.aiplatform.datasets import (
 class TabularDataset(Dataset):
     """Managed tabular dataset resource for AI Platform"""
 
-    _support_metadata_schema_uris = (schema.dataset.metadata.tabular,)
+    _support_metadata_schema_uris = schema.dataset.metadata.tabular
 
-    _support_import_schema_classes = None
-
-    def __init__(
-        self,
-        dataset_name: str,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ):
-        """Retrieves an existing managed tabular dataset given a dataset name or ID.
-
-        Args:
-            dataset_name: (str)
-                Required. A fully-qualified dataset resource name or dataset ID.
-                Example: "projects/123/locations/us-central1/datasets/456" or
-                "456" when project and location are initialized or passed.
-            project: (str) = None
-                Optional project to retrieve dataset from. If not set, project
-                set in aiplatform.init will be used.
-            location: (str) = None
-                Optional location to retrieve dataset from. If not set, location
-                set in aiplatform.init will be used.
-            credentials: Optional[auth_credentials.Credentials] = None,
-                Custom credentials to use to upload this model. Overrides
-                credentials set in aiplatform.init.
-        """
-        super().__init__(
-            dataset_name=dataset_name,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
+    _support_import_schema_uris = None
 
     @classmethod
     def create(
         cls,
         display_name: str,
-        gcs_source: Optional[Sequence[str]] = None,
+        gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
         labels: Optional[Dict] = {},
         project: Optional[str] = None,
@@ -85,7 +54,7 @@ class TabularDataset(Dataset):
                 Required. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
-            gcs_source: Optional[Sequence[str]] = None:
+            gcs_source: Optional[Union[str, Sequence[str]]] = None:
                 Google Cloud Storage URI(-s) to the
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
@@ -128,13 +97,13 @@ class TabularDataset(Dataset):
         """
 
         utils.validate_display_name(display_name)
-        cls.metadata_schema_uri = schema.dataset.metadata.tabular
+
         datasource = TabularDatasource(gcs_source, bq_source)
 
-        return cls._create_and_import(
+        return cls._create_encapsulated(
             display_name=display_name,
-            metadata_schema_uri=cls.metadata_schema_uri,
-            dataset_metadata=datasource.dataset_metadata,
+            metadata_schema_uri=schema.dataset.metadata.tabular,
+            datasource=datasource,
             labels=labels,
             project=project,
             location=location,
