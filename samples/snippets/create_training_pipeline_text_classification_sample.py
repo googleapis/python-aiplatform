@@ -14,7 +14,7 @@
 
 # [START aiplatform_create_training_pipeline_text_classification_sample]
 from google.cloud import aiplatform
-from google.cloud.aiplatform.schema import trainingjob
+from google.cloud.aiplatform.v1beta1.schema import trainingjob
 
 
 def create_training_pipeline_text_classification_sample(
