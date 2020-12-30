@@ -137,7 +137,9 @@ class TestEndToEnd:
         assert endpoint_deploy_return is None
 
         if not sync:
+            print("waiting on my_endpoint")
             my_endpoint.wait()
+            print("waiting of created_endpoint")
             created_endpoint.wait()
 
         test_prediction = created_endpoint.predict(
