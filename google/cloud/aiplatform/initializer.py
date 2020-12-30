@@ -221,7 +221,7 @@ class _Config:
 
 # global config to store init parameters: ie, aiplatform.init(project=..., location=...)
 global_config = _Config()
-print(f"os.cpu_count: {os.cpu_count()}")
+
 global_pool = futures.ThreadPoolExecutor(
     max_workers=min(32, max(4, (os.cpu_count() or 0) * 5))
 )

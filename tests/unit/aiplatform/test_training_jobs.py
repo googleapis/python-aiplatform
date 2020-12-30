@@ -420,6 +420,9 @@ class TestCustomTrainingJob:
             fp.write(_TEST_PYTHON_SOURCE)
 
     def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def teardown_method(self):
         pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_NAME).unlink()
 
     @pytest.mark.parametrize("sync", [True, False])

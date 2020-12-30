@@ -80,8 +80,7 @@ def default(session):
     # Run py.test against the unit tests.
     session.run(
         "py.test",
-        # "--quiet",
-        "-s", "-v",
+        "--quiet",
         "--cov=google/cloud",
         "--cov=tests/unit",
         "--cov-append",
