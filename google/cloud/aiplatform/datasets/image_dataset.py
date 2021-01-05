@@ -27,14 +27,7 @@ from google.cloud.aiplatform.datasets import Dataset
 class ImageDataset(Dataset):
     """Managed image dataset resource for AI Platform"""
 
-    _support_metadata_schema_uris = schema.dataset.metadata.image
-
-    _support_import_schema_uris = (
-        schema.dataset.ioformat.image.single_label_classification,
-        schema.dataset.ioformat.image.multi_label_classification,
-        schema.dataset.ioformat.image.bounding_box,
-        schema.dataset.ioformat.image.image_segmentation,
-    )
+    _support_metadata_schema_uris = (schema.dataset.metadata.image,)
 
     @classmethod
     def create(
@@ -122,11 +115,6 @@ class ImageDataset(Dataset):
         utils.validate_display_name(display_name)
 
         datasource = datasources.NonTabularDatasource()
-        # Validate the import_schema_uri for specialized dataset subclass
-        if import_schema_uri and cls._validate_import_schema_uri(import_schema_uri):
-            datasource = datasources.NonTabularDatasourceImportable(
-                gcs_source, import_schema_uri, data_item_labels
-            )
 
         return cls._create_encapsulated(
             display_name=display_name,

@@ -28,9 +28,7 @@ from google.cloud.aiplatform.datasets import Dataset
 class TabularDataset(Dataset):
     """Managed tabular dataset resource for AI Platform"""
 
-    _support_metadata_schema_uris = schema.dataset.metadata.tabular
-
-    _support_import_schema_uris = None
+    _support_metadata_schema_uris = (schema.dataset.metadata.tabular,)
 
     @classmethod
     def create(

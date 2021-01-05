@@ -41,12 +41,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
     _resource_noun = "datasets"
     _getter_method = "get_dataset"
 
-    _support_metadata_schema_uris = (
-        schema.dataset.metadata.tabular,
-        schema.dataset.metadata.image,
-    )
-
-    _support_import_schema_uris = None
+    _support_metadata_schema_uris = None
 
     def __init__(
         self,
@@ -79,7 +74,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
         super().__init__(project=project, location=location, credentials=credentials)
         self._gca_resource = self._get_gca_resource(resource_name=dataset_name)
-        self._validate_metadata_schema_uri()
 
     @property
     def metadata_schema_uri(self) -> str:
@@ -94,18 +88,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             raise ValueError(
                 f"{self.__class__.__name__} class can not be used to retrieve "
                 f"dataset resource {self.resource_name}, check the dataset type"
-            )
-        return True
-
-    def _validate_import_schema_uri(self, import_schema_uri: str) -> bool:
-        # TODO: validate metadata_schema_uri and import_schema_uri for creating dataset and importing data
-        # Validate metadata_schema_uri and import_schema_uri for Dataset class
-        # Validate the import_schema_uri for specialized dataset subclass
-        if self._support_import_schema_uris and (
-            import_schema_uri not in self._support_import_schema_uris
-        ):
-            raise ValueError(
-                f"{self.__class__.__name__} class can not support {import_schema_uri}"
             )
         return True
 
@@ -205,9 +187,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         """
 
         utils.validate_display_name(display_name)
-
-        # Validate metadata_schema_uri and import_schema_uri for Dataset class
-        cls._validate_import_schema_uri(import_schema_uri)
 
         if metadata_schema_uri == schema.dataset.metadata.tabular:
             datasource = datasources.TabularDatasource(gcs_source, bq_source)
@@ -466,8 +445,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
         """
-        # Validate metadata_schema_uri and import_schema_uri for Dataset class
-        self._validate_import_schema_uri(import_schema_uri)
         datasource = datasources.NonTabularDatasourceImportable(
             gcs_source, import_schema_uri, data_item_labels
         )
