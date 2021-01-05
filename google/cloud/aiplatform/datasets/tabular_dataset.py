@@ -36,7 +36,7 @@ class TabularDataset(Dataset):
         display_name: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
-        labels: Optional[Dict] = {},
+        labels: Optional[Dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -57,7 +57,7 @@ class TabularDataset(Dataset):
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
             bq_source: Optional[str] = None:
                 BigQuery URI to the input table.
-            labels: Optional[Dict] = {}
+            labels: Optional[Dict] = None
                 The labels with user-defined metadata to organize your
                 Datasets.
 

@@ -98,9 +98,9 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         metadata_schema_uri: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
-        labels: Optional[Dict] = {},
+        labels: Optional[Dict] = None,
         import_schema_uri: Optional[str] = None,
-        data_item_labels: Optional[Dict] = {},
+        data_item_labels: Optional[Dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -128,7 +128,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
             bq_source: Optional[str] = None:
                 BigQuery URI to the input table.
-            labels: Optional[Dict] = {}
+            labels: Optional[Dict] = None
                 The labels with user-defined metadata to organize your
                 Datasets.
 
@@ -147,7 +147,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 done against the schema. The schema is defined as an
                 `OpenAPI 3.0.2 Schema
                 Object <https://tinyurl.com/y538mdwt>`__.
-            data_item_labels: Optional[Dict] = {}
+            data_item_labels: Optional[Dict] = None
                 Labels that will be applied to newly imported DataItems. If
                 an identical DataItem as one being imported already exists
                 in the Dataset, then these labels will be appended to these
@@ -220,7 +220,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             datasources.NonTabularDatasource,
             datasources.NonTabularDatasourceImportable
         ],
-        labels: Optional[Dict] = {},
+        labels: Optional[Dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -243,7 +243,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 aiplatform/schema/dataset/metadata/.
             datasource: Union[TabularDatasource,NonTabularDatasource,NonTabularDatasourceImportable]
                 Required. Datasource for creating a dataset for AI Platform.
-            labels: Optional[Dict] = {}
+            labels: Optional[Dict] = None
                 The labels with user-defined metadata to organize your
                 Datasets.
 
@@ -325,7 +325,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             datasources.NonTabularDatasource,
             datasources.NonTabularDatasourceImportable
         ],
-        labels: Optional[Dict] = {},
+        labels: Optional[Dict] = None,
         request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
         """Creates a new managed dataset by directly calling API client.
@@ -350,7 +350,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 aiplatform/schema/dataset/metadata/.
             datasource: Union[TabularDatasource,NonTabularDatasource,NonTabularDatasourceImportable]
                 Required. Datasource for creating a dataset for AI Platform.
-            labels: Optional[Dict] = {}
+            labels: Optional[Dict] = None
                 The labels with user-defined metadata to organize your
                 Datasets.
 
@@ -404,7 +404,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         self,
         gcs_source: Union[str, Sequence[str]],
         import_schema_uri: str,
-        data_item_labels: Optional[Dict] = {},
+        data_item_labels: Optional[Dict] = None,
         sync: bool = True,
     ) -> "Dataset":
         """Upload data to existing managed dataset.

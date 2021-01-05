@@ -74,7 +74,7 @@ _TEST_METADATA_TABULAR_BQ = {
 _TEST_NONTABULAR_DATASET_METADATA = None
 
 _TEST_INVALID_SOURCE_URIS = ["gs://my-bucket/index_file_1.jsonl", 123]
-_TEST_DATA_LABEL_ITEMS = {}
+_TEST_DATA_LABEL_ITEMS = None
 
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
 

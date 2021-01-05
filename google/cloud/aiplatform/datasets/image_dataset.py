@@ -34,9 +34,9 @@ class ImageDataset(Dataset):
         cls,
         display_name: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
-        labels: Optional[Dict] = {},
+        labels: Optional[Dict] = None,
         import_schema_uri: Optional[str] = None,
-        data_item_labels: Optional[Dict] = {},
+        data_item_labels: Optional[Dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -56,7 +56,7 @@ class ImageDataset(Dataset):
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
-            labels: Optional[Dict] = {}
+            labels: Optional[Dict] = None
                 The labels with user-defined metadata to organize your
                 Datasets.
 
@@ -75,7 +75,7 @@ class ImageDataset(Dataset):
                 done against the schema. The schema is defined as an
                 `OpenAPI 3.0.2 Schema
                 Object <https://tinyurl.com/y538mdwt>`__.
-            data_item_labels: Optional[Dict] = {}
+            data_item_labels: Optional[Dict] = None
                 Labels that will be applied to newly imported DataItems. If
                 an identical DataItem as one being imported already exists
                 in the Dataset, then these labels will be appended to these

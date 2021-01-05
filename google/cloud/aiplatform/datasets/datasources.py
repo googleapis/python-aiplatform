@@ -89,7 +89,7 @@ class NonTabularDatasourceImportable(NonTabularDatasource, _DatasourceImportable
         self,
         gcs_source: Union[str, Sequence[str]],
         import_schema_uri: str,
-        data_item_labels: Optional[Dict] = {},
+        data_item_labels: Optional[Dict] = None,
     ):
         """Creates a non-tabular datasource
 
@@ -104,7 +104,7 @@ class NonTabularDatasourceImportable(NonTabularDatasource, _DatasourceImportable
                 Storage describing the import format. Validation will be
                 done against the schema. The schema is defined as an
                 `OpenAPI 3.0.2 Schema
-            data_item_labels: Optional[Dict] = {}
+            data_item_labels: Optional[Dict] = None
                 Labels that will be applied to newly imported DataItems. If
                 an identical DataItem as one being imported already exists
                 in the Dataset, then these labels will be appended to these
