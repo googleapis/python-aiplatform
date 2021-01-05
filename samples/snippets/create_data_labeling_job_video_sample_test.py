@@ -12,16 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import os
 from uuid import uuid4
-from google.cloud import aiplatform
 
-import helpers
+import pytest
 
 import create_data_labeling_job_video_sample
-import cancel_data_labeling_job_sample
-import delete_data_labeling_job_sample
+import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 API_ENDPOINT = os.getenv("DATA_LABELING_API_ENDPOINT")
@@ -34,38 +31,9 @@ INSTRUCTIONS_GCS_URI = (
 ANNOTATION_SPEC = "cartwheel"
 
 
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state):
+def teardown(teardown_data_labeling_job):
     yield
-
-    assert "/" in shared_state["data_labeling_job_name"]
-
-    data_labeling_job_id = shared_state["data_labeling_job_name"].split("/")[-1]
-
-    client_options = {"api_endpoint": API_ENDPOINT}
-    client = aiplatform.gapic.JobServiceClient(client_options=client_options)
-
-    name = client.data_labeling_job_path(
-        project=PROJECT_ID, location=LOCATION, data_labeling_job=data_labeling_job_id
-    )
-    client.cancel_data_labeling_job(name=name)
-
-    # Verify Data Labelling Job is cancelled, or timeout after 400 seconds
-    helpers.wait_for_job_state(
-        get_job_method=client.get_data_labeling_job, name=name, timeout=400, freq=10
-    )
-
-    # Delete the data labeling job
-    response = client.delete_data_labeling_job(name=name)
-    print("Delete LRO:", response.operation.name)
-    delete_data_labeling_job_response = response.result(timeout=300)
-    print("delete_data_labeling_job_response", delete_data_labeling_job_response)
 
 
 # Creating a data labeling job for images

@@ -133,6 +133,9 @@ class TestDataset:
         reload(initializer)
         reload(aiplatform)
 
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     def test_init_dataset(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
         Dataset(dataset_name=_TEST_NAME)

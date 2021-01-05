@@ -65,6 +65,9 @@ class TestEndToEnd:
         reload(initializer)
         reload(aiplatform)
 
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     @pytest.mark.usefixtures(
         "get_dataset_mock",
         "create_endpoint_mock",
@@ -130,11 +133,15 @@ class TestEndToEnd:
             display_name=test_endpoints._TEST_DISPLAY_NAME, sync=sync
         )
 
-        model_from_job.deploy(sync=sync)
+        my_endpoint = model_from_job.deploy(sync=sync)
 
         endpoint_deploy_return = created_endpoint.deploy(model_from_job, sync=sync)
 
         assert endpoint_deploy_return is None
+
+        if not sync:
+            my_endpoint.wait()
+            created_endpoint.wait()
 
         test_prediction = created_endpoint.predict(
             instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]], parameters={"param": 3.0}

@@ -13,10 +13,11 @@
 # limitations under the License.
 
 # [START aiplatform_predict_image_classification_sample]
+import base64
+
 from google.cloud import aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
-import base64
 
 
 def predict_image_classification_sample(
@@ -26,6 +27,7 @@ def predict_image_classification_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-prediction-aiplatform.googleapis.com",
 ):
+    # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
@@ -40,7 +42,7 @@ def predict_image_classification_sample(
     instance = json_format.ParseDict(instance_dict, Value())
     instances = [instance]
     # See gs://google-cloud-aiplatform/schema/predict/params/image_classification_1.0.0.yaml for the format of the parameters.
-    parameters_dict = {"confidence_threshold": 0.5, "max_predictions": 5}
+    parameters_dict = {"confidenceThreshold": 0.5, "maxPredictions": 5}
     parameters = json_format.ParseDict(parameters_dict, Value())
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id

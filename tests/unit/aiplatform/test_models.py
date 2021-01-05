@@ -160,6 +160,9 @@ class TestModel:
         importlib.reload(initializer)
         importlib.reload(aiplatform)
 
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     def test_constructor_creates_client(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with mock.patch.object(
@@ -493,15 +496,10 @@ class TestModel:
         test_model = models.Model(_TEST_ID)
         test_endpoint = models.Endpoint(_TEST_ID)
 
-        print("start deploy")
         assert test_model.deploy(test_endpoint, sync=sync) == test_endpoint
-        print("end deploy")
 
         if not sync:
-            print("sync")
-            print(test_endpoint._latest_future)
             test_endpoint.wait()
-            print("end sync")
 
         automatic_resources = machine_resources.AutomaticResources(
             min_replica_count=1, max_replica_count=1,

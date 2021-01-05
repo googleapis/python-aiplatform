@@ -12,25 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import os
-
 from uuid import uuid4
 
+import pytest
+
 import export_model_tabular_classification_sample
-from google.cloud import storage
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "5359002081594179584"  # iris 1000
+MODEL_ID = "6036688272397172736"  # iris 1000
 GCS_BUCKET = "gs://ucaip-samples-test-output"
 GCS_PREFIX = f"tmp/export_model_test_{uuid4()}"
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown():
+def teardown(storage_client):
     yield
 
-    storage_client = storage.Client()
     bucket = storage_client.get_bucket("ucaip-samples-test-output")
     blobs = bucket.list_blobs(prefix=GCS_PREFIX)
     for blob in blobs:
