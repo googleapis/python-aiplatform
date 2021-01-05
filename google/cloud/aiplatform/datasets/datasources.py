@@ -6,7 +6,7 @@ from google.cloud.aiplatform_v1beta1 import (
 )
 
 
-class _Datasource(abc.ABC):
+class Datasource(abc.ABC):
     """An abstract class that sets dataset_metadata"""
 
     @property
@@ -16,7 +16,7 @@ class _Datasource(abc.ABC):
         pass
 
 
-class _DatasourceImportable(abc.ABC):
+class DatasourceImportable(abc.ABC):
     """An abstract class that sets import_data_config"""
 
     @property
@@ -26,7 +26,7 @@ class _DatasourceImportable(abc.ABC):
         pass
 
 
-class TabularDatasource(_Datasource):
+class TabularDatasource(Datasource):
     """Datasource for creating a tabular dataset for AI Platform"""
 
     def __init__(
@@ -74,7 +74,7 @@ class TabularDatasource(_Datasource):
         return self._dataset_metadata
 
 
-class NonTabularDatasource(_Datasource):
+class NonTabularDatasource(Datasource):
     """Datasource for creating an empty non-tabular dataset for AI Platform"""
 
     @property
@@ -82,7 +82,7 @@ class NonTabularDatasource(_Datasource):
         return None
 
 
-class NonTabularDatasourceImportable(NonTabularDatasource, _DatasourceImportable):
+class NonTabularDatasourceImportable(NonTabularDatasource, DatasourceImportable):
     """Datasource for creating a non-tabular dataset for AI Platform and importing data to the dataset"""
 
     def __init__(

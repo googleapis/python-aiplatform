@@ -74,6 +74,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
         super().__init__(project=project, location=location, credentials=credentials)
         self._gca_resource = self._get_gca_resource(resource_name=dataset_name)
+        self._validate_metadata_schema_uri()
 
     @property
     def metadata_schema_uri(self) -> str:
@@ -215,11 +216,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         cls,
         display_name: str,
         metadata_schema_uri: str,
-        datasource: Union[
-            datasources.TabularDatasource,
-            datasources.NonTabularDatasource,
-            datasources.NonTabularDatasourceImportable
-        ],
+        datasource: datasources.Datasource,
         labels: Optional[Dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -241,7 +238,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 is defined as an OpenAPI 3.0.2 Schema Object. The schema files
                 that can be used here are found in gs://google-cloud-
                 aiplatform/schema/dataset/metadata/.
-            datasource: Union[TabularDatasource,NonTabularDatasource,NonTabularDatasourceImportable]
+            datasource: datasources.Datasource
                 Required. Datasource for creating a dataset for AI Platform.
             labels: Optional[Dict] = None
                 The labels with user-defined metadata to organize your
@@ -306,8 +303,8 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             credentials=credentials,
         )
 
-        # Import if import datasource is NonTabularDatasourceImportable
-        if isinstance(datasource, datasources.NonTabularDatasourceImportable):
+        # Import if import datasource is DatasourceImportable
+        if isinstance(datasource, datasources.DatasourceImportable):
             import_lro = dataset_obj._import_data(datasource=datasource)
             import_lro.result()
 
@@ -320,11 +317,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         parent: str,
         display_name: str,
         metadata_schema_uri: str,
-        datasource: Union[
-            datasources.TabularDatasource,
-            datasources.NonTabularDatasource,
-            datasources.NonTabularDatasourceImportable
-        ],
+        datasource: datasources.Datasource,
         labels: Optional[Dict] = None,
         request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
@@ -348,7 +341,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 is defined as an OpenAPI 3.0.2 Schema Object. The schema files
                 that can be used here are found in gs://google-cloud-
                 aiplatform/schema/dataset/metadata/.
-            datasource: Union[TabularDatasource,NonTabularDatasource,NonTabularDatasourceImportable]
+            datasource: datasources.Datasource
                 Required. Datasource for creating a dataset for AI Platform.
             labels: Optional[Dict] = None
                 The labels with user-defined metadata to organize your
@@ -383,12 +376,12 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         )
 
     def _import_data(
-        self, datasource: datasources.NonTabularDatasourceImportable,
+        self, datasource: datasources.DatasourceImportable,
     ) -> Optional[operation.Operation]:
         """Imports data into managed dataset by directly calling API client.
 
         Args:
-            datasource: NonTabularDatasourceImportable
+            datasource: datasources.DatasourceImportable
                 Required. Datasource for importing data to an existing dataset for AI Platform.
 
         Returns:

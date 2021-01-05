@@ -21,11 +21,10 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform.datasets import datasources
-from google.cloud.aiplatform.datasets import Dataset
 
-
-class TabularDataset(Dataset):
+class TabularDataset(datasets.Dataset):
     """Managed tabular dataset resource for AI Platform"""
 
     _support_metadata_schema_uris = (schema.dataset.metadata.tabular,)
