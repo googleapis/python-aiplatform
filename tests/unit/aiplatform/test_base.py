@@ -15,11 +15,13 @@
 # limitations under the License.
 #
 
+from importlib import reload
 import pytest
 import time
 from typing import Optional
 
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import initializer
 
 
 class _TestClass(base.FutureManager):
@@ -70,6 +72,12 @@ class _TestClassDownStream(_TestClass):
 
 
 class TestFutureManager:
+    def setup_method(self):
+        reload(initializer)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_task(self, sync):
         a = _TestClass.create(10, sync=sync)

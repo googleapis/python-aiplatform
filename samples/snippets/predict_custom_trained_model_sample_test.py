@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
-import os
 import base64
+import os
 import pathlib
 
-import predict_custom_trained_model_sample
 
+import predict_custom_trained_model_sample
 
 ENDPOINT_ID = "6119547468666372096"  # permanent_custom_flowers_model
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")

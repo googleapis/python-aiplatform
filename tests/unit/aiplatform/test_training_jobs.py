@@ -421,6 +421,7 @@ class TestCustomTrainingJob:
 
     def teardown_method(self):
         pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_NAME).unlink()
+        initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
@@ -621,6 +622,9 @@ class TestCustomTrainingJob:
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
             )
+
+        if not sync:
+            job.wait()
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_with_invalid_accelerator_type_raises(

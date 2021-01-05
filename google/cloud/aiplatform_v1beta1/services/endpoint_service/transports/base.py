@@ -73,10 +73,10 @@ class EndpointServiceTransport(abc.ABC):
             scope (Optional[Sequence[str]]): A list of scopes.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
-            client_info (google.api_core.gapic_v1.client_info.ClientInfo):	
-                The client info used to send a user-agent string along with	
-                API requests. If ``None``, then default info will be used.	
-                Generally, you only need to set this if you're developing	
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
+                The client info used to send a user-agent string along with
+                API requests. If ``None``, then default info will be used.
+                Generally, you only need to set this if you're developing
                 your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
@@ -111,25 +111,25 @@ class EndpointServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_endpoint: gapic_v1.method.wrap_method(
-                self.create_endpoint, default_timeout=None, client_info=client_info,
+                self.create_endpoint, default_timeout=5.0, client_info=client_info,
             ),
             self.get_endpoint: gapic_v1.method.wrap_method(
-                self.get_endpoint, default_timeout=None, client_info=client_info,
+                self.get_endpoint, default_timeout=5.0, client_info=client_info,
             ),
             self.list_endpoints: gapic_v1.method.wrap_method(
-                self.list_endpoints, default_timeout=None, client_info=client_info,
+                self.list_endpoints, default_timeout=5.0, client_info=client_info,
             ),
             self.update_endpoint: gapic_v1.method.wrap_method(
-                self.update_endpoint, default_timeout=None, client_info=client_info,
+                self.update_endpoint, default_timeout=5.0, client_info=client_info,
             ),
             self.delete_endpoint: gapic_v1.method.wrap_method(
-                self.delete_endpoint, default_timeout=None, client_info=client_info,
+                self.delete_endpoint, default_timeout=5.0, client_info=client_info,
             ),
             self.deploy_model: gapic_v1.method.wrap_method(
-                self.deploy_model, default_timeout=None, client_info=client_info,
+                self.deploy_model, default_timeout=5.0, client_info=client_info,
             ),
             self.undeploy_model: gapic_v1.method.wrap_method(
-                self.undeploy_model, default_timeout=None, client_info=client_info,
+                self.undeploy_model, default_timeout=5.0, client_info=client_info,
             ),
         }
 
