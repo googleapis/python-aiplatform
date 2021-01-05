@@ -43,6 +43,9 @@ class TabularDatasource(Datasource):
                 If there are multiple files, the header is the first line of
                 the lexicographically first file, the other files must either
                 contain the exact same header or omit the header.
+                examples:
+                    str: "gs://bucket/file.csv"
+                    Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
             bq_source: Optional[str]=None
                 The URI of a BigQuery table.
 
@@ -99,6 +102,9 @@ class NonTabularDatasourceImportable(NonTabularDatasource, DatasourceImportable)
                 Google Cloud Storage URI(-s) to the input file(s). May contain
                 wildcards. For more information on wildcards, see
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+                examples:
+                    str: "gs://bucket/file.csv"
+                    Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
             import_schema_uri: (str)
                 Required. Points to a YAML file stored on Google Cloud
                 Storage describing the import format. Validation will be

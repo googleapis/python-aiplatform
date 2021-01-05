@@ -54,6 +54,9 @@ class TabularDataset(datasets.Dataset):
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+                examples:
+                    str: "gs://bucket/file.csv"
+                    Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
             bq_source: Optional[str] = None:
                 BigQuery URI to the input table.
             labels: Optional[Dict] = None

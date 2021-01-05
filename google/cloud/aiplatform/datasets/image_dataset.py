@@ -56,6 +56,9 @@ class ImageDataset(datasets.Dataset):
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
                 https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+                examples:
+                    str: "gs://bucket/file.csv"
+                    Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
             labels: Optional[Dict] = None
                 The labels with user-defined metadata to organize your
                 Datasets.
