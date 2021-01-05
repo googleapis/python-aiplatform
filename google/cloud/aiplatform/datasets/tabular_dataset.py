@@ -21,10 +21,8 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.datasets import (
-    Dataset,
-    TabularDatasource,
-)
+from google.cloud.aiplatform.datasets import datasources
+from google.cloud.aiplatform.datasets import Dataset
 
 
 class TabularDataset(Dataset):
@@ -98,7 +96,7 @@ class TabularDataset(Dataset):
 
         utils.validate_display_name(display_name)
 
-        datasource = TabularDatasource(gcs_source, bq_source)
+        datasource = datasources.TabularDatasource(gcs_source, bq_source)
 
         return cls._create_encapsulated(
             display_name=display_name,

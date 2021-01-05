@@ -21,12 +21,8 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.datasets import (
-    Dataset,
-    NonTabularDatasource,
-    NonTabularDatasourceImportable,
-)
-
+from google.cloud.aiplatform.datasets import datasources
+from google.cloud.aiplatform.datasets import Dataset
 
 class ImageDataset(Dataset):
     """Managed image dataset resource for AI Platform"""
@@ -125,10 +121,10 @@ class ImageDataset(Dataset):
 
         utils.validate_display_name(display_name)
 
-        datasource = NonTabularDatasource()
+        datasource = datasources.NonTabularDatasource()
         # Validate the import_schema_uri for specialized dataset subclass
         if import_schema_uri and cls._validate_import_schema_uri(import_schema_uri):
-            datasource = NonTabularDatasourceImportable(
+            datasource = datasources.NonTabularDatasourceImportable(
                 gcs_source, import_schema_uri, data_item_labels
             )
 

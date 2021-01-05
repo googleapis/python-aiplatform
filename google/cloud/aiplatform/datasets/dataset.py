@@ -25,12 +25,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
-from google.cloud.aiplatform.datasets import (
-    TabularDatasource,
-    NonTabularDatasource,
-    NonTabularDatasourceImportable,
-)
-
+from google.cloud.aiplatform.datasets import datasources
 from google.cloud.aiplatform_v1beta1 import GcsDestination
 from google.cloud.aiplatform_v1beta1 import ExportDataConfig
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
@@ -215,11 +210,11 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         cls._validate_import_schema_uri(import_schema_uri)
 
         if metadata_schema_uri == schema.dataset.metadata.tabular:
-            datasource = TabularDatasource(gcs_source, bq_source)
+            datasource = datasources.TabularDatasource(gcs_source, bq_source)
         else:
-            datasource = NonTabularDatasource()
+            datasource = datasources.NonTabularDatasource()
             if import_schema_uri:
-                datasource = NonTabularDatasourceImportable(
+                datasource = datasources.NonTabularDatasourceImportable(
                     gcs_source, import_schema_uri, data_item_labels
                 )
 
@@ -242,7 +237,9 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         display_name: str,
         metadata_schema_uri: str,
         datasource: Union[
-            TabularDatasource, NonTabularDatasource, NonTabularDatasourceImportable
+            datasources.TabularDatasource,
+            datasources.NonTabularDatasource,
+            datasources.NonTabularDatasourceImportable
         ],
         labels: Optional[Dict] = {},
         project: Optional[str] = None,
@@ -331,7 +328,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         )
 
         # Import if import datasource is NonTabularDatasourceImportable
-        if isinstance(datasource, NonTabularDatasourceImportable):
+        if isinstance(datasource, datasources.NonTabularDatasourceImportable):
             import_lro = dataset_obj._import_data(datasource=datasource)
             import_lro.result()
 
@@ -345,7 +342,9 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         display_name: str,
         metadata_schema_uri: str,
         datasource: Union[
-            TabularDatasource, NonTabularDatasource, NonTabularDatasourceImportable
+            datasources.TabularDatasource,
+            datasources.NonTabularDatasource,
+            datasources.NonTabularDatasourceImportable
         ],
         labels: Optional[Dict] = {},
         request_metadata: Sequence[Tuple[str, str]] = (),
@@ -405,7 +404,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         )
 
     def _import_data(
-        self, datasource: NonTabularDatasourceImportable,
+        self, datasource: datasources.NonTabularDatasourceImportable,
     ) -> Optional[operation.Operation]:
         """Imports data into managed dataset by directly calling API client.
 
@@ -469,7 +468,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         """
         # Validate metadata_schema_uri and import_schema_uri for Dataset class
         self._validate_import_schema_uri(import_schema_uri)
-        datasource = NonTabularDatasourceImportable(
+        datasource = datasources.NonTabularDatasourceImportable(
             gcs_source, import_schema_uri, data_item_labels
         )
 

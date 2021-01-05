@@ -15,12 +15,6 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.datasets.datasources import (
-    TabularDatasource,
-    NonTabularDatasource,
-    NonTabularDatasourceImportable,
-)
-
 from google.cloud.aiplatform.datasets.dataset import Dataset
 from google.cloud.aiplatform.datasets.tabular_dataset import TabularDataset
 from google.cloud.aiplatform.datasets.image_dataset import ImageDataset
@@ -29,7 +23,4 @@ __all__ = (
     "Dataset",
     "TabularDataset",
     "ImageDataset",
-    "TabularDatasource",
-    "NonTabularDatasource",
-    "NonTabularDatasourceImportable",
 )
