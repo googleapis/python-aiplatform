@@ -18,7 +18,7 @@
 
 import re
 
-from typing import Any, Match, Optional, Type, TypeVar, Tuple, Sequence
+from typing import Any, Match, Optional, Type, TypeVar, Tuple
 from collections import namedtuple
 
 from google.api_core import client_options

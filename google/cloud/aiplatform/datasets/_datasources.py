@@ -1,9 +1,7 @@
 import abc
 from typing import Optional, Dict, Sequence, Union
-from google.cloud.aiplatform_v1beta1 import (
-    GcsSource,
-    ImportDataConfig,
-)
+from google.cloud.aiplatform_v1beta1.types import io as gca_io
+from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 
 
 class Datasource(abc.ABC):
@@ -37,7 +35,7 @@ class TabularDatasource(Datasource):
         """Creates a tabular datasource
 
         Args:
-            gcs_source: Optional[Union[str, Sequence[str]]] = None
+            gcs_source (Optional[Union[str, Sequence[str]]]):
                 Cloud Storage URI of one or more files. Only CSV files are supported.
                 The first line of the CSV file is used as the header.
                 If there are multiple files, the header is the first line of
@@ -46,7 +44,7 @@ class TabularDatasource(Datasource):
                 examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
-            bq_source: Optional[str]=None
+            bq_source (Optional[str]):
                 The URI of a BigQuery table.
 
         Raises:
@@ -97,7 +95,7 @@ class NonTabularDatasourceImportable(NonTabularDatasource, DatasourceImportable)
         """Creates a non-tabular datasource
 
         Args:
-            gcs_source: Union[str, Sequence[str]]
+            gcs_source (Union[str, Sequence[str]]):
                 Required. The Google Cloud Storage location for the input content.
                 Google Cloud Storage URI(-s) to the input file(s). May contain
                 wildcards. For more information on wildcards, see
@@ -105,12 +103,12 @@ class NonTabularDatasourceImportable(NonTabularDatasource, DatasourceImportable)
                 examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
-            import_schema_uri: (str)
+            import_schema_uri (str):
                 Required. Points to a YAML file stored on Google Cloud
                 Storage describing the import format. Validation will be
                 done against the schema. The schema is defined as an
                 `OpenAPI 3.0.2 Schema
-            data_item_labels: Optional[Dict] = None
+            data_item_labels (Optional[Dict]):
                 Labels that will be applied to newly imported DataItems. If
                 an identical DataItem as one being imported already exists
                 in the Dataset, then these labels will be appended to these
@@ -132,10 +130,10 @@ class NonTabularDatasourceImportable(NonTabularDatasource, DatasourceImportable)
         self._data_item_labels = data_item_labels
 
     @property
-    def import_data_config(self) -> ImportDataConfig:
+    def import_data_config(self) -> gca_dataset.ImportDataConfig:
         """Import Data Config."""
-        return ImportDataConfig(
-            gcs_source=GcsSource(uris=self._gcs_source),
+        return gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=self._gcs_source),
             import_schema_uri=self._import_schema_uri,
             data_item_labels=self._data_item_labels,
         )

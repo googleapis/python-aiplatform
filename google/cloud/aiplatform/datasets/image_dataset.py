@@ -19,15 +19,19 @@ from typing import Optional, Sequence, Dict, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
+from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import datasets
-from google.cloud.aiplatform.datasets import datasources
+from google.cloud.aiplatform.datasets import _datasources
+
 
 class ImageDataset(datasets.Dataset):
     """Managed image dataset resource for AI Platform"""
 
-    _support_metadata_schema_uris = (schema.dataset.metadata.image,)
+    _supported_metadata_schema_uris: Optional[Tuple[str]] = (
+        schema.dataset.metadata.image,
+    )
 
     @classmethod
     def create(
@@ -47,11 +51,11 @@ class ImageDataset(datasets.Dataset):
         source and import_schema_uri are passed.
 
         Args:
-            display_name: (str)
+            display_name (str):
                 Required. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
-            gcs_source: Optional[Union[str, Sequence[str]]] = None:
+            gcs_source (Optional[Union[str, Sequence[str]]]):
                 Google Cloud Storage URI(-s) to the
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
@@ -59,26 +63,24 @@ class ImageDataset(datasets.Dataset):
                 examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
-            labels: Optional[Dict] = None
+            labels (Optional[Dict]):
                 The labels with user-defined metadata to organize your
                 Datasets.
-
                 Label keys and values can be no longer than 64 characters
                 (Unicode codepoints), can only contain lowercase letters,
                 numeric characters, underscores and dashes. International
                 characters are allowed. No more than 64 user labels can be
                 associated with one Dataset (System labels are excluded).
-
                 See https://goo.gl/xmQnxf for more information and examples
                 of labels. System reserved label keys are prefixed with
                 "aiplatform.googleapis.com/" and are immutable.
-            import_schema_uri: Optional[str] = None
+            import_schema_uri (Optional[str]):
                 Points to a YAML file stored on Google Cloud
                 Storage describing the import format. Validation will be
                 done against the schema. The schema is defined as an
                 `OpenAPI 3.0.2 Schema
                 Object <https://tinyurl.com/y538mdwt>`__.
-            data_item_labels: Optional[Dict] = None
+            data_item_labels (Optional[Dict]):
                 Labels that will be applied to newly imported DataItems. If
                 an identical DataItem as one being imported already exists
                 in the Dataset, then these labels will be appended to these
@@ -93,46 +95,50 @@ class ImageDataset(datasets.Dataset):
                 labels specified inside index file refenced by
                 [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
                 e.g. jsonl file.
-            project: Optional[str] = None,
+            project (Optional[str]):
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
-            location: Optional[str] = None,
+            location (Optional[str]):
                 Location to upload this model to. Overrides location set in
                 aiplatform.init.
-            credentials: Optional[auth_credentials.Credentials] = None,
+            credentials (Optional[auth_credentials.Credentials]):
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-            request_metadata: Optional[Sequence[Tuple[str, str]]] = ()
+            request_metadata (Optional[Sequence[Tuple[str, str]]]):
                 Strings which should be sent along with the request as metadata.
-            sync: (bool) = True
+            sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            image_dataset: ImageDataset
+            image_dataset (ImageDataset):
                 Instantiated representation of the managed image dataset resource.
 
         """
 
         utils.validate_display_name(display_name)
 
-        datasource = datasources.NonTabularDatasource()
+        api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        datasource = _datasources.NonTabularDatasource()
         if import_schema_uri:
-            datasource = datasources.NonTabularDatasourceImportable(
-                gcs_source,
-                import_schema_uri,
-                data_item_labels
+            datasource = _datasources.NonTabularDatasourceImportable(
+                gcs_source, import_schema_uri, data_item_labels
             )
 
-        return cls._create_encapsulated(
+        return cls._create_and_import(
+            api_client=api_client,
+            parent=initializer.global_config.common_location_path(
+                project=project, location=location
+            ),
             display_name=display_name,
             metadata_schema_uri=schema.dataset.metadata.image,
             datasource=datasource,
             labels=labels,
-            project=project,
-            location=location,
-            credentials=credentials,
+            project=project or initializer.global_config.project,
+            location=location or initializer.global_config.location,
+            credentials=credentials or initializer.global_config.credentials,
             request_metadata=request_metadata,
             sync=sync,
         )
