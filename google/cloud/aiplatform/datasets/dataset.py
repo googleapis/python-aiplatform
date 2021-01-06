@@ -100,7 +100,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         metadata_schema_uri: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
-        labels: Optional[Dict] = None,
         import_schema_uri: Optional[str] = None,
         data_item_labels: Optional[Dict] = None,
         project: Optional[str] = None,
@@ -133,19 +132,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
             bq_source (Optional[str]):
                 BigQuery URI to the input table.
-            labels (Optional[Dict]):
-                The labels with user-defined metadata to organize your
-                Datasets.
-
-                Label keys and values can be no longer than 64 characters
-                (Unicode codepoints), can only contain lowercase letters,
-                numeric characters, underscores and dashes. International
-                characters are allowed. No more than 64 user labels can be
-                associated with one Dataset (System labels are excluded).
-
-                See https://goo.gl/xmQnxf for more information and examples
-                of labels. System reserved label keys are prefixed with
-                "aiplatform.googleapis.com/" and are immutable.
             import_schema_uri (Optional[str]):
                 Points to a YAML file stored on Google Cloud
                 Storage describing the import format. Validation will be
@@ -210,7 +196,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             datasource=datasource,
-            labels=labels,
             project=project or initializer.global_config.project,
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,
@@ -230,7 +215,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         project: str,
         location: str,
         credentials: Optional[auth_credentials.Credentials],
-        labels: Optional[Dict] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> "Dataset":
@@ -266,17 +250,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             credentials (Optional[auth_credentials.Credentials]):
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-            labels (Optional[Dict]):
-                The labels with user-defined metadata to organize your
-                Datasets.
-                Label keys and values can be no longer than 64 characters
-                (Unicode codepoints), can only contain lowercase letters,
-                numeric characters, underscores and dashes. International
-                characters are allowed. No more than 64 user labels can be
-                associated with one Dataset (System labels are excluded).
-                See https://goo.gl/xmQnxf for more information and examples
-                of labels. System reserved label keys are prefixed with
-                "aiplatform.googleapis.com/" and are immutable.
             project (Optional[str]):
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -304,7 +277,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             datasource=datasource,
-            labels=labels,
             request_metadata=request_metadata,
         )
 
@@ -332,7 +304,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         display_name: str,
         metadata_schema_uri: str,
         datasource: _datasources.Datasource,
-        labels: Optional[Dict] = None,
         request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
         """Creates a new managed dataset by directly calling API client.
@@ -357,17 +328,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 aiplatform/schema/dataset/metadata/.
             datasource (_datasources.Datasource):
                 Required. Datasource for creating a dataset for AI Platform.
-            labels (Optional[Dict]):
-                The labels with user-defined metadata to organize your
-                Datasets.
-                Label keys and values can be no longer than 64 characters
-                (Unicode codepoints), can only contain lowercase letters,
-                numeric characters, underscores and dashes. International
-                characters are allowed. No more than 64 user labels can be
-                associated with one Dataset (System labels are excluded).
-                See https://goo.gl/xmQnxf for more information and examples
-                of labels. System reserved label keys are prefixed with
-                "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the create_dataset
                 request as metadata. Usually to specify special dataset config.
@@ -380,7 +340,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             metadata=datasource.dataset_metadata,
-            labels=labels,
         )
 
         return api_client.create_dataset(

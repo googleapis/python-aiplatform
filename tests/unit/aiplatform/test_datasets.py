@@ -49,7 +49,6 @@ _TEST_INVALID_LOCATION = "us-central2"
 # dataset
 _TEST_ID = "1028944691210842416"
 _TEST_DISPLAY_NAME = "my_dataset_1234"
-_TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
 _TEST_DATA_LABEL_ITEMS = None
 
 _TEST_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/datasets/{_TEST_ID}"
@@ -79,6 +78,9 @@ _TEST_SOURCE_URIS_GCS = [
 _TEST_SOURCE_URI_BQ = "bigquery://my-project/my-dataset"
 _TEST_INVALID_SOURCE_URIS = ["gs://my-bucket/index_file_1.jsonl", 123]
 
+# request_metadata
+_TEST_REQUEST_METADATA = ()
+
 # dataset_metadata
 _TEST_NONTABULAR_DATASET_METADATA = None
 _TEST_METADATA_TABULAR_GCS = {
@@ -99,7 +101,6 @@ def get_dataset_mock():
         get_dataset_mock.return_value = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            labels=_TEST_LABEL,
             name=_TEST_NAME,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
         )
@@ -112,7 +113,6 @@ def get_dataset_without_name_mock():
         get_dataset_mock.return_value = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            labels=_TEST_LABEL,
         )
         yield get_dataset_mock
 
@@ -215,7 +215,6 @@ class TestDataset:
         my_dataset = datasets.Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            labels=_TEST_LABEL,
             sync=sync,
         )
 
@@ -225,12 +224,13 @@ class TestDataset:
         expected_dataset = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            labels=_TEST_LABEL,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
@@ -241,18 +241,18 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             bq_source=_TEST_SOURCE_URI_BQ,
-            labels=_TEST_LABEL,
         )
 
         expected_dataset = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
-            labels=_TEST_LABEL,
             metadata=_TEST_METADATA_TABULAR_BQ,
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
@@ -265,7 +265,6 @@ class TestDataset:
         my_dataset = datasets.Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             gcs_source=_TEST_SOURCE_URI_GCS,
-            labels=_TEST_LABEL,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
@@ -278,7 +277,6 @@ class TestDataset:
         expected_dataset = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            labels=_TEST_LABEL,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
         )
 
@@ -289,7 +287,9 @@ class TestDataset:
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
         )
 
         import_data_mock.assert_called_once_with(
@@ -351,7 +351,6 @@ class TestDataset:
 
         my_dataset = datasets.Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
-            labels=_TEST_LABEL,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             sync=sync,
         )
@@ -369,7 +368,6 @@ class TestDataset:
         expected_dataset = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            labels=_TEST_LABEL,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
         )
 
@@ -380,7 +378,9 @@ class TestDataset:
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
         )
 
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
@@ -431,7 +431,9 @@ class TestImageDataset:
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
         )
 
     @pytest.mark.usefixtures("get_dataset_image_mock")
@@ -458,7 +460,9 @@ class TestImageDataset:
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
         )
 
         expected_import_config = ImportDataConfig(
@@ -523,7 +527,9 @@ class TestImageDataset:
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
         )
         create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
         )
 
         get_dataset_image_mock.assert_called_once_with(name=_TEST_NAME)
@@ -579,5 +585,7 @@ class TestTabularDataset:
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=_TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
         )

@@ -38,7 +38,6 @@ class ImageDataset(datasets.Dataset):
         cls,
         display_name: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
-        labels: Optional[Dict] = None,
         import_schema_uri: Optional[str] = None,
         data_item_labels: Optional[Dict] = None,
         project: Optional[str] = None,
@@ -63,17 +62,6 @@ class ImageDataset(datasets.Dataset):
                 examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
-            labels (Optional[Dict]):
-                The labels with user-defined metadata to organize your
-                Datasets.
-                Label keys and values can be no longer than 64 characters
-                (Unicode codepoints), can only contain lowercase letters,
-                numeric characters, underscores and dashes. International
-                characters are allowed. No more than 64 user labels can be
-                associated with one Dataset (System labels are excluded).
-                See https://goo.gl/xmQnxf for more information and examples
-                of labels. System reserved label keys are prefixed with
-                "aiplatform.googleapis.com/" and are immutable.
             import_schema_uri (Optional[str]):
                 Points to a YAML file stored on Google Cloud
                 Storage describing the import format. Validation will be
@@ -135,7 +123,6 @@ class ImageDataset(datasets.Dataset):
             display_name=display_name,
             metadata_schema_uri=schema.dataset.metadata.image,
             datasource=datasource,
-            labels=labels,
             project=project or initializer.global_config.project,
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,

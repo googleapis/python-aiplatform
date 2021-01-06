@@ -39,7 +39,6 @@ class TabularDataset(datasets.Dataset):
         display_name: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
-        labels: Optional[Dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -63,17 +62,6 @@ class TabularDataset(datasets.Dataset):
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
             bq_source (Optional[str]):
                 BigQuery URI to the input table.
-            labels (Optional[Dict]):
-                The labels with user-defined metadata to organize your
-                Datasets.
-                Label keys and values can be no longer than 64 characters
-                (Unicode codepoints), can only contain lowercase letters,
-                numeric characters, underscores and dashes. International
-                characters are allowed. No more than 64 user labels can be
-                associated with one Dataset (System labels are excluded).
-                See https://goo.gl/xmQnxf for more information and examples
-                of labels. System reserved label keys are prefixed with
-                "aiplatform.googleapis.com/" and are immutable.
             project (Optional[str]):
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -110,7 +98,6 @@ class TabularDataset(datasets.Dataset):
             display_name=display_name,
             metadata_schema_uri=schema.dataset.metadata.tabular,
             datasource=datasource,
-            labels=labels,
             project=project or initializer.global_config.project,
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,
