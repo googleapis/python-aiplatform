@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Sequence, Dict, Tuple, Union
+from typing import Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 

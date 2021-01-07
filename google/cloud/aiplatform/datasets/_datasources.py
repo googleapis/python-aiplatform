@@ -202,7 +202,7 @@ def create_datasource(
 
     if metadata_schema_uri == schema.dataset.metadata.tabular:
         if import_schema_uri:
-            raise ValueError(f"tabular dataset does not support data import.")
+            raise ValueError("tabular dataset does not support data import.")
         return TabularDatasource(gcs_source, bq_source)
 
     if not import_schema_uri and not gcs_source:
@@ -213,5 +213,5 @@ def create_datasource(
         )
     else:
         raise ValueError(
-            f"nontabular dataset requires both import_schema_uri and gcs_source for data import."
+            "nontabular dataset requires both import_schema_uri and gcs_source for data import."
         )
