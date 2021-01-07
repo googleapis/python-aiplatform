@@ -589,3 +589,13 @@ class TestTabularDataset:
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
         )
+
+
+    @pytest.mark.usefixtures("get_dataset_tabular_mock")
+    def test_no_import_data_method(self):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
+
+        with pytest.raises(NotImplementedError):
+            my_dataset.import_data()
