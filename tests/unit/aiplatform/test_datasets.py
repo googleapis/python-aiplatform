@@ -590,7 +590,6 @@ class TestTabularDataset:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-
     @pytest.mark.usefixtures("get_dataset_tabular_mock")
     def test_no_import_data_method(self):
         aiplatform.init(project=_TEST_PROJECT)

@@ -181,14 +181,13 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
-        if metadata_schema_uri == schema.dataset.metadata.tabular:
-            datasource = _datasources.TabularDatasource(gcs_source, bq_source)
-        else:
-            datasource = _datasources.NonTabularDatasource()
-            if import_schema_uri:
-                datasource = _datasources.NonTabularDatasourceImportable(
-                    gcs_source, import_schema_uri, data_item_labels
-                )
+        datasource = _datasources.create_datasource(
+            metadata_schema_uri=metadata_schema_uri,
+            import_schema_uri=import_schema_uri,
+            gcs_source=gcs_source,
+            bq_source=bq_source,
+            data_item_labels=data_item_labels,
+        )
 
         return cls._create_and_import(
             api_client=api_client,
@@ -414,8 +413,11 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
         """
-        datasource = _datasources.NonTabularDatasourceImportable(
-            gcs_source, import_schema_uri, data_item_labels
+        datasource = _datasources.create_datasource(
+            metadata_schema_uri=self.metadata_schema_uri,
+            import_schema_uri=import_schema_uri,
+            gcs_source=gcs_source,
+            data_item_labels=data_item_labels,
         )
 
         import_lro = self._import(datasource=datasource)

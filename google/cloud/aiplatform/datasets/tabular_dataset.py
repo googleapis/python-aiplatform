@@ -90,7 +90,13 @@ class TabularDataset(datasets.Dataset):
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
-        datasource = _datasources.TabularDatasource(gcs_source, bq_source)
+        metadata_schema_uri = schema.dataset.metadata.tabular
+
+        datasource = _datasources.create_datasource(
+            metadata_schema_uri=metadata_schema_uri,
+            gcs_source=gcs_source,
+            bq_source=bq_source,
+        )
 
         return cls._create_and_import(
             api_client=api_client,
@@ -98,7 +104,7 @@ class TabularDataset(datasets.Dataset):
                 project=project, location=location
             ),
             display_name=display_name,
-            metadata_schema_uri=schema.dataset.metadata.tabular,
+            metadata_schema_uri=metadata_schema_uri,
             datasource=datasource,
             project=project or initializer.global_config.project,
             location=location or initializer.global_config.location,

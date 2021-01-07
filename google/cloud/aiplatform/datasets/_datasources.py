@@ -3,6 +3,8 @@ from typing import Optional, Dict, Sequence, Union
 from google.cloud.aiplatform_v1beta1.types import io as gca_io
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 
+from google.cloud.aiplatform import schema
+
 
 class Datasource(abc.ABC):
     """An abstract class that sets dataset_metadata"""
@@ -138,4 +140,78 @@ class NonTabularDatasourceImportable(NonTabularDatasource, DatasourceImportable)
             gcs_source=gca_io.GcsSource(uris=self._gcs_source),
             import_schema_uri=self._import_schema_uri,
             data_item_labels=self._data_item_labels,
+        )
+
+
+def create_datasource(
+    metadata_schema_uri: str,
+    import_schema_uri: Optional[str] = None,
+    gcs_source: Optional[Union[str, Sequence[str]]] = None,
+    bq_source: Optional[str] = None,
+    data_item_labels: Optional[Dict] = None,
+) -> Datasource:
+    """Creates a datasource
+    Args:
+        metadata_schema_uri (str):
+            Required. Points to a YAML file stored on Google Cloud Storage
+            describing additional information about the Dataset. The schema
+            is defined as an OpenAPI 3.0.2 Schema Object. The schema files
+            that can be used here are found in gs://google-cloud-
+            aiplatform/schema/dataset/metadata/.
+        import_schema_uri (str):
+            Points to a YAML file stored on Google Cloud
+            Storage describing the import format. Validation will be
+            done against the schema. The schema is defined as an
+            `OpenAPI 3.0.2 Schema
+        gcs_source (Union[str, Sequence[str]]):
+            The Google Cloud Storage location for the input content.
+            Google Cloud Storage URI(-s) to the input file(s). May contain
+            wildcards. For more information on wildcards, see
+            https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+            examples:
+                str: "gs://bucket/file.csv"
+                Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
+        bq_source (str):
+            BigQuery URI to the input table.
+            example:
+                "bq://project.dataset.table_name"
+        data_item_labels (Dict):
+            Labels that will be applied to newly imported DataItems. If
+            an identical DataItem as one being imported already exists
+            in the Dataset, then these labels will be appended to these
+            of the already existing one, and if labels with identical
+            key is imported before, the old label value will be
+            overwritten. If two DataItems are identical in the same
+            import data operation, the labels will be combined and if
+            key collision happens in this case, one of the values will
+            be picked randomly. Two DataItems are considered identical
+            if their content bytes are identical (e.g. image bytes or
+            pdf bytes). These labels will be overridden by Annotation
+            labels specified inside index file refenced by
+            ``import_schema_uri``,
+            e.g. jsonl file.
+
+    Returns:
+        datasource (Datasource)
+
+    Raises:
+        ValueError when below scenarios happen
+        - import_schema_uri is identified for creating TabularDatasource
+        - either import_schema_uri or gcs_source is missing for creating NonTabularDatasourceImportable
+    """
+
+    if metadata_schema_uri == schema.dataset.metadata.tabular:
+        if import_schema_uri:
+            raise ValueError(f"tabular dataset does not support data import.")
+        return TabularDatasource(gcs_source, bq_source)
+
+    if not import_schema_uri and not gcs_source:
+        return NonTabularDatasource()
+    elif import_schema_uri and gcs_source:
+        return NonTabularDatasourceImportable(
+            gcs_source, import_schema_uri, data_item_labels
+        )
+    else:
+        raise ValueError(
+            f"nontabular dataset requires both import_schema_uri and gcs_source for data import."
         )
