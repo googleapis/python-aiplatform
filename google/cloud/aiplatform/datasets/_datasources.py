@@ -35,7 +35,7 @@ class TabularDatasource(Datasource):
         """Creates a tabular datasource
 
         Args:
-            gcs_source (Optional[Union[str, Sequence[str]]]):
+            gcs_source (Union[str, Sequence[str]]):
                 Cloud Storage URI of one or more files. Only CSV files are supported.
                 The first line of the CSV file is used as the header.
                 If there are multiple files, the header is the first line of
@@ -44,8 +44,10 @@ class TabularDatasource(Datasource):
                 examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
-            bq_source (Optional[str]):
+            bq_source (str):
                 The URI of a BigQuery table.
+                example:
+                    "bq://project.dataset.table_name"
 
         Raises:
             ValueError if source configuration is not valid.
@@ -108,7 +110,7 @@ class NonTabularDatasourceImportable(NonTabularDatasource, DatasourceImportable)
                 Storage describing the import format. Validation will be
                 done against the schema. The schema is defined as an
                 `OpenAPI 3.0.2 Schema
-            data_item_labels (Optional[Dict]):
+            data_item_labels (Dict):
                 Labels that will be applied to newly imported DataItems. If
                 an identical DataItem as one being imported already exists
                 in the Dataset, then these labels will be appended to these

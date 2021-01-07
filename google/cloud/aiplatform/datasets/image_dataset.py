@@ -54,7 +54,7 @@ class ImageDataset(datasets.Dataset):
                 Required. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
-            gcs_source (Optional[Union[str, Sequence[str]]]):
+            gcs_source (Union[str, Sequence[str]]):
                 Google Cloud Storage URI(-s) to the
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
@@ -62,13 +62,13 @@ class ImageDataset(datasets.Dataset):
                 examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
-            import_schema_uri (Optional[str]):
+            import_schema_uri (str):
                 Points to a YAML file stored on Google Cloud
                 Storage describing the import format. Validation will be
                 done against the schema. The schema is defined as an
                 `OpenAPI 3.0.2 Schema
                 Object <https://tinyurl.com/y538mdwt>`__.
-            data_item_labels (Optional[Dict]):
+            data_item_labels (Dict):
                 Labels that will be applied to newly imported DataItems. If
                 an identical DataItem as one being imported already exists
                 in the Dataset, then these labels will be appended to these
@@ -83,16 +83,16 @@ class ImageDataset(datasets.Dataset):
                 labels specified inside index file refenced by
                 [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
                 e.g. jsonl file.
-            project (Optional[str]):
+            project (str):
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
-            location (Optional[str]):
+            location (str):
                 Location to upload this model to. Overrides location set in
                 aiplatform.init.
-            credentials (Optional[auth_credentials.Credentials]):
+            credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-            request_metadata (Optional[Sequence[Tuple[str, str]]]):
+            request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method

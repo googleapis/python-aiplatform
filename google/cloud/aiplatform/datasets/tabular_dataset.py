@@ -52,7 +52,7 @@ class TabularDataset(datasets.Dataset):
                 Required. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
-            gcs_source (Optional[Union[str, Sequence[str]]]):
+            gcs_source (Union[str, Sequence[str]]):
                 Google Cloud Storage URI(-s) to the
                 input file(s). May contain wildcards. For more
                 information on wildcards, see
@@ -60,18 +60,20 @@ class TabularDataset(datasets.Dataset):
                 examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
-            bq_source (Optional[str]):
+            bq_source (str):
                 BigQuery URI to the input table.
-            project (Optional[str]):
+                example:
+                    "bq://project.dataset.table_name"
+            project (str):
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
-            location (Optional[str]):
+            location (str):
                 Location to upload this model to. Overrides location set in
                 aiplatform.init.
-            credentials (Optional[auth_credentials.Credentials]):
+            credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-            request_metadata (Optional[Sequence[Tuple[str, str]]]):
+            request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
