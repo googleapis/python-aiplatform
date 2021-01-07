@@ -30,6 +30,7 @@ class dataset:
             "gs://google-cloud-aiplatform/schema/dataset/metadata/tabular_1.0.0.yaml"
         )
         image = "gs://google-cloud-aiplatform/schema/dataset/metadata/image_1.0.0.yaml"
+        text = "gs://google-cloud-aiplatform/schema/dataset/metadata/text_1.0.0.yaml"
 
     class ioformat:
         class image:
