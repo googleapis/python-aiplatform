@@ -1976,6 +1976,28 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         self._command = command
 
+    @classmethod
+    def get(
+        cls,
+        training_job_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        job = CustomTrainingJob(
+            display_name="",
+            script_path="",
+            container_uri="",
+            project=project,
+            location=location,
+            credentials=credentials,
+            staging_bucket="",
+        )
+
+        job._gca_resource = job._get_gca_resource(resource_name=training_job_name)
+
+        return job
+
     # TODO(b/172365904) add filter split, training_pipeline.FilterSplit
     # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
     def run(
