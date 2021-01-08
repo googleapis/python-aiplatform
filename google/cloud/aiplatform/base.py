@@ -276,7 +276,6 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         """Helper method to instantiate service client for resource noun.
 
         Args:
-            project (str): Project of the resource noun.
             location (str): The location of the resource noun.
             credentials (google.auth.credentials.Credentials):
                 Optional custom credentials to use when accessing interacting with
