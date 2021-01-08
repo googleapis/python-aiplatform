@@ -14,8 +14,7 @@
 
 # [START aiplatform_create_training_pipeline_text_sentiment_analysis_sample]
 from google.cloud import aiplatform
-from google.protobuf import json_format
-from google.protobuf.struct_pb2 import Value
+from google.cloud.aiplatform.v1beta1.schema import trainingjob
 
 
 def create_training_pipeline_text_sentiment_analysis_sample(
@@ -26,13 +25,16 @@ def create_training_pipeline_text_sentiment_analysis_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
+    # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
     # Use sentiment_max of 4
-    training_task_inputs_dict = {"sentiment_max": 4}
-    training_task_inputs = json_format.ParseDict(training_task_inputs_dict, Value())
+    training_task_inputs_object = trainingjob.definition.AutoMlTextSentimentInputs(
+        sentiment_max=4
+    )
+    training_task_inputs = training_task_inputs_object.to_value()
 
     training_pipeline = {
         "display_name": display_name,

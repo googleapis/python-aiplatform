@@ -20,9 +20,7 @@ import synthtool as s
 import synthtool.gcp as gcp
 from synthtool.languages import python
 
-# Use the microgenerator for now since we want to pin the generator version.
-# gapic = gcp.GAPICBazel()
-gapic = gcp.GAPICMicrogenerator()
+gapic = gcp.GAPICBazel()
 
 common = gcp.CommonTemplates()
 
@@ -30,22 +28,35 @@ common = gcp.CommonTemplates()
 # Generate AI Platform GAPIC layer
 # ----------------------------------------------------------------------------
 
-# library = gapic.py_library(
-#     service="aiplatform",
-#     version="v1beta1",
-#     bazel_target="//google/cloud/aiplatform/v1beta1:aiplatform-v1beta1-py",
-# )
-library = gapic.py_library("aiplatform", "v1beta1")
+library = gapic.py_library(
+    service="aiplatform",
+    version="v1beta1",
+    bazel_target="//google/cloud/aiplatform/v1beta1:aiplatform-v1beta1-py",
+)
 
 s.move(
     library,
     excludes=[
+        ".pre-commit-config.yaml",
         "setup.py",
         "README.rst",
         "docs/index.rst",
+        "docs/definition_v1beta1/services.rst",
+        "docs/instance_v1beta1/services.rst",
+        "docs/params_v1beta1/services.rst",
+        "docs/prediction_v1beta1/services.rst",
         "scripts/fixup_aiplatform_v1beta1_keywords.py",
+        "scripts/fixup_definition_v1beta1_keywords.py",
+        "scripts/fixup_instance_v1beta1_keywords.py",
+        "scripts/fixup_params_v1beta1_keywords.py",
+        "scripts/fixup_prediction_v1beta1_keywords.py",
         "google/cloud/aiplatform/__init__.py",
+        "google/cloud/aiplatform/v1beta1/schema/**/services/",
         "tests/unit/gapic/aiplatform_v1beta1/test_prediction_service.py",
+        "tests/unit/gapic/definition_v1beta1/",
+        "tests/unit/gapic/instance_v1beta1/",
+        "tests/unit/gapic/params_v1beta1/",
+        "tests/unit/gapic/prediction_v1beta1/",
     ],
 )
 
@@ -72,6 +83,21 @@ s.replace(
     "request.traffic_split.extend\(traffic_split\)",
     "request.traffic_split = traffic_split",
 )
+
+
+# Generator adds a bad import statement to enhanced type;
+# need to fix in post-processing steps.
+s.replace(
+    "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/text_sentiment.py",
+    "text_sentiment_pb2 as gcaspi_text_sentiment  # type: ignore",
+    "TextSentimentPredictionInstance")
+
+s.replace(
+    "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/text_sentiment.py",
+    "message=gcaspi_text_sentiment.TextSentimentPredictionInstance,",
+    "message=TextSentimentPredictionInstance,")
+
+
 
 # post processing to fix the generated reference doc
 from synthtool import transforms as st

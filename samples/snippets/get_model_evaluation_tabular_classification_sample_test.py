@@ -12,14 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import os
 
 import get_model_evaluation_tabular_classification_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-MODEL_ID = "5162251072873431040"  # permanent_safe_driver_model
-EVALUATION_ID = "5615675837586029221"  # permanent_safe_driver_model Evaluation
+MODEL_ID = "6036688272397172736"  # permanent_safe_driver_model
+EVALUATION_ID = "1866113044163962838"  # permanent_safe_driver_model Evaluation
 
 
 def test_ucaip_generated_get_model_evaluation_tabular_classification_sample(capsys):
