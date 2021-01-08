@@ -1922,9 +1922,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             model_display_name (str):
                 Optional. The display name of the managed AI Platform Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
-                characters. If a `base_model` was provided, the display_name in the
-                base_model will be overritten with this value. If not provided upon
-                creation, the job's display_name is used.
+                characters. If not provided upon creation, the job's display_name is used.
             disable_early_stopping: bool = False
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
@@ -1951,6 +1949,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
         return self._run(
             dataset=dataset,
+            base_model=self._base_model,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
@@ -1964,6 +1963,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
     def _run(
         self,
         dataset: datasets.Dataset,
+        base_model: Optional[models.Model] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -1990,6 +1990,12 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
                 For tabular Datasets, all their data is exported to
                 training, to pick and choose from.
+            base_model: Optional[models.Model] = None
+                Optional. Only permitted for Image Classification models.
+                If it is specified, the new model will be trained based on the `base` model.
+                Otherwise, the new model will be trained from scratch. The `base` model
+                must be in the same Project and Location as the new Model to train,
+                and have the same model_type.
             training_fraction_split (float):
                 Required. The fraction of the input data that is to be
                 used to train the Model. This is ignored if Dataset is not provided.
@@ -2047,21 +2053,17 @@ class AutoMLImageTrainingJob(_TrainingJob):
             "disableEarlyStopping": disable_early_stopping,
         }
 
-        if model_display_name is None:
-            model_display_name = self._display_name
+        model_tbt = gca_model.Model()  # gca Model to be trained
+        model_tbt.display_name = model_display_name or self._display_name
 
-        model_tbt = None  # gca Model to be trained
-
-        if not self._base_model:
-            model_tbt = gca_model.Model(display_name=model_display_name)
-        else:
+        if base_model:
             # Use provided base_model to pass to model_to_upload causing the
-            # description and tags from base_model to be passed onto the new model
-            model_tbt = self._base_model._gca_resource
-            model_tbt.display_name = model_display_name
+            # description and labels from base_model to be passed onto the new model
+            model_tbt.description = getattr(base_model._gca_resource, "description")
+            model_tbt.labels = getattr(base_model._gca_resource, "labels")
 
             # Set ID of AI Platform Model to base this training job off of
-            training_task_inputs_dict["baseModelId"] = self._base_model.name
+            training_task_inputs_dict["baseModelId"] = base_model.name
 
         return self._run_job(
             training_task_definition=training_task_definition,

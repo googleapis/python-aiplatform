@@ -156,7 +156,7 @@ class TestAutoMLImageTrainingJob:
         importlib.reload(initializer)
         importlib.reload(aiplatform)
 
-    def test_init_all_parameters(self, mock_dataset_image):
+    def test_init_all_parameters(self, mock_model_image):
         """Ensure all private members are set correctly at initalization"""
 
         aiplatform.init(project=_TEST_PROJECT)
@@ -165,7 +165,7 @@ class TestAutoMLImageTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             prediction_type=_TEST_PREDICTION_TYPE_ICN,
             model_type=_TEST_MODEL_TYPE_MOBILE,
-            base_model=mock_dataset_image,
+            base_model=mock_model_image,
             multi_label=True,
         )
 
@@ -173,9 +173,9 @@ class TestAutoMLImageTrainingJob:
         assert job._model_type == _TEST_MODEL_TYPE_MOBILE
         assert job._prediction_type == _TEST_PREDICTION_TYPE_ICN
         assert job._multi_label is True
-        assert job._base_model == mock_dataset_image
+        assert job._base_model == mock_model_image
 
-    def test_init_wrong_parameters(self, mock_dataset_image):
+    def test_init_wrong_parameters(self, mock_model_image):
         """Ensure correct exceptions are raised when initializing with invalid args"""
 
         aiplatform.init(project=_TEST_PROJECT)
@@ -196,7 +196,7 @@ class TestAutoMLImageTrainingJob:
             training_jobs.AutoMLImageTrainingJob(
                 display_name=_TEST_DISPLAY_NAME,
                 prediction_type=_TEST_PREDICTION_TYPE_IOD,
-                base_model=mock_dataset_image,
+                base_model=mock_model_image,
             )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -237,7 +237,6 @@ class TestAutoMLImageTrainingJob:
         )
 
         true_managed_model = gca_model.Model(
-            name=_TEST_MODEL_NAME,
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model_image._gca_resource.description,
         )

@@ -36,6 +36,7 @@ MOBILE_TF_MODEL_TYPES = {
     "MOBILE_TF_HIGH_ACCURACY_1",
 }
 
+# TODO(b/177079208): Use EPCL Enums for validating Model Types
 # Defined by gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_*
 # Format: "prediction_type": set() of model_type's
 #
