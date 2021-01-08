@@ -65,8 +65,6 @@ class _Config:
         """
         if project:
             self._project = project
-            if not os.environ.get(google.auth.environment_vars.PROJECT):
-                os.environ[google.auth.environment_vars.PROJECT] = self._project
         if location:
             utils.validate_region(location)
             self._location = location
@@ -77,6 +75,12 @@ class _Config:
             self._staging_bucket = staging_bucket
         if credentials:
             self._credentials = credentials
+        else:
+            logger = logging.getLogger("google.auth._default")
+            logging_warning_filter = utils.LoggingWarningFilter()
+            logger.addFilter(logging_warning_filter)
+            self._credentials, _ = google.auth.default()
+            logger.removeFilter(logging_warning_filter)
 
     @property
     def project(self) -> str:
