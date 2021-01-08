@@ -29,3 +29,21 @@ BATCH_PREDICTION_INPUT_STORAGE_FORMATS = (
     "file-list",
 )
 BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS = ("jsonl", "csv", "bigquery")
+
+MOBILE_TF_MODEL_TYPES = {
+    "MOBILE_TF_LOW_LATENCY_1",
+    "MOBILE_TF_VERSATILE_1",
+    "MOBILE_TF_HIGH_ACCURACY_1",
+}
+
+# TODO(b/177079208): Use EPCL Enums for validating Model Types
+# Defined by gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_*
+# Format: "prediction_type": set() of model_type's
+#
+# NOTE: When adding a new prediction_type's, ensure it fits the pattern
+#       "automl_image_{prediction_type}_*" used by the YAML schemas on GCS
+AUTOML_IMAGE_PREDICTION_MODEL_TYPES = {
+    "classification": {"CLOUD"} | MOBILE_TF_MODEL_TYPES,
+    "object_detection": {"CLOUD_HIGH_ACCURACY_1", "CLOUD_LOW_LATENCY_1"}
+    | MOBILE_TF_MODEL_TYPES,
+}

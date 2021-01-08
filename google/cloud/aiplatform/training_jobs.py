@@ -34,6 +34,7 @@ from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
+from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
     client as pipeline_service_client,
@@ -1180,7 +1181,7 @@ class CustomTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform.If none of the fractions are set, by default roughly 80%
+        decided by AI Platform. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -1527,7 +1528,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform.If none of the fractions are set, by default roughly 80%
+        decided by AI Platform. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -1587,7 +1588,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
                 that training might stop before the entire training budget has been
-                used, if futrher training does no longer brings significant improvement
+                used, if further training does no longer brings significant improvement
                 to the model.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -1602,10 +1603,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         """
 
         if self._is_waiting_to_run():
-            raise RuntimeError("Custom Training is already scheduled to run.")
+            raise RuntimeError("AutoML Tabular Training is already scheduled to run.")
 
         if self._has_run:
-            raise RuntimeError("Custom Training has already run.")
+            raise RuntimeError("AutoML Tabular Training has already run.")
 
         return self._run(
             dataset=dataset,
@@ -1642,7 +1643,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform.If none of the fractions are set, by default roughly 80%
+        decided by AI Platform. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -1702,7 +1703,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
                 that training might stop before the entire training budget has been
-                used, if futrher training does no longer brings significant improvement
+                used, if further training does no longer brings significant improvement
                 to the model.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -1752,4 +1753,332 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         return (
             f"Training Pipeline {self.resource_name} is not configured to upload a "
             "Model."
+        )
+
+
+class AutoMLImageTrainingJob(_TrainingJob):
+    def __init__(
+        self,
+        display_name: str,
+        prediction_type: str = "classification",
+        multi_label: bool = False,
+        model_type: str = "CLOUD",
+        base_model: Optional[models.Model] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Constructs a AutoML Image Training Job.
+
+        Args:
+            display_name (str):
+                Required. The user-defined name of this TrainingPipeline.
+            prediction_type (str):
+                The type of prediction the Model is to produce, one of:
+                    "classification" - Predict one out of multiple target values is
+                        picked for each row.
+                    "object_detection" - Predict a value based on its relation to other values.
+                        This type is available only to columns that contain
+                        semantically numeric values, i.e. integers or floating
+                        point number, even if stored as e.g. strings.
+            multi_label: bool = False
+                Required. Default is False.
+                If false, a single-label (multi-class) Model will be trained
+                (i.e. assuming that for each image just up to one annotation may be
+                applicable). If true, a multi-label Model will be trained (i.e.
+                assuming that for each image multiple annotations may be applicable).
+            model_type: str = "CLOUD"
+                Required. One of the following:
+                    "CLOUD" - Default for Image Classification.
+                        A Model best tailored to be used within Google Cloud, and
+                        which cannot be exported.
+                    "CLOUD_HIGH_ACCURACY_1" - Default for Image Object Detection.
+                        A model best tailored to be used within Google Cloud, and
+                        which cannot be exported. Expected to have a higher latency,
+                        but should also have a higher prediction quality than other
+                        cloud models.
+                    "CLOUD_LOW_LATENCY_1" - A model best tailored to be used within
+                        Google Cloud, and which cannot be exported. Expected to have a
+                        low latency, but may have lower prediction quality than other
+                        cloud models.
+                    "MOBILE_TF_LOW_LATENCY_1" - A model that, in addition to being
+                        available within Google Cloud, can also be exported as TensorFlow
+                        or Core ML model and used on a mobile or edge device afterwards.
+                        Expected to have low latency, but may have lower prediction
+                        quality than other mobile models.
+                    "MOBILE_TF_VERSATILE_1" - A model that, in addition to being
+                        available within Google Cloud, can also be exported as TensorFlow
+                        or Core ML model and used on a mobile or edge device with afterwards.
+                    "MOBILE_TF_HIGH_ACCURACY_1" - A model that, in addition to being
+                        available within Google Cloud, can also be exported as TensorFlow
+                        or Core ML model and used on a mobile or edge device afterwards.
+                        Expected to have a higher latency, but should also have a higher
+                        prediction quality than other mobile models.
+            base_model: Optional[models.Model] = None
+                Optional. Only permitted for Image Classification models.
+                If it is specified, the new model will be trained based on the `base` model.
+                Otherwise, the new model will be trained from scratch. The `base` model
+                must be in the same Project and Location as the new Model to train,
+                and have the same model_type.
+            project (str):
+                Optional. Project to run training in. Overrides project set in aiplatform.init.
+            location (str):
+                Optional. Location to run training in. Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to run call training service. Overrides
+                credentials set in aiplatform.init.
+        Raises:
+            ValueError: When an invalid prediction_type or model_type is provided.
+        """
+
+        valid_model_types = constants.AUTOML_IMAGE_PREDICTION_MODEL_TYPES.get(
+            prediction_type, None
+        )
+
+        if not valid_model_types:
+            raise ValueError(
+                f"'{prediction_type}' is not a supported prediction type for AutoML Image Training. "
+                f"Please choose one of: {tuple(constants.AUTOML_IMAGE_PREDICTION_MODEL_TYPES.keys())}."
+            )
+
+        # Override default model_type for object_detection
+        if model_type == "CLOUD" and prediction_type == "object_detection":
+            model_type = "CLOUD_HIGH_ACCURACY_1"
+
+        if model_type not in valid_model_types:
+            raise ValueError(
+                f"'{model_type}' is not a supported model_type for prediction_type of '{prediction_type}'. "
+                f"Please choose one of: {tuple(valid_model_types)}"
+            )
+
+        if base_model and prediction_type != "classification":
+            raise ValueError(
+                "Training with a `base_model` is only supported in AutoML Image Classification. "
+                f"However '{prediction_type}' was provided as `prediction_type`."
+            )
+
+        super().__init__(
+            display_name=display_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        self._model_type = model_type
+        self._prediction_type = prediction_type
+        self._multi_label = multi_label
+        self._base_model = base_model
+
+    def run(
+        self,
+        dataset: datasets.Dataset,
+        training_fraction_split: float = 0.8,
+        validation_fraction_split: float = 0.1,
+        test_fraction_split: float = 0.1,
+        budget_milli_node_hours: int = 1000,
+        model_display_name: Optional[str] = None,
+        disable_early_stopping: bool = False,
+        sync: bool = True,
+    ) -> models.Model:
+        """Runs the AutoML Image training job and returns a model.
+
+        Data fraction splits:
+        Any of ``training_fraction_split``, ``validation_fraction_split`` and
+        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+        the provided ones sum to less than 1, the remainder is assigned to sets as
+        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        of data will be used for training, 10% for validation, and 10% for test.
+
+        Args:
+            dataset (aiplatform.Dataset):
+                Required. The dataset within the same Project from which data will be used to train the Model. The
+                Dataset must use schema compatible with Model being trained,
+                and what is compatible should be described in the used
+                TrainingPipeline's [training_task_definition]
+                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+                For tabular Datasets, all their data is exported to
+                training, to pick and choose from.
+            training_fraction_split: float = 0.8
+                Required. The fraction of the input data that is to be
+                used to train the Model. This is ignored if Dataset is not provided.
+            validation_fraction_split: float = 0.1
+                Required. The fraction of the input data that is to be
+                used to validate the Model. This is ignored if Dataset is not provided.
+            test_fraction_split: float = 0.1
+                Required. The fraction of the input data that is to be
+                used to evaluate the Model. This is ignored if Dataset is not provided.
+            budget_milli_node_hours: int = 1000
+                Optional. The train budget of creating this Model, expressed in milli node
+                hours i.e. 1,000 value in this field means 1 node hour.
+                The training cost of the model will not exceed this budget. The final
+                cost will be attempted to be close to the budget, though may end up
+                being (even) noticeably smaller - at the backend's discretion. This
+                especially may happen when further model training ceases to provide
+                any improvements.
+                If the budget is set to a value known to be insufficient to train a
+                Model for the given training set, the training won't be attempted and
+                will error.
+                The minimum value is 1000 and the maximum is 72000.
+            model_display_name (str):
+                Optional. The display name of the managed AI Platform Model. The name
+                can be up to 128 characters long and can be consist of any UTF-8
+                characters. If not provided upon creation, the job's display_name is used.
+            disable_early_stopping: bool = False
+                Required. If true, the entire budget is used. This disables the early stopping
+                feature. By default, the early stopping feature is enabled, which means
+                that training might stop before the entire training budget has been
+                used, if further training does no longer brings significant improvement
+                to the model.
+            sync: bool = True
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Returns:
+            model: The trained AI Platform Model resource or None if training did not
+                produce an AI Platform Model.
+
+        Raises:
+            RuntimeError: If Training job has already been run or is waiting to run.
+        """
+
+        if self._is_waiting_to_run():
+            raise RuntimeError("AutoML Image Training is already scheduled to run.")
+
+        if self._has_run:
+            raise RuntimeError("AutoML Image Training has already run.")
+
+        return self._run(
+            dataset=dataset,
+            base_model=self._base_model,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
+            budget_milli_node_hours=budget_milli_node_hours,
+            model_display_name=model_display_name,
+            disable_early_stopping=disable_early_stopping,
+            sync=sync,
+        )
+
+    @base.optional_sync()
+    def _run(
+        self,
+        dataset: datasets.Dataset,
+        base_model: Optional[models.Model] = None,
+        training_fraction_split: float = 0.8,
+        validation_fraction_split: float = 0.1,
+        test_fraction_split: float = 0.1,
+        budget_milli_node_hours: int = 1000,
+        model_display_name: Optional[str] = None,
+        disable_early_stopping: bool = False,
+        sync: bool = True,
+    ) -> models.Model:
+        """Runs the training job and returns a model.
+
+        Data fraction splits:
+        Any of ``training_fraction_split``, ``validation_fraction_split`` and
+        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+        the provided ones sum to less than 1, the remainder is assigned to sets as
+        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        of data will be used for training, 10% for validation, and 10% for test.
+
+        Args:
+            dataset (aiplatform.Dataset):
+                Required. The dataset within the same Project from which data will be used to train the Model. The
+                Dataset must use schema compatible with Model being trained,
+                and what is compatible should be described in the used
+                TrainingPipeline's [training_task_definition]
+                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+                For tabular Datasets, all their data is exported to
+                training, to pick and choose from.
+            base_model: Optional[models.Model] = None
+                Optional. Only permitted for Image Classification models.
+                If it is specified, the new model will be trained based on the `base` model.
+                Otherwise, the new model will be trained from scratch. The `base` model
+                must be in the same Project and Location as the new Model to train,
+                and have the same model_type.
+            training_fraction_split (float):
+                Required. The fraction of the input data that is to be
+                used to train the Model. This is ignored if Dataset is not provided.
+            validation_fraction_split (float):
+                Required. The fraction of the input data that is to be
+                used to validate the Model. This is ignored if Dataset is not provided.
+            test_fraction_split (float):
+                Required. The fraction of the input data that is to be
+                used to evaluate the Model. This is ignored if Dataset is not provided.
+            budget_milli_node_hours (int):
+                Optional. The train budget of creating this Model, expressed in milli node
+                hours i.e. 1,000 value in this field means 1 node hour.
+                The training cost of the model will not exceed this budget. The final
+                cost will be attempted to be close to the budget, though may end up
+                being (even) noticeably smaller - at the backend's discretion. This
+                especially may happen when further model training ceases to provide
+                any improvements.
+                If the budget is set to a value known to be insufficient to train a
+                Model for the given training set, the training won't be attempted and
+                will error.
+                The minimum value is 1000 and the maximum is 72000.
+            model_display_name (str):
+                Optional. The display name of the managed AI Platform Model. The name
+                can be up to 128 characters long and can be consist of any UTF-8
+                characters. If a `base_model` was provided, the display_name in the
+                base_model will be overritten with this value. If not provided upon
+                creation, the job's display_name is used.
+            disable_early_stopping (bool):
+                Required. If true, the entire budget is used. This disables the early stopping
+                feature. By default, the early stopping feature is enabled, which means
+                that training might stop before the entire training budget has been
+                used, if further training does no longer brings significant improvement
+                to the model.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            model: The trained AI Platform Model resource or None if training did not
+                produce an AI Platform Model.
+        """
+
+        # Retrieve the objective-specific training task schema based on prediction_type
+        training_task_definition = getattr(
+            schema.training_job.definition, f"automl_image_{self._prediction_type}_task"
+        )
+
+        training_task_inputs_dict = {
+            # required inputs
+            "modelType": self._model_type,
+            "budgetMilliNodeHours": budget_milli_node_hours,
+            "modelLabel": self._multi_label,
+            # optional inputs
+            "disableEarlyStopping": disable_early_stopping,
+        }
+
+        model_tbt = gca_model.Model()  # gca Model to be trained
+        model_tbt.display_name = model_display_name or self._display_name
+
+        if base_model:
+            # Use provided base_model to pass to model_to_upload causing the
+            # description and labels from base_model to be passed onto the new model
+            model_tbt.description = getattr(base_model._gca_resource, "description")
+            model_tbt.labels = getattr(base_model._gca_resource, "labels")
+
+            # Set ID of AI Platform Model to base this training job off of
+            training_task_inputs_dict["baseModelId"] = base_model.name
+
+        return self._run_job(
+            training_task_definition=training_task_definition,
+            training_task_inputs=training_task_inputs_dict,
+            dataset=dataset,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
+            model=model_tbt,
+        )
+
+    @property
+    def _model_upload_fail_string(self) -> str:
+        """Helper property for model upload failure."""
+        return (
+            f"AutoML Image Training Pipeline {self.resource_name} is not "
+            "configured to upload a Model."
         )
