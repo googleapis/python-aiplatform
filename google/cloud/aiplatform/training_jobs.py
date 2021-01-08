@@ -454,26 +454,6 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         return self._gca_resource.state
 
-    @classmethod
-    @abc.abstractmethod
-    def get(
-        cls,
-        resource_name: str,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ):
-        """Get training job for the given resource_name.
-
-        Raises:
-            ValueError: If the retrieved training job's training task definition 
-                doesn't match the training job class type.
-
-        Returns:
-            An AI Platform Training Job
-        """
-        pass
-
     def get_model(self) -> Optional[models.Model]:
         """AI Platform Model produced by this training, if one was produced.
 
@@ -2003,7 +1983,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ):
+    ) -> "CustomTrainingJob":
         """Get CustomTrainingJob for the given resource_name.
 
         Raises:
