@@ -1999,6 +1999,16 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         job._gca_resource = job._get_gca_resource(resource_name=training_job_name)
 
+        if (
+            job._gca_resource.training_task_definition
+            != schema.training_job.definition.custom_task
+        ):
+            raise ValueError(
+                f"The retrieved job's training task definition "
+                "is {job._gca_resource.training_task_definition}, "
+                "which is not compatible with CustomTrainingJob."
+            )
+
         return job
 
     # TODO(b/172365904) add filter split, training_pipeline.FilterSplit

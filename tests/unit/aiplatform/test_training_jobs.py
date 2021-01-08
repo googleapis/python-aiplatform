@@ -103,7 +103,6 @@ _TEST_ID = "12345"
 _TEST_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/{_TEST_ID}"
 )
-_TEST_INVALID_NAME = f"prj/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/{_TEST_ID}"
 
 _TEST_MODEL_INSTANCE_SCHEMA_URI = "instance_schema_uri.yaml"
 _TEST_MODEL_PARAMETERS_SCHEMA_URI = "parameters_schema_uri.yaml"
