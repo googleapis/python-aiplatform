@@ -14,7 +14,7 @@
 
 # [START aiplatform_create_training_pipeline_image_classification_sample]
 from google.cloud import aiplatform
-from google.cloud.aiplatform.schema import trainingjob
+from google.cloud.aiplatform.gapic.schema import trainingjob
 
 
 def create_training_pipeline_image_classification_sample(
@@ -30,13 +30,12 @@ def create_training_pipeline_image_classification_sample(
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
-    training_task_inputs_object = trainingjob.definition.AutoMlImageClassificationInputs(
+    training_task_inputs = trainingjob.definition.AutoMlImageClassificationInputs(
         multi_label=True,
         model_type="CLOUD",
         budget_milli_node_hours=8000,
         disable_early_stopping=False,
-    )
-    training_task_inputs = training_task_inputs_object.to_value()
+    ).to_value()
 
     training_pipeline = {
         "display_name": display_name,
