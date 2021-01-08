@@ -151,6 +151,9 @@ class TestEndpoint:
         reload(initializer)
         reload(aiplatform)
 
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     def test_constructor(self, create_client_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Endpoint(_TEST_ENDPOINT_NAME)

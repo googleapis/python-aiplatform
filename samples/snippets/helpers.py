@@ -19,7 +19,7 @@ def get_state(out):
 
 
 def wait_for_job_state(
-    get_job_method: Callable[[str], "proto.Message"],
+    get_job_method: Callable[[str], "proto.Message"],  # noqa: F821
     name: str,
     expected_state: str = "CANCELLED",
     timeout: int = 90,

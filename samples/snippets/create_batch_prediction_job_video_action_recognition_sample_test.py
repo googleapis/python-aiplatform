@@ -12,15 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import uuid
-import pytest
 import os
+import uuid
 
-import helpers
+import pytest
 
 import create_batch_prediction_job_video_action_recognition_sample
-
-from google.cloud import aiplatform
+import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
@@ -30,42 +28,11 @@ DISPLAY_NAME = (
 )
 GCS_SOURCE_URI = "gs://automl-video-demo-data/ucaip-var/swimrun_bp.jsonl"
 GCS_OUTPUT_URI = "gs://ucaip-samples-test-output/"
-API_ENDPOINT = "us-central1-aiplatform.googleapis.com"
-
-
-@pytest.fixture
-def shared_state():
-    state = {}
-    yield state
-
-
-@pytest.fixture
-def job_client():
-    client_options = {"api_endpoint": API_ENDPOINT}
-    job_client = aiplatform.gapic.JobServiceClient(client_options=client_options)
-    yield job_client
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown(shared_state, job_client):
+def teardown(teardown_batch_prediction_job):
     yield
-
-    # Stop the batch prediction job
-    # Delete the batch prediction job
-    job_client.cancel_batch_prediction_job(
-        name=shared_state["batch_prediction_job_name"]
-    )
-
-    # Waiting for batch prediction job to be in CANCELLED state
-    helpers.wait_for_job_state(
-        get_job_method=job_client.get_batch_prediction_job,
-        name=shared_state["batch_prediction_job_name"],
-    )
-
-    # Delete the batch prediction job
-    job_client.delete_batch_prediction_job(
-        name=shared_state["batch_prediction_job_name"]
-    )
 
 
 # Creating AutoML Video Object Tracking batch prediction job
@@ -78,7 +45,7 @@ def test_create_batch_prediction_job_video_action_recognition_sample(
     create_batch_prediction_job_video_action_recognition_sample.create_batch_prediction_job_video_action_recognition_sample(
         project=PROJECT_ID,
         display_name=DISPLAY_NAME,
-        model=model_name,
+        model_name=model_name,
         gcs_source_uri=GCS_SOURCE_URI,
         gcs_destination_output_uri_prefix=GCS_OUTPUT_URI,
     )

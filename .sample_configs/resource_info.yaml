@@ -1,0 +1,33 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+mapping:
+  evaluation: model_evaluation
+  slice: model_evaluation_slice
+resources:
+- projects/{project}/locations/{location}/datasets/{dataset}/annotationSpecs/{annotation_spec}
+- projects/{project}/locations/{location}/datasets/{dataset}
+- projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}
+- projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}
+- projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}
+- projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}/annotations/{annotation}
+- projects/{project}/locations/{location}/endpoints/{endpoint}
+- projects/{project}/locations/{location}/specialistPools/{specialist_pool}
+- projects/{project}/locations/{location}/customJobs/{custom_job}
+- projects/{project}/locations/{location}/models/{model}
+- projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}
+- projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}
+- projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}
+- projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}

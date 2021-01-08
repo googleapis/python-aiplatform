@@ -42,6 +42,9 @@ class TestInit:
     def setup_method(self):
         importlib.reload(initializer)
 
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     def test_init_project_sets_project(self):
         initializer.global_config.init(project=_TEST_PROJECT)
         assert initializer.global_config.project == _TEST_PROJECT
@@ -167,6 +170,9 @@ class TestInit:
 
 
 class TestThreadPool:
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     @pytest.mark.parametrize(
         "cpu_count, expected", [(4, 20), (32, 32), (None, 4), (2, 10)]
     )
