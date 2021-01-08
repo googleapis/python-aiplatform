@@ -1984,14 +1984,17 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
+        # Create job with dummy parameters
+        # These parameters won't be used as user can not run the job again.
+        # If they try, an exception will be raised.
         job = CustomTrainingJob(
-            display_name="",
-            script_path="",
-            container_uri="",
+            display_name="dummy",
+            script_path="dummy",
+            container_uri="dummy",
             project=project,
             location=location,
             credentials=credentials,
-            staging_bucket="",
+            staging_bucket="dummy",
         )
 
         job._gca_resource = job._get_gca_resource(resource_name=training_job_name)
