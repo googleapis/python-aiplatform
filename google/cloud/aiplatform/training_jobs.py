@@ -454,6 +454,26 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         return self._gca_resource.state
 
+    @classmethod
+    @abc.abstractmethod
+    def get(
+        cls,
+        resource_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Get training job for the given resource_name.
+
+        Raises:
+            ValueError: If the retrieved training job's training task definition 
+                doesn't match the training job class type.
+
+        Returns:
+            An AI Platform Training Job
+        """
+        pass
+
     def get_model(self) -> Optional[models.Model]:
         """AI Platform Model produced by this training, if one was produced.
 
@@ -1979,11 +1999,21 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     @classmethod
     def get(
         cls,
-        training_job_name: str,
+        resource_name: str,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
+        """Get CustomTrainingJob for the given resource_name.
+
+        Raises:
+            ValueError: If the retrieved training job's training task definition 
+                doesn't match the custom training task definition.
+
+        Returns:
+            An AI Platform Training Job
+        """
+
         # Create job with dummy parameters
         # These parameters won't be used as user can not run the job again.
         # If they try, an exception will be raised.
@@ -1997,7 +2027,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             staging_bucket="dummy",
         )
 
-        job._gca_resource = job._get_gca_resource(resource_name=training_job_name)
+        job._gca_resource = job._get_gca_resource(resource_name=resource_name)
 
         if (
             job._gca_resource.training_task_definition
@@ -2005,8 +2035,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         ):
             raise ValueError(
                 f"The retrieved job's training task definition "
-                "is {job._gca_resource.training_task_definition}, "
-                "which is not compatible with CustomTrainingJob."
+                f"is {job._gca_resource.training_task_definition}, "
+                f"which is not compatible with CustomTrainingJob."
             )
 
         return job

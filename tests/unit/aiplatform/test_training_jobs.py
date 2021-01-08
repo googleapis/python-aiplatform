@@ -133,17 +133,33 @@ def local_copy_method(path):
 
 
 @pytest.fixture
-def get_training_job_mock():
+def get_training_job_custom_mock():
     with patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
-    ) as get_training_job_mock:
-        get_training_job_mock.return_value = gca_training_pipeline.TrainingPipeline(
+    ) as get_training_job_custom_mock:
+        get_training_job_custom_mock.return_value = gca_training_pipeline.TrainingPipeline(
             name=_TEST_PIPELINE_RESOURCE_NAME,
             state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
             model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            training_task_definition=schema.training_job.definition.custom_task,
         )
 
-        yield get_training_job_mock
+        yield get_training_job_custom_mock
+
+
+@pytest.fixture
+def get_training_job_tabular_mock():
+    with patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as get_training_job_tabular_mock:
+        get_training_job_tabular_mock.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            training_task_definition=schema.training_job.definition.tabular_task,
+        )
+
+        yield get_training_job_tabular_mock
 
 
 @pytest.fixture
@@ -1279,17 +1295,24 @@ class TestCustomTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
-    @pytest.mark.usefixtures("get_training_job_mock")
-    def test_get_training_job(self, get_training_job_mock):
+    @pytest.mark.usefixtures("get_training_job_custom_mock")
+    def test_get_training_job(self, get_training_job_custom_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        training_jobs.CustomTrainingJob.get(training_job_name=_TEST_NAME)
-        get_training_job_mock.assert_called_once_with(name=_TEST_NAME)
+        training_jobs.CustomTrainingJob.get(resource_name=_TEST_NAME)
+        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
 
-    @pytest.mark.usefixtures("get_training_job_mock")
-    def test_get_training_job_with_id_only(self, get_training_job_mock):
+    @pytest.mark.usefixtures("get_training_job_tabular_mock")
+    def test_get_training_job_tabular(self, get_training_job_tabular_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        with pytest.raises(ValueError):
+            training_jobs.CustomTrainingJob.get(resource_name=_TEST_NAME)
+
+    @pytest.mark.usefixtures("get_training_job_custom_mock")
+    def test_get_training_job_with_id_only(self, get_training_job_custom_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        training_jobs.CustomTrainingJob.get(training_job_name=_TEST_ID)
-        get_training_job_mock.assert_called_once_with(name=_TEST_NAME)
+        training_jobs.CustomTrainingJob.get(resource_name=_TEST_ID)
+        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_nontabular_dataset(
