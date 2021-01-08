@@ -70,7 +70,7 @@ _TEST_DATASET_NAME = "test-dataset-name"
 _TEST_DISPLAY_NAME = "test-display-name"
 _TEST_METADATA_SCHEMA_URI_TABULAR = schema.dataset.metadata.tabular
 _TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
-_TEST_TRAINING_CONTAINER_CMD = ['python3', 'task.py']
+_TEST_TRAINING_CONTAINER_CMD = ["python3", "task.py"]
 _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
 _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
 _TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
@@ -1081,11 +1081,7 @@ class TestCustomContainerTrainingJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
-        self,
-        mock_pipeline_service_create,
-        mock_dataset,
-        mock_model_service_get,
-        sync,
+        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -1137,7 +1133,7 @@ class TestCustomContainerTrainingJob:
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "command": _TEST_TRAINING_CONTAINER_CMD,
-                "args": true_args
+                "args": true_args,
             },
         }
 
@@ -1324,7 +1320,7 @@ class TestCustomContainerTrainingJob:
         job = training_jobs.CustomContainerTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
-            command=_TEST_TRAINING_CONTAINER_CMD
+            command=_TEST_TRAINING_CONTAINER_CMD,
         )
 
         with pytest.raises(RuntimeError):
@@ -1345,10 +1341,7 @@ class TestCustomContainerTrainingJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_no_dataset(
-        self,
-        mock_pipeline_service_create,
-        mock_model_service_get,
-        sync,
+        self, mock_pipeline_service_create, mock_model_service_get, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -1390,7 +1383,7 @@ class TestCustomContainerTrainingJob:
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "command": _TEST_TRAINING_CONTAINER_CMD,
-                "args": true_args
+                "args": true_args,
             },
         }
 
@@ -1430,17 +1423,14 @@ class TestCustomContainerTrainingJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
-        self,
-        mock_pipeline_service_create_with_no_model_to_upload,
-        mock_dataset,
-        sync,
+        self, mock_pipeline_service_create_with_no_model_to_upload, mock_dataset, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.CustomContainerTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
-            command=_TEST_TRAINING_CONTAINER_CMD
+            command=_TEST_TRAINING_CONTAINER_CMD,
         )
 
         model = job.run(
@@ -1461,17 +1451,14 @@ class TestCustomContainerTrainingJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_get_model_raises_if_no_model_to_upload(
-        self,
-        mock_pipeline_service_create_with_no_model_to_upload,
-        mock_dataset,
-        sync,
+        self, mock_pipeline_service_create_with_no_model_to_upload, mock_dataset, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.CustomContainerTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
-            command=_TEST_TRAINING_CONTAINER_CMD
+            command=_TEST_TRAINING_CONTAINER_CMD,
         )
 
         job.run(
@@ -1496,10 +1483,7 @@ class TestCustomContainerTrainingJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
-        self,
-        mock_pipeline_service_create_and_get_with_fail,
-        mock_dataset,
-        sync,
+        self, mock_pipeline_service_create_and_get_with_fail, mock_dataset, sync,
     ):
 
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
@@ -1507,7 +1491,7 @@ class TestCustomContainerTrainingJob:
         job = training_jobs.CustomContainerTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
-            command=_TEST_TRAINING_CONTAINER_CMD
+            command=_TEST_TRAINING_CONTAINER_CMD,
         )
 
         with pytest.raises(RuntimeError):
@@ -1531,9 +1515,7 @@ class TestCustomContainerTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
-    def test_raises_before_run_is_called(
-        self, mock_pipeline_service_create
-    ):
+    def test_raises_before_run_is_called(self, mock_pipeline_service_create):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.CustomContainerTrainingJob(
@@ -1562,16 +1544,12 @@ class TestCustomContainerTrainingJob:
             training_jobs.CustomContainerTrainingJob(
                 display_name=_TEST_DISPLAY_NAME,
                 container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
-                command=_TEST_TRAINING_CONTAINER_CMD
+                command=_TEST_TRAINING_CONTAINER_CMD,
             )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training(
-        self,
-        mock_pipeline_service_create,
-        mock_dataset,
-        mock_model_service_get,
-        sync,
+        self, mock_pipeline_service_create, mock_dataset, mock_model_service_get, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -1615,10 +1593,10 @@ class TestCustomContainerTrainingJob:
                     "acceleratorType": _TEST_ACCELERATOR_TYPE,
                     "acceleratorCount": _TEST_ACCELERATOR_COUNT,
                 },
-                    "containerSpec": {
+                "containerSpec": {
                     "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                     "command": _TEST_TRAINING_CONTAINER_CMD,
-                    "args": true_args
+                    "args": true_args,
                 },
             },
             {
@@ -1628,10 +1606,10 @@ class TestCustomContainerTrainingJob:
                     "acceleratorType": _TEST_ACCELERATOR_TYPE,
                     "acceleratorCount": _TEST_ACCELERATOR_COUNT,
                 },
-                    "containerSpec": {
+                "containerSpec": {
                     "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                     "command": _TEST_TRAINING_CONTAINER_CMD,
-                    "args": true_args
+                    "args": true_args,
                 },
             },
         ]
@@ -1696,6 +1674,7 @@ class TestCustomContainerTrainingJob:
         assert not job.has_failed
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
 
 class Test_MachineSpec:
     def test_machine_spec_return_spec_dict(self):

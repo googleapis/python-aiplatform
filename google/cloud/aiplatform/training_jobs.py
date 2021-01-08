@@ -24,7 +24,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from typing import Callable, Dict, List, Optional, NamedTuple, Sequence, Union
+from typing import Callable, Dict, List, Optional, NamedTuple, Sequence, Tuple, Union
 
 import abc
 
@@ -942,34 +942,7 @@ class _CustomTrainingJob(_TrainingJob):
         credentials: Optional[auth_credentials.Credentials] = None,
         staging_bucket: Optional[str] = None,
     ):
-        """Constructs a Custom Training Job from a Python script.
-
-        job = aiplatform.CustomTrainingJob(
-            display_name='test-train',
-            script_path='test_script.py',
-            requirements=['pandas', 'numpy'],
-            container_uri='gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest',
-            model_serving_container_image_uri='gcr.io/my-trainer/serving:1',
-            model_serving_container_predict_route='predict',
-            model_serving_container_health_route='metadata)
-
-        Usage with Dataset:
-
-        ds = aiplatform.Dataset(
-            'projects/my-project/locations/us-central1/datasets/12345')
-
-        job.run(ds, replica_count=1, model_display_name='my-trained-model')
-
-        Usage without Dataset:
-
-        job.run(replica_count=1, model_display_name='my-trained-model)
-
-
-        TODO(b/169782082) add documentation about traning utilities
-        To ensure your model gets saved in AI Platform, write your saved model to
-        os.environ["AIP_MODEL_DIR"] in your provided training script.
-
-
+        """
         Args:
             display_name (str):
                 Required. The user-defined name of this TrainingPipeline.
@@ -1140,11 +1113,40 @@ class _CustomTrainingJob(_TrainingJob):
             )
 
     def _prepare_and_validate_run(
-        self, model_display_name,
-        replica_count,
-        machine_type,
-        accelerator_count,
-        accelerator_type):
+        self,
+        model_display_name: Optional[str] = None,
+        replica_count: int = 0,
+        machine_type: str = "n1-standard-4",
+        accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
+        accelerator_count: int = 0,
+    ) -> Tuple[_DistributedTrainingSpec, Optional[gca_model.Model]]:
+        """Create worker pool specs and managed model as well validating the run.
+
+        Args:
+            model_display_name (str):
+                If the script produces a managed AI Platform Model. The display name of
+                the Model. The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            replica_count (int):
+                The number of worker replicas. If replica count = 1 then one chief
+                replica will be provisioned. If replica_count > 1 the remainder will be
+                provisioned as a worker replica pool.
+            machine_type (str):
+                The type of machine to use for training.
+            accelerator_type (str):
+                Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
+                NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
+                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+            accelerator_count (int):
+                The number of accelerators to attach to a worker replica.
+        Returns:
+            Worker pools specs and managed model for run.
+
+        Raises:
+            RuntimeError if Training job has already been run or model_display_name was
+            provided but required arguments were not provided in constructor.
+
+        """
 
         if self._is_waiting_to_run():
             raise RuntimeError("Custom Training is already scheduled to run.")
@@ -1161,7 +1163,7 @@ class _CustomTrainingJob(_TrainingJob):
                 """
             )
 
-         # validates args and will raise
+        # validates args and will raise
         worker_pool_specs = _DistributedTrainingSpec.chief_worker_pool(
             replica_count=replica_count,
             machine_type=machine_type,
@@ -1178,7 +1180,22 @@ class _CustomTrainingJob(_TrainingJob):
 
         return worker_pool_specs, managed_model
 
-    def _prepare_training_task_inputs(self, base_output_dir, worker_pool_specs) -> Dict:
+    def _prepare_training_task_inputs_and_output_dir(
+        self,
+        worker_pool_specs: _DistributedTrainingSpec,
+        base_output_dir: Optional[str] = None,
+    ) -> Tuple[Dict, str]:
+        """Prepares training task inputs and output directory for custom job.
+
+        Args:
+            worker_pools_spec (_DistributedTrainingSpec):
+                Worker pools pecs required to run job.
+            base_output_dir (str):
+                GCS output directory of job. If not provided a
+                timestamped directory in the staging directory will be used.
+        Returns:
+            Training task inputs and Output directory for custom job.
+        """
 
         # default directory if not given
         base_output_dir = base_output_dir or _timestamped_gcs_dir(
@@ -1194,7 +1211,6 @@ class _CustomTrainingJob(_TrainingJob):
 
         return training_task_inputs, base_output_dir
 
-
     @property
     def _model_upload_fail_string(self) -> str:
         """Helper property for model upload failure."""
@@ -1205,7 +1221,6 @@ class _CustomTrainingJob(_TrainingJob):
             "Ensure that your training script saves to model to "
             "os.environ['AIP_MODEL_DIR']."
         )
-
 
 
 # TODO(b/172368325) add scheduling, custom_job.Scheduling
@@ -1389,7 +1404,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             model_serving_container_predict_route=model_serving_container_predict_route,
             model_serving_container_health_route=model_serving_container_health_route,
             model_description=model_description,
-            staging_bucket=staging_bucket
+            staging_bucket=staging_bucket,
         )
 
         self._requirements = requirements
@@ -1488,25 +1503,19 @@ class CustomTrainingJob(_CustomTrainingJob):
         Returns:
             model: The trained AI Platform Model resource or None if training did not
                 produce an AI Platform Model.
-
-        Raises:
-            RuntimeError if Training job has already been run, staging_bucket has not
-                been set, or model_display_name was provided but required arguments
-                were not provided in constructor.
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
             replica_count=replica_count,
             machine_type=machine_type,
             accelerator_count=accelerator_count,
-            accelerator_type=accelerator_type)
-
+            accelerator_type=accelerator_type,
+        )
 
         # make and copy package
         python_packager = _TrainingScriptPythonPackager(
             script_path=self._script_path, requirements=self._requirements
         )
-
 
         return self._run(
             python_packager=python_packager,
@@ -1538,6 +1547,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
+
         Args:
             python_packager (_TrainingScriptPythonPackager):
                 Required. Python Packager pointing to training script locally.
@@ -1596,8 +1606,12 @@ class CustomTrainingJob(_CustomTrainingJob):
             if args:
                 spec["pythonPackageSpec"]["args"] = args
 
-        training_task_inputs, base_output_dir = self._prepare_training_task_inputs(
-            base_output_dir, worker_pool_specs)
+        (
+            training_task_inputs,
+            base_output_dir,
+        ) = self._prepare_training_task_inputs_and_output_dir(
+            worker_pool_specs, base_output_dir
+        )
 
         model = self._run_job(
             training_task_definition=schema.training_job.definition.custom_task,
@@ -1615,11 +1629,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
 
 class CustomContainerTrainingJob(_CustomTrainingJob):
-    """Class to launch a Custom Training Job in AI Platform using a script.
-
-    Takes a training implementation as a python script and executes that script
-    in Cloud AI Platform Training.
-    """
+    """Class to launch a Custom Training Job in AI Platform using a Container."""
 
     def __init__(
         self,
@@ -1642,7 +1652,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         credentials: Optional[auth_credentials.Credentials] = None,
         staging_bucket: Optional[str] = None,
     ):
-        """Constructs a Custom Training Job from a Python script.
+        """Constructs a Custom Container Training Job.
 
         job = aiplatform.CustomTrainingJob(
             display_name='test-train',
@@ -1792,7 +1802,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             model_serving_container_predict_route=model_serving_container_predict_route,
             model_serving_container_health_route=model_serving_container_health_route,
             model_description=model_description,
-            staging_bucket=staging_bucket
+            staging_bucket=staging_bucket,
         )
 
         self._command = command
@@ -1901,7 +1911,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             replica_count=replica_count,
             machine_type=machine_type,
             accelerator_count=accelerator_count,
-            accelerator_type=accelerator_type)
+            accelerator_type=accelerator_type,
+        )
 
         return self._run(
             dataset=dataset,
@@ -1979,10 +1990,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 spec["containerSpec"]["command"] = self._command
 
             if args:
-                spec["containerSpec"]["args"] = args 
+                spec["containerSpec"]["args"] = args
 
-        training_task_inputs, base_output_dir = self._prepare_training_task_inputs(
-            base_output_dir, worker_pool_specs)
+        (
+            training_task_inputs,
+            base_output_dir,
+        ) = self._prepare_training_task_inputs_and_output_dir(
+            worker_pool_specs, base_output_dir
+        )
 
         model = self._run_job(
             training_task_definition=schema.training_job.definition.custom_task,
