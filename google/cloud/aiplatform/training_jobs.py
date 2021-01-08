@@ -1136,7 +1136,7 @@ class _CustomTrainingJob(_TrainingJob):
         if not self._staging_bucket:
             raise RuntimeError(
                 "staging_bucket should be set in TrainingJob constructor or "
-                "set using aiplatform.init(staging_bucket='gs://my-bucket'"
+                "set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
 
     def _prepare_and_validate_run(
@@ -1192,7 +1192,7 @@ class _CustomTrainingJob(_TrainingJob):
             "baseOutputDirectory": {"output_uri_prefix": base_output_dir},
         }
 
-        return training_task_inputs
+        return training_task_inputs, base_output_dir
 
 
     @property
@@ -1596,7 +1596,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             if args:
                 spec["pythonPackageSpec"]["args"] = args
 
-        training_task_inputs = self._prepare_training_task_inputs(base_output_dir, worker_pool_specs)
+        training_task_inputs, base_output_dir = self._prepare_training_task_inputs(
+            base_output_dir, worker_pool_specs)
 
         model = self._run_job(
             training_task_definition=schema.training_job.definition.custom_task,
@@ -1980,7 +1981,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             if args:
                 spec["containerSpec"]["args"] = args 
 
-        training_task_inputs = self._prepare_training_task_inputs(base_output_dir, worker_pool_specs)
+        training_task_inputs, base_output_dir = self._prepare_training_task_inputs(
+            base_output_dir, worker_pool_specs)
 
         model = self._run_job(
             training_task_definition=schema.training_job.definition.custom_task,
