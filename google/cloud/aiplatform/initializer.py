@@ -65,6 +65,8 @@ class _Config:
         """
         if project:
             self._project = project
+            if not os.environ.get(google.auth.environment_vars.PROJECT):
+                os.environ[google.auth.environment_vars.PROJECT] = self._project
         if location:
             utils.validate_region(location)
             self._location = location
