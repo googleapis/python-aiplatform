@@ -765,17 +765,19 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 Optional. Strings which should be sent along with the request as
                 metadata.
         """
-        if traffic_split is None:
-            traffic_split = self._unallocate_traffic(
-                traffic_split=dict(self._gca_resource.traffic_split),
+        current_traffic_split = traffic_split or dict(self._gca_resource.traffic_split)
+
+        if deployed_model_id in current_traffic_split:
+            current_traffic_split = self._unallocate_traffic(
+                traffic_split=current_traffic_split,
                 deployed_model_id=deployed_model_id,
             )
-            traffic_split.pop(deployed_model_id)
+            current_traffic_split.pop(deployed_model_id)
 
         operation_future = self.api_client.undeploy_model(
             endpoint=self.resource_name,
             deployed_model_id=deployed_model_id,
-            traffic_split=traffic_split,
+            traffic_split=current_traffic_split,
             metadata=metadata,
         )
 
@@ -852,10 +854,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     # TODO(b/172828587): implement prediction
     def explain(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
         """Online prediction with explanation."""
-        raise NotImplementedError("Prediction not implemented.")
+        raise NotImplementedError("Prediction with explanation not implemented.")
 
-    def list_models() -> Sequence[gca_endpoint.DeployedModel]:
-        """Returns the models deployed in this Endpoint.
+    def list_models(self) -> Sequence[gca_endpoint.DeployedModel]:
+        """Returns a list of the models deployed to this Endpoint.
 
         Returns:
             deployed_models (Sequence[aiplatform.gapic.DeployedModel]):
@@ -864,31 +866,30 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         self._sync_gca_resource()
         return self._gca_resource.deployed_models
 
-    def undeploy_all():
-        """Undeploys every model on this Endpoint."""
+    def undeploy_all(self):
+        """Undeploys every model deployed to this Endpoint."""
         self._sync_gca_resource()
 
         for deployed_model in self._gca_resource.deployed_models:
             self.undeploy(deployed_model_id=deployed_model.id)
 
-    def delete_endpoint(force: bool = False):
+    def delete_endpoint(self, force: bool = False):
         """Deletes this AI Platform Endpoint resource. If force is set to True,
         all models on this Endpoint will be undeployed prior to deletion.
-        
+
         Args:
             force: bool = False
                 Required. If force is set to True, all deployed models on this
                 Endpoint will be undeployed first. Default is False.
 
         Raises:
-            RuntimeError: If models are deployed on this Endpoint and force = False.
+            FailedPrecondition: If models are deployed on this Endpoint and force = False.
         """
         if force:
             self.undeploy_all()
 
         lro = self.api_client.delete_endpoint(name=self.resource_name)
         lro.result()
-        del self
 
 
 class Model(base.AiPlatformResourceNounWithFutureManager):
@@ -1571,3 +1572,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         return jobs.BatchPredictionJob(
             batch_prediction_job_name=new_batch_prediction_job_name
         )
+
+    def delete_model(self):
+        """Deletes this AI Platform managed Model resource.
+
+        WARNING: Calling this method will permanently delete your trained Model
+        on AI Platform, this action is irreversable.
+        """
+        lro = self.api_client.delete_model(name=self.resource_name)
+        lro.result()

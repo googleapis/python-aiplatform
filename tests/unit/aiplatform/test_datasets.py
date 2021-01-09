@@ -37,6 +37,7 @@ from google.cloud.aiplatform_v1beta1 import ImportDataConfig
 from google.cloud.aiplatform_v1beta1 import ExportDataConfig
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
+from google.cloud.aiplatform_v1beta1.types import dataset_service
 
 # project
 _TEST_PROJECT = "test-project"
@@ -150,6 +151,19 @@ def create_dataset_mock():
         )
         create_dataset_mock.return_value = create_dataset_lro_mock
         yield create_dataset_mock
+
+
+@pytest.fixture
+def delete_dataset_mock():
+    with mock.patch.object(
+        DatasetServiceClient, "delete_dataset"
+    ) as delete_dataset_mock:
+        delete_dataset_lro_mock = mock.Mock(operation.Operation)
+        delete_dataset_lro_mock.result.return_value = (
+            dataset_service.DeleteDatasetRequest()
+        )
+        delete_dataset_mock.return_value = delete_dataset_lro_mock
+        yield delete_dataset_mock
 
 
 @pytest.fixture
@@ -598,3 +612,12 @@ class TestTabularDataset:
 
         with pytest.raises(NotImplementedError):
             my_dataset.import_data()
+
+    @pytest.mark.usefixtures("get_dataset_tabular_mock")
+    def test_delete_dataset(self, delete_dataset_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
+        my_dataset.delete_dataset()
+
+        delete_dataset_mock.assert_called_once_with(name=my_dataset.resource_name)

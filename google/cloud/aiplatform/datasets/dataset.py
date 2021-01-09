@@ -465,3 +465,8 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
     def update(self):
         raise NotImplementedError("Update dataset has not been implemented yet")
+
+    def delete_dataset(self):
+        """Deletes this AI Platform managed Dataset resource."""
+        lro = self.api_client.delete_dataset(name=self.resource_name)
+        lro.result()
