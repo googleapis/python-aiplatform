@@ -75,12 +75,6 @@ class _Config:
             self._staging_bucket = staging_bucket
         if credentials:
             self._credentials = credentials
-        else:
-            logger = logging.getLogger("google.auth._default")
-            logging_warning_filter = utils.LoggingWarningFilter()
-            logger.addFilter(logging_warning_filter)
-            self._credentials, _ = google.auth.default()
-            logger.removeFilter(logging_warning_filter)
 
     @property
     def project(self) -> str:
@@ -122,7 +116,13 @@ class _Config:
 
     @property
     def credentials(self) -> Optional[auth_credentials.Credentials]:
-        """Default credentials."""
+        """Default credentials, if provided."""
+        if not self._credentials:
+            logger = logging.getLogger("google.auth._default")
+            logging_warning_filter = utils.LoggingWarningFilter()
+            logger.addFilter(logging_warning_filter)
+            self._credentials, _ = google.auth.default()
+            logger.removeFilter(logging_warning_filter)
         return self._credentials
 
     @credentials.setter
