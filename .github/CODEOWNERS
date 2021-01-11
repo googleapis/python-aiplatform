@@ -7,6 +7,12 @@
 # yoshi-python is the default owner
 *                                      @googleapis/yoshi-python
 
+# The AI Platform GAPIC libraries are owned by Cloud AI DPE
+/google/cloud/aiplatform*              @googleapis/cdpe-cloudai
+
+# The AI Platform SDK is owned by Model Builder SDK Dev team
+/google/cloud/aiplatform/*             @googleapis/cloud-aiplatform-model-builder-sdk
+
 # The python-samples-owners team is the default owner for samples
 /samples/**/*.py                       @dizcology @googleapis/python-samples-owners
 
