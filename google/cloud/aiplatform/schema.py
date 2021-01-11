@@ -22,6 +22,8 @@ class training_job:
     class definition:
         custom_task = "gs://google-cloud-aiplatform/schema/trainingjob/definition/custom_task_1.0.0.yaml"
         tabular_task = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_tabular_1.0.0.yaml"
+        automl_image_classification_task = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml"
+        automl_image_object_detection_task = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_object_detection_1.0.0.yaml"
 
 
 class dataset:
@@ -30,3 +32,22 @@ class dataset:
             "gs://google-cloud-aiplatform/schema/dataset/metadata/tabular_1.0.0.yaml"
         )
         image = "gs://google-cloud-aiplatform/schema/dataset/metadata/image_1.0.0.yaml"
+        text = "gs://google-cloud-aiplatform/schema/dataset/metadata/text_1.0.0.yaml"
+
+    class ioformat:
+        class image:
+            multi_label_classification = "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_classification_multi_label_io_format_1.0.0.yaml"
+            single_label_classification = "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_classification_single_label_io_format_1.0.0.yaml"
+            bounding_box = "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_bounding_box_io_format_1.0.0.yaml"
+            image_segmentation = "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_segmentation_io_format_1.0.0.yaml"
+
+        class text:
+            multi_label_classification = "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_classification_multi_label_io_format_1.0.0.yaml"
+            single_label_classification = "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_classification_single_label_io_format_1.0.0.yaml"
+            extraction = "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_extraction_io_format_1.0.0.yaml"
+            sentiment = "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_sentiment_io_format_1.0.0.yaml"
+
+        class video:
+            action_recognition = "gs://google-cloud-aiplatform/schema/dataset/ioformat/video_action_recognition_io_format_1.0.0.yaml"
+            classification = "gs://google-cloud-aiplatform/schema/dataset/ioformat/video_classification_io_format_1.0.0.yaml"
+            object_tracking = "gs://google-cloud-aiplatform/schema/dataset/ioformat/video_object_tracking_io_format_1.0.0.yaml"

@@ -18,12 +18,17 @@
 from google.cloud.aiplatform import gapic
 
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.datasets import Dataset
+from google.cloud.aiplatform.datasets import (
+    Dataset,
+    TabularDataset,
+    ImageDataset,
+)
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
 from google.cloud.aiplatform.jobs import BatchPredictionJob
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
+    CustomContainerTrainingJob,
     AutoMLTabularTrainingJob,
 )
 
@@ -39,8 +44,11 @@ __all__ = (
     gapic,
     "BatchPredictionJob",
     "CustomTrainingJob",
+    "CustomContainerTrainingJob",
     "AutoMLTabularTrainingJob",
     "Model",
     "Dataset",
+    "TabularDataset",
+    "ImageDataset",
     "Endpoint",
 )
