@@ -205,7 +205,7 @@ class TestJob:
         )
 
         # get_batch_prediction() is called again here
-        bp_job_state = bp.status()
+        bp_job_state = bp.state
 
         assert get_batch_prediction_job_bq_output_mock.call_count == 2
         assert bp_job_state == _TEST_JOB_STATE_SUCCESS

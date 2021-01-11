@@ -15,7 +15,11 @@
 # limitations under the License.
 #
 
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional, Union, Sequence, Dict
+
+import sys
+import time
+import logging
 
 from google.cloud import storage
 from google.cloud import bigquery
@@ -23,14 +27,37 @@ from google.cloud import bigquery
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1.types import job_state
+
 from google.cloud.aiplatform_v1beta1.services.job_service import (
     client as job_service_client,
 )
+from google.cloud.aiplatform_v1beta1.types import io as gca_io
+from google.cloud.aiplatform_v1beta1.types import job_state as gca_job_state
+from google.cloud.aiplatform_v1beta1.types import batch_prediction_job as gca_bp_job
+from google.cloud.aiplatform_v1beta1.types import (
+    machine_resources as gca_machine_resources,
+)
+
+logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+_LOGGER = logging.getLogger(__name__)
+
+_JOB_COMPLETE_STATES = (
+    gca_job_state.JobState.JOB_STATE_SUCCEEDED,
+    gca_job_state.JobState.JOB_STATE_FAILED,
+    gca_job_state.JobState.JOB_STATE_CANCELLED,
+    gca_job_state.JobState.JOB_STATE_PAUSED,
+)
+
+_JOB_ERROR_STATES = (
+    gca_job_state.JobState.JOB_STATE_FAILED,
+    gca_job_state.JobState.JOB_STATE_CANCELLED,
+)
 
 
-class _Job(base.AiPlatformResourceNoun):
+class _Job(base.AiPlatformResourceNounWithFutureManager):
     """
     Class that represents a general Job resource in AI Platform (Unified).
     Cannot be directly instantiated.
@@ -46,6 +73,7 @@ class _Job(base.AiPlatformResourceNoun):
 
     client_class = job_service_client.JobServiceClient
     _is_client_prediction_client = False
+    _job_type = None
 
     def __init__(
         self,
@@ -75,7 +103,8 @@ class _Job(base.AiPlatformResourceNoun):
         super().__init__(project=project, location=location, credentials=credentials)
         self._gca_resource = self._get_gca_resource(resource_name=job_name)
 
-    def status(self) -> job_state.JobState:
+    @property
+    def state(self) -> gca_job_state.JobState:
         """Fetch Job again and return the current JobState.
 
         Returns:
@@ -88,11 +117,40 @@ class _Job(base.AiPlatformResourceNoun):
 
         return self._gca_resource.state
 
+    def _dashboard_uri(self) -> Optional[str]:
+        """Helper method to compose the dashboard uri where job can be viewed."""
+        if self._job_type:
+            fields = utils.extract_fields_from_resource_name(self.resource_name)
+            url = f"https://pantheon.corp.google.com/ai/platform/locations/{fields.location}/{self._job_type}/{fields.id}?project={fields.project}"
+            return url
+
+    def _block_until_complete(self):
+        """Helper method to block and check on job until complete."""
+
+        # Used these numbers so failures surface fast
+        wait = 5  # start at five seconds
+        max_wait = 60 * 5  # 5 minute wait
+        multiplier = 2  # scale wait by 2 every iteration
+
+        while self.state not in _JOB_COMPLETE_STATES:
+            time.sleep(wait)
+            _LOGGER.info(
+                " %s current state:\n%s"
+                % (self.resource_name, self._gca_resource.state)
+            )
+            wait = min(wait * multiplier, max_wait)
+
+        # Error is only populated when the job state is
+        # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
+        if self.state in _JOB_ERROR_STATES:
+            raise RuntimeError("Job failed with:\n%s" % self._gca_resource.error)
+
 
 class BatchPredictionJob(_Job):
 
     _resource_noun = "batchPredictionJobs"
     _getter_method = "get_batch_prediction_job"
+    _job_type = "batch-predictions"
 
     def __init__(
         self,
@@ -127,6 +185,292 @@ class BatchPredictionJob(_Job):
             credentials=credentials,
         )
 
+    @classmethod
+    def create(
+        cls,
+        job_display_name: str,
+        model_name: str,
+        instances_format: str = "jsonl",
+        predictions_format: str = "jsonl",
+        gcs_source: Optional[Union[str, Sequence[str]]] = None,
+        bigquery_source: Optional[str] = None,
+        gcs_destination_prefix: Optional[str] = None,
+        bigquery_destination_prefix: Optional[str] = None,
+        model_parameters: Optional[Dict] = None,
+        machine_type: Optional[str] = None,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
+        starting_replica_count: Optional[int] = None,
+        max_replica_count: Optional[int] = None,
+        labels: Optional[dict] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        sync: bool = True,
+    ) -> "BatchPredictionJob":
+        """Create a batch prediction job.
+
+        Args:
+            job_display_name (str):
+                Required. The user-defined name of the BatchPredictionJob.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            model_name (str):
+                Required. A fully-qualified model resource name or model ID.
+                Example: "projects/123/locations/us-central1/models/456" or
+                "456" when project and location are initialized or passed.
+            instances_format (str):
+                Required. The format in which instances are given, must be one
+                of "jsonl", "csv", "bigquery", "tf-record", "tf-record-gzip",
+                or "file-list". Default is "jsonl" when using `gcs_source`. If a
+                `bigquery_source` is provided, this is overriden to "bigquery".
+            predictions_format (str):
+                Required. The format in which AI Platform gives the
+                predictions, must be one of "jsonl", "csv", or "bigquery".
+                Default is "jsonl" when using `gcs_destination_prefix`. If a
+                `bigquery_destination_prefix` is provided, this is overriden to
+                "bigquery".
+            gcs_source (Optional[Sequence[str]]):
+                Google Cloud Storage URI(-s) to your instances to run
+                batch prediction on. They must match `instances_format`.
+                May contain wildcards. For more information on wildcards, see
+                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+            bigquery_source (Optional[str]):
+                BigQuery URI to a table, up to 2000 characters long. For example:
+                `projectId.bqDatasetId.bqTableId`
+            gcs_destination_prefix (Optional[str]):
+                The Google Cloud Storage location of the directory where the
+                output is to be written to. In the given directory a new
+                directory is created. Its name is
+                ``prediction-<model-display-name>-<job-create-time>``, where
+                timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601 format.
+                Inside of it files ``predictions_0001.<extension>``,
+                ``predictions_0002.<extension>``, ...,
+                ``predictions_N.<extension>`` are created where
+                ``<extension>`` depends on chosen ``predictions_format``,
+                and N may equal 0001 and depends on the total number of
+                successfully predicted instances. If the Model has both
+                ``instance`` and ``prediction`` schemata defined then each such
+                file contains predictions as per the ``predictions_format``.
+                If prediction for any instance failed (partially or
+                completely), then an additional ``errors_0001.<extension>``,
+                ``errors_0002.<extension>``,..., ``errors_N.<extension>``
+                files are created (N depends on total number of failed
+                predictions). These files contain the failed instances, as
+                per their schema, followed by an additional ``error`` field
+                which as value has ```google.rpc.Status`` <Status>`__
+                containing only ``code`` and ``message`` fields.
+            bigquery_destination_prefix (Optional[str]):
+                The BigQuery project location where the output is to be
+                written to. In the given project a new dataset is created
+                with name
+                ``prediction_<model-display-name>_<job-create-time>`` where
+                is made BigQuery-dataset-name compatible (for example, most
+                special characters become underscores), and timestamp is in
+                YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
+                dataset two tables will be created, ``predictions``, and
+                ``errors``. If the Model has both ``instance`` and ``prediction``
+                schemata defined then the tables have columns as follows:
+                The ``predictions`` table contains instances for which the
+                prediction succeeded, it has columns as per a concatenation
+                of the Model's instance and prediction schemata. The
+                ``errors`` table contains rows for which the prediction has
+                failed, it has instance columns, as per the instance schema,
+                followed by a single "errors" column, which as values has
+                ```google.rpc.Status`` <Status>`__ represented as a STRUCT,
+                and containing only ``code`` and ``message``.
+            model_parameters (Optional[Dict]):
+                The parameters that govern the predictions. The schema of
+                the parameters may be specified via the Model's `parameters_schema_uri`.
+            machine_type (Optional[str]):
+                The type of machine for running batch prediction on
+                dedicated resources. Not specifying machine type will result in
+                batch prediction job being run with automatic resources.
+            accelerator_type (Optional[str]):
+                The type of accelerator(s) that may be attached
+                to the machine as per `accelerator_count`. Only used if
+                `machine_type` is set.
+            accelerator_count (Optional[int]):
+                The number of accelerators to attach to the
+                `machine_type`. Only used if `machine_type` is set.
+            starting_replica_count (Optional[int]):
+                The number of machine replicas used at the start of the batch
+                operation. If not set, AI Platform decides starting number, not
+                greater than `max_replica_count`. Only used if `machine_type` is
+                set.
+            max_replica_count (Optional[int]):
+                The maximum number of machine replicas the batch operation may
+                be scaled to. Only used if `machine_type` is set.
+                Default is 10.
+            labels (Optional[dict]):
+                The labels with user-defined metadata to organize your
+                BatchPredictionJobs. Label keys and values can be no longer than
+                64 characters (Unicode codepoints), can only contain lowercase
+                letters, numeric characters, underscores and dashes.
+                International characters are allowed. See https://goo.gl/xmQnxf
+                for more information and examples of labels.
+            credentials (Optional[auth_credentials.Credentials]):
+                Custom credentials to use to create this batch prediction
+                job. Overrides credentials set in aiplatform.init.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            (jobs.BatchPredictionJob):
+                Instantiated representation of the created batch prediction job.
+
+        Raises:
+            ValueError:
+                If no or multiple source or destinations are provided. Also, if
+                provided instances_format or predictions_format are not supported
+                by AI Platform.
+
+        """
+
+        utils.validate_display_name(job_display_name)
+
+        model_name = utils.full_resource_name(
+            resource_name=model_name,
+            resource_noun="models",
+            project=project,
+            location=location,
+        )
+
+        # Raise error if both or neither source URIs are provided
+        if bool(gcs_source) == bool(bigquery_source):
+            raise ValueError(
+                "Please provide either a gcs_source or bigquery_source, "
+                "but not both."
+            )
+
+        # Raise error if both or neither destination prefixes are provided
+        if bool(gcs_destination_prefix) == bool(bigquery_destination_prefix):
+            raise ValueError(
+                "Please provide either a gcs_destination_prefix or "
+                "bigquery_destination_prefix, but not both."
+            )
+
+        # Raise error if unsupported instance format is provided
+        if instances_format not in constants.BATCH_PREDICTION_INPUT_STORAGE_FORMATS:
+            raise ValueError(
+                f"{predictions_format} is not an accepted instances format "
+                f"type. Please choose from: {constants.BATCH_PREDICTION_INPUT_STORAGE_FORMATS}"
+            )
+
+        # Raise error if unsupported prediction format is provided
+        if predictions_format not in constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS:
+            raise ValueError(
+                f"{predictions_format} is not an accepted prediction format "
+                f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
+            )
+
+        gapic_batch_prediction_job = gca_bp_job.BatchPredictionJob()
+
+        # Required Fields
+        gapic_batch_prediction_job.display_name = job_display_name
+        gapic_batch_prediction_job.model = model_name
+
+        input_config = gca_bp_job.BatchPredictionJob.InputConfig()
+        output_config = gca_bp_job.BatchPredictionJob.OutputConfig()
+
+        if bigquery_source:
+            input_config.instances_format = "bigquery"
+            input_config.bigquery_source = gca_io.BigQuerySource()
+            input_config.bigquery_source.input_uri = bigquery_source
+        else:
+            input_config.instances_format = instances_format
+            input_config.gcs_source = gca_io.GcsSource(
+                uris=gcs_source if type(gcs_source) == list else [gcs_source]
+            )
+
+        if bigquery_destination_prefix:
+            output_config.predictions_format = "bigquery"
+            output_config.bigquery_destination = gca_io.BigQueryDestination()
+
+            bq_dest_prefix = bigquery_destination_prefix
+
+            if not bq_dest_prefix.startswith("bq://"):
+                bq_dest_prefix = f"bq://{bq_dest_prefix}"
+
+            output_config.bigquery_destination.output_uri = bq_dest_prefix
+        else:
+            output_config.predictions_format = predictions_format
+            output_config.gcs_destination = gca_io.GcsDestination(
+                output_uri_prefix=gcs_destination_prefix
+            )
+
+        gapic_batch_prediction_job.input_config = input_config
+        gapic_batch_prediction_job.output_config = output_config
+
+        # Optional Fields
+
+        if model_parameters:
+            gapic_batch_prediction_job.model_parameters = model_parameters
+
+        # Custom Compute
+        if machine_type:
+
+            machine_spec = gca_machine_resources.MachineSpec()
+            machine_spec.machine_type = machine_type
+            machine_spec.accelerator_type = accelerator_type
+            machine_spec.accelerator_count = accelerator_count
+
+            dedicated_resources = gca_machine_resources.BatchDedicatedResources()
+
+            dedicated_resources.machine_spec = machine_spec
+            dedicated_resources.starting_replica_count = starting_replica_count
+            dedicated_resources.max_replica_count = max_replica_count
+
+            gapic_batch_prediction_job.dedicated_resources = dedicated_resources
+
+            gapic_batch_prediction_job.manual_batch_tuning_parameters = None
+
+        # User Labels
+        gapic_batch_prediction_job.labels = labels
+
+        # TODO (b/174502675): Support Explainability on Batch Prediction
+        # TODO (b/174502913): Support private feature once released
+
+        api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        gca_batch_prediction_job = api_client.create_batch_prediction_job(
+            parent=initializer.global_config.common_location_path(
+                project=project, location=location
+            ),
+            batch_prediction_job=gapic_batch_prediction_job,
+        )
+
+        batch_prediction_job = cls(
+            batch_prediction_job_name=gca_batch_prediction_job.name,
+            project=project or initializer.global_config.project,
+            location=location or initializer.global_config.location,
+            credentials=credentials or initializer.global_config.credentials,
+        )
+
+        _LOGGER.info(
+            "View Batch Prediction Job:\n%s" % batch_prediction_job._dashboard_uri()
+        )
+
+        return batch_prediction_job.check_status(sync=sync)
+
+    @base.optional_sync(return_input_arg="self")
+    def check_status(self, sync: bool = True,) -> "BatchPredictionJob":
+        """Check job status
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            (BatchPredictionJob)
+        """
+        self._block_until_complete()
+        return self
+
     def iter_outputs(
         self, bq_max_results: Optional[int] = 100
     ) -> Union[Iterable[storage.Blob], Iterable[bigquery.table.RowIterator]]:
@@ -154,12 +498,10 @@ class BatchPredictionJob(_Job):
                 GCS or BQ output provided.
         """
 
-        job_status = self.status()
-
-        if job_status != job_state.JobState.JOB_STATE_SUCCEEDED:
+        if self.state != gca_job_state.JobState.JOB_STATE_SUCCEEDED:
             raise RuntimeError(
                 f"Cannot read outputs until BatchPredictionJob has succeeded, "
-                f"current status: {job_status}"
+                f"current state: {self._gca_resource.state}"
             )
 
         output_info = self._gca_resource.output_info
@@ -214,12 +556,14 @@ class BatchPredictionJob(_Job):
 class CustomJob(_Job):
     _resource_noun = "customJobs"
     _getter_method = "get_custom_job"
+    _job_type = "training"
     pass
 
 
 class DataLabelingJob(_Job):
     _resource_noun = "dataLabelingJobs"
     _getter_method = "get_data_labeling_job"
+    _job_type = "labeling-tasks"
     pass
 
 
