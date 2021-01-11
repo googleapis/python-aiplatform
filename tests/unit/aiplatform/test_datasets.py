@@ -406,6 +406,19 @@ class TestDataset:
         expected_dataset.name = _TEST_NAME
         assert my_dataset._gca_resource == expected_dataset
 
+    @pytest.mark.usefixtures("get_dataset_tabular_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_delete_dataset(self, delete_dataset_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
+        my_dataset.delete(sync=sync)
+
+        if not sync:
+            my_dataset.wait()
+
+        delete_dataset_mock.assert_called_once_with(name=my_dataset.resource_name)
+
 
 class TestImageDataset:
     def setup_method(self):
@@ -612,12 +625,3 @@ class TestTabularDataset:
 
         with pytest.raises(NotImplementedError):
             my_dataset.import_data()
-
-    @pytest.mark.usefixtures("get_dataset_tabular_mock")
-    def test_delete_dataset(self, delete_dataset_mock):
-        aiplatform.init(project=_TEST_PROJECT)
-
-        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
-        my_dataset.delete_dataset()
-
-        delete_dataset_mock.assert_called_once_with(name=my_dataset.resource_name)

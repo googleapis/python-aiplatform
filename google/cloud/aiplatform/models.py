@@ -866,30 +866,54 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         self._sync_gca_resource()
         return self._gca_resource.deployed_models
 
-    def undeploy_all(self):
-        """Undeploys every model deployed to this Endpoint."""
+    def undeploy_all(self, sync: bool = True) -> "Endpoint":
+        """Undeploys every model deployed to this Endpoint.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        """
         self._sync_gca_resource()
 
         for deployed_model in self._gca_resource.deployed_models:
-            self.undeploy(deployed_model_id=deployed_model.id)
+            self._undeploy(deployed_model_id=deployed_model.id, sync=sync)
 
-    def delete_endpoint(self, force: bool = False):
+        return self
+
+    @base.optional_sync()
+    def _delete(self, sync: bool = True) -> None:
+        """Private helper method to delete this endpoint via GAPIC.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        """
+        lro = self.api_client.delete_endpoint(name=self.resource_name)
+        lro.result()
+
+    def delete(self, force: bool = False, sync: bool = True) -> None:
         """Deletes this AI Platform Endpoint resource. If force is set to True,
         all models on this Endpoint will be undeployed prior to deletion.
 
         Args:
-            force: bool = False
+            force (bool):
                 Required. If force is set to True, all deployed models on this
                 Endpoint will be undeployed first. Default is False.
-
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
         Raises:
             FailedPrecondition: If models are deployed on this Endpoint and force = False.
         """
         if force:
-            self.undeploy_all()
+            self.undeploy_all(sync=sync)
 
-        lro = self.api_client.delete_endpoint(name=self.resource_name)
-        lro.result()
+        self._delete(sync=sync)
 
 
 class Model(base.AiPlatformResourceNounWithFutureManager):
@@ -1573,11 +1597,18 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             batch_prediction_job_name=new_batch_prediction_job_name
         )
 
-    def delete_model(self):
+    @base.optional_sync()
+    def delete(self, sync: bool = True) -> None:
         """Deletes this AI Platform managed Model resource.
 
         WARNING: Calling this method will permanently delete your trained Model
         on AI Platform, this action is irreversable.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
         """
         lro = self.api_client.delete_model(name=self.resource_name)
         lro.result()

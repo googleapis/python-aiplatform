@@ -774,9 +774,13 @@ class TestModel:
         assert e.match(regexp=r"accepted prediction format")
 
     @pytest.mark.usefixtures("get_model_mock")
-    def test_delete_model(self, delete_model_mock):
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_delete_model(self, delete_model_mock, sync):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
-        test_model.delete_model()
+        test_model.delete(sync=sync)
+
+        if not sync:
+            test_model.wait()
 
         delete_model_mock.assert_called_once_with(name=test_model.resource_name)

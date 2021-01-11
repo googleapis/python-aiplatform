@@ -152,9 +152,9 @@ def delete_endpoint_mock():
 
 
 @pytest.fixture
-def sdk_undeploy_mock():
-    """Mocks the high-level Endpoint.undeploy() SDK method"""
-    with mock.patch.object(aiplatform.Endpoint, "undeploy") as sdk_undeploy_mock:
+def sdk_private_undeploy_mock():
+    """Mocks the high-level Endpoint._undeploy() SDK private method"""
+    with mock.patch.object(aiplatform.Endpoint, "_undeploy") as sdk_undeploy_mock:
         sdk_undeploy_mock.return_value = None
         yield sdk_undeploy_mock
 
@@ -727,29 +727,37 @@ class TestEndpoint:
         assert my_models == _TEST_DEPLOYED_MODELS
 
     @pytest.mark.usefixtures("get_endpoint_with_models_mock")
-    def test_undeploy_all(self, sdk_undeploy_mock):
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_undeploy_all(self, sdk_private_undeploy_mock, sync):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         ept = aiplatform.Endpoint(_TEST_ID)
-        ept.undeploy_all()
+        ept.undeploy_all(sync=sync)
+
+        if not sync:
+            ept.wait()
 
         # undeploy_all() results in an undeploy() call for each deployed_model
-        sdk_undeploy_mock.assert_has_calls(
+        sdk_private_undeploy_mock.assert_has_calls(
             [
-                mock.call(deployed_model_id=deployed_model.id)
+                mock.call(deployed_model_id=deployed_model.id, sync=sync)
                 for deployed_model in _TEST_DEPLOYED_MODELS
             ],
             any_order=True,
         )
 
     @pytest.mark.usefixtures("get_endpoint_with_models_mock")
+    @pytest.mark.parametrize("sync", [True, False])
     def test_delete_endpoint_without_force(
-        self, sdk_undeploy_all_mock, delete_endpoint_mock
+        self, sdk_undeploy_all_mock, delete_endpoint_mock, sync
     ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         ept = aiplatform.Endpoint(_TEST_ID)
-        ept.delete_endpoint()
+        ept.delete(sync=sync)
+
+        if not sync:
+            ept.wait()
 
         # undeploy_all() should not be called unless force is set to True
         sdk_undeploy_all_mock.assert_not_called()
@@ -757,13 +765,17 @@ class TestEndpoint:
         delete_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
 
     @pytest.mark.usefixtures("get_endpoint_with_models_mock")
+    @pytest.mark.parametrize("sync", [True, False])
     def test_delete_endpoint_with_force(
-        self, sdk_undeploy_all_mock, delete_endpoint_mock
+        self, sdk_undeploy_all_mock, delete_endpoint_mock, sync
     ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         ept = aiplatform.Endpoint(_TEST_ID)
-        ept.delete_endpoint(force=True)
+        ept.delete(force=True, sync=sync)
+
+        if not sync:
+            ept.wait()
 
         # undeploy_all() should be called if force is set to True
         sdk_undeploy_all_mock.assert_called_once()
