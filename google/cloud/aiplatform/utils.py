@@ -17,6 +17,7 @@
 
 
 import re
+import logging
 
 from typing import Any, Match, Optional, Type, TypeVar, Tuple
 from collections import namedtuple
@@ -308,3 +309,8 @@ class WrappedClient:
             client_info=self._client_info,
         )
         return getattr(temporary_client, name)
+
+
+class LoggingWarningFilter(logging.Filter):
+    def filter(self, record):
+        return record.levelname == logging.WARNING
