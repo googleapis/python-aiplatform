@@ -50,7 +50,7 @@ _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
     {
         "modelType": "CLOUD",
         "budgetMilliNodeHours": _TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
-        "modelLabel": False,
+        "multiLabel": False,
         "disableEarlyStopping": _TEST_TRAINING_DISABLE_EARLY_STOPPING,
     },
     struct_pb2.Value(),
@@ -60,7 +60,7 @@ _TEST_TRAINING_TASK_INPUTS_WITH_BASE_MODEL = json_format.ParseDict(
     {
         "modelType": "CLOUD",
         "budgetMilliNodeHours": _TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
-        "modelLabel": False,
+        "multiLabel": False,
         "disableEarlyStopping": _TEST_TRAINING_DISABLE_EARLY_STOPPING,
         "baseModelId": _TEST_MODEL_ID,
     },
