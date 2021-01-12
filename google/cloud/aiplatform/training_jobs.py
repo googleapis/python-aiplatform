@@ -2652,7 +2652,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             # required inputs
             "modelType": self._model_type,
             "budgetMilliNodeHours": budget_milli_node_hours,
-            "modelLabel": self._multi_label,
+            "multiLabel": self._multi_label,
             # optional inputs
             "disableEarlyStopping": disable_early_stopping,
         }
