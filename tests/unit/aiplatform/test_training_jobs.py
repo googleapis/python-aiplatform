@@ -472,9 +472,7 @@ class TestCustomTrainingJob:
             model_from_job.wait()
 
         mock_python_package_to_gcs.assert_called_once_with(
-            gcs_staging_dir=_TEST_BUCKET_NAME,
-            project=_TEST_PROJECT,
-            credentials=initializer.global_config.credentials,
+            gcs_staging_dir=_TEST_BUCKET_NAME, project=_TEST_PROJECT, credentials=None,
         )
 
         true_args = _TEST_RUN_ARGS
@@ -733,9 +731,7 @@ class TestCustomTrainingJob:
             model_from_job.wait()
 
         mock_python_package_to_gcs.assert_called_once_with(
-            gcs_staging_dir=_TEST_BUCKET_NAME,
-            project=_TEST_PROJECT,
-            credentials=initializer.global_config.credentials,
+            gcs_staging_dir=_TEST_BUCKET_NAME, project=_TEST_PROJECT, credentials=None,
         )
 
         true_args = _TEST_RUN_ARGS
@@ -971,9 +967,7 @@ class TestCustomTrainingJob:
             model_from_job.wait()
 
         mock_python_package_to_gcs.assert_called_once_with(
-            gcs_staging_dir=_TEST_BUCKET_NAME,
-            project=_TEST_PROJECT,
-            credentials=initializer.global_config.credentials,
+            gcs_staging_dir=_TEST_BUCKET_NAME, project=_TEST_PROJECT, credentials=None,
         )
 
         true_args = _TEST_RUN_ARGS

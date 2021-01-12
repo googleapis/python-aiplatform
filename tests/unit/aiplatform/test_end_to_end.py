@@ -186,7 +186,7 @@ class TestEndToEnd:
         mock_python_package_to_gcs.assert_called_once_with(
             gcs_staging_dir=test_training_jobs._TEST_BUCKET_NAME,
             project=test_training_jobs._TEST_PROJECT,
-            credentials=initializer.global_config.credentials,
+            credentials=None,
         )
 
         true_args = test_training_jobs._TEST_RUN_ARGS
@@ -370,7 +370,7 @@ class TestEndToEnd:
         mock_python_package_to_gcs.assert_called_once_with(
             gcs_staging_dir=test_training_jobs._TEST_BUCKET_NAME,
             project=test_training_jobs._TEST_PROJECT,
-            credentials=initializer.global_config.credentials,
+            credentials=None,
         )
 
         true_args = test_training_jobs._TEST_RUN_ARGS
