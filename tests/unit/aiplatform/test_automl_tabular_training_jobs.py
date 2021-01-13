@@ -161,6 +161,9 @@ class TestAutoMLTabularTrainingJob:
         importlib.reload(initializer)
         importlib.reload(aiplatform)
 
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
         self,

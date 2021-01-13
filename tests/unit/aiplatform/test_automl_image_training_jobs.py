@@ -156,6 +156,9 @@ class TestAutoMLImageTrainingJob:
         importlib.reload(initializer)
         importlib.reload(aiplatform)
 
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     def test_init_all_parameters(self, mock_model_image):
         """Ensure all private members are set correctly at initalization"""
 
