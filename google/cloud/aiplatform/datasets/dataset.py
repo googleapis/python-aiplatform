@@ -465,3 +465,16 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
     def update(self):
         raise NotImplementedError("Update dataset has not been implemented yet")
+
+    @base.optional_sync()
+    def delete(self, sync: bool = True) -> None:
+        """Deletes this AI Platform managed Dataset resource.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        """
+        lro = self.api_client.delete_dataset(name=self.resource_name)
+        lro.result()
