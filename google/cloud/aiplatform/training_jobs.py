@@ -1218,6 +1218,43 @@ class _CustomTrainingJob(_TrainingJob):
                 "set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
 
+    @classmethod
+    def get(
+        cls,
+        resource_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "CustomTrainingJob":
+        """Get CustomTrainingJob for the given resource_name.
+
+        Raises:
+            ValueError: If the retrieved training job's training task definition
+                doesn't match the custom training task definition.
+
+        Returns:
+            An AI Platform Training Job
+        """
+
+        # Create job with dummy parameters
+        # These parameters won't be used as user can not run the job again.
+        # If they try, an exception will be raised.
+        self = cls._empty_constructor()
+
+        self._gca_resource = self._get_gca_resource(resource_name=resource_name)
+
+        if (
+            self._gca_resource.training_task_definition
+            != schema.training_job.definition.custom_task
+        ):
+            raise ValueError(
+                f"The retrieved job's training task definition "
+                f"is {self._gca_resource.training_task_definition}, "
+                f"which is not compatible with CustomTrainingJob."
+            )
+
+        return self
+
     def _prepare_and_validate_run(
         self,
         model_display_name: Optional[str] = None,
@@ -1515,51 +1552,6 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         self._requirements = requirements
         self._script_path = script_path
-
-    @classmethod
-    def get(
-        cls,
-        resource_name: str,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "CustomTrainingJob":
-        """Get CustomTrainingJob for the given resource_name.
-
-        Raises:
-            ValueError: If the retrieved training job's training task definition
-                doesn't match the custom training task definition.
-
-        Returns:
-            An AI Platform Training Job
-        """
-
-        # Create job with dummy parameters
-        # These parameters won't be used as user can not run the job again.
-        # If they try, an exception will be raised.
-        self = CustomTrainingJob(
-            display_name="dummy",
-            script_path="dummy",
-            container_uri="dummy",
-            project=project,
-            location=location,
-            credentials=credentials,
-            staging_bucket="dummy",
-        )
-
-        self._gca_resource = self._get_gca_resource(resource_name=resource_name)
-
-        if (
-            self._gca_resource.training_task_definition
-            != schema.training_job.definition.custom_task
-        ):
-            raise ValueError(
-                f"The retrieved job's training task definition "
-                f"is {self._gca_resource.training_task_definition}, "
-                f"which is not compatible with CustomTrainingJob."
-            )
-
-        return self
 
     # TODO(b/172365904) add filter split, training_pipeline.FilterSplit
     # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
