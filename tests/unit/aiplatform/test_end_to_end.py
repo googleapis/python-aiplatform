@@ -89,6 +89,7 @@ class TestEndToEnd:
         aiplatform.init(
             project=test_datasets._TEST_PROJECT,
             staging_bucket=test_training_jobs._TEST_BUCKET_NAME,
+            credentials=test_training_jobs._TEST_CREDENTIALS,
         )
 
         my_dataset = aiplatform.Dataset.create(
@@ -186,7 +187,7 @@ class TestEndToEnd:
         mock_python_package_to_gcs.assert_called_once_with(
             gcs_staging_dir=test_training_jobs._TEST_BUCKET_NAME,
             project=test_training_jobs._TEST_PROJECT,
-            credentials=None,
+            credentials=initializer.global_config.credentials,
         )
 
         true_args = test_training_jobs._TEST_RUN_ARGS
@@ -287,6 +288,7 @@ class TestEndToEnd:
         aiplatform.init(
             project=test_datasets._TEST_PROJECT,
             staging_bucket=test_training_jobs._TEST_BUCKET_NAME,
+            credentials=test_training_jobs._TEST_CREDENTIALS,
         )
 
         my_dataset = aiplatform.Dataset.create(
@@ -370,7 +372,7 @@ class TestEndToEnd:
         mock_python_package_to_gcs.assert_called_once_with(
             gcs_staging_dir=test_training_jobs._TEST_BUCKET_NAME,
             project=test_training_jobs._TEST_PROJECT,
-            credentials=None,
+            credentials=initializer.global_config.credentials,
         )
 
         true_args = test_training_jobs._TEST_RUN_ARGS
