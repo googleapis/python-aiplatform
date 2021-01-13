@@ -454,9 +454,16 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         return self._gca_resource.state
 
-    def get_model(self) -> Optional[models.Model]:
+    @base.optional_sync()
+    def get_model(self, sync: bool = True,) -> Optional[models.Model]:
         """AI Platform Model produced by this training, if one was produced.
 
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+                
         Returns:
             model: AI Platform Model produced by this training or None if a model was
                 not produced by this training.
