@@ -90,6 +90,7 @@ _TEST_PREDICTION_SCHEMA_URI = "gs://test/schema/predictions.yaml"
 
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
+
 @pytest.fixture
 def get_endpoint_mock():
     with mock.patch.object(EndpointServiceClient, "get_endpoint") as get_endpoint_mock:
@@ -165,7 +166,11 @@ class TestModel:
         initializer.global_pool.shutdown(wait=True)
 
     def test_constructor_creates_client(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=_TEST_CREDENTIALS)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
@@ -180,7 +185,11 @@ class TestModel:
             )
 
     def test_constructor_create_client_with_custom_location(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=_TEST_CREDENTIALS)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:

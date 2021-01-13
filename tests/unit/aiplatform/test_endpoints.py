@@ -63,6 +63,7 @@ _TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
 
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
+
 @pytest.fixture
 def get_endpoint_mock():
     with mock.patch.object(EndpointServiceClient, "get_endpoint") as get_endpoint_mock:
@@ -156,7 +157,11 @@ class TestEndpoint:
         initializer.global_pool.shutdown(wait=True)
 
     def test_constructor(self, create_client_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=_TEST_CREDENTIALS)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
         models.Endpoint(_TEST_ENDPOINT_NAME)
         create_client_mock.assert_has_calls(
             [
