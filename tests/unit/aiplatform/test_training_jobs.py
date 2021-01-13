@@ -1218,7 +1218,7 @@ class TestCustomContainerTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_run_call_pipeline_service_create(
+    def test_run_call_pipeline_service_create_with_bigquery_destination(
         self, mock_pipeline_service_create, mock_dataset, mock_model_service_get, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
