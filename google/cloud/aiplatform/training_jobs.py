@@ -2479,6 +2479,9 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 (i.e. assuming that for each image just up to one annotation may be
                 applicable). If true, a multi-label Model will be trained (i.e.
                 assuming that for each image multiple annotations may be applicable).
+
+                This is only applicable for the "classification" prediction_type and
+                will be ignored otherwise.
             model_type: str = "CLOUD"
                 Required. One of the following:
                     "CLOUD" - Default for Image Classification.
@@ -2740,10 +2743,12 @@ class AutoMLImageTrainingJob(_TrainingJob):
             # required inputs
             "modelType": self._model_type,
             "budgetMilliNodeHours": budget_milli_node_hours,
-            "multiLabel": self._multi_label,
             # optional inputs
             "disableEarlyStopping": disable_early_stopping,
         }
+
+        if self._prediction_type == "classification":
+            training_task_inputs_dict["multiLabel"] = self._multi_label
 
         model_tbt = gca_model.Model()  # gca Model to be trained
         model_tbt.display_name = model_display_name or self._display_name
