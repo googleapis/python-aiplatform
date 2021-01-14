@@ -121,11 +121,16 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
         """Helper method to compose the dashboard uri where job can be viewed."""
         if self._job_type:
             fields = utils.extract_fields_from_resource_name(self.resource_name)
-            url = f"https://pantheon.corp.google.com/ai/platform/locations/{fields.location}/{self._job_type}/{fields.id}?project={fields.project}"
+            url = f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/{self._job_type}/{fields.id}?project={fields.project}"
             return url
 
     def _block_until_complete(self):
-        """Helper method to block and check on job until complete."""
+        """Helper method to block and check on job until complete.
+
+        Raises:
+            RuntimeError: If job failed or cancelled.
+
+        """
 
         # Used these numbers so failures surface fast
         wait = 5  # start at five seconds
@@ -186,6 +191,7 @@ class BatchPredictionJob(_Job):
         )
 
     @classmethod
+    @base.optional_sync()
     def create(
         cls,
         job_display_name: str,
@@ -453,23 +459,9 @@ class BatchPredictionJob(_Job):
             "View Batch Prediction Job:\n%s" % batch_prediction_job._dashboard_uri()
         )
 
-        return batch_prediction_job.check_status(sync=sync)
+        batch_prediction_job._block_until_complete()
 
-    @base.optional_sync(return_input_arg="self")
-    def check_status(self, sync: bool = True,) -> "BatchPredictionJob":
-        """Check job status
-
-        Args:
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-
-        Returns:
-            (BatchPredictionJob)
-        """
-        self._block_until_complete()
-        return self
+        return batch_prediction_job
 
     def iter_outputs(
         self, bq_max_results: Optional[int] = 100

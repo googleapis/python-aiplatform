@@ -571,7 +571,7 @@ class TestModel:
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
-        test_model.batch_predict(
+        batch_prediction_job = test_model.batch_predict(
             job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
@@ -579,7 +579,7 @@ class TestModel:
         )
 
         if not sync:
-            test_model.wait()
+            batch_prediction_job.wait()
 
         # Construct expected request
         expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
@@ -615,7 +615,7 @@ class TestModel:
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
-        test_model.batch_predict(
+        batch_prediction_job = test_model.batch_predict(
             job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
@@ -623,7 +623,7 @@ class TestModel:
         )
 
         if not sync:
-            test_model.wait()
+            batch_prediction_job.wait()
 
         # Construct expected request
         expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
@@ -658,7 +658,7 @@ class TestModel:
         creds = auth_credentials.AnonymousCredentials()
 
         # Make SDK batch_predict method call passing all arguments
-        test_model.batch_predict(
+        batch_prediction_job = test_model.batch_predict(
             job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
@@ -675,7 +675,7 @@ class TestModel:
         )
 
         if not sync:
-            test_model.wait()
+            batch_prediction_job.wait()
 
         # Construct expected request
         expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
