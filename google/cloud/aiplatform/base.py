@@ -123,7 +123,7 @@ class FutureManager(metaclass=abc.ABCMeta):
         """
 
         def wait_for_dependencies_and_invoke(
-            deps: Optional[Sequence[futures.Future]],
+            deps: Sequence[futures.Future],
             method: Callable[..., Any],
             args: Sequence[Any],
             kwargs: Dict[str, Any],
@@ -143,10 +143,8 @@ class FutureManager(metaclass=abc.ABCMeta):
                     Callbacks that take the result of method.
 
             """
-            # wait for all dependencies to complete
-            futures_results = futures.wait(deps, return_when=futures.FIRST_EXCEPTION)
 
-            for future in futures_results.done:
+            for future in set(deps):
                 future.result()
 
             result = method(*args, **kwargs)
