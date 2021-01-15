@@ -30,6 +30,7 @@ from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
     CustomContainerTrainingJob,
     AutoMLTabularTrainingJob,
+    AutoMLImageTrainingJob,
 )
 
 """
@@ -42,13 +43,14 @@ init = initializer.global_config.init
 
 __all__ = (
     gapic,
+    "AutoMLImageTrainingJob",
+    "AutoMLTabularTrainingJob",
     "BatchPredictionJob",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
-    "AutoMLTabularTrainingJob",
-    "Model",
     "Dataset",
-    "TabularDataset",
-    "ImageDataset",
     "Endpoint",
+    "ImageDataset",
+    "Model",
+    "TabularDataset",
 )
