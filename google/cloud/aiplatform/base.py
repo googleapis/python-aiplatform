@@ -146,7 +146,6 @@ class FutureManager(metaclass=abc.ABCMeta):
             # wait for all dependencies to complete
             futures_results = futures.wait(deps, return_when=futures.FIRST_EXCEPTION)
 
-            # check for raised exceptions before moving forward
             for future in futures_results.done:
                 future.result()
 
@@ -163,8 +162,11 @@ class FutureManager(metaclass=abc.ABCMeta):
         deps = [
             arg._latest_future
             for arg in list(args) + list(kwargs.values())
-            if isinstance(arg, FutureManager) and arg._latest_future
+            if isinstance(arg, FutureManager)
         ]
+
+        # filter out objects that do not have pending tasks
+        deps = [dep for dep in deps if dep]
 
         if additional_dependencies:
             deps.extend(additional_dependencies)
