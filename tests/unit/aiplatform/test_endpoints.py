@@ -63,6 +63,8 @@ _TEST_MODEL_NAME = (
 _TEST_MODEL_ID = "1028944691210842416"
 _TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
 
+_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+
 _TEST_DEPLOYED_MODELS = [
     gca_endpoint.DeployedModel(id=_TEST_ID, display_name=_TEST_DISPLAY_NAME),
     gca_endpoint.DeployedModel(id=_TEST_ID_2, display_name=_TEST_DISPLAY_NAME_2),
@@ -204,13 +206,17 @@ class TestEndpoint:
         initializer.global_pool.shutdown(wait=True)
 
     def test_constructor(self, create_client_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
         models.Endpoint(_TEST_ENDPOINT_NAME)
         create_client_mock.assert_has_calls(
             [
                 mock.call(
                     client_class=EndpointServiceClient,
-                    credentials=None,
+                    credentials=initializer.global_config.credentials,
                     location_override=_TEST_LOCATION,
                     prediction_client=False,
                 ),

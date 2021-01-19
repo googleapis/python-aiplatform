@@ -263,9 +263,9 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
 
         self.project = project or initializer.global_config.project
         self.location = location or initializer.global_config.location
-        self.credentials = credentials
+        self.credentials = credentials or initializer.global_config.credentials
 
-        self.api_client = self._instantiate_client(self.location, credentials)
+        self.api_client = self._instantiate_client(self.location, self.credentials)
 
     @classmethod
     def _instantiate_client(

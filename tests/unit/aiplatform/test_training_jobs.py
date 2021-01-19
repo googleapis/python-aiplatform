@@ -28,6 +28,8 @@ import tempfile
 from unittest import mock
 from unittest.mock import patch
 
+from google.auth import credentials as auth_credentials
+
 from google.cloud import aiplatform
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
@@ -110,6 +112,7 @@ _TEST_MODEL_LABELS = {"label_key": "label_value"}
 _TEST_PIPELINE_RESOURCE_NAME = (
     "projects/my-project/locations/us-central1/trainingPipeline/12345"
 )
+_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
 
 def local_copy_method(path):
@@ -434,7 +437,11 @@ class TestCustomTrainingJob:
         mock_model_service_get,
         sync,
     ):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
 
         job = training_jobs.CustomTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
@@ -705,7 +712,11 @@ class TestCustomTrainingJob:
         mock_model_service_get,
         sync,
     ):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
 
         job = training_jobs.CustomTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
@@ -939,7 +950,11 @@ class TestCustomTrainingJob:
         mock_model_service_get,
         sync,
     ):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
 
         job = training_jobs.CustomTrainingJob(
             display_name=_TEST_DISPLAY_NAME,

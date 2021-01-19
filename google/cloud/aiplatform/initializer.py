@@ -117,18 +117,14 @@ class _Config:
     @property
     def credentials(self) -> Optional[auth_credentials.Credentials]:
         """Default credentials."""
-        return self._credentials
-
-    @credentials.setter
-    def credentials(self, credentials):
-        """Set credentials if provided, or to the default credentials, ."""
-        if not credentials:
-            logger = logging.getLogger("google.auth._default")
-            logging_warning_filter = utils.LoggingWarningFilter()
-            logger.addFilter(logging_warning_filter)
-            credentials, _ = google.auth.default()
-            logger.removeFilter(logging_warning_filter)
-        self._credentials = credentials
+        if self._credentials:
+            return self._credentials
+        logger = logging.getLogger("google.auth._default")
+        logging_warning_filter = utils.LoggingWarningFilter()
+        logger.addFilter(logging_warning_filter)
+        credentials, _ = google.auth.default()
+        logger.removeFilter(logging_warning_filter)
+        return credentials
 
     def get_client_options(
         self, location_override: Optional[str] = None, prediction_client: bool = False,
