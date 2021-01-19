@@ -22,6 +22,8 @@ import inspect
 import threading
 from typing import Any, Callable, Dict, Optional, Sequence, Union
 
+import proto
+
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
@@ -121,7 +123,7 @@ class FutureManager(metaclass=abc.ABCMeta):
         """
 
         def wait_for_dependencies_and_invoke(
-            deps: Optional[Sequence[futures.Future]],
+            deps: Sequence[futures.Future],
             method: Callable[..., Any],
             args: Sequence[Any],
             kwargs: Dict[str, Any],
@@ -141,11 +143,8 @@ class FutureManager(metaclass=abc.ABCMeta):
                     Callbacks that take the result of method.
 
             """
-            # wait for all dependencies to complete
-            futures_results = futures.wait(deps, return_when=futures.FIRST_EXCEPTION)
 
-            # check for raised exceptions before moving forward
-            for future in futures_results.done:
+            for future in set(deps):
                 future.result()
 
             result = method(*args, **kwargs)
@@ -161,8 +160,11 @@ class FutureManager(metaclass=abc.ABCMeta):
         deps = [
             arg._latest_future
             for arg in list(args) + list(kwargs.values())
-            if isinstance(arg, FutureManager) and arg._latest_future
+            if isinstance(arg, FutureManager)
         ]
+
+        # filter out objects that do not have pending tasks
+        deps = [dep for dep in deps if dep]
 
         if additional_dependencies:
             deps.extend(additional_dependencies)
@@ -232,6 +234,18 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         """Flag to indicate whether to use prediction endpoint with client."""
         pass
 
+    @property
+    @abc.abstractmethod
+    def _getter_method(cls) -> str:
+        """Name of getter method of client class for retrieving the resource."""
+        pass
+
+    @property
+    @abc.abstractmethod
+    def _resource_noun(cls) -> str:
+        """Resource noun"""
+        pass
+
     def __init__(
         self,
         project: Optional[str] = None,
@@ -249,9 +263,9 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
 
         self.project = project or initializer.global_config.project
         self.location = location or initializer.global_config.location
-        self.credentials = credentials
+        self.credentials = credentials or initializer.global_config.credentials
 
-        self.api_client = self._instantiate_client(self.location, credentials)
+        self.api_client = self._instantiate_client(self.location, self.credentials)
 
     @classmethod
     def _instantiate_client(
@@ -262,7 +276,6 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         """Helper method to instantiate service client for resource noun.
 
         Args:
-            project (str): Project of the resource noun.
             location (str): The location of the resource noun.
             credentials (google.auth.credentials.Credentials):
                 Optional custom credentials to use when accessing interacting with
@@ -277,6 +290,28 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
             location_override=location,
             prediction_client=cls._is_client_prediction_client,
         )
+
+    def _get_gca_resource(self, resource_name: str) -> proto.Message:
+        """Returns GAPIC service representation of client class resource."""
+        """
+        Args:
+            resource_name (str):
+            Required. A fully-qualified resource name or ID.
+        """
+
+        resource_name = utils.full_resource_name(
+            resource_name=resource_name,
+            resource_noun=self._resource_noun,
+            project=self.project,
+            location=self.location,
+        )
+
+        return getattr(self.api_client, self._getter_method)(name=resource_name)
+
+    def _sync_gca_resource(self):
+        """Sync GAPIC service representation of client class resource."""
+
+        self._gca_resource = self._get_gca_resource(resource_name=self.resource_name)
 
     @property
     def name(self) -> str:

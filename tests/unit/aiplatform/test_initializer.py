@@ -15,16 +15,18 @@
 # limitations under the License.
 #
 
-
-import pytest
 import importlib
+import os
+import pytest
+from unittest import mock
 
 import google.auth
 from google.auth import credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import constants
-from google.cloud.aiplatform_v1beta1.services.model_service.client import (
-    ModelServiceClient,
+from google.cloud.aiplatform import utils
+from google.cloud.aiplatform_v1beta1.services.model_service import (
+    client as model_service_client,
 )
 
 _TEST_PROJECT = "test-project"
@@ -39,6 +41,9 @@ _TEST_STAGING_BUCKET = "test-bucket"
 class TestInit:
     def setup_method(self):
         importlib.reload(initializer)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
 
     def test_init_project_sets_project(self):
         initializer.global_config.init(project=_TEST_PROJECT)
@@ -91,8 +96,11 @@ class TestInit:
 
     def test_create_client_returns_client(self):
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        client = initializer.global_config.create_client(ModelServiceClient)
-        assert isinstance(client, ModelServiceClient)
+        client = initializer.global_config.create_client(
+            model_service_client.ModelServiceClient
+        )
+        assert client._client_class is model_service_client.ModelServiceClient
+        assert isinstance(client, utils.WrappedClient)
         assert (
             client._transport._host == f"{_TEST_LOCATION}-{constants.API_BASE_PATH}:443"
         )
@@ -101,12 +109,12 @@ class TestInit:
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         creds = credentials.AnonymousCredentials()
         client = initializer.global_config.create_client(
-            ModelServiceClient,
+            model_service_client.ModelServiceClient,
             credentials=creds,
             location_override=_TEST_LOCATION_2,
             prediction_client=True,
         )
-        assert isinstance(client, ModelServiceClient)
+        assert isinstance(client, model_service_client.ModelServiceClient)
         assert (
             client._transport._host
             == f"{_TEST_LOCATION_2}-prediction-{constants.API_BASE_PATH}:443"
@@ -115,7 +123,9 @@ class TestInit:
 
     def test_create_client_user_agent(self):
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        client = initializer.global_config.create_client(ModelServiceClient)
+        client = initializer.global_config.create_client(
+            model_service_client.ModelServiceClient
+        )
 
         for wrapped_method in client._transport._wrapped_methods.values():
             # wrapped_method._metadata looks like:
@@ -157,3 +167,17 @@ class TestInit:
             ).api_endpoint
             == expected_endpoint
         )
+
+
+class TestThreadPool:
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    @pytest.mark.parametrize(
+        "cpu_count, expected", [(4, 20), (32, 32), (None, 4), (2, 10)]
+    )
+    def test_max_workers(self, cpu_count, expected):
+        with mock.patch.object(os, "cpu_count") as cpu_count_mock:
+            cpu_count_mock.return_value = cpu_count
+            importlib.reload(initializer)
+            assert initializer.global_pool._max_workers == expected

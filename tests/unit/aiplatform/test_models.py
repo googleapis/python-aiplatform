@@ -88,6 +88,8 @@ _TEST_INSTANCE_SCHEMA_URI = "gs://test/schema/instance.yaml"
 _TEST_PARAMETERS_SCHEMA_URI = "gs://test/schema/parameters.yaml"
 _TEST_PREDICTION_SCHEMA_URI = "gs://test/schema/predictions.yaml"
 
+_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+
 
 @pytest.fixture
 def get_endpoint_mock():
@@ -111,6 +113,15 @@ def get_model_mock():
             display_name=_TEST_MODEL_NAME, name=test_model_resource_name,
         )
         yield get_model_mock
+
+
+@pytest.fixture
+def delete_model_mock():
+    with mock.patch.object(ModelServiceClient, "delete_model") as delete_model_mock:
+        delete_model_lro_mock = mock.Mock(ga_operation.Operation)
+        delete_model_lro_mock.result.return_value = model_service.DeleteModelRequest()
+        delete_model_mock.return_value = delete_model_lro_mock
+        yield delete_model_mock
 
 
 @pytest.fixture
@@ -160,8 +171,15 @@ class TestModel:
         importlib.reload(initializer)
         importlib.reload(aiplatform)
 
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     def test_constructor_creates_client(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
@@ -170,13 +188,17 @@ class TestModel:
             models.Model(_TEST_ID)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
-                credentials=None,
+                credentials=initializer.global_config.credentials,
                 location_override=_TEST_LOCATION,
                 prediction_client=False,
             )
 
     def test_constructor_create_client_with_custom_location(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
@@ -186,7 +208,7 @@ class TestModel:
             models.Model(_TEST_ID, location=_TEST_LOCATION_2)
             create_client_mock.assert_called_once_with(
                 client_class=ModelServiceClient,
-                credentials=None,
+                credentials=initializer.global_config.credentials,
                 location_override=_TEST_LOCATION_2,
                 prediction_client=False,
             )
@@ -293,11 +315,6 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 container_spec=container_spec,
-                predict_schemata=gca_model.PredictSchemata(
-                    instance_schema_uri=None,
-                    parameters_schema_uri=None,
-                    prediction_schema_uri=None,
-                ),
             )
 
             api_client_mock.upload_model.assert_called_once_with(
@@ -429,11 +446,6 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 container_spec=container_spec,
-                predict_schemata=gca_model.PredictSchemata(
-                    instance_schema_uri=None,
-                    parameters_schema_uri=None,
-                    prediction_schema_uri=None,
-                ),
             )
 
             api_client_mock.upload_model.assert_called_once_with(
@@ -485,11 +497,6 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 container_spec=container_spec,
-                predict_schemata=gca_model.PredictSchemata(
-                    instance_schema_uri=None,
-                    parameters_schema_uri=None,
-                    prediction_schema_uri=None,
-                ),
             )
 
             api_client_mock.upload_model.assert_called_once_with(
@@ -508,15 +515,10 @@ class TestModel:
         test_model = models.Model(_TEST_ID)
         test_endpoint = models.Endpoint(_TEST_ID)
 
-        print("start deploy")
         assert test_model.deploy(test_endpoint, sync=sync) == test_endpoint
-        print("end deploy")
 
         if not sync:
-            print("sync")
-            print(test_endpoint._latest_future)
             test_endpoint.wait()
-            print("end sync")
 
         automatic_resources = machine_resources.AutomaticResources(
             min_replica_count=1, max_replica_count=1,
@@ -780,3 +782,15 @@ class TestModel:
             )
 
         assert e.match(regexp=r"accepted prediction format")
+
+    @pytest.mark.usefixtures("get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_delete_model(self, delete_model_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+        test_model.delete(sync=sync)
+
+        if not sync:
+            test_model.wait()
+
+        delete_model_mock.assert_called_once_with(name=test_model.resource_name)

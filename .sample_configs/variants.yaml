@@ -1,0 +1,217 @@
+batch_delete_data_items:
+- ''
+batch_migrate_resources:
+- ''
+cancel_batch_prediction_job:
+- ''
+cancel_custom_job:
+- ''
+cancel_data_labeling_job:
+- ''
+cancel_hyperparameter_tuning_job:
+- ''
+cancel_training_pipeline:
+- ''
+create_annotation:
+- ''
+create_annotation_spec:
+- ''
+create_batch_prediction_job:
+- ''
+- bigquery
+- custom_image_explain
+- custom_tabular_explain
+- tabular_explain
+- tabular_forecasting
+- text_classification
+- text_entity_extraction
+- text_sentiment_analysis
+- video_action_recognition
+- video_classification
+- video_object_tracking
+create_custom_job:
+- ''
+- python_package
+create_data_labeling_job:
+- ''
+- active_learning
+- image_segmentation
+- images
+- specialist_pool
+- video
+create_dataset:
+- ''
+- image
+- tabular_bigquery
+- tabular_gcs
+- text
+- video
+create_endpoint:
+- ''
+create_hyperparameter_tuning_job:
+- ''
+- python_package
+create_specialist_pool:
+- ''
+create_training_pipeline:
+- ''
+- custom_job
+- custom_training_managed_dataset
+- image_classification
+- image_object_detection
+- tabular_classification
+- tabular_forecasting
+- tabular_regression
+- text_classification
+- text_entity_extraction
+- text_sentiment_analysis
+- video_action_recognition
+- video_classification
+- video_object_tracking
+delete_annotation:
+- ''
+delete_annotation_spec:
+- ''
+delete_batch_prediction_job:
+- ''
+delete_custom_job:
+- ''
+delete_data_item:
+- ''
+delete_data_labeling_job:
+- ''
+delete_dataset:
+- ''
+delete_endpoint:
+- ''
+delete_hyperparameter_tuning_job:
+- ''
+delete_model:
+- ''
+delete_specialist_pool:
+- ''
+delete_training_pipeline:
+- ''
+deploy_model:
+- ''
+- custom_trained_model
+explain:
+- ''
+- custom_image
+- custom_tabular
+- tabular
+export_data:
+- ''
+export_evaluated_data_items:
+- ''
+export_model:
+- ''
+- tabular_classification
+- video_action_recognition
+get_annotation:
+- ''
+get_annotation_spec:
+- ''
+get_batch_prediction_job:
+- ''
+get_custom_job:
+- ''
+get_data_item:
+- ''
+get_data_labeling_job:
+- ''
+get_dataset:
+- ''
+get_endpoint:
+- ''
+get_hyperparameter_tuning_job:
+- ''
+get_model:
+- ''
+get_model_evaluation:
+- ''
+- image_classification
+- image_object_detection
+- tabular_classification
+- tabular_regression
+- text_classification
+- text_entity_extraction
+- text_sentiment_analysis
+- video_action_recognition
+- video_classification
+- video_object_tracking
+get_model_evaluation_slice:
+- ''
+get_specialist_pool:
+- ''
+get_training_pipeline:
+- ''
+import_data:
+- ''
+- image_classification_single_label
+- image_object_detection
+- text_classification_single_label
+- text_entity_extraction
+- text_sentiment_analysis
+- video_action_recognition
+- video_classification
+- video_object_tracking
+list_annotation_specs:
+- ''
+list_annotations:
+- ''
+list_batch_prediction_jobs:
+- ''
+list_custom_jobs:
+- ''
+list_data_items:
+- ''
+list_data_labeling_jobs:
+- ''
+list_datasets:
+- ''
+list_endpoints:
+- ''
+list_hyperparameter_tuning_jobs:
+- ''
+list_model_evaluation_slices:
+- ''
+list_model_evaluations:
+- ''
+list_models:
+- ''
+list_specialist_pools:
+- ''
+list_training_pipelines:
+- ''
+predict:
+- ''
+- custom_trained_model
+- image_classification
+- image_file
+- image_object_detection
+- tabular_classification
+- tabular_regression
+- text_classification_single_label
+- text_entity_extraction
+- text_sentiment_analysis
+search_migratable_resources:
+- ''
+undeploy_model:
+- ''
+update_annotation_spec:
+- ''
+update_dataset:
+- ''
+update_endpoint:
+- ''
+update_model:
+- ''
+update_specialist_pool:
+- ''
+upload_model:
+- ''
+- custom_container
+- explain_image_managed_container
+- explain_tabular_managed_container
+- managed_container

@@ -65,6 +65,9 @@ class TestEndToEnd:
         reload(initializer)
         reload(aiplatform)
 
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     @pytest.mark.usefixtures(
         "get_dataset_mock",
         "create_endpoint_mock",
@@ -86,11 +89,11 @@ class TestEndToEnd:
         aiplatform.init(
             project=test_datasets._TEST_PROJECT,
             staging_bucket=test_training_jobs._TEST_BUCKET_NAME,
+            credentials=test_training_jobs._TEST_CREDENTIALS,
         )
 
         my_dataset = aiplatform.Dataset.create(
             display_name=test_datasets._TEST_DISPLAY_NAME,
-            labels=test_datasets._TEST_LABEL,
             metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
             sync=sync,
         )
@@ -98,7 +101,7 @@ class TestEndToEnd:
         my_dataset.import_data(
             gcs_source=test_datasets._TEST_SOURCE_URI_GCS,
             import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
-            data_items_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
+            data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
             sync=sync,
         )
 
@@ -130,11 +133,15 @@ class TestEndToEnd:
             display_name=test_endpoints._TEST_DISPLAY_NAME, sync=sync
         )
 
-        model_from_job.deploy(sync=sync)
+        my_endpoint = model_from_job.deploy(sync=sync)
 
         endpoint_deploy_return = created_endpoint.deploy(model_from_job, sync=sync)
 
         assert endpoint_deploy_return is None
+
+        if not sync:
+            my_endpoint.wait()
+            created_endpoint.wait()
 
         test_prediction = created_endpoint.predict(
             instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]], parameters={"param": 3.0}
@@ -155,8 +162,7 @@ class TestEndToEnd:
         expected_dataset = GapicDataset(
             display_name=test_datasets._TEST_DISPLAY_NAME,
             metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            labels=test_datasets._TEST_LABEL,
-            metadata={},
+            metadata=test_datasets._TEST_NONTABULAR_DATASET_METADATA,
         )
 
         expected_import_config = ImportDataConfig(
@@ -166,7 +172,9 @@ class TestEndToEnd:
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=test_datasets._TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=test_datasets._TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=test_datasets._TEST_REQUEST_METADATA,
         )
 
         import_data_mock.assert_called_once_with(
@@ -280,11 +288,11 @@ class TestEndToEnd:
         aiplatform.init(
             project=test_datasets._TEST_PROJECT,
             staging_bucket=test_training_jobs._TEST_BUCKET_NAME,
+            credentials=test_training_jobs._TEST_CREDENTIALS,
         )
 
         my_dataset = aiplatform.Dataset.create(
             display_name=test_datasets._TEST_DISPLAY_NAME,
-            labels=test_datasets._TEST_LABEL,
             metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
             sync=sync,
         )
@@ -292,7 +300,7 @@ class TestEndToEnd:
         my_dataset.import_data(
             gcs_source=test_datasets._TEST_SOURCE_URI_GCS,
             import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
-            data_items_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
+            data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
             sync=sync,
         )
 
@@ -339,8 +347,7 @@ class TestEndToEnd:
         expected_dataset = GapicDataset(
             display_name=test_datasets._TEST_DISPLAY_NAME,
             metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            labels=test_datasets._TEST_LABEL,
-            metadata={},
+            metadata=test_datasets._TEST_NONTABULAR_DATASET_METADATA,
         )
 
         expected_import_config = ImportDataConfig(
@@ -350,7 +357,9 @@ class TestEndToEnd:
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=test_datasets._TEST_PARENT, dataset=expected_dataset, metadata=()
+            parent=test_datasets._TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=test_datasets._TEST_REQUEST_METADATA,
         )
 
         import_data_mock.assert_called_once_with(

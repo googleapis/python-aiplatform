@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import os
-import base64
 import pathlib
+
 
 import predict_image_object_detection_sample
 

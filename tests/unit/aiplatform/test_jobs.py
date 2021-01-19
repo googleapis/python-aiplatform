@@ -97,6 +97,9 @@ class TestJob:
         reload(aiplatform)
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
     # Test Fixtures
 
     @pytest.fixture

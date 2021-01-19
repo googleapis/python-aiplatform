@@ -19,7 +19,8 @@
 from concurrent import futures
 import logging
 import pkg_resources
-from typing import Optional, Type
+import os
+from typing import Optional, Type, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -115,8 +116,15 @@ class _Config:
 
     @property
     def credentials(self) -> Optional[auth_credentials.Credentials]:
-        """Default credentials, if provided."""
-        return self._credentials
+        """Default credentials."""
+        if self._credentials:
+            return self._credentials
+        logger = logging.getLogger("google.auth._default")
+        logging_warning_filter = utils.LoggingWarningFilter()
+        logger.addFilter(logging_warning_filter)
+        credentials, _ = google.auth.default()
+        logger.removeFilter(logging_warning_filter)
+        return credentials
 
     def get_client_options(
         self, location_override: Optional[str] = None, prediction_client: bool = False,
@@ -183,7 +191,7 @@ class _Config:
         credentials: Optional[auth_credentials.Credentials] = None,
         location_override: Optional[str] = None,
         prediction_client: bool = False,
-    ) -> utils.AiPlatformServiceClient:
+    ) -> Union[utils.WrappedClient, utils.AiPlatformServiceClient]:
         """Instantiates a given AiPlatformServiceClient with optional overrides.
 
         Args:
@@ -202,15 +210,25 @@ class _Config:
         client_info = gapic_v1.client_info.ClientInfo(
             gapic_version=gapic_version, user_agent=f"model-builder/{gapic_version}"
         )
-        return client_class(
-            credentials=credentials or self.credentials,
-            client_options=self.get_client_options(
+
+        kwargs = {
+            "credentials": credentials or self.credentials,
+            "client_options": self.get_client_options(
                 location_override=location_override, prediction_client=prediction_client
             ),
-            client_info=client_info,
-        )
+            "client_info": client_info,
+        }
+
+        if prediction_client:
+            return client_class(**kwargs)
+        else:
+            kwargs["client_class"] = client_class
+            return utils.WrappedClient(**kwargs)
 
 
 # global config to store init parameters: ie, aiplatform.init(project=..., location=...)
 global_config = _Config()
-global_pool = futures.ThreadPoolExecutor()
+
+global_pool = futures.ThreadPoolExecutor(
+    max_workers=min(32, max(4, (os.cpu_count() or 0) * 5))
+)

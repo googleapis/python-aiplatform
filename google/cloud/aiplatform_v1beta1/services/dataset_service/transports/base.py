@@ -74,10 +74,10 @@ class DatasetServiceTransport(abc.ABC):
             scope (Optional[Sequence[str]]): A list of scopes.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
-            client_info (google.api_core.gapic_v1.client_info.ClientInfo):	
-                The client info used to send a user-agent string along with	
-                API requests. If ``None``, then default info will be used.	
-                Generally, you only need to set this if you're developing	
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
+                The client info used to send a user-agent string along with
+                API requests. If ``None``, then default info will be used.
+                Generally, you only need to set this if you're developing
                 your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
@@ -112,34 +112,34 @@ class DatasetServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_dataset: gapic_v1.method.wrap_method(
-                self.create_dataset, default_timeout=None, client_info=client_info,
+                self.create_dataset, default_timeout=5.0, client_info=client_info,
             ),
             self.get_dataset: gapic_v1.method.wrap_method(
-                self.get_dataset, default_timeout=None, client_info=client_info,
+                self.get_dataset, default_timeout=5.0, client_info=client_info,
             ),
             self.update_dataset: gapic_v1.method.wrap_method(
-                self.update_dataset, default_timeout=None, client_info=client_info,
+                self.update_dataset, default_timeout=5.0, client_info=client_info,
             ),
             self.list_datasets: gapic_v1.method.wrap_method(
-                self.list_datasets, default_timeout=None, client_info=client_info,
+                self.list_datasets, default_timeout=5.0, client_info=client_info,
             ),
             self.delete_dataset: gapic_v1.method.wrap_method(
-                self.delete_dataset, default_timeout=None, client_info=client_info,
+                self.delete_dataset, default_timeout=5.0, client_info=client_info,
             ),
             self.import_data: gapic_v1.method.wrap_method(
-                self.import_data, default_timeout=None, client_info=client_info,
+                self.import_data, default_timeout=5.0, client_info=client_info,
             ),
             self.export_data: gapic_v1.method.wrap_method(
-                self.export_data, default_timeout=None, client_info=client_info,
+                self.export_data, default_timeout=5.0, client_info=client_info,
             ),
             self.list_data_items: gapic_v1.method.wrap_method(
-                self.list_data_items, default_timeout=None, client_info=client_info,
+                self.list_data_items, default_timeout=5.0, client_info=client_info,
             ),
             self.get_annotation_spec: gapic_v1.method.wrap_method(
-                self.get_annotation_spec, default_timeout=None, client_info=client_info,
+                self.get_annotation_spec, default_timeout=5.0, client_info=client_info,
             ),
             self.list_annotations: gapic_v1.method.wrap_method(
-                self.list_annotations, default_timeout=None, client_info=client_info,
+                self.list_annotations, default_timeout=5.0, client_info=client_info,
             ),
         }
 

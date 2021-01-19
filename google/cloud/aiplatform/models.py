@@ -64,6 +64,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
     client_class = endpoint_service_client.EndpointServiceClient
     _is_client_prediction_client = False
+    _resource_noun = "endpoints"
+    _getter_method = "get_endpoint"
 
     def __init__(
         self,
@@ -91,32 +93,11 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        self._gca_resource = self._get_endpoint(endpoint_name)
+        self._gca_resource = self._get_gca_resource(resource_name=endpoint_name)
         self._prediction_client = self._instantiate_prediction_client(
             location=location or initializer.global_config.location,
             credentials=credentials,
         )
-
-    def _get_endpoint(self, endpoint_name: str) -> gca_endpoint.Endpoint:
-        """Gets the endpoint from AI Platform.
-
-        Args:
-            endpoint_name (str):
-                Required. The name of the endpoint to retrieve.
-        Returns:
-            endpoint (gca_endpoint.Endpoint):
-                Managed endpoint resource.
-        """
-
-        endpoint_name = utils.full_resource_name(
-            resource_name=endpoint_name,
-            resource_noun="endpoints",
-            project=self.project,
-            location=self.location,
-        )
-        endpoint = self.api_client.get_endpoint(name=endpoint_name)
-
-        return endpoint
 
     @classmethod
     def create(
@@ -582,7 +563,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             metadata=metadata,
         )
 
-        self._gca_resource = self._get_endpoint(self.resource_name)
+        self._sync_gca_resource()
 
     @classmethod
     def _deploy_call(
@@ -784,17 +765,19 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 Optional. Strings which should be sent along with the request as
                 metadata.
         """
-        if traffic_split is None:
-            traffic_split = self._unallocate_traffic(
-                traffic_split=dict(self._gca_resource.traffic_split),
+        current_traffic_split = traffic_split or dict(self._gca_resource.traffic_split)
+
+        if deployed_model_id in current_traffic_split:
+            current_traffic_split = self._unallocate_traffic(
+                traffic_split=current_traffic_split,
                 deployed_model_id=deployed_model_id,
             )
-            traffic_split.pop(deployed_model_id)
+            current_traffic_split.pop(deployed_model_id)
 
         operation_future = self.api_client.undeploy_model(
             endpoint=self.resource_name,
             deployed_model_id=deployed_model_id,
-            traffic_split=traffic_split,
+            traffic_split=current_traffic_split,
             metadata=metadata,
         )
 
@@ -802,7 +785,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         operation_future.result()
 
         # update local resource
-        self._gca_resource = self._get_endpoint(self.resource_name)
+        self._sync_gca_resource()
 
     @staticmethod
     def _instantiate_prediction_client(
@@ -871,13 +854,74 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     # TODO(b/172828587): implement prediction
     def explain(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
         """Online prediction with explanation."""
-        raise NotImplementedError("Prediction not implemented.")
+        raise NotImplementedError("Prediction with explanation not implemented.")
+
+    def list_models(self) -> Sequence[gca_endpoint.DeployedModel]:
+        """Returns a list of the models deployed to this Endpoint.
+
+        Returns:
+            deployed_models (Sequence[aiplatform.gapic.DeployedModel]):
+                A list of the models deployed in this Endpoint.
+        """
+        self._sync_gca_resource()
+        return self._gca_resource.deployed_models
+
+    def undeploy_all(self, sync: bool = True) -> "Endpoint":
+        """Undeploys every model deployed to this Endpoint.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        """
+        self._sync_gca_resource()
+
+        for deployed_model in self._gca_resource.deployed_models:
+            self._undeploy(deployed_model_id=deployed_model.id, sync=sync)
+
+        return self
+
+    @base.optional_sync()
+    def _delete(self, sync: bool = True) -> None:
+        """Private helper method to delete this endpoint via GAPIC.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        """
+        lro = self.api_client.delete_endpoint(name=self.resource_name)
+        lro.result()
+
+    def delete(self, force: bool = False, sync: bool = True) -> None:
+        """Deletes this AI Platform Endpoint resource. If force is set to True,
+        all models on this Endpoint will be undeployed prior to deletion.
+
+        Args:
+            force (bool):
+                Required. If force is set to True, all deployed models on this
+                Endpoint will be undeployed first. Default is False.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Raises:
+            FailedPrecondition: If models are deployed on this Endpoint and force = False.
+        """
+        if force:
+            self.undeploy_all(sync=sync)
+
+        self._delete(sync=sync)
 
 
 class Model(base.AiPlatformResourceNounWithFutureManager):
 
     client_class = model_service_client.ModelServiceClient
     _is_client_prediction_client = False
+    _resource_noun = "models"
+    _getter_method = "get_model"
 
     @property
     def uri(self):
@@ -887,7 +931,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
     @property
     def description(self):
         """Description of the model."""
-        return self._gca_model.description
+        return self._gca_resource.description
 
     def __init__(
         self,
@@ -915,26 +959,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
-        self._gca_resource = self._get_model(model_name)
-
-    def _get_model(self, model_name: str) -> gca_model.Model:
-        """Gets the model from AI Platform.
-
-        Args:
-            model_name (str): The name of the model to retrieve.
-        Returns:
-            model: Managed Model resource.
-        """
-
-        model_name = utils.full_resource_name(
-            resource_name=model_name,
-            resource_noun="models",
-            project=self.project,
-            location=self.location,
-        )
-        model = self.api_client.get_model(name=model_name)
-
-        return model
+        self._gca_resource = self._get_gca_resource(resource_name=model_name)
 
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
@@ -1100,16 +1125,20 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             health_route=serving_container_health_route,
         )
 
+        model_predict_schemata = None
+        if any([instance_schema_uri, parameters_schema_uri, prediction_schema_uri]):
+            model_predict_schemata = gca_model.PredictSchemata(
+                instance_schema_uri=instance_schema_uri,
+                parameters_schema_uri=parameters_schema_uri,
+                prediction_schema_uri=prediction_schema_uri,
+            )
+
         managed_model = gca_model.Model(
             display_name=display_name,
             description=description,
             artifact_uri=artifact_uri,
             container_spec=container_spec,
-            predict_schemata=gca_model.PredictSchemata(
-                instance_schema_uri=instance_schema_uri,
-                parameters_schema_uri=parameters_schema_uri,
-                prediction_schema_uri=prediction_schema_uri,
-            ),
+            predict_schemata=model_predict_schemata,
         )
 
         lro = api_client.upload_model(
@@ -1304,7 +1333,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             metadata=metadata,
         )
 
-        endpoint._gca_resource = endpoint._get_endpoint(endpoint.resource_name)
+        endpoint._sync_gca_resource()
 
         return endpoint
 
@@ -1567,3 +1596,19 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         return jobs.BatchPredictionJob(
             batch_prediction_job_name=new_batch_prediction_job_name
         )
+
+    @base.optional_sync()
+    def delete(self, sync: bool = True) -> None:
+        """Deletes this AI Platform managed Model resource.
+
+        WARNING: Calling this method will permanently delete your trained Model
+        on AI Platform, this action is irreversable.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        """
+        lro = self.api_client.delete_model(name=self.resource_name)
+        lro.result()

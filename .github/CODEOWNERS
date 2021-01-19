@@ -1,0 +1,20 @@
+# Code owners file.
+# This file controls who is tagged for review for any given pull request.
+#
+# For syntax help see:
+# https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners#codeowners-syntax
+
+# yoshi-python is the default owner
+*                                      @googleapis/yoshi-python
+
+# The AI Platform GAPIC libraries are owned by Cloud AI DPE
+/google/cloud/aiplatform*              @googleapis/cdpe-cloudai
+
+# The AI Platform SDK is owned by Model Builder SDK Dev team
+/google/cloud/aiplatform/*             @googleapis/cloud-aiplatform-model-builder-sdk
+
+# The python-samples-owners team is the default owner for samples
+/samples/**/*.py                       @dizcology @googleapis/python-samples-owners
+
+# The enhanced client library tests are owned by @telpirion
+/tests/unit/enhanced_library/*.py      @telpirion

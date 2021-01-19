@@ -27,6 +27,7 @@ def create_training_pipeline_custom_job_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
+    # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
@@ -63,7 +64,7 @@ def create_training_pipeline_custom_job_sample(
         "training_task_inputs": training_task_inputs,
         "model_to_upload": {
             "display_name": model_display_name,
-            "container_spec": {"image_uri": image_uri, },
+            "container_spec": {"image_uri": image_uri},
         },
     }
     parent = f"projects/{project}/locations/{location}"

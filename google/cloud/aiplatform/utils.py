@@ -17,10 +17,14 @@
 
 
 import re
+import logging
 
-from typing import Optional, TypeVar, Match, Tuple
+from typing import Any, Match, Optional, Type, TypeVar, Tuple
 from collections import namedtuple
 
+from google.api_core import client_options
+from google.api_core import gapic_v1
+from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
@@ -29,8 +33,14 @@ from google.cloud.aiplatform_v1beta1.services.dataset_service import (
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
     client as endpoint_client,
 )
+from google.cloud.aiplatform_v1beta1.services.job_service import (
+    client as job_service_client,
+)
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     client as model_client,
+)
+from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
+    client as pipeline_service_client,
 )
 from google.cloud.aiplatform_v1beta1.services.prediction_service import (
     client as prediction_client,
@@ -42,6 +52,8 @@ AiPlatformServiceClient = TypeVar(
     endpoint_client.EndpointServiceClient,
     model_client.ModelServiceClient,
     prediction_client.PredictionServiceClient,
+    pipeline_service_client.PipelineServiceClient,
+    job_service_client.JobServiceClient,
 )
 
 # TODO(b/170334193): Add support for resource names with non-integer IDs
@@ -260,3 +272,45 @@ def extract_bucket_and_prefix_from_gcs_path(gcs_path: str) -> Tuple[str, Optiona
     gcs_blob_prefix = None if len(gcs_parts) == 1 else gcs_parts[1]
 
     return (gcs_bucket, gcs_blob_prefix)
+
+
+class WrappedClient:
+    """Wrapper class for client that creates client at API invocation time."""
+
+    def __init__(
+        self,
+        client_class: Type[AiPlatformServiceClient],
+        client_options: client_options.ClientOptions,
+        client_info: gapic_v1.client_info.ClientInfo,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Stores parameters needed to instantiate client.
+
+        client_class (AiPlatformServiceClient):
+            Required. Class of the client to use.
+        client_options (client_options.ClientOptions):
+            Required. Client options to pass to client.
+        client_info (gapic_v1.client_info.ClientInfo):
+            Required. Client info to pass to client.
+        credentials (auth_credentials.credentials):
+            Optional. Client credentials to pass to client.
+        """
+
+        self._client_class = client_class
+        self._credentials = credentials
+        self._client_options = client_options
+        self._client_info = client_info
+
+    def __getattr__(self, name: str) -> Any:
+        """Instantiates client and returns attribute of the client."""
+        temporary_client = self._client_class(
+            credentials=self._credentials,
+            client_options=self._client_options,
+            client_info=self._client_info,
+        )
+        return getattr(temporary_client, name)
+
+
+class LoggingWarningFilter(logging.Filter):
+    def filter(self, record):
+        return record.levelname == logging.WARNING
