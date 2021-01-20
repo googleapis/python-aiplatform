@@ -16,6 +16,8 @@
 #
 
 from google.cloud.aiplatform import gapic
+from google.cloud.aiplatform import explainable_ai
+from google.cloud.aiplatform import training_utils
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.datasets import (
@@ -42,6 +44,8 @@ init = initializer.global_config.init
 
 __all__ = (
     gapic,
+    explainable_ai,
+    training_utils,
     "BatchPredictionJob",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",

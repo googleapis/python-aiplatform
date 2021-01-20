@@ -30,6 +30,22 @@ readme_filename = os.path.join(package_root, "README.rst")
 with io.open(readme_filename, encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
+# Extra dependencies
+extras = {
+    "xai": [
+        # For Explainable AI metadata builder which is located
+        # at google/cloud/aiplatform/explainable_ai/
+        "tensorflow>=1.15.0",
+        "numpy<1.19.0",
+    ]
+}
+
+all_extras = []
+
+for extra in extras:
+    all_extras.extend(extras[extra])
+
+extras["all"] = all_extras
 
 setuptools.setup(
     name=name,
@@ -52,6 +68,7 @@ setuptools.setup(
         "google-cloud-storage >= 1.26.0, < 2.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
     ),
+    extras_require=extras,
     python_requires=">=3.6",
     scripts=[],
     classifiers=[
