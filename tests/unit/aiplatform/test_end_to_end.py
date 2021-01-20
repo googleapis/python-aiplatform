@@ -89,6 +89,7 @@ class TestEndToEnd:
         aiplatform.init(
             project=test_datasets._TEST_PROJECT,
             staging_bucket=test_training_jobs._TEST_BUCKET_NAME,
+            credentials=test_training_jobs._TEST_CREDENTIALS,
         )
 
         my_dataset = aiplatform.Dataset.create(
@@ -287,6 +288,7 @@ class TestEndToEnd:
         aiplatform.init(
             project=test_datasets._TEST_PROJECT,
             staging_bucket=test_training_jobs._TEST_BUCKET_NAME,
+            credentials=test_training_jobs._TEST_CREDENTIALS,
         )
 
         my_dataset = aiplatform.Dataset.create(

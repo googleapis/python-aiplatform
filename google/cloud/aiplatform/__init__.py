@@ -32,6 +32,7 @@ from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
     CustomContainerTrainingJob,
     AutoMLTabularTrainingJob,
+    AutoMLImageTrainingJob,
 )
 
 """
@@ -46,13 +47,14 @@ __all__ = (
     gapic,
     explainable_ai,
     training_utils,
+    "AutoMLImageTrainingJob",
+    "AutoMLTabularTrainingJob",
     "BatchPredictionJob",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
-    "AutoMLTabularTrainingJob",
-    "Model",
     "Dataset",
-    "TabularDataset",
-    "ImageDataset",
     "Endpoint",
+    "ImageDataset",
+    "Model",
+    "TabularDataset",
 )

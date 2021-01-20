@@ -122,6 +122,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         test_fraction_split: float = 0.1,
         predefined_split_column_name: Optional[str] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
+        bigquery_destination: Optional[str] = None,
     ) -> Optional[gca_training_pipeline.InputDataConfig]:
         """Constructs a input data config to pass to the training pipeline.
 
@@ -160,6 +161,20 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 -  AIP_TRAINING_DATA_URI = "gcs_destination/training-*"
                 -  AIP_VALIDATION_DATA_URI = "gcs_destination/validation-*"
                 -  AIP_TEST_DATA_URI = "gcs_destination/test-*".
+            bigquery_destination (str):
+                The BigQuery project location where the training data is to
+                be written to. In the given project a new dataset is created
+                with name
+                ``dataset_<dataset-id>_<annotation-type>_<timestamp-of-training-call>``
+                where timestamp is in YYYY_MM_DDThh_mm_ss_sssZ format. All
+                training input data will be written into that dataset. In
+                the dataset three tables will be created, ``training``,
+                ``validation`` and ``test``.
+
+                -  AIP_DATA_FORMAT = "bigquery".
+                -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
+                -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
+                -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
         """
 
         input_data_config = None
@@ -193,12 +208,20 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                     output_uri_prefix=gcs_destination_uri_prefix
                 )
 
+            # TODO(b/177416223) validate managed BQ dataset is passed in
+            bigquery_destination_proto = None
+            if bigquery_destination:
+                bigquery_destination_proto = gca_io.BigQueryDestination(
+                    output_uri=bigquery_destination
+                )
+
             # create input data config
             input_data_config = gca_training_pipeline.InputDataConfig(
                 fraction_split=fraction_split,
                 predefined_split=predefined_split,
                 dataset_id=dataset.name,
                 gcs_destination=gcs_destination,
+                bigquery_destination=bigquery_destination_proto,
             )
 
         return input_data_config
@@ -214,6 +237,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         predefined_split_column_name: Optional[str] = None,
         model: Optional[gca_model.Model] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
+        bigquery_destination: Optional[str] = None,
     ) -> Optional[models.Model]:
         """Runs the training job.
 
@@ -295,6 +319,20 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 -  AIP_TRAINING_DATA_URI = "gcs_destination/training-*"
                 -  AIP_VALIDATION_DATA_URI = "gcs_destination/validation-*"
                 -  AIP_TEST_DATA_URI = "gcs_destination/test-*".
+            bigquery_destination (str):
+                The BigQuery project location where the training data is to
+                be written to. In the given project a new dataset is created
+                with name
+                ``dataset_<dataset-id>_<annotation-type>_<timestamp-of-training-call>``
+                where timestamp is in YYYY_MM_DDThh_mm_ss_sssZ format. All
+                training input data will be written into that dataset. In
+                the dataset three tables will be created, ``training``,
+                ``validation`` and ``test``.
+
+                -  AIP_DATA_FORMAT = "bigquery".
+                -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
+                -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
+                -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
         """
 
         input_data_config = self._create_input_data_config(
@@ -304,6 +342,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
             gcs_destination_uri_prefix=gcs_destination_uri_prefix,
+            bigquery_destination=bigquery_destination,
         )
 
         # create training pipeline
@@ -1418,6 +1457,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         dataset: Optional[datasets.Dataset] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
+        bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         replica_count: int = 0,
         machine_type: str = "n1-standard-4",
@@ -1463,6 +1503,21 @@ class CustomTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+            bigquery_destination (str):
+                Provide this field if `dataset` is a BiqQuery dataset.
+                The BigQuery project location where the training data is to
+                be written to. In the given project a new dataset is created
+                with name
+                ``dataset_<dataset-id>_<annotation-type>_<timestamp-of-training-call>``
+                where timestamp is in YYYY_MM_DDThh_mm_ss_sssZ format. All
+                training input data will be written into that dataset. In
+                the dataset three tables will be created, ``training``,
+                ``validation`` and ``test``.
+
+                -  AIP_DATA_FORMAT = "bigquery".
+                -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
+                -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
+                -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
             replica_count (int):
@@ -1815,6 +1870,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         dataset: Optional[datasets.Dataset] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
+        bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         replica_count: int = 0,
         machine_type: str = "n1-standard-4",
@@ -1844,7 +1900,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         Args:
             dataset (aiplatform.Dataset):
                 AI Platform to fit this training against. Custom training script should
-                retrieve datasets through passed in environement variables uris:
+                retrieve datasets through passed in environment variables uris:
 
                 os.environ["AIP_TRAINING_DATA_URI"]
                 os.environ["AIP_VALIDATION_DATA_URI"]
@@ -1860,6 +1916,21 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+            bigquery_destination (str):
+                Provide this field if `dataset` is a BiqQuery dataset.
+                The BigQuery project location where the training data is to
+                be written to. In the given project a new dataset is created
+                with name
+                ``dataset_<dataset-id>_<annotation-type>_<timestamp-of-training-call>``
+                where timestamp is in YYYY_MM_DDThh_mm_ss_sssZ format. All
+                training input data will be written into that dataset. In
+                the dataset three tables will be created, ``training``,
+                ``validation`` and ``test``.
+
+                -  AIP_DATA_FORMAT = "bigquery".
+                -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
+                -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
+                -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
             replica_count (int):
@@ -1921,6 +1992,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             managed_model=managed_model,
             args=args,
             base_output_dir=base_output_dir,
+            bigquery_destination=bigquery_destination,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
@@ -1936,6 +2008,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         base_output_dir: Optional[str] = None,
+        bigquery_destination: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -1955,6 +2028,20 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+            bigquery_destination (str):
+                The BigQuery project location where the training data is to
+                be written to. In the given project a new dataset is created
+                with name
+                ``dataset_<dataset-id>_<annotation-type>_<timestamp-of-training-call>``
+                where timestamp is in YYYY_MM_DDThh_mm_ss_sssZ format. All
+                training input data will be written into that dataset. In
+                the dataset three tables will be created, ``training``,
+                ``validation`` and ``test``.
+
+                -  AIP_DATA_FORMAT = "bigquery".
+                -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
+                -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
+                -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             training_fraction_split (float):
                 The fraction of the input data that is to be
                 used to train the Model.
@@ -2010,6 +2097,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
+            bigquery_destination=bigquery_destination,
         )
 
         return model
@@ -2391,6 +2479,9 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 (i.e. assuming that for each image just up to one annotation may be
                 applicable). If true, a multi-label Model will be trained (i.e.
                 assuming that for each image multiple annotations may be applicable).
+
+                This is only applicable for the "classification" prediction_type and
+                will be ignored otherwise.
             model_type: str = "CLOUD"
                 Required. One of the following:
                     "CLOUD" - Default for Image Classification.
@@ -2652,10 +2743,12 @@ class AutoMLImageTrainingJob(_TrainingJob):
             # required inputs
             "modelType": self._model_type,
             "budgetMilliNodeHours": budget_milli_node_hours,
-            "multiLabel": self._multi_label,
             # optional inputs
             "disableEarlyStopping": disable_early_stopping,
         }
+
+        if self._prediction_type == "classification":
+            training_task_inputs_dict["multiLabel"] = self._multi_label
 
         model_tbt = gca_model.Model()  # gca Model to be trained
         model_tbt.display_name = model_display_name or self._display_name

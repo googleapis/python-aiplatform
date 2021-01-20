@@ -123,7 +123,7 @@ class FutureManager(metaclass=abc.ABCMeta):
         """
 
         def wait_for_dependencies_and_invoke(
-            deps: Optional[Sequence[futures.Future]],
+            deps: Sequence[futures.Future],
             method: Callable[..., Any],
             args: Sequence[Any],
             kwargs: Dict[str, Any],
@@ -143,11 +143,8 @@ class FutureManager(metaclass=abc.ABCMeta):
                     Callbacks that take the result of method.
 
             """
-            # wait for all dependencies to complete
-            futures_results = futures.wait(deps, return_when=futures.FIRST_EXCEPTION)
 
-            # check for raised exceptions before moving forward
-            for future in futures_results.done:
+            for future in set(deps):
                 future.result()
 
             result = method(*args, **kwargs)
@@ -163,8 +160,11 @@ class FutureManager(metaclass=abc.ABCMeta):
         deps = [
             arg._latest_future
             for arg in list(args) + list(kwargs.values())
-            if isinstance(arg, FutureManager) and arg._latest_future
+            if isinstance(arg, FutureManager)
         ]
+
+        # filter out objects that do not have pending tasks
+        deps = [dep for dep in deps if dep]
 
         if additional_dependencies:
             deps.extend(additional_dependencies)
@@ -263,9 +263,9 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
 
         self.project = project or initializer.global_config.project
         self.location = location or initializer.global_config.location
-        self.credentials = credentials
+        self.credentials = credentials or initializer.global_config.credentials
 
-        self.api_client = self._instantiate_client(self.location, credentials)
+        self.api_client = self._instantiate_client(self.location, self.credentials)
 
     @classmethod
     def _instantiate_client(

@@ -47,7 +47,9 @@ _TEST_LOCATION_2 = "europe-west4"
 
 _TEST_ENDPOINT_NAME = "test-endpoint"
 _TEST_DISPLAY_NAME = "test-display-name"
+_TEST_DISPLAY_NAME_2 = "test-display-name-2"
 _TEST_ID = "1028944691210842416"
+_TEST_ID_2 = "4366591682456584192"
 _TEST_DESCRIPTION = "test-description"
 
 _TEST_ENDPOINT_NAME = (
@@ -61,12 +63,30 @@ _TEST_MODEL_NAME = (
 _TEST_MODEL_ID = "1028944691210842416"
 _TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
 
+_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+
+_TEST_DEPLOYED_MODELS = [
+    gca_endpoint.DeployedModel(id=_TEST_ID, display_name=_TEST_DISPLAY_NAME),
+    gca_endpoint.DeployedModel(id=_TEST_ID_2, display_name=_TEST_DISPLAY_NAME_2),
+]
+
 
 @pytest.fixture
 def get_endpoint_mock():
     with mock.patch.object(EndpointServiceClient, "get_endpoint") as get_endpoint_mock:
         get_endpoint_mock.return_value = gca_endpoint.Endpoint(
             display_name=_TEST_DISPLAY_NAME, name=_TEST_ENDPOINT_NAME,
+        )
+        yield get_endpoint_mock
+
+
+@pytest.fixture
+def get_endpoint_with_models_mock():
+    with mock.patch.object(EndpointServiceClient, "get_endpoint") as get_endpoint_mock:
+        get_endpoint_mock.return_value = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_ENDPOINT_NAME,
+            deployed_models=_TEST_DEPLOYED_MODELS,
         )
         yield get_endpoint_mock
 
@@ -121,6 +141,37 @@ def undeploy_model_mock():
 
 
 @pytest.fixture
+def delete_endpoint_mock():
+    with mock.patch.object(
+        EndpointServiceClient, "delete_endpoint"
+    ) as delete_endpoint_mock:
+        delete_endpoint_lro_mock = mock.Mock(ga_operation.Operation)
+        delete_endpoint_lro_mock.result.return_value = (
+            endpoint_service.DeleteEndpointRequest()
+        )
+        delete_endpoint_mock.return_value = delete_endpoint_lro_mock
+        yield delete_endpoint_mock
+
+
+@pytest.fixture
+def sdk_private_undeploy_mock():
+    """Mocks the high-level Endpoint._undeploy() SDK private method"""
+    with mock.patch.object(aiplatform.Endpoint, "_undeploy") as sdk_undeploy_mock:
+        sdk_undeploy_mock.return_value = None
+        yield sdk_undeploy_mock
+
+
+@pytest.fixture
+def sdk_undeploy_all_mock():
+    """Mocks the high-level Endpoint.undeploy_all() SDK method"""
+    with mock.patch.object(
+        aiplatform.Endpoint, "undeploy_all"
+    ) as sdk_undeploy_all_mock:
+        sdk_undeploy_all_mock.return_value = None
+        yield sdk_undeploy_all_mock
+
+
+@pytest.fixture
 def create_client_mock():
     with mock.patch.object(
         initializer.global_config, "create_client"
@@ -155,13 +206,17 @@ class TestEndpoint:
         initializer.global_pool.shutdown(wait=True)
 
     def test_constructor(self, create_client_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
         models.Endpoint(_TEST_ENDPOINT_NAME)
         create_client_mock.assert_has_calls(
             [
                 mock.call(
                     client_class=EndpointServiceClient,
-                    credentials=None,
+                    credentials=initializer.global_config.credentials,
                     location_override=_TEST_LOCATION,
                     prediction_client=False,
                 ),
@@ -624,7 +679,7 @@ class TestEndpoint:
             undeploy_model_mock.assert_called_once_with(
                 endpoint=test_endpoint.resource_name,
                 deployed_model_id="model1",
-                traffic_split={"model1": 0, "model2": 100},
+                traffic_split={"model2": 100},
                 metadata=(),
             )
 
@@ -668,3 +723,67 @@ class TestEndpoint:
             instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]],
             parameters={"param": 3.0},
         )
+
+    def test_list_models(self, get_endpoint_with_models_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        ept = aiplatform.Endpoint(_TEST_ID)
+        my_models = ept.list_models()
+
+        assert my_models == _TEST_DEPLOYED_MODELS
+
+    @pytest.mark.usefixtures("get_endpoint_with_models_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_undeploy_all(self, sdk_private_undeploy_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        ept = aiplatform.Endpoint(_TEST_ID)
+        ept.undeploy_all(sync=sync)
+
+        if not sync:
+            ept.wait()
+
+        # undeploy_all() results in an undeploy() call for each deployed_model
+        sdk_private_undeploy_mock.assert_has_calls(
+            [
+                mock.call(deployed_model_id=deployed_model.id, sync=sync)
+                for deployed_model in _TEST_DEPLOYED_MODELS
+            ],
+            any_order=True,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_with_models_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_delete_endpoint_without_force(
+        self, sdk_undeploy_all_mock, delete_endpoint_mock, sync
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        ept = aiplatform.Endpoint(_TEST_ID)
+        ept.delete(sync=sync)
+
+        if not sync:
+            ept.wait()
+
+        # undeploy_all() should not be called unless force is set to True
+        sdk_undeploy_all_mock.assert_not_called()
+
+        delete_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
+
+    @pytest.mark.usefixtures("get_endpoint_with_models_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_delete_endpoint_with_force(
+        self, sdk_undeploy_all_mock, delete_endpoint_mock, sync
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        ept = aiplatform.Endpoint(_TEST_ID)
+        ept.delete(force=True, sync=sync)
+
+        if not sync:
+            ept.wait()
+
+        # undeploy_all() should be called if force is set to True
+        sdk_undeploy_all_mock.assert_called_once()
+
+        delete_endpoint_mock.assert_called_once_with(name=_TEST_ENDPOINT_NAME)
