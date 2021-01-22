@@ -1696,7 +1696,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
-            bigquery_destination=bigquery_destination
+            bigquery_destination=bigquery_destination,
         )
 
         return model
