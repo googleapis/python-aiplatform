@@ -191,7 +191,6 @@ class BatchPredictionJob(_Job):
         )
 
     @classmethod
-    @base.optional_sync()
     def create(
         cls,
         job_display_name: str,
@@ -327,12 +326,6 @@ class BatchPredictionJob(_Job):
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
 
-        Raises:
-            ValueError:
-                If no or multiple source or destinations are provided. Also, if
-                provided instances_format or predictions_format are not supported
-                by AI Platform.
-
         """
 
         utils.validate_display_name(job_display_name)
@@ -441,18 +434,72 @@ class BatchPredictionJob(_Job):
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
-        gca_batch_prediction_job = api_client.create_batch_prediction_job(
+        return cls._create(
+            api_client=api_client,
             parent=initializer.global_config.common_location_path(
                 project=project, location=location
             ),
             batch_prediction_job=gapic_batch_prediction_job,
+            project=project or initializer.global_config.project,
+            location=location or initializer.global_config.location,
+            credentials=credentials or initializer.global_config.credentials,
+            sync=sync,
+        )
+
+    @classmethod
+    @base.optional_sync()
+    def _create(
+        cls,
+        api_client: job_service_client.JobServiceClient,
+        parent: str,
+        batch_prediction_job: gca_bp_job.BatchPredictionJob,
+        project: str,
+        location: str,
+        credentials: Optional[auth_credentials.Credentials],
+        sync: bool = True,
+    ) -> "BatchPredictionJob":
+        """Create a batch prediction job.
+
+        Args:
+            api_client (dataset_service_client.DatasetServiceClient):
+                Required. An instance of DatasetServiceClient with the correct api_endpoint
+                already set based on user's preferences.
+            batch_prediction_job (gca_bp_job.BatchPredictionJob):
+                Required. a batch prediction job proto for creating a batch prediction job on AI Platform.
+            parent (str):
+                Required. Also known as common location path, that usually contains the
+                project and location that the user provided to the upstream method.
+                Example: "projects/my-prj/locations/us-central1"
+            project (str):
+                Required. Project to upload this model to. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Required. Location to upload this model to. Overrides location set in
+                aiplatform.init.
+            credentials (Optional[auth_credentials.Credentials]):
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            (jobs.BatchPredictionJob):
+                Instantiated representation of the created batch prediction job.
+
+        Raises:
+            ValueError:
+                If no or multiple source or destinations are provided. Also, if
+                provided instances_format or predictions_format are not supported
+                by AI Platform.
+
+        """
+        gca_batch_prediction_job = api_client.create_batch_prediction_job(
+            parent=parent, batch_prediction_job=batch_prediction_job
         )
 
         batch_prediction_job = cls(
             batch_prediction_job_name=gca_batch_prediction_job.name,
-            project=project or initializer.global_config.project,
-            location=location or initializer.global_config.location,
-            credentials=credentials or initializer.global_config.credentials,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
 
         _LOGGER.info(
