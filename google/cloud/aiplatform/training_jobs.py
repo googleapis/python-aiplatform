@@ -1580,6 +1580,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             managed_model=managed_model,
             args=args,
             base_output_dir=base_output_dir,
+            bigquery_destination=bigquery_destination,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
@@ -1596,6 +1597,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         base_output_dir: Optional[str] = None,
+        bigquery_destination: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -1618,6 +1620,21 @@ class CustomTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+            bigquery_destination (str):
+                Provide this field if `dataset` is a BiqQuery dataset.
+                The BigQuery project location where the training data is to
+                be written to. In the given project a new dataset is created
+                with name
+                ``dataset_<dataset-id>_<annotation-type>_<timestamp-of-training-call>``
+                where timestamp is in YYYY_MM_DDThh_mm_ss_sssZ format. All
+                training input data will be written into that dataset. In
+                the dataset three tables will be created, ``training``,
+                ``validation`` and ``test``.
+
+                -  AIP_DATA_FORMAT = "bigquery".
+                -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
+                -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
+                -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             training_fraction_split (float):
                 The fraction of the input data that is to be
                 used to train the Model.
@@ -1679,6 +1696,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             model=managed_model,
             gcs_destination_uri_prefix=base_output_dir,
+            bigquery_destination=bigquery_destination
         )
 
         return model
