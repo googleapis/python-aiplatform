@@ -44,9 +44,7 @@ setuptools.setup(
     include_package_data=True,
     install_requires=(
         "google-api-core[grpc] >= 1.22.2, < 2.0.0dev",
-        "libcst >= 0.2.5",
         "proto-plus >= 1.10.1",
-        "mock >= 4.0.2",
         "google-cloud-storage >= 1.26.0, < 2.0.0dev",
     ),
     python_requires=">=3.6",
