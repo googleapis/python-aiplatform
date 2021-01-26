@@ -22,6 +22,7 @@ from google.cloud.aiplatform.datasets import (
     Dataset,
     TabularDataset,
     ImageDataset,
+    TextDataset,
 )
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
@@ -55,4 +56,5 @@ __all__ = (
     "ImageDataset",
     "Model",
     "TabularDataset",
+    "TextDataset",
 )
