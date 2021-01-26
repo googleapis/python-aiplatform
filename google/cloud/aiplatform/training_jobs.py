@@ -2797,3 +2797,416 @@ class AutoMLImageTrainingJob(_TrainingJob):
             f"AutoML Image Training Pipeline {self.resource_name} is not "
             "configured to upload a Model."
         )
+
+
+class CustomPythonPackageTrainingJob(_CustomTrainingJob):
+    """Class to launch a Custom Training Job in AI Platform using a Python Package.
+
+    Takes a training implementation as a python package and executes that package
+    in Cloud AI Platform Training.
+    """
+
+    def __init__(
+        self,
+        display_name: str,
+        python_package_gcs_uri: str,
+        python_module_name: str,
+        container_uri: str,
+        model_serving_container_image_uri: Optional[str] = None,
+        model_serving_container_predict_route: Optional[str] = None,
+        model_serving_container_health_route: Optional[str] = None,
+        model_serving_container_command: Optional[Sequence[str]] = None,
+        model_serving_container_args: Optional[Sequence[str]] = None,
+        model_serving_container_environment_variables: Optional[Dict[str, str]] = None,
+        model_serving_container_ports: Optional[Sequence[int]] = None,
+        model_description: Optional[str] = None,
+        model_instance_schema_uri: Optional[str] = None,
+        model_parameters_schema_uri: Optional[str] = None,
+        model_prediction_schema_uri: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        staging_bucket: Optional[str] = None,
+    ):
+        """Constructs a Custom Training Job from a Python Package.
+
+        job = aiplatform.CustomPythonPackageTrainingJob(
+            display_name='test-train',
+            python_package_gcs_uri='gs://my-bucket/my-python-package.tar.gz',
+            python_module_name='my-training-python-package.task',
+            container_uri='gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest',
+            model_serving_container_image_uri='gcr.io/my-trainer/serving:1',
+            model_serving_container_predict_route='predict',
+            model_serving_container_health_route='metadata
+        )
+
+        Usage with Dataset:
+
+            ds = aiplatform.Dataset(
+                'projects/my-project/locations/us-central1/datasets/12345'
+            )
+
+            job.run(
+                ds,
+                replica_count=1,
+                model_display_name='my-trained-model'
+            )
+
+        Usage without Dataset:
+
+            job.run(
+                replica_count=1,
+                model_display_name='my-trained-model'
+            )
+
+        To ensure your model gets saved in AI Platform, write your saved model to
+        os.environ["AIP_MODEL_DIR"] in your provided training script.
+
+        Args:
+            display_name (str):
+                Required. The user-defined name of this TrainingPipeline.
+            python_package_gcs_uri (str):
+                Required: GCS location of the training python package.
+            python_module_name (str):
+                Required: The module name of the training python package.
+            container_uri (str):
+                Required: Uri of the training container image in the GCR.
+            model_serving_container_image_uri (str):
+                If the training produces a managed AI Platform Model, the URI of the
+                Model serving container suitable for serving the model produced by the
+                training script.
+            model_serving_container_predict_route (str):
+                If the training produces a managed AI Platform Model, An HTTP path to
+                send prediction requests to the container, and which must be supported
+                by it. If not specified a default HTTP path will be used by AI Platform.
+            model_serving_container_health_route (str):
+                If the training produces a managed AI Platform Model, an HTTP path to
+                send health check requests to the container, and which must be supported
+                by it. If not specified a standard HTTP path will be used by AI
+                Platform.
+            model_serving_container_command (Sequence[str]):
+                The command with which the container is run. Not executed within a
+                shell. The Docker image's ENTRYPOINT is used if this is not provided.
+                Variable references $(VAR_NAME) are expanded using the container's
+                environment. If a variable cannot be resolved, the reference in the
+                input string will be unchanged. The $(VAR_NAME) syntax can be escaped
+                with a double $$, ie: $$(VAR_NAME). Escaped references will never be
+                expanded, regardless of whether the variable exists or not.
+            model_serving_container_args (Sequence[str]):
+                The arguments to the command. The Docker image's CMD is used if this is
+                not provided. Variable references $(VAR_NAME) are expanded using the
+                container's environment. If a variable cannot be resolved, the reference
+                in the input string will be unchanged. The $(VAR_NAME) syntax can be
+                escaped with a double $$, ie: $$(VAR_NAME). Escaped references will
+                never be expanded, regardless of whether the variable exists or not.
+            model_serving_container_environment_variables (Dict[str, str]):
+                The environment variables that are to be present in the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+            model_serving_container_ports (Sequence[int]):
+                Declaration of ports that are exposed by the container. This field is
+                primarily informational, it gives AI Platform information about the
+                network connections the container uses. Listing or not a port here has
+                no impact on whether the port is actually exposed, any port listening on
+                the default "0.0.0.0" address inside a container will be accessible from
+                the network.
+            model_description (str):
+                The description of the Model.
+            model_instance_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the format of a single instance, which
+                are used in
+                ``PredictRequest.instances``,
+                ``ExplainRequest.instances``
+                and
+                ``BatchPredictionJob.input_config``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform. Note: The URI given on output will be immutable
+                and probably different, including the URI scheme, than the
+                one given on input. The output URI will point to a location
+                where the user only has a read access.
+            model_parameters_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the parameters of prediction and
+                explanation via
+                ``PredictRequest.parameters``,
+                ``ExplainRequest.parameters``
+                and
+                ``BatchPredictionJob.model_parameters``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform, if no parameters are supported it is set to an
+                empty string. Note: The URI given on output will be
+                immutable and probably different, including the URI scheme,
+                than the one given on input. The output URI will point to a
+                location where the user only has a read access.
+            model_prediction_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the format of a single prediction
+                produced by this Model, which are returned via
+                ``PredictResponse.predictions``,
+                ``ExplainResponse.explanations``,
+                and
+                ``BatchPredictionJob.output_config``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform. Note: The URI given on output will be immutable
+                and probably different, including the URI scheme, than the
+                one given on input. The output URI will point to a location
+                where the user only has a read access.
+            project (str):
+                Project to run training in. Overrides project set in aiplatform.init.
+            location (str):
+                Location to run training in. Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to run call training service. Overrides
+                credentials set in aiplatform.init.
+            staging_bucket (str):
+                Bucket used to stage source and training artifacts. Overrides
+                staging_bucket set in aiplatform.init.
+        """
+        super().__init__(
+            display_name=display_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+            container_uri=container_uri,
+            model_instance_schema_uri=model_instance_schema_uri,
+            model_parameters_schema_uri=model_parameters_schema_uri,
+            model_prediction_schema_uri=model_prediction_schema_uri,
+            model_serving_container_environment_variables=model_serving_container_environment_variables,
+            model_serving_container_ports=model_serving_container_ports,
+            model_serving_container_image_uri=model_serving_container_image_uri,
+            model_serving_container_command=model_serving_container_command,
+            model_serving_container_args=model_serving_container_args,
+            model_serving_container_predict_route=model_serving_container_predict_route,
+            model_serving_container_health_route=model_serving_container_health_route,
+            model_description=model_description,
+            staging_bucket=staging_bucket,
+        )
+
+        self._package_gcs_uri = python_package_gcs_uri
+        self._python_module = python_module_name
+
+    def run(
+        self,
+        dataset: Optional[datasets.Dataset] = None,
+        model_display_name: Optional[str] = None,
+        base_output_dir: Optional[str] = None,
+        bigquery_destination: Optional[str] = None,
+        args: Optional[List[Union[str, float, int]]] = None,
+        replica_count: int = 0,
+        machine_type: str = "n1-standard-4",
+        accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
+        accelerator_count: int = 0,
+        training_fraction_split: float = 0.8,
+        validation_fraction_split: float = 0.1,
+        test_fraction_split: float = 0.1,
+        predefined_split_column_name: Optional[str] = None,
+        sync=True,
+    ) -> Optional[models.Model]:
+        """Runs the custom training job.
+
+        Distributed Training Support:
+        If replica count = 1 then one chief replica will be provisioned. If
+        replica_count > 1 the remainder will be provisioned as a worker replica pool.
+        ie: replica_count = 10 will result in 1 chief and 9 workers
+        All replicas have same machine_type, accelerator_type, and accelerator_count
+
+        Data fraction splits:
+        Any of ``training_fraction_split``, ``validation_fraction_split`` and
+        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+        the provided ones sum to less than 1, the remainder is assigned to sets as
+        decided by AI Platform.If none of the fractions are set, by default roughly 80%
+        of data will be used for training, 10% for validation, and 10% for test.
+
+        Args:
+            dataset (aiplatform.Dataset):
+                AI Platform to fit this training against. Custom training script should
+                retrieve datasets through passed in environement variables uris:
+
+                os.environ["AIP_TRAINING_DATA_URI"]
+                os.environ["AIP_VALIDATION_DATA_URI"]
+                os.environ["AIP_TEST_DATA_URI"]
+
+                Additionally the dataset format is passed in as:
+
+                os.environ["AIP_DATA_FORMAT"]
+            model_display_name (str):
+                If the script produces a managed AI Platform Model. The display name of
+                the Model. The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            base_output_dir (str):
+                GCS output directory of job. If not provided a
+                timestamped directory in the staging directory will be used.
+            bigquery_destination (str):
+                Provide this field if `dataset` is a BiqQuery dataset.
+                The BigQuery project location where the training data is to
+                be written to. In the given project a new dataset is created
+                with name
+                ``dataset_<dataset-id>_<annotation-type>_<timestamp-of-training-call>``
+                where timestamp is in YYYY_MM_DDThh_mm_ss_sssZ format. All
+                training input data will be written into that dataset. In
+                the dataset three tables will be created, ``training``,
+                ``validation`` and ``test``.
+
+                -  AIP_DATA_FORMAT = "bigquery".
+                -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
+                -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
+                -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
+            args (List[Unions[str, int, float]]):
+                Command line arguments to be passed to the Python script.
+            replica_count (int):
+                The number of worker replicas. If replica count = 1 then one chief
+                replica will be provisioned. If replica_count > 1 the remainder will be
+                provisioned as a worker replica pool.
+            machine_type (str):
+                The type of machine to use for training.
+            accelerator_type (str):
+                Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
+                NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
+                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+            accelerator_count (int):
+                The number of accelerators to attach to a worker replica.
+            training_fraction_split (float):
+                The fraction of the input data that is to be
+                used to train the Model. This is ignored if Dataset is not provided.
+            validation_fraction_split (float):
+                The fraction of the input data that is to be
+                used to validate the Model. This is ignored if Dataset is not provided.
+            test_fraction_split (float):
+                The fraction of the input data that is to be
+                used to evaluate the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            model: The trained AI Platform Model resource or None if training did not
+                produce an AI Platform Model.
+        """
+        worker_pool_specs, managed_model = self._prepare_and_validate_run(
+            model_display_name=model_display_name,
+            replica_count=replica_count,
+            machine_type=machine_type,
+            accelerator_count=accelerator_count,
+            accelerator_type=accelerator_type,
+        )
+
+        return self._run(
+            dataset=dataset,
+            worker_pool_specs=worker_pool_specs,
+            managed_model=managed_model,
+            args=args,
+            base_output_dir=base_output_dir,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
+            bigquery_destination=bigquery_destination,
+            sync=sync,
+        )
+
+    @base.optional_sync(construct_object_on_arg="managed_model")
+    def _run(
+        self,
+        dataset: Optional[datasets.Dataset],
+        worker_pool_specs: _DistributedTrainingSpec,
+        managed_model: Optional[gca_model.Model] = None,
+        args: Optional[List[Union[str, float, int]]] = None,
+        base_output_dir: Optional[str] = None,
+        training_fraction_split: float = 0.8,
+        validation_fraction_split: float = 0.1,
+        test_fraction_split: float = 0.1,
+        predefined_split_column_name: Optional[str] = None,
+        bigquery_destination: Optional[str] = None,
+        sync=True,
+    ) -> Optional[models.Model]:
+        """Packages local script and launches training_job.
+
+        Args:
+            dataset (aiplatform.Dataset):
+                AI Platform to fit this training against.
+            worker_pools_spec (_DistributedTrainingSpec):
+                Worker pools pecs required to run job.
+            managed_model (gca_model.Model):
+                Model proto if this script produces a Managed Model.
+            args (List[Unions[str, int, float]]):
+                Command line arguments to be passed to the Python script.
+            base_output_dir (str):
+                GCS output directory of job. If not provided a
+                timestamped directory in the staging directory will be used.
+            training_fraction_split (float):
+                The fraction of the input data that is to be
+                used to train the Model.
+            validation_fraction_split (float):
+                The fraction of the input data that is to be
+                used to validate the Model.
+            test_fraction_split (float):
+                The fraction of the input data that is to be
+                used to evaluate the Model.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular Datasets.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            model: The trained AI Platform Model resource or None if training did not
+                produce an AI Platform Model.
+        """
+        for spec in worker_pool_specs:
+            spec["pythonPackageSpec"] = {
+                "executorImageUri": self._container_uri,
+                "pythonModule": self._python_module,
+                "packageUris": [self._package_gcs_uri],
+            }
+
+            if args:
+                spec["pythonPackageSpec"]["args"] = args
+
+        (
+            training_task_inputs,
+            base_output_dir,
+        ) = self._prepare_training_task_inputs_and_output_dir(
+            worker_pool_specs, base_output_dir
+        )
+
+        model = self._run_job(
+            training_task_definition=schema.training_job.definition.custom_task,
+            training_task_inputs=training_task_inputs,
+            dataset=dataset,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
+            model=managed_model,
+            gcs_destination_uri_prefix=base_output_dir,
+            bigquery_destination=bigquery_destination,
+        )
+
+        return model

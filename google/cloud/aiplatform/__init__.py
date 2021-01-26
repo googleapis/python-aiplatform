@@ -30,6 +30,7 @@ from google.cloud.aiplatform.jobs import BatchPredictionJob
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
     CustomContainerTrainingJob,
+    CustomPythonPackageTrainingJob,
     AutoMLTabularTrainingJob,
     AutoMLImageTrainingJob,
 )
@@ -49,6 +50,7 @@ __all__ = (
     "BatchPredictionJob",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
+    "CustomPythonPackageTrainingJob",
     "Dataset",
     "Endpoint",
     "ImageDataset",
