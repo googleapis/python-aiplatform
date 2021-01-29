@@ -14,12 +14,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+from google.cloud.aiplatform.helpers import _decorators
 from google.cloud.aiplatform.v1beta1.schema import predict
 from google.cloud.aiplatform.v1beta1.schema import trainingjob
-
+from google.cloud.aiplatform.v1beta1.schema.predict.instance_v1beta1 import (
+    types as instance,
+)
+from google.cloud.aiplatform.v1beta1.schema.predict.params_v1beta1 import (
+    types as params,
+)
+from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1 import (
+    types as prediction,
+)
+from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1 import (
+    types as definition,
+)
 
 __all__ = (
     "predict",
     "trainingjob",
 )
+
+enhanced_types_packages = [
+    instance,
+    params,
+    prediction,
+    definition,
+]
+
+for pkg in enhanced_types_packages:
+    _decorators._add_methods_to_classes_in_package(pkg)
