@@ -117,6 +117,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
     @staticmethod
     def _create_input_data_config(
         dataset: Optional[datasets.Dataset] = None,
+        annotation_schema_uri: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -127,6 +128,38 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         """Constructs a input data config to pass to the training pipeline.
 
         Args:
+            dataset (datasets.Dataset):
+                The dataset within the same Project from which data will be used to train the Model. The
+                Dataset must use schema compatible with Model being trained,
+                and what is compatible should be described in the used
+                TrainingPipeline's [training_task_definition]
+                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+                For tabular Datasets, all their data is exported to
+                training, to pick and choose from.
+            annotation_schema_uri (str):
+                Only applicable to custom training.
+
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema. The schema is defined as an OpenAPI 3.0.2
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                that can be used here are found in
+                gs://google-cloud-aiplatform/schema/dataset/annotation/,
+                note that the chosen schema must be consistent with
+                ``metadata``
+                of the Dataset specified by
+                ``dataset_id``.
+
+                Only Annotations that both match this schema and belong to
+                DataItems not ignored by the split method are used in
+                respectively training, validation or test role, depending on
+                the role of the DataItem they are on.
+
+                When used in conjunction with
+                ``annotations_filter``,
+                the Annotations used for training are filtered by both
+                ``annotations_filter``
+                and
+                ``annotation_schema_uri``.
             training_fraction_split (float):
                 The fraction of the input data that is to be
                 used to train the Model. This is ignored if Dataset is not provided.
@@ -220,6 +253,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 fraction_split=fraction_split,
                 predefined_split=predefined_split,
                 dataset_id=dataset.name,
+                annotation_schema_uri=annotation_schema_uri,
                 gcs_destination=gcs_destination,
                 bigquery_destination=bigquery_destination_proto,
             )
@@ -234,6 +268,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         training_fraction_split: float,
         validation_fraction_split: float,
         test_fraction_split: float,
+        annotation_schema_uri: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         model: Optional[gca_model.Model] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
@@ -260,8 +295,8 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 the
                 ``training_task_definition``'s
                 ``inputs``.
-            dataset (aiplatform.Dataset):
-                Optional. The dataset within the same Project from which data will be used to train the Model. The
+            dataset (datasets.Dataset):
+                The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
                 TrainingPipeline's [training_task_definition]
@@ -277,6 +312,30 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             test_fraction_split (float):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
+            annotation_schema_uri (str):
+                Only applicable to custom training.
+
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema. The schema is defined as an OpenAPI 3.0.2
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                that can be used here are found in
+                gs://google-cloud-aiplatform/schema/dataset/annotation/,
+                note that the chosen schema must be consistent with
+                ``metadata``
+                of the Dataset specified by
+                ``dataset_id``.
+
+                Only Annotations that both match this schema and belong to
+                DataItems not ignored by the split method are used in
+                respectively training, validation or test role, depending on
+                the role of the DataItem they are on.
+
+                When used in conjunction with
+                ``annotations_filter``,
+                the Annotations used for training are filtered by both
+                ``annotations_filter``
+                and
+                ``annotation_schema_uri``.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -337,6 +396,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         input_data_config = self._create_input_data_config(
             dataset=dataset,
+            annotation_schema_uri=annotation_schema_uri,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
@@ -1455,6 +1515,7 @@ class CustomTrainingJob(_CustomTrainingJob):
     def run(
         self,
         dataset: Optional[datasets.Dataset] = None,
+        annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
@@ -1485,7 +1546,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (aiplatform.Dataset):
+            dataset (datasets.Dataset):
                 AI Platform to fit this training against. Custom training script should
                 retrieve datasets through passed in environement variables uris:
 
@@ -1496,6 +1557,30 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Additionally the dataset format is passed in as:
 
                 os.environ["AIP_DATA_FORMAT"]
+            annotation_schema_uri (str):
+                Only applicable to custom training.
+
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema. The schema is defined as an OpenAPI 3.0.2
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                that can be used here are found in
+                gs://google-cloud-aiplatform/schema/dataset/annotation/,
+                note that the chosen schema must be consistent with
+                ``metadata``
+                of the Dataset specified by
+                ``dataset_id``.
+
+                Only Annotations that both match this schema and belong to
+                DataItems not ignored by the split method are used in
+                respectively training, validation or test role, depending on
+                the role of the DataItem they are on.
+
+                When used in conjunction with
+                ``annotations_filter``,
+                the Annotations used for training are filtered by both
+                ``annotations_filter``
+                and
+                ``annotation_schema_uri``.
             model_display_name (str):
                 If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
@@ -1576,6 +1661,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         return self._run(
             python_packager=python_packager,
             dataset=dataset,
+            annotation_schema_uri=annotation_schema_uri,
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
             args=args,
@@ -1593,6 +1679,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         self,
         python_packager: _TrainingScriptPythonPackager,
         dataset: Optional[datasets.Dataset],
+        annotation_schema_uri: Optional[str],
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
@@ -1609,8 +1696,13 @@ class CustomTrainingJob(_CustomTrainingJob):
         Args:
             python_packager (_TrainingScriptPythonPackager):
                 Required. Python Packager pointing to training script locally.
-            dataset (aiplatform.Dataset):
+            dataset (datasets.Dataset):
                 AI Platform to fit this training against.
+            annotation_schema_uri (str):
+                Only applicable to custom training.
+
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema.
             worker_pools_spec (_DistributedTrainingSpec):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
@@ -1690,6 +1782,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=training_task_inputs,
             dataset=dataset,
+            annotation_schema_uri=annotation_schema_uri,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
@@ -1886,6 +1979,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     def run(
         self,
         dataset: Optional[datasets.Dataset] = None,
+        annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
@@ -1916,7 +2010,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (aiplatform.Dataset):
+            dataset (datasets.Dataset):
                 AI Platform to fit this training against. Custom training script should
                 retrieve datasets through passed in environment variables uris:
 
@@ -1927,6 +2021,30 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Additionally the dataset format is passed in as:
 
                 os.environ["AIP_DATA_FORMAT"]
+            annotation_schema_uri (str):
+                Only applicable to custom training.
+
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema. The schema is defined as an OpenAPI 3.0.2
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                that can be used here are found in
+                gs://google-cloud-aiplatform/schema/dataset/annotation/,
+                note that the chosen schema must be consistent with
+                ``metadata``
+                of the Dataset specified by
+                ``dataset_id``.
+
+                Only Annotations that both match this schema and belong to
+                DataItems not ignored by the split method are used in
+                respectively training, validation or test role, depending on
+                the role of the DataItem they are on.
+
+                When used in conjunction with
+                ``annotations_filter``,
+                the Annotations used for training are filtered by both
+                ``annotations_filter``
+                and
+                ``annotation_schema_uri``.
             model_display_name (str):
                 If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
@@ -2006,6 +2124,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         return self._run(
             dataset=dataset,
+            annotation_schema_uri=annotation_schema_uri,
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
             args=args,
@@ -2022,6 +2141,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     def _run(
         self,
         dataset: Optional[datasets.Dataset],
+        annotation_schema_uri: Optional[str],
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
@@ -2035,8 +2155,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
         Args:
-            dataset (aiplatform.Dataset):
+            dataset (datasets.Dataset):
                 AI Platform to fit this training against.
+            annotation_schema_uri (str):
+                Only applicable to custom training.
+
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema.
             worker_pools_spec (_DistributedTrainingSpec):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
@@ -2109,6 +2234,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=training_task_inputs,
             dataset=dataset,
+            annotation_schema_uri=annotation_schema_uri,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
@@ -2242,7 +2368,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (aiplatform.Dataset):
+            dataset (datasets.Dataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -2357,7 +2483,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (aiplatform.Dataset):
+            dataset (datasets.Dataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -2603,7 +2729,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (aiplatform.Dataset):
+            dataset (datasets.Dataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -2695,7 +2821,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (aiplatform.Dataset):
+            dataset (datasets.Dataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -2995,6 +3121,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
     def run(
         self,
         dataset: Optional[datasets.Dataset] = None,
+        annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
@@ -3025,7 +3152,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (aiplatform.Dataset):
+            dataset (datasets.Dataset):
                 AI Platform to fit this training against. Custom training script should
                 retrieve datasets through passed in environement variables uris:
 
@@ -3036,6 +3163,30 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Additionally the dataset format is passed in as:
 
                 os.environ["AIP_DATA_FORMAT"]
+            annotation_schema_uri (str):
+                Only applicable to custom training.
+
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema. The schema is defined as an OpenAPI 3.0.2
+                [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
+                that can be used here are found in
+                gs://google-cloud-aiplatform/schema/dataset/annotation/,
+                note that the chosen schema must be consistent with
+                ``metadata``
+                of the Dataset specified by
+                ``dataset_id``.
+
+                Only Annotations that both match this schema and belong to
+                DataItems not ignored by the split method are used in
+                respectively training, validation or test role, depending on
+                the role of the DataItem they are on.
+
+                When used in conjunction with
+                ``annotations_filter``,
+                the Annotations used for training are filtered by both
+                ``annotations_filter``
+                and
+                ``annotation_schema_uri``.
             model_display_name (str):
                 If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
@@ -3110,6 +3261,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
         return self._run(
             dataset=dataset,
+            annotation_schema_uri=annotation_schema_uri,
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
             args=args,
@@ -3126,6 +3278,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
     def _run(
         self,
         dataset: Optional[datasets.Dataset],
+        annotation_schema_uri: Optional[str],
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
@@ -3140,8 +3293,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         """Packages local script and launches training_job.
 
         Args:
-            dataset (aiplatform.Dataset):
+            dataset (datasets.Dataset):
                 AI Platform to fit this training against.
+            annotation_schema_uri (str):
+                Only applicable to custom training.
+
+                Google Cloud Storage URI points to a YAML file describing
+                annotation schema.
             worker_pools_spec (_DistributedTrainingSpec):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
@@ -3200,6 +3358,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=training_task_inputs,
             dataset=dataset,
+            annotation_schema_uri=annotation_schema_uri,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
