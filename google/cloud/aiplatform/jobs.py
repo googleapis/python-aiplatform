@@ -17,6 +17,7 @@
 
 from typing import Iterable, Optional, Union, Sequence, Dict
 
+import abc
 import sys
 import time
 import logging
@@ -73,7 +74,6 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
 
     client_class = job_service_client.JobServiceClient
     _is_client_prediction_client = False
-    _job_type = None
 
     def __init__(
         self,
@@ -117,12 +117,17 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
 
         return self._gca_resource.state
 
+    @property
+    @abc.abstractmethod
+    def _job_type(cls) -> str:
+        """Job type."""
+        pass
+
     def _dashboard_uri(self) -> Optional[str]:
         """Helper method to compose the dashboard uri where job can be viewed."""
-        if self._job_type:
-            fields = utils.extract_fields_from_resource_name(self.resource_name)
-            url = f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/{self._job_type}/{fields.id}?project={fields.project}"
-            return url
+        fields = utils.extract_fields_from_resource_name(self.resource_name)
+        url = f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/{self._job_type}/{fields.id}?project={fields.project}"
+        return url
 
     def _block_until_complete(self):
         """Helper method to block and check on job until complete.
