@@ -148,11 +148,21 @@ export_data_sample:
   resource_name: dataset
 export_evaluated_data_items_sample:
   resource_name: model_evaluation
-export_model_sample: {}
-export_model_tabular_classification_sample: {}
-export_model_video_action_recognition_sample: {}
-export_model_video_classification_sample: {}
-export_model_video_object_tracking_sample: {}
+export_model_sample:
+  lro_metadata:
+  - output_info
+export_model_tabular_classification_sample:
+  lro_metadata:
+  - output_info
+export_model_video_action_recognition_sample:
+  lro_metadata:
+  - output_info
+export_model_video_classification_sample:
+  lro_metadata:
+  - output_info
+export_model_video_object_tracking_sample:
+  lro_metadata:
+  - output_info
 get_annotation_spec_sample: {}
 get_batch_prediction_job_sample:
   skip:
