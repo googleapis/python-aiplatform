@@ -12,6 +12,7 @@
 
 # The AI Platform SDK is owned by Model Builder SDK Dev team
 /google/cloud/aiplatform/*             @googleapis/cloud-aiplatform-model-builder-sdk
+/tests/unit/aiplatform/*               @googleapis/cloud-aiplatform-model-builder-sdk
 
 # The python-samples-owners team is the default owner for samples
 /samples/**/*.py                       @dizcology @googleapis/python-samples-owners
