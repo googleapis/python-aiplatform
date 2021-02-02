@@ -137,8 +137,6 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 For tabular Datasets, all their data is exported to
                 training, to pick and choose from.
             annotation_schema_uri (str):
-                Only applicable to custom training.
-
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
                 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
@@ -313,8 +311,6 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
             annotation_schema_uri (str):
-                Only applicable to custom training.
-
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
                 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
@@ -1558,8 +1554,6 @@ class CustomTrainingJob(_CustomTrainingJob):
 
                 os.environ["AIP_DATA_FORMAT"]
             annotation_schema_uri (str):
-                Only applicable to custom training.
-
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
                 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
@@ -1699,8 +1693,6 @@ class CustomTrainingJob(_CustomTrainingJob):
             dataset (datasets.Dataset):
                 AI Platform to fit this training against.
             annotation_schema_uri (str):
-                Only applicable to custom training.
-
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema.
             worker_pools_spec (_DistributedTrainingSpec):
@@ -2022,8 +2014,6 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
                 os.environ["AIP_DATA_FORMAT"]
             annotation_schema_uri (str):
-                Only applicable to custom training.
-
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
                 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
@@ -2158,8 +2148,6 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             dataset (datasets.Dataset):
                 AI Platform to fit this training against.
             annotation_schema_uri (str):
-                Only applicable to custom training.
-
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema.
             worker_pools_spec (_DistributedTrainingSpec):
@@ -3164,8 +3152,6 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
                 os.environ["AIP_DATA_FORMAT"]
             annotation_schema_uri (str):
-                Only applicable to custom training.
-
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema. The schema is defined as an OpenAPI 3.0.2
                 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
@@ -3296,8 +3282,6 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             dataset (datasets.Dataset):
                 AI Platform to fit this training against.
             annotation_schema_uri (str):
-                Only applicable to custom training.
-
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema.
             worker_pools_spec (_DistributedTrainingSpec):
