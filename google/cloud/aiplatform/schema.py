@@ -51,3 +51,19 @@ class dataset:
             action_recognition = "gs://google-cloud-aiplatform/schema/dataset/ioformat/video_action_recognition_io_format_1.0.0.yaml"
             classification = "gs://google-cloud-aiplatform/schema/dataset/ioformat/video_classification_io_format_1.0.0.yaml"
             object_tracking = "gs://google-cloud-aiplatform/schema/dataset/ioformat/video_object_tracking_io_format_1.0.0.yaml"
+
+    class annotation:
+        class image:
+            classification = "gs://google-cloud-aiplatform/schema/dataset/annotation/image_classification_1.0.0.yaml"
+            bounding_box = "gs://google-cloud-aiplatform/schema/dataset/annotation/image_bounding_box_1.0.0.yaml"
+            segmentation = "gs://google-cloud-aiplatform/schema/dataset/annotation/image_segmentation_1.0.0.yaml"
+
+        class text:
+            classification = "gs://google-cloud-aiplatform/schema/dataset/annotation/text_classification_1.0.0.yaml"
+            extraction = "gs://google-cloud-aiplatform/schema/dataset/annotation/text_extraction_1.0.0.yaml"
+            sentiment = "gs://google-cloud-aiplatform/schema/dataset/annotation/text_sentiment_1.0.0.yaml"
+
+        class video:
+            classification = "gs://google-cloud-aiplatform/schema/dataset/annotation/video_classification_1.0.0.yaml"
+            object_tracking = "gs://google-cloud-aiplatform/schema/dataset/annotation/video_object_tracking_1.0.0.yaml"
+            action_recognition = "gs://google-cloud-aiplatform/schema/dataset/annotation/video_action_recognition_1.0.0.yaml"
