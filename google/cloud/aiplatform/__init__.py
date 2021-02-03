@@ -16,6 +16,7 @@
 #
 
 from google.cloud.aiplatform import gapic
+from google.cloud.aiplatform import xai
 from google.cloud.aiplatform import explainable_ai
 from google.cloud.aiplatform import training_utils
 
@@ -47,6 +48,7 @@ init = initializer.global_config.init
 
 __all__ = (
     gapic,
+    xai,
     explainable_ai,
     training_utils,
     "AutoMLImageTrainingJob",

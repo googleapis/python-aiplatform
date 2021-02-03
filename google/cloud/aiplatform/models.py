@@ -18,6 +18,7 @@ import proto
 from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
+from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -55,6 +56,7 @@ class Prediction(NamedTuple):
 
     predictions: Dict[str, List]
     deployed_model_id: str
+    explanations: Dict[str, List] = None
 
 
 class Endpoint(base.AiPlatformResourceNounWithFutureManager):
@@ -411,6 +413,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        explanation_metadata: Optional[aiplatform.xai.ExplanationMetadata] = None,
+        explanation_parameters: Optional[aiplatform.xai.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
@@ -491,6 +495,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
             metadata=metadata,
             sync=sync,
         )
@@ -507,6 +513,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        explanation_metadata: Optional[aiplatform.xai.ExplanationMetadata] = None,
+        explanation_parameters: Optional[aiplatform.xai.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
@@ -559,6 +567,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            explanation_metadata (aiplatform.xai.ExplanationMetadata):
+                TODO (vinnys)
+            explanation_parameters (aiplatform.xai.ExplanationParameters):
+                TODO (vinnys)
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -584,6 +596,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
             metadata=metadata,
         )
 
@@ -604,10 +618,11 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        explanation_metadata: Optional[aiplatform.xai.ExplanationMetadata] = None,
+        explanation_parameters: Optional[aiplatform.xai.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ):
-        """
-        Helper method to deploy model to endpoint.
+        """Helper method to deploy model to endpoint.
 
         Args:
             api_client (endpoint_service_client.EndpointServiceClient):
@@ -702,6 +717,13 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 model=model_resource_name,
                 display_name=deployed_model_display_name,
             )
+
+        # Override explanation_spec if both required fields are provided
+        if explanation_metadata and explanation_parameters:
+            explanation_spec = gca_endpoint.explanation.ExplanationSpec()
+            explanation_spec.metadata = explanation_metadata
+            explanation_spec.parameters = explanation_parameters
+            deployed_model.explanation_spec = explanation_spec
 
         if traffic_split is None:
             # new model traffic needs to be 100 if no pre-existing models
@@ -888,10 +910,33 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             deployed_model_id=prediction_response.deployed_model_id,
         )
 
-    # TODO(b/172828587): implement prediction
-    def explain(self, instances: List[Dict], parameters: Optional[Dict]) -> List[Dict]:
+    def explain(
+        self,
+        instances: List[Dict],
+        parameters: Optional[Dict] = None,
+        explanation_spec_override: Optional[Dict] = None,
+        deployed_model_id: Optional[str] = None,
+    ) -> List[Dict]:
         """Online prediction with explanation."""
-        raise NotImplementedError("Prediction with explanation not implemented.")
+        self.wait()
+
+        explain_response = self._prediction_client.explain(
+            endpoint=self.resource_name,
+            instances=instances,
+            parameters=parameters,
+        )
+
+        return Prediction(
+            predictions=[
+                json_format.MessageToDict(item)
+                for item in explain_response.predictions.pb
+            ],
+            deployed_model_id=explain_response.deployed_model_id,
+            explanations=[
+                json_format.MessageToDict(item)
+                for item in explain_response.explanations.pb
+            ]
+        )
 
     def list_models(self) -> Sequence[gca_endpoint.DeployedModel]:
         """Returns a list of the models deployed to this Endpoint.
@@ -1018,6 +1063,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
         prediction_schema_uri: Optional[str] = None,
+        explanation_metadata: Optional[aiplatform.xai.ExplanationMetadata] = None,
+        explanation_parameters: Optional[aiplatform.xai.ExplanationParameters] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1178,6 +1225,13 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             predict_schemata=model_predict_schemata,
         )
 
+        # Override explanation_spec if both required fields are provided
+        if explanation_metadata and explanation_parameters:
+            explanation_spec = gca_endpoint.explanation.ExplanationSpec()
+            explanation_spec.metadata = explanation_metadata
+            explanation_spec.parameters = explanation_parameters
+            managed_model.explanation_spec = explanation_spec
+
         lro = api_client.upload_model(
             parent=initializer.global_config.common_location_path(project, location),
             model=managed_model,
@@ -1201,6 +1255,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        explanation_metadata: Optional[aiplatform.xai.ExplanationMetadata] = None,
+        explanation_parameters: Optional[aiplatform.xai.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> Endpoint:
@@ -1285,6 +1341,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
             metadata=metadata,
             sync=sync,
         )
@@ -1301,6 +1359,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        explanation_metadata: Optional[aiplatform.xai.ExplanationMetadata] = None,
+        explanation_parameters: Optional[aiplatform.xai.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> Endpoint:
@@ -1363,7 +1423,6 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
-
         """
 
         if endpoint is None:
@@ -1386,6 +1445,10 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
             metadata=metadata,
         )
 
