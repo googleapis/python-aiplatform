@@ -62,11 +62,13 @@ _TEST_INVALID_NAME = f"prj/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/{_TEST_ID}
 _TEST_METADATA_SCHEMA_URI_TABULAR = schema.dataset.metadata.tabular
 _TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
 _TEST_METADATA_SCHEMA_URI_IMAGE = schema.dataset.metadata.image
+_TEST_METADATA_SCHEMA_URI_TEXT = schema.dataset.metadata.text
 
 # import_schema_uri
 _TEST_IMPORT_SCHEMA_URI_IMAGE = (
     schema.dataset.ioformat.image.single_label_classification
 )
+_TEST_IMPORT_SCHEMA_URI_TEXT = schema.dataset.ioformat.text.single_label_classification
 _TEST_IMPORT_SCHEMA_URI = schema.dataset.ioformat.image.single_label_classification
 
 # datasources
@@ -137,6 +139,18 @@ def get_dataset_tabular_mock():
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             metadata=_TEST_METADATA_TABULAR_BQ,
+            name=_TEST_NAME,
+        )
+        yield get_dataset_mock
+
+
+@pytest.fixture
+def get_dataset_text_mock():
+    with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
+        get_dataset_mock.return_value = GapicDataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
             name=_TEST_NAME,
         )
         yield get_dataset_mock
@@ -625,3 +639,157 @@ class TestTabularDataset:
 
         with pytest.raises(NotImplementedError):
             my_dataset.import_data()
+
+
+class TestTextDataset:
+    def setup_method(self):
+        reload(initializer)
+        reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_init_dataset_text(self, get_dataset_text_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        datasets.TextDataset(dataset_name=_TEST_NAME)
+        get_dataset_text_mock.assert_called_once_with(name=_TEST_NAME)
+
+    @pytest.mark.usefixtures("get_dataset_image_mock")
+    def test_init_dataset_non_text(self):
+        aiplatform.init(project=_TEST_PROJECT)
+        with pytest.raises(ValueError):
+            datasets.TextDataset(dataset_name=_TEST_NAME)
+
+    @pytest.mark.usefixtures("get_dataset_text_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dataset(self, create_dataset_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets.TextDataset.create(
+            display_name=_TEST_DISPLAY_NAME, sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_dataset = GapicDataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_text_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_and_import_dataset(
+        self, create_dataset_mock, import_data_mock, sync
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets.TextDataset.create(
+            display_name=_TEST_DISPLAY_NAME,
+            gcs_source=[_TEST_SOURCE_URI_GCS],
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
+            sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_dataset = GapicDataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+        expected_import_config = ImportDataConfig(
+            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
+        )
+        import_data_mock.assert_called_once_with(
+            name=_TEST_NAME, import_configs=[expected_import_config]
+        )
+
+        expected_dataset.name = _TEST_NAME
+        assert my_dataset._gca_resource == expected_dataset
+
+    @pytest.mark.usefixtures("get_dataset_text_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_import_data(self, import_data_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets.TextDataset(dataset_name=_TEST_NAME)
+
+        my_dataset.import_data(
+            gcs_source=[_TEST_SOURCE_URI_GCS],
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
+            sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_import_config = ImportDataConfig(
+            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
+        )
+
+        import_data_mock.assert_called_once_with(
+            name=_TEST_NAME, import_configs=[expected_import_config]
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_then_import(
+        self, create_dataset_mock, import_data_mock, get_dataset_text_mock, sync
+    ):
+
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets.TextDataset.create(
+            display_name=_TEST_DISPLAY_NAME, sync=sync,
+        )
+
+        my_dataset.import_data(
+            gcs_source=[_TEST_SOURCE_URI_GCS],
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
+            sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_dataset = GapicDataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
+        )
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+        get_dataset_text_mock.assert_called_once_with(name=_TEST_NAME)
+
+        expected_import_config = ImportDataConfig(
+            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
+        )
+
+        import_data_mock.assert_called_once_with(
+            name=_TEST_NAME, import_configs=[expected_import_config]
+        )
+
+        expected_dataset.name = _TEST_NAME
+        assert my_dataset._gca_resource == expected_dataset
