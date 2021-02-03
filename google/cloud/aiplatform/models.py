@@ -324,6 +324,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     def _validate_deploy_args(
         min_replica_count: int,
         max_replica_count: int,
+        accelerator_type: Optional[str],
         deployed_model_display_name: Optional[str],
         traffic_split: Optional[Dict[str, int]],
         traffic_percentage: int,
@@ -347,6 +348,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            accelerator_type (str):
+                Required. Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
+                NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
+                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             deployed_model_display_name (str):
                 Required. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
@@ -391,6 +396,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                     "Sum of all traffic within traffic split needs to be 100."
                 )
 
+        # Raises ValueError if invalid accelerator
+        if accelerator_type:
+            utils.validate_accelerator_type(accelerator_type)
+
     def deploy(
         self,
         model: "Model",
@@ -400,6 +409,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
@@ -446,6 +457,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_count if used.
+                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -458,6 +475,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         self._validate_deploy_args(
             min_replica_count,
             max_replica_count,
+            accelerator_type,
             deployed_model_display_name,
             traffic_split,
             traffic_percentage,
@@ -471,6 +489,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
             metadata=metadata,
             sync=sync,
         )
@@ -485,6 +505,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
@@ -531,6 +553,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_count if used.
+                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -554,6 +582,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
             metadata=metadata,
         )
 
@@ -572,6 +602,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ):
         """
@@ -632,13 +664,24 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
         Raises:
             ValueError if there is not current traffic split and traffic percentage
-            is not 0 or 100.
+                is not 0 or 100.
         """
 
         max_replica_count = max(min_replica_count, max_replica_count)
 
+        if bool(accelerator_type) != bool(accelerator_count):
+            raise ValueError(
+                "Both `accelerator_type` and `accelerator_count` should be specified or None."
+            )
+
         if machine_type:
             machine_spec = machine_resources.MachineSpec(machine_type=machine_type)
+
+            if accelerator_type and accelerator_count:
+                utils.validate_accelerator_type(accelerator_type)
+                machine_spec.accelerator_type = accelerator_type
+                machine_spec.accelerator_count = accelerator_count
+
             dedicated_resources = machine_resources.DedicatedResources(
                 machine_spec=machine_spec,
                 min_replica_count=min_replica_count,
@@ -1156,6 +1199,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> Endpoint:
@@ -1202,6 +1247,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 handle, a portion of the traffic will be dropped. If this value
                 is not provided, the smaller value of min_replica_count or 1 will
                 be used.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_count if used.
+                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -1218,6 +1269,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         Endpoint._validate_deploy_args(
             min_replica_count,
             max_replica_count,
+            accelerator_type,
             deployed_model_display_name,
             traffic_split,
             traffic_percentage,
@@ -1231,6 +1283,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
             metadata=metadata,
             sync=sync,
         )
@@ -1245,6 +1299,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> Endpoint:
@@ -1291,6 +1347,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 handle, a portion of the traffic will be dropped. If this value
                 is not provided, the smaller value of min_replica_count or 1 will
                 be used.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_count if used.
+                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
