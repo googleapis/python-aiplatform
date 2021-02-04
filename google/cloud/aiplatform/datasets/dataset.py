@@ -247,16 +247,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             location (str):
                 Required. Location to upload this model to. Overrides location set in
                 aiplatform.init.
-            credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
-                credentials set in aiplatform.init.
-            project (str):
-                Project to upload this model to. Overrides project set in
-                aiplatform.init.
-            location (str):
-                Location to upload this model to. Overrides location set in
-                aiplatform.init.
-            credentials (auth_credentials.Credentials):
+            credentials (Optional[auth_credentials.Credentials]):
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):

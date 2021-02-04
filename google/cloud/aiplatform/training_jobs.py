@@ -859,15 +859,8 @@ class _MachineSpec(NamedTuple):
             ValueError if accelerator type is invalid.
         """
 
-        # validate accelerator type
-        if (
-            self.accelerator_type
-            not in gca_accelerator_type.AcceleratorType._member_names_
-        ):
-            raise ValueError(
-                f"accelerator_type `{self.accelerator_type}` invalid. "
-                f"Choose one of {gca_accelerator_type.AcceleratorType._member_names_}"
-            )
+        # Raises ValueError if invalid accelerator_type
+        utils.validate_accelerator_type(self.accelerator_type)
 
         accelerator_enum = getattr(
             gca_accelerator_type.AcceleratorType, self.accelerator_type
