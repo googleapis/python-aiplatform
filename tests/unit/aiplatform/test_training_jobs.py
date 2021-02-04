@@ -1349,6 +1349,11 @@ class TestCustomTrainingJob:
             validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
         )
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_DEFAULT_TRAINING_FILTER_SPLIT,
+            validation_filter=_TEST_DEFAULT_VALIDATION_FILTER_SPLIT,
+            test_filter=_TEST_DEFAULT_TEST_FILTER_SPLIT,
+        )
 
         env = [
             env_var.EnvVar(name=str(key), value=str(value))
@@ -1383,6 +1388,7 @@ class TestCustomTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
+            friction_split=true_filter_split,
             dataset_id=mock_nontabular_dataset.name,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             gcs_destination=gca_io.GcsDestination(
@@ -2307,6 +2313,12 @@ class TestCustomContainerTrainingJob:
             test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
         )
 
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_DEFAULT_TRAINING_FILTER_SPLIT,
+            validation_filter=_TEST_DEFAULT_VALIDATION_FILTER_SPLIT,
+            test_filter=_TEST_DEFAULT_TEST_FILTER_SPLIT,
+        )
+
         env = [
             env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
@@ -2340,6 +2352,7 @@ class TestCustomContainerTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
+            filter_split=true_filter_split,
             dataset_id=mock_nontabular_dataset.name,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             gcs_destination=gca_io.GcsDestination(
@@ -3525,6 +3538,12 @@ class TestCustomPythonPackageTrainingJob:
             test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
         )
 
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_DEFAULT_TRAINING_FILTER_SPLIT,
+            validation_filter=_TEST_DEFAULT_VALIDATION_FILTER_SPLIT,
+            test_filter=_TEST_DEFAULT_TEST_FILTER_SPLIT,
+        )
+
         env = [
             env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
@@ -3558,6 +3577,7 @@ class TestCustomPythonPackageTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
+            filter_split=true_filter_split,
             dataset_id=mock_nontabular_dataset.name,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             gcs_destination=gca_io.GcsDestination(
