@@ -288,7 +288,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                     training_fraction=training_fraction_split,
                     validation_fraction=validation_fraction_split,
                     test_fraction=test_fraction_split,
-                    key=timestamp_split_column_name
+                    key=timestamp_split_column_name,
                 )
 
             # Create GCS destination
