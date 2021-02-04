@@ -70,6 +70,9 @@ _TEST_TRAINING_TASK_INPUTS_WITH_BASE_MODEL = json_format.ParseDict(
 _TEST_FRACTION_SPLIT_TRAINING = 0.6
 _TEST_FRACTION_SPLIT_VALIDATION = 0.2
 _TEST_FRACTION_SPLIT_TEST = 0.2
+_TEST_FILTER_SPLIT_TRAINING = "train"
+_TEST_FILTER_SPLIT_VALIDATION = "validate"
+_TEST_FILTER_SPLIT_TEST = "test"
 
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_ID}"
@@ -225,6 +228,9 @@ class TestAutoMLImageTrainingJob:
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter_split=_TEST_FILTER_SPLIT_TEST,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
@@ -239,13 +245,21 @@ class TestAutoMLImageTrainingJob:
             test_fraction=_TEST_FRACTION_SPLIT_TEST,
         )
 
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter=_TEST_FILTER_SPLIT_TEST,
+        )
+
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model_image._gca_resource.description,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_image.name,
+            fraction_split=true_fraction_split,
+            filter_split=true_filter_split,
+            dataset_id=mock_dataset_image.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -285,6 +299,9 @@ class TestAutoMLImageTrainingJob:
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter_split=_TEST_FILTER_SPLIT_TEST,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
         )
@@ -298,11 +315,19 @@ class TestAutoMLImageTrainingJob:
             test_fraction=_TEST_FRACTION_SPLIT_TEST,
         )
 
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter=_TEST_FILTER_SPLIT_TEST,
+        )
+
         # Test that if defaults to the job display name
         true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_image.name,
+            fraction_split=true_fraction_split,
+            filter_split=true_filter_split,
+            dataset_id=mock_dataset_image.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -336,6 +361,9 @@ class TestAutoMLImageTrainingJob:
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter_split=_TEST_FILTER_SPLIT_TEST,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
         )
@@ -347,6 +375,9 @@ class TestAutoMLImageTrainingJob:
                 training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
                 validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
                 test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+                training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+                validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+                test_filter_split=_TEST_FILTER_SPLIT_TEST,
                 sync=sync,
             )
 
@@ -366,6 +397,9 @@ class TestAutoMLImageTrainingJob:
                 training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
                 validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
                 test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+                training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+                validation_filter_split=_TEST_FILTER_SPLIT_VALIDATION,
+                test_filter_split=_TEST_FILTER_SPLIT_TEST,
                 sync=sync,
             )
 

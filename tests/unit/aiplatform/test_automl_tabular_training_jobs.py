@@ -73,6 +73,7 @@ _TEST_TRAINING_FRACTION_SPLIT = 0.6
 _TEST_VALIDATION_FRACTION_SPLIT = 0.2
 _TEST_TEST_FRACTION_SPLIT = 0.2
 _TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
+_TEST_TIMESTAMP_SPLIT_COLUMN_NAME = "timestamp"
 
 _TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
 
@@ -191,6 +192,7 @@ class TestAutoMLTabularTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
@@ -205,14 +207,22 @@ class TestAutoMLTabularTrainingJob:
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
         )
+        true_predefined_split = gca_training_pipeline.PredefinedSplit(
+            key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+        )
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
+        )
 
         true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            predefined_split=true_predefined_split,
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_dataset_tabular.name,
         )
 
