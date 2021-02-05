@@ -16,8 +16,7 @@
 import base64
 
 from google.cloud import aiplatform
-from google.protobuf import json_format
-from google.protobuf.struct_pb2 import Value
+from google.cloud.aiplatform.gapic.schema import predict
 
 
 def predict_image_classification_sample(
@@ -37,13 +36,14 @@ def predict_image_classification_sample(
 
     # The format of each instance should conform to the deployed model's prediction input schema.
     encoded_content = base64.b64encode(file_content).decode("utf-8")
-    instance_dict = {"content": encoded_content}
-
-    instance = json_format.ParseDict(instance_dict, Value())
+    instance = predict.instance.ImageClassificationPredictionInstance(
+        content=encoded_content,
+    ).to_value()
     instances = [instance]
     # See gs://google-cloud-aiplatform/schema/predict/params/image_classification_1.0.0.yaml for the format of the parameters.
-    parameters_dict = {"confidenceThreshold": 0.5, "maxPredictions": 5}
-    parameters = json_format.ParseDict(parameters_dict, Value())
+    parameters = predict.params.ImageClassificationPredictionParams(
+        confidence_threshold=0.5, max_predictions=5,
+    ).to_value()
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
     )

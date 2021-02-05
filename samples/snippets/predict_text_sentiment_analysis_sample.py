@@ -14,6 +14,7 @@
 
 # [START aiplatform_predict_text_sentiment_analysis_sample]
 from google.cloud import aiplatform
+from google.cloud.aiplatform.gapic.schema import predict
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
@@ -30,8 +31,9 @@ def predict_text_sentiment_analysis_sample(
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
-    instance_dict = {"content": content}
-    instance = json_format.ParseDict(instance_dict, Value())
+    instance = predict.instance.TextSentimentPredictionInstance(
+        content=content,
+    ).to_value()
     instances = [instance]
     parameters_dict = {}
     parameters = json_format.ParseDict(parameters_dict, Value())

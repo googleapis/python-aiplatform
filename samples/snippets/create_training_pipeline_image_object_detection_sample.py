@@ -14,7 +14,7 @@
 
 # [START aiplatform_create_training_pipeline_image_object_detection_sample]
 from google.cloud import aiplatform
-from google.cloud.aiplatform.v1beta1.schema import trainingjob
+from google.cloud.aiplatform.gapic.schema import trainingjob
 
 
 def create_training_pipeline_image_object_detection_sample(
@@ -30,12 +30,11 @@ def create_training_pipeline_image_object_detection_sample(
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
-    training_task_inputs_object = trainingjob.definition.AutoMlImageObjectDetectionInputs(
+    training_task_inputs = trainingjob.definition.AutoMlImageObjectDetectionInputs(
         model_type="CLOUD_HIGH_ACCURACY_1",
         budget_milli_node_hours=20000,
         disable_early_stopping=False,
-    )
-    training_task_inputs = training_task_inputs_object.to_value()
+    ).to_value()
 
     training_pipeline = {
         "display_name": display_name,
