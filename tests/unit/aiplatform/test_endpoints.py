@@ -74,6 +74,7 @@ _TEST_MACHINE_TYPE = "n1-standard-32"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
 
+
 @pytest.fixture
 def get_endpoint_mock():
     with mock.patch.object(EndpointServiceClient, "get_endpoint") as get_endpoint_mock:
@@ -505,7 +506,8 @@ class TestEndpoint:
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
-            sync=sync)
+            sync=sync,
+        )
 
         if not sync:
             test_endpoint.wait()
@@ -513,7 +515,7 @@ class TestEndpoint:
         expected_machine_spec = machine_resources.MachineSpec(
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
-            accelerator_count=_TEST_ACCELERATOR_COUNT
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
         )
         expected_dedicated_resources = machine_resources.DedicatedResources(
             machine_spec=expected_machine_spec,

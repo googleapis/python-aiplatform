@@ -573,7 +573,7 @@ class TestModel:
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
-            sync=sync
+            sync=sync,
         )
 
         if not sync:
@@ -582,12 +582,10 @@ class TestModel:
         expected_machine_spec = machine_resources.MachineSpec(
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
-            accelerator_count=_TEST_ACCELERATOR_COUNT
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
         )
         expected_dedicated_resources = machine_resources.DedicatedResources(
-            machine_spec=expected_machine_spec,
-            min_replica_count=1,
-            max_replica_count=1
+            machine_spec=expected_machine_spec, min_replica_count=1, max_replica_count=1
         )
         expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
