@@ -454,8 +454,15 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         return self._gca_resource.state
 
+    def get_model(self, sync=True) -> Optional[models.Model]:
+        self._assert_has_run()
+        if not self._gca_resource.model_to_upload:
+            raise RuntimeError(self._model_upload_fail_string)
+
+        return self._force_get_model(sync=sync)
+
     @base.optional_sync()
-    def get_model(self, sync: bool = True,) -> Optional[models.Model]:
+    def _force_get_model(self, sync: bool = True) -> Optional[models.Model]:
         """AI Platform Model produced by this training, if one was produced.
 
         Args:
@@ -468,12 +475,12 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             model: AI Platform Model produced by this training or None if a model was
                 not produced by this training.
         """
-        self._assert_has_run()
+        model = self._get_model()
 
-        if not self._gca_resource.model_to_upload:
+        if model is None:
             raise RuntimeError(self._model_upload_fail_string)
 
-        return self._get_model()
+        return model
 
     def _get_model(self) -> Optional[models.Model]:
         """Helper method to get and instantiate the Model to Upload.
