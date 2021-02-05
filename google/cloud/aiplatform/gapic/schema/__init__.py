@@ -13,12 +13,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-# The latest GAPIC version is exported to the google.cloud.aiplatform.gapic namespace.
-from google.cloud.aiplatform_v1beta1 import *
-from google.cloud.aiplatform.gapic import schema
 
-from google.cloud import aiplatform_v1beta1 as v1beta1
+from google.cloud.aiplatform.v1beta1.schema import predict
+from google.cloud.aiplatform.v1beta1.schema import trainingjob
 
-__all__ = ()
+
+__all__ = (
+    "predict",
+    "trainingjob",
+)

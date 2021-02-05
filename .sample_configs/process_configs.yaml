@@ -250,6 +250,9 @@ predict_image_classification_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
+  schema_types:
+    instance_dict: predict.instance.ImageClassificationPredictionInstance
+    parameters_dict: predict.params.ImageClassificationPredictionParams
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/classification.yaml
       for the format of the predictions.
@@ -261,6 +264,9 @@ predict_image_object_detection_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
+  schema_types:
+    instance_dict: predict.instance.ImageObjectDetectionPredictionInstance
+    parameters_dict: predict.params.ImageObjectDetectionPredictionParams
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/image_object_detection.yaml
       for the format of the predictions.
@@ -290,6 +296,8 @@ predict_text_classification_single_label_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
+  schema_types:
+    instance_dict: predict.instance.TextClassificationPredictionInstance
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_classification.yaml
       for the format of the predictions.
@@ -297,6 +305,8 @@ predict_text_entity_extraction_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
+  schema_types:
+    instance_dict: predict.instance.TextExtractionPredictionInstance
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_extraction.yaml
       for the format of the predictions.
@@ -304,6 +314,8 @@ predict_text_sentiment_analysis_sample:
   api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
+  schema_types:
+    instance_dict: predict.instance.TextSentimentPredictionInstance
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_sentiment.yaml
       for the format of the predictions.
