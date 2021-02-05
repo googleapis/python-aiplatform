@@ -17,10 +17,8 @@
 
 import proto  # type: ignore
 
-# DO NOT OVERWRITE FOLLOWING LINE: it was manually edited.
-from google.cloud.aiplatform.v1beta1.schema.predict.instance import (
-    TextSentimentPredictionInstance,
-)
+
+from google.cloud.aiplatform.v1beta1.schema.predict.instance import text_sentiment_pb2 as gcaspi_text_sentiment  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -35,9 +33,9 @@ class TextSentimentPredictionResult(proto.Message):
     integer values.
 
     Attributes:
-        instance (~.gcaspi_text_sentiment.TextSentimentPredictionInstance):
+        instance (google.cloud.aiplatform.v1beta1.schema.predict.instance.text_sentiment_pb2.TextSentimentPredictionInstance):
             User's input instance.
-        prediction (~.gcaspp_text_sentiment.TextSentimentPredictionResult.Prediction):
+        prediction (google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.TextSentimentPredictionResult.Prediction):
             The prediction result.
     """
 
@@ -59,7 +57,9 @@ class TextSentimentPredictionResult(proto.Message):
         sentiment = proto.Field(proto.INT32, number=1)
 
     instance = proto.Field(
-        proto.MESSAGE, number=1, message=TextSentimentPredictionInstance,
+        proto.MESSAGE,
+        number=1,
+        message=gcaspi_text_sentiment.TextSentimentPredictionInstance,
     )
 
     prediction = proto.Field(proto.MESSAGE, number=2, message=Prediction,)

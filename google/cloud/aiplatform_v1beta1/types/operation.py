@@ -32,16 +32,16 @@ class GenericOperationMetadata(proto.Message):
     r"""Generic Metadata shared by all operations.
 
     Attributes:
-        partial_failures (Sequence[~.status.Status]):
+        partial_failures (Sequence[google.rpc.status_pb2.Status]):
             Output only. Partial failures encountered.
             E.g. single files that couldn't be read.
             This field should never exceed 20 entries.
             Status details field will contain standard GCP
             error details.
-        create_time (~.timestamp.Timestamp):
+        create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the operation was
             created.
-        update_time (~.timestamp.Timestamp):
+        update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the operation was
             updated for the last time. If the operation has
             finished (successfully or not), this is the
@@ -61,7 +61,7 @@ class DeleteOperationMetadata(proto.Message):
     r"""Details of operations that perform deletes of any entities.
 
     Attributes:
-        generic_metadata (~.operation.GenericOperationMetadata):
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The common part of the operation metadata.
     """
 
