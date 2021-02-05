@@ -243,7 +243,7 @@ def validate_region(region: str) -> bool:
     return True
 
 
-def validate_accelerator_type(accelerator_type: str):
+def validate_accelerator_type(accelerator_type: str) -> bool:
     """Validates user provided accelerator_type string for training and prediction
 
     Args:

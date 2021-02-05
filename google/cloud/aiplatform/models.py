@@ -1386,6 +1386,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
             metadata=metadata,
         )
 

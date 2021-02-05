@@ -211,6 +211,29 @@ def test_validate_display_name():
 
 
 @pytest.mark.parametrize(
+    "accelerator_type, expected",
+    [
+        ("NVIDIA_TESLA_K80", True),
+        ("ACCELERATOR_TYPE_UNSPECIFIED", True),
+        ("TPU_V3", True),
+        ("NONEXISTENT_GPU", False),
+        ("NVIDIA_GALAXY_R7", False),
+        ("", False),
+        (None, False),
+    ],
+)
+def test_validate_accelerator_type(accelerator_type: str, expected: bool):
+    # Invalid type raises specific ValueError
+    if not expected:
+        with pytest.raises(ValueError) as e:
+            utils.validate_accelerator_type(accelerator_type)
+        assert e.match(regexp=r"Given accelerator_type")
+    # Valid type returns True
+    else:
+        assert utils.validate_accelerator_type(accelerator_type)
+
+
+@pytest.mark.parametrize(
     "gcs_path, expected",
     [
         ("gs://example-bucket/path/to/folder", ("example-bucket", "path/to/folder")),
