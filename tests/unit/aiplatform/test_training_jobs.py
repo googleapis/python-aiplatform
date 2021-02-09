@@ -148,6 +148,21 @@ def get_training_job_custom_mock():
 
 
 @pytest.fixture
+def get_training_job_custom_mock_no_model_to_upload():
+    with patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as get_training_job_custom_mock:
+        get_training_job_custom_mock.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            model_to_upload=None,
+            training_task_definition=schema.training_job.definition.custom_task,
+        )
+
+        yield get_training_job_custom_mock
+
+
+@pytest.fixture
 def get_training_job_tabular_mock():
     with patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
@@ -1300,6 +1315,17 @@ class TestCustomTrainingJob:
         aiplatform.init(project=_TEST_PROJECT)
         training_jobs.CustomTrainingJob.get(resource_name=_TEST_NAME)
         get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+
+    @pytest.mark.usefixtures("get_training_job_custom_mock_no_model_to_upload")
+    def test_get_training_job_no_model_to_upload(
+        self, get_training_job_custom_mock_no_model_to_upload
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        job = training_jobs.CustomTrainingJob.get(resource_name=_TEST_NAME)
+
+        with pytest.raises(RuntimeError):
+            job.get_model(sync=False)
 
     @pytest.mark.usefixtures("get_training_job_tabular_mock")
     def test_get_training_job_tabular(self, get_training_job_tabular_mock):
