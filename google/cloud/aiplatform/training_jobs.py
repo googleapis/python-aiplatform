@@ -454,15 +454,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         return self._gca_resource.state
 
-    def get_model(self, sync=True) -> Optional[models.Model]:
-        self._assert_has_run()
-        if not self._gca_resource.model_to_upload:
-            raise RuntimeError(self._model_upload_fail_string)
-
-        return self._force_get_model(sync=sync)
-
-    @base.optional_sync()
-    def _force_get_model(self, sync: bool = True) -> Optional[models.Model]:
+    def get_model(self, sync=True) -> models.Model:
         """AI Platform Model produced by this training, if one was produced.
 
         Args:
@@ -470,10 +462,35 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
-                
+
         Returns:
-            model: AI Platform Model produced by this training or None if a model was
-                not produced by this training.
+            model: AI Platform Model produced by this training
+
+        Raises:
+            RuntimeError if training failed or if a model was not produced by this training.
+        """
+
+        self._assert_has_run()
+        if not self._gca_resource.model_to_upload:
+            raise RuntimeError(self._model_upload_fail_string)
+
+        return self._force_get_model(sync=sync)
+
+    @base.optional_sync()
+    def _force_get_model(self, sync: bool = True) -> models.Model:
+        """AI Platform Model produced by this training, if one was produced.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            model: AI Platform Model produced by this training
+
+        Raises:
+            RuntimeError if training failed or if a model was not produced by this training.
         """
         model = self._get_model()
 
