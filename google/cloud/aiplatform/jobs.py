@@ -27,6 +27,7 @@ from google.cloud import bigquery
 
 from google.auth import credentials as auth_credentials
 
+from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import constants
@@ -41,6 +42,7 @@ from google.cloud.aiplatform_v1beta1.types import batch_prediction_job as gca_bp
 from google.cloud.aiplatform_v1beta1.types import (
     machine_resources as gca_machine_resources,
 )
+from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 _LOGGER = logging.getLogger(__name__)
@@ -212,6 +214,8 @@ class BatchPredictionJob(_Job):
         accelerator_count: Optional[int] = None,
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
+        explanation_metadata: Optional["aiplatform.ExplanationMetadata"] = None,
+        explanation_parameters: Optional["aiplatform.ExplanationParameters"] = None,
         labels: Optional[dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -312,6 +316,22 @@ class BatchPredictionJob(_Job):
                 The maximum number of machine replicas the batch operation may
                 be scaled to. Only used if `machine_type` is set.
                 Default is 10.
+            explanation_metadata (aiplatform.ExplanationMetadata):
+                Optional. Metadata describing the Model's input and output for explanation.
+                This will cause the batch prediction output to include explanations
+                based on the `prediction_format`:
+                    - `bigquery`: output includes a column named `explanation`. The value
+                        is a struct that conforms to the [aiplatform.gapic.Explanation] object.
+                    - `jsonl`: The JSON objects on each line include an additional entry
+                        keyed `explanation`. The value of the entry is a JSON object that
+                        conforms to the [aiplatform.gapic.Explanation] object.
+                    - `csv`: Generating explanations for CSV format is not supported.
+                Both `explanation_metadata` and `explanation_parameters` must be
+                passed together when used. For more details, see
+                `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's predictions.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             labels (Optional[dict]):
                 The labels with user-defined metadata to organize your
                 BatchPredictionJobs. Label keys and values can be no longer than
@@ -368,6 +388,12 @@ class BatchPredictionJob(_Job):
             raise ValueError(
                 f"{predictions_format} is not an accepted prediction format "
                 f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
+            )
+
+        if bool(explanation_metadata) != bool(explanation_parameters):
+            raise ValueError(
+                "Both `explanation_metadata` and `explanation_parameters` should "
+                "be specified or None."
             )
 
         gapic_batch_prediction_job = gca_bp_job.BatchPredictionJob()
@@ -434,7 +460,13 @@ class BatchPredictionJob(_Job):
         # User Labels
         gapic_batch_prediction_job.labels = labels
 
-        # TODO (b/174502675): Support Explainability on Batch Prediction
+        # Explanations
+        if explanation_metadata:
+            gapic_batch_prediction_job.generate_explanation = True
+            gapic_batch_prediction_job.explanation_spec = gca_explanation.ExplanationSpec(
+                metadata=explanation_metadata, parameters=explanation_parameters
+            )
+
         # TODO (b/174502913): Support private feature once released
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
