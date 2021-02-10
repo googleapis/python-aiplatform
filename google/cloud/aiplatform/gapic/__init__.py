@@ -16,11 +16,9 @@
 #
 
 # The latest GAPIC version is exported to the google.cloud.aiplatform.gapic namespace.
-from google.cloud.aiplatform_v1beta1 import *
 from google.cloud.aiplatform_v1 import *
 from google.cloud.aiplatform.gapic import schema
 
-from google.cloud import aiplatform_v1beta1 as v1beta1
-from google.cloud import aiplatform_v1 as aiplatform
+from google.cloud import aiplatform_v1 as v1
 
 __all__ = ()
