@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # [START aiplatform_upload_model_explain_image_managed_container_sample]
-from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1 as aiplatform
 
 
 def upload_model_explain_image_managed_container_sample(

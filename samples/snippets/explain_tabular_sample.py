@@ -15,7 +15,7 @@
 # [START aiplatform_explain_tabular_sample]
 from typing import Dict
 
-from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1 as aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 

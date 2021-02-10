@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # [START aiplatform_create_batch_prediction_job_bigquery_sample]
-from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1 as aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
