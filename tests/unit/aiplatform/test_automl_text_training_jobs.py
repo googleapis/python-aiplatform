@@ -57,17 +57,6 @@ _TEST_TRAINING_TASK_INPUTS_SENTIMENT = AutoMlTextSentimentInputs(
     sentiment_max=_TEST_SENTIMENT_MAX
 )
 
-# _TEST_TRAINING_TASK_INPUTS_WITH_BASE_MODEL = json_format.ParseDict(
-#     {
-#         "modelType": "CLOUD",
-#         "budgetMilliNodeHours": _TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
-#         "multiLabel": False,
-#         "disableEarlyStopping": _TEST_TRAINING_DISABLE_EARLY_STOPPING,
-#         "baseModelId": _TEST_MODEL_ID,
-#     },
-#     struct_pb2.Value(),
-# )
-
 _TEST_FRACTION_SPLIT_TRAINING = 0.6
 _TEST_FRACTION_SPLIT_VALIDATION = 0.2
 _TEST_FRACTION_SPLIT_TEST = 0.2
@@ -221,7 +210,7 @@ class TestAutoMLTextTrainingJob:
             )
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_run_call_pipeline_service_create(
+    def test_run_call_pipeline_service_create_classification(
         self,
         mock_pipeline_service_create,
         mock_dataset_text,
@@ -267,6 +256,131 @@ class TestAutoMLTextTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             training_task_definition=schema.training_job.definition.automl_text_classification_task,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_CLASSIFICATION,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert model_from_job._gca_resource is mock_model_service_get.return_value
+        assert job.get_model()._gca_resource is mock_model_service_get.return_value
+        assert not job.has_failed
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_extraction(
+        self,
+        mock_pipeline_service_create,
+        mock_dataset_text,
+        mock_model_service_get,
+        mock_model,
+        sync,
+    ):
+        """Create and run an AutoML ICN training job, verify calls and return value"""
+
+        aiplatform.init(project=_TEST_PROJECT)
+
+        job = training_jobs.AutoMLTextTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            prediction_type=_TEST_PREDICTION_TYPE_EXTRACTION,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_text,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        )
+
+        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_text_extraction_task,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_EXTRACTION,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert model_from_job._gca_resource is mock_model_service_get.return_value
+        assert job.get_model()._gca_resource is mock_model_service_get.return_value
+        assert not job.has_failed
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_sentiment(
+        self,
+        mock_pipeline_service_create,
+        mock_dataset_text,
+        mock_model_service_get,
+        mock_model,
+        sync,
+    ):
+        """Create and run an AutoML ICN training job, verify calls and return value"""
+
+        aiplatform.init(project=_TEST_PROJECT)
+
+        job = training_jobs.AutoMLTextTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            prediction_type=_TEST_PREDICTION_TYPE_SENTIMENT,
+            sentiment_max=10,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_text,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
+            validation_fraction=_TEST_FRACTION_SPLIT_VALIDATION,
+            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        )
+
+        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_text_sentiment_task,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_SENTIMENT,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
         )

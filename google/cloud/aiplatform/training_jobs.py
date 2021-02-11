@@ -3473,7 +3473,10 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 Required. The user-defined name of this TrainingPipeline.
             prediction_type (str):
                 The type of prediction the Model is to produce, one of:
-            TODO
+                    "classification" - Predict one out of multiple target values is
+                        picked for each row.
+                    "extraction" - Predict TODO.
+                    "sentiment" - Predict TODO.
             multi_label (bool):
                 Required and only applicable for text classification task. If false, a single-label (multi-class) Model will be trained (i.e.
                 assuming that for each text snippet just up to one annotation may be
