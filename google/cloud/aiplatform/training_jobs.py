@@ -57,8 +57,6 @@ from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1 impor
 )
 
 from google.cloud import storage
-from google.protobuf import json_format
-from google.protobuf import struct_pb2
 from google.rpc import code_pb2
 
 import proto
@@ -3473,10 +3471,15 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 Required. The user-defined name of this TrainingPipeline.
             prediction_type (str):
                 The type of prediction the Model is to produce, one of:
-                    "classification" - Predict one out of multiple target values is
-                        picked for each row.
-                    "extraction" - Predict TODO.
-                    "sentiment" - Predict TODO.
+                    "classification" - A classification model analyzes text data and
+                        returns a list of categories that apply to the text found in the data.
+                        AI Platform offers both single-label and multi-label text classification models.
+                    "extraction" - An entity extraction model inspects text data
+                        for known entities referenced in the data and
+                        labels those entities in the text.
+                    "sentiment" - A sentiment analysis model inspects text data and identifies the
+                        prevailing emotional opinion within it, especially to determine a writer's attitude
+                        as positive, negative, or neutral.
             multi_label (bool):
                 Required and only applicable for text classification task. If false, a single-label (multi-class) Model will be trained (i.e.
                 assuming that for each text snippet just up to one annotation may be

@@ -2,9 +2,6 @@ import pytest
 import importlib
 from unittest import mock
 
-from google.protobuf import json_format
-from google.protobuf import struct_pb2
-
 from google.cloud import aiplatform
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import models
