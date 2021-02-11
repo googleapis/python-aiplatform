@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # [START aiplatform_export_model_tabular_classification_sample]
-from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1
 
 
 def export_model_tabular_classification_sample(

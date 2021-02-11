@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # [START aiplatform_create_batch_prediction_job_tabular_forecasting_sample]
-from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1
 
 
 def create_batch_prediction_job_tabular_forecasting_sample(
