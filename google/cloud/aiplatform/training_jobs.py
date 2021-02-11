@@ -577,7 +577,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 "This TrainingJob has not been launched, use the `run()` method "
                 "to start. `cancel()` can only be called on a job that is running."
             )
-        self.api_client.cancel_training_pipeline(name=self._gca_resource.resource_name)
+        self.api_client.cancel_training_pipeline(name=self.resource_name)
 
 
 def _timestamped_gcs_dir(root_gcs_path: str, dir_name_prefix: str) -> str:
