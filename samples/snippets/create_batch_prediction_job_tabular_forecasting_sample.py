@@ -30,7 +30,7 @@ def create_batch_prediction_job_tabular_forecasting_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.JobServiceClient(client_options=client_options)
+    client = aiplatform_v1beta1.JobServiceClient(client_options=client_options)
     batch_prediction_job = {
         "display_name": display_name,
         # Format: 'projects/{project}/locations/{location}/models/{model_id}'
