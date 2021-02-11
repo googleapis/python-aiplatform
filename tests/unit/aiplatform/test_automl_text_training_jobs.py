@@ -37,7 +37,7 @@ _TEST_LOCATION = "us-central1"
 _TEST_DATASET_DISPLAY_NAME = "test-dataset-display-name"
 _TEST_DATASET_NAME = "test-dataset-name"
 _TEST_DISPLAY_NAME = "test-display-name"
-_TEST_METADATA_SCHEMA_URI_IMAGE = schema.dataset.metadata.image
+_TEST_METADATA_SCHEMA_URI_TEXT = schema.dataset.metadata.text
 
 _TEST_PREDICTION_TYPE_CLASSIFICATION = "classification"
 _TEST_CLASSIFICATION_MULTILABEL = True
@@ -125,13 +125,13 @@ def mock_model_service_get():
 
 
 @pytest.fixture
-def mock_dataset_image():
+def mock_dataset_text():
     ds = mock.MagicMock(datasets.Dataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
     ds._gca_resource = gca_dataset.Dataset(
         display_name=_TEST_DATASET_DISPLAY_NAME,
-        metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_IMAGE,
+        metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
         labels={},
         name=_TEST_DATASET_NAME,
         metadata={},
@@ -224,7 +224,7 @@ class TestAutoMLTextTrainingJob:
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
-        mock_dataset_image,
+        mock_dataset_text,
         mock_model_service_get,
         mock_model,
         sync,
@@ -240,7 +240,7 @@ class TestAutoMLTextTrainingJob:
         )
 
         model_from_job = job.run(
-            dataset=mock_dataset_image,
+            dataset=mock_dataset_text,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
@@ -260,7 +260,7 @@ class TestAutoMLTextTrainingJob:
         true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_image.name,
+            fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -287,7 +287,7 @@ class TestAutoMLTextTrainingJob:
     def test_run_call_pipeline_if_no_model_display_name(
         self,
         mock_pipeline_service_create,
-        mock_dataset_image,
+        mock_dataset_text,
         mock_model_service_get,
         mock_model,
         sync,
@@ -301,7 +301,7 @@ class TestAutoMLTextTrainingJob:
         )
 
         model_from_job = job.run(
-            dataset=mock_dataset_image,
+            dataset=mock_dataset_text,
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
@@ -322,7 +322,7 @@ class TestAutoMLTextTrainingJob:
         true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_image.name,
+            fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -342,7 +342,7 @@ class TestAutoMLTextTrainingJob:
     def test_run_called_twice_raises(
         self,
         mock_pipeline_service_create,
-        mock_dataset_image,
+        mock_dataset_text,
         mock_model_service_get,
         sync,
     ):
@@ -355,7 +355,7 @@ class TestAutoMLTextTrainingJob:
         )
 
         job.run(
-            dataset=mock_dataset_image,
+            dataset=mock_dataset_text,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
@@ -365,7 +365,7 @@ class TestAutoMLTextTrainingJob:
 
         with pytest.raises(RuntimeError):
             job.run(
-                dataset=mock_dataset_image,
+                dataset=mock_dataset_text,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
                 training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
                 validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
@@ -375,7 +375,7 @@ class TestAutoMLTextTrainingJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
-        self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_image, sync
+        self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_text, sync
     ):
 
         aiplatform.init(project=_TEST_PROJECT)
@@ -389,7 +389,7 @@ class TestAutoMLTextTrainingJob:
         with pytest.raises(RuntimeError):
             job.run(
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
-                dataset=mock_dataset_image,
+                dataset=mock_dataset_text,
                 training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
                 validation_fraction_split=_TEST_FRACTION_SPLIT_VALIDATION,
                 test_fraction_split=_TEST_FRACTION_SPLIT_TEST,

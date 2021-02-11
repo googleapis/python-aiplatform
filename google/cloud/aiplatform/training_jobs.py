@@ -3578,8 +3578,6 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 and what is compatible should be described in the used
                 TrainingPipeline's [training_task_definition]
                 [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
-                For Text Datasets, all their data is exported to
-                training, to pick and choose from.
             training_fraction_split: float = 0.8
                 Required. The fraction of the input data that is to be
                 used to train the Model. This is ignored if Dataset is not provided.
@@ -3595,12 +3593,6 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 of any UTF-8 characters.
 
                 If not provided upon creation, the job's display_name is used.
-            disable_early_stopping (bool):
-                Required. If true, the entire budget is used. This disables the early stopping
-                feature. By default, the early stopping feature is enabled, which means
-                that training might stop before the entire training budget has been
-                used, if further training does no longer brings significant improvement
-                to the model.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3665,16 +3657,6 @@ class AutoMLTextTrainingJob(_TrainingJob):
             test_fraction_split (float):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
-            predefined_split_column_name (str):
-                Optional. The key is a name of one of the Dataset's data
-                columns. The value of the key (either the label's value or
-                value in the column) must be one of {``training``,
-                ``validation``, ``test``}, and it defines to which set the
-                given piece of data is assigned. If for a piece of data the
-                key is not present or has an invalid value, that piece is
-                ignored by the pipeline.
-
-                Supported only for Text Datasets.
             model_display_name (str):
                 Optional. If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
