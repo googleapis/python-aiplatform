@@ -63,6 +63,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "endpoints"
     _getter_method = "get_endpoint"
+    _delete_method = "delete_endpoint"
 
     def __init__(
         self,
@@ -950,7 +951,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         if force:
             self.undeploy_all(sync=sync)
 
-        self._delete(sync=sync)
+        super().delete(sync=sync)
 
 
 class Model(base.AiPlatformResourceNounWithFutureManager):
@@ -959,6 +960,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "models"
     _getter_method = "get_model"
+    _delete_method = "delete_model"
 
     @property
     def uri(self):
@@ -1553,19 +1555,3 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             credentials=credentials or self.credentials,
             sync=sync,
         )
-
-    @base.optional_sync()
-    def delete(self, sync: bool = True) -> None:
-        """Deletes this AI Platform managed Model resource.
-
-        WARNING: Calling this method will permanently delete your trained Model
-        on AI Platform, this action is irreversable.
-
-        Args:
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-        """
-        lro = self.api_client.delete_model(name=self.resource_name)
-        lro.result()

@@ -242,6 +242,12 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
+    def _delete_method(cls) -> str:
+        """Name of delete method of client class for deleting the resource."""
+        pass
+
+    @property
+    @abc.abstractmethod
     def _resource_noun(cls) -> str:
         """Resource noun"""
         pass
@@ -327,96 +333,6 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     def display_name(self) -> str:
         """Display name of this resource."""
         return self._gca_resource.display_name
-
-
-class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureManager):
-    """Allows optional asynchronous calls to this AI Platform Resource Nouns."""
-
-    def __init__(
-        self,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ):
-        """Initializes class with project, location, and api_client.
-
-        Args:
-            project (str): Optional. Project of the resource noun.
-            location (str): Optional. The location of the resource noun.
-            credentials(google.auth.crendentials.Crendentials):
-                Optional. custom credentials to use when accessing interacting with
-                resource noun.
-        """
-        AiPlatformResourceNoun.__init__(
-            self, project=project, location=location, credentials=credentials
-        )
-        FutureManager.__init__(self)
-
-    @classmethod
-    def _empty_constructor(
-        cls,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "AiPlatformResourceNounWithFutureManager":
-        """Initializes with all attributes set to None.
-
-        The attributes should be populated after a future is complete. This allows
-        scheduling of additional API calls before the resource is created.
-
-        Args:
-            project (str): Optional. Project of the resource noun.
-            location (str): Optional. The location of the resource noun.
-            credentials(google.auth.crendentials.Crendentials):
-                Optional. custom credentials to use when accessing interacting with
-                resource noun.
-        Returns:
-            An instance of this class with attributes set to None.
-        """
-        self = cls.__new__(cls)
-        AiPlatformResourceNoun.__init__(self, project, location, credentials)
-        FutureManager.__init__(self)
-        self._gca_resource = None
-        return self
-
-    def _sync_object_with_future_result(
-        self, result: "AiPlatformResourceNounWithFutureManager"
-    ):
-        """Populates attributes from a Future result to this object.
-
-        Args:
-            result: AiPlatformResourceNounWithFutureManager
-                Required. Result of future with same type as this object.
-        """
-        sync_attributes = [
-            "project",
-            "location",
-            "api_client",
-            "_gca_resource",
-            "credentials",
-        ]
-        optional_sync_attributes = ["_prediction_client"]
-
-        for attribute in sync_attributes:
-            setattr(self, attribute, getattr(result, attribute))
-
-        for attribute in optional_sync_attributes:
-            value = getattr(result, attribute, None)
-            if value:
-                setattr(self, attribute, value)
-
-
-def get_annotation_class(annotation: type) -> type:
-    """Helper method to retrieve type annotation.
-
-    Args:
-        annotation (type): Type hint
-    """
-    # typing.Optional
-    if getattr(annotation, "__origin__", None) is Union:
-        return annotation.__args__[0]
-    else:
-        return annotation
 
 
 def optional_sync(
@@ -555,3 +471,106 @@ def optional_sync(
         return wrapper
 
     return optional_run_in_thread
+
+
+class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureManager):
+    """Allows optional asynchronous calls to this AI Platform Resource Nouns."""
+
+    def __init__(
+        self,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Initializes class with project, location, and api_client.
+
+        Args:
+            project (str): Optional. Project of the resource noun.
+            location (str): Optional. The location of the resource noun.
+            credentials(google.auth.crendentials.Crendentials):
+                Optional. custom credentials to use when accessing interacting with
+                resource noun.
+        """
+        AiPlatformResourceNoun.__init__(
+            self, project=project, location=location, credentials=credentials
+        )
+        FutureManager.__init__(self)
+
+    @classmethod
+    def _empty_constructor(
+        cls,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "AiPlatformResourceNounWithFutureManager":
+        """Initializes with all attributes set to None.
+
+        The attributes should be populated after a future is complete. This allows
+        scheduling of additional API calls before the resource is created.
+
+        Args:
+            project (str): Optional. Project of the resource noun.
+            location (str): Optional. The location of the resource noun.
+            credentials(google.auth.crendentials.Crendentials):
+                Optional. custom credentials to use when accessing interacting with
+                resource noun.
+        Returns:
+            An instance of this class with attributes set to None.
+        """
+        self = cls.__new__(cls)
+        AiPlatformResourceNoun.__init__(self, project, location, credentials)
+        FutureManager.__init__(self)
+        self._gca_resource = None
+        return self
+
+    def _sync_object_with_future_result(
+        self, result: "AiPlatformResourceNounWithFutureManager"
+    ):
+        """Populates attributes from a Future result to this object.
+
+        Args:
+            result: AiPlatformResourceNounWithFutureManager
+                Required. Result of future with same type as this object.
+        """
+        sync_attributes = [
+            "project",
+            "location",
+            "api_client",
+            "_gca_resource",
+            "credentials",
+        ]
+        optional_sync_attributes = ["_prediction_client"]
+
+        for attribute in sync_attributes:
+            setattr(self, attribute, getattr(result, attribute))
+
+        for attribute in optional_sync_attributes:
+            value = getattr(result, attribute, None)
+            if value:
+                setattr(self, attribute, value)
+
+    @optional_sync()
+    def delete(self, sync: bool = True) -> None:
+        """Deletes this AI Platform resource. WARNING: This deletion is permament.
+
+        Args:
+            sync (bool):
+                Whether to execute this deletion synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        """
+        lro = getattr(self.api_client, self._delete_method)(name=self.resource_name)
+        lro.result()
+
+
+def get_annotation_class(annotation: type) -> type:
+    """Helper method to retrieve type annotation.
+
+    Args:
+        annotation (type): Type hint
+    """
+    # typing.Optional
+    if getattr(annotation, "__origin__", None) is Union:
+        return annotation.__args__[0]
+    else:
+        return annotation
