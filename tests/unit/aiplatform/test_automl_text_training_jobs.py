@@ -251,7 +251,7 @@ class TestAutoMLTextTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_text_classification_task,
+            training_task_definition=schema.training_job.definition.automl_text_classification,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_CLASSIFICATION,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -313,7 +313,7 @@ class TestAutoMLTextTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_text_extraction_task,
+            training_task_definition=schema.training_job.definition.automl_text_extraction,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_EXTRACTION,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -376,7 +376,7 @@ class TestAutoMLTextTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_text_sentiment_task,
+            training_task_definition=schema.training_job.definition.automl_text_sentiment,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_SENTIMENT,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -438,7 +438,7 @@ class TestAutoMLTextTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_text_classification_task,
+            training_task_definition=schema.training_job.definition.automl_text_classification,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_CLASSIFICATION,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -512,21 +512,3 @@ class TestAutoMLTextTrainingJob:
 
         with pytest.raises(RuntimeError):
             job.get_model()
-
-    def test_raises_before_run_is_called(self, mock_pipeline_service_create):
-        aiplatform.init(project=_TEST_PROJECT)
-
-        job = training_jobs.AutoMLTextTrainingJob(
-            display_name=_TEST_DISPLAY_NAME,
-            prediction_type=_TEST_PREDICTION_TYPE_CLASSIFICATION,
-            multi_label=_TEST_CLASSIFICATION_MULTILABEL,
-        )
-
-        with pytest.raises(RuntimeError):
-            job.get_model()
-
-        with pytest.raises(RuntimeError):
-            job.has_failed
-
-        with pytest.raises(RuntimeError):
-            job.state

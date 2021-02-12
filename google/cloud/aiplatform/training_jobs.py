@@ -3518,7 +3518,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
         if self._prediction_type == "classification":
             training_task_definition = (
-                schema.training_job.definition.automl_text_classification_task
+                schema.training_job.definition.automl_text_classification
             )
 
             if self._multi_label is None:
@@ -3531,13 +3531,13 @@ class AutoMLTextTrainingJob(_TrainingJob):
             ).to_value()
         elif self._prediction_type == "extraction":
             training_task_definition = (
-                schema.training_job.definition.automl_text_extraction_task
+                schema.training_job.definition.automl_text_extraction
             )
 
             training_task_inputs_dict = AutoMlTextExtractionInputs().to_value()
         elif self._prediction_type == "sentiment":
             training_task_definition = (
-                schema.training_job.definition.automl_text_sentiment_task
+                schema.training_job.definition.automl_text_sentiment
             )
 
             if self._sentiment_max is None:
