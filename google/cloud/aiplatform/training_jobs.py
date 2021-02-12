@@ -295,11 +295,8 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 than the one given on input. The output URI will
                 point to a location where the user only has a
                 read access.
-            training_task_inputs (dict):
-                Required. The training task's parameter(s), as specified in
-                the
-                ``training_task_definition``'s
-                ``inputs``.
+            training_task_inputs (proto.Message):
+                Required. The training task's input that correspons to the training_task_definition parameter.
             dataset (datasets.Dataset):
                 The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
