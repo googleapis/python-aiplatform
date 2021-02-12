@@ -35,6 +35,8 @@ __protobuf__ = proto.module(
         "XraiAttribution",
         "SmoothGradConfig",
         "FeatureNoiseSigma",
+        "ExplanationSpecOverride",
+        "ExplanationMetadataOverride",
     },
 )
 
@@ -46,7 +48,7 @@ class Explanation(proto.Message):
     ``instance``.
 
     Attributes:
-        attributions (Sequence[~.explanation.Attribution]):
+        attributions (Sequence[google.cloud.aiplatform_v1beta1.types.Attribution]):
             Output only. Feature attributions grouped by predicted
             outputs.
 
@@ -79,8 +81,8 @@ class ModelExplanation(proto.Message):
     instances.
 
     Attributes:
-        mean_attributions (Sequence[~.explanation.Attribution]):
-            Output only. Aggregated attributions explaning the Model's
+        mean_attributions (Sequence[google.cloud.aiplatform_v1beta1.types.Attribution]):
+            Output only. Aggregated attributions explaining the Model's
             prediction outputs over the set of instances. The
             attributions are grouped by outputs.
 
@@ -140,7 +142,7 @@ class Attribution(proto.Message):
             If the Model predicted output has multiple dimensions, this
             is the value in the output located by
             ``output_index``.
-        feature_attributions (~.struct.Value):
+        feature_attributions (google.protobuf.struct_pb2.Value):
             Output only. Attributions of each explained feature.
             Features are extracted from the [prediction
             instances][google.cloud.aiplatform.v1beta1.ExplainRequest.instances]
@@ -190,9 +192,9 @@ class Attribution(proto.Message):
             of the output vector. Indices start from 0.
         output_display_name (str):
             Output only. The display name of the output identified by
-            ``output_index``,
-            e.g. the predicted class name by a multi-classification
-            Model.
+            ``output_index``.
+            For example, the predicted class name by a
+            multi-classification Model.
 
             This field is only populated iff the Model predicts display
             names as a separate field along with the explained output.
@@ -204,25 +206,25 @@ class Attribution(proto.Message):
             caused by approximation used in the explanation method.
             Lower value means more precise attributions.
 
-            -  For [Sampled Shapley
-               attribution][ExplanationParameters.sampled_shapley_attribution],
+            -  For Sampled Shapley
+               ``attribution``,
                increasing
                ``path_count``
-               may reduce the error.
-            -  For [Integrated Gradients
-               attribution][ExplanationParameters.integrated_gradients_attribution],
+               might reduce the error.
+            -  For Integrated Gradients
+               ``attribution``,
                increasing
                ``step_count``
-               may reduce the error.
+               might reduce the error.
             -  For [XRAI
-               attribution][ExplanationParameters.xrai_attribution],
+               attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.xrai_attribution],
                increasing
                ``step_count``
-               may reduce the error.
+               might reduce the error.
 
-            Refer to AI Explanations Whitepaper for more details:
-
-            https://storage.googleapis.com/cloud-ai-whitepapers/AI%20Explainability%20Whitepaper.pdf
+            See `this
+            introduction </ai-platform-unified/docs/explainable-ai/overview>`__
+            for more information.
         output_name (str):
             Output only. Name of the explain output. Specified as the
             key in
@@ -248,10 +250,10 @@ class ExplanationSpec(proto.Message):
     r"""Specification of Model explanation.
 
     Attributes:
-        parameters (~.explanation.ExplanationParameters):
+        parameters (google.cloud.aiplatform_v1beta1.types.ExplanationParameters):
             Required. Parameters that configure
             explaining of the Model's predictions.
-        metadata (~.explanation_metadata.ExplanationMetadata):
+        metadata (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata):
             Required. Metadata describing the Model's
             input and output for explanation.
     """
@@ -267,7 +269,7 @@ class ExplanationParameters(proto.Message):
     r"""Parameters to configure explaining for Model's predictions.
 
     Attributes:
-        sampled_shapley_attribution (~.explanation.SampledShapleyAttribution):
+        sampled_shapley_attribution (google.cloud.aiplatform_v1beta1.types.SampledShapleyAttribution):
             An attribution method that approximates
             Shapley values for features that contribute to
             the label being predicted. A sampling strategy
@@ -275,13 +277,13 @@ class ExplanationParameters(proto.Message):
             considering all subsets of features. Refer to
             this paper for model details:
             https://arxiv.org/abs/1306.4265.
-        integrated_gradients_attribution (~.explanation.IntegratedGradientsAttribution):
+        integrated_gradients_attribution (google.cloud.aiplatform_v1beta1.types.IntegratedGradientsAttribution):
             An attribution method that computes Aumann-
             hapley values taking advantage of the model's
             fully differentiable structure. Refer to this
             paper for more details:
             https://arxiv.org/abs/1703.01365
-        xrai_attribution (~.explanation.XraiAttribution):
+        xrai_attribution (google.cloud.aiplatform_v1beta1.types.XraiAttribution):
             An attribution method that redistributes
             Integrated Gradients attribution to segmented
             regions, taking advantage of the model's fully
@@ -301,11 +303,11 @@ class ExplanationParameters(proto.Message):
             to Models that predicts more than one outputs
             (e,g, multi-class Models). When set to -1,
             returns explanations for all outputs.
-        output_indices (~.struct.ListValue):
+        output_indices (google.protobuf.struct_pb2.ListValue):
             If populated, only returns attributions that have
-            ``output_index`` contained in
-            output_indices. It must be an ndarray of integers, with the
-            same shape of the output it's explaining.
+            ``output_index``
+            contained in output_indices. It must be an ndarray of
+            integers, with the same shape of the output it's explaining.
 
             If not populated, returns attributions for
             ``top_k``
@@ -367,7 +369,7 @@ class IntegratedGradientsAttribution(proto.Message):
             range.
 
             Valid range of its value is [1, 100], inclusively.
-        smooth_grad_config (~.explanation.SmoothGradConfig):
+        smooth_grad_config (google.cloud.aiplatform_v1beta1.types.SmoothGradConfig):
             Config for SmoothGrad approximation of
             gradients.
             When enabled, the gradients are approximated by
@@ -387,12 +389,11 @@ class IntegratedGradientsAttribution(proto.Message):
 
 class XraiAttribution(proto.Message):
     r"""An explanation method that redistributes Integrated Gradients
-    attributions to segmented regions, taking advantage of the model's
-    fully differentiable structure. Refer to this paper for more
-    details: https://arxiv.org/abs/1906.02825
+    attributions to segmented regions, taking advantage of the
+    model's fully differentiable structure. Refer to this paper for
+    more details: https://arxiv.org/abs/1906.02825
 
-    Only supports image Models (``modality`` is
-    IMAGE).
+    Supported only by image Models.
 
     Attributes:
         step_count (int):
@@ -402,7 +403,7 @@ class XraiAttribution(proto.Message):
             error range.
 
             Valid range of its value is [1, 100], inclusively.
-        smooth_grad_config (~.explanation.SmoothGradConfig):
+        smooth_grad_config (google.cloud.aiplatform_v1beta1.types.SmoothGradConfig):
             Config for SmoothGrad approximation of
             gradients.
             When enabled, the gradients are approximated by
@@ -434,10 +435,8 @@ class SmoothGradConfig(proto.Message):
             to all the features. Use this field when all features are
             normalized to have the same distribution: scale to range [0,
             1], [-1, 1] or z-scoring, where features are normalized to
-            have 0-mean and 1-variance. Refer to this doc for more
-            details about normalization:
-
-            https://developers.google.com/machine-learning/data-prep/transform/normalization.
+            have 0-mean and 1-variance. For more details about
+            normalization: https://tinyurl.com/dgc-normalization.
 
             For best results the recommended value is about 10% - 20% of
             the standard deviation of the input feature. Refer to
@@ -447,7 +446,7 @@ class SmoothGradConfig(proto.Message):
             If the distribution is different per feature, set
             ``feature_noise_sigma``
             instead for each feature.
-        feature_noise_sigma (~.explanation.FeatureNoiseSigma):
+        feature_noise_sigma (google.cloud.aiplatform_v1beta1.types.FeatureNoiseSigma):
             This is similar to
             ``noise_sigma``,
             but provides additional flexibility. A separate noise sigma
@@ -481,7 +480,7 @@ class FeatureNoiseSigma(proto.Message):
     to interpolated inputs prior to computing gradients.
 
     Attributes:
-        noise_sigma (Sequence[~.explanation.FeatureNoiseSigma.NoiseSigmaForFeature]):
+        noise_sigma (Sequence[google.cloud.aiplatform_v1beta1.types.FeatureNoiseSigma.NoiseSigmaForFeature]):
             Noise sigma per feature. No noise is added to
             features that are not set.
     """
@@ -509,6 +508,74 @@ class FeatureNoiseSigma(proto.Message):
 
     noise_sigma = proto.RepeatedField(
         proto.MESSAGE, number=1, message=NoiseSigmaForFeature,
+    )
+
+
+class ExplanationSpecOverride(proto.Message):
+    r"""The
+    ``ExplanationSpec``
+    entries that can be overridden at [online
+    explanation]``PredictionService.Explain``
+    time.
+
+    Attributes:
+        parameters (google.cloud.aiplatform_v1beta1.types.ExplanationParameters):
+            The parameters to be overridden. Note that the
+            ``method``
+            cannot be changed. If not specified, no parameter is
+            overridden.
+        metadata (google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride):
+            The metadata to be overridden. If not
+            specified, no metadata is overridden.
+    """
+
+    parameters = proto.Field(proto.MESSAGE, number=1, message="ExplanationParameters",)
+
+    metadata = proto.Field(
+        proto.MESSAGE, number=2, message="ExplanationMetadataOverride",
+    )
+
+
+class ExplanationMetadataOverride(proto.Message):
+    r"""The
+    ``ExplanationMetadata``
+    entries that can be overridden at [online
+    explanation][google.cloud.aiplatform.v1beta1.PredictionService.Explain]
+    time.
+
+    Attributes:
+        inputs (Sequence[google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride.InputsEntry]):
+            Required. Overrides the [input
+            metadata][google.cloud.aiplatform.v1beta1.ExplanationMetadata.inputs]
+            of the features. The key is the name of the feature to be
+            overridden. The keys specified here must exist in the input
+            metadata to be overridden. If a feature is not specified
+            here, the corresponding feature's input metadata is not
+            overridden.
+    """
+
+    class InputMetadataOverride(proto.Message):
+        r"""The [input
+        metadata][google.cloud.aiplatform.v1beta1.ExplanationMetadata.InputMetadata]
+        entries to be overridden.
+
+        Attributes:
+            input_baselines (Sequence[google.protobuf.struct_pb2.Value]):
+                Baseline inputs for this feature.
+
+                This overrides the ``input_baseline`` field of the
+                ``ExplanationMetadata.InputMetadata``
+                object of the corresponding feature's input metadata. If
+                it's not specified, the original baselines are not
+                overridden.
+        """
+
+        input_baselines = proto.RepeatedField(
+            proto.MESSAGE, number=1, message=struct.Value,
+        )
+
+    inputs = proto.MapField(
+        proto.STRING, proto.MESSAGE, number=1, message=InputMetadataOverride,
     )
 
 

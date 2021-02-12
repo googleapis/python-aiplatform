@@ -28,37 +28,59 @@ common = gcp.CommonTemplates()
 # Generate AI Platform GAPIC layer
 # ----------------------------------------------------------------------------
 
-library = gapic.py_library(
-    service="aiplatform",
-    version="v1beta1",
-    bazel_target="//google/cloud/aiplatform/v1beta1:aiplatform-v1beta1-py",
-)
 
-s.move(
-    library,
-    excludes=[
-        ".pre-commit-config.yaml",
-        "setup.py",
-        "README.rst",
-        "docs/index.rst",
-        "docs/definition_v1beta1/services.rst",
-        "docs/instance_v1beta1/services.rst",
-        "docs/params_v1beta1/services.rst",
-        "docs/prediction_v1beta1/services.rst",
-        "scripts/fixup_aiplatform_v1beta1_keywords.py",
-        "scripts/fixup_definition_v1beta1_keywords.py",
-        "scripts/fixup_instance_v1beta1_keywords.py",
-        "scripts/fixup_params_v1beta1_keywords.py",
-        "scripts/fixup_prediction_v1beta1_keywords.py",
-        "google/cloud/aiplatform/__init__.py",
-        "google/cloud/aiplatform/v1beta1/schema/**/services/",
-        "tests/unit/gapic/aiplatform_v1beta1/test_prediction_service.py",
-        "tests/unit/gapic/definition_v1beta1/",
-        "tests/unit/gapic/instance_v1beta1/",
-        "tests/unit/gapic/params_v1beta1/",
-        "tests/unit/gapic/prediction_v1beta1/",
-    ],
-)
+versions = ["v1beta1", "v1"]
+
+for version in versions:
+    library = gapic.py_library(
+        service="aiplatform",
+        version=version,
+        bazel_target=f"//google/cloud/aiplatform/{version}:aiplatform-{version}-py",
+    )
+
+    s.move(
+        library,
+        excludes=[
+            ".pre-commit-config.yaml",
+            "setup.py",
+            "README.rst",
+            "docs/index.rst",
+            f"docs/definition_{version}/services.rst",
+            f"docs/instance_{version}/services.rst",
+            f"docs/params_{version}/services.rst",
+            f"docs/prediction_{version}/services.rst",
+            f"scripts/fixup_aiplatform_{version}_keywords.py",
+            f"scripts/fixup_definition_{version}_keywords.py",
+            f"scripts/fixup_instance_{version}_keywords.py",
+            f"scripts/fixup_params_{version}_keywords.py",
+            f"scripts/fixup_prediction_{version}_keywords.py",
+            "google/cloud/aiplatform/__init__.py",
+            f"google/cloud/aiplatform/{version}/schema/**/services/",
+            f"tests/unit/gapic/aiplatform_{version}/test_prediction_service.py",
+            f"tests/unit/gapic/definition_{version}/",
+            f"tests/unit/gapic/instance_{version}/",
+            f"tests/unit/gapic/params_{version}/",
+            f"tests/unit/gapic/prediction_{version}/",
+        ],
+    )
+
+    # ---------------------------------------------------------------------
+    # Patch each version of the library
+    # ---------------------------------------------------------------------
+
+    # https://github.com/googleapis/gapic-generator-python/issues/413
+    s.replace(
+        f"google/cloud/aiplatform_{version}/services/prediction_service/client.py",
+        "request.instances = instances",
+        "request.instances.extend(instances)",
+    )
+
+    # https://github.com/googleapis/gapic-generator-python/issues/672
+    s.replace(
+        "google/cloud/aiplatform_{version}/services/endpoint_service/client.py",
+        "request.traffic_split.extend\(traffic_split\)",
+        "request.traffic_split = traffic_split",
+    )
 
 # ----------------------------------------------------------------------------
 # Patch the library
@@ -70,32 +92,18 @@ s.replace(
     "client_options: ClientOptions.ClientOptions = ",
 )
 
-# https://github.com/googleapis/gapic-generator-python/issues/413
-s.replace(
-    "google/cloud/aiplatform_v1beta1/services/prediction_service/client.py",
-    "request.instances = instances",
-    "request.instances.extend(instances)",
-)
-
-# https://github.com/googleapis/gapic-generator-python/issues/672
-s.replace(
-    "google/cloud/aiplatform_v1beta1/services/endpoint_service/client.py",
-    "request.traffic_split.extend\(traffic_split\)",
-    "request.traffic_split = traffic_split",
-)
-
 
 # Generator adds a bad import statement to enhanced type;
 # need to fix in post-processing steps.
-s.replace(
-    "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/text_sentiment.py",
-    "text_sentiment_pb2 as gcaspi_text_sentiment  # type: ignore",
-    "TextSentimentPredictionInstance")
+#s.replace(
+#    "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/text_sentiment.py",
+#    "text_sentiment_pb2 as gcaspi_text_sentiment  # type: ignore",
+#    "TextSentimentPredictionInstance")
 
-s.replace(
-    "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/text_sentiment.py",
-    "message=gcaspi_text_sentiment.TextSentimentPredictionInstance,",
-    "message=TextSentimentPredictionInstance,")
+#s.replace(
+#    "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/text_sentiment.py",
+#    "message=gcaspi_text_sentiment.TextSentimentPredictionInstance,",
+#    "message=TextSentimentPredictionInstance,")
 
 
 

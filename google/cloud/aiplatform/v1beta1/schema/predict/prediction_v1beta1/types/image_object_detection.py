@@ -42,7 +42,7 @@ class ImageObjectDetectionPredictionResult(proto.Message):
             The Model's confidences in correctness of the
             predicted IDs, higher value means higher
             confidence. Order matches the Ids.
-        bboxes (Sequence[~.struct.ListValue]):
+        bboxes (Sequence[google.protobuf.struct_pb2.ListValue]):
             Bounding boxes, i.e. the rectangles over the image, that
             pinpoint the found AnnotationSpecs. Given in order that
             matches the IDs. Each bounding box is an array of 4 numbers

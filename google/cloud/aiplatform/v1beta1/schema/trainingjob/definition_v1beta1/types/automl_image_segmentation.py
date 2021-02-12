@@ -33,9 +33,9 @@ class AutoMlImageSegmentation(proto.Message):
     Segmentation Model.
 
     Attributes:
-        inputs (~.automl_image_segmentation.AutoMlImageSegmentationInputs):
+        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageSegmentationInputs):
             The input parameters of this TrainingJob.
-        metadata (~.automl_image_segmentation.AutoMlImageSegmentationMetadata):
+        metadata (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageSegmentationMetadata):
             The metadata information.
     """
 
@@ -52,7 +52,7 @@ class AutoMlImageSegmentationInputs(proto.Message):
     r"""
 
     Attributes:
-        model_type (~.automl_image_segmentation.AutoMlImageSegmentationInputs.ModelType):
+        model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageSegmentationInputs.ModelType):
 
         budget_milli_node_hours (int):
             The training budget of creating this model, expressed in
@@ -100,7 +100,7 @@ class AutoMlImageSegmentationMetadata(proto.Message):
             value in this field means 1 node hour.
             Guaranteed to not exceed
             inputs.budgetMilliNodeHours.
-        successful_stop_reason (~.automl_image_segmentation.AutoMlImageSegmentationMetadata.SuccessfulStopReason):
+        successful_stop_reason (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageSegmentationMetadata.SuccessfulStopReason):
             For successful job completions, this is the
             reason why the job has finished.
     """

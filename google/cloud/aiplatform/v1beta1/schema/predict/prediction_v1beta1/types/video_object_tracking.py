@@ -38,25 +38,25 @@ class VideoObjectTrackingPredictionResult(proto.Message):
         display_name (str):
             The display name of the AnnotationSpec that
             had been identified.
-        time_segment_start (~.duration.Duration):
+        time_segment_start (google.protobuf.duration_pb2.Duration):
             The beginning, inclusive, of the video's time
             segment in which the object instance has been
             detected. Expressed as a number of seconds as
             measured from the start of the video, with
             fractions up to a microsecond precision, and
             with "s" appended at the end.
-        time_segment_end (~.duration.Duration):
+        time_segment_end (google.protobuf.duration_pb2.Duration):
             The end, inclusive, of the video's time
             segment in which the object instance has been
             detected. Expressed as a number of seconds as
             measured from the start of the video, with
             fractions up to a microsecond precision, and
             with "s" appended at the end.
-        confidence (~.wrappers.FloatValue):
+        confidence (google.protobuf.wrappers_pb2.FloatValue):
             The Model's confidence in correction of this
             prediction, higher value means higher
             confidence.
-        frames (Sequence[~.video_object_tracking.VideoObjectTrackingPredictionResult.Frame]):
+        frames (Sequence[google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.VideoObjectTrackingPredictionResult.Frame]):
             All of the frames of the video in which a
             single object instance has been detected. The
             bounding boxes in the frames identify the same
@@ -70,19 +70,19 @@ class VideoObjectTrackingPredictionResult(proto.Message):
         size, and the point 0,0 is in the top left of the frame.
 
         Attributes:
-            time_offset (~.duration.Duration):
+            time_offset (google.protobuf.duration_pb2.Duration):
                 A time (frame) of a video in which the object
                 has been detected. Expressed as a number of
                 seconds as measured from the start of the video,
                 with fractions up to a microsecond precision,
                 and with "s" appended at the end.
-            x_min (~.wrappers.FloatValue):
+            x_min (google.protobuf.wrappers_pb2.FloatValue):
                 The leftmost coordinate of the bounding box.
-            x_max (~.wrappers.FloatValue):
+            x_max (google.protobuf.wrappers_pb2.FloatValue):
                 The rightmost coordinate of the bounding box.
-            y_min (~.wrappers.FloatValue):
+            y_min (google.protobuf.wrappers_pb2.FloatValue):
                 The topmost coordinate of the bounding box.
-            y_max (~.wrappers.FloatValue):
+            y_max (google.protobuf.wrappers_pb2.FloatValue):
                 The bottommost coordinate of the bounding
                 box.
         """

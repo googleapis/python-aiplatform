@@ -29,7 +29,7 @@ class AutoMlVideoActionRecognition(proto.Message):
     Recognition Model.
 
     Attributes:
-        inputs (~.automl_video_action_recognition.AutoMlVideoActionRecognitionInputs):
+        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoActionRecognitionInputs):
             The input parameters of this TrainingJob.
     """
 
@@ -42,7 +42,7 @@ class AutoMlVideoActionRecognitionInputs(proto.Message):
     r"""
 
     Attributes:
-        model_type (~.automl_video_action_recognition.AutoMlVideoActionRecognitionInputs.ModelType):
+        model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoActionRecognitionInputs.ModelType):
 
     """
 
