@@ -25,11 +25,9 @@ version = "0.4.0a1"
 description = "Cloud AI Platform API client library"
 
 package_root = os.path.abspath(os.path.dirname(__file__))
-
 readme_filename = os.path.join(package_root, "README.rst")
 with io.open(readme_filename, encoding="utf-8") as readme_file:
     readme = readme_file.read()
-
 
 setuptools.setup(
     name=name,
@@ -46,9 +44,7 @@ setuptools.setup(
     include_package_data=True,
     install_requires=(
         "google-api-core[grpc] >= 1.22.2, < 2.0.0dev",
-        "libcst >= 0.2.5",
         "proto-plus >= 1.10.1",
-        "mock >= 4.0.2",
         "google-cloud-storage >= 1.26.0, < 2.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
     ),

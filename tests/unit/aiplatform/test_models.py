@@ -562,19 +562,61 @@ class TestModel:
             metadata=(),
         )
 
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_no_endpoint_dedicated_resources(self, deploy_model_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+        test_endpoint = test_model.deploy(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            sync=sync,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = machine_resources.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+        expected_dedicated_resources = machine_resources.DedicatedResources(
+            machine_spec=expected_machine_spec, min_replica_count=1, max_replica_count=1
+        )
+        expected_deployed_model = gca_endpoint.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest(
-        self, create_batch_prediction_job_mock,
+        self, create_batch_prediction_job_mock, sync
     ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
-        test_model.batch_predict(
+        batch_prediction_job = test_model.batch_predict(
             job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=sync,
         )
+
+        if not sync:
+            batch_prediction_job.wait()
 
         # Construct expected request
         expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
@@ -596,26 +638,29 @@ class TestModel:
             ),
         )
 
-        expected_request = gapic_types.CreateBatchPredictionJobRequest(
+        create_batch_prediction_job_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             batch_prediction_job=expected_gapic_batch_prediction_job,
         )
 
-        create_batch_prediction_job_mock.assert_called_once_with(
-            request=expected_request
-        )
-
+    @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
-    def test_batch_predict_gcs_source_bq_dest(self, create_batch_prediction_job_mock):
+    def test_batch_predict_gcs_source_bq_dest(
+        self, create_batch_prediction_job_mock, sync
+    ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
-        test_model.batch_predict(
+        batch_prediction_job = test_model.batch_predict(
             job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+            sync=sync,
         )
+
+        if not sync:
+            batch_prediction_job.wait()
 
         # Construct expected request
         expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
@@ -637,23 +682,20 @@ class TestModel:
             ),
         )
 
-        expected_request = gapic_types.CreateBatchPredictionJobRequest(
+        create_batch_prediction_job_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             batch_prediction_job=expected_gapic_batch_prediction_job,
         )
 
-        create_batch_prediction_job_mock.assert_called_once_with(
-            request=expected_request
-        )
-
+    @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
-    def test_batch_predict_with_all_args(self, create_batch_prediction_job_mock):
+    def test_batch_predict_with_all_args(self, create_batch_prediction_job_mock, sync):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
         creds = auth_credentials.AnonymousCredentials()
 
         # Make SDK batch_predict method call passing all arguments
-        test_model.batch_predict(
+        batch_prediction_job = test_model.batch_predict(
             job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
@@ -666,7 +708,11 @@ class TestModel:
             max_replica_count=_TEST_MAX_REPLICA_COUNT,
             labels=_TEST_LABEL,
             credentials=creds,
+            sync=sync,
         )
+
+        if not sync:
+            batch_prediction_job.wait()
 
         # Construct expected request
         expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
@@ -698,13 +744,9 @@ class TestModel:
             labels=_TEST_LABEL,
         )
 
-        expected_request = gapic_types.CreateBatchPredictionJobRequest(
+        create_batch_prediction_job_mock.assert_called_once_with(
             parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
             batch_prediction_job=expected_gapic_batch_prediction_job,
-        )
-
-        create_batch_prediction_job_mock.assert_called_once_with(
-            request=expected_request
         )
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")

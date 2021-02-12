@@ -15,14 +15,13 @@
 # limitations under the License.
 #
 import proto
-from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple
+from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import jobs
-from google.cloud.aiplatform import constants
 
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
     client as endpoint_service_client,
@@ -30,8 +29,6 @@ from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     client as model_service_client,
 )
-from google.cloud.aiplatform_v1beta1.services import job_service
-from google.cloud.aiplatform_v1beta1 import types
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
@@ -114,9 +111,6 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         """Creates a new endpoint.
 
         Args:
-            api_client (endpoint_service_client.EndpointServiceClient):
-                Required. An instance of endpoint_service_client.EndpointServiceClient with the correct
-                api_endpoint already set based on user's preferences.
             display_name (str):
                 Required. The user-defined name of the Endpoint.
                 The name can be up to 128 characters long and can be consist
@@ -330,6 +324,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     def _validate_deploy_args(
         min_replica_count: int,
         max_replica_count: int,
+        accelerator_type: Optional[str],
         deployed_model_display_name: Optional[str],
         traffic_split: Optional[Dict[str, int]],
         traffic_percentage: int,
@@ -353,6 +348,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            accelerator_type (str):
+                Required. Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
+                NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
+                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             deployed_model_display_name (str):
                 Required. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
@@ -397,6 +396,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                     "Sum of all traffic within traffic split needs to be 100."
                 )
 
+        # Raises ValueError if invalid accelerator
+        if accelerator_type:
+            utils.validate_accelerator_type(accelerator_type)
+
     def deploy(
         self,
         model: "Model",
@@ -406,6 +409,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: int = 1,
         max_replica_count: int = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
@@ -452,6 +457,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_count if used.
+                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -464,6 +475,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         self._validate_deploy_args(
             min_replica_count,
             max_replica_count,
+            accelerator_type,
             deployed_model_display_name,
             traffic_split,
             traffic_percentage,
@@ -477,6 +489,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
             metadata=metadata,
             sync=sync,
         )
@@ -491,6 +505,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
@@ -537,6 +553,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_count if used.
+                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -560,6 +582,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
             metadata=metadata,
         )
 
@@ -578,6 +602,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ):
         """
@@ -638,13 +664,24 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
         Raises:
             ValueError if there is not current traffic split and traffic percentage
-            is not 0 or 100.
+                is not 0 or 100.
         """
 
         max_replica_count = max(min_replica_count, max_replica_count)
 
+        if bool(accelerator_type) != bool(accelerator_count):
+            raise ValueError(
+                "Both `accelerator_type` and `accelerator_count` should be specified or None."
+            )
+
         if machine_type:
             machine_spec = machine_resources.MachineSpec(machine_type=machine_type)
+
+            if accelerator_type and accelerator_count:
+                utils.validate_accelerator_type(accelerator_type)
+                machine_spec.accelerator_type = accelerator_type
+                machine_spec.accelerator_count = accelerator_count
+
             dedicated_resources = machine_resources.DedicatedResources(
                 machine_spec=machine_spec,
                 min_replica_count=min_replica_count,
@@ -1162,6 +1199,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> Endpoint:
@@ -1208,6 +1247,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 handle, a portion of the traffic will be dropped. If this value
                 is not provided, the smaller value of min_replica_count or 1 will
                 be used.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_count if used.
+                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -1224,6 +1269,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         Endpoint._validate_deploy_args(
             min_replica_count,
             max_replica_count,
+            accelerator_type,
             deployed_model_display_name,
             traffic_split,
             traffic_percentage,
@@ -1237,6 +1283,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
             metadata=metadata,
             sync=sync,
         )
@@ -1251,6 +1299,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         machine_type: Optional[str] = None,
         min_replica_count: Optional[int] = 1,
         max_replica_count: Optional[int] = 1,
+        accelerator_type: Optional[str] = None,
+        accelerator_count: Optional[int] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> Endpoint:
@@ -1297,6 +1347,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 handle, a portion of the traffic will be dropped. If this value
                 is not provided, the smaller value of min_replica_count or 1 will
                 be used.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_count if used.
+                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -1330,6 +1386,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             machine_type=machine_type,
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
             metadata=metadata,
         )
 
@@ -1340,7 +1398,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
     def batch_predict(
         self,
         job_display_name: str,
-        gcs_source: Optional[Sequence[str]] = None,
+        gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bigquery_source: Optional[str] = None,
         instances_format: str = "jsonl",
         gcs_destination_prefix: Optional[str] = None,
@@ -1354,7 +1412,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = None,
         labels: Optional[dict] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> jobs.BatchPredictionJob:
+        sync: bool = True,
+    ) -> "jobs.BatchPredictionJob":
         """Creates a batch prediction job using this Model and outputs prediction
         results to the provided destination prefix in the specified
         `predictions_format`. One source and one destination prefix are required.
@@ -1467,134 +1526,32 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 Optional. Custom credentials to use to create this batch prediction
                 job. Overrides credentials set in aiplatform.init.
         Returns:
-            (BatchPredictionJob):
+            (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
 
-        Raises:
-            ValueError:
-                If no or multiple source or destinations are provided. Also, if
-                provided instances_format or predictions_format are not supported
-                by AI Platform.
         """
         self.wait()
 
-        # Raise error if both or neither source URIs are provided
-        if bool(gcs_source) == bool(bigquery_source):
-            raise ValueError(
-                "Please provide either a gcs_source or bigquery_source, "
-                "but not both."
-            )
-
-        # Raise error if both or neither destination prefixes are provided
-        if bool(gcs_destination_prefix) == bool(bigquery_destination_prefix):
-            raise ValueError(
-                "Please provide either a gcs_destination_prefix or "
-                "bigquery_destination_prefix, but not both."
-            )
-
-        # Raise error if unsupported instance format is provided
-        if instances_format not in constants.BATCH_PREDICTION_INPUT_STORAGE_FORMATS:
-            raise ValueError(
-                f"{predictions_format} is not an accepted instances format "
-                f"type. Please choose from: {constants.BATCH_PREDICTION_INPUT_STORAGE_FORMATS}"
-            )
-
-        # Raise error if unsupported prediction format is provided
-        if predictions_format not in constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS:
-            raise ValueError(
-                f"{predictions_format} is not an accepted prediction format "
-                f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
-            )
-
-        gapic_batch_prediction_job = types.BatchPredictionJob()
-
-        # Required Fields
-        gapic_batch_prediction_job.display_name = job_display_name
-        gapic_batch_prediction_job.model = self.resource_name
-
-        input_config = types.BatchPredictionJob.InputConfig()
-        output_config = types.BatchPredictionJob.OutputConfig()
-
-        if bigquery_source:
-            input_config.instances_format = "bigquery"
-            input_config.bigquery_source = types.BigQuerySource()
-            input_config.bigquery_source.input_uri = bigquery_source
-        else:
-            input_config.instances_format = instances_format
-            input_config.gcs_source = types.GcsSource(
-                uris=gcs_source if type(gcs_source) == list else [gcs_source]
-            )
-
-        if bigquery_destination_prefix:
-            output_config.predictions_format = "bigquery"
-            output_config.bigquery_destination = types.BigQueryDestination()
-
-            bq_dest_prefix = bigquery_destination_prefix
-
-            if not bq_dest_prefix.startswith("bq://"):
-                bq_dest_prefix = f"bq://{bq_dest_prefix}"
-
-            output_config.bigquery_destination.output_uri = bq_dest_prefix
-        else:
-            output_config.predictions_format = predictions_format
-            output_config.gcs_destination = types.GcsDestination(
-                output_uri_prefix=gcs_destination_prefix
-            )
-
-        gapic_batch_prediction_job.input_config = input_config
-        gapic_batch_prediction_job.output_config = output_config
-
-        # Optional Fields
-
-        if model_parameters:
-            gapic_batch_prediction_job.model_parameters = model_parameters
-
-        # Custom Compute
-        if machine_type:
-
-            machine_spec = types.MachineSpec()
-            machine_spec.machine_type = machine_type
-            machine_spec.accelerator_type = accelerator_type
-            machine_spec.accelerator_count = accelerator_count
-
-            dedicated_resources = types.BatchDedicatedResources()
-
-            dedicated_resources.machine_spec = machine_spec
-            dedicated_resources.starting_replica_count = starting_replica_count
-            dedicated_resources.max_replica_count = max_replica_count
-
-            gapic_batch_prediction_job.dedicated_resources = dedicated_resources
-
-            gapic_batch_prediction_job.manual_batch_tuning_parameters = None
-
-        # User Labels
-        gapic_batch_prediction_job.labels = labels
-
-        # TODO (b/174502675): Support Explainability on Batch Prediction
-        # TODO (b/174502913): Support private feature once released
-
-        # Build BatchPredictionJob request and Job client in same region as Model
-        create_batch_prediction_job_request = types.CreateBatchPredictionJobRequest(
-            parent=f"projects/{self.project}/locations/{self.location}",
-            batch_prediction_job=gapic_batch_prediction_job,
-        )
-
-        self._job_client = initializer.global_config.create_client(
-            client_class=job_service.JobServiceClient,
-            credentials=credentials,
-            location_override=self.location,
-        )
-
-        # Make blocking call to service
-        gapic_batch_prediction_job = self._job_client.create_batch_prediction_job(
-            request=create_batch_prediction_job_request
-        )
-
-        # Get name of new BatchPredictionJob and return SDK representation
-        new_batch_prediction_job_name = gapic_batch_prediction_job.name
-
-        return jobs.BatchPredictionJob(
-            batch_prediction_job_name=new_batch_prediction_job_name
+        return jobs.BatchPredictionJob.create(
+            job_display_name=job_display_name,
+            model_name=self.resource_name,
+            instances_format=instances_format,
+            predictions_format=predictions_format,
+            gcs_source=gcs_source,
+            bigquery_source=bigquery_source,
+            gcs_destination_prefix=gcs_destination_prefix,
+            bigquery_destination_prefix=bigquery_destination_prefix,
+            model_parameters=model_parameters,
+            machine_type=machine_type,
+            accelerator_type=accelerator_type,
+            accelerator_count=accelerator_count,
+            starting_replica_count=starting_replica_count,
+            max_replica_count=max_replica_count,
+            labels=labels,
+            project=self.project,
+            location=self.location,
+            credentials=credentials or self.credentials,
+            sync=sync,
         )
 
     @base.optional_sync()
