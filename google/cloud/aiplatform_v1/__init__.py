@@ -216,7 +216,6 @@ __all__ = (
     "DataItem",
     "DataLabelingJob",
     "Dataset",
-    "DatasetServiceClient",
     "DedicatedResources",
     "DeleteBatchPredictionJobRequest",
     "DeleteCustomJobRequest",
@@ -315,6 +314,7 @@ __all__ = (
     "PredictRequest",
     "PredictResponse",
     "PredictSchemata",
+    "PredictionServiceClient",
     "PythonPackageSpec",
     "ResourcesConsumed",
     "SampleConfig",
@@ -341,5 +341,5 @@ __all__ = (
     "UploadModelResponse",
     "UserActionReference",
     "WorkerPoolSpec",
-    "PredictionServiceClient",
+    "DatasetServiceClient",
 )
