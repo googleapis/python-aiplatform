@@ -903,9 +903,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 request.endpoint = endpoint
             if deployed_model is not None:
                 request.deployed_model = deployed_model
-
-            if traffic_split:
-                request.traffic_split.update(traffic_split)
+            if traffic_split is not None:
+                request.traffic_split = traffic_split
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -1022,9 +1021,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 request.endpoint = endpoint
             if deployed_model_id is not None:
                 request.deployed_model_id = deployed_model_id
-
-            if traffic_split:
-                request.traffic_split.update(traffic_split)
+            if traffic_split is not None:
+                request.traffic_split = traffic_split
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
