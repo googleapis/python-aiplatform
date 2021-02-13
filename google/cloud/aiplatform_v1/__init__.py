@@ -216,7 +216,6 @@ __all__ = (
     "DataItem",
     "DataLabelingJob",
     "Dataset",
-    "DatasetServiceClient",
     "DedicatedResources",
     "DeleteBatchPredictionJobRequest",
     "DeleteCustomJobRequest",
@@ -268,6 +267,7 @@ __all__ = (
     "ImportDataRequest",
     "ImportDataResponse",
     "InputDataConfig",
+    "JobServiceClient",
     "JobState",
     "ListAnnotationsRequest",
     "ListAnnotationsResponse",
@@ -341,5 +341,5 @@ __all__ = (
     "UploadModelResponse",
     "UserActionReference",
     "WorkerPoolSpec",
-    "JobServiceClient",
+    "DatasetServiceClient",
 )
