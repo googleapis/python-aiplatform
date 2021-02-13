@@ -268,7 +268,6 @@ __all__ = (
     "ImportDataRequest",
     "ImportDataResponse",
     "InputDataConfig",
-    "JobServiceClient",
     "JobState",
     "ListAnnotationsRequest",
     "ListAnnotationsResponse",
@@ -315,6 +314,7 @@ __all__ = (
     "PredictRequest",
     "PredictResponse",
     "PredictSchemata",
+    "PredictionServiceClient",
     "PythonPackageSpec",
     "ResourcesConsumed",
     "SampleConfig",
@@ -341,5 +341,5 @@ __all__ = (
     "UploadModelResponse",
     "UserActionReference",
     "WorkerPoolSpec",
-    "PredictionServiceClient",
+    "JobServiceClient",
 )
