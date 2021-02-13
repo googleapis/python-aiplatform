@@ -232,7 +232,6 @@ __all__ = (
     "DataItem",
     "DataLabelingJob",
     "Dataset",
-    "DatasetServiceClient",
     "DedicatedResources",
     "DeleteBatchPredictionJobRequest",
     "DeleteCustomJobRequest",
@@ -352,6 +351,7 @@ __all__ = (
     "SearchMigratableResourcesResponse",
     "SmoothGradConfig",
     "SpecialistPool",
+    "SpecialistPoolServiceClient",
     "StudySpec",
     "TimestampSplit",
     "TrainingConfig",
@@ -371,5 +371,5 @@ __all__ = (
     "UserActionReference",
     "WorkerPoolSpec",
     "XraiAttribution",
-    "SpecialistPoolServiceClient",
+    "DatasetServiceClient",
 )
