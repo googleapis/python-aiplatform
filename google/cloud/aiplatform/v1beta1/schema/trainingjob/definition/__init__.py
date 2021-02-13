@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_forecasting import (
     AutoMlForecasting,
 )

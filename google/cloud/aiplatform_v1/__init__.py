@@ -307,7 +307,6 @@ __all__ = (
     "ModelContainerSpec",
     "ModelEvaluation",
     "ModelEvaluationSlice",
-    "ModelServiceClient",
     "PipelineServiceClient",
     "PipelineState",
     "Port",
@@ -323,6 +322,7 @@ __all__ = (
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
     "SpecialistPool",
+    "SpecialistPoolServiceClient",
     "StudySpec",
     "TimestampSplit",
     "TrainingConfig",
@@ -341,5 +341,5 @@ __all__ = (
     "UploadModelResponse",
     "UserActionReference",
     "WorkerPoolSpec",
-    "SpecialistPoolServiceClient",
+    "ModelServiceClient",
 )
