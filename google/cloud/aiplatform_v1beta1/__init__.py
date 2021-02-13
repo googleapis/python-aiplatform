@@ -294,6 +294,7 @@ __all__ = (
     "ImportDataResponse",
     "InputDataConfig",
     "IntegratedGradientsAttribution",
+    "JobServiceClient",
     "JobState",
     "ListAnnotationsRequest",
     "ListAnnotationsResponse",
@@ -351,7 +352,6 @@ __all__ = (
     "SearchMigratableResourcesResponse",
     "SmoothGradConfig",
     "SpecialistPool",
-    "SpecialistPoolServiceClient",
     "StudySpec",
     "TimestampSplit",
     "TrainingConfig",
@@ -371,5 +371,5 @@ __all__ = (
     "UserActionReference",
     "WorkerPoolSpec",
     "XraiAttribution",
-    "JobServiceClient",
+    "SpecialistPoolServiceClient",
 )
