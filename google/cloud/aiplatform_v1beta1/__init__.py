@@ -294,6 +294,7 @@ __all__ = (
     "ImportDataResponse",
     "InputDataConfig",
     "IntegratedGradientsAttribution",
+    "JobServiceClient",
     "JobState",
     "ListAnnotationsRequest",
     "ListAnnotationsResponse",
@@ -327,7 +328,6 @@ __all__ = (
     "MigratableResource",
     "MigrateResourceRequest",
     "MigrateResourceResponse",
-    "MigrationServiceClient",
     "Model",
     "ModelContainerSpec",
     "ModelEvaluation",
@@ -371,5 +371,5 @@ __all__ = (
     "UserActionReference",
     "WorkerPoolSpec",
     "XraiAttribution",
-    "JobServiceClient",
+    "MigrationServiceClient",
 )
