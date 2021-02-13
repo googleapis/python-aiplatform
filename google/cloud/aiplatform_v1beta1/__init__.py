@@ -232,6 +232,7 @@ __all__ = (
     "DataItem",
     "DataLabelingJob",
     "Dataset",
+    "DatasetServiceClient",
     "DedicatedResources",
     "DeleteBatchPredictionJobRequest",
     "DeleteCustomJobRequest",
@@ -251,7 +252,6 @@ __all__ = (
     "DiskSpec",
     "EncryptionSpec",
     "Endpoint",
-    "EndpointServiceClient",
     "EnvVar",
     "ExplainRequest",
     "ExplainResponse",
@@ -371,5 +371,5 @@ __all__ = (
     "UserActionReference",
     "WorkerPoolSpec",
     "XraiAttribution",
-    "DatasetServiceClient",
+    "EndpointServiceClient",
 )
