@@ -268,7 +268,6 @@ __all__ = (
     "ImportDataRequest",
     "ImportDataResponse",
     "InputDataConfig",
-    "JobServiceClient",
     "JobState",
     "ListAnnotationsRequest",
     "ListAnnotationsResponse",
@@ -307,6 +306,7 @@ __all__ = (
     "ModelContainerSpec",
     "ModelEvaluation",
     "ModelEvaluationSlice",
+    "ModelServiceClient",
     "PipelineServiceClient",
     "PipelineState",
     "Port",
@@ -341,5 +341,5 @@ __all__ = (
     "UploadModelResponse",
     "UserActionReference",
     "WorkerPoolSpec",
-    "ModelServiceClient",
+    "JobServiceClient",
 )
