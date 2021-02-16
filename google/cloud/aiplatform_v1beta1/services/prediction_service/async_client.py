@@ -77,6 +77,7 @@ class PredictionServiceAsyncClient:
         PredictionServiceClient.parse_common_location_path
     )
 
+    from_service_account_info = PredictionServiceClient.from_service_account_info
     from_service_account_file = PredictionServiceClient.from_service_account_file
     from_service_account_json = from_service_account_file
 
@@ -155,17 +156,18 @@ class PredictionServiceAsyncClient:
         r"""Perform an online prediction.
 
         Args:
-            request (:class:`~.prediction_service.PredictRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.PredictRequest`):
                 The request object. Request message for
                 ``PredictionService.Predict``.
             endpoint (:class:`str`):
                 Required. The name of the Endpoint requested to serve
                 the prediction. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+
                 This corresponds to the ``endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            instances (:class:`Sequence[~.struct.Value]`):
+            instances (:class:`Sequence[google.protobuf.struct_pb2.Value]`):
                 Required. The instances that are the input to the
                 prediction call. A DeployedModel may have an upper limit
                 on the number of instances it supports per request, and
@@ -177,16 +179,18 @@ class PredictionServiceAsyncClient:
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``instance_schema_uri``.
+
                 This corresponds to the ``instances`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            parameters (:class:`~.struct.Value`):
+            parameters (:class:`google.protobuf.struct_pb2.Value`):
                 The parameters that govern the prediction. The schema of
                 the parameters may be specified via Endpoint's
                 DeployedModels' [Model's
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
+
                 This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -198,7 +202,7 @@ class PredictionServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.prediction_service.PredictResponse:
+            google.cloud.aiplatform_v1beta1.types.PredictResponse:
                 Response message for
                 ``PredictionService.Predict``.
 
@@ -272,17 +276,18 @@ class PredictionServiceAsyncClient:
         explanation_spec.
 
         Args:
-            request (:class:`~.prediction_service.ExplainRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.ExplainRequest`):
                 The request object. Request message for
                 ``PredictionService.Explain``.
             endpoint (:class:`str`):
                 Required. The name of the Endpoint requested to serve
                 the explanation. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+
                 This corresponds to the ``endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            instances (:class:`Sequence[~.struct.Value]`):
+            instances (:class:`Sequence[google.protobuf.struct_pb2.Value]`):
                 Required. The instances that are the input to the
                 explanation call. A DeployedModel may have an upper
                 limit on the number of instances it supports per
@@ -294,16 +299,18 @@ class PredictionServiceAsyncClient:
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``instance_schema_uri``.
+
                 This corresponds to the ``instances`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            parameters (:class:`~.struct.Value`):
+            parameters (:class:`google.protobuf.struct_pb2.Value`):
                 The parameters that govern the prediction. The schema of
                 the parameters may be specified via Endpoint's
                 DeployedModels' [Model's
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
+
                 This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -311,6 +318,7 @@ class PredictionServiceAsyncClient:
                 If specified, this ExplainRequest will be served by the
                 chosen DeployedModel, overriding
                 ``Endpoint.traffic_split``.
+
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -322,7 +330,7 @@ class PredictionServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.prediction_service.ExplainResponse:
+            google.cloud.aiplatform_v1beta1.types.ExplainResponse:
                 Response message for
                 ``PredictionService.Explain``.
 

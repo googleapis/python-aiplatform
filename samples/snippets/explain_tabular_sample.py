@@ -15,7 +15,7 @@
 # [START aiplatform_explain_tabular_sample]
 from typing import Dict
 
-from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
@@ -31,7 +31,7 @@ def explain_tabular_sample(
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
+    client = aiplatform_v1beta1.PredictionServiceClient(client_options=client_options)
     # The format of each instance should conform to the deployed model's prediction input schema.
     instance = json_format.ParseDict(instance_dict, Value())
     instances = [instance]

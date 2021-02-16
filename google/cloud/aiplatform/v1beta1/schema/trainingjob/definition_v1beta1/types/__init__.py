@@ -66,7 +66,6 @@ from .automl_video_object_tracking import (
     AutoMlVideoObjectTrackingInputs,
 )
 
-
 __all__ = (
     "ExportEvaluatedDataItemsConfig",
     "AutoMlForecasting",

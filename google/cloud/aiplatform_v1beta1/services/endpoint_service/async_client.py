@@ -31,6 +31,7 @@ from google.oauth2 import service_account  # type: ignore
 from google.api_core import operation as ga_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import pagers
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
@@ -86,6 +87,7 @@ class EndpointServiceAsyncClient:
         EndpointServiceClient.parse_common_location_path
     )
 
+    from_service_account_info = EndpointServiceClient.from_service_account_info
     from_service_account_file = EndpointServiceClient.from_service_account_file
     from_service_account_json = from_service_account_file
 
@@ -163,17 +165,18 @@ class EndpointServiceAsyncClient:
         r"""Creates an Endpoint.
 
         Args:
-            request (:class:`~.endpoint_service.CreateEndpointRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.CreateEndpointRequest`):
                 The request object. Request message for
                 ``EndpointService.CreateEndpoint``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the Endpoint in. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            endpoint (:class:`~.gca_endpoint.Endpoint`):
+            endpoint (:class:`google.cloud.aiplatform_v1beta1.types.Endpoint`):
                 Required. The Endpoint to create.
                 This corresponds to the ``endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -186,13 +189,11 @@ class EndpointServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.gca_endpoint.Endpoint`: Models are deployed
-                into it, and afterwards Endpoint is called to obtain
-                predictions and explanations.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.Endpoint` Models are deployed into it, and afterwards Endpoint is called to obtain
+                   predictions and explanations.
 
         """
         # Create or coerce a protobuf request object.
@@ -255,12 +256,13 @@ class EndpointServiceAsyncClient:
         r"""Gets an Endpoint.
 
         Args:
-            request (:class:`~.endpoint_service.GetEndpointRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.GetEndpointRequest`):
                 The request object. Request message for
                 ``EndpointService.GetEndpoint``
             name (:class:`str`):
                 Required. The name of the Endpoint resource. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -272,7 +274,7 @@ class EndpointServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.endpoint.Endpoint:
+            google.cloud.aiplatform_v1beta1.types.Endpoint:
                 Models are deployed into it, and
                 afterwards Endpoint is called to obtain
                 predictions and explanations.
@@ -328,13 +330,14 @@ class EndpointServiceAsyncClient:
         r"""Lists Endpoints in a Location.
 
         Args:
-            request (:class:`~.endpoint_service.ListEndpointsRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.ListEndpointsRequest`):
                 The request object. Request message for
                 ``EndpointService.ListEndpoints``.
             parent (:class:`str`):
                 Required. The resource name of the Location from which
                 to list the Endpoints. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -346,7 +349,7 @@ class EndpointServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListEndpointsAsyncPager:
+            google.cloud.aiplatform_v1beta1.services.endpoint_service.pagers.ListEndpointsAsyncPager:
                 Response message for
                 ``EndpointService.ListEndpoints``.
 
@@ -411,18 +414,20 @@ class EndpointServiceAsyncClient:
         r"""Updates an Endpoint.
 
         Args:
-            request (:class:`~.endpoint_service.UpdateEndpointRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateEndpointRequest`):
                 The request object. Request message for
                 ``EndpointService.UpdateEndpoint``.
-            endpoint (:class:`~.gca_endpoint.Endpoint`):
+            endpoint (:class:`google.cloud.aiplatform_v1beta1.types.Endpoint`):
                 Required. The Endpoint which replaces
                 the resource on the server.
+
                 This corresponds to the ``endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            update_mask (:class:`~.field_mask.FieldMask`):
-                Required. The update mask applies to
-                the resource.
+            update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
+                Required. The update mask applies to the resource. See
+                `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -434,7 +439,7 @@ class EndpointServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.gca_endpoint.Endpoint:
+            google.cloud.aiplatform_v1beta1.types.Endpoint:
                 Models are deployed into it, and
                 afterwards Endpoint is called to obtain
                 predictions and explanations.
@@ -494,13 +499,14 @@ class EndpointServiceAsyncClient:
         r"""Deletes an Endpoint.
 
         Args:
-            request (:class:`~.endpoint_service.DeleteEndpointRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteEndpointRequest`):
                 The request object. Request message for
                 ``EndpointService.DeleteEndpoint``.
             name (:class:`str`):
                 Required. The name of the Endpoint resource to be
                 deleted. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -512,24 +518,22 @@ class EndpointServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.empty.Empty`: A generic empty message that
-                you can re-use to avoid defining duplicated empty
-                messages in your APIs. A typical example is to use it as
-                the request or the response type of an API method. For
-                instance:
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
 
-                ::
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
 
-                    service Foo {
-                      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-                    }
+                      }
 
-                The JSON representation for ``Empty`` is empty JSON
-                object ``{}``.
+                   The JSON representation for Empty is empty JSON
+                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -595,27 +599,29 @@ class EndpointServiceAsyncClient:
         DeployedModel within it.
 
         Args:
-            request (:class:`~.endpoint_service.DeployModelRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.DeployModelRequest`):
                 The request object. Request message for
                 ``EndpointService.DeployModel``.
             endpoint (:class:`str`):
                 Required. The name of the Endpoint resource into which
                 to deploy a Model. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+
                 This corresponds to the ``endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            deployed_model (:class:`~.gca_endpoint.DeployedModel`):
+            deployed_model (:class:`google.cloud.aiplatform_v1beta1.types.DeployedModel`):
                 Required. The DeployedModel to be created within the
                 Endpoint. Note that
                 ``Endpoint.traffic_split``
                 must be updated for the DeployedModel to start receiving
                 traffic, either as part of this call, or via
                 ``EndpointService.UpdateEndpoint``.
+
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (:class:`Sequence[~.endpoint_service.DeployModelRequest.TrafficSplitEntry]`):
+            traffic_split (:class:`Sequence[google.cloud.aiplatform_v1beta1.types.DeployModelRequest.TrafficSplitEntry]`):
                 A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that
                 DeployedModel.
@@ -631,6 +637,7 @@ class EndpointServiceAsyncClient:
                 If this field is empty, then the Endpoint's
                 ``traffic_split``
                 is not updated.
+
                 This corresponds to the ``traffic_split`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -642,11 +649,11 @@ class EndpointServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.endpoint_service.DeployModelResponse`:
+                :class:`google.cloud.aiplatform_v1beta1.types.DeployModelResponse`
                 Response message for
                 ``EndpointService.DeployModel``.
 
@@ -720,23 +727,25 @@ class EndpointServiceAsyncClient:
         using.
 
         Args:
-            request (:class:`~.endpoint_service.UndeployModelRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.UndeployModelRequest`):
                 The request object. Request message for
                 ``EndpointService.UndeployModel``.
             endpoint (:class:`str`):
                 Required. The name of the Endpoint resource from which
                 to undeploy a Model. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+
                 This corresponds to the ``endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             deployed_model_id (:class:`str`):
                 Required. The ID of the DeployedModel
                 to be undeployed from the Endpoint.
+
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (:class:`Sequence[~.endpoint_service.UndeployModelRequest.TrafficSplitEntry]`):
+            traffic_split (:class:`Sequence[google.cloud.aiplatform_v1beta1.types.UndeployModelRequest.TrafficSplitEntry]`):
                 If this field is provided, then the Endpoint's
                 ``traffic_split``
                 will be overwritten with it. If last DeployedModel is
@@ -746,6 +755,7 @@ class EndpointServiceAsyncClient:
                 undeployed only if it doesn't have any traffic assigned
                 to it when this method executes, or if this field
                 unassigns any traffic to it.
+
                 This corresponds to the ``traffic_split`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -757,11 +767,11 @@ class EndpointServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.endpoint_service.UndeployModelResponse`:
+                :class:`google.cloud.aiplatform_v1beta1.types.UndeployModelResponse`
                 Response message for
                 ``EndpointService.UndeployModel``.
 

@@ -25,7 +25,7 @@ class SearchMigratableResourcesPager:
     """A pager for iterating through ``search_migratable_resources`` requests.
 
     This class thinly wraps an initial
-    :class:`~.migration_service.SearchMigratableResourcesResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``migratable_resources`` field.
 
@@ -34,7 +34,7 @@ class SearchMigratableResourcesPager:
     through the ``migratable_resources`` field on the
     corresponding responses.
 
-    All the usual :class:`~.migration_service.SearchMigratableResourcesResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -52,9 +52,9 @@ class SearchMigratableResourcesPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.migration_service.SearchMigratableResourcesRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest):
                 The initial request object.
-            response (:class:`~.migration_service.SearchMigratableResourcesResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -87,7 +87,7 @@ class SearchMigratableResourcesAsyncPager:
     """A pager for iterating through ``search_migratable_resources`` requests.
 
     This class thinly wraps an initial
-    :class:`~.migration_service.SearchMigratableResourcesResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``migratable_resources`` field.
 
@@ -96,7 +96,7 @@ class SearchMigratableResourcesAsyncPager:
     through the ``migratable_resources`` field on the
     corresponding responses.
 
-    All the usual :class:`~.migration_service.SearchMigratableResourcesResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -116,9 +116,9 @@ class SearchMigratableResourcesAsyncPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.migration_service.SearchMigratableResourcesRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest):
                 The initial request object.
-            response (:class:`~.migration_service.SearchMigratableResourcesResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.

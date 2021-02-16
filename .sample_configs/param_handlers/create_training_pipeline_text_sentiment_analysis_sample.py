@@ -18,7 +18,7 @@ def make_parent(parent: str) -> str:
 
 def make_training_pipeline(display_name: str, dataset_id: str, model_display_name: str) -> google.cloud.aiplatform_v1alpha1.types.training_pipeline.TrainingPipeline:
     # Use sentiment_max of 4
-    training_task_inputs_dict = {"sentiment_max": 4}
+    training_task_inputs_dict = {"sentiment_max": 10}
     training_task_inputs = to_protobuf_value(training_task_inputs_dict)
     
     training_pipeline = {
