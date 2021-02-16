@@ -36,26 +36,26 @@ test_training_input_v1beta1 = definition.AutoMlImageClassificationInputs(
 
 
 # Test the v1 enhanced types.
-def test_exposes_to_value_method():
+def test_exposes_to_value_method_v1():
     assert hasattr(test_training_input, "to_value")
 
 
-def test_exposes_from_value_method():
+def test_exposes_from_value_method_v1():
     assert hasattr(test_training_input, "from_value")
 
 
-def test_exposes_from_map_method():
+def test_exposes_from_map_method_v1():
     assert hasattr(test_training_input, "from_map")
 
 
 # Test the v1beta1 enhanced types.
-def test_exposes_to_value_method():
+def test_exposes_to_value_method_v1beta1():
     assert hasattr(test_training_input_v1beta1, "to_value")
 
 
-def test_exposes_from_value_method():
+def test_exposes_from_value_method_v1beta1():
     assert hasattr(test_training_input_v1beta1, "from_value")
 
 
-def test_exposes_from_map_method():
+def test_exposes_from_map_method_v1beta1():
     assert hasattr(test_training_input_v1beta1, "from_map")
