@@ -13,16 +13,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-from google.cloud.aiplatform.datasets.dataset import Dataset
-from google.cloud.aiplatform.datasets.tabular_dataset import TabularDataset
-from google.cloud.aiplatform.datasets.image_dataset import ImageDataset
-from google.cloud.aiplatform.datasets.text_dataset import TextDataset
+
+from google.cloud.aiplatform.v1beta1.schema import predict
+from google.cloud.aiplatform.v1beta1.schema import trainingjob
+
 
 __all__ = (
-    "Dataset",
-    "TabularDataset",
-    "ImageDataset",
-    "TextDataset",
+    "predict",
+    "trainingjob",
 )

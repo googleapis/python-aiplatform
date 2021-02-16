@@ -70,6 +70,10 @@ _TEST_DEPLOYED_MODELS = [
     gca_endpoint.DeployedModel(id=_TEST_ID_2, display_name=_TEST_DISPLAY_NAME_2),
 ]
 
+_TEST_MACHINE_TYPE = "n1-standard-32"
+_TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
+_TEST_ACCELERATOR_COUNT = 2
+
 
 @pytest.fixture
 def get_endpoint_mock():
@@ -493,25 +497,39 @@ class TestEndpoint:
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_deploy_with_machine_type(self, deploy_model_mock, sync):
+    def test_deploy_with_dedicated_resources(self, deploy_model_mock, sync):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
-        test_endpoint.deploy(model=test_model, machine_type="n1-standard-32", sync=sync)
+        test_endpoint.deploy(
+            model=test_model,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            sync=sync,
+        )
+
         if not sync:
             test_endpoint.wait()
-        machine_spec = machine_resources.MachineSpec(machine_type="n1-standard-32")
-        dedicated_resources = machine_resources.DedicatedResources(
-            machine_spec=machine_spec, min_replica_count=1, max_replica_count=1,
+
+        expected_machine_spec = machine_resources.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
         )
-        deployed_model = gca_endpoint.DeployedModel(
-            dedicated_resources=dedicated_resources,
+        expected_dedicated_resources = machine_resources.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        expected_deployed_model = gca_endpoint.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
             model=test_model.resource_name,
             display_name=None,
         )
         deploy_model_mock.assert_called_once_with(
             endpoint=test_endpoint.resource_name,
-            deployed_model=deployed_model,
+            deployed_model=expected_deployed_model,
             traffic_split={"0": 100},
             metadata=(),
         )

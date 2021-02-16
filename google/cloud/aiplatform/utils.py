@@ -27,6 +27,9 @@ from google.api_core import gapic_v1
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform_v1beta1.types import (
+    accelerator_type as gca_accelerator_type,
+)
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
     client as dataset_client,
 )
@@ -237,6 +240,25 @@ def validate_region(region: str) -> bool:
             f"Unsupported region for AI Platform, select from {constants.SUPPORTED_REGIONS}"
         )
 
+    return True
+
+
+def validate_accelerator_type(accelerator_type: str) -> bool:
+    """Validates user provided accelerator_type string for training and prediction
+
+    Args:
+        accelerator_type (str):
+            Represents a hardware accelerator type.
+    Returns:
+        bool: True if valid accelerator_type
+    Raises:
+        ValueError if accelerator type is invalid.
+    """
+    if accelerator_type not in gca_accelerator_type.AcceleratorType._member_names_:
+        raise ValueError(
+            f"Given accelerator_type `{accelerator_type}` invalid. "
+            f"Choose one of {gca_accelerator_type.AcceleratorType._member_names_}"
+        )
     return True
 
 
