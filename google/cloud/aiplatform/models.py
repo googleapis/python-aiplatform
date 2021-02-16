@@ -920,19 +920,6 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
         return self
 
-    @base.optional_sync()
-    def _delete(self, sync: bool = True) -> None:
-        """Private helper method to delete this endpoint via GAPIC.
-
-        Args:
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-        """
-        lro = self.api_client.delete_endpoint(name=self.resource_name)
-        lro.result()
-
     def delete(self, force: bool = False, sync: bool = True) -> None:
         """Deletes this AI Platform Endpoint resource. If force is set to True,
         all models on this Endpoint will be undeployed prior to deletion.
