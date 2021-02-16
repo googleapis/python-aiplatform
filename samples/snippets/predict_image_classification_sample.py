@@ -24,7 +24,7 @@ def predict_image_classification_sample(
     endpoint_id: str,
     filename: str,
     location: str = "us-central1",
-    api_endpoint: str = "us-central1-prediction-aiplatform.googleapis.com",
+    api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
     # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
