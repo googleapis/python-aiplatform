@@ -15,7 +15,7 @@ from __future__ import absolute_import
 
 from google.cloud.aiplatform.v1.schema.trainingjob import definition
 from google.cloud.aiplatform.v1beta1.schema.trainingjob import (
-    definition as definition_v1beta1
+    definition as definition_v1beta1,
 )
 
 ModelType = definition.AutoMlImageClassificationInputs().ModelType
