@@ -73,6 +73,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "trainingPipelines"
     _getter_method = "get_training_pipeline"
+    _delete_method = "delete_training_pipeline"
 
     def __init__(
         self,
@@ -561,6 +562,22 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 " TrainingPipeline using TrainingPipeline.run. "
             )
         return False
+
+    def cancel(self) -> None:
+        """Starts asynchronous cancellation on the TrainingJob. The server
+        makes a best effort to cancel the job, but success is not guaranteed.
+        On successful cancellation, the TrainingJob is not deleted; instead it
+        becomes a job with state set to `CANCELLED`.
+
+        Raises:
+            RuntimeError if this TrainingJob has not started running.
+        """
+        if not self._has_run:
+            raise RuntimeError(
+                "This TrainingJob has not been launched, use the `run()` method "
+                "to start. `cancel()` can only be called on a job that is running."
+            )
+        self.api_client.cancel_training_pipeline(name=self.resource_name)
 
 
 def _timestamped_gcs_dir(root_gcs_path: str, dir_name_prefix: str) -> str:

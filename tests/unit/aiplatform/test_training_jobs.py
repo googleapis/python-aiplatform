@@ -358,6 +358,14 @@ def mock_pipeline_service_create():
 
 
 @pytest.fixture
+def mock_pipeline_service_cancel():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "cancel_training_pipeline"
+    ) as mock_cancel_training_pipeline:
+        yield mock_cancel_training_pipeline
+
+
+@pytest.fixture
 def mock_pipeline_service_create_with_no_model_to_upload():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
@@ -1434,6 +1442,50 @@ class TestCustomTrainingJob:
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
             )
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_python_package_to_gcs",
+        "mock_model_service_get",
+    )
+    def test_cancel_training_job(self, mock_pipeline_service_cancel):
+        aiplatform.init(
+            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run()
+        job.cancel()
+
+        mock_pipeline_service_cancel.assert_called_once_with(
+            name=_TEST_PIPELINE_RESOURCE_NAME
+        )
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_python_package_to_gcs",
+        "mock_model_service_get",
+    )
+    def test_cancel_training_job_without_running(self, mock_pipeline_service_cancel):
+        aiplatform.init(
+            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        with pytest.raises(RuntimeError) as e:
+            job.cancel()
+
+        assert e.match(regexp=r"TrainingJob has not been launched")
 
 
 class TestCustomContainerTrainingJob:
