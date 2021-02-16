@@ -2532,7 +2532,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 produce an AI Platform Model.
         """
 
-        training_task_definition = schema.training_job.definition.tabular_task
+        training_task_definition = schema.training_job.definition.automl_tabular
 
         training_task_inputs_dict = {
             # required inputs
@@ -2861,7 +2861,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
         # Retrieve the objective-specific training task schema based on prediction_type
         training_task_definition = getattr(
-            schema.training_job.definition, f"automl_image_{self._prediction_type}_task"
+            schema.training_job.definition, f"automl_image_{self._prediction_type}"
         )
 
         training_task_inputs_dict = {
