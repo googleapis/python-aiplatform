@@ -124,18 +124,15 @@ deploy_model_sample:
   skip:
   - explanation_spec
 explain_custom_image_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
 explain_custom_tabular_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
   comments:
     approximation_error: This is the approximation error.
     attributions: Feature attributions.
 explain_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
   comments:
@@ -144,7 +141,6 @@ explain_sample:
 explain_tabular_sample:
   gapic_module_child: aiplatform_v1beta1
   namespace: null
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 2
   resource_name: endpoint
   comments:
@@ -258,14 +254,12 @@ list_models_sample: {}
 list_specialist_pools_sample: {}
 list_training_pipelines_sample: {}
 predict_custom_trained_model_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
   comments:
     predictions: The predictions are a google.protobuf.Value representation of the
       model's predictions.
 predict_image_classification_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
   schema_types:
@@ -275,11 +269,9 @@ predict_image_classification_sample:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/classification.yaml
       for the format of the predictions.
 predict_image_file_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
 predict_image_object_detection_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
   schema_types:
@@ -289,14 +281,12 @@ predict_image_object_detection_sample:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/image_object_detection.yaml
       for the format of the predictions.
 predict_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
   region_tags:
   - aiplatform_predict_sample
   - aiplatform_predict_tutorial
 predict_tabular_classification_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
   comments:
@@ -304,14 +294,12 @@ predict_tabular_classification_sample:
       for the format of the predictions.
 predict_tabular_forecasting_sample: {}
 predict_tabular_regression_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
   comments:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/tables_regression.yaml
       for the format of the predictions.
 predict_text_classification_single_label_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
   schema_types:
@@ -320,7 +308,6 @@ predict_text_classification_single_label_sample:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_classification.yaml
       for the format of the predictions.
 predict_text_entity_extraction_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
   schema_types:
@@ -329,7 +316,6 @@ predict_text_entity_extraction_sample:
     predictions: See gs://google-cloud-aiplatform/schema/predict/prediction/text_extraction.yaml
       for the format of the predictions.
 predict_text_sentiment_analysis_sample:
-  api_endpoint: us-central1-prediction-aiplatform.googleapis.com
   max_depth: 1
   resource_name: endpoint
   schema_types:
