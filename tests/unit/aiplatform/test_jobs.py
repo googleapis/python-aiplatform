@@ -115,7 +115,7 @@ _TEST_MAX_REPLICA_COUNT = 12
 
 _TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
 
-_TEST_EXPLANATION_METADATA = aiplatform.ExplanationMetadata(
+_TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
     inputs={
         "features": {
             "input_tensor_name": "dense_input",
@@ -126,7 +126,7 @@ _TEST_EXPLANATION_METADATA = aiplatform.ExplanationMetadata(
     },
     outputs={"medv": {"output_tensor_name": "dense_2"}},
 )
-_TEST_EXPLANATION_PARAMETERS = aiplatform.ExplanationParameters(
+_TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
     {"sampled_shapley_attribution": {"path_count": 10}}
 )
 
@@ -435,6 +435,7 @@ class TestBatchPredictionJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
             max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            generate_explanation=True,
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,
@@ -556,21 +557,3 @@ class TestBatchPredictionJob:
             )
 
         assert e.match(regexp=r"accepted prediction format")
-
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_wrong_explanation_spec(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-
-        # Pass explanation_metadata but not explanations_parameters, both are required
-        with pytest.raises(ValueError) as e:
-            jobs.BatchPredictionJob.create(
-                model_name=_TEST_MODEL_NAME,
-                job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-                gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-                bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
-                explanation_metadata=_TEST_EXPLANATION_METADATA,
-            )
-
-        assert e.match(
-            regexp=r"Both `explanation_metadata` and `explanation_parameters` should"
-        )

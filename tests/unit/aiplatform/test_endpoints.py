@@ -89,9 +89,9 @@ _TEST_ATTRIBUTIONS = [
     )
 ]
 
-_TEST_EXPLANATION_METADATA = aiplatform.ExplanationMetadata(
+_TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
     inputs={
-        "features": aiplatform.ExplanationMetadata.InputMetadata(
+        "features": aiplatform.explain.ExplanationMetadata.InputMetadata(
             {
                 "input_tensor_name": "dense_input",
                 "encoding": "BAG_OF_FEATURES",
@@ -101,12 +101,12 @@ _TEST_EXPLANATION_METADATA = aiplatform.ExplanationMetadata(
         )
     },
     outputs={
-        "medv": aiplatform.ExplanationMetadata.OutputMetadata(
+        "medv": aiplatform.explain.ExplanationMetadata.OutputMetadata(
             {"output_tensor_name": "dense_2"}
         )
     },
 )
-_TEST_EXPLANATION_PARAMETERS = aiplatform.ExplanationParameters(
+_TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
     {"sampled_shapley_attribution": {"path_count": 10}}
 )
 

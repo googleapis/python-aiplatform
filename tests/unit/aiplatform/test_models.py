@@ -90,7 +90,7 @@ _TEST_PREDICTION_SCHEMA_URI = "gs://test/schema/predictions.yaml"
 
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
-_TEST_EXPLANATION_METADATA = aiplatform.ExplanationMetadata(
+_TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
     inputs={
         "features": {
             "input_tensor_name": "dense_input",
@@ -101,7 +101,7 @@ _TEST_EXPLANATION_METADATA = aiplatform.ExplanationMetadata(
     },
     outputs={"medv": {"output_tensor_name": "dense_2"}},
 )
-_TEST_EXPLANATION_PARAMETERS = aiplatform.ExplanationParameters(
+_TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
     {"sampled_shapley_attribution": {"path_count": 10}}
 )
 
@@ -770,6 +770,7 @@ class TestModel:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
             max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            generate_explanation=True,
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,

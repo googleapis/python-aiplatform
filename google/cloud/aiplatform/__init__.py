@@ -16,6 +16,7 @@
 #
 
 from google.cloud.aiplatform import gapic
+from google.cloud.aiplatform import explain
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.datasets import (
@@ -35,11 +36,6 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLImageTrainingJob,
 )
 
-from google.cloud.aiplatform_v1beta1.types.explanation_metadata import (
-    ExplanationMetadata,
-)
-from google.cloud.aiplatform_v1beta1.types.explanation import ExplanationParameters
-
 """
 Usage:
 from google.cloud import aiplatform
@@ -50,6 +46,7 @@ init = initializer.global_config.init
 
 __all__ = (
     gapic,
+    explain,
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
     "BatchPredictionJob",
@@ -58,8 +55,6 @@ __all__ = (
     "CustomPythonPackageTrainingJob",
     "Dataset",
     "Endpoint",
-    "ExplanationMetadata",
-    "ExplanationParameters",
     "ImageDataset",
     "Model",
     "TabularDataset",

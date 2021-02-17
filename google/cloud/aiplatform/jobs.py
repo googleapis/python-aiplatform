@@ -214,8 +214,11 @@ class BatchPredictionJob(_Job):
         accelerator_count: Optional[int] = None,
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
-        explanation_metadata: Optional["aiplatform.ExplanationMetadata"] = None,
-        explanation_parameters: Optional["aiplatform.ExplanationParameters"] = None,
+        generate_explanation: Optional[bool] = None,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
         labels: Optional[dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -316,21 +319,33 @@ class BatchPredictionJob(_Job):
                 The maximum number of machine replicas the batch operation may
                 be scaled to. Only used if `machine_type` is set.
                 Default is 10.
-            explanation_metadata (aiplatform.ExplanationMetadata):
-                Optional. Metadata describing the Model's input and output for explanation.
-                This will cause the batch prediction output to include explanations
-                based on the `prediction_format`:
+            generate_explanation (bool):
+                Optional. Generate explanation along with the batch prediction
+                results. This will cause the batch prediction output to include
+                explanations based on the `prediction_format`:
                     - `bigquery`: output includes a column named `explanation`. The value
                         is a struct that conforms to the [aiplatform.gapic.Explanation] object.
                     - `jsonl`: The JSON objects on each line include an additional entry
                         keyed `explanation`. The value of the entry is a JSON object that
                         conforms to the [aiplatform.gapic.Explanation] object.
                     - `csv`: Generating explanations for CSV format is not supported.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.ExplanationParameters):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+                Optional. Explanation metadata configuration for this BatchPredictionJob.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_metadata`.
+                All fields of `explanation_metadata` are optional in the request. If
+                a field of the `explanation_metadata` object is not populated, the
+                corresponding field of the `Model.explanation_metadata` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_parameters`.
+                All fields of `explanation_parameters` are optional in the request. If
+                a field of the `explanation_parameters` object is not populated, the
+                corresponding field of the `Model.explanation_parameters` object is inherited.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             labels (Optional[dict]):
                 The labels with user-defined metadata to organize your
@@ -388,12 +403,6 @@ class BatchPredictionJob(_Job):
             raise ValueError(
                 f"{predictions_format} is not an accepted prediction format "
                 f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
-            )
-
-        if bool(explanation_metadata) != bool(explanation_parameters):
-            raise ValueError(
-                "Both `explanation_metadata` and `explanation_parameters` should "
-                "be specified or None."
             )
 
         gapic_batch_prediction_job = gca_bp_job.BatchPredictionJob()
@@ -461,8 +470,10 @@ class BatchPredictionJob(_Job):
         gapic_batch_prediction_job.labels = labels
 
         # Explanations
-        if explanation_metadata:
-            gapic_batch_prediction_job.generate_explanation = True
+        if generate_explanation:
+            gapic_batch_prediction_job.generate_explanation = generate_explanation
+
+        if explanation_metadata or explanation_parameters:
             gapic_batch_prediction_job.explanation_spec = gca_explanation.ExplanationSpec(
                 metadata=explanation_metadata, parameters=explanation_parameters
             )

@@ -418,8 +418,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
-        explanation_metadata: Optional["aiplatform.ExplanationMetadata"] = None,
-        explanation_parameters: Optional["aiplatform.ExplanationParameters"] = None,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
@@ -472,12 +474,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
-            explanation_metadata (aiplatform.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -526,8 +528,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
-        explanation_metadata: Optional["aiplatform.ExplanationMetadata"] = None,
-        explanation_parameters: Optional["aiplatform.ExplanationParameters"] = None,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
@@ -580,12 +584,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
-            explanation_metadata (aiplatform.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -635,8 +639,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
-        explanation_metadata: Optional["aiplatform.ExplanationMetadata"] = None,
-        explanation_parameters: Optional["aiplatform.ExplanationParameters"] = None,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ):
         """Helper method to deploy model to endpoint.
@@ -687,12 +693,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
-            explanation_metadata (aiplatform.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -1116,8 +1122,10 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
         prediction_schema_uri: Optional[str] = None,
-        explanation_metadata: Optional["aiplatform.ExplanationMetadata"] = None,
-        explanation_parameters: Optional["aiplatform.ExplanationParameters"] = None,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1224,12 +1232,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
-            explanation_metadata (aiplatform.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             project: Optional[str]=None,
@@ -1316,8 +1324,10 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
-        explanation_metadata: Optional["aiplatform.ExplanationMetadata"] = None,
-        explanation_parameters: Optional["aiplatform.ExplanationParameters"] = None,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> Endpoint:
@@ -1370,12 +1380,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
-            explanation_metadata (aiplatform.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -1428,8 +1438,10 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
-        explanation_metadata: Optional["aiplatform.ExplanationMetadata"] = None,
-        explanation_parameters: Optional["aiplatform.ExplanationParameters"] = None,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
     ) -> Endpoint:
@@ -1482,12 +1494,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
-            explanation_metadata (aiplatform.ExplanationMetadata):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.ExplanationParameters):
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -1548,8 +1560,11 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         accelerator_count: Optional[int] = None,
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
-        explanation_metadata: Optional["aiplatform.ExplanationMetadata"] = None,
-        explanation_parameters: Optional["aiplatform.ExplanationParameters"] = None,
+        generate_explanation: Optional[bool] = None,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
         labels: Optional[dict] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         sync: bool = True,
@@ -1655,21 +1670,33 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 The maximum number of machine replicas the batch operation may
                 be scaled to. Only used if `machine_type` is set.
                 Default is 10.
-            explanation_metadata (aiplatform.ExplanationMetadata):
-                Optional. Metadata describing the Model's input and output for explanation.
-                This will cause the batch prediction output to include explanations
-                based on the `prediction_format`:
+            generate_explanation (bool):
+                Optional. Generate explanation along with the batch prediction
+                results. This will cause the batch prediction output to include
+                explanations based on the `prediction_format`:
                     - `bigquery`: output includes a column named `explanation`. The value
                         is a struct that conforms to the [aiplatform.gapic.Explanation] object.
                     - `jsonl`: The JSON objects on each line include an additional entry
                         keyed `explanation`. The value of the entry is a JSON object that
                         conforms to the [aiplatform.gapic.Explanation] object.
                     - `csv`: Generating explanations for CSV format is not supported.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.ExplanationParameters):
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+                Optional. Explanation metadata configuration for this BatchPredictionJob.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_metadata`.
+                All fields of `explanation_metadata` are optional in the request. If
+                a field of the `explanation_metadata` object is not populated, the 
+                corresponding field of the `Model.explanation_metadata` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_parameters`.
+                All fields of `explanation_parameters` are optional in the request. If
+                a field of the `explanation_parameters` object is not populated, the
+                corresponding field of the `Model.explanation_parameters` object is inherited.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             labels: Optional[dict] = None
                 Optional. The labels with user-defined metadata to organize your
@@ -1703,6 +1730,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             accelerator_count=accelerator_count,
             starting_replica_count=starting_replica_count,
             max_replica_count=max_replica_count,
+            generate_explanation=generate_explanation,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             labels=labels,
