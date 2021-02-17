@@ -1675,7 +1675,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
 
                 This value overrides the value of `Model.explanation_metadata`.
                 All fields of `explanation_metadata` are optional in the request. If
-                a field of the `explanation_metadata` object is not populated, the 
+                a field of the `explanation_metadata` object is not populated, the
                 corresponding field of the `Model.explanation_metadata` object is inherited.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
