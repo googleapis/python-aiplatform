@@ -130,9 +130,40 @@ _TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
     {"sampled_shapley_attribution": {"path_count": 10}}
 )
 
+_TEST_JOB_GET_METHOD_NAME = "get_fake_job"
+_TEST_JOB_CANCEL_METHOD_NAME = "cancel_fake_job"
+_TEST_JOB_DELETE_METHOD_NAME = "delete_fake_job"
+_TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/fakeJobs/{_TEST_ID}"
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
+
+
+@pytest.fixture
+def fake_job_getter_mock():
+    with patch.object(
+        job_service_client.JobServiceClient, _TEST_JOB_GET_METHOD_NAME, create=True
+    ) as fake_job_getter_mock:
+        fake_job_getter_mock.return_value = {}
+        yield fake_job_getter_mock
+
+
+@pytest.fixture
+def fake_job_cancel_mock():
+    with patch.object(
+        job_service_client.JobServiceClient, _TEST_JOB_CANCEL_METHOD_NAME, create=True
+    ) as fake_job_cancel_mock:
+        yield fake_job_cancel_mock
+
+
 class TestJob:
+    class FakeJob(jobs._Job):
+        _job_type = "fake-job"
+        _resource_noun = "fakeJobs"
+        _getter_method = _TEST_JOB_GET_METHOD_NAME
+        _cancel_method = _TEST_JOB_CANCEL_METHOD_NAME
+        _delete_method = _TEST_JOB_DELETE_METHOD_NAME
+        resource_name = _TEST_JOB_RESOURCE_NAME
+
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
@@ -149,6 +180,14 @@ class TestJob:
         """
         with pytest.raises(TypeError):
             jobs._Job(job_name=_TEST_BATCH_PREDICTION_JOB_NAME)
+
+    @pytest.mark.usefixtures("fake_job_getter_mock")
+    def test_cancel_mock_job(self, fake_job_cancel_mock):
+        """Create a fake `_Job` child class, and ensure the high-level cancel method works"""
+        fake_job = self.FakeJob(job_name=_TEST_JOB_RESOURCE_NAME)
+        fake_job.cancel()
+
+        fake_job_cancel_mock.assert_called_once_with(name=_TEST_JOB_RESOURCE_NAME)
 
 
 @pytest.fixture

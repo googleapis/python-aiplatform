@@ -72,6 +72,8 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
 
     _getter_method (str): The name of JobServiceClient getter method for specific
     Job type, i.e. 'get_custom_job' for CustomJob
+    _cancel_method (str): The name of the specific JobServiceClient cancel method
+    _delete_method (str): The name of the specific JobServiceClient delete method
     """
 
     client_class = job_service_client.JobServiceClient
@@ -125,6 +127,12 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
         """Job type."""
         pass
 
+    @property
+    @abc.abstractmethod
+    def _cancel_method(cls) -> str:
+        """Name of cancellation method for cancelling the specific job type."""
+        pass
+
     def _dashboard_uri(self) -> Optional[str]:
         """Helper method to compose the dashboard uri where job can be viewed."""
         fields = utils.extract_fields_from_resource_name(self.resource_name)
@@ -157,11 +165,18 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
         if self.state in _JOB_ERROR_STATES:
             raise RuntimeError("Job failed with:\n%s" % self._gca_resource.error)
 
+    def cancel(self) -> None:
+        """Cancels this Job. Success of cancellation is not guaranteed. Use `Job.state`
+        property to verify if cancellation was successful."""
+        getattr(self.api_client, self._cancel_method)(name=self.resource_name)
+
 
 class BatchPredictionJob(_Job):
 
     _resource_noun = "batchPredictionJobs"
     _getter_method = "get_batch_prediction_job"
+    _cancel_method = "cancel_batch_prediction_job"
+    _delete_method = "delete_batch_prediction_job"
     _job_type = "batch-predictions"
 
     def __init__(
@@ -643,6 +658,8 @@ class BatchPredictionJob(_Job):
 class CustomJob(_Job):
     _resource_noun = "customJobs"
     _getter_method = "get_custom_job"
+    _cancel_method = "cancel_custom_job"
+    _delete_method = "delete_custom_job"
     _job_type = "training"
     pass
 
@@ -650,6 +667,8 @@ class CustomJob(_Job):
 class DataLabelingJob(_Job):
     _resource_noun = "dataLabelingJobs"
     _getter_method = "get_data_labeling_job"
+    _cancel_method = "cancel_data_labeling_job"
+    _delete_method = "delete_data_labeling_job"
     _job_type = "labeling-tasks"
     pass
 
@@ -657,4 +676,6 @@ class DataLabelingJob(_Job):
 class HyperparameterTuningJob(_Job):
     _resource_noun = "hyperparameterTuningJobs"
     _getter_method = "get_hyperparameter_tuning_job"
+    _cancel_method = "cancel_hyperparameter_tuning_job"
+    _delete_method = "delete_hyperparameter_tuning_job"
     pass
