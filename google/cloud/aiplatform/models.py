@@ -750,8 +750,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 display_name=deployed_model_display_name,
             )
 
-        # Override explanation_spec if both required fields are provided
-        if explanation_metadata and explanation_parameters:
+        # Service will throw error if both metadata and parameters are not provided
+        if explanation_metadata or explanation_parameters:
             explanation_spec = gca_endpoint.explanation.ExplanationSpec()
             explanation_spec.metadata = explanation_metadata
             explanation_spec.parameters = explanation_parameters
@@ -1549,7 +1549,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         accelerator_count: Optional[int] = None,
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
-        generate_explanation: Optional[bool] = None,
+        generate_explanation: Optional[bool] = False,
         explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
         explanation_parameters: Optional[
             "aiplatform.explain.ExplanationParameters"

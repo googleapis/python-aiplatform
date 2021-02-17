@@ -229,7 +229,7 @@ class BatchPredictionJob(_Job):
         accelerator_count: Optional[int] = None,
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
-        generate_explanation: Optional[bool] = None,
+        generate_explanation: Optional[bool] = False,
         explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
         explanation_parameters: Optional[
             "aiplatform.explain.ExplanationParameters"
