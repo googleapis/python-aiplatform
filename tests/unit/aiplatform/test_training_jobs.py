@@ -171,7 +171,7 @@ def get_training_job_tabular_mock():
             name=_TEST_PIPELINE_RESOURCE_NAME,
             state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
             model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
-            training_task_definition=schema.training_job.definition.tabular_task,
+            training_task_definition=schema.training_job.definition.automl_tabular,
         )
 
         yield get_training_job_tabular_mock

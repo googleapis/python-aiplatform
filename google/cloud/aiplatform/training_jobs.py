@@ -1259,6 +1259,19 @@ class _CustomTrainingJob(_TrainingJob):
     ) -> "CustomTrainingJob":
         """Get CustomTrainingJob for the given resource_name.
 
+        Args:
+            resource_name (str):
+                Required. A fully-qualified resource name or ID.
+            project (str):
+                Optional project to retrieve dataset from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional location to retrieve dataset from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+
         Raises:
             ValueError: If the retrieved training job's training task definition
                 doesn't match the custom training task definition.
@@ -1270,7 +1283,9 @@ class _CustomTrainingJob(_TrainingJob):
         # Create job with dummy parameters
         # These parameters won't be used as user can not run the job again.
         # If they try, an exception will be raised.
-        self = cls._empty_constructor()
+        self = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
 
         self._gca_resource = self._get_gca_resource(resource_name=resource_name)
 
