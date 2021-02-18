@@ -57,6 +57,9 @@ from google.cloud.aiplatform.v1beta1.schema.trainingjob import (
 from google.cloud import storage
 from google.rpc import code_pb2
 
+from google.protobuf import json_format
+from google.protobuf import struct_pb2
+
 import proto
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -1864,7 +1867,9 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         model = self._run_job(
             training_task_definition=schema.training_job.definition.custom_task,
-            training_task_inputs=training_task_inputs,
+            training_task_inputs=json_format.ParseDict(
+                training_task_inputs, struct_pb2.Value()
+            ),
             dataset=dataset,
             annotation_schema_uri=annotation_schema_uri,
             training_fraction_split=training_fraction_split,
@@ -2312,7 +2317,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         model = self._run_job(
             training_task_definition=schema.training_job.definition.custom_task,
-            training_task_inputs=training_task_inputs,
+            training_task_inputs=json_format.ParseDict(
+                training_task_inputs, struct_pb2.Value()
+            ),
             dataset=dataset,
             annotation_schema_uri=annotation_schema_uri,
             training_fraction_split=training_fraction_split,
@@ -3432,7 +3439,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
         model = self._run_job(
             training_task_definition=schema.training_job.definition.custom_task,
-            training_task_inputs=training_task_inputs,
+            training_task_inputs=json_format.ParseDict(
+                training_task_inputs, struct_pb2.Value()
+            ),
             dataset=dataset,
             annotation_schema_uri=annotation_schema_uri,
             training_fraction_split=training_fraction_split,
@@ -3515,22 +3524,20 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 schema.training_job.definition.automl_text_classification
             )
 
-            if self._multi_label is None:
+            if multi_label is None:
                 raise ValueError(
                     "The multi_label parameter must be provided for a prediction_type of 'classification'"
                 )
 
             training_task_inputs_dict = training_job_inputs.AutoMlTextClassificationInputs(
                 multi_label=multi_label
-            ).to_value()
-        elif self._prediction_type == "extraction":
+            )
+        elif prediction_type == "extraction":
             training_task_definition = (
                 schema.training_job.definition.automl_text_extraction
             )
 
-            training_task_inputs_dict = (
-                training_job_inputs.AutoMlTextExtractionInputs().to_value()
-            )
+            training_task_inputs_dict = training_job_inputs.AutoMlTextExtractionInputs()
         elif prediction_type == "sentiment":
             training_task_definition = (
                 schema.training_job.definition.automl_text_sentiment
@@ -3543,7 +3550,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
             training_task_inputs_dict = training_job_inputs.AutoMlTextSentimentInputs(
                 sentiment_max=sentiment_max
-            ).to_value()
+            )
         else:
             raise ValueError(
                 "Prediction type must be one of 'classification', 'extraction', or 'sentiment'."

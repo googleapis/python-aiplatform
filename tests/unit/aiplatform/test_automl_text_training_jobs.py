@@ -156,8 +156,13 @@ class TestAutoMLTextTrainingJob:
         )
 
         assert job._display_name == _TEST_DISPLAY_NAME
-        assert job._prediction_type == _TEST_PREDICTION_TYPE_CLASSIFICATION
-        assert job._multi_label is _TEST_CLASSIFICATION_MULTILABEL
+        assert (
+            job._training_task_definition
+            == schema.training_job.definition.automl_text_classification
+        )
+        assert job._training_task_inputs_dict == AutoMlTextClassificationInputs(
+            multi_label=_TEST_CLASSIFICATION_MULTILABEL
+        )
 
     def test_init_all_parameters_extraction(self, mock_model):
         """Ensure all private members are set correctly at initalization"""
@@ -170,7 +175,11 @@ class TestAutoMLTextTrainingJob:
         )
 
         assert job._display_name == _TEST_DISPLAY_NAME
-        assert job._prediction_type == _TEST_PREDICTION_TYPE_EXTRACTION
+        assert (
+            job._training_task_definition
+            == schema.training_job.definition.automl_text_extraction
+        )
+        assert job._training_task_inputs_dict == AutoMlTextExtractionInputs()
 
     def test_init_all_parameters_sentiment(self, mock_model):
         """Ensure all private members are set correctly at initalization"""
@@ -184,8 +193,13 @@ class TestAutoMLTextTrainingJob:
         )
 
         assert job._display_name == _TEST_DISPLAY_NAME
-        assert job._prediction_type == _TEST_PREDICTION_TYPE_SENTIMENT
-        assert job._sentiment_max == _TEST_SENTIMENT_MAX
+        assert (
+            job._training_task_definition
+            == schema.training_job.definition.automl_text_sentiment
+        )
+        assert job._training_task_inputs_dict == AutoMlTextSentimentInputs(
+            sentiment_max=_TEST_SENTIMENT_MAX
+        )
 
     def test_init_wrong_parameters(self, mock_model):
         """Ensure correct exceptions are raised when initializing with invalid args"""
