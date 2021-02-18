@@ -454,19 +454,50 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         return self._gca_resource.state
 
-    def get_model(self) -> Optional[models.Model]:
+    def get_model(self, sync=True) -> models.Model:
         """AI Platform Model produced by this training, if one was produced.
 
-        Returns:
-            model: AI Platform Model produced by this training or None if a model was
-                not produced by this training.
-        """
-        self._assert_has_run()
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
 
+        Returns:
+            model: AI Platform Model produced by this training
+
+        Raises:
+            RuntimeError if training failed or if a model was not produced by this training.
+        """
+
+        self._assert_has_run()
         if not self._gca_resource.model_to_upload:
             raise RuntimeError(self._model_upload_fail_string)
 
-        return self._get_model()
+        return self._force_get_model(sync=sync)
+
+    @base.optional_sync()
+    def _force_get_model(self, sync: bool = True) -> models.Model:
+        """AI Platform Model produced by this training, if one was produced.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            model: AI Platform Model produced by this training
+
+        Raises:
+            RuntimeError if training failed or if a model was not produced by this training.
+        """
+        model = self._get_model()
+
+        if model is None:
+            raise RuntimeError(self._model_upload_fail_string)
+
+        return model
 
     def _get_model(self) -> Optional[models.Model]:
         """Helper method to get and instantiate the Model to Upload.
@@ -1217,6 +1248,58 @@ class _CustomTrainingJob(_TrainingJob):
                 "staging_bucket should be set in TrainingJob constructor or "
                 "set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
+
+    @classmethod
+    def get(
+        cls,
+        resource_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "CustomTrainingJob":
+        """Get CustomTrainingJob for the given resource_name.
+
+        Args:
+            resource_name (str):
+                Required. A fully-qualified resource name or ID.
+            project (str):
+                Optional project to retrieve dataset from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional location to retrieve dataset from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+
+        Raises:
+            ValueError: If the retrieved training job's training task definition
+                doesn't match the custom training task definition.
+
+        Returns:
+            An AI Platform Training Job
+        """
+
+        # Create job with dummy parameters
+        # These parameters won't be used as user can not run the job again.
+        # If they try, an exception will be raised.
+        self = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+
+        self._gca_resource = self._get_gca_resource(resource_name=resource_name)
+
+        if (
+            self._gca_resource.training_task_definition
+            != schema.training_job.definition.custom_task
+        ):
+            raise ValueError(
+                f"The retrieved job's training task definition "
+                f"is {self._gca_resource.training_task_definition}, "
+                f"which is not compatible with CustomTrainingJob."
+            )
+
+        return self
 
     def _prepare_and_validate_run(
         self,
