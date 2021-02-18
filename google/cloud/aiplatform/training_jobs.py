@@ -50,10 +50,8 @@ from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
 
-from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1 import (
-    AutoMlTextClassificationInputs,
-    AutoMlTextExtractionInputs,
-    AutoMlTextSentimentInputs,
+from google.cloud.aiplatform.v1beta1.schema.trainingjob import (
+    definition_v1beta1 as training_job_inputs,
 )
 
 from google.cloud import storage
@@ -268,7 +266,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
     def _run_job(
         self,
         training_task_definition: str,
-        training_task_inputs: proto.Message,
+        training_task_inputs: Union[Dict, proto.Message],
         dataset: Optional[datasets.Dataset],
         training_fraction_split: float,
         validation_fraction_split: float,
@@ -296,7 +294,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 point to a location where the user only has a
                 read access.
             training_task_inputs (proto.Message):
-                Required. The training task's input that correspons to the training_task_definition parameter.
+                Required. The training task's input that corresponds to the training_task_definition parameter. 
             dataset (datasets.Dataset):
                 The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
@@ -3508,15 +3506,11 @@ class AutoMLTextTrainingJob(_TrainingJob):
             location=location,
             credentials=credentials,
         )
-        self._prediction_type = prediction_type
-        self._multi_label = multi_label
-        self._sentiment_max = sentiment_max
-        self._model_hint = model_hint
 
         training_task_definition: str
         training_task_inputs_dict: proto.Message
 
-        if self._prediction_type == "classification":
+        if prediction_type == "classification":
             training_task_definition = (
                 schema.training_job.definition.automl_text_classification
             )
@@ -3526,27 +3520,29 @@ class AutoMLTextTrainingJob(_TrainingJob):
                     "The multi_label parameter must be provided for a prediction_type of 'classification'"
                 )
 
-            training_task_inputs_dict = AutoMlTextClassificationInputs(
-                multi_label=self._multi_label
+            training_task_inputs_dict = training_job_inputs.AutoMlTextClassificationInputs(
+                multi_label=multi_label
             ).to_value()
         elif self._prediction_type == "extraction":
             training_task_definition = (
                 schema.training_job.definition.automl_text_extraction
             )
 
-            training_task_inputs_dict = AutoMlTextExtractionInputs().to_value()
-        elif self._prediction_type == "sentiment":
+            training_task_inputs_dict = (
+                training_job_inputs.AutoMlTextExtractionInputs().to_value()
+            )
+        elif prediction_type == "sentiment":
             training_task_definition = (
                 schema.training_job.definition.automl_text_sentiment
             )
 
-            if self._sentiment_max is None:
+            if sentiment_max is None:
                 raise ValueError(
                     "Tge sentiment_max parameter must be provided for a prediction_type of 'sentiment'"
                 )
 
-            training_task_inputs_dict = AutoMlTextSentimentInputs(
-                sentiment_max=self._sentiment_max
+            training_task_inputs_dict = training_job_inputs.AutoMlTextSentimentInputs(
+                sentiment_max=sentiment_max
             ).to_value()
         else:
             raise ValueError(
