@@ -123,7 +123,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "CustomTrainingJob":
         """Get CustomTrainingJob for the given resource_name.
-        
+
         Args:
             resource_name (str):
                 Required. A fully-qualified resource name or ID.
