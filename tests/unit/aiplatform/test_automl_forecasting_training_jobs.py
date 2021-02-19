@@ -255,7 +255,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.forecasting_task,
+            training_task_definition=schema.training_job.definition.automl_forecasting,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -335,7 +335,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.forecasting_task,
+            training_task_definition=schema.training_job.definition.automl_forecasting,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,

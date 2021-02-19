@@ -3066,7 +3066,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 produce an AI Platform Model.
         """
 
-        training_task_definition = schema.training_job.definition.forecasting_task
+        training_task_definition = schema.training_job.definition.automl_forecasting
 
         training_task_inputs_dict = {
             # required inputs
