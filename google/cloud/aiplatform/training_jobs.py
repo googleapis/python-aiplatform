@@ -297,7 +297,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 point to a location where the user only has a
                 read access.
             training_task_inputs (proto.Message):
-                Required. The training task's input that corresponds to the training_task_definition parameter. 
+                Required. The training task's input that corresponds to the training_task_definition parameter.
             dataset (datasets.Dataset):
                 The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
@@ -3583,7 +3583,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
             model_display_name (str):
-                Optional. The display name of the managed AI Platform Model. 
+                Optional. The display name of the managed AI Platform Model.
                 The name can be up to 128 characters long and can consist
                 of any UTF-8 characters.
 
