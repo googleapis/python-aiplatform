@@ -3461,9 +3461,8 @@ class AutoMLTextTrainingJob(_TrainingJob):
         self,
         display_name: str,
         prediction_type: str,
-        multi_label: Optional[bool] = None,
-        sentiment_max: Optional[str] = None,
-        model_hint: str = "default",
+        multi_label: bool = False,
+        sentiment_max: int = 10,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -3524,11 +3523,6 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 schema.training_job.definition.automl_text_classification
             )
 
-            if multi_label is None:
-                raise ValueError(
-                    "The multi_label parameter must be provided for a prediction_type of 'classification'"
-                )
-
             training_task_inputs_dict = training_job_inputs.AutoMlTextClassificationInputs(
                 multi_label=multi_label
             )
@@ -3542,11 +3536,6 @@ class AutoMLTextTrainingJob(_TrainingJob):
             training_task_definition = (
                 schema.training_job.definition.automl_text_sentiment
             )
-
-            if sentiment_max is None:
-                raise ValueError(
-                    "Tge sentiment_max parameter must be provided for a prediction_type of 'sentiment'"
-                )
 
             training_task_inputs_dict = training_job_inputs.AutoMlTextSentimentInputs(
                 sentiment_max=sentiment_max
@@ -3594,8 +3583,8 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
             model_display_name (str):
-                Optional. If the script produces a managed AI Platform Model. The display name of
-                the Model. The name can be up to 128 characters long and can be consist
+                Optional. The display name of the managed AI Platform Model. 
+                The name can be up to 128 characters long and can consist
                 of any UTF-8 characters.
 
                 If not provided upon creation, the job's display_name is used.
@@ -3604,8 +3593,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained AI Platform Model resource.
 
         Raises:
             RuntimeError if Training job has already been run or is waiting to run.

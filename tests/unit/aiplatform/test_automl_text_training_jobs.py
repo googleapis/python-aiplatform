@@ -201,25 +201,6 @@ class TestAutoMLTextTrainingJob:
             sentiment_max=_TEST_SENTIMENT_MAX
         )
 
-    def test_init_wrong_parameters(self, mock_model):
-        """Ensure correct exceptions are raised when initializing with invalid args"""
-
-        aiplatform.init(project=_TEST_PROJECT)
-
-        with pytest.raises(ValueError):
-            training_jobs.AutoMLTextTrainingJob(
-                display_name=_TEST_DISPLAY_NAME,
-                prediction_type=_TEST_PREDICTION_TYPE_CLASSIFICATION,
-                multi_label=None,
-            )
-
-        with pytest.raises(ValueError):
-            training_jobs.AutoMLTextTrainingJob(
-                display_name=_TEST_DISPLAY_NAME,
-                prediction_type=_TEST_PREDICTION_TYPE_SENTIMENT,
-                sentiment_max=None,
-            )
-
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_classification(
         self,
