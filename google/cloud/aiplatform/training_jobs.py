@@ -109,6 +109,65 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
     @property
     @abc.abstractmethod
+    def _supported_training_schemas(self) -> List[str]:
+        """List of supported schemas for this training job"""
+
+        pass
+
+    @classmethod
+    def get(
+        cls,
+        resource_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "CustomTrainingJob":
+        """Get CustomTrainingJob for the given resource_name.
+        
+        Args:
+            resource_name (str):
+                Required. A fully-qualified resource name or ID.
+            project (str):
+                Optional project to retrieve dataset from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional location to retrieve dataset from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+
+        Raises:
+            ValueError: If the retrieved training job's training task definition
+                doesn't match the custom training task definition.
+
+        Returns:
+            An AI Platform Training Job
+        """
+
+        # Create job with dummy parameters
+        # These parameters won't be used as user can not run the job again.
+        # If they try, an exception will be raised.
+        self = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+
+        self._gca_resource = self._get_gca_resource(resource_name=resource_name)
+
+        if (
+            self._gca_resource.training_task_definition
+            not in self._supported_training_schemas
+        ):
+            raise ValueError(
+                f"The retrieved job's training task definition "
+                f"is {self._gca_resource.training_task_definition}, "
+                f"which is not compatible with this type of job."
+            )
+
+        return self
+
+    @property
+    @abc.abstractmethod
     def _model_upload_fail_string(self) -> str:
         """Helper property for model upload failure."""
 
@@ -1248,57 +1307,9 @@ class _CustomTrainingJob(_TrainingJob):
                 "set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
 
-    @classmethod
-    def get(
-        cls,
-        resource_name: str,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "CustomTrainingJob":
-        """Get CustomTrainingJob for the given resource_name.
-
-        Args:
-            resource_name (str):
-                Required. A fully-qualified resource name or ID.
-            project (str):
-                Optional project to retrieve dataset from. If not set, project
-                set in aiplatform.init will be used.
-            location (str):
-                Optional location to retrieve dataset from. If not set, location
-                set in aiplatform.init will be used.
-            credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
-                credentials set in aiplatform.init.
-
-        Raises:
-            ValueError: If the retrieved training job's training task definition
-                doesn't match the custom training task definition.
-
-        Returns:
-            An AI Platform Training Job
-        """
-
-        # Create job with dummy parameters
-        # These parameters won't be used as user can not run the job again.
-        # If they try, an exception will be raised.
-        self = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
-        )
-
-        self._gca_resource = self._get_gca_resource(resource_name=resource_name)
-
-        if (
-            self._gca_resource.training_task_definition
-            != schema.training_job.definition.custom_task
-        ):
-            raise ValueError(
-                f"The retrieved job's training task definition "
-                f"is {self._gca_resource.training_task_definition}, "
-                f"which is not compatible with CustomTrainingJob."
-            )
-
-        return self
+    @property
+    def _supported_training_schemas(self) -> List[str]:
+        return [schema.training_job.definition.custom_task]
 
     def _prepare_and_validate_run(
         self,
@@ -2538,6 +2549,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             sync=sync,
         )
 
+    @property
+    def _supported_training_schemas(self) -> List[str]:
+        return [schema.training_job.definition.automl_tabular]
+
     @base.optional_sync()
     def _run(
         self,
@@ -2877,6 +2892,13 @@ class AutoMLImageTrainingJob(_TrainingJob):
             disable_early_stopping=disable_early_stopping,
             sync=sync,
         )
+
+    @property
+    def _supported_training_schemas(self) -> List[str]:
+        return [
+            schema.training_job.definition.automl_image_classification,
+            schema.training_job.definition.automl_image_object_detection,
+        ]
 
     @base.optional_sync()
     def _run(
