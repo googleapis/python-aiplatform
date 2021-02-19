@@ -32,6 +32,7 @@ from google.cloud.aiplatform.training_jobs import (
     CustomContainerTrainingJob,
     CustomPythonPackageTrainingJob,
     AutoMLTabularTrainingJob,
+    AutoMLForecastingTrainingJob,
     AutoMLImageTrainingJob,
 )
 
@@ -47,6 +48,7 @@ __all__ = (
     gapic,
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
+    "AutoMLForecastingTrainingJob",
     "BatchPredictionJob",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
