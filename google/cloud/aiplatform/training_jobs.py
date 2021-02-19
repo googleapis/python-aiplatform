@@ -269,7 +269,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
     def _run_job(
         self,
         training_task_definition: str,
-        training_task_inputs: Union[Dict, proto.Message],
+        training_task_inputs: proto.Message,
         dataset: Optional[datasets.Dataset],
         training_fraction_split: float,
         validation_fraction_split: float,
