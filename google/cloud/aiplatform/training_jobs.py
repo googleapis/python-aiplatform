@@ -180,7 +180,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
 
-                Supported only for tabular Datasets.
+                Supported only for tabular and time series Datasets.
             gcs_destination_uri_prefix (str):
                 Optional. The Google Cloud Storage location.
 
@@ -224,9 +224,11 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 if (
                     dataset._gca_resource.metadata_schema_uri
                     != schema.dataset.metadata.tabular
+                    and dataset._gca_resource.metadata_schema_uri
+                    != schema.dataset.metadata.time_series
                 ):
                     raise ValueError(
-                        "A pre-defined split may only be used with a tabular Dataset"
+                        "A pre-defined split may only be used with a tabular or time series Dataset"
                     )
 
                 predefined_split = gca_training_pipeline.PredefinedSplit(
@@ -342,7 +344,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
 
-                Supported only for tabular Datasets.
+                Supported only for tabular and time series Datasets.
             model (~.model.Model):
                 Optional. Describes the Model that may be uploaded (via
                 [ModelService.UploadMode][]) by this TrainingPipeline. The
@@ -1722,7 +1724,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
 
-                Supported only for tabular Datasets.
+                Supported only for tabular and time series Datasets.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -1830,7 +1832,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
 
-                Supported only for tabular Datasets.
+                Supported only for tabular and time series Datasets.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2182,7 +2184,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
 
-                Supported only for tabular Datasets.
+                Supported only for tabular and time series Datasets.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2284,7 +2286,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
 
-                Supported only for tabular Datasets.
+                Supported only for tabular and time series Datasets.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2475,7 +2477,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
 
-                Supported only for tabular Datasets.
+                Supported only for tabular and time series Datasets.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -2590,7 +2592,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
 
-                Supported only for tabular Datasets.
+                Supported only for tabular and time series Datasets.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -2660,6 +2662,451 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
+            model=model,
+        )
+
+    @property
+    def _model_upload_fail_string(self) -> str:
+        """Helper property for model upload failure."""
+        return (
+            f"Training Pipeline {self.resource_name} is not configured to upload a "
+            "Model."
+        )
+
+
+class AutoMLForecastingTrainingJob(_TrainingJob):
+    def __init__(
+        self,
+        display_name: str,
+        optimization_objective: Optional[str] = None,
+        column_transformations: Optional[Union[Dict, List[Dict]]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Constructs a AutoML Forecasting Training Job.
+
+        Args:
+            display_name (str):
+                Required. The user-defined name of this TrainingPipeline.
+            optimization_objective (str):
+                Optional. Objective function the model is to be optimized towards.
+                The training process creates a Model that optimizes the value of the objective
+                function over the validation set. The supported optimization objectives:
+                "minimize-rmse" (default) - Minimize root-mean-squared error (RMSE).
+                "minimize-mae" - Minimize mean-absolute error (MAE).
+                "minimize-rmsle" - Minimize root-mean-squared log error (RMSLE).
+                "minimize-rmspe" - Minimize root-mean-squared percentage error (RMSPE).
+                "minimize-wape-mae" - Minimize the combination of weighted absolute percentage error (WAPE)
+                                      and mean-absolute-error (MAE).
+                "minimize-quantile-loss" - Minimize the quantile loss at the defined quantiles.
+            column_transformations (Optional[Union[Dict, List[Dict]]]):
+                Optional. Transformations to apply to the input columns (i.e. columns other
+                than the targetColumn). Each transformation may produce multiple
+                result values from the column's value, and all are used for training.
+                When creating transformation for BigQuery Struct column, the column
+                should be flattened using "." as the delimiter.
+                If an input column has no transformations on it, such a column is
+                ignored by the training, except for the targetColumn, which should have
+                no transformations defined on.
+            project (str):
+                Optional. Project to run training in. Overrides project set in aiplatform.init.
+            location (str):
+                Optional. Location to run training in. Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to run call training service. Overrides
+                credentials set in aiplatform.init.
+        """
+        super().__init__(
+            display_name=display_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        self._column_transformations = column_transformations
+        self._optimization_objective = optimization_objective
+
+    def run(
+        self,
+        dataset: datasets.Dataset,
+        target_column: str,
+        time_column: str,
+        time_series_identifier_column: str,
+        time_variant_past_only_columns: List[str],
+        time_variant_past_and_future_columns: List[str],
+        forecast_window_end: int,
+        period_unit: str,
+        period_count: int,
+        predefined_split_column_name: Optional[str] = None,
+        weight_column: Optional[str] = None,
+        static_columns: List[str] = [],
+        forecast_window_start: Optional[int] = None,
+        past_horizon: Optional[int] = None,
+        export_evaluated_data_items: bool = False,
+        export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
+        export_evaluated_data_items_override_destination: bool = False,
+        quantiles: Optional[List[float]] = None,
+        validation_options: Optional[str] = None,
+        budget_milli_node_hours: int = 1000,
+        model_display_name: Optional[str] = None,
+        sync: bool = True,
+    ) -> models.Model:
+        """Runs the training job and returns a model.
+
+        The training data splits are set by default: Roughly 80% will be used for training,
+        10% for validation, and 10% for test.
+
+        Args:
+            dataset (datasets.Dataset):
+                Required. The dataset within the same Project from which data will be used to train the Model. The
+                Dataset must use schema compatible with Model being trained,
+                and what is compatible should be described in the used
+                TrainingPipeline's [training_task_definition]
+                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+                For time series Datasets, all their data is exported to
+                training, to pick and choose from.
+            target_column (str):
+                Required. Name of the column that the Model is to predict values for.
+            time_column (str):
+                Required. Name of the column that identifies time order in the time series.
+            time_series_identifier_column (str):
+                Required. Name of the column that identifies the time series.
+            time_variant_past_only_columns (List[str]):
+                Required. Column names that should be used as time variant past only columns.
+                Each column contains information for the given entity (identified by the
+                [time_series_identifier_column]) that is known for the past but not the future
+                (e.g. population of a city in a given year, or weather on a given day).
+            time_variant_past_and_future_columns (List[str]):
+                Required. Column names that should be used as time variant past and future columns.
+                Each column contains information for the given entity (identified by the
+                [time_series_identifier_column]) that is known for the past and the future.
+            forecast_window_end: (int):
+                Required. The number of periods offset into the future as the end of the forecast window
+                (the window of future values to predict, relative to the present.), where each period is one unit
+                of granularity as defined by [period]. Inclusive.
+            period_unit (str):
+                Required. The time granularity unit of this time period. Accepted values are ``minute``,
+                ``hour``, ``day``, ``week``, ``month``, ``year``.
+            period_count (int):
+                Required. The number of units per period, e.g. 3 weeks or 2 months.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+            weight_column (str):
+                Optional. Name of the column that should be used as the weight column.
+                Higher values in this column give more importance to the row
+                during Model training. The column must have numeric values between 0 and
+                10000 inclusively, and 0 value means that the row is ignored.
+                If the weight column field is not set, then all rows are assumed to have
+                equal weight of 1.
+            static_columns (List[str]):
+                Optional. Column names that should be used as static columns.
+                Each column is constant within a time series.
+            forecast_window_start (int):
+                Optional. The number of periods offset into the future as the start of the forecast window
+                (the window of future values to predict, relative to the present.), where each period is one
+                unit of granularity as defined by [period]. Inclusive.
+            past_horizon (int):
+                Optional. The number of periods offset into the past to restrict past sequence, where each
+                period is one unit of granularity as defined by [period]. When not provided uses the
+                default value of 0 which means the model sets each series historical window to be 0 (also
+                known as "cold start"). Inclusive.
+            export_evaluated_data_items (bool):
+                Whether to export the test set predictions to a BigQuery table.
+                If False, then the export is not performed.
+            export_evaluated_data_items_bigquery_destination_uri (string):
+                Optional. URI of desired destination BigQuery table for exported test set predictions.
+
+                Expected format:
+                ``bq://<project_id>:<dataset_id>:<table>``
+                                
+                If not specified, then results are exported to the following auto-created BigQuery
+                table:
+                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
+
+                Applies only if [export_evaluated_data_items] is True.
+            export_evaluated_data_items_override_destination (bool):
+                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
+                if the table exists, for exported test set predictions. If False, and the
+                table exists, then the training job will fail.
+
+                Applies only if [export_evaluated_data_items] is True and
+                [export_evaluated_data_items_bigquery_destination_uri] is specified.
+            quantiles (List[float]):
+                Quantiles to use for the `minizmize-quantile-loss`
+                [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
+                this case.
+
+                Accepts up to 5 quantiles in the form of a double from 0 to 1, exclusive.
+                Each quantile must be unique.
+            validation_options (str):
+                Validation options for the data validation component. The available options are:
+                "fail-pipeline" - (default), will validate against the validation and fail the pipeline
+                                  if it fails.
+                "ignore-validation" - ignore the results of the validation and continue the pipeline
+            budget_milli_node_hours (int):
+                Optional. The train budget of creating this Model, expressed in milli node
+                hours i.e. 1,000 value in this field means 1 node hour.
+                The training cost of the model will not exceed this budget. The final
+                cost will be attempted to be close to the budget, though may end up
+                being (even) noticeably smaller - at the backend's discretion. This
+                especially may happen when further model training ceases to provide
+                any improvements.
+                If the budget is set to a value known to be insufficient to train a
+                Model for the given training set, the training won't be attempted and
+                will error.
+                The minimum value is 1000 and the maximum is 72000.
+            model_display_name (str):
+                Optional. If the script produces a managed AI Platform Model. The display name of
+                the Model. The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Returns:
+            model: The trained AI Platform Model resource or None if training did not
+                produce an AI Platform Model.
+
+        Raises:
+            RuntimeError if Training job has already been run or is waiting to run.
+        """
+
+        if self._is_waiting_to_run():
+            raise RuntimeError("AutoML Tabular Training is already scheduled to run.")
+
+        if self._has_run:
+            raise RuntimeError("AutoML Tabular Training has already run.")
+
+        return self._run(
+            dataset=dataset,
+            target_column=target_column,
+            time_column=time_column,
+            time_series_identifier_column=time_series_identifier_column,
+            time_variant_past_only_columns=time_variant_past_only_columns,
+            time_variant_past_and_future_columns=time_variant_past_and_future_columns,
+            forecast_window_end=forecast_window_end,
+            period_unit=period_unit,
+            period_count=period_count,
+            predefined_split_column_name=predefined_split_column_name,
+            weight_column=weight_column,
+            static_columns=static_columns,
+            forecast_window_start=forecast_window_start,
+            past_horizon=past_horizon,
+            budget_milli_node_hours=budget_milli_node_hours,
+            export_evaluated_data_items=export_evaluated_data_items,
+            export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
+            export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
+            quantiles=quantiles,
+            validation_options=validation_options,
+            model_display_name=model_display_name,
+            sync=sync,
+        )
+
+    @base.optional_sync()
+    def _run(
+        self,
+        dataset: datasets.Dataset,
+        target_column: str,
+        time_column: str,
+        time_series_identifier_column: str,
+        time_variant_past_only_columns: List[str],
+        time_variant_past_and_future_columns: List[str],
+        forecast_window_end: int,
+        period_unit: str,
+        period_count: int,
+        predefined_split_column_name: Optional[str] = None,
+        weight_column: Optional[str] = None,
+        static_columns: List[str] = [],
+        forecast_window_start: Optional[int] = None,
+        past_horizon: Optional[int] = None,
+        export_evaluated_data_items: bool = False,
+        export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
+        export_evaluated_data_items_override_destination: bool = False,
+        quantiles: Optional[List[float]] = None,
+        validation_options: Optional[str] = None,
+        budget_milli_node_hours: int = 1000,
+        model_display_name: Optional[str] = None,
+        sync: bool = True,
+    ) -> models.Model:
+        """Runs the training job and returns a model.
+
+        The training data splits are set by default: Roughly 80% will be used for training,
+        10% for validation, and 10% for test.
+
+        Args:
+            dataset (datasets.Dataset):
+                Required. The dataset within the same Project from which data will be used to train the Model. The
+                Dataset must use schema compatible with Model being trained,
+                and what is compatible should be described in the used
+                TrainingPipeline's [training_task_definition]
+                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+                For time series Datasets, all their data is exported to
+                training, to pick and choose from.
+            target_column (str):
+                Required. Name of the column that the Model is to predict values for.
+            time_column (str):
+                Required. Name of the column that identifies time order in the time series.
+            time_series_identifier_column (str):
+                Required. Name of the column that identifies the time series.
+            time_variant_past_only_columns (List[str]):
+                Required. Column names that should be used as time variant past only columns.
+                Each column contains information for the given entity (identified by the
+                [time_series_identifier_column]) that is known for the past but not the future
+                (e.g. population of a city in a given year, or weather on a given day).
+            time_variant_past_and_future_columns (List[str]):
+                Required. Column names that should be used as time variant past and future columns.
+                Each column contains information for the given entity (identified by the
+                [time_series_identifier_column]) that is known for the past and the future.
+            forecast_window_end: (int):
+                Required. The number of periods offset into the future as the end of the forecast window
+                (the window of future values to predict, relative to the present.), where each period is one unit
+                of granularity as defined by [period]. Inclusive.
+            period_unit (str):
+                Required. The time granularity unit of this time period. Accepted values are ``minute``,
+                ``hour``, ``day``, ``week``, ``month``, ``year``.
+            period_count (int):
+                Required. The number of units per period, e.g. 3 weeks or 2 months.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+            weight_column (str):
+                Optional. Name of the column that should be used as the weight column.
+                Higher values in this column give more importance to the row
+                during Model training. The column must have numeric values between 0 and
+                10000 inclusively, and 0 value means that the row is ignored.
+                If the weight column field is not set, then all rows are assumed to have
+                equal weight of 1.
+            static_columns (List[str]):
+                Optional. Column names that should be used as static columns.
+                Each column is constant within a time series.
+            forecast_window_start (int):
+                Optional. The number of periods offset into the future as the start of the forecast window
+                (the window of future values to predict, relative to the present.), where each period is one
+                unit of granularity as defined by [period]. Inclusive.
+            past_horizon (int):
+                Optional. The number of periods offset into the past to restrict past sequence, where each
+                period is one unit of granularity as defined by [period]. When not provided uses the
+                default value of 0 which means the model sets each series historical window to be 0 (also
+                known as "cold start"). Inclusive.
+            export_evaluated_data_items (bool):
+                Whether to export the test set predictions to a BigQuery table.
+                If False, then the export is not performed.
+            export_evaluated_data_items_bigquery_destination_uri (string):
+                Optional. URI of desired destination BigQuery table for exported test set predictions.
+
+                Expected format:
+                ``bq://<project_id>:<dataset_id>:<table>``
+                                
+                If not specified, then results are exported to the following auto-created BigQuery
+                table:
+                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
+
+                Applies only if [export_evaluated_data_items] is True.
+            export_evaluated_data_items_override_destination (bool):
+                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
+                if the table exists, for exported test set predictions. If False, and the
+                table exists, then the training job will fail.
+
+                Applies only if [export_evaluated_data_items] is True and
+                [export_evaluated_data_items_bigquery_destination_uri] is specified.
+            quantiles (List[float]):
+                Quantiles to use for the `minizmize-quantile-loss`
+                [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
+                this case.
+
+                Accepts up to 5 quantiles in the form of a double from 0 to 1, exclusive.
+                Each quantile must be unique.
+            validation_options (str):
+                Validation options for the data validation component. The available options are:
+                "fail-pipeline" - (default), will validate against the validation and fail the pipeline
+                                  if it fails.
+                "ignore-validation" - ignore the results of the validation and continue the pipeline
+            budget_milli_node_hours (int):
+                Optional. The train budget of creating this Model, expressed in milli node
+                hours i.e. 1,000 value in this field means 1 node hour.
+                The training cost of the model will not exceed this budget. The final
+                cost will be attempted to be close to the budget, though may end up
+                being (even) noticeably smaller - at the backend's discretion. This
+                especially may happen when further model training ceases to provide
+                any improvements.
+                If the budget is set to a value known to be insufficient to train a
+                Model for the given training set, the training won't be attempted and
+                will error.
+                The minimum value is 1000 and the maximum is 72000.
+            model_display_name (str):
+                Optional. If the script produces a managed AI Platform Model. The display name of
+                the Model. The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Returns:
+            model: The trained AI Platform Model resource or None if training did not
+                produce an AI Platform Model.
+        """
+
+        training_task_definition = schema.training_job.definition.forecasting_task
+
+        training_task_inputs_dict = {
+            # required inputs
+            "targetColumn": target_column,
+            "timeColumn": time_column,
+            "timeSeriesIdentifierColumn": time_series_identifier_column,
+            "staticColumns": static_columns,
+            "timeVariantPastOnlyColumns": time_variant_past_only_columns,
+            "timeVariantPastAndFutureColumns": time_variant_past_and_future_columns,
+            "forecastWindowEnd": forecast_window_end,
+            "period": {"unit": period_unit, "quantity": period_count,},
+            "transformations": self._column_transformations,
+            "trainBudgetMilliNodeHours": budget_milli_node_hours,
+            # optional inputs
+            "weightColumn": weight_column,
+            "forecastWindowStart": forecast_window_start,
+            "pastHorizon": past_horizon,
+            "quantiles": quantiles,
+            "validationOptions": validation_options,
+            "optimizationObjective": self._optimization_objective,
+        }
+
+        if export_evaluated_data_items:
+            training_task_inputs_dict["exportEvaluatedDataItemsConfig"] = {
+                "destinationBigqueryUri": export_evaluated_data_items_bigquery_destination_uri,
+                "overrideExistingTable": export_evaluated_data_items_override_destination,
+            }
+
+        if model_display_name is None:
+            model_display_name = self._display_name
+
+        model = gca_model.Model(display_name=model_display_name)
+
+        return self._run_job(
+            training_task_definition=training_task_definition,
+            training_task_inputs=training_task_inputs_dict,
+            dataset=dataset,
+            training_fraction_split=0.8,
+            validation_fraction_split=0.1,
+            test_fraction_split=0.1,
             predefined_split_column_name=predefined_split_column_name,
             model=model,
         )
@@ -3320,7 +3767,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
 
-                Supported only for tabular Datasets.
+                Supported only for tabular and time series Datasets.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3404,7 +3851,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
 
-                Supported only for tabular Datasets.
+                Supported only for tabular and time series Datasets.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will

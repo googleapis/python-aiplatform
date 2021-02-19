@@ -24,6 +24,10 @@ class training_job:
         automl_tabular = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_tabular_1.0.0.yaml"
         automl_image_classification = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml"
         automl_image_object_detection = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_object_detection_1.0.0.yaml"
+        automl_tabular = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_tabular_1.0.0.yaml"
+        forecasting_task = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_forecasting_1.0.0.yaml"
+        automl_image_classification_task = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml"
+        automl_image_object_detection_task = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_object_detection_1.0.0.yaml"
 
 
 class dataset:
@@ -31,6 +35,7 @@ class dataset:
         tabular = (
             "gs://google-cloud-aiplatform/schema/dataset/metadata/tabular_1.0.0.yaml"
         )
+        time_series = "gs://google-cloud-aiplatform/schema/dataset/metadata/time_series_1.0.0.yaml"
         image = "gs://google-cloud-aiplatform/schema/dataset/metadata/image_1.0.0.yaml"
         text = "gs://google-cloud-aiplatform/schema/dataset/metadata/text_1.0.0.yaml"
 
