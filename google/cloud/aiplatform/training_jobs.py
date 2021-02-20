@@ -2881,10 +2881,10 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         """
 
         if self._is_waiting_to_run():
-            raise RuntimeError("AutoML Tabular Training is already scheduled to run.")
+            raise RuntimeError("AutoML Forecasting Training is already scheduled to run.")
 
         if self._has_run:
-            raise RuntimeError("AutoML Tabular Training has already run.")
+            raise RuntimeError("AutoML Forecasting Training has already run.")
 
         return self._run(
             dataset=dataset,
