@@ -3087,9 +3087,13 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             "optimizationObjective": self._optimization_objective,
         }
 
+        final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
+        if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith("bq://"):
+            final_export_eval_bq_uri = f"bq://{final_export_eval_bq_uri}"
+
         if export_evaluated_data_items:
             training_task_inputs_dict["exportEvaluatedDataItemsConfig"] = {
-                "destinationBigqueryUri": export_evaluated_data_items_bigquery_destination_uri,
+                "destinationBigqueryUri": final_export_eval_bq_uri,
                 "overrideExistingTable": export_evaluated_data_items_override_destination,
             }
 
