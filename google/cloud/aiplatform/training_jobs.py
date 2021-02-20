@@ -221,11 +221,9 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             # Create predefined split spec
             predefined_split = None
             if predefined_split_column_name:
-                if (
-                    dataset._gca_resource.metadata_schema_uri
-                    != schema.dataset.metadata.tabular
-                    and dataset._gca_resource.metadata_schema_uri
-                    != schema.dataset.metadata.time_series
+                if dataset._gca_resource.metadata_schema_uri not in (
+                    schema.dataset.metadata.tabular,
+                    schema.dataset.metadata.time_series,
                 ):
                     raise ValueError(
                         "A pre-defined split may only be used with a tabular or time series Dataset"
