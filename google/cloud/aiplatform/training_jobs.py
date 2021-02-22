@@ -269,7 +269,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
     def _run_job(
         self,
         training_task_definition: str,
-        training_task_inputs: proto.Message,
+        training_task_inputs: Union[dict, proto.Message],
         dataset: Optional[datasets.Dataset],
         training_fraction_split: float,
         validation_fraction_split: float,
@@ -296,7 +296,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 than the one given on input. The output URI will
                 point to a location where the user only has a
                 read access.
-            training_task_inputs (proto.Message):
+            training_task_inputs (Union[dict, proto.Message]):
                 Required. The training task's input that corresponds to the training_task_definition parameter.
             dataset (datasets.Dataset):
                 The dataset within the same Project from which data will be used to train the Model. The

@@ -23,10 +23,8 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 
-from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1 import (
-    AutoMlTextClassificationInputs,
-    AutoMlTextExtractionInputs,
-    AutoMlTextSentimentInputs,
+from google.cloud.aiplatform.v1beta1.schema.trainingjob import (
+    definition_v1beta1 as training_job_inputs,
 )
 
 _TEST_PROJECT = "test-project"
@@ -46,11 +44,11 @@ _TEST_DATASET_NAME = "test-dataset-name"
 _TEST_MODEL_DISPLAY_NAME = "model-display-name"
 _TEST_MODEL_ID = "98777645321"
 
-_TEST_TRAINING_TASK_INPUTS_CLASSIFICATION = AutoMlTextClassificationInputs(
+_TEST_TRAINING_TASK_INPUTS_CLASSIFICATION = training_job_inputs.AutoMlTextClassificationInputs(
     multi_label=_TEST_CLASSIFICATION_MULTILABEL
 )
-_TEST_TRAINING_TASK_INPUTS_EXTRACTION = AutoMlTextExtractionInputs()
-_TEST_TRAINING_TASK_INPUTS_SENTIMENT = AutoMlTextSentimentInputs(
+_TEST_TRAINING_TASK_INPUTS_EXTRACTION = training_job_inputs.AutoMlTextExtractionInputs()
+_TEST_TRAINING_TASK_INPUTS_SENTIMENT = training_job_inputs.AutoMlTextSentimentInputs(
     sentiment_max=_TEST_SENTIMENT_MAX
 )
 
@@ -160,8 +158,11 @@ class TestAutoMLTextTrainingJob:
             job._training_task_definition
             == schema.training_job.definition.automl_text_classification
         )
-        assert job._training_task_inputs_dict == AutoMlTextClassificationInputs(
-            multi_label=_TEST_CLASSIFICATION_MULTILABEL
+        assert (
+            job._training_task_inputs_dict
+            == training_job_inputs.AutoMlTextClassificationInputs(
+                multi_label=_TEST_CLASSIFICATION_MULTILABEL
+            )
         )
 
     def test_init_all_parameters_extraction(self):
@@ -179,7 +180,10 @@ class TestAutoMLTextTrainingJob:
             job._training_task_definition
             == schema.training_job.definition.automl_text_extraction
         )
-        assert job._training_task_inputs_dict == AutoMlTextExtractionInputs()
+        assert (
+            job._training_task_inputs_dict
+            == training_job_inputs.AutoMlTextExtractionInputs()
+        )
 
     def test_init_all_parameters_sentiment(self):
         """Ensure all private members are set correctly at initalization"""
@@ -197,8 +201,11 @@ class TestAutoMLTextTrainingJob:
             job._training_task_definition
             == schema.training_job.definition.automl_text_sentiment
         )
-        assert job._training_task_inputs_dict == AutoMlTextSentimentInputs(
-            sentiment_max=_TEST_SENTIMENT_MAX
+        assert (
+            job._training_task_inputs_dict
+            == training_job_inputs.AutoMlTextSentimentInputs(
+                sentiment_max=_TEST_SENTIMENT_MAX
+            )
         )
 
     @pytest.mark.parametrize("sync", [True, False])
