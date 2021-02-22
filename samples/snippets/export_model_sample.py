@@ -30,7 +30,11 @@ def export_model_sample(
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.ModelServiceClient(client_options=client_options)
     output_config = {
-        "artifact_destination": {"output_uri_prefix": gcs_destination_output_uri_prefix}
+        "artifact_destination": {
+            "output_uri_prefix": gcs_destination_output_uri_prefix
+        },
+        # For information about export formats: https://cloud.google.com/ai-platform-unified/docs/export/export-edge-model#aiplatform_export_model_sample-drest
+        "export_format_id": "tf-saved-model",
     }
     name = client.model_path(project=project, location=location, model=model_id)
     response = client.export_model(name=name, output_config=output_config)
