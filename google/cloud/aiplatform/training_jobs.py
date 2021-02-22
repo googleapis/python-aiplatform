@@ -107,9 +107,9 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         self._project = project
         self._gca_resource = None
 
-    @property
+    @classmethod
     @abc.abstractmethod
-    def _supported_training_schemas(self) -> List[str]:
+    def _supported_training_schemas(self) -> Tuple[str]:
         """List of supported schemas for this training job"""
 
         pass
@@ -121,8 +121,8 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "CustomTrainingJob":
-        """Get CustomTrainingJob for the given resource_name.
+    ) -> "_TrainingJob":
+        """Get Training Job for the given resource_name.
 
         Args:
             resource_name (str):
@@ -156,12 +156,12 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         if (
             self._gca_resource.training_task_definition
-            not in self._supported_training_schemas
+            not in cls._supported_training_schemas()
         ):
             raise ValueError(
                 f"The retrieved job's training task definition "
                 f"is {self._gca_resource.training_task_definition}, "
-                f"which is not compatible with this type of job."
+                f"which is not compatible with {cls.__name__}."
             )
 
         return self
@@ -1307,9 +1307,9 @@ class _CustomTrainingJob(_TrainingJob):
                 "set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
 
-    @property
-    def _supported_training_schemas(self) -> List[str]:
-        return [schema.training_job.definition.custom_task]
+    @classmethod
+    def _supported_training_schemas(self) -> Tuple[str]:
+        return (schema.training_job.definition.custom_task,)
 
     def _prepare_and_validate_run(
         self,
@@ -2549,9 +2549,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             sync=sync,
         )
 
-    @property
-    def _supported_training_schemas(self) -> List[str]:
-        return [schema.training_job.definition.automl_tabular]
+    @classmethod
+    def _supported_training_schemas(self) -> Tuple[str]:
+        return (schema.training_job.definition.automl_tabular,)
 
     @base.optional_sync()
     def _run(
@@ -2893,12 +2893,12 @@ class AutoMLImageTrainingJob(_TrainingJob):
             sync=sync,
         )
 
-    @property
-    def _supported_training_schemas(self) -> List[str]:
-        return [
+    @classmethod
+    def _supported_training_schemas(self) -> Tuple[str]:
+        return (
             schema.training_job.definition.automl_image_classification,
             schema.training_job.definition.automl_image_object_detection,
-        ]
+        )
 
     @base.optional_sync()
     def _run(
