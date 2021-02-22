@@ -1867,9 +1867,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         model = self._run_job(
             training_task_definition=schema.training_job.definition.custom_task,
-            training_task_inputs=json_format.ParseDict(
-                training_task_inputs, struct_pb2.Value()
-            ),
+            training_task_inputs=training_task_inputs,
             dataset=dataset,
             annotation_schema_uri=annotation_schema_uri,
             training_fraction_split=training_fraction_split,
@@ -2317,9 +2315,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         model = self._run_job(
             training_task_definition=schema.training_job.definition.custom_task,
-            training_task_inputs=json_format.ParseDict(
-                training_task_inputs, struct_pb2.Value()
-            ),
+            training_task_inputs=training_task_inputs,
             dataset=dataset,
             annotation_schema_uri=annotation_schema_uri,
             training_fraction_split=training_fraction_split,
@@ -3439,9 +3435,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
         model = self._run_job(
             training_task_definition=schema.training_job.definition.custom_task,
-            training_task_inputs=json_format.ParseDict(
-                training_task_inputs, struct_pb2.Value()
-            ),
+            training_task_inputs=training_task_inputs,
             dataset=dataset,
             annotation_schema_uri=annotation_schema_uri,
             training_fraction_split=training_fraction_split,
