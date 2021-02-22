@@ -144,7 +144,7 @@ class TestAutoMLTextTrainingJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_init_all_parameters_classification(self, mock_model):
+    def test_init_all_parameters_classification(self):
         """Ensure all private members are set correctly at initalization"""
 
         aiplatform.init(project=_TEST_PROJECT)
@@ -164,7 +164,7 @@ class TestAutoMLTextTrainingJob:
             multi_label=_TEST_CLASSIFICATION_MULTILABEL
         )
 
-    def test_init_all_parameters_extraction(self, mock_model):
+    def test_init_all_parameters_extraction(self):
         """Ensure all private members are set correctly at initalization"""
 
         aiplatform.init(project=_TEST_PROJECT)
@@ -181,7 +181,7 @@ class TestAutoMLTextTrainingJob:
         )
         assert job._training_task_inputs_dict == AutoMlTextExtractionInputs()
 
-    def test_init_all_parameters_sentiment(self, mock_model):
+    def test_init_all_parameters_sentiment(self):
         """Ensure all private members are set correctly at initalization"""
 
         aiplatform.init(project=_TEST_PROJECT)
@@ -207,7 +207,6 @@ class TestAutoMLTextTrainingJob:
         mock_pipeline_service_create,
         mock_dataset_text,
         mock_model_service_get,
-        mock_model,
         sync,
     ):
         """Create and run an AutoML ICN training job, verify calls and return value"""
@@ -270,7 +269,6 @@ class TestAutoMLTextTrainingJob:
         mock_pipeline_service_create,
         mock_dataset_text,
         mock_model_service_get,
-        mock_model,
         sync,
     ):
         """Create and run an AutoML ICN training job, verify calls and return value"""
@@ -332,7 +330,6 @@ class TestAutoMLTextTrainingJob:
         mock_pipeline_service_create,
         mock_dataset_text,
         mock_model_service_get,
-        mock_model,
         sync,
     ):
         """Create and run an AutoML ICN training job, verify calls and return value"""
