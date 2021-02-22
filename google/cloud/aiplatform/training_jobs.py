@@ -2738,7 +2738,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         period_count: int,
         predefined_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
-        static_columns: List[str] = [],
+        static_columns: Optional[List[str]] = None,
         forecast_window_start: Optional[int] = None,
         past_horizon: Optional[int] = None,
         export_evaluated_data_items: bool = False,
@@ -2825,7 +2825,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
                 Expected format:
                 ``bq://<project_id>:<dataset_id>:<table>``
-                                
+
                 If not specified, then results are exported to the following auto-created BigQuery
                 table:
                 ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
@@ -2881,7 +2881,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         """
 
         if self._is_waiting_to_run():
-            raise RuntimeError("AutoML Forecasting Training is already scheduled to run.")
+            raise RuntimeError(
+                "AutoML Forecasting Training is already scheduled to run."
+            )
 
         if self._has_run:
             raise RuntimeError("AutoML Forecasting Training has already run.")
@@ -2925,7 +2927,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         period_count: int,
         predefined_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
-        static_columns: List[str] = [],
+        static_columns: Optional[List[str]] = None,
         forecast_window_start: Optional[int] = None,
         past_horizon: Optional[int] = None,
         export_evaluated_data_items: bool = False,
@@ -3012,7 +3014,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
                 Expected format:
                 ``bq://<project_id>:<dataset_id>:<table>``
-                                
+
                 If not specified, then results are exported to the following auto-created BigQuery
                 table:
                 ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
@@ -3075,7 +3077,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             "timeVariantPastOnlyColumns": time_variant_past_only_columns,
             "timeVariantPastAndFutureColumns": time_variant_past_and_future_columns,
             "forecastWindowEnd": forecast_window_end,
-            "period": {"unit": period_unit, "quantity": period_count,},
+            "period": {"unit": period_unit, "quantity": period_count},
             "transformations": self._column_transformations,
             "trainBudgetMilliNodeHours": budget_milli_node_hours,
             # optional inputs
@@ -3088,7 +3090,9 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         }
 
         final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
-        if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith("bq://"):
+        if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith(
+            "bq://"
+        ):
             final_export_eval_bq_uri = f"bq://{final_export_eval_bq_uri}"
 
         if export_evaluated_data_items:
