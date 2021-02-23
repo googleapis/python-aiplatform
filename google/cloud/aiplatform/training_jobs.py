@@ -50,10 +50,14 @@ from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
 
+from google.cloud.aiplatform.v1beta1.schema.trainingjob import (
+    definition_v1beta1 as training_job_inputs,
+)
+
 from google.cloud import storage
-from google.protobuf import json_format
-from google.protobuf import struct_pb2
 from google.rpc import code_pb2
+
+import proto
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 _LOGGER = logging.getLogger(__name__)
@@ -262,7 +266,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
     def _run_job(
         self,
         training_task_definition: str,
-        training_task_inputs: dict,
+        training_task_inputs: Union[dict, proto.Message],
         dataset: Optional[datasets.Dataset],
         training_fraction_split: float,
         validation_fraction_split: float,
@@ -289,11 +293,8 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 than the one given on input. The output URI will
                 point to a location where the user only has a
                 read access.
-            training_task_inputs (dict):
-                Required. The training task's parameter(s), as specified in
-                the
-                ``training_task_definition``'s
-                ``inputs``.
+            training_task_inputs (Union[dict, proto.Message]):
+                Required. The training task's input that corresponds to the training_task_definition parameter.
             dataset (datasets.Dataset):
                 The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
@@ -406,9 +407,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=self._display_name,
             training_task_definition=training_task_definition,
-            training_task_inputs=json_format.ParseDict(
-                training_task_inputs, struct_pb2.Value()
-            ),
+            training_task_inputs=training_task_inputs,
             model_to_upload=model,
             input_data_config=input_data_config,
         )
@@ -3446,3 +3445,239 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         )
 
         return model
+
+
+class AutoMLTextTrainingJob(_TrainingJob):
+    def __init__(
+        self,
+        display_name: str,
+        prediction_type: str,
+        multi_label: bool = False,
+        sentiment_max: int = 10,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Constructs a AutoML Text Training Job.
+
+        Args:
+            display_name (str):
+                Required. The user-defined name of this TrainingPipeline.
+            prediction_type (str):
+                The type of prediction the Model is to produce, one of:
+                    "classification" - A classification model analyzes text data and
+                        returns a list of categories that apply to the text found in the data.
+                        AI Platform offers both single-label and multi-label text classification models.
+                    "extraction" - An entity extraction model inspects text data
+                        for known entities referenced in the data and
+                        labels those entities in the text.
+                    "sentiment" - A sentiment analysis model inspects text data and identifies the
+                        prevailing emotional opinion within it, especially to determine a writer's attitude
+                        as positive, negative, or neutral.
+            multi_label (bool):
+                Required and only applicable for text classification task. If false, a single-label (multi-class) Model will be trained (i.e.
+                assuming that for each text snippet just up to one annotation may be
+                applicable). If true, a multi-label Model will be trained (i.e.
+                assuming that for each text snippet multiple annotations may be
+                applicable).
+            sentiment_max (int):
+                Required and only applicable for sentiment task. A sentiment is expressed as an integer
+                ordinal, where higher value means a more
+                positive sentiment. The range of sentiments that
+                will be used is between 0 and sentimentMax
+                (inclusive on both ends), and all the values in
+                the range must be represented in the dataset
+                before a model can be created.
+                Only the Annotations with this sentimentMax will
+                be used for training. sentimentMax value must be
+                between 1 and 10 (inclusive).
+            project (str):
+                Optional. Project to run training in. Overrides project set in aiplatform.init.
+            location (str):
+                Optional. Location to run training in. Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to run call training service. Overrides
+                credentials set in aiplatform.init.
+        """
+        super().__init__(
+            display_name=display_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        training_task_definition: str
+        training_task_inputs_dict: proto.Message
+
+        if prediction_type == "classification":
+            training_task_definition = (
+                schema.training_job.definition.automl_text_classification
+            )
+
+            training_task_inputs_dict = training_job_inputs.AutoMlTextClassificationInputs(
+                multi_label=multi_label
+            )
+        elif prediction_type == "extraction":
+            training_task_definition = (
+                schema.training_job.definition.automl_text_extraction
+            )
+
+            training_task_inputs_dict = training_job_inputs.AutoMlTextExtractionInputs()
+        elif prediction_type == "sentiment":
+            training_task_definition = (
+                schema.training_job.definition.automl_text_sentiment
+            )
+
+            training_task_inputs_dict = training_job_inputs.AutoMlTextSentimentInputs(
+                sentiment_max=sentiment_max
+            )
+        else:
+            raise ValueError(
+                "Prediction type must be one of 'classification', 'extraction', or 'sentiment'."
+            )
+
+        self._training_task_definition = training_task_definition
+        self._training_task_inputs_dict = training_task_inputs_dict
+
+    def run(
+        self,
+        dataset: datasets.Dataset,
+        training_fraction_split: float = 0.8,
+        validation_fraction_split: float = 0.1,
+        test_fraction_split: float = 0.1,
+        model_display_name: Optional[str] = None,
+        sync: bool = True,
+    ) -> models.Model:
+        """Runs the training job and returns a model.
+
+        Data fraction splits:
+        Any of ``training_fraction_split``, ``validation_fraction_split`` and
+        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+        the provided ones sum to less than 1, the remainder is assigned to sets as
+        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        of data will be used for training, 10% for validation, and 10% for test.
+
+        Args:
+            dataset (datasets.Dataset):
+                Required. The dataset within the same Project from which data will be used to train the Model. The
+                Dataset must use schema compatible with Model being trained,
+                and what is compatible should be described in the used
+                TrainingPipeline's [training_task_definition]
+                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+            training_fraction_split: float = 0.8
+                Required. The fraction of the input data that is to be
+                used to train the Model. This is ignored if Dataset is not provided.
+            validation_fraction_split: float = 0.1
+                Required. The fraction of the input data that is to be
+                used to validate the Model. This is ignored if Dataset is not provided.
+            test_fraction_split: float = 0.1
+                Required. The fraction of the input data that is to be
+                used to evaluate the Model. This is ignored if Dataset is not provided.
+            model_display_name (str):
+                Optional. The display name of the managed AI Platform Model.
+                The name can be up to 128 characters long and can consist
+                of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Returns:
+            model: The trained AI Platform Model resource.
+
+        Raises:
+            RuntimeError if Training job has already been run or is waiting to run.
+        """
+
+        if self._is_waiting_to_run():
+            raise RuntimeError("AutoML Text Training is already scheduled to run.")
+
+        if self._has_run:
+            raise RuntimeError("AutoML Text Training has already run.")
+
+        return self._run(
+            dataset=dataset,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
+            model_display_name=model_display_name,
+            sync=sync,
+        )
+
+    @base.optional_sync()
+    def _run(
+        self,
+        dataset: datasets.Dataset,
+        training_fraction_split: float = 0.8,
+        validation_fraction_split: float = 0.1,
+        test_fraction_split: float = 0.1,
+        model_display_name: Optional[str] = None,
+        sync: bool = True,
+    ) -> models.Model:
+        """Runs the training job and returns a model.
+
+        Data fraction splits:
+        Any of ``training_fraction_split``, ``validation_fraction_split`` and
+        ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+        the provided ones sum to less than 1, the remainder is assigned to sets as
+        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        of data will be used for training, 10% for validation, and 10% for test.
+
+        Args:
+            dataset (datasets.Dataset):
+                Required. The dataset within the same Project from which data will be used to train the Model. The
+                Dataset must use schema compatible with Model being trained,
+                and what is compatible should be described in the used
+                TrainingPipeline's [training_task_definition]
+                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+                For Text Datasets, all their data is exported to
+                training, to pick and choose from.
+            training_fraction_split (float):
+                Required. The fraction of the input data that is to be
+                used to train the Model. This is ignored if Dataset is not provided.
+            validation_fraction_split (float):
+                Required. The fraction of the input data that is to be
+                used to validate the Model. This is ignored if Dataset is not provided.
+            test_fraction_split (float):
+                Required. The fraction of the input data that is to be
+                used to evaluate the Model. This is ignored if Dataset is not provided.
+            model_display_name (str):
+                Optional. If the script produces a managed AI Platform Model. The display name of
+                the Model. The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            model: The trained AI Platform Model resource or None if training did not
+                produce an AI Platform Model.
+        """
+
+        if model_display_name is None:
+            model_display_name = self._display_name
+
+        model = gca_model.Model(display_name=model_display_name)
+
+        return self._run_job(
+            training_task_definition=self._training_task_definition,
+            training_task_inputs=self._training_task_inputs_dict,
+            dataset=dataset,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
+            predefined_split_column_name=None,
+            model=model,
+        )
+
+    @property
+    def _model_upload_fail_string(self) -> str:
+        """Helper property for model upload failure."""
+        return (
+            f"AutoML Text Training Pipeline {self.resource_name} is not "
+            "configured to upload a Model."
+        )
