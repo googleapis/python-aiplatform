@@ -3465,6 +3465,12 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
 
 class AutoMLTextTrainingJob(_TrainingJob):
+    _supported_training_schemas = (
+        schema.training_job.definition.automl_text_classification,
+        schema.training_job.definition.automl_text_extraction,
+        schema.training_job.definition.automl_text_sentiment,
+    )
+
     def __init__(
         self,
         display_name: str,
