@@ -57,9 +57,6 @@ from google.cloud.aiplatform.v1beta1.schema.trainingjob import (
 from google.cloud import storage
 from google.rpc import code_pb2
 
-from google.protobuf import json_format
-from google.protobuf import struct_pb2
-
 import proto
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
