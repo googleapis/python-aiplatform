@@ -108,6 +108,66 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         self._gca_resource = None
 
     @property
+    @classmethod
+    @abc.abstractmethod
+    def _supported_training_schemas(cls) -> Tuple[str]:
+        """List of supported schemas for this training job"""
+
+        pass
+
+    @classmethod
+    def get(
+        cls,
+        resource_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "_TrainingJob":
+        """Get Training Job for the given resource_name.
+
+        Args:
+            resource_name (str):
+                Required. A fully-qualified resource name or ID.
+            project (str):
+                Optional project to retrieve dataset from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional location to retrieve dataset from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+
+        Raises:
+            ValueError: If the retrieved training job's training task definition
+                doesn't match the custom training task definition.
+
+        Returns:
+            An AI Platform Training Job
+        """
+
+        # Create job with dummy parameters
+        # These parameters won't be used as user can not run the job again.
+        # If they try, an exception will be raised.
+        self = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+
+        self._gca_resource = self._get_gca_resource(resource_name=resource_name)
+
+        if (
+            self._gca_resource.training_task_definition
+            not in cls._supported_training_schemas
+        ):
+            raise ValueError(
+                f"The retrieved job's training task definition "
+                f"is {self._gca_resource.training_task_definition}, "
+                f"which is not compatible with {cls.__name__}."
+            )
+
+        return self
+
+    @property
     @abc.abstractmethod
     def _model_upload_fail_string(self) -> str:
         """Helper property for model upload failure."""
@@ -1058,6 +1118,8 @@ class _CustomTrainingJob(_TrainingJob):
     """ABC for Custom Training Pipelines..
     """
 
+    _supported_training_schemas = (schema.training_job.definition.custom_task,)
+
     def __init__(
         self,
         display_name: str,
@@ -1247,58 +1309,6 @@ class _CustomTrainingJob(_TrainingJob):
                 "staging_bucket should be set in TrainingJob constructor or "
                 "set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
-
-    @classmethod
-    def get(
-        cls,
-        resource_name: str,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "CustomTrainingJob":
-        """Get CustomTrainingJob for the given resource_name.
-
-        Args:
-            resource_name (str):
-                Required. A fully-qualified resource name or ID.
-            project (str):
-                Optional project to retrieve dataset from. If not set, project
-                set in aiplatform.init will be used.
-            location (str):
-                Optional location to retrieve dataset from. If not set, location
-                set in aiplatform.init will be used.
-            credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
-                credentials set in aiplatform.init.
-
-        Raises:
-            ValueError: If the retrieved training job's training task definition
-                doesn't match the custom training task definition.
-
-        Returns:
-            An AI Platform Training Job
-        """
-
-        # Create job with dummy parameters
-        # These parameters won't be used as user can not run the job again.
-        # If they try, an exception will be raised.
-        self = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
-        )
-
-        self._gca_resource = self._get_gca_resource(resource_name=resource_name)
-
-        if (
-            self._gca_resource.training_task_definition
-            != schema.training_job.definition.custom_task
-        ):
-            raise ValueError(
-                f"The retrieved job's training task definition "
-                f"is {self._gca_resource.training_task_definition}, "
-                f"which is not compatible with CustomTrainingJob."
-            )
-
-        return self
 
     def _prepare_and_validate_run(
         self,
@@ -2328,6 +2338,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
 
 class AutoMLTabularTrainingJob(_TrainingJob):
+    _supported_training_schemas = (schema.training_job.definition.automl_tabular,)
+
     def __init__(
         self,
         display_name: str,
@@ -2673,6 +2685,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
 
 class AutoMLImageTrainingJob(_TrainingJob):
+    _supported_training_schemas = (
+        schema.training_job.definition.automl_image_classification,
+        schema.training_job.definition.automl_image_object_detection,
+    )
+
     def __init__(
         self,
         display_name: str,
@@ -3448,6 +3465,12 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
 
 class AutoMLTextTrainingJob(_TrainingJob):
+    _supported_training_schemas = (
+        schema.training_job.definition.automl_text_classification,
+        schema.training_job.definition.automl_text_extraction,
+        schema.training_job.definition.automl_text_sentiment,
+    )
+
     def __init__(
         self,
         display_name: str,
