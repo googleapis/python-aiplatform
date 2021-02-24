@@ -117,7 +117,6 @@ def teardown_data_labeling_job(capsys, shared_state, data_labeling_job_client):
     helpers.wait_for_job_state(
         get_job_method=data_labeling_job_client.get_data_labeling_job,
         name=shared_state["data_labeling_job_name"],
-        expected_state='FAILED',
         timeout=400,
         freq=10,
     )
