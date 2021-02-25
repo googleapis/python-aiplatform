@@ -18,4 +18,4 @@
 from google.cloud.aiplatform import gapic
 
 
-__all__ = (gapic,)
+__all__ = ("gapic",)
