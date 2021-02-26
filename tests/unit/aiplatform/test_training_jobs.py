@@ -1313,8 +1313,20 @@ class TestCustomTrainingJob:
     @pytest.mark.usefixtures("get_training_job_custom_mock")
     def test_get_training_job(self, get_training_job_custom_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        training_jobs.CustomTrainingJob.get(resource_name=_TEST_NAME)
+        job = training_jobs.CustomTrainingJob.get(resource_name=_TEST_NAME)
+
         get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+        assert isinstance(job, training_jobs.CustomTrainingJob)
+
+    @pytest.mark.usefixtures("get_training_job_custom_mock")
+    def test_get_training_job_wrong_job_type(self, get_training_job_custom_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        # The returned job is for a custom training task,
+        # but the calling type if of AutoMLImageTrainingJob.
+        # Hence, it should throw an error.
+        with pytest.raises(ValueError):
+            training_jobs.AutoMLImageTrainingJob.get(resource_name=_TEST_NAME)
 
     @pytest.mark.usefixtures("get_training_job_custom_mock_no_model_to_upload")
     def test_get_training_job_no_model_to_upload(
