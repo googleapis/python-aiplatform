@@ -47,7 +47,7 @@ class CreateSpecialistPoolRequest(proto.Message):
             Required. The parent Project name for the new
             SpecialistPool. The form is
             ``projects/{project}/locations/{location}``.
-        specialist_pool (~.gca_specialist_pool.SpecialistPool):
+        specialist_pool (google.cloud.aiplatform_v1beta1.types.SpecialistPool):
             Required. The SpecialistPool to create.
     """
 
@@ -63,7 +63,7 @@ class CreateSpecialistPoolOperationMetadata(proto.Message):
     ``SpecialistPoolService.CreateSpecialistPool``.
 
     Attributes:
-        generic_metadata (~.operation.GenericOperationMetadata):
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
     """
 
@@ -103,7 +103,7 @@ class ListSpecialistPoolsRequest(proto.Message):
             of the previous
             ``SpecialistPoolService.ListSpecialistPools``
             call. Return first page if empty.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
             FieldMask represents a set of
     """
@@ -122,7 +122,7 @@ class ListSpecialistPoolsResponse(proto.Message):
     ``SpecialistPoolService.ListSpecialistPools``.
 
     Attributes:
-        specialist_pools (Sequence[~.gca_specialist_pool.SpecialistPool]):
+        specialist_pools (Sequence[google.cloud.aiplatform_v1beta1.types.SpecialistPool]):
             A list of SpecialistPools that matches the
             specified filter in the request.
         next_page_token (str):
@@ -166,10 +166,10 @@ class UpdateSpecialistPoolRequest(proto.Message):
     ``SpecialistPoolService.UpdateSpecialistPool``.
 
     Attributes:
-        specialist_pool (~.gca_specialist_pool.SpecialistPool):
+        specialist_pool (google.cloud.aiplatform_v1beta1.types.SpecialistPool):
             Required. The SpecialistPool which replaces
             the resource on the server.
-        update_mask (~.field_mask.FieldMask):
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Required. The update mask applies to the
             resource.
     """
@@ -191,7 +191,7 @@ class UpdateSpecialistPoolOperationMetadata(proto.Message):
             specialists are being added. Format:
 
             ``projects/{project_id}/locations/{location_id}/specialistPools/{specialist_pool}``
-        generic_metadata (~.operation.GenericOperationMetadata):
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
     """
 

@@ -35,13 +35,13 @@ class DataItem(proto.Message):
         name (str):
             Output only. The resource name of the
             DataItem.
-        create_time (~.timestamp.Timestamp):
+        create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this DataItem was
             created.
-        update_time (~.timestamp.Timestamp):
+        update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this DataItem was
             last updated.
-        labels (Sequence[~.data_item.DataItem.LabelsEntry]):
+        labels (Sequence[google.cloud.aiplatform_v1beta1.types.DataItem.LabelsEntry]):
             Optional. The labels with user-defined
             metadata to organize your DataItems.
             Label keys and values can be no longer than 64
@@ -56,7 +56,7 @@ class DataItem(proto.Message):
             and examples of labels. System reserved label
             keys are prefixed with
             "aiplatform.googleapis.com/" and are immutable.
-        payload (~.struct.Value):
+        payload (google.protobuf.struct_pb2.Value):
             Required. The data that the DataItem represents (for
             example, an image or a text snippet). The schema of the
             payload is stored in the parent Dataset's [metadata

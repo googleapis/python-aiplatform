@@ -95,6 +95,7 @@ class SpecialistPoolServiceAsyncClient:
         SpecialistPoolServiceClient.parse_common_location_path
     )
 
+    from_service_account_info = SpecialistPoolServiceClient.from_service_account_info
     from_service_account_file = SpecialistPoolServiceClient.from_service_account_file
     from_service_account_json = from_service_account_file
 
@@ -173,19 +174,21 @@ class SpecialistPoolServiceAsyncClient:
         r"""Creates a SpecialistPool.
 
         Args:
-            request (:class:`~.specialist_pool_service.CreateSpecialistPoolRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.CreateSpecialistPoolRequest`):
                 The request object. Request message for
                 ``SpecialistPoolService.CreateSpecialistPool``.
             parent (:class:`str`):
                 Required. The parent Project name for the new
                 SpecialistPool. The form is
                 ``projects/{project}/locations/{location}``.
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            specialist_pool (:class:`~.gca_specialist_pool.SpecialistPool`):
+            specialist_pool (:class:`google.cloud.aiplatform_v1beta1.types.SpecialistPool`):
                 Required. The SpecialistPool to
                 create.
+
                 This corresponds to the ``specialist_pool`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -197,19 +200,17 @@ class SpecialistPoolServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.gca_specialist_pool.SpecialistPool`:
-                SpecialistPool represents customers' own workforce to
-                work on their data labeling jobs. It includes a group of
-                specialist managers who are responsible for managing the
-                labelers in this pool as well as customers' data
-                labeling jobs associated with this pool. Customers
-                create specialist pool as well as start data labeling
-                jobs on Cloud, managers and labelers work with the jobs
-                using CrowdCompute console.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.SpecialistPool` SpecialistPool represents customers' own workforce to work on their data
+                   labeling jobs. It includes a group of specialist
+                   managers who are responsible for managing the
+                   labelers in this pool as well as customers' data
+                   labeling jobs associated with this pool. Customers
+                   create specialist pool as well as start data labeling
+                   jobs on Cloud, managers and labelers work with the
+                   jobs using CrowdCompute console.
 
         """
         # Create or coerce a protobuf request object.
@@ -272,7 +273,7 @@ class SpecialistPoolServiceAsyncClient:
         r"""Gets a SpecialistPool.
 
         Args:
-            request (:class:`~.specialist_pool_service.GetSpecialistPoolRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.GetSpecialistPoolRequest`):
                 The request object. Request message for
                 ``SpecialistPoolService.GetSpecialistPool``.
             name (:class:`str`):
@@ -280,6 +281,7 @@ class SpecialistPoolServiceAsyncClient:
                 form is
 
                 ``projects/{project}/locations/{location}/specialistPools/{specialist_pool}``.
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -291,7 +293,7 @@ class SpecialistPoolServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.specialist_pool.SpecialistPool:
+            google.cloud.aiplatform_v1beta1.types.SpecialistPool:
                 SpecialistPool represents customers'
                 own workforce to work on their data
                 labeling jobs. It includes a group of
@@ -355,13 +357,14 @@ class SpecialistPoolServiceAsyncClient:
         r"""Lists SpecialistPools in a Location.
 
         Args:
-            request (:class:`~.specialist_pool_service.ListSpecialistPoolsRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsRequest`):
                 The request object. Request message for
                 ``SpecialistPoolService.ListSpecialistPools``.
             parent (:class:`str`):
                 Required. The name of the SpecialistPool's parent
                 resource. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -373,7 +376,7 @@ class SpecialistPoolServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListSpecialistPoolsAsyncPager:
+            google.cloud.aiplatform_v1beta1.services.specialist_pool_service.pagers.ListSpecialistPoolsAsyncPager:
                 Response message for
                 ``SpecialistPoolService.ListSpecialistPools``.
 
@@ -438,13 +441,14 @@ class SpecialistPoolServiceAsyncClient:
         in the pool.
 
         Args:
-            request (:class:`~.specialist_pool_service.DeleteSpecialistPoolRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteSpecialistPoolRequest`):
                 The request object. Request message for
                 ``SpecialistPoolService.DeleteSpecialistPool``.
             name (:class:`str`):
                 Required. The resource name of the SpecialistPool to
                 delete. Format:
                 ``projects/{project}/locations/{location}/specialistPools/{specialist_pool}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -456,24 +460,22 @@ class SpecialistPoolServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.empty.Empty`: A generic empty message that
-                you can re-use to avoid defining duplicated empty
-                messages in your APIs. A typical example is to use it as
-                the request or the response type of an API method. For
-                instance:
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
 
-                ::
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
 
-                    service Foo {
-                      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-                    }
+                      }
 
-                The JSON representation for ``Empty`` is empty JSON
-                object ``{}``.
+                   The JSON representation for Empty is empty JSON
+                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -535,18 +537,20 @@ class SpecialistPoolServiceAsyncClient:
         r"""Updates a SpecialistPool.
 
         Args:
-            request (:class:`~.specialist_pool_service.UpdateSpecialistPoolRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateSpecialistPoolRequest`):
                 The request object. Request message for
                 ``SpecialistPoolService.UpdateSpecialistPool``.
-            specialist_pool (:class:`~.gca_specialist_pool.SpecialistPool`):
+            specialist_pool (:class:`google.cloud.aiplatform_v1beta1.types.SpecialistPool`):
                 Required. The SpecialistPool which
                 replaces the resource on the server.
+
                 This corresponds to the ``specialist_pool`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            update_mask (:class:`~.field_mask.FieldMask`):
+            update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Required. The update mask applies to
                 the resource.
+
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -558,19 +562,17 @@ class SpecialistPoolServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.gca_specialist_pool.SpecialistPool`:
-                SpecialistPool represents customers' own workforce to
-                work on their data labeling jobs. It includes a group of
-                specialist managers who are responsible for managing the
-                labelers in this pool as well as customers' data
-                labeling jobs associated with this pool. Customers
-                create specialist pool as well as start data labeling
-                jobs on Cloud, managers and labelers work with the jobs
-                using CrowdCompute console.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.SpecialistPool` SpecialistPool represents customers' own workforce to work on their data
+                   labeling jobs. It includes a group of specialist
+                   managers who are responsible for managing the
+                   labelers in this pool as well as customers' data
+                   labeling jobs associated with this pool. Customers
+                   create specialist pool as well as start data labeling
+                   jobs on Cloud, managers and labelers work with the
+                   jobs using CrowdCompute console.
 
         """
         # Create or coerce a protobuf request object.

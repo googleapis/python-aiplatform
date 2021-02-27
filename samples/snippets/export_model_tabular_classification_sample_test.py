@@ -42,4 +42,4 @@ def test_ucaip_generated_export_model_tabular_classification_sample(capsys):
         gcs_destination_output_uri_prefix=f"{GCS_BUCKET}/{GCS_PREFIX}",
     )
     out, _ = capsys.readouterr()
-    assert "export_model_response" in out
+    assert "output_info" in out

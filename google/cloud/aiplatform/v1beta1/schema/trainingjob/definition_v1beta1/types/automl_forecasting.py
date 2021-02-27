@@ -38,9 +38,9 @@ class AutoMlForecasting(proto.Message):
     Model.
 
     Attributes:
-        inputs (~.automl_forecasting.AutoMlForecastingInputs):
+        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs):
             The input parameters of this TrainingJob.
-        metadata (~.automl_forecasting.AutoMlForecastingMetadata):
+        metadata (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingMetadata):
             The metadata information.
     """
 
@@ -64,7 +64,7 @@ class AutoMlForecastingInputs(proto.Message):
         time_column (str):
             The name of the column that identifies time
             order in the time series.
-        transformations (Sequence[~.automl_forecasting.AutoMlForecastingInputs.Transformation]):
+        transformations (Sequence[google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation]):
             Each transformation will apply transform
             function to given input column. And the result
             will be used for training. When creating
@@ -78,14 +78,14 @@ class AutoMlForecastingInputs(proto.Message):
             function over the validation set.
 
             The supported optimization objectives:
-            "minimize-rmse" (default) - Minimize root-
+              "minimize-rmse" (default) - Minimize root-
             mean-squared error (RMSE).   "minimize-mae" -
             Minimize mean-absolute error (MAE).   "minimize-
             rmsle" - Minimize root-mean-squared log error
             (RMSLE).   "minimize-rmspe" - Minimize root-
             mean-squared percentage error (RMSPE).
             "minimize-wape-mae" - Minimize the combination
-            of weighted absolute percentage error (WAPE)
+            of weighted absolute     percentage error (WAPE)
             and mean-absolute-error (MAE).
         train_budget_milli_node_hours (int):
             Required. The train budget of creating this
@@ -131,7 +131,7 @@ class AutoMlForecastingInputs(proto.Message):
             contains information for the given entity
             (identified by the key column) that is known for
             the past and the future
-        period (~.automl_forecasting.AutoMlForecastingInputs.Period):
+        period (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Period):
             Expected difference in time granularity
             between rows in the data. If it is not set, the
             period is inferred from data.
@@ -152,7 +152,7 @@ class AutoMlForecastingInputs(proto.Message):
             sequence, where each period is one unit of granularity as
             defined by the ``period``. Default value 0 means that it
             lets algorithm to define the value. Inclusive.
-        export_evaluated_data_items_config (~.gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig):
+        export_evaluated_data_items_config (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.ExportEvaluatedDataItemsConfig):
             Configuration for exporting test set
             predictions to a BigQuery table. If this
             configuration is absent, then the export is not
@@ -163,21 +163,21 @@ class AutoMlForecastingInputs(proto.Message):
         r"""
 
         Attributes:
-            auto (~.automl_forecasting.AutoMlForecastingInputs.Transformation.AutoTransformation):
+            auto (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.AutoTransformation):
 
-            numeric (~.automl_forecasting.AutoMlForecastingInputs.Transformation.NumericTransformation):
+            numeric (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.NumericTransformation):
 
-            categorical (~.automl_forecasting.AutoMlForecastingInputs.Transformation.CategoricalTransformation):
+            categorical (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.CategoricalTransformation):
 
-            timestamp (~.automl_forecasting.AutoMlForecastingInputs.Transformation.TimestampTransformation):
+            timestamp (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.TimestampTransformation):
 
-            text (~.automl_forecasting.AutoMlForecastingInputs.Transformation.TextTransformation):
+            text (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.TextTransformation):
 
-            repeated_numeric (~.automl_forecasting.AutoMlForecastingInputs.Transformation.NumericArrayTransformation):
+            repeated_numeric (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.NumericArrayTransformation):
 
-            repeated_categorical (~.automl_forecasting.AutoMlForecastingInputs.Transformation.CategoricalArrayTransformation):
+            repeated_categorical (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.CategoricalArrayTransformation):
 
-            repeated_text (~.automl_forecasting.AutoMlForecastingInputs.Transformation.TextArrayTransformation):
+            repeated_text (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation.TextArrayTransformation):
 
         """
 
@@ -418,11 +418,11 @@ class AutoMlForecastingInputs(proto.Message):
             unit (str):
                 The time granularity unit of this time
                 period. The supported unit are:
-                "hour"
-                "day"
-                "week"
-                "month"
-                "year".
+                 "hour"
+                 "day"
+                 "week"
+                 "month"
+                 "year".
             quantity (int):
                 The number of units per period, e.g. 3 weeks
                 or 2 months.

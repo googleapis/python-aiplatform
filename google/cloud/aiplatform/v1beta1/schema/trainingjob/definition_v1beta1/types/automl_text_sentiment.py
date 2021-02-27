@@ -29,7 +29,7 @@ class AutoMlTextSentiment(proto.Message):
     Sentiment Model.
 
     Attributes:
-        inputs (~.automl_text_sentiment.AutoMlTextSentimentInputs):
+        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTextSentimentInputs):
             The input parameters of this TrainingJob.
     """
 

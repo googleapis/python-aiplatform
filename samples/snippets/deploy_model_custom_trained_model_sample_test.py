@@ -24,7 +24,7 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
 
 # Resource Name of "permanent_custom_mnist_model"
-MODEL_NAME = "projects/580378083368/locations/us-central1/models/4992732768149438464"
+MODEL_NAME = "projects/580378083368/locations/us-central1/models/6430031960164270080"
 
 
 @pytest.fixture(scope="function", autouse=True)

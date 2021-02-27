@@ -33,9 +33,9 @@ class AutoMlTables(proto.Message):
     r"""A TrainingJob that trains and uploads an AutoML Tables Model.
 
     Attributes:
-        inputs (~.automl_tables.AutoMlTablesInputs):
+        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs):
             The input parameters of this TrainingJob.
-        metadata (~.automl_tables.AutoMlTablesMetadata):
+        metadata (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesMetadata):
             The metadata information.
     """
 
@@ -61,7 +61,7 @@ class AutoMlTablesInputs(proto.Message):
             produce.   "classification" - Predict one out of
             multiple target values is
             picked for each row.
-            "regression" - Predict a value based on its
+              "regression" - Predict a value based on its
             relation to other values.                  This
             type is available only to columns that contain
             semantically numeric values, i.e. integers or
@@ -70,7 +70,7 @@ class AutoMlTablesInputs(proto.Message):
         target_column (str):
             The column name of the target column that the
             model is to predict.
-        transformations (Sequence[~.automl_tables.AutoMlTablesInputs.Transformation]):
+        transformations (Sequence[google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation]):
             Each transformation will apply transform
             function to given input column. And the result
             will be used for training. When creating
@@ -87,11 +87,11 @@ class AutoMlTablesInputs(proto.Message):
             the prediction type. If the field is not set, a
             default objective function is used.
             classification (binary):
-            "maximize-au-roc" (default) - Maximize the
+              "maximize-au-roc" (default) - Maximize the
             area under the receiver
             operating characteristic (ROC) curve.
             "minimize-log-loss" - Minimize log loss.
-            "maximize-au-prc" - Maximize the area under
+              "maximize-au-prc" - Maximize the area under
             the precision-recall curve.   "maximize-
             precision-at-recall" - Maximize precision for a
             specified
@@ -99,10 +99,10 @@ class AutoMlTablesInputs(proto.Message):
             Maximize recall for a specified
             precision value.
             classification (multi-class):
-            "minimize-log-loss" (default) - Minimize log
+              "minimize-log-loss" (default) - Minimize log
             loss.
             regression:
-            "minimize-rmse" (default) - Minimize root-
+              "minimize-rmse" (default) - Minimize root-
             mean-squared error (RMSE).   "minimize-mae" -
             Minimize mean-absolute error (MAE).   "minimize-
             rmsle" - Minimize root-mean-squared log error
@@ -140,7 +140,7 @@ class AutoMlTablesInputs(proto.Message):
             for training. If weight column field is not set,
             then all rows are assumed to have equal weight
             of 1.
-        export_evaluated_data_items_config (~.gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig):
+        export_evaluated_data_items_config (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.ExportEvaluatedDataItemsConfig):
             Configuration for exporting test set
             predictions to a BigQuery table. If this
             configuration is absent, then the export is not
@@ -151,21 +151,21 @@ class AutoMlTablesInputs(proto.Message):
         r"""
 
         Attributes:
-            auto (~.automl_tables.AutoMlTablesInputs.Transformation.AutoTransformation):
+            auto (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.AutoTransformation):
 
-            numeric (~.automl_tables.AutoMlTablesInputs.Transformation.NumericTransformation):
+            numeric (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.NumericTransformation):
 
-            categorical (~.automl_tables.AutoMlTablesInputs.Transformation.CategoricalTransformation):
+            categorical (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.CategoricalTransformation):
 
-            timestamp (~.automl_tables.AutoMlTablesInputs.Transformation.TimestampTransformation):
+            timestamp (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.TimestampTransformation):
 
-            text (~.automl_tables.AutoMlTablesInputs.Transformation.TextTransformation):
+            text (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.TextTransformation):
 
-            repeated_numeric (~.automl_tables.AutoMlTablesInputs.Transformation.NumericArrayTransformation):
+            repeated_numeric (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.NumericArrayTransformation):
 
-            repeated_categorical (~.automl_tables.AutoMlTablesInputs.Transformation.CategoricalArrayTransformation):
+            repeated_categorical (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.CategoricalArrayTransformation):
 
-            repeated_text (~.automl_tables.AutoMlTablesInputs.Transformation.TextArrayTransformation):
+            repeated_text (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.TextArrayTransformation):
 
         """
 

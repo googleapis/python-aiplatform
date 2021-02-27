@@ -96,6 +96,7 @@ class MigrationServiceAsyncClient:
         MigrationServiceClient.parse_common_location_path
     )
 
+    from_service_account_info = MigrationServiceClient.from_service_account_info
     from_service_account_file = MigrationServiceClient.from_service_account_file
     from_service_account_json = from_service_account_file
 
@@ -175,7 +176,7 @@ class MigrationServiceAsyncClient:
         given location.
 
         Args:
-            request (:class:`~.migration_service.SearchMigratableResourcesRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest`):
                 The request object. Request message for
                 ``MigrationService.SearchMigratableResources``.
             parent (:class:`str`):
@@ -184,6 +185,7 @@ class MigrationServiceAsyncClient:
                 that the resources can be migrated to, not the
                 resources' original location. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -195,7 +197,7 @@ class MigrationServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.SearchMigratableResourcesAsyncPager:
+            google.cloud.aiplatform_v1beta1.services.migration_service.pagers.SearchMigratableResourcesAsyncPager:
                 Response message for
                 ``MigrationService.SearchMigratableResources``.
 
@@ -264,22 +266,24 @@ class MigrationServiceAsyncClient:
         to AI Platform (Unified).
 
         Args:
-            request (:class:`~.migration_service.BatchMigrateResourcesRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest`):
                 The request object. Request message for
                 ``MigrationService.BatchMigrateResources``.
             parent (:class:`str`):
                 Required. The location of the migrated resource will
                 live in. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            migrate_resource_requests (:class:`Sequence[~.migration_service.MigrateResourceRequest]`):
+            migrate_resource_requests (:class:`Sequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceRequest]`):
                 Required. The request messages
                 specifying the resources to migrate.
                 They must be in the same location as the
                 destination. Up to 50 resources can be
                 migrated in one batch.
+
                 This corresponds to the ``migrate_resource_requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -291,11 +295,11 @@ class MigrationServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.migration_service.BatchMigrateResourcesResponse`:
+                :class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesResponse`
                 Response message for
                 ``MigrationService.BatchMigrateResources``.
 
