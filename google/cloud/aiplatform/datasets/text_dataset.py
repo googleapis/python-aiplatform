@@ -44,6 +44,7 @@ class TextDataset(datasets.Dataset):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "TextDataset":
         """Creates a new text dataset and optionally imports data into dataset when
@@ -101,6 +102,15 @@ class TextDataset(datasets.Dataset):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -137,5 +147,6 @@ class TextDataset(datasets.Dataset):
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,
             request_metadata=request_metadata,
+            encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
         )

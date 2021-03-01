@@ -30,6 +30,7 @@ from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
     client as dataset_service_client,
 )
+from google.cloud.aiplatform_v1beta1.types.encryption_spec import EncryptionSpec
 
 
 class Dataset(base.AiPlatformResourceNounWithFutureManager):
@@ -106,6 +107,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "Dataset":
         """Creates a new dataset and optionally imports data into dataset when
@@ -166,6 +168,15 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -201,6 +212,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,
             request_metadata=request_metadata,
+            encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
         )
 
@@ -217,6 +229,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         location: str,
         credentials: Optional[auth_credentials.Credentials],
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "Dataset":
         """Creates a new dataset and optionally imports data into dataset when
@@ -253,6 +266,15 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -264,6 +286,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         """
 
         create_dataset_lro = cls._create(
+            encryption_spec_key_name=encryption_spec_key_name,
             api_client=api_client,
             parent=parent,
             display_name=display_name,
@@ -291,6 +314,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
     @classmethod
     def _create(
         cls,
+        encryption_spec_key_name: Optional[str],
         api_client: dataset_service_client.DatasetServiceClient,
         parent: str,
         display_name: str,
@@ -301,6 +325,15 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         """Creates a new managed dataset by directly calling API client.
 
         Args:
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
             api_client (dataset_service_client.DatasetServiceClient):
                 An instance of DatasetServiceClient with the correct api_endpoint
                 already set based on user's preferences.
@@ -328,10 +361,16 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             operation (Operation):
                 An object representing a long-running operation.
         """
+
+        encryption_spec: Optional[EncryptionSpec] = None
+        if encryption_spec_key_name:
+            encryption_spec = EncryptionSpec(kms_key_name=encryption_spec_key_name)
+
         gapic_dataset = gca_dataset.Dataset(
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             metadata=datasource.dataset_metadata,
+            encryption_spec=encryption_spec,
         )
 
         return api_client.create_dataset(
