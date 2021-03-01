@@ -34,6 +34,7 @@ from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
+from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 
 import test_datasets
 from test_datasets import create_dataset_mock  # noqa: F401
@@ -55,9 +56,12 @@ from test_training_jobs import (  # noqa: F401
 )
 from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
 
-
 from google.protobuf import json_format
 from google.protobuf import struct_pb2
+
+# dataset_encryption
+_TEST_ENCRYPTION_KEY_NAME = "key_1234"
+_TEST_ENCRYPTION_SPEC = EncryptionSpec(kms_key_name=_TEST_ENCRYPTION_KEY_NAME)
 
 
 class TestEndToEnd:
@@ -95,6 +99,7 @@ class TestEndToEnd:
         my_dataset = aiplatform.Dataset.create(
             display_name=test_datasets._TEST_DISPLAY_NAME,
             metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
 
@@ -130,7 +135,7 @@ class TestEndToEnd:
         )
 
         created_endpoint = models.Endpoint.create(
-            display_name=test_endpoints._TEST_DISPLAY_NAME, sync=sync
+            display_name=test_endpoints._TEST_DISPLAY_NAME, sync=sync,
         )
 
         my_endpoint = model_from_job.deploy(sync=sync)
@@ -163,6 +168,7 @@ class TestEndToEnd:
             display_name=test_datasets._TEST_DISPLAY_NAME,
             metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
             metadata=test_datasets._TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         expected_import_config = ImportDataConfig(
@@ -294,6 +300,7 @@ class TestEndToEnd:
         my_dataset = aiplatform.Dataset.create(
             display_name=test_datasets._TEST_DISPLAY_NAME,
             metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
 
@@ -348,6 +355,7 @@ class TestEndToEnd:
             display_name=test_datasets._TEST_DISPLAY_NAME,
             metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
             metadata=test_datasets._TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         expected_import_config = ImportDataConfig(

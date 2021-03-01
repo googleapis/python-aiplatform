@@ -30,7 +30,7 @@ from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
     client as dataset_service_client,
 )
-from google.cloud.aiplatform_v1beta1.types.encryption_spec import EncryptionSpec
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 
 class Dataset(base.AiPlatformResourceNounWithFutureManager):
@@ -362,9 +362,11 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 An object representing a long-running operation.
         """
 
-        encryption_spec: Optional[EncryptionSpec] = None
+        encryption_spec = None
         if encryption_spec_key_name:
-            encryption_spec = EncryptionSpec(kms_key_name=encryption_spec_key_name)
+            encryption_spec = gca_encryption_spec.EncryptionSpec(
+                kms_key_name=encryption_spec_key_name
+            )
 
         gapic_dataset = gca_dataset.Dataset(
             display_name=display_name,

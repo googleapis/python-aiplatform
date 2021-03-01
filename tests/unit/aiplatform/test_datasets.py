@@ -38,6 +38,7 @@ from google.cloud.aiplatform_v1beta1 import ExportDataConfig
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 from google.cloud.aiplatform_v1beta1.types import dataset_service
+from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 
 # project
 _TEST_PROJECT = "test-project"
@@ -95,6 +96,9 @@ _TEST_METADATA_TABULAR_BQ = {
     "input_config": {"bigquery_source": {"uri": _TEST_SOURCE_URI_BQ}}
 }
 
+# dataset_encryption
+_TEST_ENCRYPTION_KEY_NAME = "key_1234"
+_TEST_ENCRYPTION_SPEC = EncryptionSpec(kms_key_name=_TEST_ENCRYPTION_KEY_NAME)
 
 # misc
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
@@ -108,6 +112,7 @@ def get_dataset_mock():
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             name=_TEST_NAME,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         yield get_dataset_mock
 
@@ -118,6 +123,7 @@ def get_dataset_without_name_mock():
         get_dataset_mock.return_value = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         yield get_dataset_mock
 
@@ -130,6 +136,7 @@ def get_dataset_image_mock():
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_IMAGE,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
             name=_TEST_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         yield get_dataset_mock
 
@@ -142,6 +149,7 @@ def get_dataset_tabular_mock():
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             metadata=_TEST_METADATA_TABULAR_BQ,
             name=_TEST_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         yield get_dataset_mock
 
@@ -154,6 +162,7 @@ def get_dataset_text_mock():
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
             name=_TEST_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         yield get_dataset_mock
 
@@ -175,7 +184,10 @@ def create_dataset_mock():
     with patch.object(DatasetServiceClient, "create_dataset") as create_dataset_mock:
         create_dataset_lro_mock = mock.Mock(operation.Operation)
         create_dataset_lro_mock.result.return_value = GapicDataset(
-            name=_TEST_NAME, display_name=_TEST_DISPLAY_NAME
+            name=_TEST_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         create_dataset_mock.return_value = create_dataset_lro_mock
         yield create_dataset_mock
@@ -257,6 +269,7 @@ class TestDataset:
         my_dataset = datasets.Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
 
@@ -267,6 +280,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_dataset_mock.assert_called_once_with(
@@ -283,12 +297,14 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             bq_source=_TEST_SOURCE_URI_BQ,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         expected_dataset = GapicDataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             metadata=_TEST_METADATA_TABULAR_BQ,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_dataset_mock.assert_called_once_with(
@@ -310,6 +326,7 @@ class TestDataset:
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
 
@@ -320,6 +337,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         expected_import_config = ImportDataConfig(
@@ -394,6 +412,7 @@ class TestDataset:
         my_dataset = datasets.Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
 
@@ -411,6 +430,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         expected_import_config = ImportDataConfig(
@@ -473,7 +493,9 @@ class TestImageDataset:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.ImageDataset.create(
-            display_name=_TEST_DISPLAY_NAME, sync=sync,
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
         )
 
         if not sync:
@@ -483,6 +505,7 @@ class TestImageDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_IMAGE,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_dataset_mock.assert_called_once_with(
@@ -502,6 +525,7 @@ class TestImageDataset:
             display_name=_TEST_DISPLAY_NAME,
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
 
@@ -512,6 +536,7 @@ class TestImageDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_IMAGE,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_dataset_mock.assert_called_once_with(
@@ -564,7 +589,9 @@ class TestImageDataset:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.ImageDataset.create(
-            display_name=_TEST_DISPLAY_NAME, sync=sync,
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
         )
 
         my_dataset.import_data(
@@ -580,6 +607,7 @@ class TestImageDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_IMAGE,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         create_dataset_mock.assert_called_once_with(
             parent=_TEST_PARENT,
@@ -627,7 +655,10 @@ class TestTabularDataset:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.TabularDataset.create(
-            display_name=_TEST_DISPLAY_NAME, bq_source=_TEST_SOURCE_URI_BQ, sync=sync,
+            display_name=_TEST_DISPLAY_NAME,
+            bq_source=_TEST_SOURCE_URI_BQ,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
         )
 
         if not sync:
@@ -637,6 +668,7 @@ class TestTabularDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             metadata=_TEST_METADATA_TABULAR_BQ,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_dataset_mock.assert_called_once_with(
@@ -680,7 +712,9 @@ class TestTextDataset:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.TextDataset.create(
-            display_name=_TEST_DISPLAY_NAME, sync=sync,
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
         )
 
         if not sync:
@@ -690,6 +724,7 @@ class TestTextDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_dataset_mock.assert_called_once_with(
@@ -709,6 +744,7 @@ class TestTextDataset:
             display_name=_TEST_DISPLAY_NAME,
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
 
@@ -719,6 +755,7 @@ class TestTextDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_dataset_mock.assert_called_once_with(
@@ -771,7 +808,9 @@ class TestTextDataset:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.TextDataset.create(
-            display_name=_TEST_DISPLAY_NAME, sync=sync,
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
         )
 
         my_dataset.import_data(
@@ -787,6 +826,7 @@ class TestTextDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         create_dataset_mock.assert_called_once_with(
             parent=_TEST_PARENT,
