@@ -3464,6 +3464,236 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         return model
 
 
+class AutoMLVideoTrainingJob(_TrainingJob):
+
+    _supported_training_schemas = (
+        schema.training_job.definition.automl_video_classification,
+        schema.training_job.definition.automl_video_object_tracking,
+        schema.training_job.definition.automl_video_action_recognition,
+    )
+
+    def __init__(
+        self,
+        display_name: str,
+        prediction_type: str = "classification",
+        model_type: str = "CLOUD",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Constructs a AutoML Video Training Job.
+
+        Args:
+            display_name (str):
+                Required. The user-defined name of this TrainingPipeline.
+            prediction_type (str):
+                The type of prediction the Model is to produce, one of:
+                    "classification" - A video classification model classifies shots
+                        and segments in your videos according to your own defined labels.
+                    "object_tracking" - A video object tracking model detects and tracks
+                        multiple objects in shots and segments. You can use these
+                        models to track objects in your videos according to your
+                        own pre-defined, custom labels.
+                    "action_recognition" - A video action reconition model pinpoints
+                        the location of actions with short temporal durations (~1 second).
+            model_type: str = "CLOUD"
+                Required. One of the following:
+                    "CLOUD" - available for "classification", "object_tracking" and "action_recognition"
+                        A Model best tailored to be used within Google Cloud,
+                        and which cannot be exported.
+                    "MOBILE_VERSATILE_1" - available for "classification", "object_tracking" and "action_recognition"
+                        A model that, in addition to being available within Google
+                        Cloud, can also be exported (see ModelService.ExportModel)
+                        as a TensorFlow or TensorFlow Lite model and used on a
+                        mobile or edge device with afterwards.
+                    "MOBILE_CORAL_VERSATILE_1" - available only for "object_tracking"
+                        A versatile model that is meant to be exported (see
+                        ModelService.ExportModel) and used on a Google Coral device.
+                    "MOBILE_CORAL_LOW_LATENCY_1" - available only for "object_tracking"
+                        A model that trades off quality for low latency, to be
+                        exported (see ModelService.ExportModel) and used on a
+                        Google Coral device.
+                    "MOBILE_JETSON_VERSATILE_1" - available only for "object_tracking"
+                        A versatile model that is meant to be exported (see
+                        ModelService.ExportModel) and used on an NVIDIA Jetson device.
+                    "MOBILE_JETSON_LOW_LATENCY_1" - available only for "object_tracking"
+                        A model that trades off quality for low latency, to be
+                        exported (see ModelService.ExportModel) and used on an
+                        NVIDIA Jetson device.
+            project (str):
+                Optional. Project to run training in. Overrides project set in aiplatform.init.
+            location (str):
+                Optional. Location to run training in. Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to run call training service. Overrides
+                credentials set in aiplatform.init.
+        Raises:
+            ValueError: When an invalid prediction_type and/or model_type is provided.
+        """
+        valid_model_types = constants.AUTOML_VIDEO_PREDICTION_MODEL_TYPES.get(
+            prediction_type, None
+        )
+
+        if not valid_model_types:
+            raise ValueError(
+                f"'{prediction_type}' is not a supported prediction type for AutoML Video Training. "
+                f"Please choose one of: {tuple(constants.AUTOML_VIDEO_PREDICTION_MODEL_TYPES.keys())}."
+            )
+
+        if model_type not in valid_model_types:
+            raise ValueError(
+                f"'{model_type}' is not a supported model_type for prediction_type of '{prediction_type}'. "
+                f"Please choose one of: {tuple(valid_model_types)}"
+            )
+
+        super().__init__(
+            display_name=display_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        self._model_type = model_type
+        self._prediction_type = prediction_type
+
+    def run(
+        self,
+        dataset: datasets.Dataset,
+        training_fraction_split: float = 0.8,
+        test_fraction_split: float = 0.2,
+        model_display_name: Optional[str] = None,
+        sync: bool = True,
+    ) -> models.Model:
+        """Runs the AutoML Image training job and returns a model.
+
+        Data fraction splits:
+        ``training_fraction_split``, and ``test_fraction_split`` may optionally
+        be provided, they must sum to up to 1. If none of the fractions are set,
+        by default roughly 80% of data will be used for training, and 20% for test.
+
+        Args:
+            dataset (datasets.Dataset):
+                Required. The dataset within the same Project from which data will be used to train the Model. The
+                Dataset must use schema compatible with Model being trained,
+                and what is compatible should be described in the used
+                TrainingPipeline's [training_task_definition]
+                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+                For tabular Datasets, all their data is exported to
+                training, to pick and choose from.
+            training_fraction_split: float = 0.8
+                Required. The fraction of the input data that is to be
+                used to train the Model. This is ignored if Dataset is not provided.
+            test_fraction_split: float = 0.2
+                Required. The fraction of the input data that is to be
+                used to evaluate the Model. This is ignored if Dataset is not provided.
+            model_display_name (str):
+                Optional. The display name of the managed AI Platform Model. The name
+                can be up to 128 characters long and can be consist of any UTF-8
+                characters. If not provided upon creation, the job's display_name is used.
+            sync: bool = True
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Returns:
+            model: The trained AI Platform Model resource or None if training did not
+                produce an AI Platform Model.
+
+        Raises:
+            RuntimeError: If Training job has already been run or is waiting to run.
+        """
+
+        if self._is_waiting_to_run():
+            raise RuntimeError("AutoML Video Training is already scheduled to run.")
+
+        if self._has_run:
+            raise RuntimeError("AutoML Video Training has already run.")
+
+        return self._run(
+            dataset=dataset,
+            training_fraction_split=training_fraction_split,
+            test_fraction_split=test_fraction_split,
+            model_display_name=model_display_name,
+            sync=sync,
+        )
+
+    @base.optional_sync()
+    def _run(
+        self,
+        dataset: datasets.Dataset,
+        training_fraction_split: float = 0.8,
+        test_fraction_split: float = 0.2,
+        model_display_name: Optional[str] = None,
+        sync: bool = True,
+    ) -> models.Model:
+        """Runs the training job and returns a model.
+
+        Data fraction splits:
+        Any of ``training_fraction_split``, and ``test_fraction_split`` may optionally
+        be provided, they must sum to up to 1. If none of the fractions are set,
+        by default roughly 80% of data will be used for training, and 20% for test.
+
+        Args:
+            dataset (datasets.Dataset):
+                Required. The dataset within the same Project from which data will be used to train the Model. The
+                Dataset must use schema compatible with Model being trained,
+                and what is compatible should be described in the used
+                TrainingPipeline's [training_task_definition]
+                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+                For tabular Datasets, all their data is exported to
+                training, to pick and choose from.
+            training_fraction_split (float):
+                Required. The fraction of the input data that is to be
+                used to train the Model. This is ignored if Dataset is not provided.
+            test_fraction_split (float):
+                Required. The fraction of the input data that is to be
+                used to evaluate the Model. This is ignored if Dataset is not provided.
+            model_display_name (str):
+                Optional. The display name of the managed AI Platform Model. The name
+                can be up to 128 characters long and can be consist of any UTF-8
+                characters. If a `base_model` was provided, the display_name in the
+                base_model will be overritten with this value. If not provided upon
+                creation, the job's display_name is used.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            model: The trained AI Platform Model resource or None if training did not
+                produce an AI Platform Model.
+        """
+
+        # Retrieve the objective-specific training task schema based on prediction_type
+        training_task_definition = getattr(
+            schema.training_job.definition, f"automl_video_{self._prediction_type}"
+        )
+
+        training_task_inputs_dict = {
+            "modelType": self._model_type,
+        }
+
+        model_tbt = gca_model.Model()  # gca Model to be trained
+        model_tbt.display_name = model_display_name or self._display_name
+
+        return self._run_job(
+            training_task_definition=training_task_definition,
+            training_task_inputs=training_task_inputs_dict,
+            dataset=dataset,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=0.0,
+            test_fraction_split=test_fraction_split,
+            model=model_tbt,
+        )
+
+    @property
+    def _model_upload_fail_string(self) -> str:
+        """Helper property for model upload failure."""
+        return (
+            f"AutoML Video Training Pipeline {self.resource_name} is not "
+            "configured to upload a Model."
+        )
+
+
 class AutoMLTextTrainingJob(_TrainingJob):
     _supported_training_schemas = (
         schema.training_job.definition.automl_text_classification,
