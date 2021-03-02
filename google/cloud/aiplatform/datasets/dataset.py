@@ -67,6 +67,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
+
         """
 
         super().__init__(

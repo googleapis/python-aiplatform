@@ -85,6 +85,8 @@ class TabularDataset(datasets.Dataset):
                 resource is created.
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
