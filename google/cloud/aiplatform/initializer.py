@@ -61,10 +61,18 @@ class _Config:
             experiment (str): The experiment to assign
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
-            credentials (google.auth.crendentials.Crendentials): The default custom
+            credentials (google.auth.crendentials.Credentials): The default custom
                 credentials to use when making API calls. If not provided crendentials
                 will be ascertained from the environment.
-            TODO
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
         """
         if project:
             self._project = project
