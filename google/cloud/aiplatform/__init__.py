@@ -34,6 +34,7 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLTabularTrainingJob,
     AutoMLImageTrainingJob,
     AutoMLTextTrainingJob,
+    AutoMLVideoTrainingJob,
 )
 
 """
@@ -49,6 +50,7 @@ __all__ = (
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
     "AutoMLTextTrainingJob",
+    "AutoMLVideoTrainingJob",
     "BatchPredictionJob",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
