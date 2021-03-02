@@ -286,13 +286,13 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         """
 
         create_dataset_lro = cls._create(
-            encryption_spec_key_name=encryption_spec_key_name,
             api_client=api_client,
             parent=parent,
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             datasource=datasource,
             request_metadata=request_metadata,
+            encryption_spec_key_name=encryption_spec_key_name,
         )
 
         created_dataset = create_dataset_lro.result()
@@ -314,26 +314,17 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
     @classmethod
     def _create(
         cls,
-        encryption_spec_key_name: Optional[str],
         api_client: dataset_service_client.DatasetServiceClient,
         parent: str,
         display_name: str,
         metadata_schema_uri: str,
         datasource: _datasources.Datasource,
         request_metadata: Sequence[Tuple[str, str]] = (),
+        encryption_spec_key_name: Optional[str] = None,
     ) -> operation.Operation:
         """Creates a new managed dataset by directly calling API client.
 
         Args:
-            encryption_spec_key_name (Optional[str]):
-                Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect a resource. Has the
-                form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
-                The key needs to be in the same region as where the compute
-                resource is created.
-
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
             api_client (dataset_service_client.DatasetServiceClient):
                 An instance of DatasetServiceClient with the correct api_endpoint
                 already set based on user's preferences.
@@ -356,7 +347,15 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the create_dataset
                 request as metadata. Usually to specify special dataset config.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
 
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
         Returns:
             operation (Operation):
                 An object representing a long-running operation.
