@@ -19,6 +19,7 @@ from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 
 from google.protobuf import json_format
@@ -80,6 +81,12 @@ _TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
 
 _TEST_PIPELINE_RESOURCE_NAME = (
     "projects/my-project/locations/us-central1/trainingPipeline/12345"
+)
+
+# CMEK encryption
+_TEST_ENCRYPTION_KEY_NAME = "key_1234"
+_TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
 )
 
 
@@ -172,7 +179,11 @@ class TestAutoMLTabularTrainingJob:
         mock_model_service_get,
         sync,
     ):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
 
         job = AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
@@ -222,6 +233,7 @@ class TestAutoMLTabularTrainingJob:
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -258,6 +270,7 @@ class TestAutoMLTabularTrainingJob:
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
             optimization_objective_recall_value=None,
             optimization_objective_precision_value=None,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         model_from_job = job.run(
@@ -293,6 +306,7 @@ class TestAutoMLTabularTrainingJob:
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(

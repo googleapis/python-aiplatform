@@ -54,6 +54,8 @@ from google.cloud.aiplatform.v1beta1.schema.trainingjob import (
     definition_v1beta1 as training_job_inputs,
 )
 
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+
 from google.cloud import storage
 from google.rpc import code_pb2
 
@@ -85,6 +87,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ):
         """Constructs a Training Job.
 
@@ -99,12 +102,24 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Optional credentials to use to retrieve the model.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.                
         """
         utils.validate_display_name(display_name)
 
         super().__init__(project=project, location=location, credentials=credentials)
         self._display_name = display_name
         self._project = project
+        self._encryption_spec_key_name = encryption_spec_key_name
         self._gca_resource = None
 
     @property
@@ -463,6 +478,17 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             bigquery_destination=bigquery_destination,
         )
 
+        # Use provided encryption key name or else use one from global config
+        kms_key_name = (
+            self._encryption_spec_key_name
+            or initializer.global_config.encryption_spec_key_name
+        )
+        encryption_spec = None
+        if kms_key_name:
+            encryption_spec = gca_encryption_spec.EncryptionSpec(
+                kms_key_name=kms_key_name
+            )
+
         # create training pipeline
         training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=self._display_name,
@@ -470,6 +496,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             training_task_inputs=training_task_inputs,
             model_to_upload=model,
             input_data_config=input_data_config,
+            encryption_spec=encryption_spec,
         )
 
         training_pipeline = self.api_client.create_training_pipeline(
@@ -1138,6 +1165,7 @@ class _CustomTrainingJob(_TrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
     ):
         """
@@ -1240,6 +1268,17 @@ class _CustomTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.                
             staging_bucket (str):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
@@ -1249,6 +1288,7 @@ class _CustomTrainingJob(_TrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
         )
 
         self._container_uri = container_uri
@@ -1449,6 +1489,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
     ):
         """Constructs a Custom Training Job from a Python script.
@@ -1581,6 +1622,17 @@ class CustomTrainingJob(_CustomTrainingJob):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             staging_bucket (str):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
@@ -1590,6 +1642,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
             container_uri=container_uri,
             model_instance_schema_uri=model_instance_schema_uri,
             model_parameters_schema_uri=model_parameters_schema_uri,
@@ -1911,6 +1964,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
     ):
         """Constructs a Custom Container Training Job.
@@ -2042,15 +2096,27 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.                
             staging_bucket (str):
                 Bucket used to stage source and training artifacts. Overrides
-                staging_bucket set in aiplatform.init.
+                staging_bucket set in aiplatform.init.               
         """
         super().__init__(
             display_name=display_name,
             project=project,
             location=location,
             credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
             container_uri=container_uri,
             model_instance_schema_uri=model_instance_schema_uri,
             model_parameters_schema_uri=model_parameters_schema_uri,
@@ -2351,6 +2417,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ):
         """Constructs a AutoML Tabular Training Job.
 
@@ -2421,12 +2488,24 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.                
         """
         super().__init__(
             display_name=display_name,
             project=project,
             location=location,
             credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
         )
         self._column_transformations = column_transformations
         self._optimization_objective = optimization_objective
@@ -2700,6 +2779,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ):
         """Constructs a AutoML Image Training Job.
 
@@ -2763,6 +2843,17 @@ class AutoMLImageTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.                
         Raises:
             ValueError: When an invalid prediction_type or model_type is provided.
         """
@@ -2798,6 +2889,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
         )
 
         self._model_type = model_type
@@ -3049,6 +3141,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
     ):
         """Constructs a Custom Training Job from a Python Package.
@@ -3188,6 +3281,17 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             staging_bucket (str):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
@@ -3197,6 +3301,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
             container_uri=container_uri,
             model_instance_schema_uri=model_instance_schema_uri,
             model_parameters_schema_uri=model_parameters_schema_uri,
@@ -3710,6 +3815,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ):
         """Constructs a AutoML Text Training Job.
 
@@ -3751,12 +3857,24 @@ class AutoMLTextTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.                
         """
         super().__init__(
             display_name=display_name,
             project=project,
             location=location,
             credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
         )
 
         training_task_definition: str

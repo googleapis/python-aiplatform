@@ -1115,6 +1115,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ):
         """Retrieves the model resource and instantiates its representation.
 
@@ -1132,10 +1133,22 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to use to upload this model. If not set,
                 credentials set in aiplatform.init will be used.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.                
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
         self._gca_resource = self._get_gca_resource(resource_name=model_name)
+        self._encryption_spec_key_name = encryption_spec_key_name
 
     # TODO(b/170979552) Add support for predict schemata
     # TODO(b/170979926) Add support for metadata and metadata schema
@@ -1329,12 +1342,24 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 prediction_schema_uri=prediction_schema_uri,
             )
 
+        # Use provided encryption key name or else use one from global config
+        kms_key_name = (
+            self._encryption_spec_key_name
+            or initializer.global_config.encryption_spec_key_name
+        )
+        encryption_spec = None
+        if kms_key_name:
+            encryption_spec = gca_encryption_spec.EncryptionSpec(
+                kms_key_name=kms_key_name
+            )
+
         managed_model = gca_model.Model(
             display_name=display_name,
             description=description,
             artifact_uri=artifact_uri,
             container_spec=container_spec,
             predict_schemata=model_predict_schemata,
+            encryption_spec=encryption_spec,
         )
 
         # Override explanation_spec if both required fields are provided
