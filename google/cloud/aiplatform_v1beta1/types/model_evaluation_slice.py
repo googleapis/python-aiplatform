@@ -36,7 +36,7 @@ class ModelEvaluationSlice(proto.Message):
         name (str):
             Output only. The resource name of the
             ModelEvaluationSlice.
-        slice_ (~.model_evaluation_slice.ModelEvaluationSlice.Slice):
+        slice_ (google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice.Slice):
             Output only. The slice of the test data that
             is used to evaluate the Model.
         metrics_schema_uri (str):
@@ -46,11 +46,11 @@ class ModelEvaluationSlice(proto.Message):
             of this ModelEvaluationSlice. The schema is defined as an
             OpenAPI 3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
-        metrics (~.struct.Value):
+        metrics (google.protobuf.struct_pb2.Value):
             Output only. Sliced evaluation metrics of the Model. The
             schema of the metrics is stored in
             ``metrics_schema_uri``
-        create_time (~.timestamp.Timestamp):
+        create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             ModelEvaluationSlice was created.
     """

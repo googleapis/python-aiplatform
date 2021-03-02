@@ -19,6 +19,7 @@ from .user_action_reference import UserActionReference
 from .annotation import Annotation
 from .annotation_spec import AnnotationSpec
 from .completion_stats import CompletionStats
+from .encryption_spec import EncryptionSpec
 from .explanation_metadata import ExplanationMetadata
 from .explanation import (
     Explanation,
@@ -31,6 +32,8 @@ from .explanation import (
     XraiAttribution,
     SmoothGradConfig,
     FeatureNoiseSigma,
+    ExplanationSpecOverride,
+    ExplanationMetadataOverride,
 )
 from .io import (
     GcsSource,
@@ -217,12 +220,13 @@ from .specialist_pool_service import (
     UpdateSpecialistPoolOperationMetadata,
 )
 
-
 __all__ = (
+    "AcceleratorType",
     "UserActionReference",
     "Annotation",
     "AnnotationSpec",
     "CompletionStats",
+    "EncryptionSpec",
     "ExplanationMetadata",
     "Explanation",
     "ModelExplanation",
@@ -234,11 +238,14 @@ __all__ = (
     "XraiAttribution",
     "SmoothGradConfig",
     "FeatureNoiseSigma",
+    "ExplanationSpecOverride",
+    "ExplanationMetadataOverride",
     "GcsSource",
     "GcsDestination",
     "BigQuerySource",
     "BigQueryDestination",
     "ContainerRegistryDestination",
+    "JobState",
     "MachineSpec",
     "DedicatedResources",
     "AutomaticResources",
@@ -270,6 +277,7 @@ __all__ = (
     "PredictSchemata",
     "ModelContainerSpec",
     "Port",
+    "PipelineState",
     "TrainingPipeline",
     "InputDataConfig",
     "FractionSplit",

@@ -38,6 +38,7 @@ def export_model_video_action_recognition_sample(
     name = client.model_path(project=project, location=location, model=model_id)
     response = client.export_model(name=name, output_config=output_config)
     print("Long running operation:", response.operation.name)
+    print("output_info:", response.metadata.output_info)
     export_model_response = response.result(timeout=timeout)
     print("export_model_response:", export_model_response)
 

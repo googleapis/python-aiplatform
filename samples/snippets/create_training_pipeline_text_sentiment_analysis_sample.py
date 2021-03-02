@@ -32,7 +32,7 @@ def create_training_pipeline_text_sentiment_analysis_sample(
     client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
     # Use sentiment_max of 4
     training_task_inputs = trainingjob.definition.AutoMlTextSentimentInputs(
-        sentiment_max=4,
+        sentiment_max=10,
     ).to_value()
 
     training_pipeline = {

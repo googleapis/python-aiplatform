@@ -61,6 +61,7 @@ from .types.dataset_service import ListDatasetsRequest
 from .types.dataset_service import ListDatasetsResponse
 from .types.dataset_service import UpdateDatasetRequest
 from .types.deployed_model_ref import DeployedModelRef
+from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
 from .types.endpoint_service import CreateEndpointOperationMetadata
@@ -79,8 +80,10 @@ from .types.endpoint_service import UpdateEndpointRequest
 from .types.env_var import EnvVar
 from .types.explanation import Attribution
 from .types.explanation import Explanation
+from .types.explanation import ExplanationMetadataOverride
 from .types.explanation import ExplanationParameters
 from .types.explanation import ExplanationSpec
+from .types.explanation import ExplanationSpecOverride
 from .types.explanation import FeatureNoiseSigma
 from .types.explanation import IntegratedGradientsAttribution
 from .types.explanation import ModelExplanation
@@ -247,6 +250,7 @@ __all__ = (
     "DeployedModel",
     "DeployedModelRef",
     "DiskSpec",
+    "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
     "EnvVar",
@@ -254,8 +258,10 @@ __all__ = (
     "ExplainResponse",
     "Explanation",
     "ExplanationMetadata",
+    "ExplanationMetadataOverride",
     "ExplanationParameters",
     "ExplanationSpec",
+    "ExplanationSpecOverride",
     "ExportDataConfig",
     "ExportDataOperationMetadata",
     "ExportDataRequest",

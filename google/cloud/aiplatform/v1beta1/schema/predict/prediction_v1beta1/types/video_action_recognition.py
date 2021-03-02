@@ -38,21 +38,21 @@ class VideoActionRecognitionPredictionResult(proto.Message):
         display_name (str):
             The display name of the AnnotationSpec that
             had been identified.
-        time_segment_start (~.duration.Duration):
+        time_segment_start (google.protobuf.duration_pb2.Duration):
             The beginning, inclusive, of the video's time
             segment in which the AnnotationSpec has been
             identified. Expressed as a number of seconds as
             measured from the start of the video, with
             fractions up to a microsecond precision, and
             with "s" appended at the end.
-        time_segment_end (~.duration.Duration):
+        time_segment_end (google.protobuf.duration_pb2.Duration):
             The end, exclusive, of the video's time
             segment in which the AnnotationSpec has been
             identified. Expressed as a number of seconds as
             measured from the start of the video, with
             fractions up to a microsecond precision, and
             with "s" appended at the end.
-        confidence (~.wrappers.FloatValue):
+        confidence (google.protobuf.wrappers_pb2.FloatValue):
             The Model's confidence in correction of this
             prediction, higher value means higher
             confidence.
