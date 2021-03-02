@@ -41,6 +41,7 @@ from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import env_var
 
 from google.protobuf import json_format
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 
 class Prediction(NamedTuple):
@@ -114,6 +115,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         sync=True,
     ) -> "Endpoint":
         """Creates a new endpoint.
@@ -147,6 +149,17 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -172,6 +185,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             labels=labels,
             metadata=metadata,
             credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
         )
 
@@ -187,6 +201,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         labels: Optional[Dict] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         sync=True,
     ) -> "Endpoint":
         """
@@ -223,6 +238,17 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):
                 Whether to create this endpoint synchronously.
         Returns:
@@ -234,8 +260,22 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             project=project, location=location
         )
 
+        # Use provided encryption key name or else use one from global config
+        kms_key_name = (
+            encryption_spec_key_name
+            or initializer.global_config.encryption_spec_key_name
+        )
+        encryption_spec = None
+        if kms_key_name:
+            encryption_spec = gca_encryption_spec.EncryptionSpec(
+                kms_key_name=kms_key_name
+            )
+
         gapic_endpoint = gca_endpoint.Endpoint(
-            display_name=display_name, description=description, labels=labels,
+            display_name=display_name,
+            description=description,
+            labels=labels,
+            encryption_spec=encryption_spec,
         )
 
         operation_future = api_client.create_endpoint(
