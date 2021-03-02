@@ -38,7 +38,7 @@ from google.cloud.aiplatform_v1beta1 import ExportDataConfig
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 from google.cloud.aiplatform_v1beta1.types import dataset_service
-from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 # project
 _TEST_PROJECT = "test-project"
@@ -96,9 +96,11 @@ _TEST_METADATA_TABULAR_BQ = {
     "input_config": {"bigquery_source": {"uri": _TEST_SOURCE_URI_BQ}}
 }
 
-# dataset_encryption
+# CMEK encryption
 _TEST_ENCRYPTION_KEY_NAME = "key_1234"
-_TEST_ENCRYPTION_SPEC = EncryptionSpec(kms_key_name=_TEST_ENCRYPTION_KEY_NAME)
+_TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
+)
 
 # misc
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"

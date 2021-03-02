@@ -43,6 +43,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     machine_resources as gca_machine_resources,
 )
 from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 _LOGGER = logging.getLogger(__name__)
@@ -238,6 +239,7 @@ class BatchPredictionJob(_Job):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
@@ -372,6 +374,17 @@ class BatchPredictionJob(_Job):
             credentials (Optional[auth_credentials.Credentials]):
                 Custom credentials to use to create this batch prediction
                 job. Overrides credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.                
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -420,7 +433,20 @@ class BatchPredictionJob(_Job):
                 f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
             )
 
-        gapic_batch_prediction_job = gca_bp_job.BatchPredictionJob()
+        # Use provided encryption key name or else use one from global config
+        kms_key_name = (
+            encryption_spec_key_name
+            or initializer.global_config.encryption_spec_key_name
+        )
+        encryption_spec = None
+        if kms_key_name:
+            encryption_spec = gca_encryption_spec.EncryptionSpec(
+                kms_key_name=kms_key_name
+            )
+
+        gapic_batch_prediction_job = gca_bp_job.BatchPredictionJob(
+            encryption_spec=encryption_spec,
+        )
 
         # Required Fields
         gapic_batch_prediction_job.display_name = job_display_name

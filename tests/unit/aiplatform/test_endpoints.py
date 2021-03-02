@@ -40,7 +40,7 @@ from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import prediction_service
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
-from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_2 = "test-project-2"
@@ -111,9 +111,11 @@ _TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
     {"sampled_shapley_attribution": {"path_count": 10}}
 )
 
-# dataset_encryption
+# CMEK encryption
 _TEST_ENCRYPTION_KEY_NAME = "key_1234"
-_TEST_ENCRYPTION_SPEC = EncryptionSpec(kms_key_name=_TEST_ENCRYPTION_KEY_NAME)
+_TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
+)
 
 
 @pytest.fixture
