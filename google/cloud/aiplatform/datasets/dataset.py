@@ -67,10 +67,11 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-
         """
 
-        super().__init__(project=project, location=location, credentials=credentials)
+        super().__init__(
+            project=project, location=location, credentials=credentials,
+        )
         self._gca_resource = self._get_gca_resource(resource_name=dataset_name)
         self._validate_metadata_schema_uri()
 
@@ -177,6 +178,8 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 resource is created.
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -208,9 +211,9 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             datasource=datasource,
-            project=project or initializer.global_config.project,
-            location=location or initializer.global_config.location,
-            credentials=credentials or initializer.global_config.credentials,
+            project=project,
+            location=location,
+            credentials=credentials,
             request_metadata=request_metadata,
             encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
@@ -275,6 +278,8 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 resource is created.
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -356,15 +361,23 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 resource is created.
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
         Returns:
             operation (Operation):
                 An object representing a long-running operation.
         """
 
+        # Use provided encryption key name or else use one from global config
+        kms_key_name = (
+            encryption_spec_key_name
+            or initializer.global_config.encryption_spec_key_name
+        )
+
         encryption_spec = None
-        if encryption_spec_key_name:
+        if kms_key_name:
             encryption_spec = gca_encryption_spec.EncryptionSpec(
-                kms_key_name=encryption_spec_key_name
+                kms_key_name=kms_key_name
             )
 
         gapic_dataset = gca_dataset.Dataset(

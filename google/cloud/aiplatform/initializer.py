@@ -40,6 +40,7 @@ class _Config:
         self._location = None
         self._staging_bucket = None
         self._credentials = None
+        self._encryption_spec_key_name = None
 
     def init(
         self,
@@ -49,6 +50,7 @@ class _Config:
         experiment: Optional[str] = None,
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ):
         """Updates common initalization parameters with provided options.
 
@@ -62,6 +64,7 @@ class _Config:
             credentials (google.auth.crendentials.Crendentials): The default custom
                 credentials to use when making API calls. If not provided crendentials
                 will be ascertained from the environment.
+            TODO
         """
         if project:
             self._project = project
@@ -75,6 +78,8 @@ class _Config:
             self._staging_bucket = staging_bucket
         if credentials:
             self._credentials = credentials
+        if encryption_spec_key_name:
+            self._encryption_spec_key_name = encryption_spec_key_name
 
     @property
     def project(self) -> str:
@@ -125,6 +130,11 @@ class _Config:
         credentials, _ = google.auth.default()
         logger.removeFilter(logging_warning_filter)
         return credentials
+
+    @property
+    def encryption_spec_key_name(self) -> Optional[str]:
+        """Default encryption spec key name, if provided."""
+        return self._encryption_spec_key_name
 
     def get_client_options(
         self, location_override: Optional[str] = None, prediction_client: bool = False,
