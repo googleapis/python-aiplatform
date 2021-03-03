@@ -712,6 +712,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         Raises:
             ValueError if there is not current traffic split and traffic percentage
                 is not 0 or 100.
+            ValueError if only `explanation_metadata` or `explanation_parameters`
+                is specified.
         """
 
         max_replica_count = max(min_replica_count, max_replica_count)
@@ -719,6 +721,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         if bool(accelerator_type) != bool(accelerator_count):
             raise ValueError(
                 "Both `accelerator_type` and `accelerator_count` should be specified or None."
+            )
+        if bool(explanation_metadata) != bool(explanation_parameters):
+            raise ValueError(
+                "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
             )
 
         if machine_type:
@@ -751,7 +757,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             )
 
         # Service will throw error if both metadata and parameters are not provided
-        if explanation_metadata or explanation_parameters:
+        if explanation_metadata and explanation_parameters:
             explanation_spec = gca_endpoint.explanation.ExplanationSpec()
             explanation_spec.metadata = explanation_metadata
             explanation_spec.parameters = explanation_parameters
@@ -1240,8 +1246,16 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 set in aiplatform.init.
         Returns:
             model: Instantiated representation of the uploaded model resource.
+        Raises:
+            ValueError if only `explanation_metadata` or `explanation_parameters`
+                is specified.
         """
         utils.validate_display_name(display_name)
+
+        if bool(explanation_metadata) != bool(explanation_parameters):
+            raise ValueError(
+                "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
+            )
 
         api_client = cls._instantiate_client(location, credentials)
         env = None

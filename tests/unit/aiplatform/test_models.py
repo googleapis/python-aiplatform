@@ -341,6 +341,21 @@ class TestModel:
                 name=test_model_resource_name
             )
 
+    def test_upload_raises_with_impartial_explanation_spec(self):
+
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with pytest.raises(ValueError) as e:
+            models.Model.upload(
+                display_name=_TEST_MODEL_NAME,
+                artifact_uri=_TEST_ARTIFACT_URI,
+                serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+                explanation_parameters=_TEST_EXPLANATION_PARAMETERS
+                # Missing the required explanations_metadata field
+            )
+
+        assert e.match(regexp=r"`explanation_parameters` should be specified or None.")
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_all_args(self, sync):
 
@@ -662,6 +677,24 @@ class TestModel:
             traffic_split={"0": 100},
             metadata=(),
         )
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    def test_deploy_raises_with_impartial_explanation_spec(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+
+        with pytest.raises(ValueError) as e:
+            test_model.deploy(
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                explanation_metadata=_TEST_EXPLANATION_METADATA,
+                # Missing required `explanation_parameters` argument
+            )
+
+        assert e.match(regexp=r"`explanation_parameters` should be specified or None.")
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
