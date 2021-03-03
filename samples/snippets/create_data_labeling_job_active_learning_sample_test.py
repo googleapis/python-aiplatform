@@ -39,6 +39,7 @@ def teardown(teardown_data_labeling_job):
 
 
 # Creating a data labeling job for images
+@pytest.mark.skip(reason="Flaky job state.")
 def test_create_data_labeling_job_active_learning_sample(capsys, shared_state):
 
     create_data_labeling_job_active_learning_sample.create_data_labeling_job_active_learning_sample(
