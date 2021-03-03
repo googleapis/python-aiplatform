@@ -41,46 +41,21 @@ class MachineSpec(proto.Message):
 
     Attributes:
         machine_type (str):
-            Immutable. The type of the machine. Following machine types
-            are supported:
+            Immutable. The type of the machine. For the machine types
+            supported for prediction, see
+            https://tinyurl.com/aip-docs/predictions/machine-types. For
+            machine types supported for creating a custom training job,
+            see https://tinyurl.com/aip-docs/training/configure-compute.
 
-            -  ``n1-standard-2``
-
-            -  ``n1-standard-4``
-
-            -  ``n1-standard-8``
-
-            -  ``n1-standard-16``
-
-            -  ``n1-standard-32``
-
-            -  ``n1-highmem-2``
-
-            -  ``n1-highmem-4``
-
-            -  ``n1-highmem-8``
-
-            -  ``n1-highmem-16``
-
-            -  ``n1-highmem-32``
-
-            -  ``n1-highcpu-2``
-
-            -  ``n1-highcpu-4``
-
-            -  ``n1-highcpu-8``
-
-            -  ``n1-highcpu-16``
-
-            -  ``n1-highcpu-32``
-
-            When used for [DeployedMode][] this field is optional and
-            the default value is ``n1-standard-2``. If used for
+            For
+            ``DeployedModel``
+            this field is optional, and the default value is
+            ``n1-standard-2``. For
             ``BatchPredictionJob``
             or as part of
             ``WorkerPoolSpec``
             this field is required.
-        accelerator_type (~.gca_accelerator_type.AcceleratorType):
+        accelerator_type (google.cloud.aiplatform_v1beta1.types.AcceleratorType):
             Immutable. The type of accelerator(s) that may be attached
             to the machine as per
             ``accelerator_count``.
@@ -104,7 +79,7 @@ class DedicatedResources(proto.Message):
     configuration.
 
     Attributes:
-        machine_spec (~.machine_resources.MachineSpec):
+        machine_spec (google.cloud.aiplatform_v1beta1.types.MachineSpec):
             Required. Immutable. The specification of a
             single machine used by the prediction.
         min_replica_count (int):
@@ -181,7 +156,7 @@ class BatchDedicatedResources(proto.Message):
     configuration.
 
     Attributes:
-        machine_spec (~.machine_resources.MachineSpec):
+        machine_spec (google.cloud.aiplatform_v1beta1.types.MachineSpec):
             Required. Immutable. The specification of a
             single machine.
         starting_replica_count (int):
@@ -222,10 +197,10 @@ class DiskSpec(proto.Message):
 
     Attributes:
         boot_disk_type (str):
-            Type of the boot disk (default is "pd-
-            tandard"). Valid values: "pd-ssd" (Persistent
-            Disk Solid State Drive) or "pd-standard"
-            (Persistent Disk Hard Disk Drive).
+            Type of the boot disk (default is "pd-ssd").
+            Valid values: "pd-ssd" (Persistent Disk Solid
+            State Drive) or "pd-standard" (Persistent Disk
+            Hard Disk Drive).
         boot_disk_size_gb (int):
             Size in GB of the boot disk (default is
             100GB).

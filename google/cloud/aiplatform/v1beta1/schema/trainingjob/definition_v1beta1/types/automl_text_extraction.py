@@ -29,7 +29,7 @@ class AutoMlTextExtraction(proto.Message):
     Extraction Model.
 
     Attributes:
-        inputs (~.automl_text_extraction.AutoMlTextExtractionInputs):
+        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTextExtractionInputs):
             The input parameters of this TrainingJob.
     """
 

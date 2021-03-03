@@ -4,21 +4,29 @@
       "git": {
         "name": ".",
         "remote": "https://github.com/googleapis/python-aiplatform.git",
-        "sha": "688a06ff0bcc291cb63225787b7083e0b96b3615"
+        "sha": "fd36abe48afa3bd4d95f152b97a65613cc2ff23c"
+      }
+    },
+    {
+      "git": {
+        "name": "googleapis",
+        "remote": "https://github.com/googleapis/googleapis.git",
+        "sha": "7f6e0d54743dcb86c618b2f78aac2d51e02834b5",
+        "internalRef": "355883280"
       }
     },
     {
       "git": {
         "name": "synthtool",
         "remote": "https://github.com/googleapis/synthtool.git",
-        "sha": "f94318521f63085b9ccb43d42af89f153fb39f15"
+        "sha": "692715c0f23a7bb3bfbbaa300f7620ddfa8c47e5"
       }
     },
     {
       "git": {
         "name": "synthtool",
         "remote": "https://github.com/googleapis/synthtool.git",
-        "sha": "f94318521f63085b9ccb43d42af89f153fb39f15"
+        "sha": "692715c0f23a7bb3bfbbaa300f7620ddfa8c47e5"
       }
     }
   ],
@@ -28,6 +36,15 @@
         "source": "googleapis",
         "apiName": "aiplatform",
         "apiVersion": "v1beta1",
+        "language": "python",
+        "generator": "bazel"
+      }
+    },
+    {
+      "client": {
+        "source": "googleapis",
+        "apiName": "aiplatform",
+        "apiVersion": "v1",
         "language": "python",
         "generator": "bazel"
       }

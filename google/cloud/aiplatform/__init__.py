@@ -35,6 +35,7 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLForecastingTrainingJob,
     AutoMLImageTrainingJob,
     AutoMLTextTrainingJob,
+    AutoMLVideoTrainingJob,
 )
 
 """
@@ -46,11 +47,12 @@ aiplatform.init(project='my_project')
 init = initializer.global_config.init
 
 __all__ = (
-    gapic,
+    "gapic",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
     "AutoMLForecastingTrainingJob",
     "AutoMLTextTrainingJob",
+    "AutoMLVideoTrainingJob",
     "BatchPredictionJob",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",

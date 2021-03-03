@@ -18,6 +18,7 @@
 import proto  # type: ignore
 
 
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
@@ -54,7 +55,7 @@ class TrainingPipeline(proto.Message):
         display_name (str):
             Required. The user-defined name of this
             TrainingPipeline.
-        input_data_config (~.training_pipeline.InputDataConfig):
+        input_data_config (google.cloud.aiplatform_v1beta1.types.InputDataConfig):
             Specifies AI Platform owned input data that may be used for
             training the Model. The TrainingPipeline's
             ``training_task_definition``
@@ -77,12 +78,12 @@ class TrainingPipeline(proto.Message):
             than the one given on input. The output URI will
             point to a location where the user only has a
             read access.
-        training_task_inputs (~.struct.Value):
+        training_task_inputs (google.protobuf.struct_pb2.Value):
             Required. The training task's parameter(s), as specified in
             the
             ``training_task_definition``'s
             ``inputs``.
-        training_task_metadata (~.struct.Value):
+        training_task_metadata (google.protobuf.struct_pb2.Value):
             Output only. The metadata information as specified in the
             ``training_task_definition``'s
             ``metadata``. This metadata is an auxiliary runtime and
@@ -91,10 +92,10 @@ class TrainingPipeline(proto.Message):
             best effort basis. Only present if the pipeline's
             ``training_task_definition``
             contains ``metadata`` object.
-        model_to_upload (~.model.Model):
+        model_to_upload (google.cloud.aiplatform_v1beta1.types.Model):
             Describes the Model that may be uploaded (via
-            [ModelService.UploadMode][]) by this TrainingPipeline. The
-            TrainingPipeline's
+            ``ModelService.UploadModel``)
+            by this TrainingPipeline. The TrainingPipeline's
             ``training_task_definition``
             should make clear whether this Model description should be
             populated, and if there are any special requirements
@@ -111,26 +112,26 @@ class TrainingPipeline(proto.Message):
             resource ``name``
             is populated. The Model is always uploaded into the Project
             and Location in which this pipeline is.
-        state (~.pipeline_state.PipelineState):
+        state (google.cloud.aiplatform_v1beta1.types.PipelineState):
             Output only. The detailed state of the
             pipeline.
-        error (~.status.Status):
+        error (google.rpc.status_pb2.Status):
             Output only. Only populated when the pipeline's state is
             ``PIPELINE_STATE_FAILED`` or ``PIPELINE_STATE_CANCELLED``.
-        create_time (~.timestamp.Timestamp):
+        create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the TrainingPipeline
             was created.
-        start_time (~.timestamp.Timestamp):
+        start_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the TrainingPipeline for the first
             time entered the ``PIPELINE_STATE_RUNNING`` state.
-        end_time (~.timestamp.Timestamp):
+        end_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the TrainingPipeline entered any of
             the following states: ``PIPELINE_STATE_SUCCEEDED``,
             ``PIPELINE_STATE_FAILED``, ``PIPELINE_STATE_CANCELLED``.
-        update_time (~.timestamp.Timestamp):
+        update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the TrainingPipeline
             was most recently updated.
-        labels (Sequence[~.training_pipeline.TrainingPipeline.LabelsEntry]):
+        labels (Sequence[google.cloud.aiplatform_v1beta1.types.TrainingPipeline.LabelsEntry]):
             The labels with user-defined metadata to
             organize TrainingPipelines.
             Label keys and values can be no longer than 64
@@ -140,6 +141,14 @@ class TrainingPipeline(proto.Message):
             are allowed.
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Customer-managed encryption key spec for a TrainingPipeline.
+            If set, this TrainingPipeline will be secured by this key.
+
+            Note: Model trained by this TrainingPipeline is also secured
+            by this key if
+            ``model_to_upload``
+            is not set separately.
     """
 
     name = proto.Field(proto.STRING, number=1)
@@ -170,38 +179,42 @@ class TrainingPipeline(proto.Message):
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=15)
 
+    encryption_spec = proto.Field(
+        proto.MESSAGE, number=18, message=gca_encryption_spec.EncryptionSpec,
+    )
+
 
 class InputDataConfig(proto.Message):
     r"""Specifies AI Platform owned input data to be used for
     training, and possibly evaluating, the Model.
 
     Attributes:
-        fraction_split (~.training_pipeline.FractionSplit):
+        fraction_split (google.cloud.aiplatform_v1beta1.types.FractionSplit):
             Split based on fractions defining the size of
             each set.
-        filter_split (~.training_pipeline.FilterSplit):
+        filter_split (google.cloud.aiplatform_v1beta1.types.FilterSplit):
             Split based on the provided filters for each
             set.
-        predefined_split (~.training_pipeline.PredefinedSplit):
+        predefined_split (google.cloud.aiplatform_v1beta1.types.PredefinedSplit):
             Supported only for tabular Datasets.
             Split based on a predefined key.
-        timestamp_split (~.training_pipeline.TimestampSplit):
+        timestamp_split (google.cloud.aiplatform_v1beta1.types.TimestampSplit):
             Supported only for tabular Datasets.
             Split based on the timestamp of the input data
             pieces.
-        gcs_destination (~.io.GcsDestination):
-            The Google Cloud Storage location where the training data is
-            to be written to. In the given directory a new directory
-            will be created with name:
+        gcs_destination (google.cloud.aiplatform_v1beta1.types.GcsDestination):
+            The Cloud Storage location where the training data is to be
+            written to. In the given directory a new directory is
+            created with name:
             ``dataset-<dataset-id>-<annotation-type>-<timestamp-of-training-call>``
             where timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601
-            format. All training input data will be written into that
+            format. All training input data is written into that
             directory.
 
-            The AI Platform environment variables representing Google
-            Cloud Storage data URIs will always be represented in the
-            Google Cloud Storage wildcard format to support sharded
-            data. e.g.: "gs://.../training-*.jsonl"
+            The AI Platform environment variables representing Cloud
+            Storage data URIs are represented in the Cloud Storage
+            wildcard format to support sharded data. e.g.:
+            "gs://.../training-*.jsonl"
 
             -  AIP_DATA_FORMAT = "jsonl" for non-tabular data, "csv" for
                tabular data
@@ -216,14 +229,17 @@ class InputDataConfig(proto.Message):
             -  AIP_TEST_DATA_URI =
 
             "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
-        bigquery_destination (~.io.BigQueryDestination):
+        bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
+            Only applicable to custom training with tabular Dataset with
+            BigQuery source.
+
             The BigQuery project location where the training data is to
             be written to. In the given project a new dataset is created
             with name
             ``dataset_<dataset-id>_<annotation-type>_<timestamp-of-training-call>``
             where timestamp is in YYYY_MM_DDThh_mm_ss_sssZ format. All
-            training input data will be written into that dataset. In
-            the dataset three tables will be created, ``training``,
+            training input data is written into that dataset. In the
+            dataset three tables are created, ``training``,
             ``validation`` and ``test``.
 
             -  AIP_DATA_FORMAT = "bigquery".
@@ -247,7 +263,7 @@ class InputDataConfig(proto.Message):
             For tabular Datasets, all their data is exported to
             training, to pick and choose from.
         annotations_filter (str):
-            Only applicable to Datasets that have DataItems and
+            Applicable only to Datasets that have DataItems and
             Annotations.
 
             A filter on Annotations of the Dataset. Only Annotations
@@ -261,13 +277,15 @@ class InputDataConfig(proto.Message):
             may be used, but note here it filters across all Annotations
             of the Dataset, and not just within a single DataItem.
         annotation_schema_uri (str):
-            Only applicable to custom training.
+            Applicable only to custom training with Datasets that have
+            DataItems and Annotations.
 
-            Google Cloud Storage URI points to a YAML file describing
+            Cloud Storage URI that points to a YAML file describing the
             annotation schema. The schema is defined as an OpenAPI 3.0.2
-            [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) The schema files
-            that can be used here are found in
-            gs://google-cloud-aiplatform/schema/dataset/annotation/,
+            `Schema
+            Object <https://tinyurl.com/y538mdwt#schema-object>`__. The
+            schema files that can be used here are found in
+            gs://google-cloud-aiplatform/schema/dataset/annotation/ ,
             note that the chosen schema must be consistent with
             ``metadata``
             of the Dataset specified by
@@ -323,8 +341,8 @@ class FractionSplit(proto.Message):
     ``validation_fraction`` and ``test_fraction`` may optionally be
     provided, they must sum to up to 1. If the provided ones sum to less
     than 1, the remainder is assigned to sets as decided by AI Platform.
-    If none of the fractions are set, by default roughly 80% of data
-    will be used for training, 10% for validation, and 10% for test.
+    If none of the fractions are set, by default roughly 80% of data is
+    used for training, 10% for validation, and 10% for test.
 
     Attributes:
         training_fraction (float):
@@ -353,6 +371,8 @@ class FilterSplit(proto.Message):
     If any of the filters in this message are to match nothing, then
     they can be set as '-' (the minus sign).
 
+    Supported only for unstructured Datasets.
+
     Attributes:
         training_filter (str):
             Required. A filter on DataItems of the Dataset. DataItems
@@ -360,27 +380,27 @@ class FilterSplit(proto.Message):
             with same syntax as the one used in
             ``DatasetService.ListDataItems``
             may be used. If a single DataItem is matched by more than
-            one of the FilterSplit filters, then it will be assigned to
-            the first set that applies to it in the training,
-            validation, test order.
+            one of the FilterSplit filters, then it is assigned to the
+            first set that applies to it in the training, validation,
+            test order.
         validation_filter (str):
             Required. A filter on DataItems of the Dataset. DataItems
             that match this filter are used to validate the Model. A
             filter with same syntax as the one used in
             ``DatasetService.ListDataItems``
             may be used. If a single DataItem is matched by more than
-            one of the FilterSplit filters, then it will be assigned to
-            the first set that applies to it in the training,
-            validation, test order.
+            one of the FilterSplit filters, then it is assigned to the
+            first set that applies to it in the training, validation,
+            test order.
         test_filter (str):
             Required. A filter on DataItems of the Dataset. DataItems
             that match this filter are used to test the Model. A filter
             with same syntax as the one used in
             ``DatasetService.ListDataItems``
             may be used. If a single DataItem is matched by more than
-            one of the FilterSplit filters, then it will be assigned to
-            the first set that applies to it in the training,
-            validation, test order.
+            one of the FilterSplit filters, then it is assigned to the
+            first set that applies to it in the training, validation,
+            test order.
     """
 
     training_filter = proto.Field(proto.STRING, number=1)

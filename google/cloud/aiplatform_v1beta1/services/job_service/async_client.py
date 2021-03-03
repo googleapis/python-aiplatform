@@ -42,6 +42,7 @@ from google.cloud.aiplatform_v1beta1.types import data_labeling_job
 from google.cloud.aiplatform_v1beta1.types import (
     data_labeling_job as gca_data_labeling_job,
 )
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import hyperparameter_tuning_job
 from google.cloud.aiplatform_v1beta1.types import (
@@ -92,6 +93,8 @@ class JobServiceAsyncClient:
     )
     model_path = staticmethod(JobServiceClient.model_path)
     parse_model_path = staticmethod(JobServiceClient.parse_model_path)
+    trial_path = staticmethod(JobServiceClient.trial_path)
+    parse_trial_path = staticmethod(JobServiceClient.parse_trial_path)
 
     common_billing_account_path = staticmethod(
         JobServiceClient.common_billing_account_path
@@ -116,6 +119,7 @@ class JobServiceAsyncClient:
         JobServiceClient.parse_common_location_path
     )
 
+    from_service_account_info = JobServiceClient.from_service_account_info
     from_service_account_file = JobServiceClient.from_service_account_file
     from_service_account_json = from_service_account_file
 
@@ -194,17 +198,18 @@ class JobServiceAsyncClient:
         will be attempted to be run.
 
         Args:
-            request (:class:`~.job_service.CreateCustomJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.CreateCustomJobRequest`):
                 The request object. Request message for
                 ``JobService.CreateCustomJob``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the CustomJob in. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            custom_job (:class:`~.gca_custom_job.CustomJob`):
+            custom_job (:class:`google.cloud.aiplatform_v1beta1.types.CustomJob`):
                 Required. The CustomJob to create.
                 This corresponds to the ``custom_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -217,7 +222,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.gca_custom_job.CustomJob:
+            google.cloud.aiplatform_v1beta1.types.CustomJob:
                 Represents a job that runs custom
                 workloads such as a Docker container or
                 a Python package. A CustomJob can have
@@ -280,12 +285,13 @@ class JobServiceAsyncClient:
         r"""Gets a CustomJob.
 
         Args:
-            request (:class:`~.job_service.GetCustomJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.GetCustomJobRequest`):
                 The request object. Request message for
                 ``JobService.GetCustomJob``.
             name (:class:`str`):
                 Required. The name of the CustomJob resource. Format:
                 ``projects/{project}/locations/{location}/customJobs/{custom_job}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -297,7 +303,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.custom_job.CustomJob:
+            google.cloud.aiplatform_v1beta1.types.CustomJob:
                 Represents a job that runs custom
                 workloads such as a Docker container or
                 a Python package. A CustomJob can have
@@ -358,13 +364,14 @@ class JobServiceAsyncClient:
         r"""Lists CustomJobs in a Location.
 
         Args:
-            request (:class:`~.job_service.ListCustomJobsRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.ListCustomJobsRequest`):
                 The request object. Request message for
                 ``JobService.ListCustomJobs``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 CustomJobs from. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -376,7 +383,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListCustomJobsAsyncPager:
+            google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListCustomJobsAsyncPager:
                 Response message for
                 ``JobService.ListCustomJobs``
 
@@ -440,13 +447,14 @@ class JobServiceAsyncClient:
         r"""Deletes a CustomJob.
 
         Args:
-            request (:class:`~.job_service.DeleteCustomJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteCustomJobRequest`):
                 The request object. Request message for
                 ``JobService.DeleteCustomJob``.
             name (:class:`str`):
                 Required. The name of the CustomJob resource to be
                 deleted. Format:
                 ``projects/{project}/locations/{location}/customJobs/{custom_job}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -458,24 +466,22 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.empty.Empty`: A generic empty message that
-                you can re-use to avoid defining duplicated empty
-                messages in your APIs. A typical example is to use it as
-                the request or the response type of an API method. For
-                instance:
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
 
-                ::
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
 
-                    service Foo {
-                      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-                    }
+                      }
 
-                The JSON representation for ``Empty`` is empty JSON
-                object ``{}``.
+                   The JSON representation for Empty is empty JSON
+                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -548,12 +554,13 @@ class JobServiceAsyncClient:
         is set to ``CANCELLED``.
 
         Args:
-            request (:class:`~.job_service.CancelCustomJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.CancelCustomJobRequest`):
                 The request object. Request message for
                 ``JobService.CancelCustomJob``.
             name (:class:`str`):
                 Required. The name of the CustomJob to cancel. Format:
                 ``projects/{project}/locations/{location}/customJobs/{custom_job}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -614,18 +621,20 @@ class JobServiceAsyncClient:
         r"""Creates a DataLabelingJob.
 
         Args:
-            request (:class:`~.job_service.CreateDataLabelingJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.CreateDataLabelingJobRequest`):
                 The request object. Request message for
                 [DataLabelingJobService.CreateDataLabelingJob][].
             parent (:class:`str`):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            data_labeling_job (:class:`~.gca_data_labeling_job.DataLabelingJob`):
+            data_labeling_job (:class:`google.cloud.aiplatform_v1beta1.types.DataLabelingJob`):
                 Required. The DataLabelingJob to
                 create.
+
                 This corresponds to the ``data_labeling_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -637,7 +646,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.gca_data_labeling_job.DataLabelingJob:
+            google.cloud.aiplatform_v1beta1.types.DataLabelingJob:
                 DataLabelingJob is used to trigger a
                 human labeling job on unlabeled data
                 from the following Dataset:
@@ -695,13 +704,14 @@ class JobServiceAsyncClient:
         r"""Gets a DataLabelingJob.
 
         Args:
-            request (:class:`~.job_service.GetDataLabelingJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.GetDataLabelingJobRequest`):
                 The request object. Request message for
                 [DataLabelingJobService.GetDataLabelingJob][].
             name (:class:`str`):
                 Required. The name of the DataLabelingJob. Format:
 
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -713,7 +723,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.data_labeling_job.DataLabelingJob:
+            google.cloud.aiplatform_v1beta1.types.DataLabelingJob:
                 DataLabelingJob is used to trigger a
                 human labeling job on unlabeled data
                 from the following Dataset:
@@ -769,12 +779,13 @@ class JobServiceAsyncClient:
         r"""Lists DataLabelingJobs in a Location.
 
         Args:
-            request (:class:`~.job_service.ListDataLabelingJobsRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsRequest`):
                 The request object. Request message for
                 [DataLabelingJobService.ListDataLabelingJobs][].
             parent (:class:`str`):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -786,7 +797,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListDataLabelingJobsAsyncPager:
+            google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListDataLabelingJobsAsyncPager:
                 Response message for
                 ``JobService.ListDataLabelingJobs``.
 
@@ -850,7 +861,7 @@ class JobServiceAsyncClient:
         r"""Deletes a DataLabelingJob.
 
         Args:
-            request (:class:`~.job_service.DeleteDataLabelingJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteDataLabelingJobRequest`):
                 The request object. Request message for
                 ``JobService.DeleteDataLabelingJob``.
             name (:class:`str`):
@@ -858,6 +869,7 @@ class JobServiceAsyncClient:
                 Format:
 
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -869,24 +881,22 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.empty.Empty`: A generic empty message that
-                you can re-use to avoid defining duplicated empty
-                messages in your APIs. A typical example is to use it as
-                the request or the response type of an API method. For
-                instance:
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
 
-                ::
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
 
-                    service Foo {
-                      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-                    }
+                      }
 
-                The JSON representation for ``Empty`` is empty JSON
-                object ``{}``.
+                   The JSON representation for Empty is empty JSON
+                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -948,13 +958,14 @@ class JobServiceAsyncClient:
         not guaranteed.
 
         Args:
-            request (:class:`~.job_service.CancelDataLabelingJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.CancelDataLabelingJobRequest`):
                 The request object. Request message for
                 [DataLabelingJobService.CancelDataLabelingJob][].
             name (:class:`str`):
                 Required. The name of the DataLabelingJob. Format:
 
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1015,19 +1026,21 @@ class JobServiceAsyncClient:
         r"""Creates a HyperparameterTuningJob
 
         Args:
-            request (:class:`~.job_service.CreateHyperparameterTuningJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.CreateHyperparameterTuningJobRequest`):
                 The request object. Request message for
                 ``JobService.CreateHyperparameterTuningJob``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the HyperparameterTuningJob in. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            hyperparameter_tuning_job (:class:`~.gca_hyperparameter_tuning_job.HyperparameterTuningJob`):
+            hyperparameter_tuning_job (:class:`google.cloud.aiplatform_v1beta1.types.HyperparameterTuningJob`):
                 Required. The HyperparameterTuningJob
                 to create.
+
                 This corresponds to the ``hyperparameter_tuning_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1039,7 +1052,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.gca_hyperparameter_tuning_job.HyperparameterTuningJob:
+            google.cloud.aiplatform_v1beta1.types.HyperparameterTuningJob:
                 Represents a HyperparameterTuningJob.
                 A HyperparameterTuningJob has a Study
                 specification and multiple CustomJobs
@@ -1098,7 +1111,7 @@ class JobServiceAsyncClient:
         r"""Gets a HyperparameterTuningJob
 
         Args:
-            request (:class:`~.job_service.GetHyperparameterTuningJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.GetHyperparameterTuningJobRequest`):
                 The request object. Request message for
                 ``JobService.GetHyperparameterTuningJob``.
             name (:class:`str`):
@@ -1106,6 +1119,7 @@ class JobServiceAsyncClient:
                 resource. Format:
 
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1117,7 +1131,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.hyperparameter_tuning_job.HyperparameterTuningJob:
+            google.cloud.aiplatform_v1beta1.types.HyperparameterTuningJob:
                 Represents a HyperparameterTuningJob.
                 A HyperparameterTuningJob has a Study
                 specification and multiple CustomJobs
@@ -1174,13 +1188,14 @@ class JobServiceAsyncClient:
         r"""Lists HyperparameterTuningJobs in a Location.
 
         Args:
-            request (:class:`~.job_service.ListHyperparameterTuningJobsRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsRequest`):
                 The request object. Request message for
                 ``JobService.ListHyperparameterTuningJobs``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 HyperparameterTuningJobs from. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1192,7 +1207,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListHyperparameterTuningJobsAsyncPager:
+            google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListHyperparameterTuningJobsAsyncPager:
                 Response message for
                 ``JobService.ListHyperparameterTuningJobs``
 
@@ -1256,7 +1271,7 @@ class JobServiceAsyncClient:
         r"""Deletes a HyperparameterTuningJob.
 
         Args:
-            request (:class:`~.job_service.DeleteHyperparameterTuningJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteHyperparameterTuningJobRequest`):
                 The request object. Request message for
                 ``JobService.DeleteHyperparameterTuningJob``.
             name (:class:`str`):
@@ -1264,6 +1279,7 @@ class JobServiceAsyncClient:
                 resource to be deleted. Format:
 
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1275,24 +1291,22 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.empty.Empty`: A generic empty message that
-                you can re-use to avoid defining duplicated empty
-                messages in your APIs. A typical example is to use it as
-                the request or the response type of an API method. For
-                instance:
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
 
-                ::
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
 
-                    service Foo {
-                      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-                    }
+                      }
 
-                The JSON representation for ``Empty`` is empty JSON
-                object ``{}``.
+                   The JSON representation for Empty is empty JSON
+                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -1366,7 +1380,7 @@ class JobServiceAsyncClient:
         is set to ``CANCELLED``.
 
         Args:
-            request (:class:`~.job_service.CancelHyperparameterTuningJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.CancelHyperparameterTuningJobRequest`):
                 The request object. Request message for
                 ``JobService.CancelHyperparameterTuningJob``.
             name (:class:`str`):
@@ -1374,6 +1388,7 @@ class JobServiceAsyncClient:
                 cancel. Format:
 
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1435,19 +1450,21 @@ class JobServiceAsyncClient:
         once created will right away be attempted to start.
 
         Args:
-            request (:class:`~.job_service.CreateBatchPredictionJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.CreateBatchPredictionJobRequest`):
                 The request object. Request message for
                 ``JobService.CreateBatchPredictionJob``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the BatchPredictionJob in. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            batch_prediction_job (:class:`~.gca_batch_prediction_job.BatchPredictionJob`):
+            batch_prediction_job (:class:`google.cloud.aiplatform_v1beta1.types.BatchPredictionJob`):
                 Required. The BatchPredictionJob to
                 create.
+
                 This corresponds to the ``batch_prediction_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1459,14 +1476,13 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.gca_batch_prediction_job.BatchPredictionJob:
-                A job that uses a
-                ``Model``
-                to produce predictions on multiple [input
-                instances][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
-                If predictions for significant portion of the instances
-                fail, the job may finish without attempting predictions
-                for all remaining instances.
+            google.cloud.aiplatform_v1beta1.types.BatchPredictionJob:
+                A job that uses a ``Model`` to produce predictions
+                   on multiple [input
+                   instances][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
+                   If predictions for significant portion of the
+                   instances fail, the job may finish without attempting
+                   predictions for all remaining instances.
 
         """
         # Create or coerce a protobuf request object.
@@ -1521,7 +1537,7 @@ class JobServiceAsyncClient:
         r"""Gets a BatchPredictionJob
 
         Args:
-            request (:class:`~.job_service.GetBatchPredictionJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.GetBatchPredictionJobRequest`):
                 The request object. Request message for
                 ``JobService.GetBatchPredictionJob``.
             name (:class:`str`):
@@ -1529,6 +1545,7 @@ class JobServiceAsyncClient:
                 Format:
 
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1540,14 +1557,13 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.batch_prediction_job.BatchPredictionJob:
-                A job that uses a
-                ``Model``
-                to produce predictions on multiple [input
-                instances][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
-                If predictions for significant portion of the instances
-                fail, the job may finish without attempting predictions
-                for all remaining instances.
+            google.cloud.aiplatform_v1beta1.types.BatchPredictionJob:
+                A job that uses a ``Model`` to produce predictions
+                   on multiple [input
+                   instances][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
+                   If predictions for significant portion of the
+                   instances fail, the job may finish without attempting
+                   predictions for all remaining instances.
 
         """
         # Create or coerce a protobuf request object.
@@ -1600,13 +1616,14 @@ class JobServiceAsyncClient:
         r"""Lists BatchPredictionJobs in a Location.
 
         Args:
-            request (:class:`~.job_service.ListBatchPredictionJobsRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsRequest`):
                 The request object. Request message for
                 ``JobService.ListBatchPredictionJobs``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 BatchPredictionJobs from. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1618,7 +1635,7 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListBatchPredictionJobsAsyncPager:
+            google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListBatchPredictionJobsAsyncPager:
                 Response message for
                 ``JobService.ListBatchPredictionJobs``
 
@@ -1683,7 +1700,7 @@ class JobServiceAsyncClient:
         jobs that already finished.
 
         Args:
-            request (:class:`~.job_service.DeleteBatchPredictionJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteBatchPredictionJobRequest`):
                 The request object. Request message for
                 ``JobService.DeleteBatchPredictionJob``.
             name (:class:`str`):
@@ -1691,6 +1708,7 @@ class JobServiceAsyncClient:
                 be deleted. Format:
 
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1702,24 +1720,22 @@ class JobServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.empty.Empty`: A generic empty message that
-                you can re-use to avoid defining duplicated empty
-                messages in your APIs. A typical example is to use it as
-                the request or the response type of an API method. For
-                instance:
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
 
-                ::
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
 
-                    service Foo {
-                      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-                    }
+                      }
 
-                The JSON representation for ``Empty`` is empty JSON
-                object ``{}``.
+                   The JSON representation for Empty is empty JSON
+                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -1791,7 +1807,7 @@ class JobServiceAsyncClient:
         are not deleted.
 
         Args:
-            request (:class:`~.job_service.CancelBatchPredictionJobRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.CancelBatchPredictionJobRequest`):
                 The request object. Request message for
                 ``JobService.CancelBatchPredictionJob``.
             name (:class:`str`):
@@ -1799,6 +1815,7 @@ class JobServiceAsyncClient:
                 Format:
 
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
