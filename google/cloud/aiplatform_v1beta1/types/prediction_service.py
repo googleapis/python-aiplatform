@@ -42,7 +42,7 @@ class PredictRequest(proto.Message):
             Required. The name of the Endpoint requested to serve the
             prediction. Format:
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``
-        instances (Sequence[~.struct.Value]):
+        instances (Sequence[google.protobuf.struct_pb2.Value]):
             Required. The instances that are the input to the prediction
             call. A DeployedModel may have an upper limit on the number
             of instances it supports per request, and when it is
@@ -54,7 +54,7 @@ class PredictRequest(proto.Message):
             [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
             ``instance_schema_uri``.
-        parameters (~.struct.Value):
+        parameters (google.protobuf.struct_pb2.Value):
             The parameters that govern the prediction. The schema of the
             parameters may be specified via Endpoint's DeployedModels'
             [Model's
@@ -75,7 +75,7 @@ class PredictResponse(proto.Message):
     ``PredictionService.Predict``.
 
     Attributes:
-        predictions (Sequence[~.struct.Value]):
+        predictions (Sequence[google.protobuf.struct_pb2.Value]):
             The predictions that are the output of the predictions call.
             The schema of any single prediction may be specified via
             Endpoint's DeployedModels' [Model's
@@ -101,7 +101,7 @@ class ExplainRequest(proto.Message):
             Required. The name of the Endpoint requested to serve the
             explanation. Format:
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``
-        instances (Sequence[~.struct.Value]):
+        instances (Sequence[google.protobuf.struct_pb2.Value]):
             Required. The instances that are the input to the
             explanation call. A DeployedModel may have an upper limit on
             the number of instances it supports per request, and when it
@@ -113,13 +113,24 @@ class ExplainRequest(proto.Message):
             [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
             ``instance_schema_uri``.
-        parameters (~.struct.Value):
+        parameters (google.protobuf.struct_pb2.Value):
             The parameters that govern the prediction. The schema of the
             parameters may be specified via Endpoint's DeployedModels'
             [Model's
             ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
             ``parameters_schema_uri``.
+        explanation_spec_override (google.cloud.aiplatform_v1beta1.types.ExplanationSpecOverride):
+            If specified, overrides the
+            ``explanation_spec``
+            of the DeployedModel. Can be used for explaining prediction
+            results with different configurations, such as:
+
+            -  Explaining top-5 predictions results as opposed to top-1;
+            -  Increasing path count or step count of the attribution
+               methods to reduce approximate errors;
+            -  Using different baselines for explaining the prediction
+               results.
         deployed_model_id (str):
             If specified, this ExplainRequest will be served by the
             chosen DeployedModel, overriding
@@ -132,6 +143,10 @@ class ExplainRequest(proto.Message):
 
     parameters = proto.Field(proto.MESSAGE, number=4, message=struct.Value,)
 
+    explanation_spec_override = proto.Field(
+        proto.MESSAGE, number=5, message=explanation.ExplanationSpecOverride,
+    )
+
     deployed_model_id = proto.Field(proto.STRING, number=3)
 
 
@@ -140,7 +155,7 @@ class ExplainResponse(proto.Message):
     ``PredictionService.Explain``.
 
     Attributes:
-        explanations (Sequence[~.explanation.Explanation]):
+        explanations (Sequence[google.cloud.aiplatform_v1beta1.types.Explanation]):
             The explanations of the Model's
             ``PredictResponse.predictions``.
 
@@ -150,7 +165,7 @@ class ExplainResponse(proto.Message):
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that
             served this explanation.
-        predictions (Sequence[~.struct.Value]):
+        predictions (Sequence[google.protobuf.struct_pb2.Value]):
             The predictions that are the output of the predictions call.
             Same as
             ``PredictResponse.predictions``.

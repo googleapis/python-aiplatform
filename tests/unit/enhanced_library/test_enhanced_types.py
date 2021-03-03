@@ -13,7 +13,10 @@
 # limitations under the License.
 from __future__ import absolute_import
 
-from google.cloud.aiplatform.v1beta1.schema.trainingjob import definition
+from google.cloud.aiplatform.v1.schema.trainingjob import definition
+from google.cloud.aiplatform.v1beta1.schema.trainingjob import (
+    definition as definition_v1beta1,
+)
 
 ModelType = definition.AutoMlImageClassificationInputs().ModelType
 test_training_input = definition.AutoMlImageClassificationInputs(
@@ -23,14 +26,36 @@ test_training_input = definition.AutoMlImageClassificationInputs(
     disable_early_stopping=False,
 )
 
+ModelType_v1beta1 = definition_v1beta1.AutoMlImageClassificationInputs().ModelType
+test_training_input_v1beta1 = definition.AutoMlImageClassificationInputs(
+    multi_label=True,
+    model_type=ModelType_v1beta1.CLOUD,
+    budget_milli_node_hours=8000,
+    disable_early_stopping=False,
+)
 
-def test_exposes_to_value_method():
+
+# Test the v1 enhanced types.
+def test_exposes_to_value_method_v1():
     assert hasattr(test_training_input, "to_value")
 
 
-def test_exposes_from_value_method():
+def test_exposes_from_value_method_v1():
     assert hasattr(test_training_input, "from_value")
 
 
-def test_exposes_from_map_method():
+def test_exposes_from_map_method_v1():
     assert hasattr(test_training_input, "from_map")
+
+
+# Test the v1beta1 enhanced types.
+def test_exposes_to_value_method_v1beta1():
+    assert hasattr(test_training_input_v1beta1, "to_value")
+
+
+def test_exposes_from_value_method_v1beta1():
+    assert hasattr(test_training_input_v1beta1, "from_value")
+
+
+def test_exposes_from_map_method_v1beta1():
+    assert hasattr(test_training_input_v1beta1, "from_map")

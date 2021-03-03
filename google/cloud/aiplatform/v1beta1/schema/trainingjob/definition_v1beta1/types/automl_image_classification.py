@@ -33,9 +33,9 @@ class AutoMlImageClassification(proto.Message):
     Classification Model.
 
     Attributes:
-        inputs (~.automl_image_classification.AutoMlImageClassificationInputs):
+        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageClassificationInputs):
             The input parameters of this TrainingJob.
-        metadata (~.automl_image_classification.AutoMlImageClassificationMetadata):
+        metadata (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageClassificationMetadata):
             The metadata information.
     """
 
@@ -52,7 +52,7 @@ class AutoMlImageClassificationInputs(proto.Message):
     r"""
 
     Attributes:
-        model_type (~.automl_image_classification.AutoMlImageClassificationInputs.ModelType):
+        model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageClassificationInputs.ModelType):
 
         base_model_id (str):
             The ID of the ``base`` model. If it is specified, the new
@@ -122,7 +122,7 @@ class AutoMlImageClassificationMetadata(proto.Message):
             value in this field means 1 node hour.
             Guaranteed to not exceed
             inputs.budgetMilliNodeHours.
-        successful_stop_reason (~.automl_image_classification.AutoMlImageClassificationMetadata.SuccessfulStopReason):
+        successful_stop_reason (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageClassificationMetadata.SuccessfulStopReason):
             For successful job completions, this is the
             reason why the job has finished.
     """

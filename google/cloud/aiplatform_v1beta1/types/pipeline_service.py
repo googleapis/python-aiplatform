@@ -46,7 +46,7 @@ class CreateTrainingPipelineRequest(proto.Message):
             Required. The resource name of the Location to create the
             TrainingPipeline in. Format:
             ``projects/{project}/locations/{location}``
-        training_pipeline (~.gca_training_pipeline.TrainingPipeline):
+        training_pipeline (google.cloud.aiplatform_v1beta1.types.TrainingPipeline):
             Required. The TrainingPipeline to create.
     """
 
@@ -104,7 +104,7 @@ class ListTrainingPipelinesRequest(proto.Message):
             of the previous
             ``PipelineService.ListTrainingPipelines``
             call.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
 
@@ -124,7 +124,7 @@ class ListTrainingPipelinesResponse(proto.Message):
     ``PipelineService.ListTrainingPipelines``
 
     Attributes:
-        training_pipelines (Sequence[~.gca_training_pipeline.TrainingPipeline]):
+        training_pipelines (Sequence[google.cloud.aiplatform_v1beta1.types.TrainingPipeline]):
             List of TrainingPipelines in the requested
             page.
         next_page_token (str):

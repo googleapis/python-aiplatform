@@ -46,4 +46,4 @@ def test_export_model_video_action_recognition_sample(capsys):
         export_format=EXPORT_FORMAT,
     )
     out, _ = capsys.readouterr()
-    assert "export_model_response" in out
+    assert "output_info" in out
