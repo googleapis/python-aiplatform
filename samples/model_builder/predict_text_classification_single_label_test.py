@@ -23,7 +23,7 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 content = "My local greasy spoon diner has great food, even if the service is a bit slow"
 
 
-def test_ucaip_generated_predict_text_classification_single_label_sample(capsys):
+def test_ucaip_predict_text_classification_single_label_mbsdk_sample(capsys):
 
     predict_text_classification_single_label.predict_text_classification_single_label_mbsdk(
         project=PROJECT_ID, location='us-central1', endpoint_id=ENDPOINT_ID, content=content, 

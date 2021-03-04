@@ -23,7 +23,7 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 content = "Many people with herniated lumbar discs experience sciatica"
 
 
-def test_ucaip_predict_entity_extraction_mbsdk(capsys):
+def test_ucaip_predict_text_entity_extraction_mbsdk_sample(capsys):
 
     predict_text_entity_extraction.predict_text_entity_extraction_mbsdk(
         project=PROJECT_ID, location='us-central1', endpoint_id=ENDPOINT_ID, content=content, 
