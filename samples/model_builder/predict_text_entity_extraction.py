@@ -12,27 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#[START aiplatform_predict_text_classification_single_label_mbsdk_sample]
+#[START aiplatform_predict_text_entity_extraction_mbsdk_sample]
 from google.cloud import aiplatform
-from google.cloud.aiplatform.v1beta1.schema.predict.instance import TextClassificationPredictionInstance
-from google.cloud.aiplatform.v1beta1.schema.predict.prediction import ClassificationPredictionResult
+from google.cloud.aiplatform.v1beta1.schema.predict.instance import TextExtractionPredictionInstance
+from google.cloud.aiplatform.v1beta1.schema.predict.prediction import TextExtractionPredictionResult
 
-def predict_text_classification_single_label_mbsdk(project, location, endpoint_id, content):
+def predict_text_entity_extraction_mbsdk(project, location, endpoint_id, content):
     aiplatform.init(project=project, location=location)
 
     endpoint = aiplatform.Endpoint(endpoint_id)
 
-    instance = TextClassificationPredictionInstance(content=content)
+    instance = TextExtractionPredictionInstance(content=content)
 
     response = endpoint.predict(
         instances=[instance], parameters={}
     )
 
     for prediction_ in response.predictions:
-        prediction = ClassificationPredictionResult.from_map(prediction_)
+        prediction = TextExtractionPredictionResult.from_map(prediction_)
         print(f'Predictions:\n\n')
-        for x in range(0, len(prediction.ids)):
-            print(f'\tDisplay name: {prediction.display_names[x]}')
-            print(f'\tID: {prediction.ids[x]}')
-            print(f'\tConfidence: {prediction.confidences[x]}\n\n')
-#[END aiplatform_predict_text_classification_single_label_mbsdk_sample]
+        print(prediction)
+#[END aiplatform_predict_text_entity_extraction_mbsdk_sample]
