@@ -115,6 +115,21 @@ _TEST_MAX_REPLICA_COUNT = 12
 
 _TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
 
+_TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
+    inputs={
+        "features": {
+            "input_tensor_name": "dense_input",
+            "encoding": "BAG_OF_FEATURES",
+            "modality": "numeric",
+            "index_feature_mapping": ["abc", "def", "ghj"],
+        }
+    },
+    outputs={"medv": {"output_tensor_name": "dense_2"}},
+)
+_TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
+    {"sampled_shapley_attribution": {"path_count": 10}}
+)
+
 _TEST_JOB_GET_METHOD_NAME = "get_fake_job"
 _TEST_JOB_CANCEL_METHOD_NAME = "cancel_fake_job"
 _TEST_JOB_DELETE_METHOD_NAME = "delete_fake_job"
@@ -459,6 +474,9 @@ class TestBatchPredictionJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
             max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            generate_explanation=True,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,
             credentials=creds,
             sync=sync,
@@ -489,6 +507,11 @@ class TestBatchPredictionJob:
                 ),
                 starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
                 max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            ),
+            generate_explanation=True,
+            explanation_spec=gapic_types.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA,
+                parameters=_TEST_EXPLANATION_PARAMETERS,
             ),
             labels=_TEST_LABEL,
         )
