@@ -25,7 +25,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
-
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -58,6 +58,22 @@ _TEST_MODEL_NAME = (
 
 _TEST_PIPELINE_RESOURCE_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipeline/12345"
+)
+
+# CMEK encryption
+_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+_TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
+)
+
+_TEST_PIPELINE_ENCRYPTION_KEY_NAME = "key_pipeline"
+_TEST_PIPELINE_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME
+)
+
+_TEST_MODEL_ENCRYPTION_KEY_NAME = "key_model"
+_TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME
 )
 
 
@@ -171,7 +187,7 @@ class TestAutoMLVideoTrainingJob:
             )
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_run_call_pipeline_service_create(
+    def test_init_aiplatform_with_encryption_key_name_and_create_training_job(
         self,
         mock_pipeline_service_create,
         mock_dataset_video,
@@ -179,9 +195,15 @@ class TestAutoMLVideoTrainingJob:
         mock_model,
         sync,
     ):
-        """Create and run an AutoML ICN training job, verify calls and return value"""
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an AutoML Video Classification training job, verify calls and return value
+        """
 
-        aiplatform.init(project=_TEST_PROJECT)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
 
         job = training_jobs.AutoMLVideoTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
@@ -208,6 +230,7 @@ class TestAutoMLVideoTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -220,6 +243,75 @@ class TestAutoMLVideoTrainingJob:
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+        )
+
+        mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
+        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert model_from_job._gca_resource is mock_model_service_get.return_value
+        assert job.get_model()._gca_resource is mock_model_service_get.return_value
+        assert not job.has_failed
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create(
+        self,
+        mock_pipeline_service_create,
+        mock_dataset_video,
+        mock_model_service_get,
+        mock_model,
+        sync,
+    ):
+        """Create and run an AutoML ICN training job, verify calls and return value"""
+
+        aiplatform.init(project=_TEST_PROJECT)
+
+        job = training_jobs.AutoMLVideoTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            prediction_type=_TEST_PREDICTION_TYPE_VCN,
+            model_type=_TEST_MODEL_TYPE_CLOUD,
+            training_pipeline_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_video,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
+            test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_FRACTION_SPLIT_TRAINING,
+            test_fraction=_TEST_FRACTION_SPLIT_TEST,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            description=mock_model._gca_resource.description,
+            encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split, dataset_id=mock_dataset_video.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.automl_video_classification,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_PIPELINE_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(

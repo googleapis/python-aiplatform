@@ -128,9 +128,19 @@ _TEST_PIPELINE_RESOURCE_NAME = (
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
 # CMEK encryption
-_TEST_ENCRYPTION_KEY_NAME = "key_1234"
-_TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
-    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
+_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+_TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
+)
+
+_TEST_PIPELINE_ENCRYPTION_KEY_NAME = "key_pipeline"
+_TEST_PIPELINE_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME
+)
+
+_TEST_MODEL_ENCRYPTION_KEY_NAME = "key_model"
+_TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME
 )
 
 
@@ -528,7 +538,7 @@ class TestCustomTrainingJob:
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
             credentials=_TEST_CREDENTIALS,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
         job = training_jobs.CustomTrainingJob(
@@ -625,6 +635,7 @@ class TestCustomTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -650,7 +661,7 @@ class TestCustomTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -698,7 +709,8 @@ class TestCustomTrainingJob:
             model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
             model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
             model_description=_TEST_MODEL_DESCRIPTION,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            training_pipeline_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
         )
 
         model_from_job = job.run(
@@ -773,6 +785,7 @@ class TestCustomTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -798,7 +811,7 @@ class TestCustomTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
+            encryption_spec=_TEST_PIPELINE_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -1611,9 +1624,9 @@ class TestCustomContainerTrainingJob:
         sync,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT,            
+            project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
         job = training_jobs.CustomContainerTrainingJob(
@@ -1703,6 +1716,7 @@ class TestCustomContainerTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1728,7 +1742,7 @@ class TestCustomContainerTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -1773,7 +1787,8 @@ class TestCustomContainerTrainingJob:
             model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
             model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
             model_description=_TEST_MODEL_DESCRIPTION,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            training_pipeline_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
         )
 
         model_from_job = job.run(
@@ -1847,6 +1862,7 @@ class TestCustomContainerTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1872,7 +1888,7 @@ class TestCustomContainerTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
+            encryption_spec=_TEST_PIPELINE_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -2801,7 +2817,7 @@ class TestCustomPythonPackageTrainingJob:
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
         job = training_jobs.CustomPythonPackageTrainingJob(
@@ -2893,6 +2909,7 @@ class TestCustomPythonPackageTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -2918,7 +2935,7 @@ class TestCustomPythonPackageTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -2964,7 +2981,8 @@ class TestCustomPythonPackageTrainingJob:
             model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
             model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
             model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            training_pipeline_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
         )
 
         model_from_job = job.run(
@@ -3039,6 +3057,7 @@ class TestCustomPythonPackageTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -3064,7 +3083,7 @@ class TestCustomPythonPackageTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
+            encryption_spec=_TEST_PIPELINE_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(

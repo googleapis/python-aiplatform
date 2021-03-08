@@ -3709,6 +3709,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        training_pipeline_encryption_spec_key_name: Optional[str] = None,
+        model_encryption_spec_key_name: Optional[str] = None,
     ):
         """Constructs a AutoML Video Training Job.
 
@@ -3756,6 +3758,28 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to run call training service. Overrides
                 credentials set in aiplatform.init.
+            training_pipeline_encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the training pipeline. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            model_encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.                
         Raises:
             ValueError: When an invalid prediction_type and/or model_type is provided.
         """
@@ -3780,6 +3804,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             project=project,
             location=location,
             credentials=credentials,
+            training_pipeline_encryption_spec_key_name=training_pipeline_encryption_spec_key_name,
+            model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
 
         self._model_type = model_type
