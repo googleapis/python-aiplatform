@@ -19,10 +19,12 @@ from google.cloud.aiplatform.datasets.dataset import Dataset
 from google.cloud.aiplatform.datasets.tabular_dataset import TabularDataset
 from google.cloud.aiplatform.datasets.image_dataset import ImageDataset
 from google.cloud.aiplatform.datasets.text_dataset import TextDataset
+from google.cloud.aiplatform.datasets.video_dataset import VideoDataset
 
 __all__ = (
     "Dataset",
     "TabularDataset",
     "ImageDataset",
     "TextDataset",
+    "VideoDataset",
 )

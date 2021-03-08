@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence, Dict, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
@@ -26,11 +26,11 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
 
-class TabularDataset(datasets.Dataset):
-    """Managed tabular dataset resource for AI Platform"""
+class VideoDataset(datasets.Dataset):
+    """Managed video dataset resource for AI Platform"""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
-        schema.dataset.metadata.tabular,
+        schema.dataset.metadata.video,
     )
 
     @classmethod
@@ -38,14 +38,16 @@ class TabularDataset(datasets.Dataset):
         cls,
         display_name: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
-        bq_source: Optional[str] = None,
+        import_schema_uri: Optional[str] = None,
+        data_item_labels: Optional[Dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
-    ) -> "TabularDataset":
-        """Creates a new tabular dataset.
+    ) -> "VideoDataset":
+        """Creates a new video dataset and optionally imports data into dataset when
+        source and import_schema_uri are passed.
 
         Args:
             display_name (str):
@@ -60,10 +62,27 @@ class TabularDataset(datasets.Dataset):
                 examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
-            bq_source (str):
-                BigQuery URI to the input table.
-                example:
-                    "bq://project.dataset.table_name"
+            import_schema_uri (str):
+                Points to a YAML file stored on Google Cloud
+                Storage describing the import format. Validation will be
+                done against the schema. The schema is defined as an
+                `OpenAPI 3.0.2 Schema
+                Object <https://tinyurl.com/y538mdwt>`__.
+            data_item_labels (Dict):
+                Labels that will be applied to newly imported DataItems. If
+                an identical DataItem as one being imported already exists
+                in the Dataset, then these labels will be appended to these
+                of the already existing one, and if labels with identical
+                key is imported before, the old label value will be
+                overwritten. If two DataItems are identical in the same
+                import data operation, the labels will be combined and if
+                key collision happens in this case, one of the values will
+                be picked randomly. Two DataItems are considered identical
+                if their content bytes are identical (e.g. image bytes or
+                pdf bytes). These labels will be overridden by Annotation
+                labels specified inside index file refenced by
+                [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
+                e.g. jsonl file.
             project (str):
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -81,8 +100,8 @@ class TabularDataset(datasets.Dataset):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            tabular_dataset (TabularDataset):
-                Instantiated representation of the managed tabular dataset resource.
+            video_dataset (VideoDataset):
+                Instantiated representation of the managed video dataset resource.
 
         """
 
@@ -90,12 +109,13 @@ class TabularDataset(datasets.Dataset):
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
-        metadata_schema_uri = schema.dataset.metadata.tabular
+        metadata_schema_uri = schema.dataset.metadata.video
 
         datasource = _datasources.create_datasource(
             metadata_schema_uri=metadata_schema_uri,
+            import_schema_uri=import_schema_uri,
             gcs_source=gcs_source,
-            bq_source=bq_source,
+            data_item_labels=data_item_labels,
         )
 
         return cls._create_and_import(
@@ -111,9 +131,4 @@ class TabularDataset(datasets.Dataset):
             credentials=credentials or initializer.global_config.credentials,
             request_metadata=request_metadata,
             sync=sync,
-        )
-
-    def import_data(self):
-        raise NotImplementedError(
-            f"{self.__class__.__name__} class does not support 'import_data'"
         )
