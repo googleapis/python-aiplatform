@@ -41,7 +41,8 @@ from google.cloud.aiplatform_v1beta1.services.model_service import (
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
     client as pipeline_service_client,
 )
-from google.cloud.aiplatform_v1beta1.types import encryption_spec, io as gca_io
+
+from google.cloud.aiplatform_v1beta1.types import io as gca_io
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state

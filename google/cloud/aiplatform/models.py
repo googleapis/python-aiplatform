@@ -1143,7 +1143,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
 
-                Overrides encryption_spec_key_name set in aiplatform.init.                
+                Overrides encryption_spec_key_name set in aiplatform.init.
         """
 
         super().__init__(project=project, location=location, credentials=credentials)
@@ -1799,7 +1799,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
 
-                Overrides encryption_spec_key_name set in aiplatform.init.                
+                Overrides encryption_spec_key_name set in aiplatform.init.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.

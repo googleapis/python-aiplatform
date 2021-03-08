@@ -2189,7 +2189,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Overrides encryption_spec_key_name set in aiplatform.init.
             staging_bucket (str):
                 Bucket used to stage source and training artifacts. Overrides
-                staging_bucket set in aiplatform.init.               
+                staging_bucket set in aiplatform.init.
         """
         super().__init__(
             display_name=display_name,
@@ -2961,7 +2961,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
 
-                Overrides encryption_spec_key_name set in aiplatform.init.                
+                Overrides encryption_spec_key_name set in aiplatform.init.
         Raises:
             ValueError: When an invalid prediction_type or model_type is provided.
         """
@@ -3779,7 +3779,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
 
-                Overrides encryption_spec_key_name set in aiplatform.init.                
+                Overrides encryption_spec_key_name set in aiplatform.init.
         Raises:
             ValueError: When an invalid prediction_type and/or model_type is provided.
         """
