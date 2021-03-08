@@ -151,7 +151,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect a resource. Has the
+                managed encryption key used to protect the model. Has the
                 form:
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
                 The key needs to be in the same region as where the compute
@@ -240,7 +240,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect a resource. Has the
+                managed encryption key used to protect the model. Has the
                 form:
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
                 The key needs to be in the same region as where the compute
@@ -1135,7 +1135,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init will be used.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect a resource. Has the
+                managed encryption key used to protect the model. Has the
                 form:
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
                 The key needs to be in the same region as where the compute
@@ -1177,6 +1177,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         sync=True,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model resource.
@@ -1297,6 +1298,17 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to use to upload this model. Overrides credentials
                 set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -1344,7 +1356,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
 
         # Use provided encryption key name or else use one from global config
         kms_key_name = (
-            self._encryption_spec_key_name
+            encryption_spec_key_name
             or initializer.global_config.encryption_spec_key_name
         )
         encryption_spec = None
@@ -1779,7 +1791,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 job. Overrides credentials set in aiplatform.init.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect a resource. Has the
+                managed encryption key used to protect the model. Has the
                 form:
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
                 The key needs to be in the same region as where the compute

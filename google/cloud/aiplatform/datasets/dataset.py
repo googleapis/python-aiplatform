@@ -172,7 +172,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 Strings which should be sent along with the request as metadata.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect a resource. Has the
+                managed encryption key used to protect the dataset. Has the
                 form:
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
                 The key needs to be in the same region as where the compute
@@ -272,7 +272,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 Strings which should be sent along with the request as metadata.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect a resource. Has the
+                managed encryption key used to protect the dataset. Has the
                 form:
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
                 The key needs to be in the same region as where the compute
@@ -355,7 +355,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 request as metadata. Usually to specify special dataset config.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect a resource. Has the
+                managed encryption key used to protect the dataset. Has the
                 form:
                 ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
                 The key needs to be in the same region as where the compute

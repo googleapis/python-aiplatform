@@ -65,9 +65,19 @@ _TEST_PIPELINE_RESOURCE_NAME = (
 )
 
 # CMEK encryption
-_TEST_ENCRYPTION_KEY_NAME = "key_1234"
-_TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
-    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
+_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+_TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
+)
+
+_TEST_PIPELINE_ENCRYPTION_KEY_NAME = "key_pipeline"
+_TEST_PIPELINE_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME
+)
+
+_TEST_MODEL_ENCRYPTION_KEY_NAME = "key_model"
+_TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME
 )
 
 
@@ -228,14 +238,14 @@ class TestAutoMLTextTrainingJob:
         """
 
         aiplatform.init(
-            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
         job = training_jobs.AutoMLTextTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             prediction_type=_TEST_PREDICTION_TYPE_CLASSIFICATION,
             multi_label=_TEST_CLASSIFICATION_MULTILABEL,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         model_from_job = job.run(
@@ -256,7 +266,10 @@ class TestAutoMLTextTrainingJob:
             test_fraction=_TEST_FRACTION_SPLIT_TEST,
         )
 
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
@@ -268,7 +281,7 @@ class TestAutoMLTextTrainingJob:
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_CLASSIFICATION,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -292,7 +305,8 @@ class TestAutoMLTextTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             prediction_type=_TEST_PREDICTION_TYPE_CLASSIFICATION,
             multi_label=_TEST_CLASSIFICATION_MULTILABEL,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            training_pipeline_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
         )
 
         model_from_job = job.run(
@@ -313,7 +327,10 @@ class TestAutoMLTextTrainingJob:
             test_fraction=_TEST_FRACTION_SPLIT_TEST,
         )
 
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split, dataset_id=mock_dataset_text.name,
@@ -325,7 +342,7 @@ class TestAutoMLTextTrainingJob:
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_CLASSIFICATION,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
+            encryption_spec=_TEST_PIPELINE_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(

@@ -651,10 +651,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             )
 
             return models.Model(
-                fields.id,
-                project=fields.project,
-                location=fields.location,
-                encryption_spec=self.model_encryption_spec,
+                fields.id, project=fields.project, location=fields.location,
             )
 
     def _block_until_complete(self):
