@@ -19,11 +19,11 @@ from typing import Optional, Sequence, Dict, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
+from google.cloud.aiplatform import datasets
+from google.cloud.aiplatform.datasets import _datasources
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform import datasets
-from google.cloud.aiplatform.datasets import _datasources
 
 
 class ImageDataset(datasets.Dataset):
