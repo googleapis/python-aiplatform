@@ -39,7 +39,6 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
     client as pipeline_service_client,
 )
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import (
     accelerator_type as gca_accelerator_type,
@@ -1870,7 +1869,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
-        predefined_split_column_name: Optional[str] = None,        
+        predefined_split_column_name: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.

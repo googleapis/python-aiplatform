@@ -91,8 +91,11 @@ class _Config:
             self._encryption_spec_key_name = encryption_spec_key_name
 
     def get_encryption_spec(
-        self, encryption_spec_key_name: str
+        self, encryption_spec_key_name: Optional[str]
     ) -> Optional[gca_encryption_spec.EncryptionSpec]:
+        """Creates a gca_encryption_spec.EncryptionSpec instance from the given key name.
+        If the provided key name is None, it uses the default key name if provided.
+        """
         kms_key_name = encryption_spec_key_name or self.encryption_spec_key_name
         encryption_spec = None
         if kms_key_name:

@@ -433,11 +433,7 @@ class BatchPredictionJob(_Job):
                 f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
             )
 
-        gapic_batch_prediction_job = gca_bp_job.BatchPredictionJob(
-            encryption_spec=initializer.global_config.get_encryption_spec(
-                encryption_spec_key_name=encryption_spec_key_name
-            ),
-        )
+        gapic_batch_prediction_job = gca_bp_job.BatchPredictionJob()
 
         # Required Fields
         gapic_batch_prediction_job.display_name = job_display_name
@@ -476,6 +472,9 @@ class BatchPredictionJob(_Job):
         gapic_batch_prediction_job.output_config = output_config
 
         # Optional Fields
+        gapic_batch_prediction_job.encryption_spec = initializer.global_config.get_encryption_spec(
+            encryption_spec_key_name=encryption_spec_key_name
+        )
 
         if model_parameters:
             gapic_batch_prediction_job.model_parameters = model_parameters

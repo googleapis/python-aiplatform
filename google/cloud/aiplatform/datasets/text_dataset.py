@@ -149,6 +149,8 @@ class TextDataset(datasets.Dataset):
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,
             request_metadata=request_metadata,
-            encryption_spec_key_name=encryption_spec_key_name,
+            encryption_spec=initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            ),
             sync=sync,
         )

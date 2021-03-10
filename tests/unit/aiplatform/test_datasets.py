@@ -16,6 +16,7 @@
 #
 
 import os
+
 import pytest
 
 from unittest import mock
@@ -523,12 +524,12 @@ class TestImageDataset:
     @pytest.mark.usefixtures("get_dataset_image_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset(self, create_dataset_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT)
+        aiplatform.init(
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
 
         my_dataset = datasets.ImageDataset.create(
-            display_name=_TEST_DISPLAY_NAME,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            sync=sync,
+            display_name=_TEST_DISPLAY_NAME, sync=sync,
         )
 
         if not sync:
@@ -684,6 +685,35 @@ class TestTabularDataset:
 
     @pytest.mark.usefixtures("get_dataset_tabular_mock")
     @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dataset_with_default_encryption_key(
+        self, create_dataset_mock, sync
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+
+        my_dataset = datasets.TabularDataset.create(
+            display_name=_TEST_DISPLAY_NAME, bq_source=_TEST_SOURCE_URI_BQ, sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_dataset = GapicDataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+            metadata=_TEST_METADATA_TABULAR_BQ,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_tabular_mock")
+    @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset(self, create_dataset_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -742,12 +772,12 @@ class TestTextDataset:
     @pytest.mark.usefixtures("get_dataset_text_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset(self, create_dataset_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT)
+        aiplatform.init(
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
 
         my_dataset = datasets.TextDataset.create(
-            display_name=_TEST_DISPLAY_NAME,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-            sync=sync,
+            display_name=_TEST_DISPLAY_NAME, sync=sync,
         )
 
         if not sync:
@@ -811,7 +841,9 @@ class TestTextDataset:
     @pytest.mark.usefixtures("get_dataset_text_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_import_data(self, import_data_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT)
+        aiplatform.init(
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME
+        )
 
         my_dataset = datasets.TextDataset(dataset_name=_TEST_NAME)
 
@@ -904,7 +936,9 @@ class TestVideoDataset:
     @pytest.mark.usefixtures("get_dataset_video_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset(self, create_dataset_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT)
+        aiplatform.init(
+            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME
+        )
 
         my_dataset = datasets.VideoDataset.create(
             display_name=_TEST_DISPLAY_NAME, sync=sync,
@@ -917,6 +951,7 @@ class TestVideoDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_VIDEO,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_dataset_mock.assert_called_once_with(
@@ -946,6 +981,7 @@ class TestVideoDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_VIDEO,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_dataset_mock.assert_called_once_with(
