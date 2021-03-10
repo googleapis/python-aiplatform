@@ -1354,15 +1354,18 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 prediction_schema_uri=prediction_schema_uri,
             )
 
+        # TODO(b/182388545) initializer.global_config.get_encryption_spec from a sync function
+        encryption_spec = initializer.global_config.get_encryption_spec(
+            encryption_spec_key_name=encryption_spec_key_name
+        )
+
         managed_model = gca_model.Model(
             display_name=display_name,
             description=description,
             artifact_uri=artifact_uri,
             container_spec=container_spec,
             predict_schemata=model_predict_schemata,
-            encryption_spec=initializer.global_config.get_encryption_spec(
-                encryption_spec_key_name=encryption_spec_key_name
-            ),
+            encryption_spec=encryption_spec,
         )
 
         # Override explanation_spec if both required fields are provided
