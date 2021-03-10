@@ -275,7 +275,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             prediction_type=_TEST_PREDICTION_TYPE_VCN,
             model_type=_TEST_MODEL_TYPE_CLOUD,
-            training_pipeline_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
             model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
         )
 

@@ -34,14 +34,14 @@ from google.cloud.aiplatform_v1beta1.services.prediction_service import (
     client as prediction_service_client,
 )
 
-from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
+from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import env_var
 
 from google.protobuf import json_format
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 
 class Prediction(NamedTuple):
@@ -1354,24 +1354,15 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 prediction_schema_uri=prediction_schema_uri,
             )
 
-        # Use provided encryption key name or else use one from global config
-        kms_key_name = (
-            encryption_spec_key_name
-            or initializer.global_config.encryption_spec_key_name
-        )
-        encryption_spec = None
-        if kms_key_name:
-            encryption_spec = gca_encryption_spec.EncryptionSpec(
-                kms_key_name=kms_key_name
-            )
-
         managed_model = gca_model.Model(
             display_name=display_name,
             description=description,
             artifact_uri=artifact_uri,
             container_spec=container_spec,
             predict_schemata=model_predict_schemata,
-            encryption_spec=encryption_spec,
+            encryption_spec=initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            ),
         )
 
         # Override explanation_spec if both required fields are provided

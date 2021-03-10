@@ -29,6 +29,7 @@ from google.auth import credentials as auth_credentials
 from google.auth.exceptions import GoogleAuthError
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import constants
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 
 class _Config:
@@ -88,6 +89,17 @@ class _Config:
             self._credentials = credentials
         if encryption_spec_key_name:
             self._encryption_spec_key_name = encryption_spec_key_name
+
+    def get_encryption_spec(
+        self, encryption_spec_key_name: str
+    ) -> Optional[gca_encryption_spec.EncryptionSpec]:
+        kms_key_name = encryption_spec_key_name or self.encryption_spec_key_name
+        encryption_spec = None
+        if kms_key_name:
+            encryption_spec = gca_encryption_spec.EncryptionSpec(
+                kms_key_name=kms_key_name
+            )
+        return encryption_spec
 
     @property
     def project(self) -> str:

@@ -301,7 +301,7 @@ class TestAutoMLImageTrainingJob:
 
         job = training_jobs.AutoMLImageTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
-            training_pipeline_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
             model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
         )
 

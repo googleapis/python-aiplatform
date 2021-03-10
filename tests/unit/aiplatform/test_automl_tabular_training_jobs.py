@@ -283,7 +283,7 @@ class TestAutoMLTabularTrainingJob:
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
             optimization_objective_recall_value=None,
             optimization_objective_precision_value=None,
-            training_pipeline_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
             model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
         )
 

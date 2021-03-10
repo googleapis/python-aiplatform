@@ -42,8 +42,8 @@ from google.cloud.aiplatform_v1beta1.types import batch_prediction_job as gca_bp
 from google.cloud.aiplatform_v1beta1.types import (
     machine_resources as gca_machine_resources,
 )
+
 from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 _LOGGER = logging.getLogger(__name__)
@@ -433,19 +433,10 @@ class BatchPredictionJob(_Job):
                 f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
             )
 
-        # Use provided encryption key name or else use one from global config
-        kms_key_name = (
-            encryption_spec_key_name
-            or initializer.global_config.encryption_spec_key_name
-        )
-        encryption_spec = None
-        if kms_key_name:
-            encryption_spec = gca_encryption_spec.EncryptionSpec(
-                kms_key_name=kms_key_name
-            )
-
         gapic_batch_prediction_job = gca_bp_job.BatchPredictionJob(
-            encryption_spec=encryption_spec,
+            encryption_spec=initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            ),
         )
 
         # Required Fields

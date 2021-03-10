@@ -30,7 +30,6 @@ from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
     client as dataset_service_client,
 )
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 
 class Dataset(base.AiPlatformResourceNounWithFutureManager):
@@ -212,9 +211,9 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             datasource=datasource,
-            project=project,
-            location=location,
-            credentials=credentials,
+            project=project or initializer.global_config.project,
+            location=location or initializer.global_config.location,
+            credentials=credentials or initializer.global_config.credentials,
             request_metadata=request_metadata,
             encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
@@ -369,23 +368,13 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 An object representing a long-running operation.
         """
 
-        # Use provided encryption key name or else use one from global config
-        kms_key_name = (
-            encryption_spec_key_name
-            or initializer.global_config.encryption_spec_key_name
-        )
-
-        encryption_spec = None
-        if kms_key_name:
-            encryption_spec = gca_encryption_spec.EncryptionSpec(
-                kms_key_name=kms_key_name
-            )
-
         gapic_dataset = gca_dataset.Dataset(
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             metadata=datasource.dataset_metadata,
-            encryption_spec=encryption_spec,
+            encryption_spec=initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            ),
         )
 
         return api_client.create_dataset(
