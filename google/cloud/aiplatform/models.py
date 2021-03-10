@@ -157,7 +157,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):
@@ -1279,7 +1279,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         Returns:
@@ -1447,7 +1447,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init
             sync (bool):
@@ -1575,7 +1575,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init
             sync (bool):
@@ -1791,7 +1791,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this Model and all sub-resources of this Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         Returns:

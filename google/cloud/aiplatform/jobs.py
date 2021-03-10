@@ -382,7 +382,9 @@ class BatchPredictionJob(_Job):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If this is set, then all
+                resources created by the BatchPredictionJob will
+                be encrypted with the provided encryption key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):

@@ -109,7 +109,10 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this TrainingPipeline will be secured by this key.
+
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             model_encryption_spec_key_name (Optional[str]):
@@ -120,7 +123,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, the trained Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
@@ -1282,7 +1285,10 @@ class _CustomTrainingJob(_TrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this TrainingPipeline will be secured by this key.
+
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             model_encryption_spec_key_name (Optional[str]):
@@ -1293,7 +1299,7 @@ class _CustomTrainingJob(_TrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, the trained Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             staging_bucket (str):
@@ -1650,7 +1656,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this TrainingPipeline will be secured by this key.
+
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             model_encryption_spec_key_name (Optional[str]):
@@ -1661,7 +1670,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, the trained Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             staging_bucket (str):
@@ -2137,7 +2146,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this TrainingPipeline will be secured by this key.
+
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             model_encryption_spec_key_name (Optional[str]):
@@ -2148,7 +2160,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, the trained Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             staging_bucket (str):
@@ -2542,7 +2554,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this TrainingPipeline will be secured by this key.
+
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             model_encryption_spec_key_name (Optional[str]):
@@ -2553,7 +2568,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, the trained Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
@@ -2913,7 +2928,10 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this TrainingPipeline will be secured by this key.
+
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             model_encryption_spec_key_name (Optional[str]):
@@ -2924,7 +2942,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, the trained Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         Raises:
@@ -3366,7 +3384,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this TrainingPipeline will be secured by this key.
+
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             model_encryption_spec_key_name (Optional[str]):
@@ -3377,7 +3398,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, the trained Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             staging_bucket (str):
@@ -3731,7 +3752,10 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this TrainingPipeline will be secured by this key.
+
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             model_encryption_spec_key_name (Optional[str]):
@@ -3742,7 +3766,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, the trained Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         Raises:
@@ -3982,7 +4006,10 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this TrainingPipeline will be secured by this key.
+
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             model_encryption_spec_key_name (Optional[str]):
@@ -3993,7 +4020,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, the trained Model will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """

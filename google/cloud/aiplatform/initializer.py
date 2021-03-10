@@ -73,7 +73,7 @@ class _Config:
                 The key needs to be in the same region as where the compute
                 resource is created.
 
-                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+                If set, this resource and all sub-resources will be secured by this key.
         """
         if project:
             self._project = project
