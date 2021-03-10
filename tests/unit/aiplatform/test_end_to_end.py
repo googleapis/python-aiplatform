@@ -28,7 +28,7 @@ from google.cloud.aiplatform import training_jobs
 from google.cloud.aiplatform_v1beta1 import GcsSource
 from google.cloud.aiplatform_v1beta1 import ImportDataConfig
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
-from google.cloud.aiplatform_v1beta1.types import io as gca_io
+from google.cloud.aiplatform_v1beta1.types import encryption_spec, io as gca_io
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state
 from google.cloud.aiplatform_v1beta1.types import (
@@ -135,10 +135,14 @@ class TestEndToEnd:
         )
 
         created_endpoint = models.Endpoint.create(
-            display_name=test_endpoints._TEST_DISPLAY_NAME, sync=sync,
+            display_name=test_endpoints._TEST_DISPLAY_NAME,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
         )
 
-        my_endpoint = model_from_job.deploy(sync=sync)
+        my_endpoint = model_from_job.deploy(
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME, sync=sync
+        )
 
         endpoint_deploy_return = created_endpoint.deploy(model_from_job, sync=sync)
 
@@ -295,12 +299,12 @@ class TestEndToEnd:
             project=test_datasets._TEST_PROJECT,
             staging_bucket=test_training_jobs._TEST_BUCKET_NAME,
             credentials=test_training_jobs._TEST_CREDENTIALS,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         my_dataset = aiplatform.Dataset.create(
             display_name=test_datasets._TEST_DISPLAY_NAME,
             metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
 
@@ -321,7 +325,7 @@ class TestEndToEnd:
         )
 
         created_endpoint = models.Endpoint.create(
-            display_name=test_endpoints._TEST_DISPLAY_NAME, sync=sync
+            display_name=test_endpoints._TEST_DISPLAY_NAME, sync=sync,
         )
 
         model_from_job = job.run(
@@ -415,6 +419,7 @@ class TestEndToEnd:
         true_managed_model = gca_model.Model(
             display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME,
             container_spec=true_container_spec,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -439,6 +444,7 @@ class TestEndToEnd:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create_and_get_with_fail[0].assert_called_once_with(

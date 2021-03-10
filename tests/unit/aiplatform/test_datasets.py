@@ -38,7 +38,7 @@ from google.cloud.aiplatform_v1beta1 import ImportDataConfig
 from google.cloud.aiplatform_v1beta1 import ExportDataConfig
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
-from google.cloud.aiplatform_v1beta1.types import dataset_service
+from google.cloud.aiplatform_v1beta1.types import dataset_service, encryption_spec
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 # project
@@ -178,6 +178,7 @@ def get_dataset_video_mock():
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_VIDEO,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
             name=_TEST_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         yield get_dataset_mock
 
@@ -971,6 +972,7 @@ class TestVideoDataset:
             display_name=_TEST_DISPLAY_NAME,
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
 
@@ -1034,7 +1036,9 @@ class TestVideoDataset:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.VideoDataset.create(
-            display_name=_TEST_DISPLAY_NAME, sync=sync,
+            display_name=_TEST_DISPLAY_NAME, 
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
         )
 
         my_dataset.import_data(
@@ -1050,6 +1054,7 @@ class TestVideoDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_VIDEO,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
         create_dataset_mock.assert_called_once_with(
             parent=_TEST_PARENT,

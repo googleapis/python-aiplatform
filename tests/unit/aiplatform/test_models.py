@@ -558,7 +558,7 @@ class TestModel:
         test_model = models.Model(_TEST_ID)
         test_endpoint = models.Endpoint(_TEST_ID)
 
-        assert test_model.deploy(test_endpoint, sync=sync) == test_endpoint
+        assert test_model.deploy(test_endpoint, sync=sync,) == test_endpoint
 
         if not sync:
             test_endpoint.wait()
