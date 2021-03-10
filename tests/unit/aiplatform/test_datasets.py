@@ -38,7 +38,6 @@ from google.cloud.aiplatform_v1beta1 import ImportDataConfig
 from google.cloud.aiplatform_v1beta1 import ExportDataConfig
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
-from google.cloud.aiplatform_v1beta1.types import dataset_service, encryption_spec
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 # project
@@ -1036,7 +1035,7 @@ class TestVideoDataset:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.VideoDataset.create(
-            display_name=_TEST_DISPLAY_NAME, 
+            display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
