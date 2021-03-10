@@ -1870,9 +1870,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
-        predefined_split_column_name: Optional[str] = None,
-        model_encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
-        training_encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
+        predefined_split_column_name: Optional[str] = None,        
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
