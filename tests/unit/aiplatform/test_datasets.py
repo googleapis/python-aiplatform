@@ -38,6 +38,7 @@ from google.cloud.aiplatform_v1beta1 import ImportDataConfig
 from google.cloud.aiplatform_v1beta1 import ExportDataConfig
 from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
+from google.cloud.aiplatform_v1beta1.types import dataset_service
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 # project

@@ -95,6 +95,9 @@ class _Config:
     ) -> Optional[gca_encryption_spec.EncryptionSpec]:
         """Creates a gca_encryption_spec.EncryptionSpec instance from the given key name.
         If the provided key name is None, it uses the default key name if provided.
+
+        Args:
+            encryption_spec_key_name (Optional[str]): The default encryption key name to use when creating resources.
         """
         kms_key_name = encryption_spec_key_name or self.encryption_spec_key_name
         encryption_spec = None
