@@ -27,6 +27,7 @@ from google.cloud import bigquery
 
 from google.auth import credentials as auth_credentials
 
+from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import constants
@@ -41,6 +42,7 @@ from google.cloud.aiplatform_v1beta1.types import batch_prediction_job as gca_bp
 from google.cloud.aiplatform_v1beta1.types import (
     machine_resources as gca_machine_resources,
 )
+from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 _LOGGER = logging.getLogger(__name__)
@@ -227,6 +229,11 @@ class BatchPredictionJob(_Job):
         accelerator_count: Optional[int] = None,
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
+        generate_explanation: Optional[bool] = False,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
         labels: Optional[dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -327,6 +334,34 @@ class BatchPredictionJob(_Job):
                 The maximum number of machine replicas the batch operation may
                 be scaled to. Only used if `machine_type` is set.
                 Default is 10.
+            generate_explanation (bool):
+                Optional. Generate explanation along with the batch prediction
+                results. This will cause the batch prediction output to include
+                explanations based on the `prediction_format`:
+                    - `bigquery`: output includes a column named `explanation`. The value
+                        is a struct that conforms to the [aiplatform.gapic.Explanation] object.
+                    - `jsonl`: The JSON objects on each line include an additional entry
+                        keyed `explanation`. The value of the entry is a JSON object that
+                        conforms to the [aiplatform.gapic.Explanation] object.
+                    - `csv`: Generating explanations for CSV format is not supported.
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+                Optional. Explanation metadata configuration for this BatchPredictionJob.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_metadata`.
+                All fields of `explanation_metadata` are optional in the request. If
+                a field of the `explanation_metadata` object is not populated, the
+                corresponding field of the `Model.explanation_metadata` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's predictions.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_parameters`.
+                All fields of `explanation_parameters` are optional in the request. If
+                a field of the `explanation_parameters` object is not populated, the
+                corresponding field of the `Model.explanation_parameters` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             labels (Optional[dict]):
                 The labels with user-defined metadata to organize your
                 BatchPredictionJobs. Label keys and values can be no longer than
@@ -449,7 +484,15 @@ class BatchPredictionJob(_Job):
         # User Labels
         gapic_batch_prediction_job.labels = labels
 
-        # TODO (b/174502675): Support Explainability on Batch Prediction
+        # Explanations
+        if generate_explanation:
+            gapic_batch_prediction_job.generate_explanation = generate_explanation
+
+        if explanation_metadata or explanation_parameters:
+            gapic_batch_prediction_job.explanation_spec = gca_explanation.ExplanationSpec(
+                metadata=explanation_metadata, parameters=explanation_parameters
+            )
+
         # TODO (b/174502913): Support private feature once released
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)

@@ -22,6 +22,7 @@ from importlib import reload
 
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
+
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
@@ -62,7 +63,7 @@ _TEST_MODEL_NAME = (
 
 _TEST_MODEL_ID = "1028944691210842416"
 _TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
-
+_TEST_INSTANCES = [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
 _TEST_DEPLOYED_MODELS = [
@@ -73,6 +74,41 @@ _TEST_DEPLOYED_MODELS = [
 _TEST_MACHINE_TYPE = "n1-standard-32"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
+
+_TEST_EXPLANATIONS = [prediction_service.explanation.Explanation(attributions=[])]
+
+_TEST_ATTRIBUTIONS = [
+    prediction_service.explanation.Attribution(
+        baseline_output_value=1.0,
+        instance_output_value=2.0,
+        feature_attributions=3.0,
+        output_index=[1, 2, 3],
+        output_display_name="abc",
+        approximation_error=6.0,
+        output_name="xyz",
+    )
+]
+
+_TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
+    inputs={
+        "features": aiplatform.explain.ExplanationMetadata.InputMetadata(
+            {
+                "input_tensor_name": "dense_input",
+                "encoding": "BAG_OF_FEATURES",
+                "modality": "numeric",
+                "index_feature_mapping": ["abc", "def", "ghj"],
+            }
+        )
+    },
+    outputs={
+        "medv": aiplatform.explain.ExplanationMetadata.OutputMetadata(
+            {"output_tensor_name": "dense_2"}
+        )
+    },
+)
+_TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
+    {"sampled_shapley_attribution": {"path_count": 10}}
+)
 
 
 @pytest.fixture
@@ -198,6 +234,22 @@ def predict_client_predict_mock():
             deployed_model_id=_TEST_MODEL_ID
         )
         predict_mock.return_value.predictions.extend(_TEST_PREDICTION)
+        yield predict_mock
+
+
+@pytest.fixture
+def predict_client_explain_mock():
+    with mock.patch.object(
+        prediction_service_client.PredictionServiceClient, "explain"
+    ) as predict_mock:
+        predict_mock.return_value = prediction_service.ExplainResponse(
+            deployed_model_id=_TEST_MODEL_ID,
+        )
+        predict_mock.return_value.predictions.extend(_TEST_PREDICTION)
+        predict_mock.return_value.explanations.extend(_TEST_EXPLANATIONS)
+        predict_mock.return_value.explanations[0].attributions.extend(
+            _TEST_ATTRIBUTIONS
+        )
         yield predict_mock
 
 
@@ -536,6 +588,51 @@ class TestEndpoint:
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_explanations(self, deploy_model_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_endpoint.deploy(
+            model=test_model,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
+            sync=sync,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = machine_resources.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+        expected_dedicated_resources = machine_resources.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        expected_deployed_model = gca_endpoint.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            explanation_spec=gca_endpoint.explanation.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA,
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_min_replica_count(self, deploy_model_mock, sync):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
@@ -728,7 +825,7 @@ class TestEndpoint:
 
         test_endpoint = models.Endpoint(_TEST_ID)
         test_prediction = test_endpoint.predict(
-            instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]], parameters={"param": 3.0}
+            instances=_TEST_INSTANCES, parameters={"param": 3.0}
         )
 
         true_prediction = models.Prediction(
@@ -738,8 +835,34 @@ class TestEndpoint:
         assert true_prediction == test_prediction
         predict_client_predict_mock.assert_called_once_with(
             endpoint=_TEST_ENDPOINT_NAME,
-            instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]],
+            instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
+        )
+
+    def test_explain(self, get_endpoint_mock, predict_client_explain_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_prediction = test_endpoint.explain(
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            deployed_model_id=_TEST_MODEL_ID,
+        )
+        expected_explanations = _TEST_EXPLANATIONS
+        expected_explanations[0].attributions.extend(_TEST_ATTRIBUTIONS)
+
+        expected_prediction = models.Prediction(
+            predictions=_TEST_PREDICTION,
+            deployed_model_id=_TEST_ID,
+            explanations=expected_explanations,
+        )
+
+        assert expected_prediction == test_prediction
+        predict_client_explain_mock.assert_called_once_with(
+            endpoint=_TEST_ENDPOINT_NAME,
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            deployed_model_id=_TEST_MODEL_ID,
         )
 
     def test_list_models(self, get_endpoint_with_models_mock):
