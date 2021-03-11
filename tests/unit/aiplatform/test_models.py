@@ -39,6 +39,7 @@ from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model_service
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 from test_endpoints import create_endpoint_mock  # noqa: F401
 
@@ -103,6 +104,12 @@ _TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
 )
 _TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
     {"sampled_shapley_attribution": {"path_count": 10}}
+)
+
+# CMEK encryption
+_TEST_ENCRYPTION_KEY_NAME = "key_1234"
+_TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
 )
 
 
@@ -551,7 +558,7 @@ class TestModel:
         test_model = models.Model(_TEST_ID)
         test_endpoint = models.Endpoint(_TEST_ID)
 
-        assert test_model.deploy(test_endpoint, sync=sync) == test_endpoint
+        assert test_model.deploy(test_endpoint, sync=sync,) == test_endpoint
 
         if not sync:
             test_endpoint.wait()
@@ -698,10 +705,61 @@ class TestModel:
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
+    def test_init_aiplatform_with_encryption_key_name_and_batch_predict_gcs_source_and_dest(
+        self, create_batch_prediction_job_mock, sync
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+        test_model = models.Model(_TEST_ID)
+
+        # Make SDK batch_predict method call
+        batch_prediction_job = test_model.batch_predict(
+            job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=sync,
+        )
+
+        if not sync:
+            batch_prediction_job.wait()
+
+        # Construct expected request
+        expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            model=ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            ),
+            input_config=gapic_types.BatchPredictionJob.InputConfig(
+                instances_format="jsonl",
+                gcs_source=gapic_types.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
+            ),
+            output_config=gapic_types.BatchPredictionJob.OutputConfig(
+                gcs_destination=gapic_types.GcsDestination(
+                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+                ),
+                predictions_format="jsonl",
+            ),
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        create_batch_prediction_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest(
         self, create_batch_prediction_job_mock, sync
     ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        aiplatform.init(
+            project=_TEST_PROJECT, location=_TEST_LOCATION,
+        )
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -808,6 +866,7 @@ class TestModel:
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,
             credentials=creds,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
 
@@ -847,6 +906,7 @@ class TestModel:
                 parameters=_TEST_EXPLANATION_PARAMETERS,
             ),
             labels=_TEST_LABEL,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
