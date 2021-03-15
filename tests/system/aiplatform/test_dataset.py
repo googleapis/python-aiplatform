@@ -50,7 +50,9 @@ _TEST_TEXT_DATASET_ID = (
 _TEST_DATASET_DISPLAY_NAME = "permanent_50_flowers_dataset"
 _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE = "gs://ucaip-sample-resources/iris_1000.csv"
 _TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE = f"gs://{TEST_BUCKET}/ai-platform-unified/sdk/datasets/text_entity_extraction_dataset.jsonl"
-_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE = f"gs://{TEST_BUCKET}/ai-platform-unified/sdk/datasets/salads_oid_ml_use_public_unassigned.jsonl"
+_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE = (
+    "gs://ucaip-test-us-central1/dataset/salads_oid_ml_use_public_unassigned.jsonl"
+)
 _TEST_TEXT_ENTITY_IMPORT_SCHEMA = "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_extraction_io_format_1.0.0.yaml"
 _TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA = "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_bounding_box_io_format_1.0.0.yaml"
 
