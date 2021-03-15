@@ -123,10 +123,6 @@ def system(session):
     if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", ""):
         session.skip("Credentials must be set via environment variable")
 
-    # Set test artifact bucket env var for system tests
-    if not os.environ.get("GCLOUD_TEST_SAMPLES_BUCKET"):
-        session.env["GCLOUD_TEST_SAMPLES_BUCKET"] = "cloud-samples-data-us-central1"
-
     system_test_exists = os.path.exists(system_test_path)
     system_test_folder_exists = os.path.exists(system_test_folder_path)
     # Sanity check: only run tests if found.

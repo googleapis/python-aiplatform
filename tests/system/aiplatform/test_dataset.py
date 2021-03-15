@@ -36,7 +36,9 @@ from test_utils.vpcsc_config import vpcsc_config
 
 # TODO(vinnys): Replace with env var `BUILD_SPECIFIC_GCP_PROJECT` once supported
 _, _TEST_PROJECT = google_auth.default()
-TEST_BUCKET = os.environ["GCLOUD_TEST_SAMPLES_BUCKET"]
+TEST_BUCKET = os.environ.get(
+    "GCLOUD_TEST_SAMPLES_BUCKET", "cloud-samples-data-us-central1"
+)
 
 _TEST_LOCATION = "us-central1"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
