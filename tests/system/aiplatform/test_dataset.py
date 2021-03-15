@@ -32,6 +32,8 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1beta1.types import dataset
 from google.cloud.aiplatform_v1beta1.services import dataset_service
 
+from test_utils.vpcsc_config import vpcsc_config
+
 # TODO(vinnys): Replace with env var `BUILD_SPECIFIC_GCP_PROJECT` once supported
 _, _TEST_PROJECT = google_auth.default()
 TEST_BUCKET = os.environ["GCLOUD_TEST_SAMPLES_BUCKET"]
@@ -199,10 +201,7 @@ class TestDataset:
 
         assert len(list(data_items_post_import)) == 469
 
-    # TODO(vinnys): Remove pytest skip once image dataset index file can be dynamically updated
-    @pytest.mark.skip(
-        reason="VPCSC temp testing bucket needs to be updated in dataset index file"
-    )
+    @vpcsc_config.skip_if_inside_vpcsc
     @pytest.mark.usefixtures("delete_new_dataset")
     def test_create_and_import_image_dataset(self, dataset_gapic_client, shared_state):
         """Use the Dataset.create() method to create a new image obj detection
