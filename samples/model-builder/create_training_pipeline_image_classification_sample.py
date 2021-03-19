@@ -47,10 +47,8 @@ def create_training_pipeline_image_classification_sample(
     model.wait()
 
     print(model.display_name)
-    print(model.name)
     print(model.resource_name)
     print(model.uri)
-    print(model.description)
     return model
 
 

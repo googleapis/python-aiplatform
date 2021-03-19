@@ -37,7 +37,6 @@ def create_batch_prediction_job_sample(
     )
 
     print(batch_prediction_job.display_name)
-    print(batch_prediction_job.name)
     print(batch_prediction_job.resource_name)
     print(batch_prediction_job.state)
     return batch_prediction_job

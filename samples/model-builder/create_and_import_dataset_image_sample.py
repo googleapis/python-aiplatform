@@ -27,9 +27,7 @@ def create_and_import_dataset_image_sample(
     )
 
     print(ds.display_name)
-    print(ds.name)
     print(ds.resource_name)
-    print(ds.metadata_schema_uri)
     return ds
 
 
