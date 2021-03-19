@@ -25,7 +25,11 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"Endpoint", "DeployedModel",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "Endpoint",
+        "DeployedModel",
+    },
 )
 
 
@@ -94,7 +98,9 @@ class Endpoint(proto.Message):
     description = proto.Field(proto.STRING, number=3)
 
     deployed_models = proto.RepeatedField(
-        proto.MESSAGE, number=4, message="DeployedModel",
+        proto.MESSAGE,
+        number=4,
+        message="DeployedModel",
     )
 
     traffic_split = proto.MapField(proto.STRING, proto.INT32, number=5)
@@ -103,12 +109,22 @@ class Endpoint(proto.Message):
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=7)
 
-    create_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=timestamp.Timestamp,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        message=timestamp.Timestamp,
+    )
 
     encryption_spec = proto.Field(
-        proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE,
+        number=10,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -128,9 +144,9 @@ class DeployedModel(proto.Message):
         id (str):
             Output only. The ID of the DeployedModel.
         model (str):
-            Required. The name of the Model this is the
-            deployment of. Note that the Model may be in a
-            different location than the DeployedModel's
+            Required. The name of the Model that this is
+            the deployment of. Note that the Model may be in
+            a different location than the DeployedModel's
             Endpoint.
         display_name (str):
             The display name of the DeployedModel. If not provided upon
@@ -151,10 +167,11 @@ class DeployedModel(proto.Message):
             ``explanation_spec``
             is not populated, the value of the same field of
             ``Model.explanation_spec``
-            is inherited. The corresponding
+            is inherited. If the corresponding
             ``Model.explanation_spec``
-            must be populated, otherwise explanation for this Model is
-            not allowed.
+            is not populated, all fields of the
+            ``explanation_spec``
+            will be used for the explanation configuration.
         service_account (str):
             The service account that the DeployedModel's container runs
             as. Specify the email address of the service account. If
@@ -203,10 +220,16 @@ class DeployedModel(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=3)
 
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=timestamp.Timestamp,
+    )
 
     explanation_spec = proto.Field(
-        proto.MESSAGE, number=9, message=explanation.ExplanationSpec,
+        proto.MESSAGE,
+        number=9,
+        message=explanation.ExplanationSpec,
     )
 
     service_account = proto.Field(proto.STRING, number=11)

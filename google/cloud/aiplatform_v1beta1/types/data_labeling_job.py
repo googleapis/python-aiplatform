@@ -133,7 +133,7 @@ class DataLabelingJob(proto.Message):
             are associated with the EncryptionSpec of the
             Dataset they are exported to.
         active_learning_config (google.cloud.aiplatform_v1beta1.types.ActiveLearningConfig):
-            Parameters that configure active learning
+            Parameters that configure the active learning
             pipeline. Active learning will label the data
             incrementally via several iterations. For every
             iteration, it will select a batch of data based
@@ -154,36 +154,64 @@ class DataLabelingJob(proto.Message):
 
     inputs_schema_uri = proto.Field(proto.STRING, number=6)
 
-    inputs = proto.Field(proto.MESSAGE, number=7, message=struct.Value,)
+    inputs = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=struct.Value,
+    )
 
-    state = proto.Field(proto.ENUM, number=8, enum=job_state.JobState,)
+    state = proto.Field(
+        proto.ENUM,
+        number=8,
+        enum=job_state.JobState,
+    )
 
     labeling_progress = proto.Field(proto.INT32, number=13)
 
-    current_spend = proto.Field(proto.MESSAGE, number=14, message=money.Money,)
+    current_spend = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        message=money.Money,
+    )
 
-    create_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        message=timestamp.Timestamp,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=10, message=timestamp.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=timestamp.Timestamp,
+    )
 
-    error = proto.Field(proto.MESSAGE, number=22, message=status.Status,)
+    error = proto.Field(
+        proto.MESSAGE,
+        number=22,
+        message=status.Status,
+    )
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=11)
 
     specialist_pools = proto.RepeatedField(proto.STRING, number=16)
 
     encryption_spec = proto.Field(
-        proto.MESSAGE, number=20, message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE,
+        number=20,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
     active_learning_config = proto.Field(
-        proto.MESSAGE, number=21, message="ActiveLearningConfig",
+        proto.MESSAGE,
+        number=21,
+        message="ActiveLearningConfig",
     )
 
 
 class ActiveLearningConfig(proto.Message):
-    r"""Parameters that configure active learning pipeline. Active
-    learning will  label the data incrementally by several
+    r"""Parameters that configure the active learning pipeline.
+    Active learning will  label the data incrementally by several
     iterations. For every iteration, it  will select a batch of data
     based on the sampling strategy.
 
@@ -214,9 +242,17 @@ class ActiveLearningConfig(proto.Message):
         proto.INT32, number=2, oneof="human_labeling_budget"
     )
 
-    sample_config = proto.Field(proto.MESSAGE, number=3, message="SampleConfig",)
+    sample_config = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="SampleConfig",
+    )
 
-    training_config = proto.Field(proto.MESSAGE, number=4, message="TrainingConfig",)
+    training_config = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message="TrainingConfig",
+    )
 
 
 class SampleConfig(proto.Message):
@@ -233,7 +269,7 @@ class SampleConfig(proto.Message):
             in each following batch (except the first
             batch).
         sample_strategy (google.cloud.aiplatform_v1beta1.types.SampleConfig.SampleStrategy):
-            Field to chose sampling strategy. Sampling
+            Field to choose sampling strategy. Sampling
             strategy will decide which data should be
             selected for human labeling in every batch.
     """
@@ -253,7 +289,11 @@ class SampleConfig(proto.Message):
         proto.INT32, number=3, oneof="following_batch_sample_size"
     )
 
-    sample_strategy = proto.Field(proto.ENUM, number=5, enum=SampleStrategy,)
+    sample_strategy = proto.Field(
+        proto.ENUM,
+        number=5,
+        enum=SampleStrategy,
+    )
 
 
 class TrainingConfig(proto.Message):

@@ -20,7 +20,9 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.instance",
-    manifest={"VideoClassificationPredictionInstance",},
+    manifest={
+        "VideoClassificationPredictionInstance",
+    },
 )
 
 
@@ -48,8 +50,8 @@ class VideoClassificationPredictionInstance(proto.Message):
             Expressed as a number of seconds as measured
             from the start of the video, with "s" appended
             at the end. Fractions are allowed, up to a
-            microsecond precision, and "Infinity" is
-            allowed, which means the end of the video.
+            microsecond precision, and "inf" or "Infinity"
+            is allowed, which means the end of the video.
     """
 
     content = proto.Field(proto.STRING, number=1)

@@ -25,7 +25,11 @@ from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types import (
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.trainingjob.definition",
-    manifest={"AutoMlTables", "AutoMlTablesInputs", "AutoMlTablesMetadata",},
+    manifest={
+        "AutoMlTables",
+        "AutoMlTablesInputs",
+        "AutoMlTablesMetadata",
+    },
 )
 
 
@@ -39,9 +43,17 @@ class AutoMlTables(proto.Message):
             The metadata information.
     """
 
-    inputs = proto.Field(proto.MESSAGE, number=1, message="AutoMlTablesInputs",)
+    inputs = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="AutoMlTablesInputs",
+    )
 
-    metadata = proto.Field(proto.MESSAGE, number=2, message="AutoMlTablesMetadata",)
+    metadata = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="AutoMlTablesMetadata",
+    )
 
 
 class AutoMlTablesInputs(proto.Message):
@@ -412,7 +424,9 @@ class AutoMlTablesInputs(proto.Message):
     target_column = proto.Field(proto.STRING, number=2)
 
     transformations = proto.RepeatedField(
-        proto.MESSAGE, number=3, message=Transformation,
+        proto.MESSAGE,
+        number=3,
+        message=Transformation,
     )
 
     optimization_objective = proto.Field(proto.STRING, number=4)

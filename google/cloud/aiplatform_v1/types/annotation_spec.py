@@ -22,7 +22,10 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"AnnotationSpec",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "AnnotationSpec",
+    },
 )
 
 
@@ -55,9 +58,17 @@ class AnnotationSpec(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=2)
 
-    create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=timestamp.Timestamp,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp.Timestamp,
+    )
 
     etag = proto.Field(proto.STRING, number=5)
 

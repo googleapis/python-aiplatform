@@ -22,7 +22,10 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"MigratableResource",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "MigratableResource",
+    },
 )
 
 
@@ -44,10 +47,10 @@ class MigratableResource(proto.Message):
             Output only. Represents one Dataset in
             datalabeling.googleapis.com.
         last_migrate_time (google.protobuf.timestamp_pb2.Timestamp):
-            Output only. Timestamp when last migrate
-            attempt on this MigratableResource started. Will
-            not be set if there's no migrate attempt on this
-            MigratableResource.
+            Output only. Timestamp when the last
+            migration attempt on this MigratableResource
+            started. Will not be set if there's no migration
+            attempt on this MigratableResource.
         last_update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             MigratableResource was last updated.
@@ -130,7 +133,6 @@ class MigratableResource(proto.Message):
                 annotated_dataset (str):
                     Full resource name of data labeling AnnotatedDataset.
                     Format:
-
                     ``projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}``.
                 annotated_dataset_display_name (str):
                     The AnnotatedDataset's display name in
@@ -152,27 +154,43 @@ class MigratableResource(proto.Message):
         )
 
     ml_engine_model_version = proto.Field(
-        proto.MESSAGE, number=1, oneof="resource", message=MlEngineModelVersion,
+        proto.MESSAGE,
+        number=1,
+        oneof="resource",
+        message=MlEngineModelVersion,
     )
 
     automl_model = proto.Field(
-        proto.MESSAGE, number=2, oneof="resource", message=AutomlModel,
+        proto.MESSAGE,
+        number=2,
+        oneof="resource",
+        message=AutomlModel,
     )
 
     automl_dataset = proto.Field(
-        proto.MESSAGE, number=3, oneof="resource", message=AutomlDataset,
+        proto.MESSAGE,
+        number=3,
+        oneof="resource",
+        message=AutomlDataset,
     )
 
     data_labeling_dataset = proto.Field(
-        proto.MESSAGE, number=4, oneof="resource", message=DataLabelingDataset,
+        proto.MESSAGE,
+        number=4,
+        oneof="resource",
+        message=DataLabelingDataset,
     )
 
     last_migrate_time = proto.Field(
-        proto.MESSAGE, number=5, message=timestamp.Timestamp,
+        proto.MESSAGE,
+        number=5,
+        message=timestamp.Timestamp,
     )
 
     last_update_time = proto.Field(
-        proto.MESSAGE, number=6, message=timestamp.Timestamp,
+        proto.MESSAGE,
+        number=6,
+        message=timestamp.Timestamp,
     )
 
 

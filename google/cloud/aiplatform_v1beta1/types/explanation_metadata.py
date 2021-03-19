@@ -22,7 +22,10 @@ from google.protobuf import struct_pb2 as struct  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"ExplanationMetadata",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "ExplanationMetadata",
+    },
 )
 
 
@@ -52,8 +55,8 @@ class ExplanationMetadata(proto.Message):
             Required. Map from output names to output
             metadata.
             For AI Platform provided Tensorflow images, keys
-            can be any string user defines.
-
+            can be any user defined string that consists of
+            any UTF-8 characters.
             For custom images, keys are the name of the
             output field in the prediction to be explained.
 
@@ -316,13 +319,17 @@ class ExplanationMetadata(proto.Message):
             )
 
         input_baselines = proto.RepeatedField(
-            proto.MESSAGE, number=1, message=struct.Value,
+            proto.MESSAGE,
+            number=1,
+            message=struct.Value,
         )
 
         input_tensor_name = proto.Field(proto.STRING, number=2)
 
         encoding = proto.Field(
-            proto.ENUM, number=3, enum="ExplanationMetadata.InputMetadata.Encoding",
+            proto.ENUM,
+            number=3,
+            enum="ExplanationMetadata.InputMetadata.Encoding",
         )
 
         modality = proto.Field(proto.STRING, number=4)
@@ -342,7 +349,9 @@ class ExplanationMetadata(proto.Message):
         encoded_tensor_name = proto.Field(proto.STRING, number=9)
 
         encoded_baselines = proto.RepeatedField(
-            proto.MESSAGE, number=10, message=struct.Value,
+            proto.MESSAGE,
+            number=10,
+            message=struct.Value,
         )
 
         visualization = proto.Field(
@@ -368,7 +377,7 @@ class ExplanationMetadata(proto.Message):
                 values.
 
                 The shape of the value must be an n-dimensional array of
-                strings. The number of dimentions must match that of the
+                strings. The number of dimensions must match that of the
                 outputs to be explained. The
                 ``Attribution.output_display_name``
                 is populated by locating in the mapping with
@@ -391,7 +400,10 @@ class ExplanationMetadata(proto.Message):
         """
 
         index_display_name_mapping = proto.Field(
-            proto.MESSAGE, number=1, oneof="display_name_mapping", message=struct.Value,
+            proto.MESSAGE,
+            number=1,
+            oneof="display_name_mapping",
+            message=struct.Value,
         )
 
         display_name_mapping_key = proto.Field(
@@ -401,11 +413,17 @@ class ExplanationMetadata(proto.Message):
         output_tensor_name = proto.Field(proto.STRING, number=3)
 
     inputs = proto.MapField(
-        proto.STRING, proto.MESSAGE, number=1, message=InputMetadata,
+        proto.STRING,
+        proto.MESSAGE,
+        number=1,
+        message=InputMetadata,
     )
 
     outputs = proto.MapField(
-        proto.STRING, proto.MESSAGE, number=2, message=OutputMetadata,
+        proto.STRING,
+        proto.MESSAGE,
+        number=2,
+        message=OutputMetadata,
     )
 
     feature_attributions_schema_uri = proto.Field(proto.STRING, number=3)

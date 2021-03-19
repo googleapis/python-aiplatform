@@ -20,7 +20,10 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.trainingjob.definition",
-    manifest={"AutoMlTextClassification", "AutoMlTextClassificationInputs",},
+    manifest={
+        "AutoMlTextClassification",
+        "AutoMlTextClassificationInputs",
+    },
 )
 
 
@@ -34,7 +37,9 @@ class AutoMlTextClassification(proto.Message):
     """
 
     inputs = proto.Field(
-        proto.MESSAGE, number=1, message="AutoMlTextClassificationInputs",
+        proto.MESSAGE,
+        number=1,
+        message="AutoMlTextClassificationInputs",
     )
 
 

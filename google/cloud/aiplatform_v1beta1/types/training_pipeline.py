@@ -155,32 +155,74 @@ class TrainingPipeline(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=2)
 
-    input_data_config = proto.Field(proto.MESSAGE, number=3, message="InputDataConfig",)
+    input_data_config = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="InputDataConfig",
+    )
 
     training_task_definition = proto.Field(proto.STRING, number=4)
 
-    training_task_inputs = proto.Field(proto.MESSAGE, number=5, message=struct.Value,)
+    training_task_inputs = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=struct.Value,
+    )
 
-    training_task_metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
+    training_task_metadata = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=struct.Value,
+    )
 
-    model_to_upload = proto.Field(proto.MESSAGE, number=7, message=model.Model,)
+    model_to_upload = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=model.Model,
+    )
 
-    state = proto.Field(proto.ENUM, number=9, enum=pipeline_state.PipelineState,)
+    state = proto.Field(
+        proto.ENUM,
+        number=9,
+        enum=pipeline_state.PipelineState,
+    )
 
-    error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
+    error = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=status.Status,
+    )
 
-    create_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message=timestamp.Timestamp,
+    )
 
-    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
+    start_time = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=timestamp.Timestamp,
+    )
 
-    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
+    end_time = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        message=timestamp.Timestamp,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        message=timestamp.Timestamp,
+    )
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=15)
 
     encryption_spec = proto.Field(
-        proto.MESSAGE, number=18, message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE,
+        number=18,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -218,17 +260,15 @@ class InputDataConfig(proto.Message):
 
             -  AIP_DATA_FORMAT = "jsonl" for non-tabular data, "csv" for
                tabular data
-            -  AIP_TRAINING_DATA_URI =
 
-            "gcs_destination/dataset---/training-*.${AIP_DATA_FORMAT}"
+            -  AIP_TRAINING_DATA_URI =
+               "gcs_destination/dataset---/training-*.${AIP_DATA_FORMAT}"
 
             -  AIP_VALIDATION_DATA_URI =
-
-            "gcs_destination/dataset---/validation-*.${AIP_DATA_FORMAT}"
+               "gcs_destination/dataset---/validation-*.${AIP_DATA_FORMAT}"
 
             -  AIP_TEST_DATA_URI =
-
-            "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
+               "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
         bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
             Only applicable to custom training with tabular Dataset with
             BigQuery source.
@@ -243,13 +283,12 @@ class InputDataConfig(proto.Message):
             ``validation`` and ``test``.
 
             -  AIP_DATA_FORMAT = "bigquery".
-            -  AIP_TRAINING_DATA_URI =
 
-            "bigquery_destination.dataset\_\ **\ .training"
+            -  AIP_TRAINING_DATA_URI =
+               "bigquery_destination.dataset\_\ **\ .training"
 
             -  AIP_VALIDATION_DATA_URI =
-
-            "bigquery_destination.dataset\_\ **\ .validation"
+               "bigquery_destination.dataset\_\ **\ .validation"
 
             -  AIP_TEST_DATA_URI =
                "bigquery_destination.dataset\_\ **\ .test".
@@ -305,27 +344,45 @@ class InputDataConfig(proto.Message):
     """
 
     fraction_split = proto.Field(
-        proto.MESSAGE, number=2, oneof="split", message="FractionSplit",
+        proto.MESSAGE,
+        number=2,
+        oneof="split",
+        message="FractionSplit",
     )
 
     filter_split = proto.Field(
-        proto.MESSAGE, number=3, oneof="split", message="FilterSplit",
+        proto.MESSAGE,
+        number=3,
+        oneof="split",
+        message="FilterSplit",
     )
 
     predefined_split = proto.Field(
-        proto.MESSAGE, number=4, oneof="split", message="PredefinedSplit",
+        proto.MESSAGE,
+        number=4,
+        oneof="split",
+        message="PredefinedSplit",
     )
 
     timestamp_split = proto.Field(
-        proto.MESSAGE, number=5, oneof="split", message="TimestampSplit",
+        proto.MESSAGE,
+        number=5,
+        oneof="split",
+        message="TimestampSplit",
     )
 
     gcs_destination = proto.Field(
-        proto.MESSAGE, number=8, oneof="destination", message=io.GcsDestination,
+        proto.MESSAGE,
+        number=8,
+        oneof="destination",
+        message=io.GcsDestination,
     )
 
     bigquery_destination = proto.Field(
-        proto.MESSAGE, number=10, oneof="destination", message=io.BigQueryDestination,
+        proto.MESSAGE,
+        number=10,
+        oneof="destination",
+        message=io.BigQueryDestination,
     )
 
     dataset_id = proto.Field(proto.STRING, number=1)

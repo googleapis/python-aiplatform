@@ -53,7 +53,9 @@ class CreateTrainingPipelineRequest(proto.Message):
     parent = proto.Field(proto.STRING, number=1)
 
     training_pipeline = proto.Field(
-        proto.MESSAGE, number=2, message=gca_training_pipeline.TrainingPipeline,
+        proto.MESSAGE,
+        number=2,
+        message=gca_training_pipeline.TrainingPipeline,
     )
 
 
@@ -64,7 +66,6 @@ class GetTrainingPipelineRequest(proto.Message):
     Attributes:
         name (str):
             Required. The name of the TrainingPipeline resource. Format:
-
             ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
     """
 
@@ -116,7 +117,11 @@ class ListTrainingPipelinesRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=field_mask.FieldMask,
+    )
 
 
 class ListTrainingPipelinesResponse(proto.Message):
@@ -128,7 +133,7 @@ class ListTrainingPipelinesResponse(proto.Message):
             List of TrainingPipelines in the requested
             page.
         next_page_token (str):
-            A token to retrieve next page of results. Pass to
+            A token to retrieve the next page of results. Pass to
             ``ListTrainingPipelinesRequest.page_token``
             to obtain that page.
     """
@@ -138,7 +143,9 @@ class ListTrainingPipelinesResponse(proto.Message):
         return self
 
     training_pipelines = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=gca_training_pipeline.TrainingPipeline,
+        proto.MESSAGE,
+        number=1,
+        message=gca_training_pipeline.TrainingPipeline,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -152,7 +159,6 @@ class DeleteTrainingPipelineRequest(proto.Message):
         name (str):
             Required. The name of the TrainingPipeline resource to be
             deleted. Format:
-
             ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
     """
 
@@ -167,7 +173,6 @@ class CancelTrainingPipelineRequest(proto.Message):
         name (str):
             Required. The name of the TrainingPipeline to cancel.
             Format:
-
             ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
     """
 

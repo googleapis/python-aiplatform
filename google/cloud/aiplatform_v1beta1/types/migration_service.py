@@ -71,7 +71,7 @@ class SearchMigratableResourcesRequest(proto.Message):
                -  ``last_migrate_time:*`` will filter migrated
                   resources.
                -  ``NOT last_migrate_time:*`` will filter not yet
-                  migrated resource.
+                  migrated resources.
     """
 
     parent = proto.Field(proto.STRING, number=1)
@@ -102,7 +102,9 @@ class SearchMigratableResourcesResponse(proto.Message):
         return self
 
     migratable_resources = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=gca_migratable_resource.MigratableResource,
+        proto.MESSAGE,
+        number=1,
+        message=gca_migratable_resource.MigratableResource,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -126,7 +128,9 @@ class BatchMigrateResourcesRequest(proto.Message):
     parent = proto.Field(proto.STRING, number=1)
 
     migrate_resource_requests = proto.RepeatedField(
-        proto.MESSAGE, number=2, message="MigrateResourceRequest",
+        proto.MESSAGE,
+        number=2,
+        message="MigrateResourceRequest",
     )
 
 
@@ -247,7 +251,6 @@ class MigrateResourceRequest(proto.Message):
                 annotated_dataset (str):
                     Required. Full resource name of data labeling
                     AnnotatedDataset. Format:
-
                     ``projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}``.
             """
 
@@ -271,11 +274,17 @@ class MigrateResourceRequest(proto.Message):
     )
 
     migrate_automl_model_config = proto.Field(
-        proto.MESSAGE, number=2, oneof="request", message=MigrateAutomlModelConfig,
+        proto.MESSAGE,
+        number=2,
+        oneof="request",
+        message=MigrateAutomlModelConfig,
     )
 
     migrate_automl_dataset_config = proto.Field(
-        proto.MESSAGE, number=3, oneof="request", message=MigrateAutomlDatasetConfig,
+        proto.MESSAGE,
+        number=3,
+        oneof="request",
+        message=MigrateAutomlDatasetConfig,
     )
 
     migrate_data_labeling_dataset_config = proto.Field(
@@ -296,7 +305,9 @@ class BatchMigrateResourcesResponse(proto.Message):
     """
 
     migrate_resource_responses = proto.RepeatedField(
-        proto.MESSAGE, number=1, message="MigrateResourceResponse",
+        proto.MESSAGE,
+        number=1,
+        message="MigrateResourceResponse",
     )
 
 
@@ -319,7 +330,9 @@ class MigrateResourceResponse(proto.Message):
     model = proto.Field(proto.STRING, number=2, oneof="migrated_resource")
 
     migratable_resource = proto.Field(
-        proto.MESSAGE, number=3, message=gca_migratable_resource.MigratableResource,
+        proto.MESSAGE,
+        number=3,
+        message=gca_migratable_resource.MigratableResource,
     )
 
 
@@ -331,12 +344,12 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The common part of the operation metadata.
         partial_results (Sequence[google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesOperationMetadata.PartialResult]):
-            Partial results that reflects the latest
+            Partial results that reflect the latest
             migration operation progress.
     """
 
     class PartialResult(proto.Message):
-        r"""Represents a partial result in batch migration opreation for one
+        r"""Represents a partial result in batch migration operation for one
         ``MigrateResourceRequest``.
 
         Attributes:
@@ -353,7 +366,10 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
         """
 
         error = proto.Field(
-            proto.MESSAGE, number=2, oneof="result", message=status.Status,
+            proto.MESSAGE,
+            number=2,
+            oneof="result",
+            message=status.Status,
         )
 
         model = proto.Field(proto.STRING, number=3, oneof="result")
@@ -361,15 +377,21 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
         dataset = proto.Field(proto.STRING, number=4, oneof="result")
 
         request = proto.Field(
-            proto.MESSAGE, number=1, message="MigrateResourceRequest",
+            proto.MESSAGE,
+            number=1,
+            message="MigrateResourceRequest",
         )
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
     partial_results = proto.RepeatedField(
-        proto.MESSAGE, number=2, message=PartialResult,
+        proto.MESSAGE,
+        number=2,
+        message=PartialResult,
     )
 
 

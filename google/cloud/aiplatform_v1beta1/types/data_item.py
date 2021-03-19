@@ -23,7 +23,10 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"DataItem",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "DataItem",
+    },
 )
 
 
@@ -63,20 +66,32 @@ class DataItem(proto.Message):
             schema's][google.cloud.aiplatform.v1beta1.Dataset.metadata_schema_uri]
             dataItemSchemaUri field.
         etag (str):
-            Optional. Used to perform a consistent read-
+            Optional. Used to perform consistent read-
             odify-write updates. If not set, a blind
             "overwrite" update happens.
     """
 
     name = proto.Field(proto.STRING, number=1)
 
-    create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp.Timestamp,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=timestamp.Timestamp,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=timestamp.Timestamp,
+    )
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=3)
 
-    payload = proto.Field(proto.MESSAGE, number=4, message=struct.Value,)
+    payload = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=struct.Value,
+    )
 
     etag = proto.Field(proto.STRING, number=7)
 

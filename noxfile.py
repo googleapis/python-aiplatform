@@ -41,6 +41,9 @@ nox.options.sessions = [
     "docs",
 ]
 
+# Error if a python version is missing
+nox.options.error_on_missing_interpreters = True
+
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def lint(session):
@@ -51,7 +54,9 @@ def lint(session):
     """
     session.install("flake8", BLACK_VERSION)
     session.run(
-        "black", "--check", *BLACK_PATHS,
+        "black",
+        "--check",
+        *BLACK_PATHS,
     )
     session.run("flake8", "google", "tests")
 
@@ -68,7 +73,8 @@ def blacken(session):
     """
     session.install(BLACK_VERSION)
     session.run(
-        "black", *BLACK_PATHS,
+        "black",
+        *BLACK_PATHS,
     )
 
 
@@ -84,7 +90,9 @@ def default(session):
     session.install("asyncmock", "pytest-asyncio")
 
     session.install(
-        "mock", "pytest", "pytest-cov",
+        "mock",
+        "pytest",
+        "pytest-cov",
     )
 
     session.install("-e", ".")
@@ -93,6 +101,7 @@ def default(session):
     session.run(
         "py.test",
         "--quiet",
+        f"--junitxml=unit_{session.python}_sponge_log.xml",
         "--cov=google/cloud",
         "--cov=tests/unit",
         "--cov-append",
@@ -122,6 +131,9 @@ def system(session):
     # Sanity check: Only run tests if the environment variable is set.
     if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", ""):
         session.skip("Credentials must be set via environment variable")
+    # Install pyopenssl for mTLS testing.
+    if os.environ.get("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") == "true":
+        session.install("pyopenssl")
 
     system_test_exists = os.path.exists(system_test_path)
     system_test_folder_exists = os.path.exists(system_test_folder_path)
@@ -135,15 +147,29 @@ def system(session):
     # Install all test dependencies, then install this package into the
     # virtualenv's dist-packages.
     session.install(
-        "mock", "pytest", "google-cloud-testutils",
+        "mock",
+        "pytest",
+        "google-cloud-testutils",
     )
     session.install("-e", ".")
 
     # Run py.test against the system tests.
     if system_test_exists:
-        session.run("py.test", "--quiet", system_test_path, *session.posargs)
+        session.run(
+            "py.test",
+            "--quiet",
+            f"--junitxml=system_{session.python}_sponge_log.xml",
+            system_test_path,
+            *session.posargs,
+        )
     if system_test_folder_exists:
-        session.run("py.test", "--quiet", system_test_folder_path, *session.posargs)
+        session.run(
+            "py.test",
+            "--quiet",
+            f"--junitxml=system_{session.python}_sponge_log.xml",
+            system_test_folder_path,
+            *session.posargs,
+        )
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)

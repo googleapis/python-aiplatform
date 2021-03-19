@@ -18,14 +18,14 @@
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple
 
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import grpc_helpers_async  # type: ignore
-from google.api_core import operations_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.api_core import gapic_v1                   # type: ignore
+from google.api_core import grpc_helpers_async         # type: ignore
+from google.api_core import operations_v1              # type: ignore
+from google import auth                                # type: ignore
+from google.auth import credentials                    # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
-import grpc  # type: ignore
+import grpc                        # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1.types import annotation_spec
@@ -53,15 +53,13 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
     _stubs: Dict[str, Callable] = {}
 
     @classmethod
-    def create_channel(
-        cls,
-        host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
-        credentials_file: Optional[str] = None,
-        scopes: Optional[Sequence[str]] = None,
-        quota_project_id: Optional[str] = None,
-        **kwargs,
-    ) -> aio.Channel:
+    def create_channel(cls,
+                       host: str = 'aiplatform.googleapis.com',
+                       credentials: credentials.Credentials = None,
+                       credentials_file: Optional[str] = None,
+                       scopes: Optional[Sequence[str]] = None,
+                       quota_project_id: Optional[str] = None,
+                       **kwargs) -> aio.Channel:
         """Create and return a gRPC AsyncIO channel object.
         Args:
             address (Optional[str]): The host for the channel to use.
@@ -90,24 +88,22 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
             credentials_file=credentials_file,
             scopes=scopes,
             quota_project_id=quota_project_id,
-            **kwargs,
+            **kwargs
         )
 
-    def __init__(
-        self,
-        *,
-        host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
-        credentials_file: Optional[str] = None,
-        scopes: Optional[Sequence[str]] = None,
-        channel: aio.Channel = None,
-        api_mtls_endpoint: str = None,
-        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-        ssl_channel_credentials: grpc.ChannelCredentials = None,
-        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
-        quota_project_id=None,
-        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-    ) -> None:
+    def __init__(self, *,
+            host: str = 'aiplatform.googleapis.com',
+            credentials: credentials.Credentials = None,
+            credentials_file: Optional[str] = None,
+            scopes: Optional[Sequence[str]] = None,
+            channel: aio.Channel = None,
+            api_mtls_endpoint: str = None,
+            client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+            ssl_channel_credentials: grpc.ChannelCredentials = None,
+            client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+            quota_project_id=None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -170,16 +166,10 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
         elif api_mtls_endpoint:
-            host = (
-                api_mtls_endpoint
-                if ":" in api_mtls_endpoint
-                else api_mtls_endpoint + ":443"
-            )
+            host = api_mtls_endpoint if ":" in api_mtls_endpoint else api_mtls_endpoint + ":443"
 
             if credentials is None:
-                credentials, _ = auth.default(
-                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
-                )
+                credentials, _ = auth.default(scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id)
 
             # Create SSL credentials with client_cert_source or application
             # default SSL credentials.
@@ -209,9 +199,7 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
             host = host if ":" in host else host + ":443"
 
             if credentials is None:
-                credentials, _ = auth.default(
-                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
-                )
+                credentials, _ = auth.default(scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id)
 
             if client_cert_source_for_mtls and not ssl_channel_credentials:
                 cert, key = client_cert_source_for_mtls()
@@ -273,11 +261,9 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         return self._operations_client
 
     @property
-    def create_dataset(
-        self,
-    ) -> Callable[
-        [dataset_service.CreateDatasetRequest], Awaitable[operations.Operation]
-    ]:
+    def create_dataset(self) -> Callable[
+            [dataset_service.CreateDatasetRequest],
+            Awaitable[operations.Operation]]:
         r"""Return a callable for the create dataset method over gRPC.
 
         Creates a Dataset.
@@ -292,18 +278,18 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "create_dataset" not in self._stubs:
-            self._stubs["create_dataset"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.DatasetService/CreateDataset",
+        if 'create_dataset' not in self._stubs:
+            self._stubs['create_dataset'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1.DatasetService/CreateDataset',
                 request_serializer=dataset_service.CreateDatasetRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs["create_dataset"]
+        return self._stubs['create_dataset']
 
     @property
-    def get_dataset(
-        self,
-    ) -> Callable[[dataset_service.GetDatasetRequest], Awaitable[dataset.Dataset]]:
+    def get_dataset(self) -> Callable[
+            [dataset_service.GetDatasetRequest],
+            Awaitable[dataset.Dataset]]:
         r"""Return a callable for the get dataset method over gRPC.
 
         Gets a Dataset.
@@ -318,20 +304,18 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "get_dataset" not in self._stubs:
-            self._stubs["get_dataset"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.DatasetService/GetDataset",
+        if 'get_dataset' not in self._stubs:
+            self._stubs['get_dataset'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1.DatasetService/GetDataset',
                 request_serializer=dataset_service.GetDatasetRequest.serialize,
                 response_deserializer=dataset.Dataset.deserialize,
             )
-        return self._stubs["get_dataset"]
+        return self._stubs['get_dataset']
 
     @property
-    def update_dataset(
-        self,
-    ) -> Callable[
-        [dataset_service.UpdateDatasetRequest], Awaitable[gca_dataset.Dataset]
-    ]:
+    def update_dataset(self) -> Callable[
+            [dataset_service.UpdateDatasetRequest],
+            Awaitable[gca_dataset.Dataset]]:
         r"""Return a callable for the update dataset method over gRPC.
 
         Updates a Dataset.
@@ -346,21 +330,18 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "update_dataset" not in self._stubs:
-            self._stubs["update_dataset"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.DatasetService/UpdateDataset",
+        if 'update_dataset' not in self._stubs:
+            self._stubs['update_dataset'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1.DatasetService/UpdateDataset',
                 request_serializer=dataset_service.UpdateDatasetRequest.serialize,
                 response_deserializer=gca_dataset.Dataset.deserialize,
             )
-        return self._stubs["update_dataset"]
+        return self._stubs['update_dataset']
 
     @property
-    def list_datasets(
-        self,
-    ) -> Callable[
-        [dataset_service.ListDatasetsRequest],
-        Awaitable[dataset_service.ListDatasetsResponse],
-    ]:
+    def list_datasets(self) -> Callable[
+            [dataset_service.ListDatasetsRequest],
+            Awaitable[dataset_service.ListDatasetsResponse]]:
         r"""Return a callable for the list datasets method over gRPC.
 
         Lists Datasets in a Location.
@@ -375,20 +356,18 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "list_datasets" not in self._stubs:
-            self._stubs["list_datasets"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.DatasetService/ListDatasets",
+        if 'list_datasets' not in self._stubs:
+            self._stubs['list_datasets'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1.DatasetService/ListDatasets',
                 request_serializer=dataset_service.ListDatasetsRequest.serialize,
                 response_deserializer=dataset_service.ListDatasetsResponse.deserialize,
             )
-        return self._stubs["list_datasets"]
+        return self._stubs['list_datasets']
 
     @property
-    def delete_dataset(
-        self,
-    ) -> Callable[
-        [dataset_service.DeleteDatasetRequest], Awaitable[operations.Operation]
-    ]:
+    def delete_dataset(self) -> Callable[
+            [dataset_service.DeleteDatasetRequest],
+            Awaitable[operations.Operation]]:
         r"""Return a callable for the delete dataset method over gRPC.
 
         Deletes a Dataset.
@@ -403,18 +382,18 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "delete_dataset" not in self._stubs:
-            self._stubs["delete_dataset"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.DatasetService/DeleteDataset",
+        if 'delete_dataset' not in self._stubs:
+            self._stubs['delete_dataset'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1.DatasetService/DeleteDataset',
                 request_serializer=dataset_service.DeleteDatasetRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs["delete_dataset"]
+        return self._stubs['delete_dataset']
 
     @property
-    def import_data(
-        self,
-    ) -> Callable[[dataset_service.ImportDataRequest], Awaitable[operations.Operation]]:
+    def import_data(self) -> Callable[
+            [dataset_service.ImportDataRequest],
+            Awaitable[operations.Operation]]:
         r"""Return a callable for the import data method over gRPC.
 
         Imports data into a Dataset.
@@ -429,18 +408,18 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "import_data" not in self._stubs:
-            self._stubs["import_data"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.DatasetService/ImportData",
+        if 'import_data' not in self._stubs:
+            self._stubs['import_data'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1.DatasetService/ImportData',
                 request_serializer=dataset_service.ImportDataRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs["import_data"]
+        return self._stubs['import_data']
 
     @property
-    def export_data(
-        self,
-    ) -> Callable[[dataset_service.ExportDataRequest], Awaitable[operations.Operation]]:
+    def export_data(self) -> Callable[
+            [dataset_service.ExportDataRequest],
+            Awaitable[operations.Operation]]:
         r"""Return a callable for the export data method over gRPC.
 
         Exports data from a Dataset.
@@ -455,21 +434,18 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "export_data" not in self._stubs:
-            self._stubs["export_data"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.DatasetService/ExportData",
+        if 'export_data' not in self._stubs:
+            self._stubs['export_data'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1.DatasetService/ExportData',
                 request_serializer=dataset_service.ExportDataRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs["export_data"]
+        return self._stubs['export_data']
 
     @property
-    def list_data_items(
-        self,
-    ) -> Callable[
-        [dataset_service.ListDataItemsRequest],
-        Awaitable[dataset_service.ListDataItemsResponse],
-    ]:
+    def list_data_items(self) -> Callable[
+            [dataset_service.ListDataItemsRequest],
+            Awaitable[dataset_service.ListDataItemsResponse]]:
         r"""Return a callable for the list data items method over gRPC.
 
         Lists DataItems in a Dataset.
@@ -484,21 +460,18 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "list_data_items" not in self._stubs:
-            self._stubs["list_data_items"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.DatasetService/ListDataItems",
+        if 'list_data_items' not in self._stubs:
+            self._stubs['list_data_items'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1.DatasetService/ListDataItems',
                 request_serializer=dataset_service.ListDataItemsRequest.serialize,
                 response_deserializer=dataset_service.ListDataItemsResponse.deserialize,
             )
-        return self._stubs["list_data_items"]
+        return self._stubs['list_data_items']
 
     @property
-    def get_annotation_spec(
-        self,
-    ) -> Callable[
-        [dataset_service.GetAnnotationSpecRequest],
-        Awaitable[annotation_spec.AnnotationSpec],
-    ]:
+    def get_annotation_spec(self) -> Callable[
+            [dataset_service.GetAnnotationSpecRequest],
+            Awaitable[annotation_spec.AnnotationSpec]]:
         r"""Return a callable for the get annotation spec method over gRPC.
 
         Gets an AnnotationSpec.
@@ -513,21 +486,18 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "get_annotation_spec" not in self._stubs:
-            self._stubs["get_annotation_spec"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.DatasetService/GetAnnotationSpec",
+        if 'get_annotation_spec' not in self._stubs:
+            self._stubs['get_annotation_spec'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1.DatasetService/GetAnnotationSpec',
                 request_serializer=dataset_service.GetAnnotationSpecRequest.serialize,
                 response_deserializer=annotation_spec.AnnotationSpec.deserialize,
             )
-        return self._stubs["get_annotation_spec"]
+        return self._stubs['get_annotation_spec']
 
     @property
-    def list_annotations(
-        self,
-    ) -> Callable[
-        [dataset_service.ListAnnotationsRequest],
-        Awaitable[dataset_service.ListAnnotationsResponse],
-    ]:
+    def list_annotations(self) -> Callable[
+            [dataset_service.ListAnnotationsRequest],
+            Awaitable[dataset_service.ListAnnotationsResponse]]:
         r"""Return a callable for the list annotations method over gRPC.
 
         Lists Annotations belongs to a dataitem
@@ -542,13 +512,15 @@ class DatasetServiceGrpcAsyncIOTransport(DatasetServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "list_annotations" not in self._stubs:
-            self._stubs["list_annotations"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1.DatasetService/ListAnnotations",
+        if 'list_annotations' not in self._stubs:
+            self._stubs['list_annotations'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1.DatasetService/ListAnnotations',
                 request_serializer=dataset_service.ListAnnotationsRequest.serialize,
                 response_deserializer=dataset_service.ListAnnotationsResponse.deserialize,
             )
-        return self._stubs["list_annotations"]
+        return self._stubs['list_annotations']
 
 
-__all__ = ("DatasetServiceGrpcAsyncIOTransport",)
+__all__ = (
+    'DatasetServiceGrpcAsyncIOTransport',
+)

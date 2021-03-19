@@ -95,24 +95,54 @@ class CustomJob(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=2)
 
-    job_spec = proto.Field(proto.MESSAGE, number=4, message="CustomJobSpec",)
+    job_spec = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message="CustomJobSpec",
+    )
 
-    state = proto.Field(proto.ENUM, number=5, enum=job_state.JobState,)
+    state = proto.Field(
+        proto.ENUM,
+        number=5,
+        enum=job_state.JobState,
+    )
 
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=timestamp.Timestamp,
+    )
 
-    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp.Timestamp,)
+    start_time = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=timestamp.Timestamp,
+    )
 
-    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
+    end_time = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=timestamp.Timestamp,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        message=timestamp.Timestamp,
+    )
 
-    error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
+    error = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=status.Status,
+    )
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=11)
 
     encryption_spec = proto.Field(
-        proto.MESSAGE, number=12, message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE,
+        number=12,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -122,7 +152,9 @@ class CustomJobSpec(proto.Message):
     Attributes:
         worker_pool_specs (Sequence[google.cloud.aiplatform_v1beta1.types.WorkerPoolSpec]):
             Required. The spec of the worker pools
-            including machine type and Docker image.
+            including machine type and Docker image. All
+            worker pools except the first one are optional
+            and can be skipped by providing an empty value.
         scheduling (google.cloud.aiplatform_v1beta1.types.Scheduling):
             Scheduling options for a CustomJob.
         service_account (str):
@@ -176,17 +208,25 @@ class CustomJobSpec(proto.Message):
     """
 
     worker_pool_specs = proto.RepeatedField(
-        proto.MESSAGE, number=1, message="WorkerPoolSpec",
+        proto.MESSAGE,
+        number=1,
+        message="WorkerPoolSpec",
     )
 
-    scheduling = proto.Field(proto.MESSAGE, number=3, message="Scheduling",)
+    scheduling = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="Scheduling",
+    )
 
     service_account = proto.Field(proto.STRING, number=4)
 
     network = proto.Field(proto.STRING, number=5)
 
     base_output_directory = proto.Field(
-        proto.MESSAGE, number=6, message=io.GcsDestination,
+        proto.MESSAGE,
+        number=6,
+        message=io.GcsDestination,
     )
 
 
@@ -209,21 +249,31 @@ class WorkerPoolSpec(proto.Message):
     """
 
     container_spec = proto.Field(
-        proto.MESSAGE, number=6, oneof="task", message="ContainerSpec",
+        proto.MESSAGE,
+        number=6,
+        oneof="task",
+        message="ContainerSpec",
     )
 
     python_package_spec = proto.Field(
-        proto.MESSAGE, number=7, oneof="task", message="PythonPackageSpec",
+        proto.MESSAGE,
+        number=7,
+        oneof="task",
+        message="PythonPackageSpec",
     )
 
     machine_spec = proto.Field(
-        proto.MESSAGE, number=1, message=machine_resources.MachineSpec,
+        proto.MESSAGE,
+        number=1,
+        message=machine_resources.MachineSpec,
     )
 
     replica_count = proto.Field(proto.INT64, number=2)
 
     disk_spec = proto.Field(
-        proto.MESSAGE, number=5, message=machine_resources.DiskSpec,
+        proto.MESSAGE,
+        number=5,
+        message=machine_resources.DiskSpec,
     )
 
 
@@ -256,12 +306,13 @@ class PythonPackageSpec(proto.Message):
 
     Attributes:
         executor_image_uri (str):
-            Required. The URI of a container image in the
-            Container Registry that will run the provided
-            python package. AI Platform provides wide range
-            of executor images with pre-installed packages
-            to meet users' various use cases. Only one of
-            the provided images can be set here.
+            Required. The URI of a container image in Artifact Registry
+            that will run the provided Python package. AI Platform
+            provides a wide range of executor images with pre-installed
+            packages to meet users' various use cases. See the list of
+            `pre-built containers for
+            training <https://cloud.google.com/ai-platform-unified/docs/training/pre-built-containers>`__.
+            You must use an image from this list.
         package_uris (Sequence[str]):
             Required. The Google Cloud Storage location
             of the Python package files which are the
@@ -299,7 +350,11 @@ class Scheduling(proto.Message):
             to workers leaving and joining a job.
     """
 
-    timeout = proto.Field(proto.MESSAGE, number=1, message=duration.Duration,)
+    timeout = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=duration.Duration,
+    )
 
     restart_job_on_worker_restart = proto.Field(proto.BOOL, number=3)
 

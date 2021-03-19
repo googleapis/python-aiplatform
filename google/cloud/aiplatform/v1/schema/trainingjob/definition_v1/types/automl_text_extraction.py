@@ -20,7 +20,10 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.trainingjob.definition",
-    manifest={"AutoMlTextExtraction", "AutoMlTextExtractionInputs",},
+    manifest={
+        "AutoMlTextExtraction",
+        "AutoMlTextExtractionInputs",
+    },
 )
 
 
@@ -33,7 +36,11 @@ class AutoMlTextExtraction(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(proto.MESSAGE, number=1, message="AutoMlTextExtractionInputs",)
+    inputs = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="AutoMlTextExtractionInputs",
+    )
 
 
 class AutoMlTextExtractionInputs(proto.Message):

@@ -54,7 +54,9 @@ class CreateSpecialistPoolRequest(proto.Message):
     parent = proto.Field(proto.STRING, number=1)
 
     specialist_pool = proto.Field(
-        proto.MESSAGE, number=2, message=gca_specialist_pool.SpecialistPool,
+        proto.MESSAGE,
+        number=2,
+        message=gca_specialist_pool.SpecialistPool,
     )
 
 
@@ -68,7 +70,9 @@ class CreateSpecialistPoolOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
@@ -80,7 +84,6 @@ class GetSpecialistPoolRequest(proto.Message):
         name (str):
             Required. The name of the SpecialistPool resource. The form
             is
-
             ``projects/{project}/locations/{location}/specialistPools/{specialist_pool}``.
     """
 
@@ -114,7 +117,11 @@ class ListSpecialistPoolsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=3)
 
-    read_mask = proto.Field(proto.MESSAGE, number=4, message=field_mask.FieldMask,)
+    read_mask = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=field_mask.FieldMask,
+    )
 
 
 class ListSpecialistPoolsResponse(proto.Message):
@@ -134,7 +141,9 @@ class ListSpecialistPoolsResponse(proto.Message):
         return self
 
     specialist_pools = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=gca_specialist_pool.SpecialistPool,
+        proto.MESSAGE,
+        number=1,
+        message=gca_specialist_pool.SpecialistPool,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -175,10 +184,16 @@ class UpdateSpecialistPoolRequest(proto.Message):
     """
 
     specialist_pool = proto.Field(
-        proto.MESSAGE, number=1, message=gca_specialist_pool.SpecialistPool,
+        proto.MESSAGE,
+        number=1,
+        message=gca_specialist_pool.SpecialistPool,
     )
 
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask.FieldMask,
+    )
 
 
 class UpdateSpecialistPoolOperationMetadata(proto.Message):
@@ -189,7 +204,6 @@ class UpdateSpecialistPoolOperationMetadata(proto.Message):
         specialist_pool (str):
             Output only. The name of the SpecialistPool to which the
             specialists are being added. Format:
-
             ``projects/{project_id}/locations/{location_id}/specialistPools/{specialist_pool}``
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
@@ -198,7 +212,9 @@ class UpdateSpecialistPoolOperationMetadata(proto.Message):
     specialist_pool = proto.Field(proto.STRING, number=1)
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=2, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=2,
+        message=operation.GenericOperationMetadata,
     )
 
 
