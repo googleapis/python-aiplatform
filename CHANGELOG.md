@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.5.2](https://www.github.com/googleapis/python-aiplatform/compare/v0.5.1...v0.5.2) (2021-03-19)
+
+
+### Bug Fixes
+
+* skip create data labeling job sample tests ([#254](https://www.github.com/googleapis/python-aiplatform/issues/254)) ([116a29b](https://www.github.com/googleapis/python-aiplatform/commit/116a29b1efcebb15bad14c3c36d3591c09ef10be))
+
 ### [0.5.1](https://www.github.com/googleapis/python-aiplatform/compare/v0.5.0...v0.5.1) (2021-03-01)
 
 
