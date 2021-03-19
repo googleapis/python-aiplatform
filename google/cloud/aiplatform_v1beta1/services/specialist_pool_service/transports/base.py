@@ -21,7 +21,7 @@ import pkg_resources
 
 from google import auth  # type: ignore
 from google.api_core import exceptions  # type: ignore
-from google.api_core import gapic_v1    # type: ignore
+from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.auth import credentials  # type: ignore
@@ -34,29 +34,29 @@ from google.longrunning import operations_pb2 as operations  # type: ignore
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
+
 class SpecialistPoolServiceTransport(abc.ABC):
     """Abstract transport class for SpecialistPoolService."""
 
-    AUTH_SCOPES = (
-        'https://www.googleapis.com/auth/cloud-platform',
-    )
+    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
     def __init__(
-            self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            credentials_file: typing.Optional[str] = None,
-            scopes: typing.Optional[typing.Sequence[str]] = AUTH_SCOPES,
-            quota_project_id: typing.Optional[str] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            **kwargs,
-            ) -> None:
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: typing.Optional[str] = None,
+        scopes: typing.Optional[typing.Sequence[str]] = AUTH_SCOPES,
+        quota_project_id: typing.Optional[str] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+        **kwargs,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -79,24 +79,26 @@ class SpecialistPoolServiceTransport(abc.ABC):
                 your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ':' not in host:
-            host += ':443'
+        if ":" not in host:
+            host += ":443"
         self._host = host
 
         # If no credentials are provided, then determine the appropriate
         # defaults.
         if credentials and credentials_file:
-            raise exceptions.DuplicateCredentialArgs("'credentials_file' and 'credentials' are mutually exclusive")
+            raise exceptions.DuplicateCredentialArgs(
+                "'credentials_file' and 'credentials' are mutually exclusive"
+            )
 
         if credentials_file is not None:
             credentials, _ = auth.load_credentials_from_file(
-                                credentials_file,
-                                scopes=scopes,
-                                quota_project_id=quota_project_id
-                            )
+                credentials_file, scopes=scopes, quota_project_id=quota_project_id
+            )
 
         elif credentials is None:
-            credentials, _ = auth.default(scopes=scopes, quota_project_id=quota_project_id)
+            credentials, _ = auth.default(
+                scopes=scopes, quota_project_id=quota_project_id
+            )
 
         # Save the credentials.
         self._credentials = credentials
@@ -113,9 +115,7 @@ class SpecialistPoolServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.get_specialist_pool: gapic_v1.method.wrap_method(
-                self.get_specialist_pool,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.get_specialist_pool, default_timeout=5.0, client_info=client_info,
             ),
             self.list_specialist_pools: gapic_v1.method.wrap_method(
                 self.list_specialist_pools,
@@ -132,7 +132,6 @@ class SpecialistPoolServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-
         }
 
     @property
@@ -141,51 +140,55 @@ class SpecialistPoolServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
-    def create_specialist_pool(self) -> typing.Callable[
-            [specialist_pool_service.CreateSpecialistPoolRequest],
-            typing.Union[
-                operations.Operation,
-                typing.Awaitable[operations.Operation]
-            ]]:
+    def create_specialist_pool(
+        self,
+    ) -> typing.Callable[
+        [specialist_pool_service.CreateSpecialistPoolRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def get_specialist_pool(self) -> typing.Callable[
-            [specialist_pool_service.GetSpecialistPoolRequest],
-            typing.Union[
-                specialist_pool.SpecialistPool,
-                typing.Awaitable[specialist_pool.SpecialistPool]
-            ]]:
+    def get_specialist_pool(
+        self,
+    ) -> typing.Callable[
+        [specialist_pool_service.GetSpecialistPoolRequest],
+        typing.Union[
+            specialist_pool.SpecialistPool,
+            typing.Awaitable[specialist_pool.SpecialistPool],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def list_specialist_pools(self) -> typing.Callable[
-            [specialist_pool_service.ListSpecialistPoolsRequest],
-            typing.Union[
-                specialist_pool_service.ListSpecialistPoolsResponse,
-                typing.Awaitable[specialist_pool_service.ListSpecialistPoolsResponse]
-            ]]:
+    def list_specialist_pools(
+        self,
+    ) -> typing.Callable[
+        [specialist_pool_service.ListSpecialistPoolsRequest],
+        typing.Union[
+            specialist_pool_service.ListSpecialistPoolsResponse,
+            typing.Awaitable[specialist_pool_service.ListSpecialistPoolsResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def delete_specialist_pool(self) -> typing.Callable[
-            [specialist_pool_service.DeleteSpecialistPoolRequest],
-            typing.Union[
-                operations.Operation,
-                typing.Awaitable[operations.Operation]
-            ]]:
+    def delete_specialist_pool(
+        self,
+    ) -> typing.Callable[
+        [specialist_pool_service.DeleteSpecialistPoolRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def update_specialist_pool(self) -> typing.Callable[
-            [specialist_pool_service.UpdateSpecialistPoolRequest],
-            typing.Union[
-                operations.Operation,
-                typing.Awaitable[operations.Operation]
-            ]]:
+    def update_specialist_pool(
+        self,
+    ) -> typing.Callable[
+        [specialist_pool_service.UpdateSpecialistPoolRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
         raise NotImplementedError()
 
 
-__all__ = (
-    'SpecialistPoolServiceTransport',
-)
+__all__ = ("SpecialistPoolServiceTransport",)

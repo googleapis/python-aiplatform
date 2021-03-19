@@ -15,18 +15,10 @@
 # limitations under the License.
 #
 
-from .annotation import (
-    Annotation,
-)
-from .annotation_spec import (
-    AnnotationSpec,
-)
-from .batch_prediction_job import (
-    BatchPredictionJob,
-)
-from .completion_stats import (
-    CompletionStats,
-)
+from .annotation import Annotation
+from .annotation_spec import AnnotationSpec
+from .batch_prediction_job import BatchPredictionJob
+from .completion_stats import CompletionStats
 from .custom_job import (
     ContainerSpec,
     CustomJob,
@@ -35,9 +27,7 @@ from .custom_job import (
     Scheduling,
     WorkerPoolSpec,
 )
-from .data_item import (
-    DataItem,
-)
+from .data_item import DataItem
 from .data_labeling_job import (
     ActiveLearningConfig,
     DataLabelingJob,
@@ -69,12 +59,8 @@ from .dataset_service import (
     ListDatasetsResponse,
     UpdateDatasetRequest,
 )
-from .deployed_model_ref import (
-    DeployedModelRef,
-)
-from .encryption_spec import (
-    EncryptionSpec,
-)
+from .deployed_model_ref import DeployedModelRef
+from .encryption_spec import EncryptionSpec
 from .endpoint import (
     DeployedModel,
     Endpoint,
@@ -94,9 +80,7 @@ from .endpoint_service import (
     UndeployModelResponse,
     UpdateEndpointRequest,
 )
-from .env_var import (
-    EnvVar,
-)
+from .env_var import EnvVar
 from .explanation import (
     Attribution,
     Explanation,
@@ -111,12 +95,8 @@ from .explanation import (
     SmoothGradConfig,
     XraiAttribution,
 )
-from .explanation_metadata import (
-    ExplanationMetadata,
-)
-from .hyperparameter_tuning_job import (
-    HyperparameterTuningJob,
-)
+from .explanation_metadata import ExplanationMetadata
+from .hyperparameter_tuning_job import HyperparameterTuningJob
 from .io import (
     BigQueryDestination,
     BigQuerySource,
@@ -159,12 +139,8 @@ from .machine_resources import (
     MachineSpec,
     ResourcesConsumed,
 )
-from .manual_batch_tuning_parameters import (
-    ManualBatchTuningParameters,
-)
-from .migratable_resource import (
-    MigratableResource,
-)
+from .manual_batch_tuning_parameters import ManualBatchTuningParameters
+from .migratable_resource import MigratableResource
 from .migration_service import (
     BatchMigrateResourcesOperationMetadata,
     BatchMigrateResourcesRequest,
@@ -180,12 +156,8 @@ from .model import (
     Port,
     PredictSchemata,
 )
-from .model_evaluation import (
-    ModelEvaluation,
-)
-from .model_evaluation_slice import (
-    ModelEvaluationSlice,
-)
+from .model_evaluation import ModelEvaluation
+from .model_evaluation_slice import ModelEvaluationSlice
 from .model_service import (
     DeleteModelRequest,
     ExportModelOperationMetadata,
@@ -223,9 +195,7 @@ from .prediction_service import (
     PredictRequest,
     PredictResponse,
 )
-from .specialist_pool import (
-    SpecialistPool,
-)
+from .specialist_pool import SpecialistPool
 from .specialist_pool_service import (
     CreateSpecialistPoolOperationMetadata,
     CreateSpecialistPoolRequest,
@@ -250,9 +220,7 @@ from .training_pipeline import (
     TimestampSplit,
     TrainingPipeline,
 )
-from .user_action_reference import (
-    UserActionReference,
-)
+from .user_action_reference import UserActionReference
 from .vizier_service import (
     AddTrialMeasurementRequest,
     CheckTrialEarlyStoppingStateMetatdata,

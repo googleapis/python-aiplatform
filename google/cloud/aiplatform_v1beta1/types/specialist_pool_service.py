@@ -54,9 +54,7 @@ class CreateSpecialistPoolRequest(proto.Message):
     parent = proto.Field(proto.STRING, number=1)
 
     specialist_pool = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_specialist_pool.SpecialistPool,
+        proto.MESSAGE, number=2, message=gca_specialist_pool.SpecialistPool,
     )
 
 
@@ -70,9 +68,7 @@ class CreateSpecialistPoolOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=operation.GenericOperationMetadata,
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
 
 
@@ -117,11 +113,7 @@ class ListSpecialistPoolsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=3)
 
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=4, message=field_mask.FieldMask,)
 
 
 class ListSpecialistPoolsResponse(proto.Message):
@@ -141,9 +133,7 @@ class ListSpecialistPoolsResponse(proto.Message):
         return self
 
     specialist_pools = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_specialist_pool.SpecialistPool,
+        proto.MESSAGE, number=1, message=gca_specialist_pool.SpecialistPool,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -184,16 +174,10 @@ class UpdateSpecialistPoolRequest(proto.Message):
     """
 
     specialist_pool = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=gca_specialist_pool.SpecialistPool,
+        proto.MESSAGE, number=1, message=gca_specialist_pool.SpecialistPool,
     )
 
-    update_mask = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=field_mask.FieldMask,
-    )
+    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
 
 
 class UpdateSpecialistPoolOperationMetadata(proto.Message):
@@ -212,9 +196,7 @@ class UpdateSpecialistPoolOperationMetadata(proto.Message):
     specialist_pool = proto.Field(proto.STRING, number=1)
 
     generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=operation.GenericOperationMetadata,
+        proto.MESSAGE, number=2, message=operation.GenericOperationMetadata,
     )
 
 

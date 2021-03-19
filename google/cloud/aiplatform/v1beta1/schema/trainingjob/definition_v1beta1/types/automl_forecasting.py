@@ -44,16 +44,10 @@ class AutoMlForecasting(proto.Message):
             The metadata information.
     """
 
-    inputs = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message="AutoMlForecastingInputs",
-    )
+    inputs = proto.Field(proto.MESSAGE, number=1, message="AutoMlForecastingInputs",)
 
     metadata = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message="AutoMlForecastingMetadata",
+        proto.MESSAGE, number=2, message="AutoMlForecastingMetadata",
     )
 
 
@@ -445,9 +439,7 @@ class AutoMlForecastingInputs(proto.Message):
     time_column = proto.Field(proto.STRING, number=3)
 
     transformations = proto.RepeatedField(
-        proto.MESSAGE,
-        number=4,
-        message=Transformation,
+        proto.MESSAGE, number=4, message=Transformation,
     )
 
     optimization_objective = proto.Field(proto.STRING, number=5)
@@ -462,11 +454,7 @@ class AutoMlForecastingInputs(proto.Message):
 
     time_variant_past_and_future_columns = proto.RepeatedField(proto.STRING, number=10)
 
-    period = proto.Field(
-        proto.MESSAGE,
-        number=11,
-        message=Period,
-    )
+    period = proto.Field(proto.MESSAGE, number=11, message=Period,)
 
     forecast_window_start = proto.Field(proto.INT64, number=12)
 

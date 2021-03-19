@@ -75,11 +75,7 @@ class CreateCustomJobRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    custom_job = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_custom_job.CustomJob,
-    )
+    custom_job = proto.Field(proto.MESSAGE, number=2, message=gca_custom_job.CustomJob,)
 
 
 class GetCustomJobRequest(proto.Message):
@@ -142,11 +138,7 @@ class ListCustomJobsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
 class ListCustomJobsResponse(proto.Message):
@@ -167,9 +159,7 @@ class ListCustomJobsResponse(proto.Message):
         return self
 
     custom_jobs = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_custom_job.CustomJob,
+        proto.MESSAGE, number=1, message=gca_custom_job.CustomJob,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -217,9 +207,7 @@ class CreateDataLabelingJobRequest(proto.Message):
     parent = proto.Field(proto.STRING, number=1)
 
     data_labeling_job = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_data_labeling_job.DataLabelingJob,
+        proto.MESSAGE, number=2, message=gca_data_labeling_job.DataLabelingJob,
     )
 
 
@@ -285,11 +273,7 @@ class ListDataLabelingJobsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
     order_by = proto.Field(proto.STRING, number=6)
 
@@ -311,9 +295,7 @@ class ListDataLabelingJobsResponse(proto.Message):
         return self
 
     data_labeling_jobs = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_data_labeling_job.DataLabelingJob,
+        proto.MESSAGE, number=1, message=gca_data_labeling_job.DataLabelingJob,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -433,11 +415,7 @@ class ListHyperparameterTuningJobsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
 class ListHyperparameterTuningJobsResponse(proto.Message):
@@ -514,9 +492,7 @@ class CreateBatchPredictionJobRequest(proto.Message):
     parent = proto.Field(proto.STRING, number=1)
 
     batch_prediction_job = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_batch_prediction_job.BatchPredictionJob,
+        proto.MESSAGE, number=2, message=gca_batch_prediction_job.BatchPredictionJob,
     )
 
 
@@ -582,11 +558,7 @@ class ListBatchPredictionJobsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
 class ListBatchPredictionJobsResponse(proto.Message):
@@ -608,9 +580,7 @@ class ListBatchPredictionJobsResponse(proto.Message):
         return self
 
     batch_prediction_jobs = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_batch_prediction_job.BatchPredictionJob,
+        proto.MESSAGE, number=1, message=gca_batch_prediction_job.BatchPredictionJob,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)

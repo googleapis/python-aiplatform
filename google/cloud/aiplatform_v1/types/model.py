@@ -27,12 +27,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
-    manifest={
-        "Model",
-        "PredictSchemata",
-        "ModelContainerSpec",
-        "Port",
-    },
+    manifest={"Model", "PredictSchemata", "ModelContainerSpec", "Port",},
 )
 
 
@@ -265,9 +260,7 @@ class Model(proto.Message):
         id = proto.Field(proto.STRING, number=1)
 
         exportable_contents = proto.RepeatedField(
-            proto.ENUM,
-            number=2,
-            enum="Model.ExportFormat.ExportableContent",
+            proto.ENUM, number=2, enum="Model.ExportFormat.ExportableContent",
         )
 
     name = proto.Field(proto.STRING, number=1)
@@ -276,62 +269,36 @@ class Model(proto.Message):
 
     description = proto.Field(proto.STRING, number=3)
 
-    predict_schemata = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        message="PredictSchemata",
-    )
+    predict_schemata = proto.Field(proto.MESSAGE, number=4, message="PredictSchemata",)
 
     metadata_schema_uri = proto.Field(proto.STRING, number=5)
 
-    metadata = proto.Field(
-        proto.MESSAGE,
-        number=6,
-        message=struct.Value,
-    )
+    metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
 
     supported_export_formats = proto.RepeatedField(
-        proto.MESSAGE,
-        number=20,
-        message=ExportFormat,
+        proto.MESSAGE, number=20, message=ExportFormat,
     )
 
     training_pipeline = proto.Field(proto.STRING, number=7)
 
-    container_spec = proto.Field(
-        proto.MESSAGE,
-        number=9,
-        message="ModelContainerSpec",
-    )
+    container_spec = proto.Field(proto.MESSAGE, number=9, message="ModelContainerSpec",)
 
     artifact_uri = proto.Field(proto.STRING, number=26)
 
     supported_deployment_resources_types = proto.RepeatedField(
-        proto.ENUM,
-        number=10,
-        enum=DeploymentResourcesType,
+        proto.ENUM, number=10, enum=DeploymentResourcesType,
     )
 
     supported_input_storage_formats = proto.RepeatedField(proto.STRING, number=11)
 
     supported_output_storage_formats = proto.RepeatedField(proto.STRING, number=12)
 
-    create_time = proto.Field(
-        proto.MESSAGE,
-        number=13,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
 
-    update_time = proto.Field(
-        proto.MESSAGE,
-        number=14,
-        message=timestamp.Timestamp,
-    )
+    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
 
     deployed_models = proto.RepeatedField(
-        proto.MESSAGE,
-        number=15,
-        message=deployed_model_ref.DeployedModelRef,
+        proto.MESSAGE, number=15, message=deployed_model_ref.DeployedModelRef,
     )
 
     etag = proto.Field(proto.STRING, number=16)
@@ -339,9 +306,7 @@ class Model(proto.Message):
     labels = proto.MapField(proto.STRING, proto.STRING, number=17)
 
     encryption_spec = proto.Field(
-        proto.MESSAGE,
-        number=24,
-        message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE, number=24, message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -640,17 +605,9 @@ class ModelContainerSpec(proto.Message):
 
     args = proto.RepeatedField(proto.STRING, number=3)
 
-    env = proto.RepeatedField(
-        proto.MESSAGE,
-        number=4,
-        message=env_var.EnvVar,
-    )
+    env = proto.RepeatedField(proto.MESSAGE, number=4, message=env_var.EnvVar,)
 
-    ports = proto.RepeatedField(
-        proto.MESSAGE,
-        number=5,
-        message="Port",
-    )
+    ports = proto.RepeatedField(proto.MESSAGE, number=5, message="Port",)
 
     predict_route = proto.Field(proto.STRING, number=6)
 

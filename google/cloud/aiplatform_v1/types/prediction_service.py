@@ -23,10 +23,7 @@ from google.protobuf import struct_pb2 as struct  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
-    manifest={
-        "PredictRequest",
-        "PredictResponse",
-    },
+    manifest={"PredictRequest", "PredictResponse",},
 )
 
 
@@ -61,17 +58,9 @@ class PredictRequest(proto.Message):
 
     endpoint = proto.Field(proto.STRING, number=1)
 
-    instances = proto.RepeatedField(
-        proto.MESSAGE,
-        number=2,
-        message=struct.Value,
-    )
+    instances = proto.RepeatedField(proto.MESSAGE, number=2, message=struct.Value,)
 
-    parameters = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        message=struct.Value,
-    )
+    parameters = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
 
 
 class PredictResponse(proto.Message):
@@ -91,11 +80,7 @@ class PredictResponse(proto.Message):
             served this prediction.
     """
 
-    predictions = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=struct.Value,
-    )
+    predictions = proto.RepeatedField(proto.MESSAGE, number=1, message=struct.Value,)
 
     deployed_model_id = proto.Field(proto.STRING, number=2)
 

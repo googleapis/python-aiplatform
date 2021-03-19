@@ -19,10 +19,7 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1",
-    manifest={
-        "ManualBatchTuningParameters",
-    },
+    package="google.cloud.aiplatform.v1", manifest={"ManualBatchTuningParameters",},
 )
 
 

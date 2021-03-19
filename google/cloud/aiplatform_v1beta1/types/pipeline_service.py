@@ -53,9 +53,7 @@ class CreateTrainingPipelineRequest(proto.Message):
     parent = proto.Field(proto.STRING, number=1)
 
     training_pipeline = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_training_pipeline.TrainingPipeline,
+        proto.MESSAGE, number=2, message=gca_training_pipeline.TrainingPipeline,
     )
 
 
@@ -117,11 +115,7 @@ class ListTrainingPipelinesRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
 class ListTrainingPipelinesResponse(proto.Message):
@@ -143,9 +137,7 @@ class ListTrainingPipelinesResponse(proto.Message):
         return self
 
     training_pipelines = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_training_pipeline.TrainingPipeline,
+        proto.MESSAGE, number=1, message=gca_training_pipeline.TrainingPipeline,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)

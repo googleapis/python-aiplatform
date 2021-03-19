@@ -24,9 +24,7 @@ from google.protobuf import wrappers_pb2 as wrappers  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.prediction",
-    manifest={
-        "VideoObjectTrackingPredictionResult",
-    },
+    manifest={"VideoObjectTrackingPredictionResult",},
 )
 
 
@@ -89,63 +87,29 @@ class VideoObjectTrackingPredictionResult(proto.Message):
                 box.
         """
 
-        time_offset = proto.Field(
-            proto.MESSAGE,
-            number=1,
-            message=duration.Duration,
-        )
+        time_offset = proto.Field(proto.MESSAGE, number=1, message=duration.Duration,)
 
-        x_min = proto.Field(
-            proto.MESSAGE,
-            number=2,
-            message=wrappers.FloatValue,
-        )
+        x_min = proto.Field(proto.MESSAGE, number=2, message=wrappers.FloatValue,)
 
-        x_max = proto.Field(
-            proto.MESSAGE,
-            number=3,
-            message=wrappers.FloatValue,
-        )
+        x_max = proto.Field(proto.MESSAGE, number=3, message=wrappers.FloatValue,)
 
-        y_min = proto.Field(
-            proto.MESSAGE,
-            number=4,
-            message=wrappers.FloatValue,
-        )
+        y_min = proto.Field(proto.MESSAGE, number=4, message=wrappers.FloatValue,)
 
-        y_max = proto.Field(
-            proto.MESSAGE,
-            number=5,
-            message=wrappers.FloatValue,
-        )
+        y_max = proto.Field(proto.MESSAGE, number=5, message=wrappers.FloatValue,)
 
     id = proto.Field(proto.STRING, number=1)
 
     display_name = proto.Field(proto.STRING, number=2)
 
     time_segment_start = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        message=duration.Duration,
+        proto.MESSAGE, number=3, message=duration.Duration,
     )
 
-    time_segment_end = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        message=duration.Duration,
-    )
+    time_segment_end = proto.Field(proto.MESSAGE, number=4, message=duration.Duration,)
 
-    confidence = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=wrappers.FloatValue,
-    )
+    confidence = proto.Field(proto.MESSAGE, number=5, message=wrappers.FloatValue,)
 
-    frames = proto.RepeatedField(
-        proto.MESSAGE,
-        number=6,
-        message=Frame,
-    )
+    frames = proto.RepeatedField(proto.MESSAGE, number=6, message=Frame,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

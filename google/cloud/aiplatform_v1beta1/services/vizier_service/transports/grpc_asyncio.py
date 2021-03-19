@@ -18,14 +18,14 @@
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple
 
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import grpc_helpers_async         # type: ignore
-from google.api_core import operations_v1              # type: ignore
-from google import auth                                # type: ignore
-from google.auth import credentials                    # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import grpc_helpers_async  # type: ignore
+from google.api_core import operations_v1  # type: ignore
+from google import auth  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
-import grpc                        # type: ignore
+import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import study
@@ -58,13 +58,15 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     _stubs: Dict[str, Callable] = {}
 
     @classmethod
-    def create_channel(cls,
-                       host: str = 'aiplatform.googleapis.com',
-                       credentials: credentials.Credentials = None,
-                       credentials_file: Optional[str] = None,
-                       scopes: Optional[Sequence[str]] = None,
-                       quota_project_id: Optional[str] = None,
-                       **kwargs) -> aio.Channel:
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        **kwargs,
+    ) -> aio.Channel:
         """Create and return a gRPC AsyncIO channel object.
         Args:
             address (Optional[str]): The host for the channel to use.
@@ -93,22 +95,24 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
             credentials_file=credentials_file,
             scopes=scopes,
             quota_project_id=quota_project_id,
-            **kwargs
+            **kwargs,
         )
 
-    def __init__(self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            credentials_file: Optional[str] = None,
-            scopes: Optional[Sequence[str]] = None,
-            channel: aio.Channel = None,
-            api_mtls_endpoint: str = None,
-            client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-            ssl_channel_credentials: grpc.ChannelCredentials = None,
-            client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
-            quota_project_id=None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        channel: aio.Channel = None,
+        api_mtls_endpoint: str = None,
+        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+        ssl_channel_credentials: grpc.ChannelCredentials = None,
+        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+        quota_project_id=None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -171,10 +175,16 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
         elif api_mtls_endpoint:
-            host = api_mtls_endpoint if ":" in api_mtls_endpoint else api_mtls_endpoint + ":443"
+            host = (
+                api_mtls_endpoint
+                if ":" in api_mtls_endpoint
+                else api_mtls_endpoint + ":443"
+            )
 
             if credentials is None:
-                credentials, _ = auth.default(scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id)
+                credentials, _ = auth.default(
+                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
+                )
 
             # Create SSL credentials with client_cert_source or application
             # default SSL credentials.
@@ -204,7 +214,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
             host = host if ":" in host else host + ":443"
 
             if credentials is None:
-                credentials, _ = auth.default(scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id)
+                credentials, _ = auth.default(
+                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
+                )
 
             if client_cert_source_for_mtls and not ssl_channel_credentials:
                 cert, key = client_cert_source_for_mtls()
@@ -266,9 +278,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         return self._operations_client
 
     @property
-    def create_study(self) -> Callable[
-            [vizier_service.CreateStudyRequest],
-            Awaitable[gca_study.Study]]:
+    def create_study(
+        self,
+    ) -> Callable[[vizier_service.CreateStudyRequest], Awaitable[gca_study.Study]]:
         r"""Return a callable for the create study method over gRPC.
 
         Creates a Study. A resource name will be generated
@@ -284,18 +296,18 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_study' not in self._stubs:
-            self._stubs['create_study'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/CreateStudy',
+        if "create_study" not in self._stubs:
+            self._stubs["create_study"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/CreateStudy",
                 request_serializer=vizier_service.CreateStudyRequest.serialize,
                 response_deserializer=gca_study.Study.deserialize,
             )
-        return self._stubs['create_study']
+        return self._stubs["create_study"]
 
     @property
-    def get_study(self) -> Callable[
-            [vizier_service.GetStudyRequest],
-            Awaitable[study.Study]]:
+    def get_study(
+        self,
+    ) -> Callable[[vizier_service.GetStudyRequest], Awaitable[study.Study]]:
         r"""Return a callable for the get study method over gRPC.
 
         Gets a Study by name.
@@ -310,18 +322,21 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_study' not in self._stubs:
-            self._stubs['get_study'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/GetStudy',
+        if "get_study" not in self._stubs:
+            self._stubs["get_study"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/GetStudy",
                 request_serializer=vizier_service.GetStudyRequest.serialize,
                 response_deserializer=study.Study.deserialize,
             )
-        return self._stubs['get_study']
+        return self._stubs["get_study"]
 
     @property
-    def list_studies(self) -> Callable[
-            [vizier_service.ListStudiesRequest],
-            Awaitable[vizier_service.ListStudiesResponse]]:
+    def list_studies(
+        self,
+    ) -> Callable[
+        [vizier_service.ListStudiesRequest],
+        Awaitable[vizier_service.ListStudiesResponse],
+    ]:
         r"""Return a callable for the list studies method over gRPC.
 
         Lists all the studies in a region for an associated
@@ -337,18 +352,18 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_studies' not in self._stubs:
-            self._stubs['list_studies'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/ListStudies',
+        if "list_studies" not in self._stubs:
+            self._stubs["list_studies"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/ListStudies",
                 request_serializer=vizier_service.ListStudiesRequest.serialize,
                 response_deserializer=vizier_service.ListStudiesResponse.deserialize,
             )
-        return self._stubs['list_studies']
+        return self._stubs["list_studies"]
 
     @property
-    def delete_study(self) -> Callable[
-            [vizier_service.DeleteStudyRequest],
-            Awaitable[empty.Empty]]:
+    def delete_study(
+        self,
+    ) -> Callable[[vizier_service.DeleteStudyRequest], Awaitable[empty.Empty]]:
         r"""Return a callable for the delete study method over gRPC.
 
         Deletes a Study.
@@ -363,18 +378,18 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'delete_study' not in self._stubs:
-            self._stubs['delete_study'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/DeleteStudy',
+        if "delete_study" not in self._stubs:
+            self._stubs["delete_study"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/DeleteStudy",
                 request_serializer=vizier_service.DeleteStudyRequest.serialize,
                 response_deserializer=empty.Empty.FromString,
             )
-        return self._stubs['delete_study']
+        return self._stubs["delete_study"]
 
     @property
-    def lookup_study(self) -> Callable[
-            [vizier_service.LookupStudyRequest],
-            Awaitable[study.Study]]:
+    def lookup_study(
+        self,
+    ) -> Callable[[vizier_service.LookupStudyRequest], Awaitable[study.Study]]:
         r"""Return a callable for the lookup study method over gRPC.
 
         Looks a study up using the user-defined display_name field
@@ -390,18 +405,20 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'lookup_study' not in self._stubs:
-            self._stubs['lookup_study'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/LookupStudy',
+        if "lookup_study" not in self._stubs:
+            self._stubs["lookup_study"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/LookupStudy",
                 request_serializer=vizier_service.LookupStudyRequest.serialize,
                 response_deserializer=study.Study.deserialize,
             )
-        return self._stubs['lookup_study']
+        return self._stubs["lookup_study"]
 
     @property
-    def suggest_trials(self) -> Callable[
-            [vizier_service.SuggestTrialsRequest],
-            Awaitable[operations.Operation]]:
+    def suggest_trials(
+        self,
+    ) -> Callable[
+        [vizier_service.SuggestTrialsRequest], Awaitable[operations.Operation]
+    ]:
         r"""Return a callable for the suggest trials method over gRPC.
 
         Adds one or more Trials to a Study, with parameter values
@@ -420,18 +437,18 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'suggest_trials' not in self._stubs:
-            self._stubs['suggest_trials'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/SuggestTrials',
+        if "suggest_trials" not in self._stubs:
+            self._stubs["suggest_trials"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/SuggestTrials",
                 request_serializer=vizier_service.SuggestTrialsRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['suggest_trials']
+        return self._stubs["suggest_trials"]
 
     @property
-    def create_trial(self) -> Callable[
-            [vizier_service.CreateTrialRequest],
-            Awaitable[study.Trial]]:
+    def create_trial(
+        self,
+    ) -> Callable[[vizier_service.CreateTrialRequest], Awaitable[study.Trial]]:
         r"""Return a callable for the create trial method over gRPC.
 
         Adds a user provided Trial to a Study.
@@ -446,18 +463,18 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_trial' not in self._stubs:
-            self._stubs['create_trial'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/CreateTrial',
+        if "create_trial" not in self._stubs:
+            self._stubs["create_trial"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/CreateTrial",
                 request_serializer=vizier_service.CreateTrialRequest.serialize,
                 response_deserializer=study.Trial.deserialize,
             )
-        return self._stubs['create_trial']
+        return self._stubs["create_trial"]
 
     @property
-    def get_trial(self) -> Callable[
-            [vizier_service.GetTrialRequest],
-            Awaitable[study.Trial]]:
+    def get_trial(
+        self,
+    ) -> Callable[[vizier_service.GetTrialRequest], Awaitable[study.Trial]]:
         r"""Return a callable for the get trial method over gRPC.
 
         Gets a Trial.
@@ -472,18 +489,20 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_trial' not in self._stubs:
-            self._stubs['get_trial'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/GetTrial',
+        if "get_trial" not in self._stubs:
+            self._stubs["get_trial"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/GetTrial",
                 request_serializer=vizier_service.GetTrialRequest.serialize,
                 response_deserializer=study.Trial.deserialize,
             )
-        return self._stubs['get_trial']
+        return self._stubs["get_trial"]
 
     @property
-    def list_trials(self) -> Callable[
-            [vizier_service.ListTrialsRequest],
-            Awaitable[vizier_service.ListTrialsResponse]]:
+    def list_trials(
+        self,
+    ) -> Callable[
+        [vizier_service.ListTrialsRequest], Awaitable[vizier_service.ListTrialsResponse]
+    ]:
         r"""Return a callable for the list trials method over gRPC.
 
         Lists the Trials associated with a Study.
@@ -498,18 +517,18 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_trials' not in self._stubs:
-            self._stubs['list_trials'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/ListTrials',
+        if "list_trials" not in self._stubs:
+            self._stubs["list_trials"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/ListTrials",
                 request_serializer=vizier_service.ListTrialsRequest.serialize,
                 response_deserializer=vizier_service.ListTrialsResponse.deserialize,
             )
-        return self._stubs['list_trials']
+        return self._stubs["list_trials"]
 
     @property
-    def add_trial_measurement(self) -> Callable[
-            [vizier_service.AddTrialMeasurementRequest],
-            Awaitable[study.Trial]]:
+    def add_trial_measurement(
+        self,
+    ) -> Callable[[vizier_service.AddTrialMeasurementRequest], Awaitable[study.Trial]]:
         r"""Return a callable for the add trial measurement method over gRPC.
 
         Adds a measurement of the objective metrics to a
@@ -526,18 +545,18 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'add_trial_measurement' not in self._stubs:
-            self._stubs['add_trial_measurement'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/AddTrialMeasurement',
+        if "add_trial_measurement" not in self._stubs:
+            self._stubs["add_trial_measurement"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/AddTrialMeasurement",
                 request_serializer=vizier_service.AddTrialMeasurementRequest.serialize,
                 response_deserializer=study.Trial.deserialize,
             )
-        return self._stubs['add_trial_measurement']
+        return self._stubs["add_trial_measurement"]
 
     @property
-    def complete_trial(self) -> Callable[
-            [vizier_service.CompleteTrialRequest],
-            Awaitable[study.Trial]]:
+    def complete_trial(
+        self,
+    ) -> Callable[[vizier_service.CompleteTrialRequest], Awaitable[study.Trial]]:
         r"""Return a callable for the complete trial method over gRPC.
 
         Marks a Trial as complete.
@@ -552,18 +571,18 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'complete_trial' not in self._stubs:
-            self._stubs['complete_trial'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/CompleteTrial',
+        if "complete_trial" not in self._stubs:
+            self._stubs["complete_trial"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/CompleteTrial",
                 request_serializer=vizier_service.CompleteTrialRequest.serialize,
                 response_deserializer=study.Trial.deserialize,
             )
-        return self._stubs['complete_trial']
+        return self._stubs["complete_trial"]
 
     @property
-    def delete_trial(self) -> Callable[
-            [vizier_service.DeleteTrialRequest],
-            Awaitable[empty.Empty]]:
+    def delete_trial(
+        self,
+    ) -> Callable[[vizier_service.DeleteTrialRequest], Awaitable[empty.Empty]]:
         r"""Return a callable for the delete trial method over gRPC.
 
         Deletes a Trial.
@@ -578,18 +597,21 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'delete_trial' not in self._stubs:
-            self._stubs['delete_trial'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/DeleteTrial',
+        if "delete_trial" not in self._stubs:
+            self._stubs["delete_trial"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/DeleteTrial",
                 request_serializer=vizier_service.DeleteTrialRequest.serialize,
                 response_deserializer=empty.Empty.FromString,
             )
-        return self._stubs['delete_trial']
+        return self._stubs["delete_trial"]
 
     @property
-    def check_trial_early_stopping_state(self) -> Callable[
-            [vizier_service.CheckTrialEarlyStoppingStateRequest],
-            Awaitable[operations.Operation]]:
+    def check_trial_early_stopping_state(
+        self,
+    ) -> Callable[
+        [vizier_service.CheckTrialEarlyStoppingStateRequest],
+        Awaitable[operations.Operation],
+    ]:
         r"""Return a callable for the check trial early stopping
         state method over gRPC.
 
@@ -608,18 +630,20 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'check_trial_early_stopping_state' not in self._stubs:
-            self._stubs['check_trial_early_stopping_state'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/CheckTrialEarlyStoppingState',
+        if "check_trial_early_stopping_state" not in self._stubs:
+            self._stubs[
+                "check_trial_early_stopping_state"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/CheckTrialEarlyStoppingState",
                 request_serializer=vizier_service.CheckTrialEarlyStoppingStateRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['check_trial_early_stopping_state']
+        return self._stubs["check_trial_early_stopping_state"]
 
     @property
-    def stop_trial(self) -> Callable[
-            [vizier_service.StopTrialRequest],
-            Awaitable[study.Trial]]:
+    def stop_trial(
+        self,
+    ) -> Callable[[vizier_service.StopTrialRequest], Awaitable[study.Trial]]:
         r"""Return a callable for the stop trial method over gRPC.
 
         Stops a Trial.
@@ -634,18 +658,21 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'stop_trial' not in self._stubs:
-            self._stubs['stop_trial'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/StopTrial',
+        if "stop_trial" not in self._stubs:
+            self._stubs["stop_trial"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/StopTrial",
                 request_serializer=vizier_service.StopTrialRequest.serialize,
                 response_deserializer=study.Trial.deserialize,
             )
-        return self._stubs['stop_trial']
+        return self._stubs["stop_trial"]
 
     @property
-    def list_optimal_trials(self) -> Callable[
-            [vizier_service.ListOptimalTrialsRequest],
-            Awaitable[vizier_service.ListOptimalTrialsResponse]]:
+    def list_optimal_trials(
+        self,
+    ) -> Callable[
+        [vizier_service.ListOptimalTrialsRequest],
+        Awaitable[vizier_service.ListOptimalTrialsResponse],
+    ]:
         r"""Return a callable for the list optimal trials method over gRPC.
 
         Lists the pareto-optimal Trials for multi-objective Study or the
@@ -663,15 +690,13 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_optimal_trials' not in self._stubs:
-            self._stubs['list_optimal_trials'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.VizierService/ListOptimalTrials',
+        if "list_optimal_trials" not in self._stubs:
+            self._stubs["list_optimal_trials"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VizierService/ListOptimalTrials",
                 request_serializer=vizier_service.ListOptimalTrialsRequest.serialize,
                 response_deserializer=vizier_service.ListOptimalTrialsResponse.deserialize,
             )
-        return self._stubs['list_optimal_trials']
+        return self._stubs["list_optimal_trials"]
 
 
-__all__ = (
-    'VizierServiceGrpcAsyncIOTransport',
-)
+__all__ = ("VizierServiceGrpcAsyncIOTransport",)

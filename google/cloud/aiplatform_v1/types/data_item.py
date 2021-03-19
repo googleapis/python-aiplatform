@@ -23,10 +23,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1",
-    manifest={
-        "DataItem",
-    },
+    package="google.cloud.aiplatform.v1", manifest={"DataItem",},
 )
 
 
@@ -73,25 +70,13 @@ class DataItem(proto.Message):
 
     name = proto.Field(proto.STRING, number=1)
 
-    create_time = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp.Timestamp,)
 
-    update_time = proto.Field(
-        proto.MESSAGE,
-        number=6,
-        message=timestamp.Timestamp,
-    )
+    update_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=3)
 
-    payload = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        message=struct.Value,
-    )
+    payload = proto.Field(proto.MESSAGE, number=4, message=struct.Value,)
 
     etag = proto.Field(proto.STRING, number=7)
 
