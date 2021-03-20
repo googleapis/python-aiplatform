@@ -268,7 +268,6 @@ __all__ = (
     "ImportDataRequest",
     "ImportDataResponse",
     "InputDataConfig",
-    "JobServiceClient",
     "JobState",
     "ListAnnotationsRequest",
     "ListAnnotationsResponse",
@@ -323,6 +322,7 @@ __all__ = (
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
     "SpecialistPool",
+    "SpecialistPoolServiceClient",
     "StudySpec",
     "TimestampSplit",
     "TrainingConfig",
@@ -341,5 +341,5 @@ __all__ = (
     "UploadModelResponse",
     "UserActionReference",
     "WorkerPoolSpec",
-    "SpecialistPoolServiceClient",
+    "JobServiceClient",
 )

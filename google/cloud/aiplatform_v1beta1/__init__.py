@@ -335,7 +335,6 @@ __all__ = (
     "ModelEvaluationSlice",
     "ModelExplanation",
     "ModelServiceClient",
-    "PipelineServiceClient",
     "PipelineState",
     "Port",
     "PredefinedSplit",
@@ -352,6 +351,7 @@ __all__ = (
     "SearchMigratableResourcesResponse",
     "SmoothGradConfig",
     "SpecialistPool",
+    "SpecialistPoolServiceClient",
     "StudySpec",
     "TimestampSplit",
     "TrainingConfig",
@@ -371,5 +371,5 @@ __all__ = (
     "UserActionReference",
     "WorkerPoolSpec",
     "XraiAttribution",
-    "SpecialistPoolServiceClient",
+    "PipelineServiceClient",
 )

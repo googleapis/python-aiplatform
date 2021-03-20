@@ -15,12 +15,6 @@
 # limitations under the License.
 #
 
-from .export_evaluated_data_items_config import ExportEvaluatedDataItemsConfig
-from .automl_forecasting import (
-    AutoMlForecasting,
-    AutoMlForecastingInputs,
-    AutoMlForecastingMetadata,
-)
 from .automl_image_classification import (
     AutoMlImageClassification,
     AutoMlImageClassificationInputs,
@@ -36,6 +30,7 @@ from .automl_image_segmentation import (
     AutoMlImageSegmentationInputs,
     AutoMlImageSegmentationMetadata,
 )
+from .export_evaluated_data_items_config import ExportEvaluatedDataItemsConfig
 from .automl_tables import (
     AutoMlTables,
     AutoMlTablesInputs,
@@ -53,6 +48,11 @@ from .automl_text_sentiment import (
     AutoMlTextSentiment,
     AutoMlTextSentimentInputs,
 )
+from .automl_time_series_forecasting import (
+    AutoMlForecasting,
+    AutoMlForecastingInputs,
+    AutoMlForecastingMetadata,
+)
 from .automl_video_action_recognition import (
     AutoMlVideoActionRecognition,
     AutoMlVideoActionRecognitionInputs,
@@ -67,10 +67,6 @@ from .automl_video_object_tracking import (
 )
 
 __all__ = (
-    "ExportEvaluatedDataItemsConfig",
-    "AutoMlForecasting",
-    "AutoMlForecastingInputs",
-    "AutoMlForecastingMetadata",
     "AutoMlImageClassification",
     "AutoMlImageClassificationInputs",
     "AutoMlImageClassificationMetadata",
@@ -80,6 +76,7 @@ __all__ = (
     "AutoMlImageSegmentation",
     "AutoMlImageSegmentationInputs",
     "AutoMlImageSegmentationMetadata",
+    "ExportEvaluatedDataItemsConfig",
     "AutoMlTables",
     "AutoMlTablesInputs",
     "AutoMlTablesMetadata",
@@ -89,6 +86,9 @@ __all__ = (
     "AutoMlTextExtractionInputs",
     "AutoMlTextSentiment",
     "AutoMlTextSentimentInputs",
+    "AutoMlForecasting",
+    "AutoMlForecastingInputs",
+    "AutoMlForecastingMetadata",
     "AutoMlVideoActionRecognition",
     "AutoMlVideoActionRecognitionInputs",
     "AutoMlVideoClassification",
