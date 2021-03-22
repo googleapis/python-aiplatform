@@ -63,7 +63,7 @@ class DataItem(proto.Message):
             schema's][google.cloud.aiplatform.v1beta1.Dataset.metadata_schema_uri]
             dataItemSchemaUri field.
         etag (str):
-            Optional. Used to perform a consistent read-
+            Optional. Used to perform consistent read-
             odify-write updates. If not set, a blind
             "overwrite" update happens.
     """

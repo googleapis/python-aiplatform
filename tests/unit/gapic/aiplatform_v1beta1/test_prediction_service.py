@@ -104,7 +104,7 @@ def test_prediction_service_client_from_service_account_info():
 
 
 @pytest.mark.parametrize(
-    "client_class", [PredictionServiceClient, PredictionServiceAsyncClient,]
+    "client_class", [PredictionServiceClient, PredictionServiceAsyncClient,],
 )
 def test_prediction_service_client_from_service_account_file(client_class):
     creds = credentials.AnonymousCredentials()

@@ -926,9 +926,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
             if name is not None:
                 request.name = name
-
-            if import_configs:
-                request.import_configs.extend(import_configs)
+            if import_configs is not None:
+                request.import_configs = import_configs
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -1152,7 +1151,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             name (str):
                 Required. The name of the AnnotationSpec resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/datasets/{dataset}/annotationSpecs/{annotation_spec}``
 
                 This corresponds to the ``name`` field
@@ -1228,7 +1226,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             parent (str):
                 Required. The resource name of the DataItem to list
                 Annotations from. Format:
-
                 ``projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}``
 
                 This corresponds to the ``parent`` field
