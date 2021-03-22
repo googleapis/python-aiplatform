@@ -832,9 +832,7 @@ setup(
     description='My training application.'
 )"""
 
-    _SETUP_PY_SOURCE_DISTRIBUTION_CMD = (
-        "{python_executable} setup.py sdist --formats=gztar"
-    )
+    _SETUP_PY_SOURCE_DISTRIBUTION_CMD = "setup.py sdist --formats=gztar"
 
     # Module name that can be executed during training. ie. python -m
     module_name = f"{_ROOT_MODULE}.{_TASK_MODULE_NAME}"
@@ -908,9 +906,9 @@ setup(
         shutil.copy(self.script_path, script_out_path)
 
         # Run setup.py to create the source distribution.
-        setup_cmd = self._SETUP_PY_SOURCE_DISTRIBUTION_CMD.format(
-            python_executable=_get_python_executable()
-        ).split()
+        setup_cmd = [
+            _get_python_executable()
+        ] + self._SETUP_PY_SOURCE_DISTRIBUTION_CMD.split()
 
         p = subprocess.Popen(
             args=setup_cmd,
