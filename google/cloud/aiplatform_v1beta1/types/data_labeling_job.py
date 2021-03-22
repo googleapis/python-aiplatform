@@ -133,7 +133,7 @@ class DataLabelingJob(proto.Message):
             are associated with the EncryptionSpec of the
             Dataset they are exported to.
         active_learning_config (google.cloud.aiplatform_v1beta1.types.ActiveLearningConfig):
-            Parameters that configure active learning
+            Parameters that configure the active learning
             pipeline. Active learning will label the data
             incrementally via several iterations. For every
             iteration, it will select a batch of data based
@@ -182,8 +182,8 @@ class DataLabelingJob(proto.Message):
 
 
 class ActiveLearningConfig(proto.Message):
-    r"""Parameters that configure active learning pipeline. Active
-    learning will  label the data incrementally by several
+    r"""Parameters that configure the active learning pipeline.
+    Active learning will  label the data incrementally by several
     iterations. For every iteration, it  will select a batch of data
     based on the sampling strategy.
 
@@ -233,7 +233,7 @@ class SampleConfig(proto.Message):
             in each following batch (except the first
             batch).
         sample_strategy (google.cloud.aiplatform_v1beta1.types.SampleConfig.SampleStrategy):
-            Field to chose sampling strategy. Sampling
+            Field to choose sampling strategy. Sampling
             strategy will decide which data should be
             selected for human labeling in every batch.
     """

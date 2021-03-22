@@ -14,15 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_forecasting import (
-    AutoMlForecasting,
-)
-from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_forecasting import (
-    AutoMlForecastingInputs,
-)
-from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_forecasting import (
-    AutoMlForecastingMetadata,
-)
+
 from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_image_classification import (
     AutoMlImageClassification,
 )
@@ -100,9 +92,6 @@ from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types
 )
 
 __all__ = (
-    "AutoMlForecasting",
-    "AutoMlForecastingInputs",
-    "AutoMlForecastingMetadata",
     "AutoMlImageClassification",
     "AutoMlImageClassificationInputs",
     "AutoMlImageClassificationMetadata",

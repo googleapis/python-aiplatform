@@ -97,8 +97,36 @@ class DatasetServiceAsyncClient:
         DatasetServiceClient.parse_common_location_path
     )
 
-    from_service_account_info = DatasetServiceClient.from_service_account_info
-    from_service_account_file = DatasetServiceClient.from_service_account_file
+    @classmethod
+    def from_service_account_info(cls, info: dict, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials info.
+
+        Args:
+            info (dict): The service account private key info.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            DatasetServiceAsyncClient: The constructed client.
+        """
+        return DatasetServiceClient.from_service_account_info.__func__(DatasetServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+
+    @classmethod
+    def from_service_account_file(cls, filename: str, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials
+        file.
+
+        Args:
+            filename (str): The path to the service account private key json
+                file.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            DatasetServiceAsyncClient: The constructed client.
+        """
+        return DatasetServiceClient.from_service_account_file.__func__(DatasetServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+
     from_service_account_json = from_service_account_file
 
     @property
@@ -889,7 +917,6 @@ class DatasetServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the AnnotationSpec resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/datasets/{dataset}/annotationSpecs/{annotation_spec}``
 
                 This corresponds to the ``name`` field
@@ -964,7 +991,6 @@ class DatasetServiceAsyncClient:
             parent (:class:`str`):
                 Required. The resource name of the DataItem to list
                 Annotations from. Format:
-
                 ``projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}``
 
                 This corresponds to the ``parent`` field

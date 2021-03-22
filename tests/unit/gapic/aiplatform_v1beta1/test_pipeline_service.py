@@ -110,21 +110,25 @@ def test__get_default_mtls_endpoint():
     )
 
 
-def test_pipeline_service_client_from_service_account_info():
+@pytest.mark.parametrize(
+    "client_class", [PipelineServiceClient, PipelineServiceAsyncClient,],
+)
+def test_pipeline_service_client_from_service_account_info(client_class):
     creds = credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
     ) as factory:
         factory.return_value = creds
         info = {"valid": True}
-        client = PipelineServiceClient.from_service_account_info(info)
+        client = client_class.from_service_account_info(info)
         assert client.transport._credentials == creds
+        assert isinstance(client, client_class)
 
         assert client.transport._host == "aiplatform.googleapis.com:443"
 
 
 @pytest.mark.parametrize(
-    "client_class", [PipelineServiceClient, PipelineServiceAsyncClient,]
+    "client_class", [PipelineServiceClient, PipelineServiceAsyncClient,],
 )
 def test_pipeline_service_client_from_service_account_file(client_class):
     creds = credentials.AnonymousCredentials()
@@ -134,9 +138,11 @@ def test_pipeline_service_client_from_service_account_file(client_class):
         factory.return_value = creds
         client = client_class.from_service_account_file("dummy/file/path.json")
         assert client.transport._credentials == creds
+        assert isinstance(client, client_class)
 
         client = client_class.from_service_account_json("dummy/file/path.json")
         assert client.transport._credentials == creds
+        assert isinstance(client, client_class)
 
         assert client.transport._host == "aiplatform.googleapis.com:443"
 
@@ -520,6 +526,24 @@ def test_create_training_pipeline_from_dict():
     test_create_training_pipeline(request_type=dict)
 
 
+def test_create_training_pipeline_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_training_pipeline), "__call__"
+    ) as call:
+        client.create_training_pipeline()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == pipeline_service.CreateTrainingPipelineRequest()
+
+
 @pytest.mark.asyncio
 async def test_create_training_pipeline_async(
     transport: str = "grpc_asyncio",
@@ -764,6 +788,24 @@ def test_get_training_pipeline_from_dict():
     test_get_training_pipeline(request_type=dict)
 
 
+def test_get_training_pipeline_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_training_pipeline), "__call__"
+    ) as call:
+        client.get_training_pipeline()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == pipeline_service.GetTrainingPipelineRequest()
+
+
 @pytest.mark.asyncio
 async def test_get_training_pipeline_async(
     transport: str = "grpc_asyncio",
@@ -979,6 +1021,24 @@ def test_list_training_pipelines(
 
 def test_list_training_pipelines_from_dict():
     test_list_training_pipelines(request_type=dict)
+
+
+def test_list_training_pipelines_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_training_pipelines), "__call__"
+    ) as call:
+        client.list_training_pipelines()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == pipeline_service.ListTrainingPipelinesRequest()
 
 
 @pytest.mark.asyncio
@@ -1354,6 +1414,24 @@ def test_delete_training_pipeline_from_dict():
     test_delete_training_pipeline(request_type=dict)
 
 
+def test_delete_training_pipeline_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.delete_training_pipeline), "__call__"
+    ) as call:
+        client.delete_training_pipeline()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == pipeline_service.DeleteTrainingPipelineRequest()
+
+
 @pytest.mark.asyncio
 async def test_delete_training_pipeline_async(
     transport: str = "grpc_asyncio",
@@ -1551,6 +1629,24 @@ def test_cancel_training_pipeline(
 
 def test_cancel_training_pipeline_from_dict():
     test_cancel_training_pipeline(request_type=dict)
+
+
+def test_cancel_training_pipeline_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = PipelineServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.cancel_training_pipeline), "__call__"
+    ) as call:
+        client.cancel_training_pipeline()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == pipeline_service.CancelTrainingPipelineRequest()
 
 
 @pytest.mark.asyncio
