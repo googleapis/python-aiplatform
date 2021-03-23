@@ -983,7 +983,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             name (str):
                 Required. The name of the ModelEvaluation resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
 
                 This corresponds to the ``name`` field
@@ -1145,7 +1144,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             name (str):
                 Required. The name of the ModelEvaluationSlice resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}``
 
                 This corresponds to the ``name`` field
@@ -1225,7 +1223,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             parent (str):
                 Required. The resource name of the ModelEvaluation to
                 list the ModelEvaluationSlices from. Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
 
                 This corresponds to the ``parent`` field

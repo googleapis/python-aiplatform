@@ -24,8 +24,52 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
-    manifest={"Trial", "StudySpec", "Measurement",},
+    manifest={"Study", "Trial", "StudySpec", "Measurement",},
 )
+
+
+class Study(proto.Message):
+    r"""A message representing a Study.
+
+    Attributes:
+        name (str):
+            Output only. The name of a study. The study's globally
+            unique identifier. Format:
+            ``projects/{project}/locations/{location}/studies/{study}``
+        display_name (str):
+            Required. Describes the Study, default value
+            is empty string.
+        study_spec (google.cloud.aiplatform_v1beta1.types.StudySpec):
+            Required. Configuration of the Study.
+        state (google.cloud.aiplatform_v1beta1.types.Study.State):
+            Output only. The detailed state of a Study.
+        create_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Time at which the study was
+            created.
+        inactive_reason (str):
+            Output only. A human readable reason why the
+            Study is inactive. This should be empty if a
+            study is ACTIVE or COMPLETED.
+    """
+
+    class State(proto.Enum):
+        r"""Describes the Study state."""
+        STATE_UNSPECIFIED = 0
+        ACTIVE = 1
+        INACTIVE = 2
+        COMPLETED = 3
+
+    name = proto.Field(proto.STRING, number=1)
+
+    display_name = proto.Field(proto.STRING, number=2)
+
+    study_spec = proto.Field(proto.MESSAGE, number=3, message="StudySpec",)
+
+    state = proto.Field(proto.ENUM, number=4, enum=State,)
+
+    create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
+
+    inactive_reason = proto.Field(proto.STRING, number=6)
 
 
 class Trial(proto.Message):
@@ -34,6 +78,9 @@ class Trial(proto.Message):
     objective metrics got by running the Trial.
 
     Attributes:
+        name (str):
+            Output only. Resource name of the Trial
+            assigned by the service.
         id (str):
             Output only. The identifier of the Trial
             assigned by the service.
@@ -84,6 +131,8 @@ class Trial(proto.Message):
 
         value = proto.Field(proto.MESSAGE, number=2, message=struct.Value,)
 
+    name = proto.Field(proto.STRING, number=1)
+
     id = proto.Field(proto.STRING, number=2)
 
     state = proto.Field(proto.ENUM, number=3, enum=State,)
@@ -103,6 +152,15 @@ class StudySpec(proto.Message):
     r"""Represents specification of a Study.
 
     Attributes:
+        decay_curve_stopping_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.DecayCurveAutomatedStoppingSpec):
+            The automated early stopping spec using decay
+            curve rule.
+        median_automated_stopping_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.MedianAutomatedStoppingSpec):
+            The automated early stopping spec using
+            median rule.
+        convex_stop_config (google.cloud.aiplatform_v1beta1.types.StudySpec.ConvexStopConfig):
+            The automated early stopping using convex
+            stopping rule.
         metrics (Sequence[google.cloud.aiplatform_v1beta1.types.StudySpec.MetricSpec]):
             Required. Metric specs for the Study.
         parameters (Sequence[google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec]):
@@ -390,6 +448,113 @@ class StudySpec(proto.Message):
             number=10,
             message="StudySpec.ParameterSpec.ConditionalParameterSpec",
         )
+
+    class DecayCurveAutomatedStoppingSpec(proto.Message):
+        r"""The decay curve automated stopping rule builds a Gaussian
+        Process Regressor to predict the final objective value of a
+        Trial based on the already completed Trials and the intermediate
+        measurements of the current Trial. Early stopping is requested
+        for the current Trial if there is very low probability to exceed
+        the optimal value found so far.
+
+        Attributes:
+            use_elapsed_duration (bool):
+                True if
+                ``Measurement.elapsed_duration``
+                is used as the x-axis of each Trials Decay Curve. Otherwise,
+                ``Measurement.step_count``
+                will be used as the x-axis.
+        """
+
+        use_elapsed_duration = proto.Field(proto.BOOL, number=1)
+
+    class MedianAutomatedStoppingSpec(proto.Message):
+        r"""The median automated stopping rule stops a pending Trial if the
+        Trial's best objective_value is strictly below the median
+        'performance' of all completed Trials reported up to the Trial's
+        last measurement. Currently, 'performance' refers to the running
+        average of the objective values reported by the Trial in each
+        measurement.
+
+        Attributes:
+            use_elapsed_duration (bool):
+                True if median automated stopping rule applies on
+                ``Measurement.elapsed_duration``.
+                It means that elapsed_duration field of latest measurement
+                of current Trial is used to compute median objective value
+                for each completed Trials.
+        """
+
+        use_elapsed_duration = proto.Field(proto.BOOL, number=1)
+
+    class ConvexStopConfig(proto.Message):
+        r"""Configuration for ConvexStopPolicy.
+
+        Attributes:
+            max_num_steps (int):
+                Steps used in predicting the final objective for early
+                stopped trials. In general, it's set to be the same as the
+                defined steps in training / tuning. When use_steps is false,
+                this field is set to the maximum elapsed seconds.
+            min_num_steps (int):
+                Minimum number of steps for a trial to complete. Trials
+                which do not have a measurement with num_steps >
+                min_num_steps won't be considered for early stopping. It's
+                ok to set it to 0, and a trial can be early stopped at any
+                stage. By default, min_num_steps is set to be one-tenth of
+                the max_num_steps. When use_steps is false, this field is
+                set to the minimum elapsed seconds.
+            autoregressive_order (int):
+                The number of Trial measurements used in
+                autoregressive model for value prediction. A
+                trial won't be considered early stopping if has
+                fewer measurement points.
+            learning_rate_parameter_name (str):
+                The hyper-parameter name used in the tuning job that stands
+                for learning rate. Leave it blank if learning rate is not in
+                a parameter in tuning. The learning_rate is used to estimate
+                the objective value of the ongoing trial.
+            use_seconds (bool):
+                This bool determines whether or not the rule is applied
+                based on elapsed_secs or steps. If use_seconds==false, the
+                early stopping decision is made according to the predicted
+                objective values according to the target steps. If
+                use_seconds==true, elapsed_secs is used instead of steps.
+                Also, in this case, the parameters max_num_steps and
+                min_num_steps are overloaded to contain max_elapsed_seconds
+                and min_elapsed_seconds.
+        """
+
+        max_num_steps = proto.Field(proto.INT64, number=1)
+
+        min_num_steps = proto.Field(proto.INT64, number=2)
+
+        autoregressive_order = proto.Field(proto.INT64, number=3)
+
+        learning_rate_parameter_name = proto.Field(proto.STRING, number=4)
+
+        use_seconds = proto.Field(proto.BOOL, number=5)
+
+    decay_curve_stopping_spec = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="automated_stopping_spec",
+        message=DecayCurveAutomatedStoppingSpec,
+    )
+
+    median_automated_stopping_spec = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="automated_stopping_spec",
+        message=MedianAutomatedStoppingSpec,
+    )
+
+    convex_stop_config = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        oneof="automated_stopping_spec",
+        message=ConvexStopConfig,
+    )
 
     metrics = proto.RepeatedField(proto.MESSAGE, number=1, message=MetricSpec,)
 

@@ -58,7 +58,7 @@ class Model(proto.Message):
             3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
             AutoML Models always have this field populated by AI
-            Platform, if no additional metadata is needed this field is
+            Platform, if no additional metadata is needed, this field is
             set to an empty string. Note: The URI given on output will
             be immutable and probably different, including the URI
             scheme, than the one given on input. The output URI will
@@ -205,8 +205,8 @@ class Model(proto.Message):
             The Model can be used for [requesting
             explanation][PredictionService.Explain] after being
             ``deployed``
-            iff it is populated. The Model can be used for [batch
-            explanation][BatchPredictionJob.generate_explanation] iff it
+            if it is populated. The Model can be used for [batch
+            explanation][BatchPredictionJob.generate_explanation] if it
             is populated.
 
             All fields of the explanation_spec can be overridden by
@@ -214,6 +214,19 @@ class Model(proto.Message):
             of
             ``DeployModelRequest.deployed_model``,
             or
+            ``explanation_spec``
+            of
+            ``BatchPredictionJob``.
+
+            If the default explanation specification is not set for this
+            Model, this Model can still be used for [requesting
+            explanation][PredictionService.Explain] by setting
+            ``explanation_spec``
+            of
+            ``DeployModelRequest.deployed_model``
+            and for [batch
+            explanation][BatchPredictionJob.generate_explanation] by
+            setting
             ``explanation_spec``
             of
             ``BatchPredictionJob``.
@@ -244,7 +257,7 @@ class Model(proto.Message):
         AUTOMATIC_RESOURCES = 2
 
     class ExportFormat(proto.Message):
-        r"""Represents a supported by the Model export format.
+        r"""Represents export format supported by the Model.
         All formats export to Google Cloud Storage.
 
         Attributes:
@@ -372,8 +385,8 @@ class PredictSchemata(proto.Message):
             The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
             AutoML Models always have this field populated by AI
-            Platform, if no parameters are supported it is set to an
-            empty string. Note: The URI given on output will be
+            Platform, if no parameters are supported, then it is set to
+            an empty string. Note: The URI given on output will be
             immutable and probably different, including the URI scheme,
             than the one given on input. The output URI will point to a
             location where the user only has a read access.
@@ -424,6 +437,11 @@ class ModelContainerSpec(proto.Message):
             To learn about the requirements for the Docker image itself,
             see `Custom container
             requirements <https://tinyurl.com/cust-cont-reqs>`__.
+
+            You can use the URI to one of AI Platform's `pre-built
+            container images for
+            prediction <https://cloud.google.com/ai-platform-unified/docs/predictions/pre-built-containers>`__
+            in this field.
         command (Sequence[str]):
             Immutable. Specifies the command that runs when the
             container starts. This overrides the container's
@@ -596,7 +614,7 @@ class ModelContainerSpec(proto.Message):
                ```AIP_DEPLOYED_MODEL_ID`` environment
                variable <https://tinyurl.com/cust-cont-reqs#aip-variables>`__.)
         health_route (str):
-            Immutable. HTTP path on the container to send health checkss
+            Immutable. HTTP path on the container to send health checks
             to. AI Platform intermittently sends GET requests to this
             path on the container's IP address and port to check that
             the container is healthy. Read more about `health

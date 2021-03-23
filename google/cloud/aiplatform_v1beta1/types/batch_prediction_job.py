@@ -117,8 +117,10 @@ class BatchPredictionJob(proto.Message):
             -  ``csv``: Generating explanations for CSV format is not
                supported.
 
-            If this field is set to true, the
+            If this field is set to true, either the
             ``Model.explanation_spec``
+            or
+            ``explanation_spec``
             must be populated.
         explanation_spec (google.cloud.aiplatform_v1beta1.types.ExplanationSpec):
             Explanation configuration for this BatchPredictionJob. Can
@@ -288,7 +290,6 @@ class BatchPredictionJob(proto.Message):
                 Required. The format in which AI Platform gives the
                 predictions, must be one of the
                 [Model's][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
-
                 ``supported_output_storage_formats``.
         """
 

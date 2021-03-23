@@ -151,7 +151,7 @@ class ListCustomJobsResponse(proto.Message):
         custom_jobs (Sequence[google.cloud.aiplatform_v1beta1.types.CustomJob]):
             List of CustomJobs in the requested page.
         next_page_token (str):
-            A token to retrieve next page of results. Pass to
+            A token to retrieve the next page of results. Pass to
             ``ListCustomJobsRequest.page_token``
             to obtain that page.
     """
@@ -219,7 +219,6 @@ class GetDataLabelingJobRequest(proto.Message):
     Attributes:
         name (str):
             Required. The name of the DataLabelingJob. Format:
-
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
@@ -311,7 +310,6 @@ class DeleteDataLabelingJobRequest(proto.Message):
         name (str):
             Required. The name of the DataLabelingJob to be deleted.
             Format:
-
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
@@ -325,7 +323,6 @@ class CancelDataLabelingJobRequest(proto.Message):
     Attributes:
         name (str):
             Required. The name of the DataLabelingJob. Format:
-
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
@@ -363,7 +360,6 @@ class GetHyperparameterTuningJobRequest(proto.Message):
         name (str):
             Required. The name of the HyperparameterTuningJob resource.
             Format:
-
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
@@ -430,7 +426,7 @@ class ListHyperparameterTuningJobsResponse(proto.Message):
             ``HyperparameterTuningJob.trials``
             of the jobs will be not be returned.
         next_page_token (str):
-            A token to retrieve next page of results. Pass to
+            A token to retrieve the next page of results. Pass to
             ``ListHyperparameterTuningJobsRequest.page_token``
             to obtain that page.
     """
@@ -456,7 +452,6 @@ class DeleteHyperparameterTuningJobRequest(proto.Message):
         name (str):
             Required. The name of the HyperparameterTuningJob resource
             to be deleted. Format:
-
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
@@ -471,7 +466,6 @@ class CancelHyperparameterTuningJobRequest(proto.Message):
         name (str):
             Required. The name of the HyperparameterTuningJob to cancel.
             Format:
-
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
@@ -506,7 +500,6 @@ class GetBatchPredictionJobRequest(proto.Message):
         name (str):
             Required. The name of the BatchPredictionJob resource.
             Format:
-
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
@@ -530,6 +523,8 @@ class ListBatchPredictionJobsRequest(proto.Message):
             -  ``display_name`` supports = and !=.
 
             -  ``state`` supports = and !=.
+
+            -  ``model_display_name`` supports = and !=
 
             Some examples of using the filter are:
 
@@ -572,7 +567,7 @@ class ListBatchPredictionJobsResponse(proto.Message):
             List of BatchPredictionJobs in the requested
             page.
         next_page_token (str):
-            A token to retrieve next page of results. Pass to
+            A token to retrieve the next page of results. Pass to
             ``ListBatchPredictionJobsRequest.page_token``
             to obtain that page.
     """
@@ -596,7 +591,6 @@ class DeleteBatchPredictionJobRequest(proto.Message):
         name (str):
             Required. The name of the BatchPredictionJob resource to be
             deleted. Format:
-
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
@@ -611,7 +605,6 @@ class CancelBatchPredictionJobRequest(proto.Message):
         name (str):
             Required. The name of the BatchPredictionJob to cancel.
             Format:
-
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 

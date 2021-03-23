@@ -94,21 +94,25 @@ def test__get_default_mtls_endpoint():
     )
 
 
-def test_migration_service_client_from_service_account_info():
+@pytest.mark.parametrize(
+    "client_class", [MigrationServiceClient, MigrationServiceAsyncClient,],
+)
+def test_migration_service_client_from_service_account_info(client_class):
     creds = credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
     ) as factory:
         factory.return_value = creds
         info = {"valid": True}
-        client = MigrationServiceClient.from_service_account_info(info)
+        client = client_class.from_service_account_info(info)
         assert client.transport._credentials == creds
+        assert isinstance(client, client_class)
 
         assert client.transport._host == "aiplatform.googleapis.com:443"
 
 
 @pytest.mark.parametrize(
-    "client_class", [MigrationServiceClient, MigrationServiceAsyncClient,]
+    "client_class", [MigrationServiceClient, MigrationServiceAsyncClient,],
 )
 def test_migration_service_client_from_service_account_file(client_class):
     creds = credentials.AnonymousCredentials()
@@ -118,9 +122,11 @@ def test_migration_service_client_from_service_account_file(client_class):
         factory.return_value = creds
         client = client_class.from_service_account_file("dummy/file/path.json")
         assert client.transport._credentials == creds
+        assert isinstance(client, client_class)
 
         client = client_class.from_service_account_json("dummy/file/path.json")
         assert client.transport._credentials == creds
+        assert isinstance(client, client_class)
 
         assert client.transport._host == "aiplatform.googleapis.com:443"
 
@@ -494,6 +500,24 @@ def test_search_migratable_resources(
 
 def test_search_migratable_resources_from_dict():
     test_search_migratable_resources(request_type=dict)
+
+
+def test_search_migratable_resources_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MigrationServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.search_migratable_resources), "__call__"
+    ) as call:
+        client.search_migratable_resources()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == migration_service.SearchMigratableResourcesRequest()
 
 
 @pytest.mark.asyncio
@@ -877,6 +901,24 @@ def test_batch_migrate_resources(
 
 def test_batch_migrate_resources_from_dict():
     test_batch_migrate_resources(request_type=dict)
+
+
+def test_batch_migrate_resources_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MigrationServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.batch_migrate_resources), "__call__"
+    ) as call:
+        client.batch_migrate_resources()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == migration_service.BatchMigrateResourcesRequest()
 
 
 @pytest.mark.asyncio
@@ -1509,32 +1551,7 @@ def test_parse_annotated_dataset_path():
 
 def test_dataset_path():
     project = "cuttlefish"
-    location = "mussel"
-    dataset = "winkle"
-
-    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project, location=location, dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, location, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "dataset": "abalone",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "squid"
-    dataset = "clam"
+    dataset = "mussel"
 
     expected = "projects/{project}/datasets/{dataset}".format(
         project=project, dataset=dataset,
@@ -1545,7 +1562,32 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "whelk",
+        "project": "winkle",
+        "dataset": "nautilus",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "scallop"
+    location = "abalone"
+    dataset = "squid"
+
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        project=project, location=location, dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, location, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "clam",
+        "location": "whelk",
         "dataset": "octopus",
     }
     path = MigrationServiceClient.dataset_path(**expected)

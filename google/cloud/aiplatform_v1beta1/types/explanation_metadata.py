@@ -52,8 +52,8 @@ class ExplanationMetadata(proto.Message):
             Required. Map from output names to output
             metadata.
             For AI Platform provided Tensorflow images, keys
-            can be any string user defines.
-
+            can be any user defined string that consists of
+            any UTF-8 characters.
             For custom images, keys are the name of the
             output field in the prediction to be explained.
 
@@ -368,7 +368,7 @@ class ExplanationMetadata(proto.Message):
                 values.
 
                 The shape of the value must be an n-dimensional array of
-                strings. The number of dimentions must match that of the
+                strings. The number of dimensions must match that of the
                 outputs to be explained. The
                 ``Attribution.output_display_name``
                 is populated by locating in the mapping with
