@@ -44,7 +44,7 @@ class VideoClassificationPredictionResult(proto.Message):
             will be one of - segment-classification
             - shot-classification
             - one-sec-interval-classification
-        time_segment_start (~.duration.Duration):
+        time_segment_start (google.protobuf.duration_pb2.Duration):
             The beginning, inclusive, of the video's time
             segment in which the AnnotationSpec has been
             identified. Expressed as a number of seconds as
@@ -55,7 +55,7 @@ class VideoClassificationPredictionResult(proto.Message):
             equals the original 'timeSegmentStart' from the
             input instance, for other types it is the start
             of a shot or a 1 second interval respectively.
-        time_segment_end (~.duration.Duration):
+        time_segment_end (google.protobuf.duration_pb2.Duration):
             The end, exclusive, of the video's time
             segment in which the AnnotationSpec has been
             identified. Expressed as a number of seconds as
@@ -66,7 +66,7 @@ class VideoClassificationPredictionResult(proto.Message):
             equals the original 'timeSegmentEnd' from the
             input instance, for other types it is the end of
             a shot or a 1 second interval respectively.
-        confidence (~.wrappers.FloatValue):
+        confidence (google.protobuf.wrappers_pb2.FloatValue):
             The Model's confidence in correction of this
             prediction, higher value means higher
             confidence.

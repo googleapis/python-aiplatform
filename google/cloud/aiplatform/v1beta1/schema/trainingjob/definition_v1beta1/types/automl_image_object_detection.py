@@ -33,9 +33,9 @@ class AutoMlImageObjectDetection(proto.Message):
     Detection Model.
 
     Attributes:
-        inputs (~.automl_image_object_detection.AutoMlImageObjectDetectionInputs):
+        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageObjectDetectionInputs):
             The input parameters of this TrainingJob.
-        metadata (~.automl_image_object_detection.AutoMlImageObjectDetectionMetadata):
+        metadata (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageObjectDetectionMetadata):
             The metadata information
     """
 
@@ -52,7 +52,7 @@ class AutoMlImageObjectDetectionInputs(proto.Message):
     r"""
 
     Attributes:
-        model_type (~.automl_image_object_detection.AutoMlImageObjectDetectionInputs.ModelType):
+        model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageObjectDetectionInputs.ModelType):
 
         budget_milli_node_hours (int):
             The training budget of creating this model, expressed in
@@ -107,7 +107,7 @@ class AutoMlImageObjectDetectionMetadata(proto.Message):
             value in this field means 1 node hour.
             Guaranteed to not exceed
             inputs.budgetMilliNodeHours.
-        successful_stop_reason (~.automl_image_object_detection.AutoMlImageObjectDetectionMetadata.SuccessfulStopReason):
+        successful_stop_reason (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageObjectDetectionMetadata.SuccessfulStopReason):
             For successful job completions, this is the
             reason why the job has finished.
     """

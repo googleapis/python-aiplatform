@@ -19,6 +19,7 @@ from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 
 from google.protobuf import json_format
@@ -80,6 +81,22 @@ _TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
 
 _TEST_PIPELINE_RESOURCE_NAME = (
     "projects/my-project/locations/us-central1/trainingPipeline/12345"
+)
+
+# CMEK encryption
+_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+_TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
+)
+
+_TEST_PIPELINE_ENCRYPTION_KEY_NAME = "key_pipeline"
+_TEST_PIPELINE_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME
+)
+
+_TEST_MODEL_ENCRYPTION_KEY_NAME = "key_model"
+_TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME
 )
 
 
@@ -172,7 +189,11 @@ class TestAutoMLTabularTrainingJob:
         mock_model_service_get,
         sync,
     ):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
 
         job = AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
@@ -206,7 +227,10 @@ class TestAutoMLTabularTrainingJob:
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
         )
 
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
@@ -218,10 +242,11 @@ class TestAutoMLTabularTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.tabular_task,
+            training_task_definition=schema.training_job.definition.automl_tabular,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -258,6 +283,8 @@ class TestAutoMLTabularTrainingJob:
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
             optimization_objective_recall_value=None,
             optimization_objective_precision_value=None,
+            training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
         )
 
         model_from_job = job.run(
@@ -281,7 +308,9 @@ class TestAutoMLTabularTrainingJob:
         )
 
         # Test that if defaults to the job display name
-        true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split, dataset_id=mock_dataset_tabular.name,
@@ -289,10 +318,11 @@ class TestAutoMLTabularTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.tabular_task,
+            training_task_definition=schema.training_job.definition.automl_tabular,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_PIPELINE_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(

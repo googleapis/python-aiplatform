@@ -29,7 +29,7 @@ class AutoMlVideoObjectTracking(proto.Message):
     ObjectTracking Model.
 
     Attributes:
-        inputs (~.automl_video_object_tracking.AutoMlVideoObjectTrackingInputs):
+        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoObjectTrackingInputs):
             The input parameters of this TrainingJob.
     """
 
@@ -42,7 +42,7 @@ class AutoMlVideoObjectTrackingInputs(proto.Message):
     r"""
 
     Attributes:
-        model_type (~.automl_video_object_tracking.AutoMlVideoObjectTrackingInputs.ModelType):
+        model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoObjectTrackingInputs.ModelType):
 
     """
 

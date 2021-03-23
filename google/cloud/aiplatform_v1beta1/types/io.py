@@ -79,17 +79,24 @@ class BigQueryDestination(proto.Message):
 
     Attributes:
         output_uri (str):
-            Required. BigQuery URI to a project, up to 2000 characters
-            long. Accepted forms:
+            Required. BigQuery URI to a project or table, up to 2000
+            characters long.
 
-            -  BigQuery path. For example: ``bq://projectId``.
+            When only the project is specified, the Dataset and Table is
+            created. When the full table reference is specified, the
+            Dataset must exist and table must not exist.
+
+            Accepted forms:
+
+            -  BigQuery path. For example: ``bq://projectId`` or
+               ``bq://projectId.bqDatasetId.bqTableId``.
     """
 
     output_uri = proto.Field(proto.STRING, number=1)
 
 
 class ContainerRegistryDestination(proto.Message):
-    r"""The Container Regsitry location for the container image.
+    r"""The Container Registry location for the container image.
 
     Attributes:
         output_uri (str):

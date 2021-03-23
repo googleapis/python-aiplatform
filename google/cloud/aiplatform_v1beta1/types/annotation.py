@@ -46,22 +46,22 @@ class Annotation(proto.Message):
             note that the chosen schema must be consistent with the
             parent Dataset's
             ``metadata``.
-        payload (~.struct.Value):
+        payload (google.protobuf.struct_pb2.Value):
             Required. The schema of the payload can be found in
             ``payload_schema``.
-        create_time (~.timestamp.Timestamp):
+        create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Annotation
             was created.
-        update_time (~.timestamp.Timestamp):
+        update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Annotation
             was last updated.
         etag (str):
-            Optional. Used to perform a consistent read-
+            Optional. Used to perform consistent read-
             odify-write updates. If not set, a blind
             "overwrite" update happens.
-        annotation_source (~.user_action_reference.UserActionReference):
+        annotation_source (google.cloud.aiplatform_v1beta1.types.UserActionReference):
             Output only. The source of the Annotation.
-        labels (Sequence[~.annotation.Annotation.LabelsEntry]):
+        labels (Sequence[google.cloud.aiplatform_v1beta1.types.Annotation.LabelsEntry]):
             Optional. The labels with user-defined metadata to organize
             your Annotations.
 
@@ -78,7 +78,7 @@ class Annotation(proto.Message):
 
             -  "aiplatform.googleapis.com/annotation_set_name":
                optional, name of the UI's annotation set this Annotation
-               belongs to. If not set the Annotation is not visible in
+               belongs to. If not set, the Annotation is not visible in
                the UI.
 
             -  "aiplatform.googleapis.com/payload_schema": output only,

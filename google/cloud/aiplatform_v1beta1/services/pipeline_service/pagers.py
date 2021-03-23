@@ -15,7 +15,16 @@
 # limitations under the License.
 #
 
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import training_pipeline
@@ -25,7 +34,7 @@ class ListTrainingPipelinesPager:
     """A pager for iterating through ``list_training_pipelines`` requests.
 
     This class thinly wraps an initial
-    :class:`~.pipeline_service.ListTrainingPipelinesResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``training_pipelines`` field.
 
@@ -34,7 +43,7 @@ class ListTrainingPipelinesPager:
     through the ``training_pipelines`` field on the
     corresponding responses.
 
-    All the usual :class:`~.pipeline_service.ListTrainingPipelinesResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -52,9 +61,9 @@ class ListTrainingPipelinesPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.pipeline_service.ListTrainingPipelinesRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesRequest):
                 The initial request object.
-            response (:class:`~.pipeline_service.ListTrainingPipelinesResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -87,7 +96,7 @@ class ListTrainingPipelinesAsyncPager:
     """A pager for iterating through ``list_training_pipelines`` requests.
 
     This class thinly wraps an initial
-    :class:`~.pipeline_service.ListTrainingPipelinesResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``training_pipelines`` field.
 
@@ -96,7 +105,7 @@ class ListTrainingPipelinesAsyncPager:
     through the ``training_pipelines`` field on the
     corresponding responses.
 
-    All the usual :class:`~.pipeline_service.ListTrainingPipelinesResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -116,9 +125,9 @@ class ListTrainingPipelinesAsyncPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.pipeline_service.ListTrainingPipelinesRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesRequest):
                 The initial request object.
-            response (:class:`~.pipeline_service.ListTrainingPipelinesResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.

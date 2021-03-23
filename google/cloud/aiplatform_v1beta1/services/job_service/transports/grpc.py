@@ -74,6 +74,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         api_mtls_endpoint: str = None,
         client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
         ssl_channel_credentials: grpc.ChannelCredentials = None,
+        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
         quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -104,6 +105,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
                 for grpc channel. It is ignored if ``channel`` is provided.
+            client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
+                A callback to provide client certificate bytes and private key bytes,
+                both in PEM format. It is used to configure mutual TLS channel. It is
+                ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
             client_info (google.api_core.gapic_v1.client_info.ClientInfo):
@@ -120,6 +125,11 @@ class JobServiceGrpcTransport(JobServiceTransport):
         """
         self._ssl_channel_credentials = ssl_channel_credentials
 
+        if api_mtls_endpoint:
+            warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
+        if client_cert_source:
+            warnings.warn("client_cert_source is deprecated", DeprecationWarning)
+
         if channel:
             # Sanity check: Ensure that channel and credentials are not both
             # provided.
@@ -129,11 +139,6 @@ class JobServiceGrpcTransport(JobServiceTransport):
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
         elif api_mtls_endpoint:
-            warnings.warn(
-                "api_mtls_endpoint and client_cert_source are deprecated",
-                DeprecationWarning,
-            )
-
             host = (
                 api_mtls_endpoint
                 if ":" in api_mtls_endpoint
@@ -163,6 +168,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
                 ssl_credentials=ssl_credentials,
                 scopes=scopes or self.AUTH_SCOPES,
                 quota_project_id=quota_project_id,
+                options=[
+                    ("grpc.max_send_message_length", -1),
+                    ("grpc.max_receive_message_length", -1),
+                ],
             )
             self._ssl_channel_credentials = ssl_credentials
         else:
@@ -173,17 +182,28 @@ class JobServiceGrpcTransport(JobServiceTransport):
                     scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
                 )
 
+            if client_cert_source_for_mtls and not ssl_channel_credentials:
+                cert, key = client_cert_source_for_mtls()
+                self._ssl_channel_credentials = grpc.ssl_channel_credentials(
+                    certificate_chain=cert, private_key=key
+                )
+
             # create a new channel. The provided one is ignored.
             self._grpc_channel = type(self).create_channel(
                 host,
                 credentials=credentials,
                 credentials_file=credentials_file,
-                ssl_credentials=ssl_channel_credentials,
+                ssl_credentials=self._ssl_channel_credentials,
                 scopes=scopes or self.AUTH_SCOPES,
                 quota_project_id=quota_project_id,
+                options=[
+                    ("grpc.max_send_message_length", -1),
+                    ("grpc.max_receive_message_length", -1),
+                ],
             )
 
         self._stubs = {}  # type: Dict[str, Callable]
+        self._operations_client = None
 
         # Run the base constructor.
         super().__init__(
@@ -207,7 +227,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
     ) -> grpc.Channel:
         """Create and return a gRPC channel object.
         Args:
-            address (Optionsl[str]): The host for the channel to use.
+            address (Optional[str]): The host for the channel to use.
             credentials (Optional[~.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify this application to the service. If
@@ -253,13 +273,11 @@ class JobServiceGrpcTransport(JobServiceTransport):
         client.
         """
         # Sanity check: Only create a new client if we do not already have one.
-        if "operations_client" not in self.__dict__:
-            self.__dict__["operations_client"] = operations_v1.OperationsClient(
-                self.grpc_channel
-            )
+        if self._operations_client is None:
+            self._operations_client = operations_v1.OperationsClient(self.grpc_channel)
 
         # Return the client from cache.
-        return self.__dict__["operations_client"]
+        return self._operations_client
 
     @property
     def create_custom_job(

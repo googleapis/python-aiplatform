@@ -59,7 +59,7 @@ class UploadModelRequest(proto.Message):
             Required. The resource name of the Location into which to
             upload the Model. Format:
             ``projects/{project}/locations/{location}``
-        model (~.gca_model.Model):
+        model (google.cloud.aiplatform_v1beta1.types.Model):
             Required. The Model to create.
     """
 
@@ -74,7 +74,7 @@ class UploadModelOperationMetadata(proto.Message):
     operation.
 
     Attributes:
-        generic_metadata (~.operation.GenericOperationMetadata):
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The common part of the operation metadata.
     """
 
@@ -120,7 +120,25 @@ class ListModelsRequest(proto.Message):
             Models from. Format:
             ``projects/{project}/locations/{location}``
         filter (str):
-            The standard list filter.
+            An expression for filtering the results of the request. For
+            field names both snake_case and camelCase are supported.
+
+            -  ``model`` supports = and !=. ``model`` represents the
+               Model ID, i.e. the last segment of the Model's [resource
+               name][google.cloud.aiplatform.v1beta1.Model.name].
+            -  ``display_name`` supports = and !=
+            -  ``labels`` supports general map functions that is:
+
+               -  ``labels.key=value`` - key:value equality
+               -  \`labels.key:\* or labels:key - key existence
+               -  A key including a space must be quoted.
+                  ``labels."a key"``.
+
+            Some examples:
+
+            -  ``model=1234``
+            -  ``displayName="myDisplayName"``
+            -  ``labels.myKey="myValue"``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -129,7 +147,7 @@ class ListModelsRequest(proto.Message):
             of the previous
             ``ModelService.ListModels``
             call.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
 
@@ -149,7 +167,7 @@ class ListModelsResponse(proto.Message):
     ``ModelService.ListModels``
 
     Attributes:
-        models (Sequence[~.gca_model.Model]):
+        models (Sequence[google.cloud.aiplatform_v1beta1.types.Model]):
             List of Models in the requested page.
         next_page_token (str):
             A token to retrieve next page of results. Pass to
@@ -171,14 +189,13 @@ class UpdateModelRequest(proto.Message):
     ``ModelService.UpdateModel``.
 
     Attributes:
-        model (~.gca_model.Model):
+        model (google.cloud.aiplatform_v1beta1.types.Model):
             Required. The Model which replaces the
             resource on the server.
-        update_mask (~.field_mask.FieldMask):
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Required. The update mask applies to the resource. For the
             ``FieldMask`` definition, see
-
-            [FieldMask](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask).
+            `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
     """
 
     model = proto.Field(proto.MESSAGE, number=1, message=gca_model.Model,)
@@ -208,7 +225,7 @@ class ExportModelRequest(proto.Message):
         name (str):
             Required. The resource name of the Model to export. Format:
             ``projects/{project}/locations/{location}/models/{model}``
-        output_config (~.model_service.ExportModelRequest.OutputConfig):
+        output_config (google.cloud.aiplatform_v1beta1.types.ExportModelRequest.OutputConfig):
             Required. The desired output location and
             configuration.
     """
@@ -223,23 +240,23 @@ class ExportModelRequest(proto.Message):
                 supports][google.cloud.aiplatform.v1beta1.Model.supported_export_formats].
                 If no value is provided here, then the first from the list
                 of the Model's supported formats is used by default.
-            artifact_destination (~.io.GcsDestination):
-                The Google Cloud Storage location where the Model artifact
-                is to be written to. Under the directory given as the
-                destination a new one with name
+            artifact_destination (google.cloud.aiplatform_v1beta1.types.GcsDestination):
+                The Cloud Storage location where the Model artifact is to be
+                written to. Under the directory given as the destination a
+                new one with name
                 "``model-export-<model-display-name>-<timestamp-of-export-call>``",
                 where timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601
                 format, will be created. Inside, the Model and any of its
                 supporting files will be written. This field should only be
-                set when
-                [Models.supported_export_formats.exportable_contents]
-                contains ARTIFACT.
-            image_destination (~.io.ContainerRegistryDestination):
+                set when the ``exportableContent`` field of the
+                [Model.supported_export_formats] object contains
+                ``ARTIFACT``.
+            image_destination (google.cloud.aiplatform_v1beta1.types.ContainerRegistryDestination):
                 The Google Container Registry or Artifact Registry uri where
                 the Model container image will be copied to. This field
-                should only be set when
-                [Models.supported_export_formats.exportable_contents]
-                contains IMAGE.
+                should only be set when the ``exportableContent`` field of
+                the [Model.supported_export_formats] object contains
+                ``IMAGE``.
         """
 
         export_format_id = proto.Field(proto.STRING, number=1)
@@ -263,9 +280,9 @@ class ExportModelOperationMetadata(proto.Message):
     operation.
 
     Attributes:
-        generic_metadata (~.operation.GenericOperationMetadata):
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The common part of the operation metadata.
-        output_info (~.model_service.ExportModelOperationMetadata.OutputInfo):
+        output_info (google.cloud.aiplatform_v1beta1.types.ExportModelOperationMetadata.OutputInfo):
             Output only. Information further describing
             the output of this Model export.
     """
@@ -312,7 +329,6 @@ class GetModelEvaluationRequest(proto.Message):
     Attributes:
         name (str):
             Required. The name of the ModelEvaluation resource. Format:
-
             ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
     """
 
@@ -338,7 +354,7 @@ class ListModelEvaluationsRequest(proto.Message):
             of the previous
             ``ModelService.ListModelEvaluations``
             call.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
 
@@ -358,7 +374,7 @@ class ListModelEvaluationsResponse(proto.Message):
     ``ModelService.ListModelEvaluations``.
 
     Attributes:
-        model_evaluations (Sequence[~.model_evaluation.ModelEvaluation]):
+        model_evaluations (Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluation]):
             List of ModelEvaluations in the requested
             page.
         next_page_token (str):
@@ -386,7 +402,6 @@ class GetModelEvaluationSliceRequest(proto.Message):
         name (str):
             Required. The name of the ModelEvaluationSlice resource.
             Format:
-
             ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}``
     """
 
@@ -401,7 +416,6 @@ class ListModelEvaluationSlicesRequest(proto.Message):
         parent (str):
             Required. The resource name of the ModelEvaluation to list
             the ModelEvaluationSlices from. Format:
-
             ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
         filter (str):
             The standard list filter.
@@ -415,7 +429,7 @@ class ListModelEvaluationSlicesRequest(proto.Message):
             of the previous
             ``ModelService.ListModelEvaluationSlices``
             call.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
 
@@ -435,7 +449,7 @@ class ListModelEvaluationSlicesResponse(proto.Message):
     ``ModelService.ListModelEvaluationSlices``.
 
     Attributes:
-        model_evaluation_slices (Sequence[~.model_evaluation_slice.ModelEvaluationSlice]):
+        model_evaluation_slices (Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice]):
             List of ModelEvaluations in the requested
             page.
         next_page_token (str):

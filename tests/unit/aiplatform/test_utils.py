@@ -215,7 +215,6 @@ def test_validate_display_name():
     [
         ("NVIDIA_TESLA_K80", True),
         ("ACCELERATOR_TYPE_UNSPECIFIED", True),
-        ("TPU_V3", True),
         ("NONEXISTENT_GPU", False),
         ("NVIDIA_GALAXY_R7", False),
         ("", False),

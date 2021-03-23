@@ -15,7 +15,16 @@
 # limitations under the License.
 #
 
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1beta1.types import batch_prediction_job
 from google.cloud.aiplatform_v1beta1.types import custom_job
@@ -28,7 +37,7 @@ class ListCustomJobsPager:
     """A pager for iterating through ``list_custom_jobs`` requests.
 
     This class thinly wraps an initial
-    :class:`~.job_service.ListCustomJobsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListCustomJobsResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``custom_jobs`` field.
 
@@ -37,7 +46,7 @@ class ListCustomJobsPager:
     through the ``custom_jobs`` field on the
     corresponding responses.
 
-    All the usual :class:`~.job_service.ListCustomJobsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListCustomJobsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -55,9 +64,9 @@ class ListCustomJobsPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.job_service.ListCustomJobsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListCustomJobsRequest):
                 The initial request object.
-            response (:class:`~.job_service.ListCustomJobsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListCustomJobsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -90,7 +99,7 @@ class ListCustomJobsAsyncPager:
     """A pager for iterating through ``list_custom_jobs`` requests.
 
     This class thinly wraps an initial
-    :class:`~.job_service.ListCustomJobsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListCustomJobsResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``custom_jobs`` field.
 
@@ -99,7 +108,7 @@ class ListCustomJobsAsyncPager:
     through the ``custom_jobs`` field on the
     corresponding responses.
 
-    All the usual :class:`~.job_service.ListCustomJobsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListCustomJobsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -117,9 +126,9 @@ class ListCustomJobsAsyncPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.job_service.ListCustomJobsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListCustomJobsRequest):
                 The initial request object.
-            response (:class:`~.job_service.ListCustomJobsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListCustomJobsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -156,7 +165,7 @@ class ListDataLabelingJobsPager:
     """A pager for iterating through ``list_data_labeling_jobs`` requests.
 
     This class thinly wraps an initial
-    :class:`~.job_service.ListDataLabelingJobsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``data_labeling_jobs`` field.
 
@@ -165,7 +174,7 @@ class ListDataLabelingJobsPager:
     through the ``data_labeling_jobs`` field on the
     corresponding responses.
 
-    All the usual :class:`~.job_service.ListDataLabelingJobsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -183,9 +192,9 @@ class ListDataLabelingJobsPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.job_service.ListDataLabelingJobsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsRequest):
                 The initial request object.
-            response (:class:`~.job_service.ListDataLabelingJobsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -218,7 +227,7 @@ class ListDataLabelingJobsAsyncPager:
     """A pager for iterating through ``list_data_labeling_jobs`` requests.
 
     This class thinly wraps an initial
-    :class:`~.job_service.ListDataLabelingJobsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``data_labeling_jobs`` field.
 
@@ -227,7 +236,7 @@ class ListDataLabelingJobsAsyncPager:
     through the ``data_labeling_jobs`` field on the
     corresponding responses.
 
-    All the usual :class:`~.job_service.ListDataLabelingJobsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -245,9 +254,9 @@ class ListDataLabelingJobsAsyncPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.job_service.ListDataLabelingJobsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsRequest):
                 The initial request object.
-            response (:class:`~.job_service.ListDataLabelingJobsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -284,7 +293,7 @@ class ListHyperparameterTuningJobsPager:
     """A pager for iterating through ``list_hyperparameter_tuning_jobs`` requests.
 
     This class thinly wraps an initial
-    :class:`~.job_service.ListHyperparameterTuningJobsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``hyperparameter_tuning_jobs`` field.
 
@@ -293,7 +302,7 @@ class ListHyperparameterTuningJobsPager:
     through the ``hyperparameter_tuning_jobs`` field on the
     corresponding responses.
 
-    All the usual :class:`~.job_service.ListHyperparameterTuningJobsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -311,9 +320,9 @@ class ListHyperparameterTuningJobsPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.job_service.ListHyperparameterTuningJobsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsRequest):
                 The initial request object.
-            response (:class:`~.job_service.ListHyperparameterTuningJobsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -346,7 +355,7 @@ class ListHyperparameterTuningJobsAsyncPager:
     """A pager for iterating through ``list_hyperparameter_tuning_jobs`` requests.
 
     This class thinly wraps an initial
-    :class:`~.job_service.ListHyperparameterTuningJobsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``hyperparameter_tuning_jobs`` field.
 
@@ -355,7 +364,7 @@ class ListHyperparameterTuningJobsAsyncPager:
     through the ``hyperparameter_tuning_jobs`` field on the
     corresponding responses.
 
-    All the usual :class:`~.job_service.ListHyperparameterTuningJobsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -375,9 +384,9 @@ class ListHyperparameterTuningJobsAsyncPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.job_service.ListHyperparameterTuningJobsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsRequest):
                 The initial request object.
-            response (:class:`~.job_service.ListHyperparameterTuningJobsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -418,7 +427,7 @@ class ListBatchPredictionJobsPager:
     """A pager for iterating through ``list_batch_prediction_jobs`` requests.
 
     This class thinly wraps an initial
-    :class:`~.job_service.ListBatchPredictionJobsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``batch_prediction_jobs`` field.
 
@@ -427,7 +436,7 @@ class ListBatchPredictionJobsPager:
     through the ``batch_prediction_jobs`` field on the
     corresponding responses.
 
-    All the usual :class:`~.job_service.ListBatchPredictionJobsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -445,9 +454,9 @@ class ListBatchPredictionJobsPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.job_service.ListBatchPredictionJobsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsRequest):
                 The initial request object.
-            response (:class:`~.job_service.ListBatchPredictionJobsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -480,7 +489,7 @@ class ListBatchPredictionJobsAsyncPager:
     """A pager for iterating through ``list_batch_prediction_jobs`` requests.
 
     This class thinly wraps an initial
-    :class:`~.job_service.ListBatchPredictionJobsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``batch_prediction_jobs`` field.
 
@@ -489,7 +498,7 @@ class ListBatchPredictionJobsAsyncPager:
     through the ``batch_prediction_jobs`` field on the
     corresponding responses.
 
-    All the usual :class:`~.job_service.ListBatchPredictionJobsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -507,9 +516,9 @@ class ListBatchPredictionJobsAsyncPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.job_service.ListBatchPredictionJobsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsRequest):
                 The initial request object.
-            response (:class:`~.job_service.ListBatchPredictionJobsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.

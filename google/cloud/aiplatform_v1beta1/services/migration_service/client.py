@@ -117,6 +117,22 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     )
 
     @classmethod
+    def from_service_account_info(cls, info: dict, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials info.
+
+        Args:
+            info (dict): The service account private key info.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            MigrationServiceClient: The constructed client.
+        """
+        credentials = service_account.Credentials.from_service_account_info(info)
+        kwargs["credentials"] = credentials
+        return cls(*args, **kwargs)
+
+    @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
         file.
@@ -128,7 +144,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            {@api.name}: The constructed client.
+            MigrationServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -164,6 +180,19 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def dataset_path(project: str, dataset: str,) -> str:
+        """Return a fully-qualified dataset string."""
+        return "projects/{project}/datasets/{dataset}".format(
+            project=project, dataset=dataset,
+        )
+
+    @staticmethod
+    def parse_dataset_path(path: str) -> Dict[str, str]:
+        """Parse a dataset path into its component segments."""
+        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def dataset_path(project: str, location: str, dataset: str,) -> str:
         """Return a fully-qualified dataset string."""
         return "projects/{project}/locations/{location}/datasets/{dataset}".format(
@@ -177,19 +206,6 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
             path,
         )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(project: str, dataset: str,) -> str:
-        """Return a fully-qualified dataset string."""
-        return "projects/{project}/datasets/{dataset}".format(
-            project=project, dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parse a dataset path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
@@ -331,10 +347,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.MigrationServiceTransport]): The
+            transport (Union[str, MigrationServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (client_options_lib.ClientOptions): Custom options for the
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -370,21 +386,17 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
         )
 
-        ssl_credentials = None
+        client_cert_source_func = None
         is_mtls = False
         if use_client_cert:
             if client_options.client_cert_source:
-                import grpc  # type: ignore
-
-                cert, key = client_options.client_cert_source()
-                ssl_credentials = grpc.ssl_channel_credentials(
-                    certificate_chain=cert, private_key=key
-                )
                 is_mtls = True
+                client_cert_source_func = client_options.client_cert_source
             else:
-                creds = SslCredentials()
-                is_mtls = creds.is_mtls
-                ssl_credentials = creds.ssl_credentials if is_mtls else None
+                is_mtls = mtls.has_default_client_cert_source()
+                client_cert_source_func = (
+                    mtls.default_client_cert_source() if is_mtls else None
+                )
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -427,7 +439,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 credentials_file=client_options.credentials_file,
                 host=api_endpoint,
                 scopes=client_options.scopes,
-                ssl_channel_credentials=ssl_credentials,
+                client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
             )
@@ -447,15 +459,16 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         given location.
 
         Args:
-            request (:class:`~.migration_service.SearchMigratableResourcesRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest):
                 The request object. Request message for
                 ``MigrationService.SearchMigratableResources``.
-            parent (:class:`str`):
+            parent (str):
                 Required. The location that the migratable resources
                 should be searched from. It's the AI Platform location
                 that the resources can be migrated to, not the
                 resources' original location. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -467,7 +480,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.SearchMigratableResourcesPager:
+            google.cloud.aiplatform_v1beta1.services.migration_service.pagers.SearchMigratableResourcesPager:
                 Response message for
                 ``MigrationService.SearchMigratableResources``.
 
@@ -539,22 +552,24 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         to AI Platform (Unified).
 
         Args:
-            request (:class:`~.migration_service.BatchMigrateResourcesRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest):
                 The request object. Request message for
                 ``MigrationService.BatchMigrateResources``.
-            parent (:class:`str`):
+            parent (str):
                 Required. The location of the migrated resource will
                 live in. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            migrate_resource_requests (:class:`Sequence[~.migration_service.MigrateResourceRequest]`):
+            migrate_resource_requests (Sequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceRequest]):
                 Required. The request messages
                 specifying the resources to migrate.
                 They must be in the same location as the
                 destination. Up to 50 resources can be
                 migrated in one batch.
+
                 This corresponds to the ``migrate_resource_requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -566,11 +581,11 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation.Operation:
+            google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.migration_service.BatchMigrateResourcesResponse`:
+                :class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesResponse`
                 Response message for
                 ``MigrationService.BatchMigrateResources``.
 
@@ -597,9 +612,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
             if parent is not None:
                 request.parent = parent
-
-            if migrate_resource_requests:
-                request.migrate_resource_requests.extend(migrate_resource_requests)
+            if migrate_resource_requests is not None:
+                request.migrate_resource_requests = migrate_resource_requests
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.

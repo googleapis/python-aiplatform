@@ -21,9 +21,15 @@
 class training_job:
     class definition:
         custom_task = "gs://google-cloud-aiplatform/schema/trainingjob/definition/custom_task_1.0.0.yaml"
-        tabular_task = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_tabular_1.0.0.yaml"
-        automl_image_classification_task = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml"
-        automl_image_object_detection_task = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_object_detection_1.0.0.yaml"
+        automl_tabular = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_tabular_1.0.0.yaml"
+        automl_image_classification = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml"
+        automl_image_object_detection = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_object_detection_1.0.0.yaml"
+        automl_text_classification = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_text_classification_1.0.0.yaml"
+        automl_text_extraction = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_text_extraction_1.0.0.yaml"
+        automl_text_sentiment = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_text_sentiment_1.0.0.yaml"
+        automl_video_action_recognition = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_video_action_recognition_1.0.0.yaml"
+        automl_video_classification = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_video_classification_1.0.0.yaml"
+        automl_video_object_tracking = "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_video_object_tracking_1.0.0.yaml"
 
 
 class dataset:
@@ -33,6 +39,7 @@ class dataset:
         )
         image = "gs://google-cloud-aiplatform/schema/dataset/metadata/image_1.0.0.yaml"
         text = "gs://google-cloud-aiplatform/schema/dataset/metadata/text_1.0.0.yaml"
+        video = "gs://google-cloud-aiplatform/schema/dataset/metadata/video_1.0.0.yaml"
 
     class ioformat:
         class image:
