@@ -13,21 +13,30 @@
 # limitations under the License.
 
 
+import test_constants as constants
 import create_batch_prediction_job_sample
 
 
 def test_create_batch_prediction_job_sample(
-    mock_sdk_init, mock_create_batch_prediction_job
+    mock_sdk_init, mock_init_model, mock_batch_predict_model
 ):
 
     create_batch_prediction_job_sample.create_batch_prediction_job_sample(
-        project="abc",
-        location="us-central1",
-        model_resource_name="projects/abc/location/us-central1/models/9876345",
-        job_display_name="my-first-batch-prediction-job",
-        gcs_source=["gs://bucket1/source1.jsonl", "gs://bucket7/source4.jsonl"],
-        gcs_destination="gs://bucket3/output-dir/",
+        project=constants.PROJECT,
+        location=constants.LOCATION,
+        model_resource_name=constants.MODEL_NAME,
+        job_display_name=constants.DISPLAY_NAME,
+        gcs_source=constants.GCS_SOURCES,
+        gcs_destination=constants.GCS_DESTINATION,
     )
 
-    mock_sdk_init.assert_called_once()
-    mock_create_batch_prediction_job.assert_called_once()
+    mock_sdk_init.assert_called_once_with(
+        project=constants.PROJECT, location=constants.LOCATION
+    )
+    mock_init_model.assert_called_once_with(constants.MODEL_NAME)
+    mock_batch_predict_model.assert_called_once_with(
+        job_display_name=constants.DISPLAY_NAME,
+        gcs_source=constants.GCS_SOURCES,
+        gcs_destination_prefix=constants.GCS_DESTINATION,
+        sync=True,
+    )

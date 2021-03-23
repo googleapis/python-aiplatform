@@ -12,11 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List, Union
+
 from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_create_and_import_dataset_image_sample]
 def create_and_import_dataset_image_sample(
-    project: str, location: str, display_name: str, src_uris: list
+    project: str,
+    location: str,
+    display_name: str,
+    src_uris: Union[str, List[str]],
+    sync: bool = True,
 ):
     aiplatform.init(project=project, location=location)
 
@@ -24,7 +30,10 @@ def create_and_import_dataset_image_sample(
         display_name=display_name,
         gcs_source=src_uris,
         import_schema_uri=aiplatform.schema.dataset.ioformat.image.single_label_classification,
+        sync=sync,
     )
+
+    ds.wait()
 
     print(ds.display_name)
     print(ds.resource_name)

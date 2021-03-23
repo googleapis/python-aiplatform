@@ -28,13 +28,16 @@ def create_batch_prediction_job_sample(
 ):
     aiplatform.init(project=project, location=location)
 
-    batch_prediction_job = aiplatform.BatchPredictionJob.create(
-        model_name=model_resource_name,
+    my_model = aiplatform.Model(model_resource_name)
+
+    batch_prediction_job = my_model.batch_predict(
         job_display_name=job_display_name,
         gcs_source=gcs_source,
         gcs_destination_prefix=gcs_destination,
         sync=sync,
     )
+
+    batch_prediction_job.wait()
 
     print(batch_prediction_job.display_name)
     print(batch_prediction_job.resource_name)

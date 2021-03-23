@@ -13,29 +13,44 @@
 # limitations under the License.
 
 
+import pytest
+import test_constants as constants
 import create_training_pipeline_image_classification_sample
 
 
+@pytest.mark.usefixtures("mock_init_dataset")
 def test_create_training_pipeline_image_classification_sample(
     mock_sdk_init,
     mock_init_automl_image_training_job,
-    mock_init_dataset,
+    mock_dataset,
     mock_run_automl_image_training_job,
 ):
 
     create_training_pipeline_image_classification_sample.create_training_pipeline_image_classification_sample(
-        project="abc123",
-        display_name="678nod",
-        dataset_id="123456789876554",
-        model_display_name="newmodel",
-        training_fraction_split=0.7,
-        validation_fraction_split=0.15,
-        test_fraction_split=0.15,
-        budget_milli_node_hours=8000,
+        project=constants.PROJECT,
+        display_name=constants.DISPLAY_NAME,
+        dataset_id=constants.RESOURCE_ID,
+        model_display_name=constants.DISPLAY_NAME_2,
+        training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
+        validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
+        test_fraction_split=constants.TEST_FRACTION_SPLIT,
+        budget_milli_node_hours=constants.BUDGET_MILLI_NODE_HOURS_8000,
         disable_early_stopping=False,
     )
 
-    mock_sdk_init.assert_called_once()
-    mock_init_automl_image_training_job.assert_called_once()
-    mock_init_dataset.assert_called_once()
-    mock_run_automl_image_training_job.assert_called_once()
+    mock_sdk_init.assert_called_once_with(
+        project=constants.PROJECT, location=constants.LOCATION
+    )
+    mock_init_automl_image_training_job.assert_called_once_with(
+        display_name=constants.DISPLAY_NAME
+    )
+    mock_run_automl_image_training_job.assert_called_once_with(
+        dataset=mock_dataset,
+        model_display_name=constants.DISPLAY_NAME_2,
+        training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
+        validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
+        test_fraction_split=constants.TEST_FRACTION_SPLIT,
+        budget_milli_node_hours=constants.BUDGET_MILLI_NODE_HOURS_8000,
+        disable_early_stopping=False,
+        sync=True,
+    )

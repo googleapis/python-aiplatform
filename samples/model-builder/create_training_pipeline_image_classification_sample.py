@@ -19,6 +19,7 @@ def create_training_pipeline_image_classification_sample(
     project: str,
     display_name: str,
     dataset_id: int,
+    location: str = "us-central1",
     model_display_name: str = None,
     training_fraction_split: float = 0.8,
     validation_fraction_split: float = 0.1,
@@ -27,7 +28,7 @@ def create_training_pipeline_image_classification_sample(
     disable_early_stopping: bool = False,
     sync: bool = True,
 ):
-    aiplatform.init(project=project)
+    aiplatform.init(project=project, location=location)
 
     job = aiplatform.AutoMLImageTrainingJob(display_name=display_name)
 

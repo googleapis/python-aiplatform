@@ -14,19 +14,25 @@
 
 
 import init_sample
-
-from google.auth import credentials
+import test_constants as constants
 
 
 def test_init_sample(mock_sdk_init):
 
     init_sample.init_sample(
-        project="abc",
-        location="europe-west4",
-        experiment="fraud-detection-72",
-        staging_bucket="gs://my-staging-bucket",
-        credentials=credentials.AnonymousCredentials(),
-        encryption_spec_key_name="projects/abc/locations/europe-west4/keyRings/789/cryptoKeys/123",
+        project=constants.PROJECT,
+        location=constants.LOCATION_EUROPE,
+        experiment=constants.EXPERIMENT_NAME,
+        staging_bucket=constants.STAGING_BUCKET,
+        credentials=constants.CREDENTIALS,
+        encryption_spec_key_name=constants.ENCRYPTION_SPEC_KEY_NAME,
     )
 
-    mock_sdk_init.assert_called_once()
+    mock_sdk_init.assert_called_once_with(
+        project=constants.PROJECT,
+        location=constants.LOCATION_EUROPE,
+        experiment=constants.EXPERIMENT_NAME,
+        staging_bucket=constants.STAGING_BUCKET,
+        credentials=constants.CREDENTIALS,
+        encryption_spec_key_name=constants.ENCRYPTION_SPEC_KEY_NAME,
+    )

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import pytest
+from unittest import mock
 from unittest.mock import MagicMock, patch
 
 from google.cloud import aiplatform
@@ -30,10 +31,23 @@ def mock_sdk_init():
 
 
 @pytest.fixture
-def mock_init_dataset():
-    with patch.object(aiplatform.datasets.Dataset, "__init__") as mock:
-        mock.return_value = None
-        yield mock
+def mock_dataset():
+    mock = MagicMock(aiplatform.datasets.Dataset)
+    yield mock
+
+
+@pytest.fixture
+def mock_new_dataset(mock_dataset):
+    with patch.object(aiplatform.datasets.Dataset, "__new__") as mock_new_dataset:
+        mock_new_dataset.return_value = mock_dataset
+        yield mock_new_dataset
+
+
+@pytest.fixture
+def mock_init_dataset(mock_new_dataset):
+    with patch.object(aiplatform.datasets.Dataset, "__init__") as mock_init_dataset:
+        mock_init_dataset.return_value = None
+        yield mock_init_dataset
 
 
 @pytest.fixture
@@ -67,6 +81,24 @@ def mock_init_automl_image_training_job():
 @pytest.fixture
 def mock_run_automl_image_training_job():
     with patch.object(aiplatform.training_jobs.AutoMLImageTrainingJob, "run") as mock:
+        yield mock
+
+
+# ----------------------------------------------------------------------------
+# Model Fixtures
+# ----------------------------------------------------------------------------
+
+
+@pytest.fixture
+def mock_init_model():
+    with patch.object(aiplatform.models.Model, "__init__") as mock:
+        mock.return_value = None
+        yield mock
+
+
+@pytest.fixture
+def mock_batch_predict_model():
+    with patch.object(aiplatform.models.Model, "batch_predict") as mock:
         yield mock
 
 
