@@ -37,4 +37,4 @@ def test_ucaip_generated_predict_custom_trained_model_sample(capsys):
     )
 
     out, _ = capsys.readouterr()
-    assert "number_value: 1.0" in out
+    assert "1.0" in out

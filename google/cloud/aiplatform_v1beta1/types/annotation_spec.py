@@ -39,14 +39,14 @@ class AnnotationSpec(proto.Message):
             AnnotationSpec. The name can be up to 128
             characters long and can be consist of any UTF-8
             characters.
-        create_time (~.timestamp.Timestamp):
+        create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             AnnotationSpec was created.
-        update_time (~.timestamp.Timestamp):
+        update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when AnnotationSpec
             was last updated.
         etag (str):
-            Optional. Used to perform a consistent read-
+            Optional. Used to perform consistent read-
             odify-write updates. If not set, a blind
             "overwrite" update happens.
     """

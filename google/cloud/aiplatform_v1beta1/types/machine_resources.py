@@ -32,6 +32,7 @@ __protobuf__ = proto.module(
         "BatchDedicatedResources",
         "ResourcesConsumed",
         "DiskSpec",
+        "AutoscalingMetricSpec",
     },
 )
 
@@ -41,46 +42,21 @@ class MachineSpec(proto.Message):
 
     Attributes:
         machine_type (str):
-            Immutable. The type of the machine. Following machine types
-            are supported:
+            Immutable. The type of the machine. For the machine types
+            supported for prediction, see
+            https://tinyurl.com/aip-docs/predictions/machine-types. For
+            machine types supported for creating a custom training job,
+            see https://tinyurl.com/aip-docs/training/configure-compute.
 
-            -  ``n1-standard-2``
-
-            -  ``n1-standard-4``
-
-            -  ``n1-standard-8``
-
-            -  ``n1-standard-16``
-
-            -  ``n1-standard-32``
-
-            -  ``n1-highmem-2``
-
-            -  ``n1-highmem-4``
-
-            -  ``n1-highmem-8``
-
-            -  ``n1-highmem-16``
-
-            -  ``n1-highmem-32``
-
-            -  ``n1-highcpu-2``
-
-            -  ``n1-highcpu-4``
-
-            -  ``n1-highcpu-8``
-
-            -  ``n1-highcpu-16``
-
-            -  ``n1-highcpu-32``
-
-            When used for [DeployedMode][] this field is optional and
-            the default value is ``n1-standard-2``. If used for
+            For
+            ``DeployedModel``
+            this field is optional, and the default value is
+            ``n1-standard-2``. For
             ``BatchPredictionJob``
             or as part of
             ``WorkerPoolSpec``
             this field is required.
-        accelerator_type (~.gca_accelerator_type.AcceleratorType):
+        accelerator_type (google.cloud.aiplatform_v1beta1.types.AcceleratorType):
             Immutable. The type of accelerator(s) that may be attached
             to the machine as per
             ``accelerator_count``.
@@ -104,7 +80,7 @@ class DedicatedResources(proto.Message):
     configuration.
 
     Attributes:
-        machine_spec (~.machine_resources.MachineSpec):
+        machine_spec (google.cloud.aiplatform_v1beta1.types.MachineSpec):
             Required. Immutable. The specification of a
             single machine used by the prediction.
         min_replica_count (int):
@@ -120,15 +96,43 @@ class DedicatedResources(proto.Message):
         max_replica_count (int):
             Immutable. The maximum number of replicas this DeployedModel
             may be deployed on when the traffic against it increases. If
-            requested value is too large, the deployment will error, but
-            if deployment succeeds then the ability to scale the model
-            to that many replicas is guaranteed (barring service
+            the requested value is too large, the deployment will error,
+            but if deployment succeeds then the ability to scale the
+            model to that many replicas is guaranteed (barring service
             outages). If traffic against the DeployedModel increases
             beyond what its replicas at maximum may handle, a portion of
             the traffic will be dropped. If this value is not provided,
             will use
             ``min_replica_count``
             as the default value.
+        autoscaling_metric_specs (Sequence[google.cloud.aiplatform_v1beta1.types.AutoscalingMetricSpec]):
+            Immutable. The metric specifications that overrides a
+            resource utilization metric (CPU utilization, accelerator's
+            duty cycle, and so on) target value (default to 60 if not
+            set). At most one entry is allowed per metric.
+
+            If
+            ``machine_spec.accelerator_count``
+            is above 0, the autoscaling will be based on both CPU
+            utilization and accelerator's duty cycle metrics and scale
+            up when either metrics exceeds its target value while scale
+            down if both metrics are under their target value. The
+            default target value is 60 for both metrics.
+
+            If
+            ``machine_spec.accelerator_count``
+            is 0, the autoscaling will be based on CPU utilization
+            metric only with default target value 60 if not explicitly
+            set.
+
+            For example, in the case of Online Prediction, if you want
+            to override target CPU utilization to 80, you should set
+            ``autoscaling_metric_specs.metric_name``
+            to
+            ``aiplatform.googleapis.com/prediction/online/cpu/utilization``
+            and
+            ``autoscaling_metric_specs.target``
+            to ``80``.
     """
 
     machine_spec = proto.Field(proto.MESSAGE, number=1, message="MachineSpec",)
@@ -136,6 +140,10 @@ class DedicatedResources(proto.Message):
     min_replica_count = proto.Field(proto.INT32, number=2)
 
     max_replica_count = proto.Field(proto.INT32, number=3)
+
+    autoscaling_metric_specs = proto.RepeatedField(
+        proto.MESSAGE, number=4, message="AutoscalingMetricSpec",
+    )
 
 
 class AutomaticResources(proto.Message):
@@ -151,20 +159,20 @@ class AutomaticResources(proto.Message):
             it may dynamically be deployed onto more replicas up to
             ``max_replica_count``,
             and as traffic decreases, some of these extra replicas may
-            be freed. If requested value is too large, the deployment
-            will error.
+            be freed. If the requested value is too large, the
+            deployment will error.
         max_replica_count (int):
             Immutable. The maximum number of replicas
             this DeployedModel may be deployed on when the
-            traffic against it increases. If requested value
-            is too large, the deployment will error, but if
-            deployment succeeds then the ability to scale
-            the model to that many replicas is guaranteed
-            (barring service outages). If traffic against
-            the DeployedModel increases beyond what its
-            replicas at maximum may handle, a portion of the
-            traffic will be dropped. If this value is not
-            provided, a no upper bound for scaling under
+            traffic against it increases. If the requested
+            value is too large, the deployment will error,
+            but if deployment succeeds then the ability to
+            scale the model to that many replicas is
+            guaranteed (barring service outages). If traffic
+            against the DeployedModel increases beyond what
+            its replicas at maximum may handle, a portion of
+            the traffic will be dropped. If this value is
+            not provided, a no upper bound for scaling under
             heavy traffic will be assume, though AI Platform
             may be unable to scale beyond certain replica
             number.
@@ -181,7 +189,7 @@ class BatchDedicatedResources(proto.Message):
     configuration.
 
     Attributes:
-        machine_spec (~.machine_resources.MachineSpec):
+        machine_spec (google.cloud.aiplatform_v1beta1.types.MachineSpec):
             Required. Immutable. The specification of a
             single machine.
         starting_replica_count (int):
@@ -222,10 +230,10 @@ class DiskSpec(proto.Message):
 
     Attributes:
         boot_disk_type (str):
-            Type of the boot disk (default is "pd-
-            tandard"). Valid values: "pd-ssd" (Persistent
-            Disk Solid State Drive) or "pd-standard"
-            (Persistent Disk Hard Disk Drive).
+            Type of the boot disk (default is "pd-ssd").
+            Valid values: "pd-ssd" (Persistent Disk Solid
+            State Drive) or "pd-standard" (Persistent Disk
+            Hard Disk Drive).
         boot_disk_size_gb (int):
             Size in GB of the boot disk (default is
             100GB).
@@ -234,6 +242,32 @@ class DiskSpec(proto.Message):
     boot_disk_type = proto.Field(proto.STRING, number=1)
 
     boot_disk_size_gb = proto.Field(proto.INT32, number=2)
+
+
+class AutoscalingMetricSpec(proto.Message):
+    r"""The metric specification that defines the target resource
+    utilization (CPU utilization, accelerator's duty cycle, and so
+    on) for calculating the desired replica count.
+
+    Attributes:
+        metric_name (str):
+            Required. The resource metric name. Supported metrics:
+
+            -  For Online Prediction:
+            -  ``aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle``
+            -  ``aiplatform.googleapis.com/prediction/online/cpu/utilization``
+        target (int):
+            The target resource utilization in percentage
+            (1% - 100%) for the given metric; once the real
+            usage deviates from the target by a certain
+            percentage, the machine replicas change. The
+            default value is 60 (representing 60%) if not
+            provided.
+    """
+
+    metric_name = proto.Field(proto.STRING, number=1)
+
+    target = proto.Field(proto.INT32, number=2)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

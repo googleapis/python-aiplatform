@@ -23,6 +23,7 @@ from .services.model_service import ModelServiceClient
 from .services.pipeline_service import PipelineServiceClient
 from .services.prediction_service import PredictionServiceClient
 from .services.specialist_pool_service import SpecialistPoolServiceClient
+from .services.vizier_service import VizierServiceClient
 from .types.accelerator_type import AcceleratorType
 from .types.annotation import Annotation
 from .types.annotation_spec import AnnotationSpec
@@ -61,6 +62,7 @@ from .types.dataset_service import ListDatasetsRequest
 from .types.dataset_service import ListDatasetsResponse
 from .types.dataset_service import UpdateDatasetRequest
 from .types.deployed_model_ref import DeployedModelRef
+from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
 from .types.endpoint_service import CreateEndpointOperationMetadata
@@ -79,8 +81,10 @@ from .types.endpoint_service import UpdateEndpointRequest
 from .types.env_var import EnvVar
 from .types.explanation import Attribution
 from .types.explanation import Explanation
+from .types.explanation import ExplanationMetadataOverride
 from .types.explanation import ExplanationParameters
 from .types.explanation import ExplanationSpec
+from .types.explanation import ExplanationSpecOverride
 from .types.explanation import FeatureNoiseSigma
 from .types.explanation import IntegratedGradientsAttribution
 from .types.explanation import ModelExplanation
@@ -120,6 +124,7 @@ from .types.job_service import ListHyperparameterTuningJobsRequest
 from .types.job_service import ListHyperparameterTuningJobsResponse
 from .types.job_state import JobState
 from .types.machine_resources import AutomaticResources
+from .types.machine_resources import AutoscalingMetricSpec
 from .types.machine_resources import BatchDedicatedResources
 from .types.machine_resources import DedicatedResources
 from .types.machine_resources import DiskSpec
@@ -180,6 +185,7 @@ from .types.specialist_pool_service import ListSpecialistPoolsResponse
 from .types.specialist_pool_service import UpdateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import UpdateSpecialistPoolRequest
 from .types.study import Measurement
+from .types.study import Study
 from .types.study import StudySpec
 from .types.study import Trial
 from .types.training_pipeline import FilterSplit
@@ -189,15 +195,39 @@ from .types.training_pipeline import PredefinedSplit
 from .types.training_pipeline import TimestampSplit
 from .types.training_pipeline import TrainingPipeline
 from .types.user_action_reference import UserActionReference
+from .types.vizier_service import AddTrialMeasurementRequest
+from .types.vizier_service import CheckTrialEarlyStoppingStateMetatdata
+from .types.vizier_service import CheckTrialEarlyStoppingStateRequest
+from .types.vizier_service import CheckTrialEarlyStoppingStateResponse
+from .types.vizier_service import CompleteTrialRequest
+from .types.vizier_service import CreateStudyRequest
+from .types.vizier_service import CreateTrialRequest
+from .types.vizier_service import DeleteStudyRequest
+from .types.vizier_service import DeleteTrialRequest
+from .types.vizier_service import GetStudyRequest
+from .types.vizier_service import GetTrialRequest
+from .types.vizier_service import ListOptimalTrialsRequest
+from .types.vizier_service import ListOptimalTrialsResponse
+from .types.vizier_service import ListStudiesRequest
+from .types.vizier_service import ListStudiesResponse
+from .types.vizier_service import ListTrialsRequest
+from .types.vizier_service import ListTrialsResponse
+from .types.vizier_service import LookupStudyRequest
+from .types.vizier_service import StopTrialRequest
+from .types.vizier_service import SuggestTrialsMetadata
+from .types.vizier_service import SuggestTrialsRequest
+from .types.vizier_service import SuggestTrialsResponse
 
 
 __all__ = (
     "AcceleratorType",
     "ActiveLearningConfig",
+    "AddTrialMeasurementRequest",
     "Annotation",
     "AnnotationSpec",
     "Attribution",
     "AutomaticResources",
+    "AutoscalingMetricSpec",
     "BatchDedicatedResources",
     "BatchMigrateResourcesOperationMetadata",
     "BatchMigrateResourcesRequest",
@@ -210,6 +240,10 @@ __all__ = (
     "CancelDataLabelingJobRequest",
     "CancelHyperparameterTuningJobRequest",
     "CancelTrainingPipelineRequest",
+    "CheckTrialEarlyStoppingStateMetatdata",
+    "CheckTrialEarlyStoppingStateRequest",
+    "CheckTrialEarlyStoppingStateResponse",
+    "CompleteTrialRequest",
     "CompletionStats",
     "ContainerRegistryDestination",
     "ContainerSpec",
@@ -223,7 +257,9 @@ __all__ = (
     "CreateHyperparameterTuningJobRequest",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
+    "CreateStudyRequest",
     "CreateTrainingPipelineRequest",
+    "CreateTrialRequest",
     "CustomJob",
     "CustomJobSpec",
     "DataItem",
@@ -240,13 +276,16 @@ __all__ = (
     "DeleteModelRequest",
     "DeleteOperationMetadata",
     "DeleteSpecialistPoolRequest",
+    "DeleteStudyRequest",
     "DeleteTrainingPipelineRequest",
+    "DeleteTrialRequest",
     "DeployModelOperationMetadata",
     "DeployModelRequest",
     "DeployModelResponse",
     "DeployedModel",
     "DeployedModelRef",
     "DiskSpec",
+    "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
     "EnvVar",
@@ -254,8 +293,10 @@ __all__ = (
     "ExplainResponse",
     "Explanation",
     "ExplanationMetadata",
+    "ExplanationMetadataOverride",
     "ExplanationParameters",
     "ExplanationSpec",
+    "ExplanationSpecOverride",
     "ExportDataConfig",
     "ExportDataOperationMetadata",
     "ExportDataRequest",
@@ -280,7 +321,9 @@ __all__ = (
     "GetModelEvaluationSliceRequest",
     "GetModelRequest",
     "GetSpecialistPoolRequest",
+    "GetStudyRequest",
     "GetTrainingPipelineRequest",
+    "GetTrialRequest",
     "HyperparameterTuningJob",
     "ImportDataConfig",
     "ImportDataOperationMetadata",
@@ -312,10 +355,17 @@ __all__ = (
     "ListModelEvaluationsResponse",
     "ListModelsRequest",
     "ListModelsResponse",
+    "ListOptimalTrialsRequest",
+    "ListOptimalTrialsResponse",
     "ListSpecialistPoolsRequest",
     "ListSpecialistPoolsResponse",
+    "ListStudiesRequest",
+    "ListStudiesResponse",
     "ListTrainingPipelinesRequest",
     "ListTrainingPipelinesResponse",
+    "ListTrialsRequest",
+    "ListTrialsResponse",
+    "LookupStudyRequest",
     "MachineSpec",
     "ManualBatchTuningParameters",
     "Measurement",
@@ -346,7 +396,13 @@ __all__ = (
     "SearchMigratableResourcesResponse",
     "SmoothGradConfig",
     "SpecialistPool",
+    "SpecialistPoolServiceClient",
+    "StopTrialRequest",
+    "Study",
     "StudySpec",
+    "SuggestTrialsMetadata",
+    "SuggestTrialsRequest",
+    "SuggestTrialsResponse",
     "TimestampSplit",
     "TrainingConfig",
     "TrainingPipeline",
@@ -365,5 +421,5 @@ __all__ = (
     "UserActionReference",
     "WorkerPoolSpec",
     "XraiAttribution",
-    "SpecialistPoolServiceClient",
+    "VizierServiceClient",
 )

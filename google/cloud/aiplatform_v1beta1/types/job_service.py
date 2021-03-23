@@ -71,7 +71,7 @@ class CreateCustomJobRequest(proto.Message):
             Required. The resource name of the Location to create the
             CustomJob in. Format:
             ``projects/{project}/locations/{location}``
-        custom_job (~.gca_custom_job.CustomJob):
+        custom_job (google.cloud.aiplatform_v1beta1.types.CustomJob):
             Required. The CustomJob to create.
     """
 
@@ -128,7 +128,7 @@ class ListCustomJobsRequest(proto.Message):
             of the previous
             ``JobService.ListCustomJobs``
             call.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
 
@@ -148,10 +148,10 @@ class ListCustomJobsResponse(proto.Message):
     ``JobService.ListCustomJobs``
 
     Attributes:
-        custom_jobs (Sequence[~.gca_custom_job.CustomJob]):
+        custom_jobs (Sequence[google.cloud.aiplatform_v1beta1.types.CustomJob]):
             List of CustomJobs in the requested page.
         next_page_token (str):
-            A token to retrieve next page of results. Pass to
+            A token to retrieve the next page of results. Pass to
             ``ListCustomJobsRequest.page_token``
             to obtain that page.
     """
@@ -202,7 +202,7 @@ class CreateDataLabelingJobRequest(proto.Message):
         parent (str):
             Required. The parent of the DataLabelingJob. Format:
             ``projects/{project}/locations/{location}``
-        data_labeling_job (~.gca_data_labeling_job.DataLabelingJob):
+        data_labeling_job (google.cloud.aiplatform_v1beta1.types.DataLabelingJob):
             Required. The DataLabelingJob to create.
     """
 
@@ -219,7 +219,6 @@ class GetDataLabelingJobRequest(proto.Message):
     Attributes:
         name (str):
             Required. The name of the DataLabelingJob. Format:
-
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
@@ -255,7 +254,7 @@ class ListDataLabelingJobsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read. FieldMask represents a
             set of symbolic field paths. For example, the mask can be
             ``paths: "name"``. The "name" here is a field in
@@ -285,7 +284,7 @@ class ListDataLabelingJobsResponse(proto.Message):
     ``JobService.ListDataLabelingJobs``.
 
     Attributes:
-        data_labeling_jobs (Sequence[~.gca_data_labeling_job.DataLabelingJob]):
+        data_labeling_jobs (Sequence[google.cloud.aiplatform_v1beta1.types.DataLabelingJob]):
             A list of DataLabelingJobs that matches the
             specified filter in the request.
         next_page_token (str):
@@ -311,7 +310,6 @@ class DeleteDataLabelingJobRequest(proto.Message):
         name (str):
             Required. The name of the DataLabelingJob to be deleted.
             Format:
-
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
@@ -325,7 +323,6 @@ class CancelDataLabelingJobRequest(proto.Message):
     Attributes:
         name (str):
             Required. The name of the DataLabelingJob. Format:
-
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
@@ -341,7 +338,7 @@ class CreateHyperparameterTuningJobRequest(proto.Message):
             Required. The resource name of the Location to create the
             HyperparameterTuningJob in. Format:
             ``projects/{project}/locations/{location}``
-        hyperparameter_tuning_job (~.gca_hyperparameter_tuning_job.HyperparameterTuningJob):
+        hyperparameter_tuning_job (google.cloud.aiplatform_v1beta1.types.HyperparameterTuningJob):
             Required. The HyperparameterTuningJob to
             create.
     """
@@ -363,7 +360,6 @@ class GetHyperparameterTuningJobRequest(proto.Message):
         name (str):
             Required. The name of the HyperparameterTuningJob resource.
             Format:
-
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
@@ -405,7 +401,7 @@ class ListHyperparameterTuningJobsRequest(proto.Message):
             of the previous
             ``JobService.ListHyperparameterTuningJobs``
             call.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
 
@@ -425,12 +421,12 @@ class ListHyperparameterTuningJobsResponse(proto.Message):
     ``JobService.ListHyperparameterTuningJobs``
 
     Attributes:
-        hyperparameter_tuning_jobs (Sequence[~.gca_hyperparameter_tuning_job.HyperparameterTuningJob]):
+        hyperparameter_tuning_jobs (Sequence[google.cloud.aiplatform_v1beta1.types.HyperparameterTuningJob]):
             List of HyperparameterTuningJobs in the requested page.
             ``HyperparameterTuningJob.trials``
             of the jobs will be not be returned.
         next_page_token (str):
-            A token to retrieve next page of results. Pass to
+            A token to retrieve the next page of results. Pass to
             ``ListHyperparameterTuningJobsRequest.page_token``
             to obtain that page.
     """
@@ -456,7 +452,6 @@ class DeleteHyperparameterTuningJobRequest(proto.Message):
         name (str):
             Required. The name of the HyperparameterTuningJob resource
             to be deleted. Format:
-
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
@@ -471,7 +466,6 @@ class CancelHyperparameterTuningJobRequest(proto.Message):
         name (str):
             Required. The name of the HyperparameterTuningJob to cancel.
             Format:
-
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
@@ -487,7 +481,7 @@ class CreateBatchPredictionJobRequest(proto.Message):
             Required. The resource name of the Location to create the
             BatchPredictionJob in. Format:
             ``projects/{project}/locations/{location}``
-        batch_prediction_job (~.gca_batch_prediction_job.BatchPredictionJob):
+        batch_prediction_job (google.cloud.aiplatform_v1beta1.types.BatchPredictionJob):
             Required. The BatchPredictionJob to create.
     """
 
@@ -506,7 +500,6 @@ class GetBatchPredictionJobRequest(proto.Message):
         name (str):
             Required. The name of the BatchPredictionJob resource.
             Format:
-
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
@@ -531,6 +524,8 @@ class ListBatchPredictionJobsRequest(proto.Message):
 
             -  ``state`` supports = and !=.
 
+            -  ``model_display_name`` supports = and !=
+
             Some examples of using the filter are:
 
             -  ``state="JOB_STATE_SUCCEEDED" AND display_name="my_job"``
@@ -548,7 +543,7 @@ class ListBatchPredictionJobsRequest(proto.Message):
             of the previous
             ``JobService.ListBatchPredictionJobs``
             call.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
 
@@ -568,11 +563,11 @@ class ListBatchPredictionJobsResponse(proto.Message):
     ``JobService.ListBatchPredictionJobs``
 
     Attributes:
-        batch_prediction_jobs (Sequence[~.gca_batch_prediction_job.BatchPredictionJob]):
+        batch_prediction_jobs (Sequence[google.cloud.aiplatform_v1beta1.types.BatchPredictionJob]):
             List of BatchPredictionJobs in the requested
             page.
         next_page_token (str):
-            A token to retrieve next page of results. Pass to
+            A token to retrieve the next page of results. Pass to
             ``ListBatchPredictionJobsRequest.page_token``
             to obtain that page.
     """
@@ -596,7 +591,6 @@ class DeleteBatchPredictionJobRequest(proto.Message):
         name (str):
             Required. The name of the BatchPredictionJob resource to be
             deleted. Format:
-
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
@@ -611,7 +605,6 @@ class CancelBatchPredictionJobRequest(proto.Message):
         name (str):
             Required. The name of the BatchPredictionJob to cancel.
             Format:
-
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 

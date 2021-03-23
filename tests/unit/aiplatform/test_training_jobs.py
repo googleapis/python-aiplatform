@@ -41,6 +41,7 @@ from google.cloud.aiplatform_v1beta1.services.model_service import (
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
     client as pipeline_service_client,
 )
+
 from google.cloud.aiplatform_v1beta1.types import io as gca_io
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
@@ -48,6 +49,7 @@ from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 
 from google.cloud import storage
@@ -97,6 +99,13 @@ _TEST_VALIDATION_FRACTION_SPLIT = 0.2
 _TEST_TEST_FRACTION_SPLIT = 0.2
 _TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 
+_TEST_PROJECT = "test-project"
+_TEST_LOCATION = "us-central1"
+_TEST_ID = "12345"
+_TEST_NAME = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/{_TEST_ID}"
+)
+
 _TEST_MODEL_INSTANCE_SCHEMA_URI = "instance_schema_uri.yaml"
 _TEST_MODEL_PARAMETERS_SCHEMA_URI = "parameters_schema_uri.yaml"
 _TEST_MODEL_PREDICTION_SCHEMA_URI = "prediction_schema_uri.yaml"
@@ -113,17 +122,77 @@ _TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
 _TEST_PYTHON_MODULE_NAME = "aiplatform.task"
 
 _TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
-_TEST_MODEL_LABELS = {"label_key": "label_value"}
 
 _TEST_PIPELINE_RESOURCE_NAME = (
     "projects/my-project/locations/us-central1/trainingPipeline/12345"
 )
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
+# CMEK encryption
+_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+_TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
+)
+
+_TEST_PIPELINE_ENCRYPTION_KEY_NAME = "key_pipeline"
+_TEST_PIPELINE_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME
+)
+
+_TEST_MODEL_ENCRYPTION_KEY_NAME = "key_model"
+_TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME
+)
+
 
 def local_copy_method(path):
     shutil.copy(path, ".")
     return pathlib.Path(path).name
+
+
+@pytest.fixture
+def get_training_job_custom_mock():
+    with patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as get_training_job_custom_mock:
+        get_training_job_custom_mock.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            training_task_definition=schema.training_job.definition.custom_task,
+        )
+
+        yield get_training_job_custom_mock
+
+
+@pytest.fixture
+def get_training_job_custom_mock_no_model_to_upload():
+    with patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as get_training_job_custom_mock:
+        get_training_job_custom_mock.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            model_to_upload=None,
+            training_task_definition=schema.training_job.definition.custom_task,
+        )
+
+        yield get_training_job_custom_mock
+
+
+@pytest.fixture
+def get_training_job_tabular_mock():
+    with patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as get_training_job_tabular_mock:
+        get_training_job_tabular_mock.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            training_task_definition=schema.training_job.definition.automl_tabular,
+        )
+
+        yield get_training_job_tabular_mock
 
 
 @pytest.fixture
@@ -358,6 +427,14 @@ def mock_pipeline_service_create():
 
 
 @pytest.fixture
+def mock_pipeline_service_cancel():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "cancel_training_pipeline"
+    ) as mock_cancel_training_pipeline:
+        yield mock_cancel_training_pipeline
+
+
+@pytest.fixture
 def mock_pipeline_service_create_with_no_model_to_upload():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
@@ -462,6 +539,7 @@ class TestCustomTrainingJob:
             project=_TEST_PROJECT,
             staging_bucket=_TEST_BUCKET_NAME,
             credentials=_TEST_CREDENTIALS,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
         job = training_jobs.CustomTrainingJob(
@@ -558,6 +636,7 @@ class TestCustomTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -583,6 +662,7 @@ class TestCustomTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -611,7 +691,9 @@ class TestCustomTrainingJob:
         mock_model_service_get,
         sync,
     ):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+        aiplatform.init(
+            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+        )
 
         job = training_jobs.CustomTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
@@ -628,6 +710,8 @@ class TestCustomTrainingJob:
             model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
             model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
             model_description=_TEST_MODEL_DESCRIPTION,
+            training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
         )
 
         model_from_job = job.run(
@@ -702,6 +786,7 @@ class TestCustomTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -727,6 +812,7 @@ class TestCustomTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_PIPELINE_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -1251,6 +1337,48 @@ class TestCustomTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @pytest.mark.usefixtures("get_training_job_custom_mock")
+    def test_get_training_job(self, get_training_job_custom_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        job = training_jobs.CustomTrainingJob.get(resource_name=_TEST_NAME)
+
+        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+        assert isinstance(job, training_jobs.CustomTrainingJob)
+
+    @pytest.mark.usefixtures("get_training_job_custom_mock")
+    def test_get_training_job_wrong_job_type(self, get_training_job_custom_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        # The returned job is for a custom training task,
+        # but the calling type if of AutoMLImageTrainingJob.
+        # Hence, it should throw an error.
+        with pytest.raises(ValueError):
+            training_jobs.AutoMLImageTrainingJob.get(resource_name=_TEST_NAME)
+
+    @pytest.mark.usefixtures("get_training_job_custom_mock_no_model_to_upload")
+    def test_get_training_job_no_model_to_upload(
+        self, get_training_job_custom_mock_no_model_to_upload
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        job = training_jobs.CustomTrainingJob.get(resource_name=_TEST_NAME)
+
+        with pytest.raises(RuntimeError):
+            job.get_model(sync=False)
+
+    @pytest.mark.usefixtures("get_training_job_tabular_mock")
+    def test_get_training_job_tabular(self, get_training_job_tabular_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        with pytest.raises(ValueError):
+            training_jobs.CustomTrainingJob.get(resource_name=_TEST_NAME)
+
+    @pytest.mark.usefixtures("get_training_job_custom_mock")
+    def test_get_training_job_with_id_only(self, get_training_job_custom_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        training_jobs.CustomTrainingJob.get(resource_name=_TEST_ID)
+        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_nontabular_dataset(
         self,
@@ -1435,6 +1563,50 @@ class TestCustomTrainingJob:
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
             )
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_python_package_to_gcs",
+        "mock_model_service_get",
+    )
+    def test_cancel_training_job(self, mock_pipeline_service_cancel):
+        aiplatform.init(
+            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        job.run()
+        job.cancel()
+
+        mock_pipeline_service_cancel.assert_called_once_with(
+            name=_TEST_PIPELINE_RESOURCE_NAME
+        )
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_python_package_to_gcs",
+        "mock_model_service_get",
+    )
+    def test_cancel_training_job_without_running(self, mock_pipeline_service_cancel):
+        aiplatform.init(
+            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+        )
+
+        with pytest.raises(RuntimeError) as e:
+            job.cancel()
+
+        assert e.match(regexp=r"TrainingJob has not been launched")
+
 
 class TestCustomContainerTrainingJob:
     def setup_method(self):
@@ -1452,7 +1624,11 @@ class TestCustomContainerTrainingJob:
         mock_model_service_get,
         sync,
     ):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
 
         job = training_jobs.CustomContainerTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
@@ -1541,6 +1717,7 @@ class TestCustomContainerTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1566,6 +1743,7 @@ class TestCustomContainerTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -1610,6 +1788,8 @@ class TestCustomContainerTrainingJob:
             model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
             model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
             model_description=_TEST_MODEL_DESCRIPTION,
+            training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
         )
 
         model_from_job = job.run(
@@ -1683,6 +1863,7 @@ class TestCustomContainerTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1708,6 +1889,7 @@ class TestCustomContainerTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_PIPELINE_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -2633,7 +2815,11 @@ class TestCustomPythonPackageTrainingJob:
         mock_model_service_get,
         sync,
     ):
-        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
 
         job = training_jobs.CustomPythonPackageTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
@@ -2724,6 +2910,7 @@ class TestCustomPythonPackageTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -2749,6 +2936,7 @@ class TestCustomPythonPackageTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -2794,6 +2982,8 @@ class TestCustomPythonPackageTrainingJob:
             model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
             model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
             model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
         )
 
         model_from_job = job.run(
@@ -2868,6 +3058,7 @@ class TestCustomPythonPackageTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -2893,6 +3084,7 @@ class TestCustomPythonPackageTrainingJob:
             ),
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_PIPELINE_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(

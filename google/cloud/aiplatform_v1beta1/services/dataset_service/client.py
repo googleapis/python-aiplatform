@@ -41,6 +41,7 @@ from google.cloud.aiplatform_v1beta1.types import data_item
 from google.cloud.aiplatform_v1beta1.types import dataset
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import dataset_service
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
@@ -123,6 +124,22 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     )
 
     @classmethod
+    def from_service_account_info(cls, info: dict, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials info.
+
+        Args:
+            info (dict): The service account private key info.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            DatasetServiceClient: The constructed client.
+        """
+        credentials = service_account.Credentials.from_service_account_info(info)
+        kwargs["credentials"] = credentials
+        return cls(*args, **kwargs)
+
+    @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
         file.
@@ -134,7 +151,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            {@api.name}: The constructed client.
+            DatasetServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -303,10 +320,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.DatasetServiceTransport]): The
+            transport (Union[str, DatasetServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (client_options_lib.ClientOptions): Custom options for the
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -342,21 +359,17 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
         )
 
-        ssl_credentials = None
+        client_cert_source_func = None
         is_mtls = False
         if use_client_cert:
             if client_options.client_cert_source:
-                import grpc  # type: ignore
-
-                cert, key = client_options.client_cert_source()
-                ssl_credentials = grpc.ssl_channel_credentials(
-                    certificate_chain=cert, private_key=key
-                )
                 is_mtls = True
+                client_cert_source_func = client_options.client_cert_source
             else:
-                creds = SslCredentials()
-                is_mtls = creds.is_mtls
-                ssl_credentials = creds.ssl_credentials if is_mtls else None
+                is_mtls = mtls.has_default_client_cert_source()
+                client_cert_source_func = (
+                    mtls.default_client_cert_source() if is_mtls else None
+                )
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -399,7 +412,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 credentials_file=client_options.credentials_file,
                 host=api_endpoint,
                 scopes=client_options.scopes,
-                ssl_channel_credentials=ssl_credentials,
+                client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
             )
@@ -417,17 +430,18 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Creates a Dataset.
 
         Args:
-            request (:class:`~.dataset_service.CreateDatasetRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.CreateDatasetRequest):
                 The request object. Request message for
                 ``DatasetService.CreateDataset``.
-            parent (:class:`str`):
+            parent (str):
                 Required. The resource name of the Location to create
                 the Dataset in. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            dataset (:class:`~.gca_dataset.Dataset`):
+            dataset (google.cloud.aiplatform_v1beta1.types.Dataset):
                 Required. The Dataset to create.
                 This corresponds to the ``dataset`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -440,12 +454,12 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.ga_operation.Operation:
+            google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.gca_dataset.Dataset`: A collection of
-                DataItems and Annotations on them.
+                :class:`google.cloud.aiplatform_v1beta1.types.Dataset` A
+                collection of DataItems and Annotations on them.
 
         """
         # Create or coerce a protobuf request object.
@@ -509,12 +523,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Gets a Dataset.
 
         Args:
-            request (:class:`~.dataset_service.GetDatasetRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.GetDatasetRequest):
                 The request object. Request message for
                 ``DatasetService.GetDataset``.
-            name (:class:`str`):
+            name (str):
                 Required. The name of the Dataset
                 resource.
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -526,7 +541,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.dataset.Dataset:
+            google.cloud.aiplatform_v1beta1.types.Dataset:
                 A collection of DataItems and
                 Annotations on them.
 
@@ -583,25 +598,26 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Updates a Dataset.
 
         Args:
-            request (:class:`~.dataset_service.UpdateDatasetRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.UpdateDatasetRequest):
                 The request object. Request message for
                 ``DatasetService.UpdateDataset``.
-            dataset (:class:`~.gca_dataset.Dataset`):
+            dataset (google.cloud.aiplatform_v1beta1.types.Dataset):
                 Required. The Dataset which replaces
                 the resource on the server.
+
                 This corresponds to the ``dataset`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            update_mask (:class:`~.field_mask.FieldMask`):
+            update_mask (google.protobuf.field_mask_pb2.FieldMask):
                 Required. The update mask applies to the resource. For
                 the ``FieldMask`` definition, see
-
-                [FieldMask](https://tinyurl.com/dev-google-protobuf#google.protobuf.FieldMask).
+                `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
                 Updatable fields:
 
                 -  ``display_name``
                 -  ``description``
                 -  ``labels``
+
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -613,7 +629,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.gca_dataset.Dataset:
+            google.cloud.aiplatform_v1beta1.types.Dataset:
                 A collection of DataItems and
                 Annotations on them.
 
@@ -673,12 +689,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Lists Datasets in a Location.
 
         Args:
-            request (:class:`~.dataset_service.ListDatasetsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListDatasetsRequest):
                 The request object. Request message for
                 ``DatasetService.ListDatasets``.
-            parent (:class:`str`):
+            parent (str):
                 Required. The name of the Dataset's parent resource.
                 Format: ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -690,7 +707,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListDatasetsPager:
+            google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListDatasetsPager:
                 Response message for
                 ``DatasetService.ListDatasets``.
 
@@ -755,13 +772,14 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Deletes a Dataset.
 
         Args:
-            request (:class:`~.dataset_service.DeleteDatasetRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.DeleteDatasetRequest):
                 The request object. Request message for
                 ``DatasetService.DeleteDataset``.
-            name (:class:`str`):
+            name (str):
                 Required. The resource name of the Dataset to delete.
                 Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -773,24 +791,22 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.ga_operation.Operation:
+            google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.empty.Empty`: A generic empty message that
-                you can re-use to avoid defining duplicated empty
-                messages in your APIs. A typical example is to use it as
-                the request or the response type of an API method. For
-                instance:
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
 
-                ::
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
 
-                    service Foo {
-                      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-                    }
+                      }
 
-                The JSON representation for ``Empty`` is empty JSON
-                object ``{}``.
+                   The JSON representation for Empty is empty JSON
+                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -853,19 +869,21 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Imports data into a Dataset.
 
         Args:
-            request (:class:`~.dataset_service.ImportDataRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ImportDataRequest):
                 The request object. Request message for
                 ``DatasetService.ImportData``.
-            name (:class:`str`):
+            name (str):
                 Required. The name of the Dataset resource. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            import_configs (:class:`Sequence[~.dataset.ImportDataConfig]`):
+            import_configs (Sequence[google.cloud.aiplatform_v1beta1.types.ImportDataConfig]):
                 Required. The desired input
                 locations. The contents of all input
                 locations will be imported in one batch.
+
                 This corresponds to the ``import_configs`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -877,11 +895,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.ga_operation.Operation:
+            google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.dataset_service.ImportDataResponse`:
+                :class:`google.cloud.aiplatform_v1beta1.types.ImportDataResponse`
                 Response message for
                 ``DatasetService.ImportData``.
 
@@ -908,9 +926,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
             if name is not None:
                 request.name = name
-
-            if import_configs:
-                request.import_configs.extend(import_configs)
+            if import_configs is not None:
+                request.import_configs = import_configs
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
@@ -949,18 +966,20 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Exports data from a Dataset.
 
         Args:
-            request (:class:`~.dataset_service.ExportDataRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ExportDataRequest):
                 The request object. Request message for
                 ``DatasetService.ExportData``.
-            name (:class:`str`):
+            name (str):
                 Required. The name of the Dataset resource. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            export_config (:class:`~.dataset.ExportDataConfig`):
+            export_config (google.cloud.aiplatform_v1beta1.types.ExportDataConfig):
                 Required. The desired output
                 location.
+
                 This corresponds to the ``export_config`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -972,11 +991,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.ga_operation.Operation:
+            google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.dataset_service.ExportDataResponse`:
+                :class:`google.cloud.aiplatform_v1beta1.types.ExportDataResponse`
                 Response message for
                 ``DatasetService.ExportData``.
 
@@ -1042,13 +1061,14 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Lists DataItems in a Dataset.
 
         Args:
-            request (:class:`~.dataset_service.ListDataItemsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListDataItemsRequest):
                 The request object. Request message for
                 ``DatasetService.ListDataItems``.
-            parent (:class:`str`):
+            parent (str):
                 Required. The resource name of the Dataset to list
                 DataItems from. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1060,7 +1080,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListDataItemsPager:
+            google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListDataItemsPager:
                 Response message for
                 ``DatasetService.ListDataItems``.
 
@@ -1125,14 +1145,14 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Gets an AnnotationSpec.
 
         Args:
-            request (:class:`~.dataset_service.GetAnnotationSpecRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.GetAnnotationSpecRequest):
                 The request object. Request message for
                 ``DatasetService.GetAnnotationSpec``.
-            name (:class:`str`):
+            name (str):
                 Required. The name of the AnnotationSpec resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/datasets/{dataset}/annotationSpecs/{annotation_spec}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1144,7 +1164,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.annotation_spec.AnnotationSpec:
+            google.cloud.aiplatform_v1beta1.types.AnnotationSpec:
                 Identifies a concept with which
                 DataItems may be annotated with.
 
@@ -1200,14 +1220,14 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         r"""Lists Annotations belongs to a dataitem
 
         Args:
-            request (:class:`~.dataset_service.ListAnnotationsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListAnnotationsRequest):
                 The request object. Request message for
                 ``DatasetService.ListAnnotations``.
-            parent (:class:`str`):
+            parent (str):
                 Required. The resource name of the DataItem to list
                 Annotations from. Format:
-
                 ``projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1219,7 +1239,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListAnnotationsPager:
+            google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListAnnotationsPager:
                 Response message for
                 ``DatasetService.ListAnnotations``.
 

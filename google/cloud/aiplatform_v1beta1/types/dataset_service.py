@@ -59,7 +59,7 @@ class CreateDatasetRequest(proto.Message):
             Required. The resource name of the Location to create the
             Dataset in. Format:
             ``projects/{project}/locations/{location}``
-        dataset (~.gca_dataset.Dataset):
+        dataset (google.cloud.aiplatform_v1beta1.types.Dataset):
             Required. The Dataset to create.
     """
 
@@ -73,7 +73,7 @@ class CreateDatasetOperationMetadata(proto.Message):
     ``DatasetService.CreateDataset``.
 
     Attributes:
-        generic_metadata (~.operation.GenericOperationMetadata):
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
     """
 
@@ -89,7 +89,7 @@ class GetDatasetRequest(proto.Message):
     Attributes:
         name (str):
             Required. The name of the Dataset resource.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
 
@@ -103,14 +103,13 @@ class UpdateDatasetRequest(proto.Message):
     ``DatasetService.UpdateDataset``.
 
     Attributes:
-        dataset (~.gca_dataset.Dataset):
+        dataset (google.cloud.aiplatform_v1beta1.types.Dataset):
             Required. The Dataset which replaces the
             resource on the server.
-        update_mask (~.field_mask.FieldMask):
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Required. The update mask applies to the resource. For the
             ``FieldMask`` definition, see
-
-            [FieldMask](https://tinyurl.com/dev-google-protobuf#google.protobuf.FieldMask).
+            `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
             Updatable fields:
 
             -  ``display_name``
@@ -132,12 +131,27 @@ class ListDatasetsRequest(proto.Message):
             Required. The name of the Dataset's parent resource. Format:
             ``projects/{project}/locations/{location}``
         filter (str):
-            The standard list filter.
+            An expression for filtering the results of the request. For
+            field names both snake_case and camelCase are supported.
+
+            -  ``display_name``: supports = and !=
+            -  ``metadata_schema_uri``: supports = and !=
+            -  ``labels`` supports general map functions that is:
+
+               -  ``labels.key=value`` - key:value equality
+               -  \`labels.key:\* or labels:key - key existence
+               -  A key including a space must be quoted.
+                  ``labels."a key"``.
+
+            Some examples:
+
+            -  ``displayName="myDisplayName"``
+            -  ``labels.myKey="myValue"``
         page_size (int):
             The standard list page size.
         page_token (str):
             The standard list page token.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
         order_by (str):
             A comma-separated list of fields to order by, sorted in
@@ -145,7 +159,7 @@ class ListDatasetsRequest(proto.Message):
             descending. Supported fields:
 
             -  ``display_name``
-            -  ``data_item_count`` \* ``create_time``
+            -  ``create_time``
             -  ``update_time``
     """
 
@@ -167,7 +181,7 @@ class ListDatasetsResponse(proto.Message):
     ``DatasetService.ListDatasets``.
 
     Attributes:
-        datasets (Sequence[~.gca_dataset.Dataset]):
+        datasets (Sequence[google.cloud.aiplatform_v1beta1.types.Dataset]):
             A list of Datasets that matches the specified
             filter in the request.
         next_page_token (str):
@@ -207,7 +221,7 @@ class ImportDataRequest(proto.Message):
         name (str):
             Required. The name of the Dataset resource. Format:
             ``projects/{project}/locations/{location}/datasets/{dataset}``
-        import_configs (Sequence[~.gca_dataset.ImportDataConfig]):
+        import_configs (Sequence[google.cloud.aiplatform_v1beta1.types.ImportDataConfig]):
             Required. The desired input locations. The
             contents of all input locations will be imported
             in one batch.
@@ -231,7 +245,7 @@ class ImportDataOperationMetadata(proto.Message):
     ``DatasetService.ImportData``.
 
     Attributes:
-        generic_metadata (~.operation.GenericOperationMetadata):
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The common part of the operation metadata.
     """
 
@@ -248,7 +262,7 @@ class ExportDataRequest(proto.Message):
         name (str):
             Required. The name of the Dataset resource. Format:
             ``projects/{project}/locations/{location}/datasets/{dataset}``
-        export_config (~.gca_dataset.ExportDataConfig):
+        export_config (google.cloud.aiplatform_v1beta1.types.ExportDataConfig):
             Required. The desired output location.
     """
 
@@ -277,7 +291,7 @@ class ExportDataOperationMetadata(proto.Message):
     ``DatasetService.ExportData``.
 
     Attributes:
-        generic_metadata (~.operation.GenericOperationMetadata):
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The common part of the operation metadata.
         gcs_output_directory (str):
             A Google Cloud Storage directory which path
@@ -307,7 +321,7 @@ class ListDataItemsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
         order_by (str):
             A comma-separated list of fields to order by,
@@ -333,7 +347,7 @@ class ListDataItemsResponse(proto.Message):
     ``DatasetService.ListDataItems``.
 
     Attributes:
-        data_items (Sequence[~.data_item.DataItem]):
+        data_items (Sequence[google.cloud.aiplatform_v1beta1.types.DataItem]):
             A list of DataItems that matches the
             specified filter in the request.
         next_page_token (str):
@@ -358,9 +372,8 @@ class GetAnnotationSpecRequest(proto.Message):
     Attributes:
         name (str):
             Required. The name of the AnnotationSpec resource. Format:
-
             ``projects/{project}/locations/{location}/datasets/{dataset}/annotationSpecs/{annotation_spec}``
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
 
@@ -377,7 +390,6 @@ class ListAnnotationsRequest(proto.Message):
         parent (str):
             Required. The resource name of the DataItem to list
             Annotations from. Format:
-
             ``projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}``
         filter (str):
             The standard list filter.
@@ -385,7 +397,7 @@ class ListAnnotationsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
         order_by (str):
             A comma-separated list of fields to order by,
@@ -411,7 +423,7 @@ class ListAnnotationsResponse(proto.Message):
     ``DatasetService.ListAnnotations``.
 
     Attributes:
-        annotations (Sequence[~.annotation.Annotation]):
+        annotations (Sequence[google.cloud.aiplatform_v1beta1.types.Annotation]):
             A list of Annotations that matches the
             specified filter in the request.
         next_page_token (str):

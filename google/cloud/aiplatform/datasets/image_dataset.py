@@ -19,11 +19,11 @@ from typing import Optional, Sequence, Dict, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
+from google.cloud.aiplatform import datasets
+from google.cloud.aiplatform.datasets import _datasources
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform import datasets
-from google.cloud.aiplatform.datasets import _datasources
 
 
 class ImageDataset(datasets.Dataset):
@@ -44,6 +44,7 @@ class ImageDataset(datasets.Dataset):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "ImageDataset":
         """Creates a new image dataset and optionally imports data into dataset when
@@ -94,6 +95,17 @@ class ImageDataset(datasets.Dataset):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the dataset. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -130,5 +142,8 @@ class ImageDataset(datasets.Dataset):
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,
             request_metadata=request_metadata,
+            encryption_spec=initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            ),
             sync=sync,
         )

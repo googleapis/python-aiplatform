@@ -31,24 +31,24 @@ class MigratableResource(proto.Message):
     datalabeling.googleapis.com or ml.googleapis.com.
 
     Attributes:
-        ml_engine_model_version (~.migratable_resource.MigratableResource.MlEngineModelVersion):
+        ml_engine_model_version (google.cloud.aiplatform_v1beta1.types.MigratableResource.MlEngineModelVersion):
             Output only. Represents one Version in
             ml.googleapis.com.
-        automl_model (~.migratable_resource.MigratableResource.AutomlModel):
+        automl_model (google.cloud.aiplatform_v1beta1.types.MigratableResource.AutomlModel):
             Output only. Represents one Model in
             automl.googleapis.com.
-        automl_dataset (~.migratable_resource.MigratableResource.AutomlDataset):
+        automl_dataset (google.cloud.aiplatform_v1beta1.types.MigratableResource.AutomlDataset):
             Output only. Represents one Dataset in
             automl.googleapis.com.
-        data_labeling_dataset (~.migratable_resource.MigratableResource.DataLabelingDataset):
+        data_labeling_dataset (google.cloud.aiplatform_v1beta1.types.MigratableResource.DataLabelingDataset):
             Output only. Represents one Dataset in
             datalabeling.googleapis.com.
-        last_migrate_time (~.timestamp.Timestamp):
-            Output only. Timestamp when last migrate
-            attempt on this MigratableResource started. Will
-            not be set if there's no migrate attempt on this
-            MigratableResource.
-        last_update_time (~.timestamp.Timestamp):
+        last_migrate_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Timestamp when the last
+            migration attempt on this MigratableResource
+            started. Will not be set if there's no migration
+            attempt on this MigratableResource.
+        last_update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             MigratableResource was last updated.
     """
@@ -116,7 +116,7 @@ class MigratableResource(proto.Message):
             dataset_display_name (str):
                 The Dataset's display name in
                 datalabeling.googleapis.com.
-            data_labeling_annotated_datasets (Sequence[~.migratable_resource.MigratableResource.DataLabelingDataset.DataLabelingAnnotatedDataset]):
+            data_labeling_annotated_datasets (Sequence[google.cloud.aiplatform_v1beta1.types.MigratableResource.DataLabelingDataset.DataLabelingAnnotatedDataset]):
                 The migratable AnnotatedDataset in
                 datalabeling.googleapis.com belongs to the data
                 labeling Dataset.
@@ -130,7 +130,6 @@ class MigratableResource(proto.Message):
                 annotated_dataset (str):
                     Full resource name of data labeling AnnotatedDataset.
                     Format:
-
                     ``projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}``.
                 annotated_dataset_display_name (str):
                     The AnnotatedDataset's display name in

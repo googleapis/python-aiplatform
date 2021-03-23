@@ -25,7 +25,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
-
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -77,6 +77,22 @@ _TEST_MODEL_NAME = (
 
 _TEST_PIPELINE_RESOURCE_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipeline/12345"
+)
+
+# CMEK encryption
+_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+_TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
+)
+
+_TEST_PIPELINE_ENCRYPTION_KEY_NAME = "key_pipeline"
+_TEST_PIPELINE_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME
+)
+
+_TEST_MODEL_ENCRYPTION_KEY_NAME = "key_model"
+_TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME
 )
 
 
@@ -213,7 +229,10 @@ class TestAutoMLImageTrainingJob:
     ):
         """Create and run an AutoML ICN training job, verify calls and return value"""
 
-        aiplatform.init(project=_TEST_PROJECT)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
 
         job = training_jobs.AutoMLImageTrainingJob(
             display_name=_TEST_DISPLAY_NAME, base_model=mock_model_image
@@ -242,6 +261,7 @@ class TestAutoMLImageTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model_image._gca_resource.description,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -250,10 +270,11 @@ class TestAutoMLImageTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_image_classification_task,
+            training_task_definition=schema.training_job.definition.automl_image_classification,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_BASE_MODEL,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -278,7 +299,11 @@ class TestAutoMLImageTrainingJob:
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        job = training_jobs.AutoMLImageTrainingJob(display_name=_TEST_DISPLAY_NAME)
+        job = training_jobs.AutoMLImageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
+        )
 
         model_from_job = job.run(
             dataset=mock_dataset_image,
@@ -299,7 +324,9 @@ class TestAutoMLImageTrainingJob:
         )
 
         # Test that if defaults to the job display name
-        true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split, dataset_id=mock_dataset_image.name,
@@ -307,10 +334,11 @@ class TestAutoMLImageTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_image_classification_task,
+            training_task_definition=schema.training_job.definition.automl_image_classification,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
+            encryption_spec=_TEST_PIPELINE_ENCRYPTION_SPEC,
         )
 
         mock_pipeline_service_create.assert_called_once_with(

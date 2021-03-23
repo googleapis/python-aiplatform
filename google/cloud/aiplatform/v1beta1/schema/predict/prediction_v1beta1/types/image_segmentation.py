@@ -28,7 +28,7 @@ class ImageSegmentationPredictionResult(proto.Message):
     r"""Prediction output format for Image Segmentation.
 
     Attributes:
-        category_mask (bytes):
+        category_mask (str):
             A PNG image where each pixel in the mask
             represents the category in which the pixel in
             the original image was predicted to belong to.
@@ -39,7 +39,7 @@ class ImageSegmentationPredictionResult(proto.Message):
             likely category and if none of the categories
             reach the confidence threshold, the pixel will
             be marked as background.
-        confidence_mask (bytes):
+        confidence_mask (str):
             A one channel image which is encoded as an
             8bit lossless PNG. The size of the image will be
             the same as the original image. For a specific
@@ -49,9 +49,9 @@ class ImageSegmentationPredictionResult(proto.Message):
             confidence and white means complete confidence.
     """
 
-    category_mask = proto.Field(proto.BYTES, number=1)
+    category_mask = proto.Field(proto.STRING, number=1)
 
-    confidence_mask = proto.Field(proto.BYTES, number=2)
+    confidence_mask = proto.Field(proto.STRING, number=2)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

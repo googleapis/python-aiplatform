@@ -25,6 +25,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform.datasets import _datasources
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io as gca_io
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
@@ -39,6 +40,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "datasets"
     _getter_method = "get_dataset"
+    _delete_method = "delete_dataset"
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = None
 
@@ -68,7 +70,9 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
         """
 
-        super().__init__(project=project, location=location, credentials=credentials)
+        super().__init__(
+            project=project, location=location, credentials=credentials,
+        )
         self._gca_resource = self._get_gca_resource(resource_name=dataset_name)
         self._validate_metadata_schema_uri()
 
@@ -105,6 +109,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "Dataset":
         """Creates a new dataset and optionally imports data into dataset when
@@ -165,6 +170,17 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the dataset. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -200,6 +216,9 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,
             request_metadata=request_metadata,
+            encryption_spec=initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            ),
             sync=sync,
         )
 
@@ -216,6 +235,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         location: str,
         credentials: Optional[auth_credentials.Credentials],
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
         sync: bool = True,
     ) -> "Dataset":
         """Creates a new dataset and optionally imports data into dataset when
@@ -252,6 +272,12 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
+            encryption_spec (Optional[gca_encryption_spec.EncryptionSpec]):
+                Optional. The Cloud KMS customer managed encryption key used to protect the dataset.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -269,6 +295,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             metadata_schema_uri=metadata_schema_uri,
             datasource=datasource,
             request_metadata=request_metadata,
+            encryption_spec=encryption_spec,
         )
 
         created_dataset = create_dataset_lro.result()
@@ -296,6 +323,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         metadata_schema_uri: str,
         datasource: _datasources.Datasource,
         request_metadata: Sequence[Tuple[str, str]] = (),
+        encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
     ) -> operation.Operation:
         """Creates a new managed dataset by directly calling API client.
 
@@ -322,15 +350,22 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the create_dataset
                 request as metadata. Usually to specify special dataset config.
+            encryption_spec (Optional[gca_encryption_spec.EncryptionSpec]):
+                Optional. The Cloud KMS customer managed encryption key used to protect the dataset.
+                The key needs to be in the same region as where the compute
+                resource is created.
 
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
         Returns:
             operation (Operation):
                 An object representing a long-running operation.
         """
+
         gapic_dataset = gca_dataset.Dataset(
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             metadata=datasource.dataset_metadata,
+            encryption_spec=encryption_spec,
         )
 
         return api_client.create_dataset(
@@ -456,16 +491,3 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
     def update(self):
         raise NotImplementedError("Update dataset has not been implemented yet")
-
-    @base.optional_sync()
-    def delete(self, sync: bool = True) -> None:
-        """Deletes this AI Platform managed Dataset resource.
-
-        Args:
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-        """
-        lro = self.api_client.delete_dataset(name=self.resource_name)
-        lro.result()

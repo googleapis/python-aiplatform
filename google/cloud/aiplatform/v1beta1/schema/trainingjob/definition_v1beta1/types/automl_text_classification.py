@@ -29,7 +29,7 @@ class AutoMlTextClassification(proto.Message):
     Classification Model.
 
     Attributes:
-        inputs (~.automl_text_classification.AutoMlTextClassificationInputs):
+        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTextClassificationInputs):
             The input parameters of this TrainingJob.
     """
 

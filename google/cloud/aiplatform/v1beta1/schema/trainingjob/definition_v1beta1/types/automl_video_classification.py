@@ -29,7 +29,7 @@ class AutoMlVideoClassification(proto.Message):
     Classification Model.
 
     Attributes:
-        inputs (~.automl_video_classification.AutoMlVideoClassificationInputs):
+        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoClassificationInputs):
             The input parameters of this TrainingJob.
     """
 
@@ -42,7 +42,7 @@ class AutoMlVideoClassificationInputs(proto.Message):
     r"""
 
     Attributes:
-        model_type (~.automl_video_classification.AutoMlVideoClassificationInputs.ModelType):
+        model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoClassificationInputs.ModelType):
 
     """
 
@@ -51,6 +51,7 @@ class AutoMlVideoClassificationInputs(proto.Message):
         MODEL_TYPE_UNSPECIFIED = 0
         CLOUD = 1
         MOBILE_VERSATILE_1 = 2
+        MOBILE_JETSON_VERSATILE_1 = 3
 
     model_type = proto.Field(proto.ENUM, number=1, enum=ModelType,)
 

@@ -31,7 +31,7 @@ class ExplanationMetadata(proto.Message):
     explanation.
 
     Attributes:
-        inputs (Sequence[~.explanation_metadata.ExplanationMetadata.InputsEntry]):
+        inputs (Sequence[google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputsEntry]):
             Required. Map from feature names to feature input metadata.
             Keys are the name of the features. Values are the
             specification of the feature.
@@ -42,18 +42,18 @@ class ExplanationMetadata(proto.Message):
             The baseline of the empty feature is chosen by AI Platform.
 
             For AI Platform provided Tensorflow images, the key can be
-            any friendly name of the feature . Once specified, [
-            featureAttributions][Attribution.feature_attributions] will
-            be keyed by this key (if not grouped with another feature).
+            any friendly name of the feature. Once specified,
+            ``featureAttributions``
+            are keyed by this key (if not grouped with another feature).
 
             For custom images, the key must match with the key in
             ``instance``.
-        outputs (Sequence[~.explanation_metadata.ExplanationMetadata.OutputsEntry]):
+        outputs (Sequence[google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.OutputsEntry]):
             Required. Map from output names to output
             metadata.
             For AI Platform provided Tensorflow images, keys
-            can be any string user defines.
-
+            can be any user defined string that consists of
+            any UTF-8 characters.
             For custom images, keys are the name of the
             output field in the prediction to be explained.
 
@@ -80,7 +80,7 @@ class ExplanationMetadata(proto.Message):
         images for Tensorflow.
 
         Attributes:
-            input_baselines (Sequence[~.struct.Value]):
+            input_baselines (Sequence[google.protobuf.struct_pb2.Value]):
                 Baseline inputs for this feature.
 
                 If no baseline is specified, AI Platform chooses the
@@ -105,13 +105,13 @@ class ExplanationMetadata(proto.Message):
                 Name of the input tensor for this feature.
                 Required and is only applicable to AI Platform
                 provided images for Tensorflow.
-            encoding (~.explanation_metadata.ExplanationMetadata.InputMetadata.Encoding):
+            encoding (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Encoding):
                 Defines how the feature is encoded into the
                 input tensor. Defaults to IDENTITY.
             modality (str):
                 Modality of the feature. Valid values are:
                 numeric, image. Defaults to numeric.
-            feature_value_domain (~.explanation_metadata.ExplanationMetadata.InputMetadata.FeatureValueDomain):
+            feature_value_domain (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.FeatureValueDomain):
                 The domain details of the input feature
                 value. Like min/max, original mean or standard
                 deviation if normalized.
@@ -140,13 +140,13 @@ class ExplanationMetadata(proto.Message):
 
                 An encoded tensor is generated if the input tensor is
                 encoded by a lookup table.
-            encoded_baselines (Sequence[~.struct.Value]):
+            encoded_baselines (Sequence[google.protobuf.struct_pb2.Value]):
                 A list of baselines for the encoded tensor.
                 The shape of each baseline should match the
                 shape of the encoded tensor. If a scalar is
                 provided, AI Platform broadcast to the same
                 shape as the encoded tensor.
-            visualization (~.explanation_metadata.ExplanationMetadata.InputMetadata.Visualization):
+            visualization (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Visualization):
                 Visualization configurations for image
                 explanation.
             group_name (str):
@@ -211,17 +211,17 @@ class ExplanationMetadata(proto.Message):
             r"""Visualization configurations for image explanation.
 
             Attributes:
-                type_ (~.explanation_metadata.ExplanationMetadata.InputMetadata.Visualization.Type):
+                type_ (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Visualization.Type):
                     Type of the image visualization. Only applicable to
                     [Integrated Gradients attribution]
                     [ExplanationParameters.integrated_gradients_attribution].
                     OUTLINES shows regions of attribution, while PIXELS shows
                     per-pixel attribution. Defaults to OUTLINES.
-                polarity (~.explanation_metadata.ExplanationMetadata.InputMetadata.Visualization.Polarity):
+                polarity (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Visualization.Polarity):
                     Whether to only highlight pixels with
                     positive contributions, negative or both.
                     Defaults to POSITIVE.
-                color_map (~.explanation_metadata.ExplanationMetadata.InputMetadata.Visualization.ColorMap):
+                color_map (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Visualization.ColorMap):
                     The color scheme used for the highlighted areas.
 
                     Defaults to PINK_GREEN for [Integrated Gradients
@@ -243,7 +243,7 @@ class ExplanationMetadata(proto.Message):
                     Excludes attributions below the specified
                     percentile, from the highlighted areas. Defaults
                     to 35.
-                overlay_type (~.explanation_metadata.ExplanationMetadata.InputMetadata.Visualization.OverlayType):
+                overlay_type (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Visualization.OverlayType):
                     How the original image is displayed in the
                     visualization. Adjusting the overlay can help
                     increase visual clarity if the original image
@@ -357,7 +357,7 @@ class ExplanationMetadata(proto.Message):
         r"""Metadata of the prediction output to be explained.
 
         Attributes:
-            index_display_name_mapping (~.struct.Value):
+            index_display_name_mapping (google.protobuf.struct_pb2.Value):
                 Static mapping between the index and display name.
 
                 Use this if the outputs are a deterministic n-dimensional
@@ -368,7 +368,7 @@ class ExplanationMetadata(proto.Message):
                 values.
 
                 The shape of the value must be an n-dimensional array of
-                strings. The number of dimentions must match that of the
+                strings. The number of dimensions must match that of the
                 outputs to be explained. The
                 ``Attribution.output_display_name``
                 is populated by locating in the mapping with

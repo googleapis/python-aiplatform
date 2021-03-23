@@ -52,7 +52,7 @@ class CreateEndpointRequest(proto.Message):
             Required. The resource name of the Location to create the
             Endpoint in. Format:
             ``projects/{project}/locations/{location}``
-        endpoint (~.gca_endpoint.Endpoint):
+        endpoint (google.cloud.aiplatform_v1beta1.types.Endpoint):
             Required. The Endpoint to create.
     """
 
@@ -66,7 +66,7 @@ class CreateEndpointOperationMetadata(proto.Message):
     ``EndpointService.CreateEndpoint``.
 
     Attributes:
-        generic_metadata (~.operation.GenericOperationMetadata):
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
     """
 
@@ -103,23 +103,21 @@ class ListEndpointsRequest(proto.Message):
             supported.
 
             -  ``endpoint`` supports = and !=. ``endpoint`` represents
-               the Endpoint ID, ie. the last segment of the Endpoint's
+               the Endpoint ID, i.e. the last segment of the Endpoint's
                [resource
                name][google.cloud.aiplatform.v1beta1.Endpoint.name].
-            -  ``display_name`` supports =, != and regex() (uses
-               `re2 <https://github.com/google/re2/wiki/Syntax>`__
-               syntax)
+            -  ``display_name`` supports = and, !=
             -  ``labels`` supports general map functions that is:
-               ``labels.key=value`` - key:value equality
-               ``labels.key:* or labels:key - key existence A key including a space must be quoted.``\ labels."a
-               key"`.
+
+               -  ``labels.key=value`` - key:value equality
+               -  \`labels.key:\* or labels:key - key existence
+               -  A key including a space must be quoted.
+                  ``labels."a key"``.
 
             Some examples:
 
             -  ``endpoint=1``
             -  ``displayName="myDisplayName"``
-            -  \`regex(display_name, "^A") -> The display name starts
-               with an A.
             -  ``labels.myKey="myValue"``
         page_size (int):
             Optional. The standard list page size.
@@ -130,7 +128,7 @@ class ListEndpointsRequest(proto.Message):
             of the previous
             ``EndpointService.ListEndpoints``
             call.
-        read_mask (~.field_mask.FieldMask):
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Optional. Mask specifying which fields to
             read.
     """
@@ -151,10 +149,10 @@ class ListEndpointsResponse(proto.Message):
     ``EndpointService.ListEndpoints``.
 
     Attributes:
-        endpoints (Sequence[~.gca_endpoint.Endpoint]):
+        endpoints (Sequence[google.cloud.aiplatform_v1beta1.types.Endpoint]):
             List of Endpoints in the requested page.
         next_page_token (str):
-            A token to retrieve next page of results. Pass to
+            A token to retrieve the next page of results. Pass to
             ``ListEndpointsRequest.page_token``
             to obtain that page.
     """
@@ -175,12 +173,12 @@ class UpdateEndpointRequest(proto.Message):
     ``EndpointService.UpdateEndpoint``.
 
     Attributes:
-        endpoint (~.gca_endpoint.Endpoint):
+        endpoint (google.cloud.aiplatform_v1beta1.types.Endpoint):
             Required. The Endpoint which replaces the
             resource on the server.
-        update_mask (~.field_mask.FieldMask):
-            Required. The update mask applies to the
-            resource.
+        update_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Required. The update mask applies to the resource. See
+            `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
     """
 
     endpoint = proto.Field(proto.MESSAGE, number=1, message=gca_endpoint.Endpoint,)
@@ -211,14 +209,14 @@ class DeployModelRequest(proto.Message):
             Required. The name of the Endpoint resource into which to
             deploy a Model. Format:
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``
-        deployed_model (~.gca_endpoint.DeployedModel):
+        deployed_model (google.cloud.aiplatform_v1beta1.types.DeployedModel):
             Required. The DeployedModel to be created within the
             Endpoint. Note that
             ``Endpoint.traffic_split``
             must be updated for the DeployedModel to start receiving
             traffic, either as part of this call, or via
             ``EndpointService.UpdateEndpoint``.
-        traffic_split (Sequence[~.endpoint_service.DeployModelRequest.TrafficSplitEntry]):
+        traffic_split (Sequence[google.cloud.aiplatform_v1beta1.types.DeployModelRequest.TrafficSplitEntry]):
             A map from a DeployedModel's ID to the percentage of this
             Endpoint's traffic that should be forwarded to that
             DeployedModel.
@@ -250,7 +248,7 @@ class DeployModelResponse(proto.Message):
     ``EndpointService.DeployModel``.
 
     Attributes:
-        deployed_model (~.gca_endpoint.DeployedModel):
+        deployed_model (google.cloud.aiplatform_v1beta1.types.DeployedModel):
             The DeployedModel that had been deployed in
             the Endpoint.
     """
@@ -265,7 +263,7 @@ class DeployModelOperationMetadata(proto.Message):
     ``EndpointService.DeployModel``.
 
     Attributes:
-        generic_metadata (~.operation.GenericOperationMetadata):
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
     """
 
@@ -286,7 +284,7 @@ class UndeployModelRequest(proto.Message):
         deployed_model_id (str):
             Required. The ID of the DeployedModel to be
             undeployed from the Endpoint.
-        traffic_split (Sequence[~.endpoint_service.UndeployModelRequest.TrafficSplitEntry]):
+        traffic_split (Sequence[google.cloud.aiplatform_v1beta1.types.UndeployModelRequest.TrafficSplitEntry]):
             If this field is provided, then the Endpoint's
             ``traffic_split``
             will be overwritten with it. If last DeployedModel is being
@@ -315,7 +313,7 @@ class UndeployModelOperationMetadata(proto.Message):
     ``EndpointService.UndeployModel``.
 
     Attributes:
-        generic_metadata (~.operation.GenericOperationMetadata):
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
     """
 

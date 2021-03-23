@@ -16,6 +16,7 @@
 #
 
 from google.cloud.aiplatform import gapic
+from google.cloud.aiplatform import explain
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.datasets import (
@@ -23,6 +24,7 @@ from google.cloud.aiplatform.datasets import (
     TabularDataset,
     ImageDataset,
     TextDataset,
+    VideoDataset,
 )
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
@@ -33,6 +35,8 @@ from google.cloud.aiplatform.training_jobs import (
     CustomPythonPackageTrainingJob,
     AutoMLTabularTrainingJob,
     AutoMLImageTrainingJob,
+    AutoMLTextTrainingJob,
+    AutoMLVideoTrainingJob,
 )
 
 """
@@ -44,9 +48,12 @@ aiplatform.init(project='my_project')
 init = initializer.global_config.init
 
 __all__ = (
-    gapic,
+    "gapic",
+    "explain",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
+    "AutoMLTextTrainingJob",
+    "AutoMLVideoTrainingJob",
     "BatchPredictionJob",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
@@ -57,4 +64,5 @@ __all__ = (
     "Model",
     "TabularDataset",
     "TextDataset",
+    "VideoDataset",
 )

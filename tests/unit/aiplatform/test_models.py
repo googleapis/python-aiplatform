@@ -39,6 +39,7 @@ from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model_service
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 from test_endpoints import create_endpoint_mock  # noqa: F401
 
@@ -89,6 +90,27 @@ _TEST_PARAMETERS_SCHEMA_URI = "gs://test/schema/parameters.yaml"
 _TEST_PREDICTION_SCHEMA_URI = "gs://test/schema/predictions.yaml"
 
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+
+_TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
+    inputs={
+        "features": {
+            "input_tensor_name": "dense_input",
+            "encoding": "BAG_OF_FEATURES",
+            "modality": "numeric",
+            "index_feature_mapping": ["abc", "def", "ghj"],
+        }
+    },
+    outputs={"medv": {"output_tensor_name": "dense_2"}},
+)
+_TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
+    {"sampled_shapley_attribution": {"path_count": 10}}
+)
+
+# CMEK encryption
+_TEST_ENCRYPTION_KEY_NAME = "key_1234"
+_TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
+)
 
 
 @pytest.fixture
@@ -326,6 +348,21 @@ class TestModel:
                 name=test_model_resource_name
             )
 
+    def test_upload_raises_with_impartial_explanation_spec(self):
+
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        with pytest.raises(ValueError) as e:
+            models.Model.upload(
+                display_name=_TEST_MODEL_NAME,
+                artifact_uri=_TEST_ARTIFACT_URI,
+                serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+                explanation_parameters=_TEST_EXPLANATION_PARAMETERS
+                # Missing the required explanations_metadata field
+            )
+
+        assert e.match(regexp=r"`explanation_parameters` should be specified or None.")
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_all_args(self, sync):
 
@@ -358,6 +395,8 @@ class TestModel:
                 serving_container_args=_TEST_SERVING_CONTAINER_ARGS,
                 serving_container_environment_variables=_TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
                 serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
+                explanation_metadata=_TEST_EXPLANATION_METADATA,
+                explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
                 sync=sync,
             )
 
@@ -393,6 +432,10 @@ class TestModel:
                     instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
                     parameters_schema_uri=_TEST_PARAMETERS_SCHEMA_URI,
                     prediction_schema_uri=_TEST_PREDICTION_SCHEMA_URI,
+                ),
+                explanation_spec=gca_model.explanation.ExplanationSpec(
+                    metadata=_TEST_EXPLANATION_METADATA,
+                    parameters=_TEST_EXPLANATION_PARAMETERS,
                 ),
             )
 
@@ -515,7 +558,7 @@ class TestModel:
         test_model = models.Model(_TEST_ID)
         test_endpoint = models.Endpoint(_TEST_ID)
 
-        assert test_model.deploy(test_endpoint, sync=sync) == test_endpoint
+        assert test_model.deploy(test_endpoint, sync=sync,) == test_endpoint
 
         if not sync:
             test_endpoint.wait()
@@ -599,12 +642,124 @@ class TestModel:
             metadata=(),
         )
 
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_no_endpoint_with_explanations(self, deploy_model_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+        test_endpoint = test_model.deploy(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
+            sync=sync,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = machine_resources.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+        expected_dedicated_resources = machine_resources.DedicatedResources(
+            machine_spec=expected_machine_spec, min_replica_count=1, max_replica_count=1
+        )
+        expected_deployed_model = gca_endpoint.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            explanation_spec=gca_endpoint.explanation.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA,
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+        )
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    def test_deploy_raises_with_impartial_explanation_spec(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+
+        with pytest.raises(ValueError) as e:
+            test_model.deploy(
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                explanation_metadata=_TEST_EXPLANATION_METADATA,
+                # Missing required `explanation_parameters` argument
+            )
+
+        assert e.match(regexp=r"`explanation_parameters` should be specified or None.")
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
+    def test_init_aiplatform_with_encryption_key_name_and_batch_predict_gcs_source_and_dest(
+        self, create_batch_prediction_job_mock, sync
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+        test_model = models.Model(_TEST_ID)
+
+        # Make SDK batch_predict method call
+        batch_prediction_job = test_model.batch_predict(
+            job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=sync,
+        )
+
+        if not sync:
+            batch_prediction_job.wait()
+
+        # Construct expected request
+        expected_gapic_batch_prediction_job = gapic_types.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            model=ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            ),
+            input_config=gapic_types.BatchPredictionJob.InputConfig(
+                instances_format="jsonl",
+                gcs_source=gapic_types.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
+            ),
+            output_config=gapic_types.BatchPredictionJob.OutputConfig(
+                gcs_destination=gapic_types.GcsDestination(
+                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+                ),
+                predictions_format="jsonl",
+            ),
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        create_batch_prediction_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+        )
+
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest(
         self, create_batch_prediction_job_mock, sync
     ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        aiplatform.init(
+            project=_TEST_PROJECT, location=_TEST_LOCATION,
+        )
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -706,8 +861,12 @@ class TestModel:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
             max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            generate_explanation=True,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,
             credentials=creds,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
 
@@ -741,7 +900,13 @@ class TestModel:
                 starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
                 max_replica_count=_TEST_MAX_REPLICA_COUNT,
             ),
+            generate_explanation=True,
+            explanation_spec=gapic_types.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA,
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
             labels=_TEST_LABEL,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(

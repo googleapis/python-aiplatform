@@ -36,6 +36,7 @@ from google.api_core import operation as ga_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.model_service import pagers
 from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
@@ -122,6 +123,22 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
     )
 
     @classmethod
+    def from_service_account_info(cls, info: dict, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials info.
+
+        Args:
+            info (dict): The service account private key info.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            ModelServiceClient: The constructed client.
+        """
+        credentials = service_account.Credentials.from_service_account_info(info)
+        kwargs["credentials"] = credentials
+        return cls(*args, **kwargs)
+
+    @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
         file.
@@ -133,7 +150,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            {@api.name}: The constructed client.
+            ModelServiceClient: The constructed client.
         """
         credentials = service_account.Credentials.from_service_account_file(filename)
         kwargs["credentials"] = credentials
@@ -315,10 +332,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, ~.ModelServiceTransport]): The
+            transport (Union[str, ModelServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (client_options_lib.ClientOptions): Custom options for the
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -354,21 +371,17 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
         )
 
-        ssl_credentials = None
+        client_cert_source_func = None
         is_mtls = False
         if use_client_cert:
             if client_options.client_cert_source:
-                import grpc  # type: ignore
-
-                cert, key = client_options.client_cert_source()
-                ssl_credentials = grpc.ssl_channel_credentials(
-                    certificate_chain=cert, private_key=key
-                )
                 is_mtls = True
+                client_cert_source_func = client_options.client_cert_source
             else:
-                creds = SslCredentials()
-                is_mtls = creds.is_mtls
-                ssl_credentials = creds.ssl_credentials if is_mtls else None
+                is_mtls = mtls.has_default_client_cert_source()
+                client_cert_source_func = (
+                    mtls.default_client_cert_source() if is_mtls else None
+                )
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -411,7 +424,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 credentials_file=client_options.credentials_file,
                 host=api_endpoint,
                 scopes=client_options.scopes,
-                ssl_channel_credentials=ssl_credentials,
+                client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
             )
@@ -429,17 +442,18 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Uploads a Model artifact into AI Platform.
 
         Args:
-            request (:class:`~.model_service.UploadModelRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.UploadModelRequest):
                 The request object. Request message for
                 ``ModelService.UploadModel``.
-            parent (:class:`str`):
+            parent (str):
                 Required. The resource name of the Location into which
                 to upload the Model. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            model (:class:`~.gca_model.Model`):
+            model (google.cloud.aiplatform_v1beta1.types.Model):
                 Required. The Model to create.
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -452,12 +466,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.ga_operation.Operation:
+            google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.model_service.UploadModelResponse`: Response
-                message of
+                :class:`google.cloud.aiplatform_v1beta1.types.UploadModelResponse`
+                Response message of
                 ``ModelService.UploadModel``
                 operation.
 
@@ -523,12 +537,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Gets a Model.
 
         Args:
-            request (:class:`~.model_service.GetModelRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.GetModelRequest):
                 The request object. Request message for
                 ``ModelService.GetModel``.
-            name (:class:`str`):
+            name (str):
                 Required. The name of the Model resource. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -540,7 +555,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.model.Model:
+            google.cloud.aiplatform_v1beta1.types.Model:
                 A trained machine learning Model.
         """
         # Create or coerce a protobuf request object.
@@ -594,13 +609,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Lists Models in a Location.
 
         Args:
-            request (:class:`~.model_service.ListModelsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListModelsRequest):
                 The request object. Request message for
                 ``ModelService.ListModels``.
-            parent (:class:`str`):
+            parent (str):
                 Required. The resource name of the Location to list the
                 Models from. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -612,7 +628,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListModelsPager:
+            google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelsPager:
                 Response message for
                 ``ModelService.ListModels``
 
@@ -678,20 +694,21 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Updates a Model.
 
         Args:
-            request (:class:`~.model_service.UpdateModelRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.UpdateModelRequest):
                 The request object. Request message for
                 ``ModelService.UpdateModel``.
-            model (:class:`~.gca_model.Model`):
+            model (google.cloud.aiplatform_v1beta1.types.Model):
                 Required. The Model which replaces
                 the resource on the server.
+
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            update_mask (:class:`~.field_mask.FieldMask`):
+            update_mask (google.protobuf.field_mask_pb2.FieldMask):
                 Required. The update mask applies to the resource. For
                 the ``FieldMask`` definition, see
+                `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
 
-                [FieldMask](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask).
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -703,7 +720,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.gca_model.Model:
+            google.cloud.aiplatform_v1beta1.types.Model:
                 A trained machine learning Model.
         """
         # Create or coerce a protobuf request object.
@@ -763,13 +780,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         DeployedModels created from it.
 
         Args:
-            request (:class:`~.model_service.DeleteModelRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.DeleteModelRequest):
                 The request object. Request message for
                 ``ModelService.DeleteModel``.
-            name (:class:`str`):
+            name (str):
                 Required. The name of the Model resource to be deleted.
                 Format:
                 ``projects/{project}/locations/{location}/models/{model}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -781,24 +799,22 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.ga_operation.Operation:
+            google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.empty.Empty`: A generic empty message that
-                you can re-use to avoid defining duplicated empty
-                messages in your APIs. A typical example is to use it as
-                the request or the response type of an API method. For
-                instance:
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
 
-                ::
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
 
-                    service Foo {
-                      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-                    }
+                      }
 
-                The JSON representation for ``Empty`` is empty JSON
-                object ``{}``.
+                   The JSON representation for Empty is empty JSON
+                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -864,19 +880,21 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         format][google.cloud.aiplatform.v1beta1.Model.supported_export_formats].
 
         Args:
-            request (:class:`~.model_service.ExportModelRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ExportModelRequest):
                 The request object. Request message for
                 ``ModelService.ExportModel``.
-            name (:class:`str`):
+            name (str):
                 Required. The resource name of the Model to export.
                 Format:
                 ``projects/{project}/locations/{location}/models/{model}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            output_config (:class:`~.model_service.ExportModelRequest.OutputConfig`):
+            output_config (google.cloud.aiplatform_v1beta1.types.ExportModelRequest.OutputConfig):
                 Required. The desired output location
                 and configuration.
+
                 This corresponds to the ``output_config`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -888,12 +906,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.ga_operation.Operation:
+            google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
                 The result type for the operation will be
-                :class:`~.model_service.ExportModelResponse`: Response
-                message of
+                :class:`google.cloud.aiplatform_v1beta1.types.ExportModelResponse`
+                Response message of
                 ``ModelService.ExportModel``
                 operation.
 
@@ -959,14 +977,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Gets a ModelEvaluation.
 
         Args:
-            request (:class:`~.model_service.GetModelEvaluationRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.GetModelEvaluationRequest):
                 The request object. Request message for
                 ``ModelService.GetModelEvaluation``.
-            name (:class:`str`):
+            name (str):
                 Required. The name of the ModelEvaluation resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -978,7 +996,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.model_evaluation.ModelEvaluation:
+            google.cloud.aiplatform_v1beta1.types.ModelEvaluation:
                 A collection of metrics calculated by
                 comparing Model's predictions on all of
                 the test data against annotations from
@@ -1036,13 +1054,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Lists ModelEvaluations in a Model.
 
         Args:
-            request (:class:`~.model_service.ListModelEvaluationsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsRequest):
                 The request object. Request message for
                 ``ModelService.ListModelEvaluations``.
-            parent (:class:`str`):
+            parent (str):
                 Required. The resource name of the Model to list the
                 ModelEvaluations from. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1054,7 +1073,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListModelEvaluationsPager:
+            google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelEvaluationsPager:
                 Response message for
                 ``ModelService.ListModelEvaluations``.
 
@@ -1119,14 +1138,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Gets a ModelEvaluationSlice.
 
         Args:
-            request (:class:`~.model_service.GetModelEvaluationSliceRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.GetModelEvaluationSliceRequest):
                 The request object. Request message for
                 ``ModelService.GetModelEvaluationSlice``.
-            name (:class:`str`):
+            name (str):
                 Required. The name of the ModelEvaluationSlice resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1138,7 +1157,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.model_evaluation_slice.ModelEvaluationSlice:
+            google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice:
                 A collection of metrics calculated by
                 comparing Model's predictions on a slice
                 of the test data against ground truth
@@ -1198,14 +1217,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         r"""Lists ModelEvaluationSlices in a ModelEvaluation.
 
         Args:
-            request (:class:`~.model_service.ListModelEvaluationSlicesRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesRequest):
                 The request object. Request message for
                 ``ModelService.ListModelEvaluationSlices``.
-            parent (:class:`str`):
+            parent (str):
                 Required. The resource name of the ModelEvaluation to
                 list the ModelEvaluationSlices from. Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -1217,7 +1236,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListModelEvaluationSlicesPager:
+            google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelEvaluationSlicesPager:
                 Response message for
                 ``ModelService.ListModelEvaluationSlices``.
 

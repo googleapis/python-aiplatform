@@ -19,6 +19,7 @@ import proto  # type: ignore
 
 
 from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.protobuf import struct_pb2 as struct  # type: ignore
@@ -43,7 +44,7 @@ class Model(proto.Message):
             can be consist of any UTF-8 characters.
         description (str):
             The description of the Model.
-        predict_schemata (~.model.PredictSchemata):
+        predict_schemata (google.cloud.aiplatform_v1beta1.types.PredictSchemata):
             The schemata that describe formats of the Model's
             predictions and explanations as given and returned via
             ``PredictionService.Predict``
@@ -57,17 +58,17 @@ class Model(proto.Message):
             3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
             AutoML Models always have this field populated by AI
-            Platform, if no additional metadata is needed this field is
+            Platform, if no additional metadata is needed, this field is
             set to an empty string. Note: The URI given on output will
             be immutable and probably different, including the URI
             scheme, than the one given on input. The output URI will
             point to a location where the user only has a read access.
-        metadata (~.struct.Value):
+        metadata (google.protobuf.struct_pb2.Value):
             Immutable. An additional information about the Model; the
             schema of the metadata can be found in
             ``metadata_schema``.
             Unset if the Model does not have any additional information.
-        supported_export_formats (Sequence[~.model.Model.ExportFormat]):
+        supported_export_formats (Sequence[google.cloud.aiplatform_v1beta1.types.Model.ExportFormat]):
             Output only. The formats in which this Model
             may be exported. If empty, this Model is not
             available for export.
@@ -75,7 +76,7 @@ class Model(proto.Message):
             Output only. The resource name of the
             TrainingPipeline that uploaded this Model, if
             any.
-        container_spec (~.model.ModelContainerSpec):
+        container_spec (google.cloud.aiplatform_v1beta1.types.ModelContainerSpec):
             Input only. The specification of the container that is to be
             used when deploying this Model. The specification is
             ingested upon
@@ -86,7 +87,7 @@ class Model(proto.Message):
             Immutable. The path to the directory
             containing the Model artifact and any of its
             supporting files. Not present for AutoML Models.
-        supported_deployment_resources_types (Sequence[~.model.Model.DeploymentResourcesType]):
+        supported_deployment_resources_types (Sequence[google.cloud.aiplatform_v1beta1.types.Model.DeploymentResourcesType]):
             Output only. When this Model is deployed, its prediction
             resources are described by the ``prediction_resources``
             field of the
@@ -136,6 +137,11 @@ class Model(proto.Message):
                Uses
                ``BigQuerySource``.
 
+            -  ``file-list`` Each line of the file is the location of an
+               instance to process, uses ``gcs_source`` field of the
+               ``InputConfig``
+               object.
+
             If this Model doesn't support any of these formats it means
             it cannot be used with a
             ``BatchPredictionJob``.
@@ -182,41 +188,53 @@ class Model(proto.Message):
             ``PredictionService.Predict``
             or
             ``PredictionService.Explain``.
-        create_time (~.timestamp.Timestamp):
+        create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Model was
             uploaded into AI Platform.
-        update_time (~.timestamp.Timestamp):
+        update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Model was
             most recently updated.
-        deployed_models (Sequence[~.deployed_model_ref.DeployedModelRef]):
+        deployed_models (Sequence[google.cloud.aiplatform_v1beta1.types.DeployedModelRef]):
             Output only. The pointers to DeployedModels
             created from this Model. Note that Model could
             have been deployed to Endpoints in different
             Locations.
-        explanation_spec (~.explanation.ExplanationSpec):
-            Output only. The default explanation specification for this
-            Model.
+        explanation_spec (google.cloud.aiplatform_v1beta1.types.ExplanationSpec):
+            The default explanation specification for this Model.
 
-            Model can be used for [requesting
-            explanation][google.cloud.aiplatform.v1beta1.PredictionService.Explain]
-            after being
+            The Model can be used for [requesting
+            explanation][PredictionService.Explain] after being
             ``deployed``
-            iff it is populated.
+            if it is populated. The Model can be used for [batch
+            explanation][BatchPredictionJob.generate_explanation] if it
+            is populated.
 
             All fields of the explanation_spec can be overridden by
             ``explanation_spec``
             of
-            ``DeployModelRequest.deployed_model``.
+            ``DeployModelRequest.deployed_model``,
+            or
+            ``explanation_spec``
+            of
+            ``BatchPredictionJob``.
 
-            This field is populated only for tabular AutoML Models.
-            Specifying it with
-            ``ModelService.UploadModel``
-            is not supported.
+            If the default explanation specification is not set for this
+            Model, this Model can still be used for [requesting
+            explanation][PredictionService.Explain] by setting
+            ``explanation_spec``
+            of
+            ``DeployModelRequest.deployed_model``
+            and for [batch
+            explanation][BatchPredictionJob.generate_explanation] by
+            setting
+            ``explanation_spec``
+            of
+            ``BatchPredictionJob``.
         etag (str):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Sequence[~.model.Model.LabelsEntry]):
+        labels (Sequence[google.cloud.aiplatform_v1beta1.types.Model.LabelsEntry]):
             The labels with user-defined metadata to
             organize your Models.
             Label keys and values can be no longer than 64
@@ -226,6 +244,10 @@ class Model(proto.Message):
             are allowed.
             See https://goo.gl/xmQnxf for more information
             and examples of labels.
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Customer-managed encryption key spec for a
+            Model. If set, this Model and all sub-resources
+            of this Model will be secured by this key.
     """
 
     class DeploymentResourcesType(proto.Enum):
@@ -235,7 +257,7 @@ class Model(proto.Message):
         AUTOMATIC_RESOURCES = 2
 
     class ExportFormat(proto.Message):
-        r"""Represents a supported by the Model export format.
+        r"""Represents export format supported by the Model.
         All formats export to Google Cloud Storage.
 
         Attributes:
@@ -260,7 +282,7 @@ class Model(proto.Message):
 
                 -  ``custom-trained`` A Model that was uploaded or trained
                    by custom code.
-            exportable_contents (Sequence[~.model.Model.ExportFormat.ExportableContent]):
+            exportable_contents (Sequence[google.cloud.aiplatform_v1beta1.types.Model.ExportFormat.ExportableContent]):
                 Output only. The content of this Model that
                 may be exported.
         """
@@ -323,6 +345,10 @@ class Model(proto.Message):
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=17)
 
+    encryption_spec = proto.Field(
+        proto.MESSAGE, number=24, message=gca_encryption_spec.EncryptionSpec,
+    )
+
 
 class PredictSchemata(proto.Message):
     r"""Contains the schemata used in Model's predictions and explanations
@@ -359,8 +385,8 @@ class PredictSchemata(proto.Message):
             The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
             AutoML Models always have this field populated by AI
-            Platform, if no parameters are supported it is set to an
-            empty string. Note: The URI given on output will be
+            Platform, if no parameters are supported, then it is set to
+            an empty string. Note: The URI given on output will be
             immutable and probably different, including the URI scheme,
             than the one given on input. The output URI will point to a
             location where the user only has a read access.
@@ -411,6 +437,11 @@ class ModelContainerSpec(proto.Message):
             To learn about the requirements for the Docker image itself,
             see `Custom container
             requirements <https://tinyurl.com/cust-cont-reqs>`__.
+
+            You can use the URI to one of AI Platform's `pre-built
+            container images for
+            prediction <https://cloud.google.com/ai-platform-unified/docs/predictions/pre-built-containers>`__
+            in this field.
         command (Sequence[str]):
             Immutable. Specifies the command that runs when the
             container starts. This overrides the container's
@@ -491,7 +522,7 @@ class ModelContainerSpec(proto.Message):
             field corresponds to the ``args`` field of the Kubernetes
             Containers `v1 core
             API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
-        env (Sequence[~.env_var.EnvVar]):
+        env (Sequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
             Immutable. List of environment variables to set in the
             container. After the container starts running, code running
             in the container can read these environment variables.
@@ -524,7 +555,7 @@ class ModelContainerSpec(proto.Message):
             This field corresponds to the ``env`` field of the
             Kubernetes Containers `v1 core
             API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
-        ports (Sequence[~.model.Port]):
+        ports (Sequence[google.cloud.aiplatform_v1beta1.types.Port]):
             Immutable. List of ports to expose from the container. AI
             Platform sends any prediction requests that it receives to
             the first port on this list. AI Platform also sends
@@ -557,9 +588,9 @@ class ModelContainerSpec(proto.Message):
 
             For example, if you set this field to ``/foo``, then when AI
             Platform receives a prediction request, it forwards the
-            request body in a POST request to the following URL on the
-            container: localhost:PORT/foo PORT refers to the first value
-            of this ``ModelContainerSpec``'s
+            request body in a POST request to the ``/foo`` path on the
+            port of your container specified by the first value of this
+            ``ModelContainerSpec``'s
             ``ports``
             field.
 
@@ -583,16 +614,16 @@ class ModelContainerSpec(proto.Message):
                ```AIP_DEPLOYED_MODEL_ID`` environment
                variable <https://tinyurl.com/cust-cont-reqs#aip-variables>`__.)
         health_route (str):
-            Immutable. HTTP path on the container to send health checkss
+            Immutable. HTTP path on the container to send health checks
             to. AI Platform intermittently sends GET requests to this
             path on the container's IP address and port to check that
             the container is healthy. Read more about `health
             checks <https://tinyurl.com/cust-cont-reqs#checks>`__.
 
             For example, if you set this field to ``/bar``, then AI
-            Platform intermittently sends a GET request to the following
-            URL on the container: localhost:PORT/bar PORT refers to the
-            first value of this ``ModelContainerSpec``'s
+            Platform intermittently sends a GET request to the ``/bar``
+            path on the port of your container specified by the first
+            value of this ``ModelContainerSpec``'s
             ``ports``
             field.
 

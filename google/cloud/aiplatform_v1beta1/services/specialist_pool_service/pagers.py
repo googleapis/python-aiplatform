@@ -15,7 +15,16 @@
 # limitations under the License.
 #
 
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1beta1.types import specialist_pool
 from google.cloud.aiplatform_v1beta1.types import specialist_pool_service
@@ -25,7 +34,7 @@ class ListSpecialistPoolsPager:
     """A pager for iterating through ``list_specialist_pools`` requests.
 
     This class thinly wraps an initial
-    :class:`~.specialist_pool_service.ListSpecialistPoolsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsResponse` object, and
     provides an ``__iter__`` method to iterate through its
     ``specialist_pools`` field.
 
@@ -34,7 +43,7 @@ class ListSpecialistPoolsPager:
     through the ``specialist_pools`` field on the
     corresponding responses.
 
-    All the usual :class:`~.specialist_pool_service.ListSpecialistPoolsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -52,9 +61,9 @@ class ListSpecialistPoolsPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.specialist_pool_service.ListSpecialistPoolsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsRequest):
                 The initial request object.
-            response (:class:`~.specialist_pool_service.ListSpecialistPoolsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.
@@ -87,7 +96,7 @@ class ListSpecialistPoolsAsyncPager:
     """A pager for iterating through ``list_specialist_pools`` requests.
 
     This class thinly wraps an initial
-    :class:`~.specialist_pool_service.ListSpecialistPoolsResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsResponse` object, and
     provides an ``__aiter__`` method to iterate through its
     ``specialist_pools`` field.
 
@@ -96,7 +105,7 @@ class ListSpecialistPoolsAsyncPager:
     through the ``specialist_pools`` field on the
     corresponding responses.
 
-    All the usual :class:`~.specialist_pool_service.ListSpecialistPoolsResponse`
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
@@ -116,9 +125,9 @@ class ListSpecialistPoolsAsyncPager:
         Args:
             method (Callable): The method that was originally called, and
                 which instantiated this pager.
-            request (:class:`~.specialist_pool_service.ListSpecialistPoolsRequest`):
+            request (google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsRequest):
                 The initial request object.
-            response (:class:`~.specialist_pool_service.ListSpecialistPoolsResponse`):
+            response (google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsResponse):
                 The initial response object.
             metadata (Sequence[Tuple[str, str]]): Strings which should be
                 sent along with the request as metadata.

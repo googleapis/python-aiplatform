@@ -31,6 +31,7 @@ from google.oauth2 import service_account  # type: ignore
 from google.api_core import operation as ga_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import pagers
+from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
@@ -95,7 +96,36 @@ class PipelineServiceAsyncClient:
         PipelineServiceClient.parse_common_location_path
     )
 
-    from_service_account_file = PipelineServiceClient.from_service_account_file
+    @classmethod
+    def from_service_account_info(cls, info: dict, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials info.
+
+        Args:
+            info (dict): The service account private key info.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            PipelineServiceAsyncClient: The constructed client.
+        """
+        return PipelineServiceClient.from_service_account_info.__func__(PipelineServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+
+    @classmethod
+    def from_service_account_file(cls, filename: str, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials
+        file.
+
+        Args:
+            filename (str): The path to the service account private key json
+                file.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            PipelineServiceAsyncClient: The constructed client.
+        """
+        return PipelineServiceClient.from_service_account_file.__func__(PipelineServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+
     from_service_account_json = from_service_account_file
 
     @property
@@ -173,19 +203,21 @@ class PipelineServiceAsyncClient:
         TrainingPipeline right away will be attempted to be run.
 
         Args:
-            request (:class:`~.pipeline_service.CreateTrainingPipelineRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.CreateTrainingPipelineRequest`):
                 The request object. Request message for
                 ``PipelineService.CreateTrainingPipeline``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the TrainingPipeline in. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            training_pipeline (:class:`~.gca_training_pipeline.TrainingPipeline`):
+            training_pipeline (:class:`google.cloud.aiplatform_v1beta1.types.TrainingPipeline`):
                 Required. The TrainingPipeline to
                 create.
+
                 This corresponds to the ``training_pipeline`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -197,13 +229,13 @@ class PipelineServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.gca_training_pipeline.TrainingPipeline:
-                The TrainingPipeline orchestrates tasks associated with
-                training a Model. It always executes the training task,
-                and optionally may also export data from AI Platform's
-                Dataset which becomes the training input,
-                ``upload``
-                the Model to AI Platform, and evaluate the Model.
+            google.cloud.aiplatform_v1beta1.types.TrainingPipeline:
+                The TrainingPipeline orchestrates tasks associated with training a Model. It
+                   always executes the training task, and optionally may
+                   also export data from AI Platform's Dataset which
+                   becomes the training input,
+                   ``upload``
+                   the Model to AI Platform, and evaluate the Model.
 
         """
         # Create or coerce a protobuf request object.
@@ -258,14 +290,14 @@ class PipelineServiceAsyncClient:
         r"""Gets a TrainingPipeline.
 
         Args:
-            request (:class:`~.pipeline_service.GetTrainingPipelineRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.GetTrainingPipelineRequest`):
                 The request object. Request message for
                 ``PipelineService.GetTrainingPipeline``.
             name (:class:`str`):
                 Required. The name of the TrainingPipeline resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -277,13 +309,13 @@ class PipelineServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.training_pipeline.TrainingPipeline:
-                The TrainingPipeline orchestrates tasks associated with
-                training a Model. It always executes the training task,
-                and optionally may also export data from AI Platform's
-                Dataset which becomes the training input,
-                ``upload``
-                the Model to AI Platform, and evaluate the Model.
+            google.cloud.aiplatform_v1beta1.types.TrainingPipeline:
+                The TrainingPipeline orchestrates tasks associated with training a Model. It
+                   always executes the training task, and optionally may
+                   also export data from AI Platform's Dataset which
+                   becomes the training input,
+                   ``upload``
+                   the Model to AI Platform, and evaluate the Model.
 
         """
         # Create or coerce a protobuf request object.
@@ -336,13 +368,14 @@ class PipelineServiceAsyncClient:
         r"""Lists TrainingPipelines in a Location.
 
         Args:
-            request (:class:`~.pipeline_service.ListTrainingPipelinesRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesRequest`):
                 The request object. Request message for
                 ``PipelineService.ListTrainingPipelines``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 TrainingPipelines from. Format:
                 ``projects/{project}/locations/{location}``
+
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -354,7 +387,7 @@ class PipelineServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.pagers.ListTrainingPipelinesAsyncPager:
+            google.cloud.aiplatform_v1beta1.services.pipeline_service.pagers.ListTrainingPipelinesAsyncPager:
                 Response message for
                 ``PipelineService.ListTrainingPipelines``
 
@@ -418,14 +451,14 @@ class PipelineServiceAsyncClient:
         r"""Deletes a TrainingPipeline.
 
         Args:
-            request (:class:`~.pipeline_service.DeleteTrainingPipelineRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteTrainingPipelineRequest`):
                 The request object. Request message for
                 ``PipelineService.DeleteTrainingPipeline``.
             name (:class:`str`):
                 Required. The name of the TrainingPipeline resource to
                 be deleted. Format:
-
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -437,24 +470,22 @@ class PipelineServiceAsyncClient:
                 sent along with the request as metadata.
 
         Returns:
-            ~.operation_async.AsyncOperation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`~.empty.Empty`: A generic empty message that
-                you can re-use to avoid defining duplicated empty
-                messages in your APIs. A typical example is to use it as
-                the request or the response type of an API method. For
-                instance:
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
 
-                ::
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
 
-                    service Foo {
-                      rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-                    }
+                      }
 
-                The JSON representation for ``Empty`` is empty JSON
-                object ``{}``.
+                   The JSON representation for Empty is empty JSON
+                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -527,14 +558,14 @@ class PipelineServiceAsyncClient:
         is set to ``CANCELLED``.
 
         Args:
-            request (:class:`~.pipeline_service.CancelTrainingPipelineRequest`):
+            request (:class:`google.cloud.aiplatform_v1beta1.types.CancelTrainingPipelineRequest`):
                 The request object. Request message for
                 ``PipelineService.CancelTrainingPipeline``.
             name (:class:`str`):
                 Required. The name of the TrainingPipeline to cancel.
                 Format:
-
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.

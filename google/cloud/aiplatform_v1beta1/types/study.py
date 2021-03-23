@@ -24,8 +24,52 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
-    manifest={"Trial", "StudySpec", "Measurement",},
+    manifest={"Study", "Trial", "StudySpec", "Measurement",},
 )
+
+
+class Study(proto.Message):
+    r"""A message representing a Study.
+
+    Attributes:
+        name (str):
+            Output only. The name of a study. The study's globally
+            unique identifier. Format:
+            ``projects/{project}/locations/{location}/studies/{study}``
+        display_name (str):
+            Required. Describes the Study, default value
+            is empty string.
+        study_spec (google.cloud.aiplatform_v1beta1.types.StudySpec):
+            Required. Configuration of the Study.
+        state (google.cloud.aiplatform_v1beta1.types.Study.State):
+            Output only. The detailed state of a Study.
+        create_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Time at which the study was
+            created.
+        inactive_reason (str):
+            Output only. A human readable reason why the
+            Study is inactive. This should be empty if a
+            study is ACTIVE or COMPLETED.
+    """
+
+    class State(proto.Enum):
+        r"""Describes the Study state."""
+        STATE_UNSPECIFIED = 0
+        ACTIVE = 1
+        INACTIVE = 2
+        COMPLETED = 3
+
+    name = proto.Field(proto.STRING, number=1)
+
+    display_name = proto.Field(proto.STRING, number=2)
+
+    study_spec = proto.Field(proto.MESSAGE, number=3, message="StudySpec",)
+
+    state = proto.Field(proto.ENUM, number=4, enum=State,)
+
+    create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
+
+    inactive_reason = proto.Field(proto.STRING, number=6)
 
 
 class Trial(proto.Message):
@@ -34,19 +78,22 @@ class Trial(proto.Message):
     objective metrics got by running the Trial.
 
     Attributes:
+        name (str):
+            Output only. Resource name of the Trial
+            assigned by the service.
         id (str):
             Output only. The identifier of the Trial
             assigned by the service.
-        state (~.study.Trial.State):
+        state (google.cloud.aiplatform_v1beta1.types.Trial.State):
             Output only. The detailed state of the Trial.
-        parameters (Sequence[~.study.Trial.Parameter]):
+        parameters (Sequence[google.cloud.aiplatform_v1beta1.types.Trial.Parameter]):
             Output only. The parameters of the Trial.
-        final_measurement (~.study.Measurement):
+        final_measurement (google.cloud.aiplatform_v1beta1.types.Measurement):
             Output only. The final measurement containing
             the objective value.
-        start_time (~.timestamp.Timestamp):
+        start_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the Trial was started.
-        end_time (~.timestamp.Timestamp):
+        end_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the Trial's status changed to
             ``SUCCEEDED`` or ``INFEASIBLE``.
         custom_job (str):
@@ -72,7 +119,7 @@ class Trial(proto.Message):
                 Output only. The ID of the parameter. The parameter should
                 be defined in [StudySpec's
                 Parameters][google.cloud.aiplatform.v1beta1.StudySpec.parameters].
-            value (~.struct.Value):
+            value (google.protobuf.struct_pb2.Value):
                 Output only. The value of the parameter. ``number_value``
                 will be set if a parameter defined in StudySpec is in type
                 'INTEGER', 'DOUBLE' or 'DISCRETE'. ``string_value`` will be
@@ -83,6 +130,8 @@ class Trial(proto.Message):
         parameter_id = proto.Field(proto.STRING, number=1)
 
         value = proto.Field(proto.MESSAGE, number=2, message=struct.Value,)
+
+    name = proto.Field(proto.STRING, number=1)
 
     id = proto.Field(proto.STRING, number=2)
 
@@ -103,12 +152,29 @@ class StudySpec(proto.Message):
     r"""Represents specification of a Study.
 
     Attributes:
-        metrics (Sequence[~.study.StudySpec.MetricSpec]):
+        decay_curve_stopping_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.DecayCurveAutomatedStoppingSpec):
+            The automated early stopping spec using decay
+            curve rule.
+        median_automated_stopping_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.MedianAutomatedStoppingSpec):
+            The automated early stopping spec using
+            median rule.
+        convex_stop_config (google.cloud.aiplatform_v1beta1.types.StudySpec.ConvexStopConfig):
+            The automated early stopping using convex
+            stopping rule.
+        metrics (Sequence[google.cloud.aiplatform_v1beta1.types.StudySpec.MetricSpec]):
             Required. Metric specs for the Study.
-        parameters (Sequence[~.study.StudySpec.ParameterSpec]):
+        parameters (Sequence[google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec]):
             Required. The set of parameters to tune.
-        algorithm (~.study.StudySpec.Algorithm):
+        algorithm (google.cloud.aiplatform_v1beta1.types.StudySpec.Algorithm):
             The search algorithm specified for the Study.
+        observation_noise (google.cloud.aiplatform_v1beta1.types.StudySpec.ObservationNoise):
+            The observation noise level of the study.
+            Currently only supported by the Vizier service.
+            Not supported by HyperparamterTuningJob or
+            TrainingPipeline.
+        measurement_selection_type (google.cloud.aiplatform_v1beta1.types.StudySpec.MeasurementSelectionType):
+            Describe which measurement selection type
+            will be used
     """
 
     class Algorithm(proto.Enum):
@@ -116,6 +182,33 @@ class StudySpec(proto.Message):
         ALGORITHM_UNSPECIFIED = 0
         GRID_SEARCH = 2
         RANDOM_SEARCH = 3
+
+    class ObservationNoise(proto.Enum):
+        r"""Describes the noise level of the repeated observations.
+        "Noisy" means that the repeated observations with the same Trial
+        parameters may lead to different metric evaluations.
+        """
+        OBSERVATION_NOISE_UNSPECIFIED = 0
+        LOW = 1
+        HIGH = 2
+
+    class MeasurementSelectionType(proto.Enum):
+        r"""This indicates which measurement to use if/when the service
+        automatically selects the final measurement from previously reported
+        intermediate measurements. Choose this based on two considerations:
+        A) Do you expect your measurements to monotonically improve? If so,
+        choose LAST_MEASUREMENT. On the other hand, if you're in a situation
+        where your system can "over-train" and you expect the performance to
+        get better for a while but then start declining, choose
+        BEST_MEASUREMENT. B) Are your measurements significantly noisy
+        and/or irreproducible? If so, BEST_MEASUREMENT will tend to be
+        over-optimistic, and it may be better to choose LAST_MEASUREMENT. If
+        both or neither of (A) and (B) apply, it doesn't matter which
+        selection type is chosen.
+        """
+        MEASUREMENT_SELECTION_TYPE_UNSPECIFIED = 0
+        LAST_MEASUREMENT = 1
+        BEST_MEASUREMENT = 2
 
     class MetricSpec(proto.Message):
         r"""Represents a metric to optimize.
@@ -125,7 +218,7 @@ class StudySpec(proto.Message):
                 Required. The ID of the metric. Must not
                 contain whitespaces and must be unique amongst
                 all MetricSpecs.
-            goal (~.study.StudySpec.MetricSpec.GoalType):
+            goal (google.cloud.aiplatform_v1beta1.types.StudySpec.MetricSpec.GoalType):
                 Required. The optimization goal of the
                 metric.
         """
@@ -144,22 +237,22 @@ class StudySpec(proto.Message):
         r"""Represents a single parameter to optimize.
 
         Attributes:
-            double_value_spec (~.study.StudySpec.ParameterSpec.DoubleValueSpec):
+            double_value_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.DoubleValueSpec):
                 The value spec for a 'DOUBLE' parameter.
-            integer_value_spec (~.study.StudySpec.ParameterSpec.IntegerValueSpec):
+            integer_value_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.IntegerValueSpec):
                 The value spec for an 'INTEGER' parameter.
-            categorical_value_spec (~.study.StudySpec.ParameterSpec.CategoricalValueSpec):
+            categorical_value_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.CategoricalValueSpec):
                 The value spec for a 'CATEGORICAL' parameter.
-            discrete_value_spec (~.study.StudySpec.ParameterSpec.DiscreteValueSpec):
+            discrete_value_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.DiscreteValueSpec):
                 The value spec for a 'DISCRETE' parameter.
             parameter_id (str):
                 Required. The ID of the parameter. Must not
                 contain whitespaces and must be unique amongst
                 all ParameterSpecs.
-            scale_type (~.study.StudySpec.ParameterSpec.ScaleType):
+            scale_type (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.ScaleType):
                 How the parameter should be scaled. Leave unset for
                 ``CATEGORICAL`` parameters.
-            conditional_parameter_specs (Sequence[~.study.StudySpec.ParameterSpec.ConditionalParameterSpec]):
+            conditional_parameter_specs (Sequence[google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.ConditionalParameterSpec]):
                 A conditional parameter node is active if the parameter's
                 value matches the conditional node's parent_value_condition.
 
@@ -236,16 +329,16 @@ class StudySpec(proto.Message):
             parameter.
 
             Attributes:
-                parent_discrete_values (~.study.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition):
+                parent_discrete_values (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition):
                     The spec for matching values from a parent parameter of
                     ``DISCRETE`` type.
-                parent_int_values (~.study.StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition):
+                parent_int_values (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition):
                     The spec for matching values from a parent parameter of
                     ``INTEGER`` type.
-                parent_categorical_values (~.study.StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition):
+                parent_categorical_values (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition):
                     The spec for matching values from a parent parameter of
                     ``CATEGORICAL`` type.
-                parameter_spec (~.study.StudySpec.ParameterSpec):
+                parameter_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.ParameterSpec):
                     Required. The spec for a conditional
                     parameter.
             """
@@ -356,11 +449,124 @@ class StudySpec(proto.Message):
             message="StudySpec.ParameterSpec.ConditionalParameterSpec",
         )
 
+    class DecayCurveAutomatedStoppingSpec(proto.Message):
+        r"""The decay curve automated stopping rule builds a Gaussian
+        Process Regressor to predict the final objective value of a
+        Trial based on the already completed Trials and the intermediate
+        measurements of the current Trial. Early stopping is requested
+        for the current Trial if there is very low probability to exceed
+        the optimal value found so far.
+
+        Attributes:
+            use_elapsed_duration (bool):
+                True if
+                ``Measurement.elapsed_duration``
+                is used as the x-axis of each Trials Decay Curve. Otherwise,
+                ``Measurement.step_count``
+                will be used as the x-axis.
+        """
+
+        use_elapsed_duration = proto.Field(proto.BOOL, number=1)
+
+    class MedianAutomatedStoppingSpec(proto.Message):
+        r"""The median automated stopping rule stops a pending Trial if the
+        Trial's best objective_value is strictly below the median
+        'performance' of all completed Trials reported up to the Trial's
+        last measurement. Currently, 'performance' refers to the running
+        average of the objective values reported by the Trial in each
+        measurement.
+
+        Attributes:
+            use_elapsed_duration (bool):
+                True if median automated stopping rule applies on
+                ``Measurement.elapsed_duration``.
+                It means that elapsed_duration field of latest measurement
+                of current Trial is used to compute median objective value
+                for each completed Trials.
+        """
+
+        use_elapsed_duration = proto.Field(proto.BOOL, number=1)
+
+    class ConvexStopConfig(proto.Message):
+        r"""Configuration for ConvexStopPolicy.
+
+        Attributes:
+            max_num_steps (int):
+                Steps used in predicting the final objective for early
+                stopped trials. In general, it's set to be the same as the
+                defined steps in training / tuning. When use_steps is false,
+                this field is set to the maximum elapsed seconds.
+            min_num_steps (int):
+                Minimum number of steps for a trial to complete. Trials
+                which do not have a measurement with num_steps >
+                min_num_steps won't be considered for early stopping. It's
+                ok to set it to 0, and a trial can be early stopped at any
+                stage. By default, min_num_steps is set to be one-tenth of
+                the max_num_steps. When use_steps is false, this field is
+                set to the minimum elapsed seconds.
+            autoregressive_order (int):
+                The number of Trial measurements used in
+                autoregressive model for value prediction. A
+                trial won't be considered early stopping if has
+                fewer measurement points.
+            learning_rate_parameter_name (str):
+                The hyper-parameter name used in the tuning job that stands
+                for learning rate. Leave it blank if learning rate is not in
+                a parameter in tuning. The learning_rate is used to estimate
+                the objective value of the ongoing trial.
+            use_seconds (bool):
+                This bool determines whether or not the rule is applied
+                based on elapsed_secs or steps. If use_seconds==false, the
+                early stopping decision is made according to the predicted
+                objective values according to the target steps. If
+                use_seconds==true, elapsed_secs is used instead of steps.
+                Also, in this case, the parameters max_num_steps and
+                min_num_steps are overloaded to contain max_elapsed_seconds
+                and min_elapsed_seconds.
+        """
+
+        max_num_steps = proto.Field(proto.INT64, number=1)
+
+        min_num_steps = proto.Field(proto.INT64, number=2)
+
+        autoregressive_order = proto.Field(proto.INT64, number=3)
+
+        learning_rate_parameter_name = proto.Field(proto.STRING, number=4)
+
+        use_seconds = proto.Field(proto.BOOL, number=5)
+
+    decay_curve_stopping_spec = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="automated_stopping_spec",
+        message=DecayCurveAutomatedStoppingSpec,
+    )
+
+    median_automated_stopping_spec = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="automated_stopping_spec",
+        message=MedianAutomatedStoppingSpec,
+    )
+
+    convex_stop_config = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        oneof="automated_stopping_spec",
+        message=ConvexStopConfig,
+    )
+
     metrics = proto.RepeatedField(proto.MESSAGE, number=1, message=MetricSpec,)
 
     parameters = proto.RepeatedField(proto.MESSAGE, number=2, message=ParameterSpec,)
 
     algorithm = proto.Field(proto.ENUM, number=3, enum=Algorithm,)
+
+    observation_noise = proto.Field(proto.ENUM, number=6, enum=ObservationNoise,)
+
+    measurement_selection_type = proto.Field(
+        proto.ENUM, number=7, enum=MeasurementSelectionType,
+    )
 
 
 class Measurement(proto.Message):
@@ -373,7 +579,7 @@ class Measurement(proto.Message):
             Output only. The number of steps the machine
             learning model has been trained for. Must be
             non-negative.
-        metrics (Sequence[~.study.Measurement.Metric]):
+        metrics (Sequence[google.cloud.aiplatform_v1beta1.types.Measurement.Metric]):
             Output only. A list of metrics got by
             evaluating the objective functions using
             suggested Parameter values.

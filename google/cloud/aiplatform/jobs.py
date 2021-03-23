@@ -27,6 +27,7 @@ from google.cloud import bigquery
 
 from google.auth import credentials as auth_credentials
 
+from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import constants
@@ -41,6 +42,8 @@ from google.cloud.aiplatform_v1beta1.types import batch_prediction_job as gca_bp
 from google.cloud.aiplatform_v1beta1.types import (
     machine_resources as gca_machine_resources,
 )
+
+from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 _LOGGER = logging.getLogger(__name__)
@@ -70,6 +73,8 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
 
     _getter_method (str): The name of JobServiceClient getter method for specific
     Job type, i.e. 'get_custom_job' for CustomJob
+    _cancel_method (str): The name of the specific JobServiceClient cancel method
+    _delete_method (str): The name of the specific JobServiceClient delete method
     """
 
     client_class = job_service_client.JobServiceClient
@@ -123,6 +128,12 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
         """Job type."""
         pass
 
+    @property
+    @abc.abstractmethod
+    def _cancel_method(cls) -> str:
+        """Name of cancellation method for cancelling the specific job type."""
+        pass
+
     def _dashboard_uri(self) -> Optional[str]:
         """Helper method to compose the dashboard uri where job can be viewed."""
         fields = utils.extract_fields_from_resource_name(self.resource_name)
@@ -155,11 +166,18 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
         if self.state in _JOB_ERROR_STATES:
             raise RuntimeError("Job failed with:\n%s" % self._gca_resource.error)
 
+    def cancel(self) -> None:
+        """Cancels this Job. Success of cancellation is not guaranteed. Use `Job.state`
+        property to verify if cancellation was successful."""
+        getattr(self.api_client, self._cancel_method)(name=self.resource_name)
+
 
 class BatchPredictionJob(_Job):
 
     _resource_noun = "batchPredictionJobs"
     _getter_method = "get_batch_prediction_job"
+    _cancel_method = "cancel_batch_prediction_job"
+    _delete_method = "delete_batch_prediction_job"
     _job_type = "batch-predictions"
 
     def __init__(
@@ -212,10 +230,16 @@ class BatchPredictionJob(_Job):
         accelerator_count: Optional[int] = None,
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
+        generate_explanation: Optional[bool] = False,
+        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
+        explanation_parameters: Optional[
+            "aiplatform.explain.ExplanationParameters"
+        ] = None,
         labels: Optional[dict] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
@@ -312,6 +336,34 @@ class BatchPredictionJob(_Job):
                 The maximum number of machine replicas the batch operation may
                 be scaled to. Only used if `machine_type` is set.
                 Default is 10.
+            generate_explanation (bool):
+                Optional. Generate explanation along with the batch prediction
+                results. This will cause the batch prediction output to include
+                explanations based on the `prediction_format`:
+                    - `bigquery`: output includes a column named `explanation`. The value
+                        is a struct that conforms to the [aiplatform.gapic.Explanation] object.
+                    - `jsonl`: The JSON objects on each line include an additional entry
+                        keyed `explanation`. The value of the entry is a JSON object that
+                        conforms to the [aiplatform.gapic.Explanation] object.
+                    - `csv`: Generating explanations for CSV format is not supported.
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+                Optional. Explanation metadata configuration for this BatchPredictionJob.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_metadata`.
+                All fields of `explanation_metadata` are optional in the request. If
+                a field of the `explanation_metadata` object is not populated, the
+                corresponding field of the `Model.explanation_metadata` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's predictions.
+                Can be specified only if `generate_explanation` is set to `True`.
+
+                This value overrides the value of `Model.explanation_parameters`.
+                All fields of `explanation_parameters` are optional in the request. If
+                a field of the `explanation_parameters` object is not populated, the
+                corresponding field of the `Model.explanation_parameters` object is inherited.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             labels (Optional[dict]):
                 The labels with user-defined metadata to organize your
                 BatchPredictionJobs. Label keys and values can be no longer than
@@ -322,6 +374,19 @@ class BatchPredictionJob(_Job):
             credentials (Optional[auth_credentials.Credentials]):
                 Custom credentials to use to create this batch prediction
                 job. Overrides credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the job. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If this is set, then all
+                resources created by the BatchPredictionJob will
+                be encrypted with the provided encryption key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -409,6 +474,9 @@ class BatchPredictionJob(_Job):
         gapic_batch_prediction_job.output_config = output_config
 
         # Optional Fields
+        gapic_batch_prediction_job.encryption_spec = initializer.global_config.get_encryption_spec(
+            encryption_spec_key_name=encryption_spec_key_name
+        )
 
         if model_parameters:
             gapic_batch_prediction_job.model_parameters = model_parameters
@@ -434,7 +502,15 @@ class BatchPredictionJob(_Job):
         # User Labels
         gapic_batch_prediction_job.labels = labels
 
-        # TODO (b/174502675): Support Explainability on Batch Prediction
+        # Explanations
+        if generate_explanation:
+            gapic_batch_prediction_job.generate_explanation = generate_explanation
+
+        if explanation_metadata or explanation_parameters:
+            gapic_batch_prediction_job.explanation_spec = gca_explanation.ExplanationSpec(
+                metadata=explanation_metadata, parameters=explanation_parameters
+            )
+
         # TODO (b/174502913): Support private feature once released
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
@@ -600,6 +676,8 @@ class BatchPredictionJob(_Job):
 class CustomJob(_Job):
     _resource_noun = "customJobs"
     _getter_method = "get_custom_job"
+    _cancel_method = "cancel_custom_job"
+    _delete_method = "delete_custom_job"
     _job_type = "training"
     pass
 
@@ -607,6 +685,8 @@ class CustomJob(_Job):
 class DataLabelingJob(_Job):
     _resource_noun = "dataLabelingJobs"
     _getter_method = "get_data_labeling_job"
+    _cancel_method = "cancel_data_labeling_job"
+    _delete_method = "delete_data_labeling_job"
     _job_type = "labeling-tasks"
     pass
 
@@ -614,4 +694,6 @@ class DataLabelingJob(_Job):
 class HyperparameterTuningJob(_Job):
     _resource_noun = "hyperparameterTuningJobs"
     _getter_method = "get_hyperparameter_tuning_job"
+    _cancel_method = "cancel_hyperparameter_tuning_job"
+    _delete_method = "delete_hyperparameter_tuning_job"
     pass
