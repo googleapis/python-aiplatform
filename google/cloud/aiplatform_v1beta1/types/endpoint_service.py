@@ -152,7 +152,7 @@ class ListEndpointsResponse(proto.Message):
         endpoints (Sequence[google.cloud.aiplatform_v1beta1.types.Endpoint]):
             List of Endpoints in the requested page.
         next_page_token (str):
-            A token to retrieve next page of results. Pass to
+            A token to retrieve the next page of results. Pass to
             ``ListEndpointsRequest.page_token``
             to obtain that page.
     """

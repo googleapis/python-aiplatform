@@ -122,7 +122,9 @@ class CustomJobSpec(proto.Message):
     Attributes:
         worker_pool_specs (Sequence[google.cloud.aiplatform_v1beta1.types.WorkerPoolSpec]):
             Required. The spec of the worker pools
-            including machine type and Docker image.
+            including machine type and Docker image. All
+            worker pools except the first one are optional
+            and can be skipped by providing an empty value.
         scheduling (google.cloud.aiplatform_v1beta1.types.Scheduling):
             Scheduling options for a CustomJob.
         service_account (str):
@@ -256,12 +258,13 @@ class PythonPackageSpec(proto.Message):
 
     Attributes:
         executor_image_uri (str):
-            Required. The URI of a container image in the
-            Container Registry that will run the provided
-            python package. AI Platform provides wide range
-            of executor images with pre-installed packages
-            to meet users' various use cases. Only one of
-            the provided images can be set here.
+            Required. The URI of a container image in Artifact Registry
+            that will run the provided Python package. AI Platform
+            provides a wide range of executor images with pre-installed
+            packages to meet users' various use cases. See the list of
+            `pre-built containers for
+            training <https://cloud.google.com/ai-platform-unified/docs/training/pre-built-containers>`__.
+            You must use an image from this list.
         package_uris (Sequence[str]):
             Required. The Google Cloud Storage location
             of the Python package files which are the

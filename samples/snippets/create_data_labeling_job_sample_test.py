@@ -38,6 +38,7 @@ def teardown(teardown_data_labeling_job):
 
 
 # Creating a data labeling job for images
+@pytest.mark.skip(reason="Flaky job state.")
 def test_ucaip_generated_create_data_labeling_job_sample(capsys, shared_state):
 
     dataset_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/datasets/{DATASET_ID}"
