@@ -236,7 +236,6 @@ __all__ = (
     "DiskSpec",
     "EncryptionSpec",
     "Endpoint",
-    "EndpointServiceClient",
     "EnvVar",
     "ExportDataConfig",
     "ExportDataOperationMetadata",
@@ -323,6 +322,7 @@ __all__ = (
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
     "SpecialistPool",
+    "SpecialistPoolServiceClient",
     "StudySpec",
     "TimestampSplit",
     "TrainingConfig",
@@ -341,5 +341,5 @@ __all__ = (
     "UploadModelResponse",
     "UserActionReference",
     "WorkerPoolSpec",
-    "SpecialistPoolServiceClient",
+    "EndpointServiceClient",
 )
