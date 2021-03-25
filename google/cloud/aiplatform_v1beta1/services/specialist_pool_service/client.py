@@ -477,6 +477,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
             name (str):
                 Required. The name of the SpecialistPool resource. The
                 form is
+
                 ``projects/{project}/locations/{location}/specialistPools/{specialist_pool}``.
 
                 This corresponds to the ``name`` field

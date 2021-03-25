@@ -180,38 +180,6 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def dataset_path(project: str, location: str, dataset: str,) -> str:
-        """Return a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project, location=location, dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parse a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(project: str, location: str, dataset: str,) -> str:
-        """Return a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project, location=location, dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parse a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
     def dataset_path(project: str, dataset: str,) -> str:
         """Return a fully-qualified dataset string."""
         return "projects/{project}/datasets/{dataset}".format(
@@ -222,6 +190,38 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     def parse_dataset_path(path: str) -> Dict[str, str]:
         """Parse a dataset path into its component segments."""
         m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def dataset_path(project: str, location: str, dataset: str,) -> str:
+        """Return a fully-qualified dataset string."""
+        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+            project=project, location=location, dataset=dataset,
+        )
+
+    @staticmethod
+    def parse_dataset_path(path: str) -> Dict[str, str]:
+        """Parse a dataset path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def dataset_path(project: str, location: str, dataset: str,) -> str:
+        """Return a fully-qualified dataset string."""
+        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+            project=project, location=location, dataset=dataset,
+        )
+
+    @staticmethod
+    def parse_dataset_path(path: str) -> Dict[str, str]:
+        """Parse a dataset path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
+            path,
+        )
         return m.groupdict() if m else {}
 
     @staticmethod
@@ -612,8 +612,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
             if parent is not None:
                 request.parent = parent
-            if migrate_resource_requests is not None:
-                request.migrate_resource_requests = migrate_resource_requests
+
+            if migrate_resource_requests:
+                request.migrate_resource_requests.extend(migrate_resource_requests)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.

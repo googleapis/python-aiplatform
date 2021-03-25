@@ -30,19 +30,18 @@ class ExportEvaluatedDataItemsConfig(proto.Message):
 
     Attributes:
         destination_bigquery_uri (str):
-            URI of desired destination BigQuery table. Expected format:
-            bq://<project_id>:<dataset_id>:
-
-            If not specified, then results are exported to the following
-            auto-created BigQuery table:
+            URI of desired destination BigQuery table. If not specified,
+            then results are exported to the following auto-created
+            BigQuery table:
 
             <project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples
         override_existing_table (bool):
             If true and an export destination is
             specified, then the contents of the destination
-            are overwritten. Otherwise, if the export
+            will be overwritten. Otherwise, if the export
             destination already exists, then the export
-            operation fails.
+            operation will not trigger and a failure
+            response is returned.
     """
 
     destination_bigquery_uri = proto.Field(proto.STRING, number=1)
