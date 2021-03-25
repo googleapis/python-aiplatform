@@ -71,7 +71,7 @@ class SearchMigratableResourcesRequest(proto.Message):
                -  ``last_migrate_time:*`` will filter migrated
                   resources.
                -  ``NOT last_migrate_time:*`` will filter not yet
-                  migrated resource.
+                  migrated resources.
     """
 
     parent = proto.Field(proto.STRING, number=1)
@@ -247,7 +247,6 @@ class MigrateResourceRequest(proto.Message):
                 annotated_dataset (str):
                     Required. Full resource name of data labeling
                     AnnotatedDataset. Format:
-
                     ``projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}``.
             """
 
@@ -331,12 +330,12 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The common part of the operation metadata.
         partial_results (Sequence[google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesOperationMetadata.PartialResult]):
-            Partial results that reflects the latest
+            Partial results that reflect the latest
             migration operation progress.
     """
 
     class PartialResult(proto.Message):
-        r"""Represents a partial result in batch migration opreation for one
+        r"""Represents a partial result in batch migration operation for one
         ``MigrateResourceRequest``.
 
         Attributes:

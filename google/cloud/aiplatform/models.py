@@ -34,8 +34,9 @@ from google.cloud.aiplatform_v1beta1.services.prediction_service import (
     client as prediction_service_client,
 )
 
-from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
+from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import env_var
@@ -114,6 +115,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         sync=True,
     ) -> "Endpoint":
         """Creates a new endpoint.
@@ -147,6 +149,17 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -172,6 +185,9 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             labels=labels,
             metadata=metadata,
             credentials=credentials,
+            encryption_spec=initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            ),
             sync=sync,
         )
 
@@ -187,6 +203,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         labels: Optional[Dict] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
         sync=True,
     ) -> "Endpoint":
         """
@@ -223,6 +240,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
+            encryption_spec (Optional[gca_encryption_spec.EncryptionSpec]):
+                Optional. The Cloud KMS customer managed encryption key used to protect the dataset.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
             sync (bool):
                 Whether to create this endpoint synchronously.
         Returns:
@@ -235,7 +258,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         )
 
         gapic_endpoint = gca_endpoint.Endpoint(
-            display_name=display_name, description=description, labels=labels,
+            display_name=display_name,
+            description=description,
+            labels=labels,
+            encryption_spec=encryption_spec,
         )
 
         operation_future = api_client.create_endpoint(
@@ -1124,6 +1150,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         sync=True,
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model resource.
@@ -1244,6 +1271,17 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to use to upload this model. Overrides credentials
                 set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Model and all sub-resources of this Model will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
@@ -1289,12 +1327,18 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 prediction_schema_uri=prediction_schema_uri,
             )
 
+        # TODO(b/182388545) initializer.global_config.get_encryption_spec from a sync function
+        encryption_spec = initializer.global_config.get_encryption_spec(
+            encryption_spec_key_name=encryption_spec_key_name
+        )
+
         managed_model = gca_model.Model(
             display_name=display_name,
             description=description,
             artifact_uri=artifact_uri,
             container_spec=container_spec,
             predict_schemata=model_predict_schemata,
+            encryption_spec=encryption_spec,
         )
 
         # Override explanation_spec if both required fields are provided
@@ -1332,6 +1376,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             "aiplatform.explain.ExplanationParameters"
         ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        encryption_spec_key_name: Optional[str] = None,
         sync=True,
     ) -> Endpoint:
         """
@@ -1394,6 +1439,17 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Model and all sub-resources of this Model will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -1426,6 +1482,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             metadata=metadata,
+            encryption_spec_key_name=encryption_spec_key_name
+            or initializer.global_config.encryption_spec_key_name,
             sync=sync,
         )
 
@@ -1446,6 +1504,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             "aiplatform.explain.ExplanationParameters"
         ] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> Endpoint:
         """
@@ -1508,6 +1567,17 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Model and all sub-resources of this Model will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -1524,6 +1594,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 project=self.project,
                 location=self.location,
                 credentials=self.credentials,
+                encryption_spec_key_name=encryption_spec_key_name,
             )
 
         Endpoint._deploy_call(
@@ -1570,6 +1641,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         ] = None,
         labels: Optional[dict] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "jobs.BatchPredictionJob":
         """Creates a batch prediction job using this Model and outputs prediction
@@ -1711,6 +1783,17 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             credentials: Optional[auth_credentials.Credentials] = None
                 Optional. Custom credentials to use to create this batch prediction
                 job. Overrides credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Model and all sub-resources of this Model will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -1740,5 +1823,6 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             project=self.project,
             location=self.location,
             credentials=credentials or self.credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
         )

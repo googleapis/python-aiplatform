@@ -42,6 +42,7 @@ from google.cloud.aiplatform_v1beta1.types import batch_prediction_job as gca_bp
 from google.cloud.aiplatform_v1beta1.types import (
     machine_resources as gca_machine_resources,
 )
+
 from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -238,6 +239,7 @@ class BatchPredictionJob(_Job):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
@@ -372,6 +374,19 @@ class BatchPredictionJob(_Job):
             credentials (Optional[auth_credentials.Credentials]):
                 Custom credentials to use to create this batch prediction
                 job. Overrides credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the job. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If this is set, then all
+                resources created by the BatchPredictionJob will
+                be encrypted with the provided encryption key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -459,6 +474,9 @@ class BatchPredictionJob(_Job):
         gapic_batch_prediction_job.output_config = output_config
 
         # Optional Fields
+        gapic_batch_prediction_job.encryption_spec = initializer.global_config.get_encryption_spec(
+            encryption_spec_key_name=encryption_spec_key_name
+        )
 
         if model_parameters:
             gapic_batch_prediction_job.model_parameters = model_parameters

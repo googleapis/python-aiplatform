@@ -29,6 +29,7 @@ from google.auth import credentials as auth_credentials
 from google.auth.exceptions import GoogleAuthError
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import constants
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 
 class _Config:
@@ -40,6 +41,7 @@ class _Config:
         self._location = None
         self._staging_bucket = None
         self._credentials = None
+        self._encryption_spec_key_name = None
 
     def init(
         self,
@@ -49,6 +51,7 @@ class _Config:
         experiment: Optional[str] = None,
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
     ):
         """Updates common initalization parameters with provided options.
 
@@ -59,9 +62,18 @@ class _Config:
             experiment (str): The experiment to assign
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
-            credentials (google.auth.crendentials.Crendentials): The default custom
+            credentials (google.auth.crendentials.Credentials): The default custom
                 credentials to use when making API calls. If not provided crendentials
                 will be ascertained from the environment.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect a resource. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this resource and all sub-resources will be secured by this key.
         """
         if project:
             self._project = project
@@ -75,6 +87,25 @@ class _Config:
             self._staging_bucket = staging_bucket
         if credentials:
             self._credentials = credentials
+        if encryption_spec_key_name:
+            self._encryption_spec_key_name = encryption_spec_key_name
+
+    def get_encryption_spec(
+        self, encryption_spec_key_name: Optional[str]
+    ) -> Optional[gca_encryption_spec.EncryptionSpec]:
+        """Creates a gca_encryption_spec.EncryptionSpec instance from the given key name.
+        If the provided key name is None, it uses the default key name if provided.
+
+        Args:
+            encryption_spec_key_name (Optional[str]): The default encryption key name to use when creating resources.
+        """
+        kms_key_name = encryption_spec_key_name or self.encryption_spec_key_name
+        encryption_spec = None
+        if kms_key_name:
+            encryption_spec = gca_encryption_spec.EncryptionSpec(
+                kms_key_name=kms_key_name
+            )
+        return encryption_spec
 
     @property
     def project(self) -> str:
@@ -125,6 +156,11 @@ class _Config:
         credentials, _ = google.auth.default()
         logger.removeFilter(logging_warning_filter)
         return credentials
+
+    @property
+    def encryption_spec_key_name(self) -> Optional[str]:
+        """Default encryption spec key name, if provided."""
+        return self._encryption_spec_key_name
 
     def get_client_options(
         self, location_override: Optional[str] = None, prediction_client: bool = False,

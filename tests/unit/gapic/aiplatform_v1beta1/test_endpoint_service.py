@@ -103,21 +103,25 @@ def test__get_default_mtls_endpoint():
     )
 
 
-def test_endpoint_service_client_from_service_account_info():
+@pytest.mark.parametrize(
+    "client_class", [EndpointServiceClient, EndpointServiceAsyncClient,],
+)
+def test_endpoint_service_client_from_service_account_info(client_class):
     creds = credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
     ) as factory:
         factory.return_value = creds
         info = {"valid": True}
-        client = EndpointServiceClient.from_service_account_info(info)
+        client = client_class.from_service_account_info(info)
         assert client.transport._credentials == creds
+        assert isinstance(client, client_class)
 
         assert client.transport._host == "aiplatform.googleapis.com:443"
 
 
 @pytest.mark.parametrize(
-    "client_class", [EndpointServiceClient, EndpointServiceAsyncClient,]
+    "client_class", [EndpointServiceClient, EndpointServiceAsyncClient,],
 )
 def test_endpoint_service_client_from_service_account_file(client_class):
     creds = credentials.AnonymousCredentials()
@@ -127,9 +131,11 @@ def test_endpoint_service_client_from_service_account_file(client_class):
         factory.return_value = creds
         client = client_class.from_service_account_file("dummy/file/path.json")
         assert client.transport._credentials == creds
+        assert isinstance(client, client_class)
 
         client = client_class.from_service_account_json("dummy/file/path.json")
         assert client.transport._credentials == creds
+        assert isinstance(client, client_class)
 
         assert client.transport._host == "aiplatform.googleapis.com:443"
 
@@ -497,6 +503,22 @@ def test_create_endpoint_from_dict():
     test_create_endpoint(request_type=dict)
 
 
+def test_create_endpoint_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = EndpointServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_endpoint), "__call__") as call:
+        client.create_endpoint()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == endpoint_service.CreateEndpointRequest()
+
+
 @pytest.mark.asyncio
 async def test_create_endpoint_async(
     transport: str = "grpc_asyncio", request_type=endpoint_service.CreateEndpointRequest
@@ -709,6 +731,22 @@ def test_get_endpoint_from_dict():
     test_get_endpoint(request_type=dict)
 
 
+def test_get_endpoint_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = EndpointServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_endpoint), "__call__") as call:
+        client.get_endpoint()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == endpoint_service.GetEndpointRequest()
+
+
 @pytest.mark.asyncio
 async def test_get_endpoint_async(
     transport: str = "grpc_asyncio", request_type=endpoint_service.GetEndpointRequest
@@ -907,6 +945,22 @@ def test_list_endpoints(
 
 def test_list_endpoints_from_dict():
     test_list_endpoints(request_type=dict)
+
+
+def test_list_endpoints_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = EndpointServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_endpoints), "__call__") as call:
+        client.list_endpoints()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == endpoint_service.ListEndpointsRequest()
 
 
 @pytest.mark.asyncio
@@ -1259,6 +1313,22 @@ def test_update_endpoint_from_dict():
     test_update_endpoint(request_type=dict)
 
 
+def test_update_endpoint_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = EndpointServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.update_endpoint), "__call__") as call:
+        client.update_endpoint()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == endpoint_service.UpdateEndpointRequest()
+
+
 @pytest.mark.asyncio
 async def test_update_endpoint_async(
     transport: str = "grpc_asyncio", request_type=endpoint_service.UpdateEndpointRequest
@@ -1476,6 +1546,22 @@ def test_delete_endpoint_from_dict():
     test_delete_endpoint(request_type=dict)
 
 
+def test_delete_endpoint_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = EndpointServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_endpoint), "__call__") as call:
+        client.delete_endpoint()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == endpoint_service.DeleteEndpointRequest()
+
+
 @pytest.mark.asyncio
 async def test_delete_endpoint_async(
     transport: str = "grpc_asyncio", request_type=endpoint_service.DeleteEndpointRequest
@@ -1660,6 +1746,22 @@ def test_deploy_model(
 
 def test_deploy_model_from_dict():
     test_deploy_model(request_type=dict)
+
+
+def test_deploy_model_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = EndpointServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.deploy_model), "__call__") as call:
+        client.deploy_model()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == endpoint_service.DeployModelRequest()
 
 
 @pytest.mark.asyncio
@@ -1904,6 +2006,22 @@ def test_undeploy_model(
 
 def test_undeploy_model_from_dict():
     test_undeploy_model(request_type=dict)
+
+
+def test_undeploy_model_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = EndpointServiceClient(
+        credentials=credentials.AnonymousCredentials(), transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.undeploy_model), "__call__") as call:
+        client.undeploy_model()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == endpoint_service.UndeployModelRequest()
 
 
 @pytest.mark.asyncio

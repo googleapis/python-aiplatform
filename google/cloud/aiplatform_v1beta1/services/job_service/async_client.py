@@ -119,8 +119,36 @@ class JobServiceAsyncClient:
         JobServiceClient.parse_common_location_path
     )
 
-    from_service_account_info = JobServiceClient.from_service_account_info
-    from_service_account_file = JobServiceClient.from_service_account_file
+    @classmethod
+    def from_service_account_info(cls, info: dict, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials info.
+
+        Args:
+            info (dict): The service account private key info.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            JobServiceAsyncClient: The constructed client.
+        """
+        return JobServiceClient.from_service_account_info.__func__(JobServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+
+    @classmethod
+    def from_service_account_file(cls, filename: str, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials
+        file.
+
+        Args:
+            filename (str): The path to the service account private key json
+                file.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            JobServiceAsyncClient: The constructed client.
+        """
+        return JobServiceClient.from_service_account_file.__func__(JobServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+
     from_service_account_json = from_service_account_file
 
     @property
@@ -709,7 +737,6 @@ class JobServiceAsyncClient:
                 [DataLabelingJobService.GetDataLabelingJob][].
             name (:class:`str`):
                 Required. The name of the DataLabelingJob. Format:
-
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
@@ -867,7 +894,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the DataLabelingJob to be deleted.
                 Format:
-
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
@@ -963,7 +989,6 @@ class JobServiceAsyncClient:
                 [DataLabelingJobService.CancelDataLabelingJob][].
             name (:class:`str`):
                 Required. The name of the DataLabelingJob. Format:
-
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
@@ -1117,7 +1142,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob
                 resource. Format:
-
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
@@ -1277,7 +1301,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob
                 resource to be deleted. Format:
-
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
@@ -1386,7 +1409,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob to
                 cancel. Format:
-
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
@@ -1543,7 +1565,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
@@ -1706,7 +1727,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob resource to
                 be deleted. Format:
-
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
@@ -1813,7 +1833,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob to cancel.
                 Format:
-
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
