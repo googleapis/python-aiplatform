@@ -2957,8 +2957,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
-                value in the column) must be one of {``training``,
-                ``validation``, ``test``}, and it defines to which set the
+                value in the column) must be one of {``TRAIN``,
+                ``VALIDATE``, ``TEST``}, and it defines to which set the
                 given piece of data is assigned. If for a piece of data the
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
@@ -3146,8 +3146,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
-                value in the column) must be one of {``training``,
-                ``validation``, ``test``}, and it defines to which set the
+                value in the column) must be one of {``TRAIN``,
+                ``VALIDATE``, ``TEST``}, and it defines to which set the
                 given piece of data is assigned. If for a piece of data the
                 key is not present or has an invalid value, that piece is
                 ignored by the pipeline.
