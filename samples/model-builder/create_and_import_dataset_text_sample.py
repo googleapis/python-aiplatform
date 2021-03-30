@@ -40,4 +40,4 @@ def create_and_import_dataset_text_sample(
     return ds
 
 
-#  [END aiplatform_sdk_create_and_import_dataset_image_sample]
+#  [END aiplatform_sdk_create_and_import_dataset_text_sample]
