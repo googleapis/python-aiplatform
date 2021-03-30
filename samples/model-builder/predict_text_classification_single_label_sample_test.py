@@ -18,7 +18,7 @@ import predict_text_classification_single_label_sample
 
 
 def test_predict_text_classification_single_label_sample(
-    mock_sdk_init, mock_create_text_dataset
+    mock_sdk_init, mock_init_endpoint
 ):
 
     predict_text_classification_single_label_sample.predict_text_classification_single_label_sample(
@@ -30,4 +30,8 @@ def test_predict_text_classification_single_label_sample(
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
+    )
+
+    mock_init_endpoint.assert_called_once_with(
+        endpoint_name=constants.ENDPOINT_NAME,
     )

@@ -17,9 +17,9 @@ import test_constants as constants
 import predict_text_entity_extraction_sample
 
 
-def test_predict_text_entity_extraction_sample(mock_sdk_init, mock_create_text_dataset):
+def test_predict_text_entity_extraction_sample(mock_sdk_init, mock_init_endpoint):
 
-    predict_text_classification_single_label_sample.predict_text_classification_single_label_sample(
+    predict_text_entity_extraction_sample.predict_text_entity_extraction_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         endpoint=constants.ENDPOINT_NAME,
@@ -28,4 +28,8 @@ def test_predict_text_entity_extraction_sample(mock_sdk_init, mock_create_text_d
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
+    )
+
+    mock_init_endpoint.assert_called_once_with(
+        endpoint_name=constants.ENDPOINT_NAME,
     )

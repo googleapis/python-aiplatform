@@ -132,3 +132,27 @@ def mock_batch_predict_model():
 def mock_create_batch_prediction_job():
     with patch.object(aiplatform.jobs.BatchPredictionJob, "create") as mock:
         yield mock
+
+
+# ----------------------------------------------------------------------------
+# Endpoint Fixtures
+# ----------------------------------------------------------------------------
+
+@pytest.fixture
+def mock_endpoint():
+    mock = MagicMock(aiplatform.models.Endpoint)
+    yield mock
+
+
+@pytest.fixture
+def mock_new_endpoint(mock_endpoint):
+    with patch.object(aiplatform.models.Endpoint, "__new__") as mock_new_endpoint:
+        mock_new_endpoint.return_value = mock_endpoint
+        yield mock_new_endpoint
+
+
+@pytest.fixture
+def mock_init_endpoint(mock_new_endpoint):
+    with patch.object(aiplatform.models.Endpoint, "__init__") as mock_init_endpoint:
+        mock_init_endpoint.return_value = None
+        yield mock_init_endpoint
