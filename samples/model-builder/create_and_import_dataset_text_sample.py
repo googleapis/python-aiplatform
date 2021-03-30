@@ -29,7 +29,7 @@ def create_and_import_dataset_text_sample(
     ds = aiplatform.TextDataset.create(
         display_name=display_name,
         gcs_source=src_uris,
-        import_schema_uri=aiplatform.schema.dataset.ioformat.text.single_label_classification, 
+        import_schema_uri=aiplatform.schema.dataset.ioformat.text.single_label_classification,
         sync=sync,
     )
 
