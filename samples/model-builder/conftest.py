@@ -51,6 +51,13 @@ def mock_init_dataset(mock_new_dataset):
 
 
 @pytest.fixture
+def mock_init_text_dataset(mock_new_dataset):
+    with patch.object(aiplatform.datasets.Dataset, "__init__") as mock:
+        mock.return_value = None
+        yield mock
+
+
+@pytest.fixture
 def mock_create_dataset():
     with patch.object(aiplatform.datasets.Dataset, "create") as mock:
         mock.return_value = MagicMock(aiplatform.Dataset)
@@ -63,6 +70,19 @@ def mock_create_image_dataset():
         mock.return_value = MagicMock(aiplatform.Dataset)
         yield mock
 
+
+@pytest.fixture
+def mock_create_text_dataset():
+    with patch.object(aiplatform.datasets.TextDataset, "create") as mock:
+        mock.return_value = MagicMock(aiplatform.Dataset)
+        yield mock
+
+
+@pytest.fixture
+def mock_import_text_dataset():
+    with patch.object(aiplatform.datasets.Dataset, "import_data") as mock:
+        mock.return_value = MagicMock(aiplatform.Dataset)
+        yield mock
 
 # ----------------------------------------------------------------------------
 # TrainingJob Fixtures
