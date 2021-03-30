@@ -31,7 +31,7 @@ def import_data_text_classification_single_label(
     ds = aiplatform.TextDataset(dataset)
     ds.import_data(
         gcs_source=src_uris,
-        import_schema_uri=aiplatform.schema.dataset.ioformat.text.single_label_classification, 
+        import_schema_uri=aiplatform.schema.dataset.ioformat.text.single_label_classification,
         sync=sync,
     )
 

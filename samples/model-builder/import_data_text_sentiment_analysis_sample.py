@@ -31,7 +31,7 @@ def import_data_text_sentiment_analysis_sample(
     ds = aiplatform.TextDataset(dataset)
     ds.import_data(
         gcs_source=src_uris,
-        import_schema_uri=aiplatform.schema.dataset.ioformat.text.sentiment, 
+        import_schema_uri=aiplatform.schema.dataset.ioformat.text.sentiment,
         sync=sync,
     )
 

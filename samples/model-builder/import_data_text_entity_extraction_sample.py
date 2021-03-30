@@ -31,7 +31,7 @@ def import_data_text_entity_extraction_sample(
     ds = aiplatform.TextDataset(dataset)
     ds.import_data(
         gcs_source=src_uris,
-        import_schema_uri=aiplatform.schema.dataset.ioformat.text.extraction, 
+        import_schema_uri=aiplatform.schema.dataset.ioformat.text.extraction,
         sync=sync,
     )
 

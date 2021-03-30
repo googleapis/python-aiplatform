@@ -19,11 +19,13 @@ from google.cloud import aiplatform
 def predict_text_entity_extraction_sample(project, location, endpoint_id, content):
 
     aiplatform.init(project=project, location=location)
-    
+
     endpoint = aiplatform.Endpoint(endpoint_id)
-    
-    response = endpoint.predict(instances=[{ "content": content }], parameters={})
-    
+
+    response = endpoint.predict(instances=[{"content": content}], parameters={})
+
     for prediction_ in response.predictions:
         print(prediction_)
+
+
 #  [END aiplatform_sdk_predict_text_entity_extraction_sample]
