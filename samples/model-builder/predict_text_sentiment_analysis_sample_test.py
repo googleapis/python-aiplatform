@@ -17,9 +17,7 @@ import test_constants as constants
 import predict_text_sentiment_analysis_sample
 
 
-def test_predict_text_sentiment_analysis_sample(
-    mock_sdk_init, mock_init_endpoint
-):
+def test_predict_text_sentiment_analysis_sample(mock_sdk_init, mock_init_endpoint):
 
     predict_text_sentiment_analysis_sample.predict_text_sentiment_analysis_sample(
         project=constants.PROJECT,

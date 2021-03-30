@@ -138,6 +138,7 @@ def mock_create_batch_prediction_job():
 # Endpoint Fixtures
 # ----------------------------------------------------------------------------
 
+
 @pytest.fixture
 def mock_endpoint():
     mock = MagicMock(aiplatform.models.Endpoint)
