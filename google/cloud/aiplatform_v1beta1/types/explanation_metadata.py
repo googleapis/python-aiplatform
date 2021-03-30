@@ -22,7 +22,10 @@ from google.protobuf import struct_pb2 as struct  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"ExplanationMetadata",},
+    package='google.cloud.aiplatform.v1beta1',
+    manifest={
+        'ExplanationMetadata',
+    },
 )
 
 
@@ -70,7 +73,6 @@ class ExplanationMetadata(proto.Message):
             output URI will point to a location where the user only has
             a read access.
     """
-
     class InputMetadata(proto.Message):
         r"""Metadata of the input of a feature.
 
@@ -158,7 +160,6 @@ class ExplanationMetadata(proto.Message):
                 featureAttributions][Attribution.feature_attributions],
                 keyed by the group name.
         """
-
         class Encoding(proto.Enum):
             r"""Defines how the feature is encoded to [encoded_tensor][]. Defaults
             to IDENTITY.
@@ -250,7 +251,6 @@ class ExplanationMetadata(proto.Message):
                     makes it difficult to view the visualization.
                     Defaults to NONE.
             """
-
             class Type(proto.Enum):
                 r"""Type of the image visualization. Only applicable to [Integrated
                 Gradients attribution]
@@ -287,50 +287,40 @@ class ExplanationMetadata(proto.Message):
                 GRAYSCALE = 3
                 MASK_BLACK = 4
 
-            type_ = proto.Field(
-                proto.ENUM,
-                number=1,
-                enum="ExplanationMetadata.InputMetadata.Visualization.Type",
+            type_ = proto.Field(proto.ENUM, number=1,
+                enum='ExplanationMetadata.InputMetadata.Visualization.Type',
             )
 
-            polarity = proto.Field(
-                proto.ENUM,
-                number=2,
-                enum="ExplanationMetadata.InputMetadata.Visualization.Polarity",
+            polarity = proto.Field(proto.ENUM, number=2,
+                enum='ExplanationMetadata.InputMetadata.Visualization.Polarity',
             )
 
-            color_map = proto.Field(
-                proto.ENUM,
-                number=3,
-                enum="ExplanationMetadata.InputMetadata.Visualization.ColorMap",
+            color_map = proto.Field(proto.ENUM, number=3,
+                enum='ExplanationMetadata.InputMetadata.Visualization.ColorMap',
             )
 
             clip_percent_upperbound = proto.Field(proto.FLOAT, number=4)
 
             clip_percent_lowerbound = proto.Field(proto.FLOAT, number=5)
 
-            overlay_type = proto.Field(
-                proto.ENUM,
-                number=6,
-                enum="ExplanationMetadata.InputMetadata.Visualization.OverlayType",
+            overlay_type = proto.Field(proto.ENUM, number=6,
+                enum='ExplanationMetadata.InputMetadata.Visualization.OverlayType',
             )
 
-        input_baselines = proto.RepeatedField(
-            proto.MESSAGE, number=1, message=struct.Value,
+        input_baselines = proto.RepeatedField(proto.MESSAGE, number=1,
+            message=struct.Value,
         )
 
         input_tensor_name = proto.Field(proto.STRING, number=2)
 
-        encoding = proto.Field(
-            proto.ENUM, number=3, enum="ExplanationMetadata.InputMetadata.Encoding",
+        encoding = proto.Field(proto.ENUM, number=3,
+            enum='ExplanationMetadata.InputMetadata.Encoding',
         )
 
         modality = proto.Field(proto.STRING, number=4)
 
-        feature_value_domain = proto.Field(
-            proto.MESSAGE,
-            number=5,
-            message="ExplanationMetadata.InputMetadata.FeatureValueDomain",
+        feature_value_domain = proto.Field(proto.MESSAGE, number=5,
+            message='ExplanationMetadata.InputMetadata.FeatureValueDomain',
         )
 
         indices_tensor_name = proto.Field(proto.STRING, number=6)
@@ -341,14 +331,12 @@ class ExplanationMetadata(proto.Message):
 
         encoded_tensor_name = proto.Field(proto.STRING, number=9)
 
-        encoded_baselines = proto.RepeatedField(
-            proto.MESSAGE, number=10, message=struct.Value,
+        encoded_baselines = proto.RepeatedField(proto.MESSAGE, number=10,
+            message=struct.Value,
         )
 
-        visualization = proto.Field(
-            proto.MESSAGE,
-            number=11,
-            message="ExplanationMetadata.InputMetadata.Visualization",
+        visualization = proto.Field(proto.MESSAGE, number=11,
+            message='ExplanationMetadata.InputMetadata.Visualization',
         )
 
         group_name = proto.Field(proto.STRING, number=12)
@@ -390,22 +378,20 @@ class ExplanationMetadata(proto.Message):
                 for Tensorflow.
         """
 
-        index_display_name_mapping = proto.Field(
-            proto.MESSAGE, number=1, oneof="display_name_mapping", message=struct.Value,
+        index_display_name_mapping = proto.Field(proto.MESSAGE, number=1, oneof='display_name_mapping',
+            message=struct.Value,
         )
 
-        display_name_mapping_key = proto.Field(
-            proto.STRING, number=2, oneof="display_name_mapping"
-        )
+        display_name_mapping_key = proto.Field(proto.STRING, number=2, oneof='display_name_mapping')
 
         output_tensor_name = proto.Field(proto.STRING, number=3)
 
-    inputs = proto.MapField(
-        proto.STRING, proto.MESSAGE, number=1, message=InputMetadata,
+    inputs = proto.MapField(proto.STRING, proto.MESSAGE, number=1,
+        message=InputMetadata,
     )
 
-    outputs = proto.MapField(
-        proto.STRING, proto.MESSAGE, number=2, message=OutputMetadata,
+    outputs = proto.MapField(proto.STRING, proto.MESSAGE, number=2,
+        message=OutputMetadata,
     )
 
     feature_attributions_schema_uri = proto.Field(proto.STRING, number=3)

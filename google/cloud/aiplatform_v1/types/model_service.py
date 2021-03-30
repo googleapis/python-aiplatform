@@ -27,25 +27,25 @@ from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1",
+    package='google.cloud.aiplatform.v1',
     manifest={
-        "UploadModelRequest",
-        "UploadModelOperationMetadata",
-        "UploadModelResponse",
-        "GetModelRequest",
-        "ListModelsRequest",
-        "ListModelsResponse",
-        "UpdateModelRequest",
-        "DeleteModelRequest",
-        "ExportModelRequest",
-        "ExportModelOperationMetadata",
-        "ExportModelResponse",
-        "GetModelEvaluationRequest",
-        "ListModelEvaluationsRequest",
-        "ListModelEvaluationsResponse",
-        "GetModelEvaluationSliceRequest",
-        "ListModelEvaluationSlicesRequest",
-        "ListModelEvaluationSlicesResponse",
+        'UploadModelRequest',
+        'UploadModelOperationMetadata',
+        'UploadModelResponse',
+        'GetModelRequest',
+        'ListModelsRequest',
+        'ListModelsResponse',
+        'UpdateModelRequest',
+        'DeleteModelRequest',
+        'ExportModelRequest',
+        'ExportModelOperationMetadata',
+        'ExportModelResponse',
+        'GetModelEvaluationRequest',
+        'ListModelEvaluationsRequest',
+        'ListModelEvaluationsResponse',
+        'GetModelEvaluationSliceRequest',
+        'ListModelEvaluationSlicesRequest',
+        'ListModelEvaluationSlicesResponse',
     },
 )
 
@@ -65,7 +65,9 @@ class UploadModelRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    model = proto.Field(proto.MESSAGE, number=2, message=gca_model.Model,)
+    model = proto.Field(proto.MESSAGE, number=2,
+        message=gca_model.Model,
+    )
 
 
 class UploadModelOperationMetadata(proto.Message):
@@ -78,8 +80,8 @@ class UploadModelOperationMetadata(proto.Message):
             The common part of the operation metadata.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
@@ -169,7 +171,9 @@ class ListModelsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5,
+        message=field_mask.FieldMask,
+    )
 
     order_by = proto.Field(proto.STRING, number=6)
 
@@ -191,7 +195,9 @@ class ListModelsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    models = proto.RepeatedField(proto.MESSAGE, number=1, message=gca_model.Model,)
+    models = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=gca_model.Model,
+    )
 
     next_page_token = proto.Field(proto.STRING, number=2)
 
@@ -210,9 +216,13 @@ class UpdateModelRequest(proto.Message):
             `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
     """
 
-    model = proto.Field(proto.MESSAGE, number=1, message=gca_model.Model,)
+    model = proto.Field(proto.MESSAGE, number=1,
+        message=gca_model.Model,
+    )
 
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(proto.MESSAGE, number=2,
+        message=field_mask.FieldMask,
+    )
 
 
 class DeleteModelRequest(proto.Message):
@@ -241,7 +251,6 @@ class ExportModelRequest(proto.Message):
             Required. The desired output location and
             configuration.
     """
-
     class OutputConfig(proto.Message):
         r"""Output configuration for the Model export.
 
@@ -273,17 +282,19 @@ class ExportModelRequest(proto.Message):
 
         export_format_id = proto.Field(proto.STRING, number=1)
 
-        artifact_destination = proto.Field(
-            proto.MESSAGE, number=3, message=io.GcsDestination,
+        artifact_destination = proto.Field(proto.MESSAGE, number=3,
+            message=io.GcsDestination,
         )
 
-        image_destination = proto.Field(
-            proto.MESSAGE, number=4, message=io.ContainerRegistryDestination,
+        image_destination = proto.Field(proto.MESSAGE, number=4,
+            message=io.ContainerRegistryDestination,
         )
 
     name = proto.Field(proto.STRING, number=1)
 
-    output_config = proto.Field(proto.MESSAGE, number=2, message=OutputConfig,)
+    output_config = proto.Field(proto.MESSAGE, number=2,
+        message=OutputConfig,
+    )
 
 
 class ExportModelOperationMetadata(proto.Message):
@@ -298,7 +309,6 @@ class ExportModelOperationMetadata(proto.Message):
             Output only. Information further describing
             the output of this Model export.
     """
-
     class OutputInfo(proto.Message):
         r"""Further describes the output of the ExportModel. Supplements
         ``ExportModelRequest.OutputConfig``.
@@ -320,11 +330,13 @@ class ExportModelOperationMetadata(proto.Message):
 
         image_output_uri = proto.Field(proto.STRING, number=3)
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+        message=operation.GenericOperationMetadata,
     )
 
-    output_info = proto.Field(proto.MESSAGE, number=2, message=OutputInfo,)
+    output_info = proto.Field(proto.MESSAGE, number=2,
+        message=OutputInfo,
+    )
 
 
 class ExportModelResponse(proto.Message):
@@ -379,7 +391,9 @@ class ListModelEvaluationsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5,
+        message=field_mask.FieldMask,
+    )
 
 
 class ListModelEvaluationsResponse(proto.Message):
@@ -400,8 +414,8 @@ class ListModelEvaluationsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    model_evaluations = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=model_evaluation.ModelEvaluation,
+    model_evaluations = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=model_evaluation.ModelEvaluation,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -456,7 +470,9 @@ class ListModelEvaluationSlicesRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5,
+        message=field_mask.FieldMask,
+    )
 
 
 class ListModelEvaluationSlicesResponse(proto.Message):
@@ -477,8 +493,8 @@ class ListModelEvaluationSlicesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    model_evaluation_slices = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=model_evaluation_slice.ModelEvaluationSlice,
+    model_evaluation_slices = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=model_evaluation_slice.ModelEvaluationSlice,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)

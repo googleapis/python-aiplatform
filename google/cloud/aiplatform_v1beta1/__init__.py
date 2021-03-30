@@ -18,6 +18,7 @@
 from .services.dataset_service import DatasetServiceClient
 from .services.endpoint_service import EndpointServiceClient
 from .services.job_service import JobServiceClient
+from .services.metadata_service import MetadataServiceClient
 from .services.migration_service import MigrationServiceClient
 from .services.model_service import ModelServiceClient
 from .services.pipeline_service import PipelineServiceClient
@@ -27,8 +28,10 @@ from .services.vizier_service import VizierServiceClient
 from .types.accelerator_type import AcceleratorType
 from .types.annotation import Annotation
 from .types.annotation_spec import AnnotationSpec
+from .types.artifact import Artifact
 from .types.batch_prediction_job import BatchPredictionJob
 from .types.completion_stats import CompletionStats
+from .types.context import Context
 from .types.custom_job import ContainerSpec
 from .types.custom_job import CustomJob
 from .types.custom_job import CustomJobSpec
@@ -79,6 +82,8 @@ from .types.endpoint_service import UndeployModelRequest
 from .types.endpoint_service import UndeployModelResponse
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.env_var import EnvVar
+from .types.event import Event
+from .types.execution import Execution
 from .types.explanation import Attribution
 from .types.explanation import Explanation
 from .types.explanation import ExplanationMetadataOverride
@@ -92,6 +97,7 @@ from .types.explanation import SampledShapleyAttribution
 from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
 from .types.explanation_metadata import ExplanationMetadata
+from .types.feature_monitoring_stats import FeatureStatsAnomaly
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
 from .types.io import BigQueryDestination
 from .types.io import BigQuerySource
@@ -106,14 +112,17 @@ from .types.job_service import CreateBatchPredictionJobRequest
 from .types.job_service import CreateCustomJobRequest
 from .types.job_service import CreateDataLabelingJobRequest
 from .types.job_service import CreateHyperparameterTuningJobRequest
+from .types.job_service import CreateModelDeploymentMonitoringJobRequest
 from .types.job_service import DeleteBatchPredictionJobRequest
 from .types.job_service import DeleteCustomJobRequest
 from .types.job_service import DeleteDataLabelingJobRequest
 from .types.job_service import DeleteHyperparameterTuningJobRequest
+from .types.job_service import DeleteModelDeploymentMonitoringJobRequest
 from .types.job_service import GetBatchPredictionJobRequest
 from .types.job_service import GetCustomJobRequest
 from .types.job_service import GetDataLabelingJobRequest
 from .types.job_service import GetHyperparameterTuningJobRequest
+from .types.job_service import GetModelDeploymentMonitoringJobRequest
 from .types.job_service import ListBatchPredictionJobsRequest
 from .types.job_service import ListBatchPredictionJobsResponse
 from .types.job_service import ListCustomJobsRequest
@@ -122,7 +131,16 @@ from .types.job_service import ListDataLabelingJobsRequest
 from .types.job_service import ListDataLabelingJobsResponse
 from .types.job_service import ListHyperparameterTuningJobsRequest
 from .types.job_service import ListHyperparameterTuningJobsResponse
+from .types.job_service import ListModelDeploymentMonitoringJobsRequest
+from .types.job_service import ListModelDeploymentMonitoringJobsResponse
+from .types.job_service import PauseModelDeploymentMonitoringJobRequest
+from .types.job_service import ResumeModelDeploymentMonitoringJobRequest
+from .types.job_service import SearchModelDeploymentMonitoringStatsAnomaliesRequest
+from .types.job_service import SearchModelDeploymentMonitoringStatsAnomaliesResponse
+from .types.job_service import UpdateModelDeploymentMonitoringJobOperationMetadata
+from .types.job_service import UpdateModelDeploymentMonitoringJobRequest
 from .types.job_state import JobState
+from .types.lineage_subgraph import LineageSubgraph
 from .types.machine_resources import AutomaticResources
 from .types.machine_resources import AutoscalingMetricSpec
 from .types.machine_resources import BatchDedicatedResources
@@ -131,6 +149,43 @@ from .types.machine_resources import DiskSpec
 from .types.machine_resources import MachineSpec
 from .types.machine_resources import ResourcesConsumed
 from .types.manual_batch_tuning_parameters import ManualBatchTuningParameters
+from .types.metadata_schema import MetadataSchema
+from .types.metadata_service import AddContextArtifactsAndExecutionsRequest
+from .types.metadata_service import AddContextArtifactsAndExecutionsResponse
+from .types.metadata_service import AddContextChildrenRequest
+from .types.metadata_service import AddContextChildrenResponse
+from .types.metadata_service import AddExecutionEventsRequest
+from .types.metadata_service import AddExecutionEventsResponse
+from .types.metadata_service import CreateArtifactRequest
+from .types.metadata_service import CreateContextRequest
+from .types.metadata_service import CreateExecutionRequest
+from .types.metadata_service import CreateMetadataSchemaRequest
+from .types.metadata_service import CreateMetadataStoreOperationMetadata
+from .types.metadata_service import CreateMetadataStoreRequest
+from .types.metadata_service import DeleteContextRequest
+from .types.metadata_service import DeleteMetadataStoreOperationMetadata
+from .types.metadata_service import DeleteMetadataStoreRequest
+from .types.metadata_service import GetArtifactRequest
+from .types.metadata_service import GetContextRequest
+from .types.metadata_service import GetExecutionRequest
+from .types.metadata_service import GetMetadataSchemaRequest
+from .types.metadata_service import GetMetadataStoreRequest
+from .types.metadata_service import ListArtifactsRequest
+from .types.metadata_service import ListArtifactsResponse
+from .types.metadata_service import ListContextsRequest
+from .types.metadata_service import ListContextsResponse
+from .types.metadata_service import ListExecutionsRequest
+from .types.metadata_service import ListExecutionsResponse
+from .types.metadata_service import ListMetadataSchemasRequest
+from .types.metadata_service import ListMetadataSchemasResponse
+from .types.metadata_service import ListMetadataStoresRequest
+from .types.metadata_service import ListMetadataStoresResponse
+from .types.metadata_service import QueryContextLineageSubgraphRequest
+from .types.metadata_service import QueryExecutionInputsAndOutputsRequest
+from .types.metadata_service import UpdateArtifactRequest
+from .types.metadata_service import UpdateContextRequest
+from .types.metadata_service import UpdateExecutionRequest
+from .types.metadata_store import MetadataStore
 from .types.migratable_resource import MigratableResource
 from .types.migration_service import BatchMigrateResourcesOperationMetadata
 from .types.migration_service import BatchMigrateResourcesRequest
@@ -143,8 +198,18 @@ from .types.model import Model
 from .types.model import ModelContainerSpec
 from .types.model import Port
 from .types.model import PredictSchemata
+from .types.model_deployment_monitoring_job import ModelDeploymentMonitoringBigQueryTable
+from .types.model_deployment_monitoring_job import ModelDeploymentMonitoringJob
+from .types.model_deployment_monitoring_job import ModelDeploymentMonitoringObjectiveConfig
+from .types.model_deployment_monitoring_job import ModelDeploymentMonitoringObjectiveType
+from .types.model_deployment_monitoring_job import ModelDeploymentMonitoringScheduleConfig
+from .types.model_deployment_monitoring_job import ModelMonitoringStatsAnomalies
 from .types.model_evaluation import ModelEvaluation
 from .types.model_evaluation_slice import ModelEvaluationSlice
+from .types.model_monitoring import ModelMonitoringAlertConfig
+from .types.model_monitoring import ModelMonitoringObjectiveConfig
+from .types.model_monitoring import SamplingStrategy
+from .types.model_monitoring import ThresholdConfig
 from .types.model_service import DeleteModelRequest
 from .types.model_service import ExportModelOperationMetadata
 from .types.model_service import ExportModelRequest
@@ -220,206 +285,271 @@ from .types.vizier_service import SuggestTrialsResponse
 
 
 __all__ = (
-    "AcceleratorType",
-    "ActiveLearningConfig",
-    "AddTrialMeasurementRequest",
-    "Annotation",
-    "AnnotationSpec",
-    "Attribution",
-    "AutomaticResources",
-    "AutoscalingMetricSpec",
-    "BatchDedicatedResources",
-    "BatchMigrateResourcesOperationMetadata",
-    "BatchMigrateResourcesRequest",
-    "BatchMigrateResourcesResponse",
-    "BatchPredictionJob",
-    "BigQueryDestination",
-    "BigQuerySource",
-    "CancelBatchPredictionJobRequest",
-    "CancelCustomJobRequest",
-    "CancelDataLabelingJobRequest",
-    "CancelHyperparameterTuningJobRequest",
-    "CancelTrainingPipelineRequest",
-    "CheckTrialEarlyStoppingStateMetatdata",
-    "CheckTrialEarlyStoppingStateRequest",
-    "CheckTrialEarlyStoppingStateResponse",
-    "CompleteTrialRequest",
-    "CompletionStats",
-    "ContainerRegistryDestination",
-    "ContainerSpec",
-    "CreateBatchPredictionJobRequest",
-    "CreateCustomJobRequest",
-    "CreateDataLabelingJobRequest",
-    "CreateDatasetOperationMetadata",
-    "CreateDatasetRequest",
-    "CreateEndpointOperationMetadata",
-    "CreateEndpointRequest",
-    "CreateHyperparameterTuningJobRequest",
-    "CreateSpecialistPoolOperationMetadata",
-    "CreateSpecialistPoolRequest",
-    "CreateStudyRequest",
-    "CreateTrainingPipelineRequest",
-    "CreateTrialRequest",
-    "CustomJob",
-    "CustomJobSpec",
-    "DataItem",
-    "DataLabelingJob",
-    "Dataset",
-    "DatasetServiceClient",
-    "DedicatedResources",
-    "DeleteBatchPredictionJobRequest",
-    "DeleteCustomJobRequest",
-    "DeleteDataLabelingJobRequest",
-    "DeleteDatasetRequest",
-    "DeleteEndpointRequest",
-    "DeleteHyperparameterTuningJobRequest",
-    "DeleteModelRequest",
-    "DeleteOperationMetadata",
-    "DeleteSpecialistPoolRequest",
-    "DeleteStudyRequest",
-    "DeleteTrainingPipelineRequest",
-    "DeleteTrialRequest",
-    "DeployModelOperationMetadata",
-    "DeployModelRequest",
-    "DeployModelResponse",
-    "DeployedModel",
-    "DeployedModelRef",
-    "DiskSpec",
-    "EncryptionSpec",
-    "Endpoint",
-    "EndpointServiceClient",
-    "EnvVar",
-    "ExplainRequest",
-    "ExplainResponse",
-    "Explanation",
-    "ExplanationMetadata",
-    "ExplanationMetadataOverride",
-    "ExplanationParameters",
-    "ExplanationSpec",
-    "ExplanationSpecOverride",
-    "ExportDataConfig",
-    "ExportDataOperationMetadata",
-    "ExportDataRequest",
-    "ExportDataResponse",
-    "ExportModelOperationMetadata",
-    "ExportModelRequest",
-    "ExportModelResponse",
-    "FeatureNoiseSigma",
-    "FilterSplit",
-    "FractionSplit",
-    "GcsDestination",
-    "GcsSource",
-    "GenericOperationMetadata",
-    "GetAnnotationSpecRequest",
-    "GetBatchPredictionJobRequest",
-    "GetCustomJobRequest",
-    "GetDataLabelingJobRequest",
-    "GetDatasetRequest",
-    "GetEndpointRequest",
-    "GetHyperparameterTuningJobRequest",
-    "GetModelEvaluationRequest",
-    "GetModelEvaluationSliceRequest",
-    "GetModelRequest",
-    "GetSpecialistPoolRequest",
-    "GetStudyRequest",
-    "GetTrainingPipelineRequest",
-    "GetTrialRequest",
-    "HyperparameterTuningJob",
-    "ImportDataConfig",
-    "ImportDataOperationMetadata",
-    "ImportDataRequest",
-    "ImportDataResponse",
-    "InputDataConfig",
-    "IntegratedGradientsAttribution",
-    "JobServiceClient",
-    "JobState",
-    "ListAnnotationsRequest",
-    "ListAnnotationsResponse",
-    "ListBatchPredictionJobsRequest",
-    "ListBatchPredictionJobsResponse",
-    "ListCustomJobsRequest",
-    "ListCustomJobsResponse",
-    "ListDataItemsRequest",
-    "ListDataItemsResponse",
-    "ListDataLabelingJobsRequest",
-    "ListDataLabelingJobsResponse",
-    "ListDatasetsRequest",
-    "ListDatasetsResponse",
-    "ListEndpointsRequest",
-    "ListEndpointsResponse",
-    "ListHyperparameterTuningJobsRequest",
-    "ListHyperparameterTuningJobsResponse",
-    "ListModelEvaluationSlicesRequest",
-    "ListModelEvaluationSlicesResponse",
-    "ListModelEvaluationsRequest",
-    "ListModelEvaluationsResponse",
-    "ListModelsRequest",
-    "ListModelsResponse",
-    "ListOptimalTrialsRequest",
-    "ListOptimalTrialsResponse",
-    "ListSpecialistPoolsRequest",
-    "ListSpecialistPoolsResponse",
-    "ListStudiesRequest",
-    "ListStudiesResponse",
-    "ListTrainingPipelinesRequest",
-    "ListTrainingPipelinesResponse",
-    "ListTrialsRequest",
-    "ListTrialsResponse",
-    "LookupStudyRequest",
-    "MachineSpec",
-    "ManualBatchTuningParameters",
-    "Measurement",
-    "MigratableResource",
-    "MigrateResourceRequest",
-    "MigrateResourceResponse",
-    "MigrationServiceClient",
-    "Model",
-    "ModelContainerSpec",
-    "ModelEvaluation",
-    "ModelEvaluationSlice",
-    "ModelExplanation",
-    "ModelServiceClient",
-    "PipelineServiceClient",
-    "PipelineState",
-    "Port",
-    "PredefinedSplit",
-    "PredictRequest",
-    "PredictResponse",
-    "PredictSchemata",
-    "PredictionServiceClient",
-    "PythonPackageSpec",
-    "ResourcesConsumed",
-    "SampleConfig",
-    "SampledShapleyAttribution",
-    "Scheduling",
-    "SearchMigratableResourcesRequest",
-    "SearchMigratableResourcesResponse",
-    "SmoothGradConfig",
-    "SpecialistPool",
-    "SpecialistPoolServiceClient",
-    "StopTrialRequest",
-    "Study",
-    "StudySpec",
-    "SuggestTrialsMetadata",
-    "SuggestTrialsRequest",
-    "SuggestTrialsResponse",
-    "TimestampSplit",
-    "TrainingConfig",
-    "TrainingPipeline",
-    "Trial",
-    "UndeployModelOperationMetadata",
-    "UndeployModelRequest",
-    "UndeployModelResponse",
-    "UpdateDatasetRequest",
-    "UpdateEndpointRequest",
-    "UpdateModelRequest",
-    "UpdateSpecialistPoolOperationMetadata",
-    "UpdateSpecialistPoolRequest",
-    "UploadModelOperationMetadata",
-    "UploadModelRequest",
-    "UploadModelResponse",
-    "UserActionReference",
-    "WorkerPoolSpec",
-    "XraiAttribution",
-    "VizierServiceClient",
+    'AcceleratorType',
+    'ActiveLearningConfig',
+    'AddContextArtifactsAndExecutionsRequest',
+    'AddContextArtifactsAndExecutionsResponse',
+    'AddContextChildrenRequest',
+    'AddContextChildrenResponse',
+    'AddExecutionEventsRequest',
+    'AddExecutionEventsResponse',
+    'AddTrialMeasurementRequest',
+    'Annotation',
+    'AnnotationSpec',
+    'Artifact',
+    'Attribution',
+    'AutomaticResources',
+    'AutoscalingMetricSpec',
+    'BatchDedicatedResources',
+    'BatchMigrateResourcesOperationMetadata',
+    'BatchMigrateResourcesRequest',
+    'BatchMigrateResourcesResponse',
+    'BatchPredictionJob',
+    'BigQueryDestination',
+    'BigQuerySource',
+    'CancelBatchPredictionJobRequest',
+    'CancelCustomJobRequest',
+    'CancelDataLabelingJobRequest',
+    'CancelHyperparameterTuningJobRequest',
+    'CancelTrainingPipelineRequest',
+    'CheckTrialEarlyStoppingStateMetatdata',
+    'CheckTrialEarlyStoppingStateRequest',
+    'CheckTrialEarlyStoppingStateResponse',
+    'CompleteTrialRequest',
+    'CompletionStats',
+    'ContainerRegistryDestination',
+    'ContainerSpec',
+    'Context',
+    'CreateArtifactRequest',
+    'CreateBatchPredictionJobRequest',
+    'CreateContextRequest',
+    'CreateCustomJobRequest',
+    'CreateDataLabelingJobRequest',
+    'CreateDatasetOperationMetadata',
+    'CreateDatasetRequest',
+    'CreateEndpointOperationMetadata',
+    'CreateEndpointRequest',
+    'CreateExecutionRequest',
+    'CreateHyperparameterTuningJobRequest',
+    'CreateMetadataSchemaRequest',
+    'CreateMetadataStoreOperationMetadata',
+    'CreateMetadataStoreRequest',
+    'CreateModelDeploymentMonitoringJobRequest',
+    'CreateSpecialistPoolOperationMetadata',
+    'CreateSpecialistPoolRequest',
+    'CreateStudyRequest',
+    'CreateTrainingPipelineRequest',
+    'CreateTrialRequest',
+    'CustomJob',
+    'CustomJobSpec',
+    'DataItem',
+    'DataLabelingJob',
+    'Dataset',
+    'DatasetServiceClient',
+    'DedicatedResources',
+    'DeleteBatchPredictionJobRequest',
+    'DeleteContextRequest',
+    'DeleteCustomJobRequest',
+    'DeleteDataLabelingJobRequest',
+    'DeleteDatasetRequest',
+    'DeleteEndpointRequest',
+    'DeleteHyperparameterTuningJobRequest',
+    'DeleteMetadataStoreOperationMetadata',
+    'DeleteMetadataStoreRequest',
+    'DeleteModelDeploymentMonitoringJobRequest',
+    'DeleteModelRequest',
+    'DeleteOperationMetadata',
+    'DeleteSpecialistPoolRequest',
+    'DeleteStudyRequest',
+    'DeleteTrainingPipelineRequest',
+    'DeleteTrialRequest',
+    'DeployModelOperationMetadata',
+    'DeployModelRequest',
+    'DeployModelResponse',
+    'DeployedModel',
+    'DeployedModelRef',
+    'DiskSpec',
+    'EncryptionSpec',
+    'Endpoint',
+    'EndpointServiceClient',
+    'EnvVar',
+    'Event',
+    'Execution',
+    'ExplainRequest',
+    'ExplainResponse',
+    'Explanation',
+    'ExplanationMetadata',
+    'ExplanationMetadataOverride',
+    'ExplanationParameters',
+    'ExplanationSpec',
+    'ExplanationSpecOverride',
+    'ExportDataConfig',
+    'ExportDataOperationMetadata',
+    'ExportDataRequest',
+    'ExportDataResponse',
+    'ExportModelOperationMetadata',
+    'ExportModelRequest',
+    'ExportModelResponse',
+    'FeatureNoiseSigma',
+    'FeatureStatsAnomaly',
+    'FilterSplit',
+    'FractionSplit',
+    'GcsDestination',
+    'GcsSource',
+    'GenericOperationMetadata',
+    'GetAnnotationSpecRequest',
+    'GetArtifactRequest',
+    'GetBatchPredictionJobRequest',
+    'GetContextRequest',
+    'GetCustomJobRequest',
+    'GetDataLabelingJobRequest',
+    'GetDatasetRequest',
+    'GetEndpointRequest',
+    'GetExecutionRequest',
+    'GetHyperparameterTuningJobRequest',
+    'GetMetadataSchemaRequest',
+    'GetMetadataStoreRequest',
+    'GetModelDeploymentMonitoringJobRequest',
+    'GetModelEvaluationRequest',
+    'GetModelEvaluationSliceRequest',
+    'GetModelRequest',
+    'GetSpecialistPoolRequest',
+    'GetStudyRequest',
+    'GetTrainingPipelineRequest',
+    'GetTrialRequest',
+    'HyperparameterTuningJob',
+    'ImportDataConfig',
+    'ImportDataOperationMetadata',
+    'ImportDataRequest',
+    'ImportDataResponse',
+    'InputDataConfig',
+    'IntegratedGradientsAttribution',
+    'JobServiceClient',
+    'JobState',
+    'LineageSubgraph',
+    'ListAnnotationsRequest',
+    'ListAnnotationsResponse',
+    'ListArtifactsRequest',
+    'ListArtifactsResponse',
+    'ListBatchPredictionJobsRequest',
+    'ListBatchPredictionJobsResponse',
+    'ListContextsRequest',
+    'ListContextsResponse',
+    'ListCustomJobsRequest',
+    'ListCustomJobsResponse',
+    'ListDataItemsRequest',
+    'ListDataItemsResponse',
+    'ListDataLabelingJobsRequest',
+    'ListDataLabelingJobsResponse',
+    'ListDatasetsRequest',
+    'ListDatasetsResponse',
+    'ListEndpointsRequest',
+    'ListEndpointsResponse',
+    'ListExecutionsRequest',
+    'ListExecutionsResponse',
+    'ListHyperparameterTuningJobsRequest',
+    'ListHyperparameterTuningJobsResponse',
+    'ListMetadataSchemasRequest',
+    'ListMetadataSchemasResponse',
+    'ListMetadataStoresRequest',
+    'ListMetadataStoresResponse',
+    'ListModelDeploymentMonitoringJobsRequest',
+    'ListModelDeploymentMonitoringJobsResponse',
+    'ListModelEvaluationSlicesRequest',
+    'ListModelEvaluationSlicesResponse',
+    'ListModelEvaluationsRequest',
+    'ListModelEvaluationsResponse',
+    'ListModelsRequest',
+    'ListModelsResponse',
+    'ListOptimalTrialsRequest',
+    'ListOptimalTrialsResponse',
+    'ListSpecialistPoolsRequest',
+    'ListSpecialistPoolsResponse',
+    'ListStudiesRequest',
+    'ListStudiesResponse',
+    'ListTrainingPipelinesRequest',
+    'ListTrainingPipelinesResponse',
+    'ListTrialsRequest',
+    'ListTrialsResponse',
+    'LookupStudyRequest',
+    'MachineSpec',
+    'ManualBatchTuningParameters',
+    'Measurement',
+    'MetadataSchema',
+    'MetadataStore',
+    'MigratableResource',
+    'MigrateResourceRequest',
+    'MigrateResourceResponse',
+    'MigrationServiceClient',
+    'Model',
+    'ModelContainerSpec',
+    'ModelDeploymentMonitoringBigQueryTable',
+    'ModelDeploymentMonitoringJob',
+    'ModelDeploymentMonitoringObjectiveConfig',
+    'ModelDeploymentMonitoringObjectiveType',
+    'ModelDeploymentMonitoringScheduleConfig',
+    'ModelEvaluation',
+    'ModelEvaluationSlice',
+    'ModelExplanation',
+    'ModelMonitoringAlertConfig',
+    'ModelMonitoringObjectiveConfig',
+    'ModelMonitoringStatsAnomalies',
+    'ModelServiceClient',
+    'PauseModelDeploymentMonitoringJobRequest',
+    'PipelineServiceClient',
+    'PipelineState',
+    'Port',
+    'PredefinedSplit',
+    'PredictRequest',
+    'PredictResponse',
+    'PredictSchemata',
+    'PredictionServiceClient',
+    'PythonPackageSpec',
+    'QueryContextLineageSubgraphRequest',
+    'QueryExecutionInputsAndOutputsRequest',
+    'ResourcesConsumed',
+    'ResumeModelDeploymentMonitoringJobRequest',
+    'SampleConfig',
+    'SampledShapleyAttribution',
+    'SamplingStrategy',
+    'Scheduling',
+    'SearchMigratableResourcesRequest',
+    'SearchMigratableResourcesResponse',
+    'SearchModelDeploymentMonitoringStatsAnomaliesRequest',
+    'SearchModelDeploymentMonitoringStatsAnomaliesResponse',
+    'SmoothGradConfig',
+    'SpecialistPool',
+    'SpecialistPoolServiceClient',
+    'StopTrialRequest',
+    'Study',
+    'StudySpec',
+    'SuggestTrialsMetadata',
+    'SuggestTrialsRequest',
+    'SuggestTrialsResponse',
+    'ThresholdConfig',
+    'TimestampSplit',
+    'TrainingConfig',
+    'TrainingPipeline',
+    'Trial',
+    'UndeployModelOperationMetadata',
+    'UndeployModelRequest',
+    'UndeployModelResponse',
+    'UpdateArtifactRequest',
+    'UpdateContextRequest',
+    'UpdateDatasetRequest',
+    'UpdateEndpointRequest',
+    'UpdateExecutionRequest',
+    'UpdateModelDeploymentMonitoringJobOperationMetadata',
+    'UpdateModelDeploymentMonitoringJobRequest',
+    'UpdateModelRequest',
+    'UpdateSpecialistPoolOperationMetadata',
+    'UpdateSpecialistPoolRequest',
+    'UploadModelOperationMetadata',
+    'UploadModelRequest',
+    'UploadModelResponse',
+    'UserActionReference',
+    'VizierServiceClient',
+    'WorkerPoolSpec',
+    'XraiAttribution',
+'MetadataServiceClient',
 )

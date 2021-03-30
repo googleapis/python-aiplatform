@@ -19,8 +19,11 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1.schema.trainingjob.definition",
-    manifest={"AutoMlVideoClassification", "AutoMlVideoClassificationInputs",},
+    package='google.cloud.aiplatform.v1.schema.trainingjob.definition',
+    manifest={
+        'AutoMlVideoClassification',
+        'AutoMlVideoClassificationInputs',
+    },
 )
 
 
@@ -33,8 +36,8 @@ class AutoMlVideoClassification(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(
-        proto.MESSAGE, number=1, message="AutoMlVideoClassificationInputs",
+    inputs = proto.Field(proto.MESSAGE, number=1,
+        message='AutoMlVideoClassificationInputs',
     )
 
 
@@ -45,7 +48,6 @@ class AutoMlVideoClassificationInputs(proto.Message):
         model_type (google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.AutoMlVideoClassificationInputs.ModelType):
 
     """
-
     class ModelType(proto.Enum):
         r""""""
         MODEL_TYPE_UNSPECIFIED = 0
@@ -53,7 +55,9 @@ class AutoMlVideoClassificationInputs(proto.Message):
         MOBILE_VERSATILE_1 = 2
         MOBILE_JETSON_VERSATILE_1 = 3
 
-    model_type = proto.Field(proto.ENUM, number=1, enum=ModelType,)
+    model_type = proto.Field(proto.ENUM, number=1,
+        enum=ModelType,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

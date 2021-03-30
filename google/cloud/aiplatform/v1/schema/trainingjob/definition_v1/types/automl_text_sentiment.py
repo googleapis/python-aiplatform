@@ -19,8 +19,11 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1.schema.trainingjob.definition",
-    manifest={"AutoMlTextSentiment", "AutoMlTextSentimentInputs",},
+    package='google.cloud.aiplatform.v1.schema.trainingjob.definition',
+    manifest={
+        'AutoMlTextSentiment',
+        'AutoMlTextSentimentInputs',
+    },
 )
 
 
@@ -33,7 +36,9 @@ class AutoMlTextSentiment(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(proto.MESSAGE, number=1, message="AutoMlTextSentimentInputs",)
+    inputs = proto.Field(proto.MESSAGE, number=1,
+        message='AutoMlTextSentimentInputs',
+    )
 
 
 class AutoMlTextSentimentInputs(proto.Message):

@@ -27,7 +27,10 @@ from google.rpc import status_pb2 as status  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"HyperparameterTuningJob",},
+    package='google.cloud.aiplatform.v1',
+    manifest={
+        'HyperparameterTuningJob',
+    },
 )
 
 
@@ -106,7 +109,9 @@ class HyperparameterTuningJob(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=2)
 
-    study_spec = proto.Field(proto.MESSAGE, number=4, message=study.StudySpec,)
+    study_spec = proto.Field(proto.MESSAGE, number=4,
+        message=study.StudySpec,
+    )
 
     max_trial_count = proto.Field(proto.INT32, number=5)
 
@@ -114,28 +119,42 @@ class HyperparameterTuningJob(proto.Message):
 
     max_failed_trial_count = proto.Field(proto.INT32, number=7)
 
-    trial_job_spec = proto.Field(
-        proto.MESSAGE, number=8, message=custom_job.CustomJobSpec,
+    trial_job_spec = proto.Field(proto.MESSAGE, number=8,
+        message=custom_job.CustomJobSpec,
     )
 
-    trials = proto.RepeatedField(proto.MESSAGE, number=9, message=study.Trial,)
+    trials = proto.RepeatedField(proto.MESSAGE, number=9,
+        message=study.Trial,
+    )
 
-    state = proto.Field(proto.ENUM, number=10, enum=job_state.JobState,)
+    state = proto.Field(proto.ENUM, number=10,
+        enum=job_state.JobState,
+    )
 
-    create_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
+    create_time = proto.Field(proto.MESSAGE, number=11,
+        message=timestamp.Timestamp,
+    )
 
-    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
+    start_time = proto.Field(proto.MESSAGE, number=12,
+        message=timestamp.Timestamp,
+    )
 
-    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=13,
+        message=timestamp.Timestamp,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=14,
+        message=timestamp.Timestamp,
+    )
 
-    error = proto.Field(proto.MESSAGE, number=15, message=status.Status,)
+    error = proto.Field(proto.MESSAGE, number=15,
+        message=status.Status,
+    )
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=16)
 
-    encryption_spec = proto.Field(
-        proto.MESSAGE, number=17, message=gca_encryption_spec.EncryptionSpec,
+    encryption_spec = proto.Field(proto.MESSAGE, number=17,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 

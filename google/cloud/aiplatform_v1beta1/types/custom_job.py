@@ -28,14 +28,14 @@ from google.rpc import status_pb2 as status  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "CustomJob",
-        "CustomJobSpec",
-        "WorkerPoolSpec",
-        "ContainerSpec",
-        "PythonPackageSpec",
-        "Scheduling",
+        'CustomJob',
+        'CustomJobSpec',
+        'WorkerPoolSpec',
+        'ContainerSpec',
+        'PythonPackageSpec',
+        'Scheduling',
     },
 )
 
@@ -95,24 +95,38 @@ class CustomJob(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=2)
 
-    job_spec = proto.Field(proto.MESSAGE, number=4, message="CustomJobSpec",)
+    job_spec = proto.Field(proto.MESSAGE, number=4,
+        message='CustomJobSpec',
+    )
 
-    state = proto.Field(proto.ENUM, number=5, enum=job_state.JobState,)
+    state = proto.Field(proto.ENUM, number=5,
+        enum=job_state.JobState,
+    )
 
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
+    create_time = proto.Field(proto.MESSAGE, number=6,
+        message=timestamp.Timestamp,
+    )
 
-    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp.Timestamp,)
+    start_time = proto.Field(proto.MESSAGE, number=7,
+        message=timestamp.Timestamp,
+    )
 
-    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=8,
+        message=timestamp.Timestamp,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=9,
+        message=timestamp.Timestamp,
+    )
 
-    error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
+    error = proto.Field(proto.MESSAGE, number=10,
+        message=status.Status,
+    )
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=11)
 
-    encryption_spec = proto.Field(
-        proto.MESSAGE, number=12, message=gca_encryption_spec.EncryptionSpec,
+    encryption_spec = proto.Field(proto.MESSAGE, number=12,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -177,18 +191,20 @@ class CustomJobSpec(proto.Message):
                ``<base_output_directory>/<trial_id>/logs/``
     """
 
-    worker_pool_specs = proto.RepeatedField(
-        proto.MESSAGE, number=1, message="WorkerPoolSpec",
+    worker_pool_specs = proto.RepeatedField(proto.MESSAGE, number=1,
+        message='WorkerPoolSpec',
     )
 
-    scheduling = proto.Field(proto.MESSAGE, number=3, message="Scheduling",)
+    scheduling = proto.Field(proto.MESSAGE, number=3,
+        message='Scheduling',
+    )
 
     service_account = proto.Field(proto.STRING, number=4)
 
     network = proto.Field(proto.STRING, number=5)
 
-    base_output_directory = proto.Field(
-        proto.MESSAGE, number=6, message=io.GcsDestination,
+    base_output_directory = proto.Field(proto.MESSAGE, number=6,
+        message=io.GcsDestination,
     )
 
 
@@ -210,22 +226,22 @@ class WorkerPoolSpec(proto.Message):
             Disk spec.
     """
 
-    container_spec = proto.Field(
-        proto.MESSAGE, number=6, oneof="task", message="ContainerSpec",
+    container_spec = proto.Field(proto.MESSAGE, number=6, oneof='task',
+        message='ContainerSpec',
     )
 
-    python_package_spec = proto.Field(
-        proto.MESSAGE, number=7, oneof="task", message="PythonPackageSpec",
+    python_package_spec = proto.Field(proto.MESSAGE, number=7, oneof='task',
+        message='PythonPackageSpec',
     )
 
-    machine_spec = proto.Field(
-        proto.MESSAGE, number=1, message=machine_resources.MachineSpec,
+    machine_spec = proto.Field(proto.MESSAGE, number=1,
+        message=machine_resources.MachineSpec,
     )
 
     replica_count = proto.Field(proto.INT64, number=2)
 
-    disk_spec = proto.Field(
-        proto.MESSAGE, number=5, message=machine_resources.DiskSpec,
+    disk_spec = proto.Field(proto.MESSAGE, number=5,
+        message=machine_resources.DiskSpec,
     )
 
 
@@ -302,7 +318,9 @@ class Scheduling(proto.Message):
             to workers leaving and joining a job.
     """
 
-    timeout = proto.Field(proto.MESSAGE, number=1, message=duration.Duration,)
+    timeout = proto.Field(proto.MESSAGE, number=1,
+        message=duration.Duration,
+    )
 
     restart_job_on_worker_restart = proto.Field(proto.BOOL, number=3)
 

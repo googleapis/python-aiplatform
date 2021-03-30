@@ -19,11 +19,11 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1.schema.trainingjob.definition",
+    package='google.cloud.aiplatform.v1beta1.schema.trainingjob.definition',
     manifest={
-        "AutoMlImageObjectDetection",
-        "AutoMlImageObjectDetectionInputs",
-        "AutoMlImageObjectDetectionMetadata",
+        'AutoMlImageObjectDetection',
+        'AutoMlImageObjectDetectionInputs',
+        'AutoMlImageObjectDetectionMetadata',
     },
 )
 
@@ -39,12 +39,12 @@ class AutoMlImageObjectDetection(proto.Message):
             The metadata information
     """
 
-    inputs = proto.Field(
-        proto.MESSAGE, number=1, message="AutoMlImageObjectDetectionInputs",
+    inputs = proto.Field(proto.MESSAGE, number=1,
+        message='AutoMlImageObjectDetectionInputs',
     )
 
-    metadata = proto.Field(
-        proto.MESSAGE, number=2, message="AutoMlImageObjectDetectionMetadata",
+    metadata = proto.Field(proto.MESSAGE, number=2,
+        message='AutoMlImageObjectDetectionMetadata',
     )
 
 
@@ -80,7 +80,6 @@ class AutoMlImageObjectDetectionInputs(proto.Message):
             training before the entire training budget has
             been used.
     """
-
     class ModelType(proto.Enum):
         r""""""
         MODEL_TYPE_UNSPECIFIED = 0
@@ -90,7 +89,9 @@ class AutoMlImageObjectDetectionInputs(proto.Message):
         MOBILE_TF_VERSATILE_1 = 4
         MOBILE_TF_HIGH_ACCURACY_1 = 5
 
-    model_type = proto.Field(proto.ENUM, number=1, enum=ModelType,)
+    model_type = proto.Field(proto.ENUM, number=1,
+        enum=ModelType,
+    )
 
     budget_milli_node_hours = proto.Field(proto.INT64, number=2)
 
@@ -111,7 +112,6 @@ class AutoMlImageObjectDetectionMetadata(proto.Message):
             For successful job completions, this is the
             reason why the job has finished.
     """
-
     class SuccessfulStopReason(proto.Enum):
         r""""""
         SUCCESSFUL_STOP_REASON_UNSPECIFIED = 0
@@ -120,8 +120,8 @@ class AutoMlImageObjectDetectionMetadata(proto.Message):
 
     cost_milli_node_hours = proto.Field(proto.INT64, number=1)
 
-    successful_stop_reason = proto.Field(
-        proto.ENUM, number=2, enum=SuccessfulStopReason,
+    successful_stop_reason = proto.Field(proto.ENUM, number=2,
+        enum=SuccessfulStopReason,
     )
 
 

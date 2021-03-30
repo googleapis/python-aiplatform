@@ -23,20 +23,20 @@ from google.protobuf import struct_pb2 as struct  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "Explanation",
-        "ModelExplanation",
-        "Attribution",
-        "ExplanationSpec",
-        "ExplanationParameters",
-        "SampledShapleyAttribution",
-        "IntegratedGradientsAttribution",
-        "XraiAttribution",
-        "SmoothGradConfig",
-        "FeatureNoiseSigma",
-        "ExplanationSpecOverride",
-        "ExplanationMetadataOverride",
+        'Explanation',
+        'ModelExplanation',
+        'Attribution',
+        'ExplanationSpec',
+        'ExplanationParameters',
+        'SampledShapleyAttribution',
+        'IntegratedGradientsAttribution',
+        'XraiAttribution',
+        'SmoothGradConfig',
+        'FeatureNoiseSigma',
+        'ExplanationSpecOverride',
+        'ExplanationMetadataOverride',
     },
 )
 
@@ -73,7 +73,9 @@ class Explanation(proto.Message):
             in the same order as they appear in the output_indices.
     """
 
-    attributions = proto.RepeatedField(proto.MESSAGE, number=1, message="Attribution",)
+    attributions = proto.RepeatedField(proto.MESSAGE, number=1,
+        message='Attribution',
+    )
 
 
 class ModelExplanation(proto.Message):
@@ -110,8 +112,8 @@ class ModelExplanation(proto.Message):
             is not populated.
     """
 
-    mean_attributions = proto.RepeatedField(
-        proto.MESSAGE, number=1, message="Attribution",
+    mean_attributions = proto.RepeatedField(proto.MESSAGE, number=1,
+        message='Attribution',
     )
 
 
@@ -235,7 +237,9 @@ class Attribution(proto.Message):
 
     instance_output_value = proto.Field(proto.DOUBLE, number=2)
 
-    feature_attributions = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
+    feature_attributions = proto.Field(proto.MESSAGE, number=3,
+        message=struct.Value,
+    )
 
     output_index = proto.RepeatedField(proto.INT32, number=4)
 
@@ -258,10 +262,12 @@ class ExplanationSpec(proto.Message):
             input and output for explanation.
     """
 
-    parameters = proto.Field(proto.MESSAGE, number=1, message="ExplanationParameters",)
+    parameters = proto.Field(proto.MESSAGE, number=1,
+        message='ExplanationParameters',
+    )
 
-    metadata = proto.Field(
-        proto.MESSAGE, number=2, message=explanation_metadata.ExplanationMetadata,
+    metadata = proto.Field(proto.MESSAGE, number=2,
+        message=explanation_metadata.ExplanationMetadata,
     )
 
 
@@ -318,24 +324,23 @@ class ExplanationParameters(proto.Message):
             (e,g, multi-class Models that predict multiple classes).
     """
 
-    sampled_shapley_attribution = proto.Field(
-        proto.MESSAGE, number=1, oneof="method", message="SampledShapleyAttribution",
+    sampled_shapley_attribution = proto.Field(proto.MESSAGE, number=1, oneof='method',
+        message='SampledShapleyAttribution',
     )
 
-    integrated_gradients_attribution = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        oneof="method",
-        message="IntegratedGradientsAttribution",
+    integrated_gradients_attribution = proto.Field(proto.MESSAGE, number=2, oneof='method',
+        message='IntegratedGradientsAttribution',
     )
 
-    xrai_attribution = proto.Field(
-        proto.MESSAGE, number=3, oneof="method", message="XraiAttribution",
+    xrai_attribution = proto.Field(proto.MESSAGE, number=3, oneof='method',
+        message='XraiAttribution',
     )
 
     top_k = proto.Field(proto.INT32, number=4)
 
-    output_indices = proto.Field(proto.MESSAGE, number=5, message=struct.ListValue,)
+    output_indices = proto.Field(proto.MESSAGE, number=5,
+        message=struct.ListValue,
+    )
 
 
 class SampledShapleyAttribution(proto.Message):
@@ -382,8 +387,8 @@ class IntegratedGradientsAttribution(proto.Message):
 
     step_count = proto.Field(proto.INT32, number=1)
 
-    smooth_grad_config = proto.Field(
-        proto.MESSAGE, number=2, message="SmoothGradConfig",
+    smooth_grad_config = proto.Field(proto.MESSAGE, number=2,
+        message='SmoothGradConfig',
     )
 
 
@@ -416,8 +421,8 @@ class XraiAttribution(proto.Message):
 
     step_count = proto.Field(proto.INT32, number=1)
 
-    smooth_grad_config = proto.Field(
-        proto.MESSAGE, number=2, message="SmoothGradConfig",
+    smooth_grad_config = proto.Field(proto.MESSAGE, number=2,
+        message='SmoothGradConfig',
     )
 
 
@@ -462,13 +467,10 @@ class SmoothGradConfig(proto.Message):
             Valid range of its value is [1, 50]. Defaults to 3.
     """
 
-    noise_sigma = proto.Field(proto.FLOAT, number=1, oneof="GradientNoiseSigma")
+    noise_sigma = proto.Field(proto.FLOAT, number=1, oneof='GradientNoiseSigma')
 
-    feature_noise_sigma = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        oneof="GradientNoiseSigma",
-        message="FeatureNoiseSigma",
+    feature_noise_sigma = proto.Field(proto.MESSAGE, number=2, oneof='GradientNoiseSigma',
+        message='FeatureNoiseSigma',
     )
 
     noisy_sample_count = proto.Field(proto.INT32, number=3)
@@ -484,7 +486,6 @@ class FeatureNoiseSigma(proto.Message):
             Noise sigma per feature. No noise is added to
             features that are not set.
     """
-
     class NoiseSigmaForFeature(proto.Message):
         r"""Noise sigma for a single feature.
 
@@ -506,8 +507,8 @@ class FeatureNoiseSigma(proto.Message):
 
         sigma = proto.Field(proto.FLOAT, number=2)
 
-    noise_sigma = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=NoiseSigmaForFeature,
+    noise_sigma = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=NoiseSigmaForFeature,
     )
 
 
@@ -529,10 +530,12 @@ class ExplanationSpecOverride(proto.Message):
             specified, no metadata is overridden.
     """
 
-    parameters = proto.Field(proto.MESSAGE, number=1, message="ExplanationParameters",)
+    parameters = proto.Field(proto.MESSAGE, number=1,
+        message='ExplanationParameters',
+    )
 
-    metadata = proto.Field(
-        proto.MESSAGE, number=2, message="ExplanationMetadataOverride",
+    metadata = proto.Field(proto.MESSAGE, number=2,
+        message='ExplanationMetadataOverride',
     )
 
 
@@ -553,7 +556,6 @@ class ExplanationMetadataOverride(proto.Message):
             here, the corresponding feature's input metadata is not
             overridden.
     """
-
     class InputMetadataOverride(proto.Message):
         r"""The [input
         metadata][google.cloud.aiplatform.v1beta1.ExplanationMetadata.InputMetadata]
@@ -570,12 +572,12 @@ class ExplanationMetadataOverride(proto.Message):
                 overridden.
         """
 
-        input_baselines = proto.RepeatedField(
-            proto.MESSAGE, number=1, message=struct.Value,
+        input_baselines = proto.RepeatedField(proto.MESSAGE, number=1,
+            message=struct.Value,
         )
 
-    inputs = proto.MapField(
-        proto.STRING, proto.MESSAGE, number=1, message=InputMetadataOverride,
+    inputs = proto.MapField(proto.STRING, proto.MESSAGE, number=1,
+        message=InputMetadataOverride,
     )
 
 

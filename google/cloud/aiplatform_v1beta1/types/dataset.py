@@ -25,8 +25,12 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
-    manifest={"Dataset", "ImportDataConfig", "ExportDataConfig",},
+    package='google.cloud.aiplatform.v1beta1',
+    manifest={
+        'Dataset',
+        'ImportDataConfig',
+        'ExportDataConfig',
+    },
 )
 
 
@@ -94,18 +98,24 @@ class Dataset(proto.Message):
 
     metadata_schema_uri = proto.Field(proto.STRING, number=3)
 
-    metadata = proto.Field(proto.MESSAGE, number=8, message=struct.Value,)
+    metadata = proto.Field(proto.MESSAGE, number=8,
+        message=struct.Value,
+    )
 
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
+    create_time = proto.Field(proto.MESSAGE, number=4,
+        message=timestamp.Timestamp,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=5,
+        message=timestamp.Timestamp,
+    )
 
     etag = proto.Field(proto.STRING, number=6)
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=7)
 
-    encryption_spec = proto.Field(
-        proto.MESSAGE, number=11, message=gca_encryption_spec.EncryptionSpec,
+    encryption_spec = proto.Field(proto.MESSAGE, number=11,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -141,8 +151,8 @@ class ImportDataConfig(proto.Message):
             Object <https://tinyurl.com/y538mdwt>`__.
     """
 
-    gcs_source = proto.Field(
-        proto.MESSAGE, number=1, oneof="source", message=io.GcsSource,
+    gcs_source = proto.Field(proto.MESSAGE, number=1, oneof='source',
+        message=io.GcsSource,
     )
 
     data_item_labels = proto.MapField(proto.STRING, proto.STRING, number=2)
@@ -175,8 +185,8 @@ class ExportDataConfig(proto.Message):
             ``ListAnnotations``.
     """
 
-    gcs_destination = proto.Field(
-        proto.MESSAGE, number=1, oneof="destination", message=io.GcsDestination,
+    gcs_destination = proto.Field(proto.MESSAGE, number=1, oneof='destination',
+        message=io.GcsDestination,
     )
 
     annotations_filter = proto.Field(proto.STRING, number=2)

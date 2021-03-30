@@ -23,8 +23,10 @@ from google.protobuf import wrappers_pb2 as wrappers  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1.schema.predict.prediction",
-    manifest={"VideoActionRecognitionPredictionResult",},
+    package='google.cloud.aiplatform.v1beta1.schema.predict.prediction',
+    manifest={
+        'VideoActionRecognitionPredictionResult',
+    },
 )
 
 
@@ -62,13 +64,17 @@ class VideoActionRecognitionPredictionResult(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=2)
 
-    time_segment_start = proto.Field(
-        proto.MESSAGE, number=4, message=duration.Duration,
+    time_segment_start = proto.Field(proto.MESSAGE, number=4,
+        message=duration.Duration,
     )
 
-    time_segment_end = proto.Field(proto.MESSAGE, number=5, message=duration.Duration,)
+    time_segment_end = proto.Field(proto.MESSAGE, number=5,
+        message=duration.Duration,
+    )
 
-    confidence = proto.Field(proto.MESSAGE, number=6, message=wrappers.FloatValue,)
+    confidence = proto.Field(proto.MESSAGE, number=6,
+        message=wrappers.FloatValue,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
