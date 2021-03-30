@@ -19,7 +19,7 @@ import create_and_import_dataset_text_sample
 from google.cloud.aiplatform import schema
 
 
-def test_create_and_import_dataset_image_sample(
+def test_create_and_import_dataset_text_sample(
     mock_sdk_init, mock_create_text_dataset
 ):
 
