@@ -117,7 +117,7 @@ class TestInit:
         assert isinstance(client, model_service_client.ModelServiceClient)
         assert (
             client._transport._host
-            == f"{_TEST_LOCATION_2}-prediction-{constants.API_BASE_PATH}:443"
+            == f"{_TEST_LOCATION_2}-{constants.API_BASE_PATH}:443"
         )
         assert client._transport._credentials == creds
 
@@ -134,36 +134,21 @@ class TestInit:
             assert user_agent.startswith("model-builder/")
 
     @pytest.mark.parametrize(
-        "init_location, location_override, prediction, expected_endpoint",
+        "init_location, location_override, expected_endpoint",
         [
-            ("us-central1", None, False, "us-central1-aiplatform.googleapis.com"),
-            (
-                "us-central1",
-                "europe-west4",
-                False,
-                "europe-west4-aiplatform.googleapis.com",
-            ),
-            ("asia-east1", None, False, "asia-east1-aiplatform.googleapis.com"),
-            (
-                "asia-east1",
-                None,
-                True,
-                "asia-east1-prediction-aiplatform.googleapis.com",
-            ),
+            ("us-central1", None, "us-central1-aiplatform.googleapis.com"),
+            ("us-central1", "europe-west4", "europe-west4-aiplatform.googleapis.com",),
+            ("asia-east1", None, "asia-east1-aiplatform.googleapis.com"),
         ],
     )
     def test_get_client_options(
-        self,
-        init_location: str,
-        location_override: str,
-        prediction: bool,
-        expected_endpoint: str,
+        self, init_location: str, location_override: str, expected_endpoint: str,
     ):
         initializer.global_config.init(location=init_location)
 
         assert (
             initializer.global_config.get_client_options(
-                location_override=location_override, prediction_client=prediction
+                location_override=location_override
             ).api_endpoint
             == expected_endpoint
         )
