@@ -22,10 +22,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'MetadataSchema',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"MetadataSchema",},
 )
 
 
@@ -60,6 +57,7 @@ class MetadataSchema(proto.Message):
         description (str):
             Description of the Metadata Schema
     """
+
     class MetadataSchemaType(proto.Enum):
         r"""Describes the type of the MetadataSchema."""
         METADATA_SCHEMA_TYPE_UNSPECIFIED = 0
@@ -73,13 +71,9 @@ class MetadataSchema(proto.Message):
 
     schema = proto.Field(proto.STRING, number=3)
 
-    schema_type = proto.Field(proto.ENUM, number=4,
-        enum=MetadataSchemaType,
-    )
+    schema_type = proto.Field(proto.ENUM, number=4, enum=MetadataSchemaType,)
 
-    create_time = proto.Field(proto.MESSAGE, number=5,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
 
     description = proto.Field(proto.STRING, number=6)
 

@@ -19,10 +19,8 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1.schema.predict.instance',
-    manifest={
-        'TextExtractionPredictionInstance',
-    },
+    package="google.cloud.aiplatform.v1beta1.schema.predict.instance",
+    manifest={"TextExtractionPredictionInstance",},
 )
 
 
