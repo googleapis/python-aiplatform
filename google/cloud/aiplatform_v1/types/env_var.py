@@ -18,12 +18,7 @@
 import proto  # type: ignore
 
 
-__protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1',
-    manifest={
-        'EnvVar',
-    },
-)
+__protobuf__ = proto.module(package="google.cloud.aiplatform.v1", manifest={"EnvVar",},)
 
 
 class EnvVar(proto.Message):

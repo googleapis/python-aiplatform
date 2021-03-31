@@ -19,11 +19,11 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1.schema.trainingjob.definition',
+    package="google.cloud.aiplatform.v1.schema.trainingjob.definition",
     manifest={
-        'AutoMlImageSegmentation',
-        'AutoMlImageSegmentationInputs',
-        'AutoMlImageSegmentationMetadata',
+        "AutoMlImageSegmentation",
+        "AutoMlImageSegmentationInputs",
+        "AutoMlImageSegmentationMetadata",
     },
 )
 
@@ -39,12 +39,12 @@ class AutoMlImageSegmentation(proto.Message):
             The metadata information.
     """
 
-    inputs = proto.Field(proto.MESSAGE, number=1,
-        message='AutoMlImageSegmentationInputs',
+    inputs = proto.Field(
+        proto.MESSAGE, number=1, message="AutoMlImageSegmentationInputs",
     )
 
-    metadata = proto.Field(proto.MESSAGE, number=2,
-        message='AutoMlImageSegmentationMetadata',
+    metadata = proto.Field(
+        proto.MESSAGE, number=2, message="AutoMlImageSegmentationMetadata",
     )
 
 
@@ -76,6 +76,7 @@ class AutoMlImageSegmentationInputs(proto.Message):
             ``base`` model must be in the same Project and Location as
             the new Model to train, and have the same modelType.
     """
+
     class ModelType(proto.Enum):
         r""""""
         MODEL_TYPE_UNSPECIFIED = 0
@@ -83,9 +84,7 @@ class AutoMlImageSegmentationInputs(proto.Message):
         CLOUD_LOW_ACCURACY_1 = 2
         MOBILE_TF_LOW_LATENCY_1 = 3
 
-    model_type = proto.Field(proto.ENUM, number=1,
-        enum=ModelType,
-    )
+    model_type = proto.Field(proto.ENUM, number=1, enum=ModelType,)
 
     budget_milli_node_hours = proto.Field(proto.INT64, number=2)
 
@@ -106,6 +105,7 @@ class AutoMlImageSegmentationMetadata(proto.Message):
             For successful job completions, this is the
             reason why the job has finished.
     """
+
     class SuccessfulStopReason(proto.Enum):
         r""""""
         SUCCESSFUL_STOP_REASON_UNSPECIFIED = 0
@@ -114,8 +114,8 @@ class AutoMlImageSegmentationMetadata(proto.Message):
 
     cost_milli_node_hours = proto.Field(proto.INT64, number=1)
 
-    successful_stop_reason = proto.Field(proto.ENUM, number=2,
-        enum=SuccessfulStopReason,
+    successful_stop_reason = proto.Field(
+        proto.ENUM, number=2, enum=SuccessfulStopReason,
     )
 
 

@@ -23,10 +23,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'MetadataStore',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"MetadataStore",},
 )
 
 
@@ -53,16 +50,12 @@ class MetadataStore(proto.Message):
 
     name = proto.Field(proto.STRING, number=1)
 
-    create_time = proto.Field(proto.MESSAGE, number=3,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
 
-    update_time = proto.Field(proto.MESSAGE, number=4,
-        message=timestamp.Timestamp,
-    )
+    update_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
 
-    encryption_spec = proto.Field(proto.MESSAGE, number=5,
-        message=gca_encryption_spec.EncryptionSpec,
+    encryption_spec = proto.Field(
+        proto.MESSAGE, number=5, message=gca_encryption_spec.EncryptionSpec,
     )
 
 

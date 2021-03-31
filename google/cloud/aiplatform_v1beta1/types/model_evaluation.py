@@ -24,10 +24,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'ModelEvaluation',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"ModelEvaluation",},
 )
 
 
@@ -74,6 +71,7 @@ class ModelEvaluation(proto.Message):
             that are used for explaining the predicted values on the
             evaluated data.
     """
+
     class ModelEvaluationExplanationSpec(proto.Message):
         r"""
 
@@ -91,30 +89,26 @@ class ModelEvaluation(proto.Message):
 
         explanation_type = proto.Field(proto.STRING, number=1)
 
-        explanation_spec = proto.Field(proto.MESSAGE, number=2,
-            message=explanation.ExplanationSpec,
+        explanation_spec = proto.Field(
+            proto.MESSAGE, number=2, message=explanation.ExplanationSpec,
         )
 
     name = proto.Field(proto.STRING, number=1)
 
     metrics_schema_uri = proto.Field(proto.STRING, number=2)
 
-    metrics = proto.Field(proto.MESSAGE, number=3,
-        message=struct.Value,
-    )
+    metrics = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
 
-    create_time = proto.Field(proto.MESSAGE, number=4,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
 
     slice_dimensions = proto.RepeatedField(proto.STRING, number=5)
 
-    model_explanation = proto.Field(proto.MESSAGE, number=8,
-        message=explanation.ModelExplanation,
+    model_explanation = proto.Field(
+        proto.MESSAGE, number=8, message=explanation.ModelExplanation,
     )
 
-    explanation_specs = proto.RepeatedField(proto.MESSAGE, number=9,
-        message=ModelEvaluationExplanationSpec,
+    explanation_specs = proto.RepeatedField(
+        proto.MESSAGE, number=9, message=ModelEvaluationExplanationSpec,
     )
 
 

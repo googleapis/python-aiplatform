@@ -18,16 +18,14 @@
 import proto  # type: ignore
 
 
-from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types import export_evaluated_data_items_config as gcastd_export_evaluated_data_items_config
+from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types import (
+    export_evaluated_data_items_config as gcastd_export_evaluated_data_items_config,
+)
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1.schema.trainingjob.definition',
-    manifest={
-        'AutoMlTables',
-        'AutoMlTablesInputs',
-        'AutoMlTablesMetadata',
-    },
+    package="google.cloud.aiplatform.v1beta1.schema.trainingjob.definition",
+    manifest={"AutoMlTables", "AutoMlTablesInputs", "AutoMlTablesMetadata",},
 )
 
 
@@ -41,13 +39,9 @@ class AutoMlTables(proto.Message):
             The metadata information.
     """
 
-    inputs = proto.Field(proto.MESSAGE, number=1,
-        message='AutoMlTablesInputs',
-    )
+    inputs = proto.Field(proto.MESSAGE, number=1, message="AutoMlTablesInputs",)
 
-    metadata = proto.Field(proto.MESSAGE, number=2,
-        message='AutoMlTablesMetadata',
-    )
+    metadata = proto.Field(proto.MESSAGE, number=2, message="AutoMlTablesMetadata",)
 
 
 class AutoMlTablesInputs(proto.Message):
@@ -152,6 +146,7 @@ class AutoMlTablesInputs(proto.Message):
             configuration is absent, then the export is not
             performed.
     """
+
     class Transformation(proto.Message):
         r"""
 
@@ -173,6 +168,7 @@ class AutoMlTablesInputs(proto.Message):
             repeated_text (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTablesInputs.Transformation.TextArrayTransformation):
 
         """
+
         class AutoTransformation(proto.Message):
             r"""Training pipeline will infer the proper transformation based
             on the statistic of dataset.
@@ -347,48 +343,76 @@ class AutoMlTablesInputs(proto.Message):
 
             column_name = proto.Field(proto.STRING, number=1)
 
-        auto = proto.Field(proto.MESSAGE, number=1, oneof='transformation_detail',
-            message='AutoMlTablesInputs.Transformation.AutoTransformation',
+        auto = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="transformation_detail",
+            message="AutoMlTablesInputs.Transformation.AutoTransformation",
         )
 
-        numeric = proto.Field(proto.MESSAGE, number=2, oneof='transformation_detail',
-            message='AutoMlTablesInputs.Transformation.NumericTransformation',
+        numeric = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            oneof="transformation_detail",
+            message="AutoMlTablesInputs.Transformation.NumericTransformation",
         )
 
-        categorical = proto.Field(proto.MESSAGE, number=3, oneof='transformation_detail',
-            message='AutoMlTablesInputs.Transformation.CategoricalTransformation',
+        categorical = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            oneof="transformation_detail",
+            message="AutoMlTablesInputs.Transformation.CategoricalTransformation",
         )
 
-        timestamp = proto.Field(proto.MESSAGE, number=4, oneof='transformation_detail',
-            message='AutoMlTablesInputs.Transformation.TimestampTransformation',
+        timestamp = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            oneof="transformation_detail",
+            message="AutoMlTablesInputs.Transformation.TimestampTransformation",
         )
 
-        text = proto.Field(proto.MESSAGE, number=5, oneof='transformation_detail',
-            message='AutoMlTablesInputs.Transformation.TextTransformation',
+        text = proto.Field(
+            proto.MESSAGE,
+            number=5,
+            oneof="transformation_detail",
+            message="AutoMlTablesInputs.Transformation.TextTransformation",
         )
 
-        repeated_numeric = proto.Field(proto.MESSAGE, number=6, oneof='transformation_detail',
-            message='AutoMlTablesInputs.Transformation.NumericArrayTransformation',
+        repeated_numeric = proto.Field(
+            proto.MESSAGE,
+            number=6,
+            oneof="transformation_detail",
+            message="AutoMlTablesInputs.Transformation.NumericArrayTransformation",
         )
 
-        repeated_categorical = proto.Field(proto.MESSAGE, number=7, oneof='transformation_detail',
-            message='AutoMlTablesInputs.Transformation.CategoricalArrayTransformation',
+        repeated_categorical = proto.Field(
+            proto.MESSAGE,
+            number=7,
+            oneof="transformation_detail",
+            message="AutoMlTablesInputs.Transformation.CategoricalArrayTransformation",
         )
 
-        repeated_text = proto.Field(proto.MESSAGE, number=8, oneof='transformation_detail',
-            message='AutoMlTablesInputs.Transformation.TextArrayTransformation',
+        repeated_text = proto.Field(
+            proto.MESSAGE,
+            number=8,
+            oneof="transformation_detail",
+            message="AutoMlTablesInputs.Transformation.TextArrayTransformation",
         )
 
-    optimization_objective_recall_value = proto.Field(proto.FLOAT, number=5, oneof='additional_optimization_objective_config')
+    optimization_objective_recall_value = proto.Field(
+        proto.FLOAT, number=5, oneof="additional_optimization_objective_config"
+    )
 
-    optimization_objective_precision_value = proto.Field(proto.FLOAT, number=6, oneof='additional_optimization_objective_config')
+    optimization_objective_precision_value = proto.Field(
+        proto.FLOAT, number=6, oneof="additional_optimization_objective_config"
+    )
 
     prediction_type = proto.Field(proto.STRING, number=1)
 
     target_column = proto.Field(proto.STRING, number=2)
 
-    transformations = proto.RepeatedField(proto.MESSAGE, number=3,
-        message=Transformation,
+    transformations = proto.RepeatedField(
+        proto.MESSAGE, number=3, message=Transformation,
     )
 
     optimization_objective = proto.Field(proto.STRING, number=4)
@@ -399,7 +423,9 @@ class AutoMlTablesInputs(proto.Message):
 
     weight_column_name = proto.Field(proto.STRING, number=9)
 
-    export_evaluated_data_items_config = proto.Field(proto.MESSAGE, number=10,
+    export_evaluated_data_items_config = proto.Field(
+        proto.MESSAGE,
+        number=10,
         message=gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig,
     )
 

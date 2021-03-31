@@ -7,6 +7,7 @@ API Reference
 .. toctree::
     :maxdepth: 2
 
+    aiplatform
     aiplatform_v1/services
     aiplatform_v1/types
 

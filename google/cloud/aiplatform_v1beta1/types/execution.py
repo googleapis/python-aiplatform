@@ -23,10 +23,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'Execution',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"Execution",},
 )
 
 
@@ -103,6 +100,7 @@ class Execution(proto.Message):
         description (str):
             Description of the Execution
     """
+
     class State(proto.Enum):
         r"""Describes the state of the Execution."""
         STATE_UNSPECIFIED = 0
@@ -115,29 +113,21 @@ class Execution(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=2)
 
-    state = proto.Field(proto.ENUM, number=6,
-        enum=State,
-    )
+    state = proto.Field(proto.ENUM, number=6, enum=State,)
 
     etag = proto.Field(proto.STRING, number=9)
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=10)
 
-    create_time = proto.Field(proto.MESSAGE, number=11,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
 
-    update_time = proto.Field(proto.MESSAGE, number=12,
-        message=timestamp.Timestamp,
-    )
+    update_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
 
     schema_title = proto.Field(proto.STRING, number=13)
 
     schema_version = proto.Field(proto.STRING, number=14)
 
-    metadata = proto.Field(proto.MESSAGE, number=15,
-        message=struct.Struct,
-    )
+    metadata = proto.Field(proto.MESSAGE, number=15, message=struct.Struct,)
 
     description = proto.Field(proto.STRING, number=16)
 

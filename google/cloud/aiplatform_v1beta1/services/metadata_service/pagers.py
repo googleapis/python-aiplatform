@@ -15,7 +15,16 @@
 # limitations under the License.
 #
 
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple, Optional
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import context
@@ -42,12 +51,15 @@ class ListMetadataStoresPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., metadata_service.ListMetadataStoresResponse],
-            request: metadata_service.ListMetadataStoresRequest,
-            response: metadata_service.ListMetadataStoresResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., metadata_service.ListMetadataStoresResponse],
+        request: metadata_service.ListMetadataStoresRequest,
+        response: metadata_service.ListMetadataStoresResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -81,7 +93,7 @@ class ListMetadataStoresPager:
             yield from page.metadata_stores
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListMetadataStoresAsyncPager:
@@ -101,12 +113,15 @@ class ListMetadataStoresAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[metadata_service.ListMetadataStoresResponse]],
-            request: metadata_service.ListMetadataStoresRequest,
-            response: metadata_service.ListMetadataStoresResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[metadata_service.ListMetadataStoresResponse]],
+        request: metadata_service.ListMetadataStoresRequest,
+        response: metadata_service.ListMetadataStoresResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -144,7 +159,7 @@ class ListMetadataStoresAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListArtifactsPager:
@@ -164,12 +179,15 @@ class ListArtifactsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., metadata_service.ListArtifactsResponse],
-            request: metadata_service.ListArtifactsRequest,
-            response: metadata_service.ListArtifactsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., metadata_service.ListArtifactsResponse],
+        request: metadata_service.ListArtifactsRequest,
+        response: metadata_service.ListArtifactsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -203,7 +221,7 @@ class ListArtifactsPager:
             yield from page.artifacts
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListArtifactsAsyncPager:
@@ -223,12 +241,15 @@ class ListArtifactsAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[metadata_service.ListArtifactsResponse]],
-            request: metadata_service.ListArtifactsRequest,
-            response: metadata_service.ListArtifactsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[metadata_service.ListArtifactsResponse]],
+        request: metadata_service.ListArtifactsRequest,
+        response: metadata_service.ListArtifactsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -266,7 +287,7 @@ class ListArtifactsAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListContextsPager:
@@ -286,12 +307,15 @@ class ListContextsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., metadata_service.ListContextsResponse],
-            request: metadata_service.ListContextsRequest,
-            response: metadata_service.ListContextsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., metadata_service.ListContextsResponse],
+        request: metadata_service.ListContextsRequest,
+        response: metadata_service.ListContextsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -325,7 +349,7 @@ class ListContextsPager:
             yield from page.contexts
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListContextsAsyncPager:
@@ -345,12 +369,15 @@ class ListContextsAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[metadata_service.ListContextsResponse]],
-            request: metadata_service.ListContextsRequest,
-            response: metadata_service.ListContextsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[metadata_service.ListContextsResponse]],
+        request: metadata_service.ListContextsRequest,
+        response: metadata_service.ListContextsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -388,7 +415,7 @@ class ListContextsAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListExecutionsPager:
@@ -408,12 +435,15 @@ class ListExecutionsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., metadata_service.ListExecutionsResponse],
-            request: metadata_service.ListExecutionsRequest,
-            response: metadata_service.ListExecutionsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., metadata_service.ListExecutionsResponse],
+        request: metadata_service.ListExecutionsRequest,
+        response: metadata_service.ListExecutionsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -447,7 +477,7 @@ class ListExecutionsPager:
             yield from page.executions
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListExecutionsAsyncPager:
@@ -467,12 +497,15 @@ class ListExecutionsAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[metadata_service.ListExecutionsResponse]],
-            request: metadata_service.ListExecutionsRequest,
-            response: metadata_service.ListExecutionsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[metadata_service.ListExecutionsResponse]],
+        request: metadata_service.ListExecutionsRequest,
+        response: metadata_service.ListExecutionsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -510,7 +543,7 @@ class ListExecutionsAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListMetadataSchemasPager:
@@ -530,12 +563,15 @@ class ListMetadataSchemasPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., metadata_service.ListMetadataSchemasResponse],
-            request: metadata_service.ListMetadataSchemasRequest,
-            response: metadata_service.ListMetadataSchemasResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., metadata_service.ListMetadataSchemasResponse],
+        request: metadata_service.ListMetadataSchemasRequest,
+        response: metadata_service.ListMetadataSchemasResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -569,7 +605,7 @@ class ListMetadataSchemasPager:
             yield from page.metadata_schemas
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListMetadataSchemasAsyncPager:
@@ -589,12 +625,15 @@ class ListMetadataSchemasAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[metadata_service.ListMetadataSchemasResponse]],
-            request: metadata_service.ListMetadataSchemasRequest,
-            response: metadata_service.ListMetadataSchemasResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[metadata_service.ListMetadataSchemasResponse]],
+        request: metadata_service.ListMetadataSchemasRequest,
+        response: metadata_service.ListMetadataSchemasResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -616,7 +655,9 @@ class ListMetadataSchemasAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[metadata_service.ListMetadataSchemasResponse]:
+    async def pages(
+        self,
+    ) -> AsyncIterable[metadata_service.ListMetadataSchemasResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -632,4 +673,4 @@ class ListMetadataSchemasAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

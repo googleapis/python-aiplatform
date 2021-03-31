@@ -18,18 +18,20 @@
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple
 
-from google.api_core import grpc_helpers   # type: ignore
+from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google.api_core import gapic_v1       # type: ignore
-from google import auth                    # type: ignore
-from google.auth import credentials        # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google import auth  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import training_pipeline
-from google.cloud.aiplatform_v1beta1.types import training_pipeline as gca_training_pipeline
+from google.cloud.aiplatform_v1beta1.types import (
+    training_pipeline as gca_training_pipeline,
+)
 from google.longrunning import operations_pb2 as operations  # type: ignore
 from google.protobuf import empty_pb2 as empty  # type: ignore
 
@@ -48,21 +50,24 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
     It sends protocol buffers over the wire using gRPC (which is built on
     top of HTTP/2); the ``grpcio`` package must be installed.
     """
+
     _stubs: Dict[str, Callable]
 
-    def __init__(self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            credentials_file: str = None,
-            scopes: Sequence[str] = None,
-            channel: grpc.Channel = None,
-            api_mtls_endpoint: str = None,
-            client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-            ssl_channel_credentials: grpc.ChannelCredentials = None,
-            client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
-            quota_project_id: Optional[str] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: str = None,
+        scopes: Sequence[str] = None,
+        channel: grpc.Channel = None,
+        api_mtls_endpoint: str = None,
+        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+        ssl_channel_credentials: grpc.ChannelCredentials = None,
+        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+        quota_project_id: Optional[str] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -174,13 +179,15 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
         self._prep_wrapped_messages(client_info)
 
     @classmethod
-    def create_channel(cls,
-                       host: str = 'aiplatform.googleapis.com',
-                       credentials: credentials.Credentials = None,
-                       credentials_file: str = None,
-                       scopes: Optional[Sequence[str]] = None,
-                       quota_project_id: Optional[str] = None,
-                       **kwargs) -> grpc.Channel:
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: str = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        **kwargs,
+    ) -> grpc.Channel:
         """Create and return a gRPC channel object.
         Args:
             host (Optional[str]): The host for the channel to use.
@@ -213,7 +220,7 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
             credentials_file=credentials_file,
             scopes=scopes,
             quota_project_id=quota_project_id,
-            **kwargs
+            **kwargs,
         )
 
     @property
@@ -231,17 +238,18 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
         """
         # Sanity check: Only create a new client if we do not already have one.
         if self._operations_client is None:
-            self._operations_client = operations_v1.OperationsClient(
-                self.grpc_channel
-            )
+            self._operations_client = operations_v1.OperationsClient(self.grpc_channel)
 
         # Return the client from cache.
         return self._operations_client
 
     @property
-    def create_training_pipeline(self) -> Callable[
-            [pipeline_service.CreateTrainingPipelineRequest],
-            gca_training_pipeline.TrainingPipeline]:
+    def create_training_pipeline(
+        self,
+    ) -> Callable[
+        [pipeline_service.CreateTrainingPipelineRequest],
+        gca_training_pipeline.TrainingPipeline,
+    ]:
         r"""Return a callable for the create training pipeline method over gRPC.
 
         Creates a TrainingPipeline. A created
@@ -257,18 +265,21 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_training_pipeline' not in self._stubs:
-            self._stubs['create_training_pipeline'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.PipelineService/CreateTrainingPipeline',
+        if "create_training_pipeline" not in self._stubs:
+            self._stubs["create_training_pipeline"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PipelineService/CreateTrainingPipeline",
                 request_serializer=pipeline_service.CreateTrainingPipelineRequest.serialize,
                 response_deserializer=gca_training_pipeline.TrainingPipeline.deserialize,
             )
-        return self._stubs['create_training_pipeline']
+        return self._stubs["create_training_pipeline"]
 
     @property
-    def get_training_pipeline(self) -> Callable[
-            [pipeline_service.GetTrainingPipelineRequest],
-            training_pipeline.TrainingPipeline]:
+    def get_training_pipeline(
+        self,
+    ) -> Callable[
+        [pipeline_service.GetTrainingPipelineRequest],
+        training_pipeline.TrainingPipeline,
+    ]:
         r"""Return a callable for the get training pipeline method over gRPC.
 
         Gets a TrainingPipeline.
@@ -283,18 +294,21 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_training_pipeline' not in self._stubs:
-            self._stubs['get_training_pipeline'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.PipelineService/GetTrainingPipeline',
+        if "get_training_pipeline" not in self._stubs:
+            self._stubs["get_training_pipeline"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PipelineService/GetTrainingPipeline",
                 request_serializer=pipeline_service.GetTrainingPipelineRequest.serialize,
                 response_deserializer=training_pipeline.TrainingPipeline.deserialize,
             )
-        return self._stubs['get_training_pipeline']
+        return self._stubs["get_training_pipeline"]
 
     @property
-    def list_training_pipelines(self) -> Callable[
-            [pipeline_service.ListTrainingPipelinesRequest],
-            pipeline_service.ListTrainingPipelinesResponse]:
+    def list_training_pipelines(
+        self,
+    ) -> Callable[
+        [pipeline_service.ListTrainingPipelinesRequest],
+        pipeline_service.ListTrainingPipelinesResponse,
+    ]:
         r"""Return a callable for the list training pipelines method over gRPC.
 
         Lists TrainingPipelines in a Location.
@@ -309,18 +323,20 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_training_pipelines' not in self._stubs:
-            self._stubs['list_training_pipelines'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.PipelineService/ListTrainingPipelines',
+        if "list_training_pipelines" not in self._stubs:
+            self._stubs["list_training_pipelines"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PipelineService/ListTrainingPipelines",
                 request_serializer=pipeline_service.ListTrainingPipelinesRequest.serialize,
                 response_deserializer=pipeline_service.ListTrainingPipelinesResponse.deserialize,
             )
-        return self._stubs['list_training_pipelines']
+        return self._stubs["list_training_pipelines"]
 
     @property
-    def delete_training_pipeline(self) -> Callable[
-            [pipeline_service.DeleteTrainingPipelineRequest],
-            operations.Operation]:
+    def delete_training_pipeline(
+        self,
+    ) -> Callable[
+        [pipeline_service.DeleteTrainingPipelineRequest], operations.Operation
+    ]:
         r"""Return a callable for the delete training pipeline method over gRPC.
 
         Deletes a TrainingPipeline.
@@ -335,18 +351,18 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'delete_training_pipeline' not in self._stubs:
-            self._stubs['delete_training_pipeline'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.PipelineService/DeleteTrainingPipeline',
+        if "delete_training_pipeline" not in self._stubs:
+            self._stubs["delete_training_pipeline"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PipelineService/DeleteTrainingPipeline",
                 request_serializer=pipeline_service.DeleteTrainingPipelineRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['delete_training_pipeline']
+        return self._stubs["delete_training_pipeline"]
 
     @property
-    def cancel_training_pipeline(self) -> Callable[
-            [pipeline_service.CancelTrainingPipelineRequest],
-            empty.Empty]:
+    def cancel_training_pipeline(
+        self,
+    ) -> Callable[[pipeline_service.CancelTrainingPipelineRequest], empty.Empty]:
         r"""Return a callable for the cancel training pipeline method over gRPC.
 
         Cancels a TrainingPipeline. Starts asynchronous cancellation on
@@ -373,15 +389,13 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'cancel_training_pipeline' not in self._stubs:
-            self._stubs['cancel_training_pipeline'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.PipelineService/CancelTrainingPipeline',
+        if "cancel_training_pipeline" not in self._stubs:
+            self._stubs["cancel_training_pipeline"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PipelineService/CancelTrainingPipeline",
                 request_serializer=pipeline_service.CancelTrainingPipelineRequest.serialize,
                 response_deserializer=empty.Empty.FromString,
             )
-        return self._stubs['cancel_training_pipeline']
+        return self._stubs["cancel_training_pipeline"]
 
 
-__all__ = (
-    'PipelineServiceGrpcTransport',
-)
+__all__ = ("PipelineServiceGrpcTransport",)
