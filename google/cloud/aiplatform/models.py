@@ -1130,9 +1130,9 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
     def upload(
         cls,
         display_name: str,
-        artifact_uri: str,
         serving_container_image_uri: str,
         *,
+        artifact_uri: str = None,
         serving_container_predict_route: Optional[str] = None,
         serving_container_health_route: Optional[str] = None,
         description: Optional[str] = None,
@@ -1167,11 +1167,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             display_name (str):
                 Required. The display name of the Model. The name can be up to 128
                 characters long and can be consist of any UTF-8 characters.
-            artifact_uri (str):
-                Required. The path to the directory containing the Model artifact and
-                any of its supporting files. Not present for AutoML Models.
             serving_container_image_uri (str):
                 Required. The URI of the Model serving container.
+            artifact_uri (str):
+                Optional. The path to the directory containing the Model artifact and
+                any of its supporting files. Leave blank for custom container prediction.
+                Not present for AutoML Models.
             serving_container_predict_route (str):
                 Optional. An HTTP path to send prediction requests to the container, and
                 which must be supported by it. If not specified a default HTTP path will
@@ -1335,11 +1336,13 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         managed_model = gca_model.Model(
             display_name=display_name,
             description=description,
-            artifact_uri=artifact_uri,
             container_spec=container_spec,
             predict_schemata=model_predict_schemata,
             encryption_spec=encryption_spec,
         )
+
+        if artifact_uri:
+            managed_model.artifact_uri = artifact_uri
 
         # Override explanation_spec if both required fields are provided
         if explanation_metadata and explanation_parameters:
