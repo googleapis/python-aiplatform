@@ -46,6 +46,7 @@ setuptools.setup(
         "google-api-core[grpc] >= 1.22.2, < 2.0.0dev",
         "proto-plus >= 1.10.1",
         "google-cloud-storage >= 1.26.0, < 2.0.0dev",
+        "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
     ),
     python_requires=">=3.6",
     scripts=[],
