@@ -315,9 +315,9 @@ class TestModel:
             api_client_mock.upload_model.return_value = mock_lro
             create_client_mock.return_value = api_client_mock
 
+            # Custom Container workflow, does not pass `artifact_uri`
             my_model = models.Model.upload(
                 display_name=_TEST_MODEL_NAME,
-                artifact_uri=_TEST_ARTIFACT_URI,
                 serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
                 serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
                 serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
@@ -334,9 +334,7 @@ class TestModel:
             )
 
             managed_model = gca_model.Model(
-                display_name=_TEST_MODEL_NAME,
-                artifact_uri=_TEST_ARTIFACT_URI,
-                container_spec=container_spec,
+                display_name=_TEST_MODEL_NAME, container_spec=container_spec,
             )
 
             api_client_mock.upload_model.assert_called_once_with(
