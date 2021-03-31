@@ -1132,7 +1132,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         display_name: str,
         serving_container_image_uri: str,
         *,
-        artifact_uri: str = None,
+        artifact_uri: Optional[str] = None,
         serving_container_predict_route: Optional[str] = None,
         serving_container_health_route: Optional[str] = None,
         description: Optional[str] = None,
