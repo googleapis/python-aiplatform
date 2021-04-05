@@ -20,16 +20,18 @@ from concurrent import futures
 import logging
 import pkg_resources
 import os
-from typing import Optional, Type, Union
+from typing import Optional, Type
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
 import google.auth
 from google.auth import credentials as auth_credentials
 from google.auth.exceptions import GoogleAuthError
-from google.cloud.aiplatform import utils
+
 from google.cloud.aiplatform import constants
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform import utils
+
+from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 
 
 class _Config:
@@ -218,22 +220,22 @@ class _Config:
 
     def create_client(
         self,
-        client_class: Type[utils.AiPlatformServiceClient],
+        client_class: Type[utils.AiPlatformServiceClientWithOverride],
         credentials: Optional[auth_credentials.Credentials] = None,
         location_override: Optional[str] = None,
         prediction_client: bool = False,
-    ) -> Union[utils.WrappedClient, utils.AiPlatformServiceClient]:
+    ) -> utils.AiPlatformServiceClientWithOverride:
         """Instantiates a given AiPlatformServiceClient with optional overrides.
 
         Args:
-            client_class (utils.AiPlatformServiceClient):
-                (Required)An AI Platform Service Client.
+            client_class (utils.AiPlatformServiceClientWithOverride):
+                (Required) An AI Platform Service Client with optional overrides.
             credentials (auth_credentials.Credentials):
                 Custom auth credentials. If not provided will use the current config.
             location_override (str): Optional location override.
             prediction_client (str): Optional flag to use a prediction endpoint.
         Returns:
-            client: Instantiated AI Platform Service client
+            client: Instantiated AI Platform Service client with optional overrides
         """
         gapic_version = pkg_resources.get_distribution(
             "google-cloud-aiplatform",
@@ -250,11 +252,7 @@ class _Config:
             "client_info": client_info,
         }
 
-        if prediction_client:
-            return client_class(**kwargs)
-        else:
-            kwargs["client_class"] = client_class
-            return utils.WrappedClient(**kwargs)
+        return client_class(**kwargs)
 
 
 # global config to store init parameters: ie, aiplatform.init(project=..., location=...)

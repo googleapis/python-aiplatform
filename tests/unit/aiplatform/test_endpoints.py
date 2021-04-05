@@ -26,6 +26,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
+from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1.services.model_service.client import (
     ModelServiceClient,
 )
@@ -223,14 +224,9 @@ def sdk_undeploy_all_mock():
 @pytest.fixture
 def create_client_mock():
     with mock.patch.object(
-        initializer.global_config, "create_client"
+        initializer.global_config, "create_client", autospec=True,
     ) as create_client_mock:
-
-        def side_effect(client_class, *arg, **kwargs):
-            return mock.Mock(spec=client_class)
-
-        create_client_mock.side_effect = side_effect
-
+        create_client_mock.return_value = mock.Mock(spec=EndpointServiceClient)
         yield create_client_mock
 
 
@@ -280,13 +276,13 @@ class TestEndpoint:
         create_client_mock.assert_has_calls(
             [
                 mock.call(
-                    client_class=EndpointServiceClient,
+                    client_class=utils.EndpointClientWithOverride,
                     credentials=initializer.global_config.credentials,
                     location_override=_TEST_LOCATION,
                     prediction_client=False,
                 ),
                 mock.call(
-                    client_class=prediction_service_client.PredictionServiceClient,
+                    client_class=utils.PredictionClientWithOverride,
                     credentials=None,
                     location_override=_TEST_LOCATION,
                     prediction_client=True,
@@ -328,13 +324,13 @@ class TestEndpoint:
         create_client_mock.assert_has_calls(
             [
                 mock.call(
-                    client_class=EndpointServiceClient,
+                    client_class=utils.EndpointClientWithOverride,
                     credentials=creds,
                     location_override=_TEST_LOCATION,
                     prediction_client=False,
                 ),
                 mock.call(
-                    client_class=prediction_service_client.PredictionServiceClient,
+                    client_class=utils.PredictionClientWithOverride,
                     credentials=creds,
                     location_override=_TEST_LOCATION,
                     prediction_client=True,
