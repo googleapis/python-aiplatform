@@ -30,23 +30,19 @@ import abc
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
-from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
-    client as pipeline_service_client,
-)
-from google.cloud.aiplatform_v1beta1.types import env_var
-from google.cloud.aiplatform_v1beta1.types import (
+
+from google.cloud.aiplatform.compat.types import (
     accelerator_type as gca_accelerator_type,
-)
-from google.cloud.aiplatform_v1beta1.types import io as gca_io
-from google.cloud.aiplatform_v1beta1.types import model as gca_model
-from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state
-from google.cloud.aiplatform_v1beta1.types import (
+    env_var as gca_env_var,
+    io as gca_io,
+    model as gca_model,
+    pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
 )
 
@@ -73,7 +69,8 @@ _PIPELINE_COMPLETE_STATES = set(
 
 
 class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
-    client_class = pipeline_service_client.PipelineServiceClient
+
+    client_class = utils.PipelineClientWithOverride
     _is_client_prediction_client = False
     _resource_noun = "trainingPipelines"
     _getter_method = "get_training_pipeline"
@@ -1335,7 +1332,7 @@ class _CustomTrainingJob(_TrainingJob):
 
         if model_serving_container_environment_variables:
             env = [
-                env_var.EnvVar(name=str(key), value=str(value))
+                gca_env_var.EnvVar(name=str(key), value=str(value))
                 for key, value in model_serving_container_environment_variables.items()
             ]
 

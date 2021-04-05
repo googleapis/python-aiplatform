@@ -287,7 +287,6 @@ class TestEndToEnd:
         self,
         create_dataset_mock,  # noqa: F811
         import_data_mock,  # noqa: F811
-        predict_client_predict_mock,  # noqa: F811
         mock_python_package_to_gcs,  # noqa: F811
         mock_pipeline_service_create_and_get_with_fail,  # noqa: F811
         mock_model_service_get,  # noqa: F811

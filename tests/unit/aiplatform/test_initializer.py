@@ -97,10 +97,10 @@ class TestInit:
     def test_create_client_returns_client(self):
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         client = initializer.global_config.create_client(
-            model_service_client.ModelServiceClient
+            client_class=utils.ModelClientWithOverride
         )
         assert client._client_class is model_service_client.ModelServiceClient
-        assert isinstance(client, utils.WrappedClient)
+        assert isinstance(client, utils.ModelClientWithOverride)
         assert (
             client._transport._host == f"{_TEST_LOCATION}-{constants.API_BASE_PATH}:443"
         )
@@ -109,12 +109,12 @@ class TestInit:
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         creds = credentials.AnonymousCredentials()
         client = initializer.global_config.create_client(
-            model_service_client.ModelServiceClient,
+            client_class=utils.ModelClientWithOverride,
             credentials=creds,
             location_override=_TEST_LOCATION_2,
             prediction_client=True,
         )
-        assert isinstance(client, model_service_client.ModelServiceClient)
+        assert isinstance(client, utils.ModelClientWithOverride)
         assert (
             client._transport._host
             == f"{_TEST_LOCATION_2}-{constants.API_BASE_PATH}:443"
@@ -124,7 +124,7 @@ class TestInit:
     def test_create_client_user_agent(self):
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         client = initializer.global_config.create_client(
-            model_service_client.ModelServiceClient
+            client_class=utils.ModelClientWithOverride
         )
 
         for wrapped_method in client._transport._wrapped_methods.values():

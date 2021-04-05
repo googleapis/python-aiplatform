@@ -41,6 +41,7 @@ from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model_service
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform import utils
 
 from test_endpoints import create_endpoint_mock  # noqa: F401
 
@@ -113,6 +114,16 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_ENCRYPTION_KEY_NAME
 )
 
+_TEST_MODEL_RESOURCE_NAME = ModelServiceClient.model_path(
+    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+)
+_TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT = ModelServiceClient.model_path(
+    _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
+)
+_TEST_MODEL_RESOURCE_NAME_CUSTOM_LOCATION = ModelServiceClient.model_path(
+    _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
+)
+
 
 @pytest.fixture
 def get_endpoint_mock():
@@ -129,13 +140,63 @@ def get_endpoint_mock():
 @pytest.fixture
 def get_model_mock():
     with mock.patch.object(ModelServiceClient, "get_model") as get_model_mock:
-        test_model_resource_name = ModelServiceClient.model_path(
-            _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-        )
         get_model_mock.return_value = gca_model.Model(
-            display_name=_TEST_MODEL_NAME, name=test_model_resource_name,
+            display_name=_TEST_MODEL_NAME, name=_TEST_MODEL_RESOURCE_NAME,
         )
         yield get_model_mock
+
+
+@pytest.fixture
+def get_model_with_custom_location_mock():
+    with mock.patch.object(ModelServiceClient, "get_model") as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            name=_TEST_MODEL_RESOURCE_NAME_CUSTOM_LOCATION,
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
+def get_model_with_custom_project_mock():
+    with mock.patch.object(ModelServiceClient, "get_model") as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            name=_TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT,
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
+def upload_model_mock():
+    with mock.patch.object(ModelServiceClient, "upload_model") as upload_model_mock:
+        mock_lro = mock.Mock(ga_operation.Operation)
+        mock_lro.result.return_value = model_service.UploadModelResponse(
+            model=_TEST_MODEL_RESOURCE_NAME
+        )
+        upload_model_mock.return_value = mock_lro
+        yield upload_model_mock
+
+
+@pytest.fixture
+def upload_model_with_custom_project_mock():
+    with mock.patch.object(ModelServiceClient, "upload_model") as upload_model_mock:
+        mock_lro = mock.Mock(ga_operation.Operation)
+        mock_lro.result.return_value = model_service.UploadModelResponse(
+            model=_TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT
+        )
+        upload_model_mock.return_value = mock_lro
+        yield upload_model_mock
+
+
+@pytest.fixture
+def upload_model_with_custom_location_mock():
+    with mock.patch.object(ModelServiceClient, "upload_model") as upload_model_mock:
+        mock_lro = mock.Mock(ga_operation.Operation)
+        mock_lro.result.return_value = model_service.UploadModelResponse(
+            model=_TEST_MODEL_RESOURCE_NAME_CUSTOM_LOCATION
+        )
+        upload_model_mock.return_value = mock_lro
+        yield upload_model_mock
 
 
 @pytest.fixture
@@ -150,11 +211,8 @@ def delete_model_mock():
 @pytest.fixture
 def deploy_model_mock():
     with mock.patch.object(EndpointServiceClient, "deploy_model") as deploy_model_mock:
-        test_model_resource_name = ModelServiceClient.model_path(
-            _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-        )
         deployed_model = gca_endpoint.DeployedModel(
-            model=test_model_resource_name, display_name=_TEST_MODEL_NAME,
+            model=_TEST_MODEL_RESOURCE_NAME, display_name=_TEST_MODEL_NAME,
         )
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
         deploy_model_lro_mock.result.return_value = endpoint_service.DeployModelResponse(
@@ -189,6 +247,16 @@ def create_batch_prediction_job_mock():
         yield create_batch_prediction_job_mock
 
 
+@pytest.fixture
+def create_client_mock():
+    with mock.patch.object(
+        initializer.global_config, "create_client"
+    ) as create_client_mock:
+        api_client_mock = mock.Mock(spec=ModelServiceClient)
+        create_client_mock.return_value = api_client_mock
+        yield create_client_mock
+
+
 class TestModel:
     def setup_method(self):
         importlib.reload(initializer)
@@ -197,155 +265,101 @@ class TestModel:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_constructor_creates_client(self):
+    def test_constructor_creates_client(self, create_client_mock):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
             credentials=_TEST_CREDENTIALS,
         )
-        with mock.patch.object(
-            initializer.global_config, "create_client"
-        ) as create_client_mock:
-            api_client_mock = mock.Mock(spec=ModelServiceClient)
-            create_client_mock.return_value = api_client_mock
-            models.Model(_TEST_ID)
-            create_client_mock.assert_called_once_with(
-                client_class=ModelServiceClient,
-                credentials=initializer.global_config.credentials,
-                location_override=_TEST_LOCATION,
-                prediction_client=False,
-            )
+        models.Model(_TEST_ID)
+        create_client_mock.assert_called_once_with(
+            client_class=utils.ModelClientWithOverride,
+            credentials=initializer.global_config.credentials,
+            location_override=_TEST_LOCATION,
+            prediction_client=False,
+        )
 
-    def test_constructor_create_client_with_custom_location(self):
+    def test_constructor_create_client_with_custom_location(self, create_client_mock):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
             credentials=_TEST_CREDENTIALS,
         )
-        with mock.patch.object(
-            initializer.global_config, "create_client"
-        ) as create_client_mock:
-            api_client_mock = mock.Mock(spec=ModelServiceClient)
-            create_client_mock.return_value = api_client_mock
+        models.Model(_TEST_ID, location=_TEST_LOCATION_2)
+        create_client_mock.assert_called_once_with(
+            client_class=utils.ModelClientWithOverride,
+            credentials=initializer.global_config.credentials,
+            location_override=_TEST_LOCATION_2,
+            prediction_client=False,
+        )
 
-            models.Model(_TEST_ID, location=_TEST_LOCATION_2)
-            create_client_mock.assert_called_once_with(
-                client_class=ModelServiceClient,
-                credentials=initializer.global_config.credentials,
-                location_override=_TEST_LOCATION_2,
-                prediction_client=False,
-            )
-
-    def test_constructor_creates_client_with_custom_credentials(self):
+    def test_constructor_creates_client_with_custom_credentials(
+        self, create_client_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        with mock.patch.object(
-            initializer.global_config, "create_client"
-        ) as create_client_mock:
-            api_client_mock = mock.Mock(spec=ModelServiceClient)
-            create_client_mock.return_value = api_client_mock
-            creds = auth_credentials.AnonymousCredentials()
-            models.Model(_TEST_ID, credentials=creds)
-            create_client_mock.assert_called_once_with(
-                client_class=ModelServiceClient,
-                credentials=creds,
-                location_override=_TEST_LOCATION,
-                prediction_client=False,
-            )
+        creds = auth_credentials.AnonymousCredentials()
+        models.Model(_TEST_ID, credentials=creds)
+        create_client_mock.assert_called_once_with(
+            client_class=utils.ModelClientWithOverride,
+            credentials=creds,
+            location_override=_TEST_LOCATION,
+            prediction_client=False,
+        )
 
-    def test_constructor_gets_model(self):
+    def test_constructor_gets_model(self, get_model_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        with mock.patch.object(
-            initializer.global_config, "create_client"
-        ) as create_client_mock:
-            api_client_mock = mock.Mock(spec=ModelServiceClient)
-            create_client_mock.return_value = api_client_mock
+        models.Model(_TEST_ID)
+        get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
 
-            models.Model(_TEST_ID)
-            test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-            )
-            api_client_mock.get_model.assert_called_once_with(
-                name=test_model_resource_name
-            )
-
-    def test_constructor_gets_model_with_custom_project(self):
+    def test_constructor_gets_model_with_custom_project(self, get_model_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        with mock.patch.object(
-            initializer.global_config, "create_client"
-        ) as create_client_mock:
-            api_client_mock = mock.Mock(spec=ModelServiceClient)
-            create_client_mock.return_value = api_client_mock
-            models.Model(_TEST_ID, project=_TEST_PROJECT_2)
-            test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
-            )
-            api_client_mock.get_model.assert_called_once_with(
-                name=test_model_resource_name
-            )
+        models.Model(_TEST_ID, project=_TEST_PROJECT_2)
+        test_model_resource_name = ModelServiceClient.model_path(
+            _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
+        )
+        get_model_mock.assert_called_once_with(name=test_model_resource_name)
 
-    def test_constructor_gets_model_with_custom_location(self):
+    def test_constructor_gets_model_with_custom_location(self, get_model_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        with mock.patch.object(
-            initializer.global_config, "create_client"
-        ) as create_client_mock:
-            api_client_mock = mock.Mock(spec=ModelServiceClient)
-            create_client_mock.return_value = api_client_mock
-            models.Model(_TEST_ID, location=_TEST_LOCATION_2)
-            test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
-            )
-            api_client_mock.get_model.assert_called_once_with(
-                name=test_model_resource_name
-            )
+        models.Model(_TEST_ID, location=_TEST_LOCATION_2)
+        test_model_resource_name = ModelServiceClient.model_path(
+            _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
+        )
+        get_model_mock.assert_called_once_with(name=test_model_resource_name)
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_upload_uploads_and_gets_model(self, sync):
+    def test_upload_uploads_and_gets_model(
+        self, upload_model_mock, get_model_mock, sync
+    ):
 
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        with mock.patch.object(
-            initializer.global_config, "create_client"
-        ) as create_client_mock:
-            api_client_mock = mock.Mock(spec=ModelServiceClient)
-            mock_lro = mock.Mock(ga_operation.Operation)
-            test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-            )
-            mock_lro.result.return_value = model_service.UploadModelResponse(
-                model=test_model_resource_name
-            )
-            api_client_mock.upload_model.return_value = mock_lro
-            create_client_mock.return_value = api_client_mock
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            sync=sync,
+        )
 
-            # Custom Container workflow, does not pass `artifact_uri`
-            my_model = models.Model.upload(
-                display_name=_TEST_MODEL_NAME,
-                serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-                serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-                serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-                sync=sync,
-            )
+        if not sync:
+            my_model.wait()
 
-            if not sync:
-                my_model.wait()
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+        )
 
-            container_spec = gca_model.ModelContainerSpec(
-                image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-                predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-                health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-            )
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME, container_spec=container_spec,
+        )
 
-            managed_model = gca_model.Model(
-                display_name=_TEST_MODEL_NAME, container_spec=container_spec,
-            )
+        upload_model_mock.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            model=managed_model,
+        )
 
-            api_client_mock.upload_model.assert_called_once_with(
-                parent=initializer.global_config.common_location_path(),
-                model=managed_model,
-            )
-
-            api_client_mock.get_model.assert_called_once_with(
-                name=test_model_resource_name
-            )
+        get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
 
     def test_upload_raises_with_impartial_explanation_spec(self):
 
@@ -363,192 +377,171 @@ class TestModel:
         assert e.match(regexp=r"`explanation_parameters` should be specified or None.")
 
     @pytest.mark.parametrize("sync", [True, False])
-    def test_upload_uploads_and_gets_model_with_all_args(self, sync):
+    def test_upload_uploads_and_gets_model_with_all_args(
+        self, upload_model_mock, get_model_mock, sync
+    ):
 
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        with mock.patch.object(
-            initializer.global_config, "create_client"
-        ) as create_client_mock:
-            api_client_mock = mock.Mock(spec=ModelServiceClient)
-            mock_lro = mock.Mock(ga_operation.Operation)
-            test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-            )
-            mock_lro.result.return_value = model_service.UploadModelResponse(
-                model=test_model_resource_name
-            )
-            api_client_mock.upload_model.return_value = mock_lro
-            create_client_mock.return_value = api_client_mock
 
-            my_model = models.Model.upload(
-                display_name=_TEST_MODEL_NAME,
-                artifact_uri=_TEST_ARTIFACT_URI,
-                serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-                serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-                serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            artifact_uri=_TEST_ARTIFACT_URI,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
+            parameters_schema_uri=_TEST_PARAMETERS_SCHEMA_URI,
+            prediction_schema_uri=_TEST_PREDICTION_SCHEMA_URI,
+            description=_TEST_DESCRIPTION,
+            serving_container_command=_TEST_SERVING_CONTAINER_COMMAND,
+            serving_container_args=_TEST_SERVING_CONTAINER_ARGS,
+            serving_container_environment_variables=_TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        env = [
+            env_var.EnvVar(name=str(key), value=str(value))
+            for key, value in _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        ports = [
+            gca_model.Port(container_port=port)
+            for port in _TEST_SERVING_CONTAINER_PORTS
+        ]
+
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            command=_TEST_SERVING_CONTAINER_COMMAND,
+            args=_TEST_SERVING_CONTAINER_ARGS,
+            env=env,
+            ports=ports,
+        )
+
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            description=_TEST_DESCRIPTION,
+            artifact_uri=_TEST_ARTIFACT_URI,
+            container_spec=container_spec,
+            predict_schemata=gca_model.PredictSchemata(
                 instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
                 parameters_schema_uri=_TEST_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_PREDICTION_SCHEMA_URI,
-                description=_TEST_DESCRIPTION,
-                serving_container_command=_TEST_SERVING_CONTAINER_COMMAND,
-                serving_container_args=_TEST_SERVING_CONTAINER_ARGS,
-                serving_container_environment_variables=_TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
-                serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
-                explanation_metadata=_TEST_EXPLANATION_METADATA,
-                explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
-                sync=sync,
-            )
+            ),
+            explanation_spec=gca_model.explanation.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA,
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
+        )
 
-            if not sync:
-                my_model.wait()
+        upload_model_mock.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            model=managed_model,
+        )
+        get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
 
-            env = [
-                env_var.EnvVar(name=str(key), value=str(value))
-                for key, value in _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
-            ]
-
-            ports = [
-                gca_model.Port(container_port=port)
-                for port in _TEST_SERVING_CONTAINER_PORTS
-            ]
-
-            container_spec = gca_model.ModelContainerSpec(
-                image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-                predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-                health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-                command=_TEST_SERVING_CONTAINER_COMMAND,
-                args=_TEST_SERVING_CONTAINER_ARGS,
-                env=env,
-                ports=ports,
-            )
-
-            managed_model = gca_model.Model(
-                display_name=_TEST_MODEL_NAME,
-                description=_TEST_DESCRIPTION,
-                artifact_uri=_TEST_ARTIFACT_URI,
-                container_spec=container_spec,
-                predict_schemata=gca_model.PredictSchemata(
-                    instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
-                    parameters_schema_uri=_TEST_PARAMETERS_SCHEMA_URI,
-                    prediction_schema_uri=_TEST_PREDICTION_SCHEMA_URI,
-                ),
-                explanation_spec=gca_model.explanation.ExplanationSpec(
-                    metadata=_TEST_EXPLANATION_METADATA,
-                    parameters=_TEST_EXPLANATION_PARAMETERS,
-                ),
-            )
-
-            api_client_mock.upload_model.assert_called_once_with(
-                parent=initializer.global_config.common_location_path(),
-                model=managed_model,
-            )
-
-            api_client_mock.get_model.assert_called_once_with(
-                name=test_model_resource_name
-            )
-
+    @pytest.mark.usefixtures("get_model_with_custom_project_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_upload_uploads_and_gets_model_with_custom_project(self, sync):
+    def test_upload_uploads_and_gets_model_with_custom_project(
+        self,
+        upload_model_with_custom_project_mock,
+        get_model_with_custom_project_mock,
+        sync,
+    ):
 
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        with mock.patch.object(
-            initializer.global_config, "create_client"
-        ) as create_client_mock:
-            api_client_mock = mock.Mock(spec=ModelServiceClient)
-            mock_lro = mock.Mock(ga_operation.Operation)
-            test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
-            )
-            mock_lro.result.return_value = model_service.UploadModelResponse(
-                model=test_model_resource_name
-            )
-            api_client_mock.upload_model.return_value = mock_lro
-            create_client_mock.return_value = api_client_mock
 
-            my_model = models.Model.upload(
-                display_name=_TEST_MODEL_NAME,
-                artifact_uri=_TEST_ARTIFACT_URI,
-                serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-                serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-                serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-                project=_TEST_PROJECT_2,
-                sync=sync,
-            )
+        test_model_resource_name = ModelServiceClient.model_path(
+            _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
+        )
 
-            if not sync:
-                my_model.wait()
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            artifact_uri=_TEST_ARTIFACT_URI,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            project=_TEST_PROJECT_2,
+            sync=sync,
+        )
 
-            container_spec = gca_model.ModelContainerSpec(
-                image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-                predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-                health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-            )
+        if not sync:
+            my_model.wait()
 
-            managed_model = gca_model.Model(
-                display_name=_TEST_MODEL_NAME,
-                artifact_uri=_TEST_ARTIFACT_URI,
-                container_spec=container_spec,
-            )
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+        )
 
-            api_client_mock.upload_model.assert_called_once_with(
-                parent=f"projects/{_TEST_PROJECT_2}/locations/{_TEST_LOCATION}",
-                model=managed_model,
-            )
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            artifact_uri=_TEST_ARTIFACT_URI,
+            container_spec=container_spec,
+        )
 
-            api_client_mock.get_model.assert_called_once_with(
-                name=test_model_resource_name
-            )
+        upload_model_with_custom_project_mock.assert_called_once_with(
+            parent=f"projects/{_TEST_PROJECT_2}/locations/{_TEST_LOCATION}",
+            model=managed_model,
+        )
 
+        get_model_with_custom_project_mock.assert_called_once_with(
+            name=test_model_resource_name
+        )
+
+    @pytest.mark.usefixtures("get_model_with_custom_location_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_upload_uploads_and_gets_model_with_custom_location(self, sync):
+    def test_upload_uploads_and_gets_model_with_custom_location(
+        self,
+        upload_model_with_custom_location_mock,
+        get_model_with_custom_location_mock,
+        sync,
+    ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        with mock.patch.object(
-            initializer.global_config, "create_client"
-        ) as create_client_mock:
-            api_client_mock = mock.Mock(spec=ModelServiceClient)
-            mock_lro = mock.Mock(ga_operation.Operation)
-            test_model_resource_name = ModelServiceClient.model_path(
-                _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
-            )
-            mock_lro.result.return_value = model_service.UploadModelResponse(
-                model=test_model_resource_name
-            )
-            api_client_mock.upload_model.return_value = mock_lro
-            create_client_mock.return_value = api_client_mock
+        test_model_resource_name = ModelServiceClient.model_path(
+            _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
+        )
 
-            my_model = models.Model.upload(
-                display_name=_TEST_MODEL_NAME,
-                artifact_uri=_TEST_ARTIFACT_URI,
-                serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-                serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-                serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-                location=_TEST_LOCATION_2,
-                sync=sync,
-            )
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            artifact_uri=_TEST_ARTIFACT_URI,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            location=_TEST_LOCATION_2,
+            sync=sync,
+        )
 
-            if not sync:
-                my_model.wait()
+        if not sync:
+            my_model.wait()
 
-            container_spec = gca_model.ModelContainerSpec(
-                image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-                predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-                health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-            )
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+        )
 
-            managed_model = gca_model.Model(
-                display_name=_TEST_MODEL_NAME,
-                artifact_uri=_TEST_ARTIFACT_URI,
-                container_spec=container_spec,
-            )
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            artifact_uri=_TEST_ARTIFACT_URI,
+            container_spec=container_spec,
+        )
 
-            api_client_mock.upload_model.assert_called_once_with(
-                parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION_2}",
-                model=managed_model,
-            )
+        upload_model_with_custom_location_mock.assert_called_once_with(
+            parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION_2}",
+            model=managed_model,
+        )
 
-            api_client_mock.get_model.assert_called_once_with(
-                name=test_model_resource_name
-            )
+        get_model_with_custom_location_mock.assert_called_once_with(
+            name=test_model_resource_name
+        )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
