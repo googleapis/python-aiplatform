@@ -163,7 +163,7 @@ class _Config:
         return self._encryption_spec_key_name
 
     def get_client_options(
-        self, location_override: Optional[str] = None, prediction_client: bool = False,
+        self, location_override: Optional[str] = None
     ) -> client_options.ClientOptions:
         """Creates GAPIC client_options using location and type.
 
@@ -173,15 +173,11 @@ class _Config:
                 location set by initializer. Must be a GCP region supported by AI
                 Platform (Unified).
 
-            prediction_client (bool):
-                True if service client is a PredictionServiceClient, otherwise defaults
-                to False. This is used to provide a prediction-specific API endpoint.
-
         Returns:
-            clients_options (dict):
-                A dictionary containing client_options with one key, for example
+            clients_options (google.api_core.client_options.ClientOptions):
+                A ClientOptions object set with regionalized API endpoint, i.e.
                 { "api_endpoint": "us-central1-aiplatform.googleapis.com" } or
-                { "api_endpoint": "asia-east1-prediction-aiplatform.googleapis.com" }
+                { "api_endpoint": "asia-east1-aiplatform.googleapis.com" }
         """
         if not (self.location or location_override):
             raise ValueError(
@@ -190,12 +186,11 @@ class _Config:
 
         region = location_override or self.location
         region = region.lower()
-        prediction = "prediction-" if prediction_client else ""
 
         utils.validate_region(region)
 
         return client_options.ClientOptions(
-            api_endpoint=f"{region}-{prediction}{constants.API_BASE_PATH}"
+            api_endpoint=f"{region}-{constants.API_BASE_PATH}"
         )
 
     def common_location_path(
@@ -250,7 +245,7 @@ class _Config:
         kwargs = {
             "credentials": credentials or self.credentials,
             "client_options": self.get_client_options(
-                location_override=location_override, prediction_client=prediction_client
+                location_override=location_override
             ),
             "client_info": client_info,
         }
