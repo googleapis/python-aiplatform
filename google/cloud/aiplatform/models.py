@@ -1643,7 +1643,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
-    ) -> "jobs.BatchPredictionJob":
+    ) -> jobs.BatchPredictionJob:
         """Creates a batch prediction job using this Model and outputs prediction
         results to the provided destination prefix in the specified
         `predictions_format`. One source and one destination prefix are required.
