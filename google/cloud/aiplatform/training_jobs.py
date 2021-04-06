@@ -46,8 +46,8 @@ from google.cloud.aiplatform.compat.types import (
     training_pipeline as gca_training_pipeline,
 )
 
-from google.cloud.aiplatform.v1beta1.schema.trainingjob import (
-    definition_v1beta1 as training_job_inputs,
+from google.cloud.aiplatform.v1.schema.trainingjob import (
+    definition_v1 as training_job_inputs,
 )
 
 from google.cloud import storage

@@ -35,7 +35,7 @@ from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client_v1,
 )
 
-model_service_client_default = model_service_client_v1beta1
+model_service_client_default = model_service_client_v1
 
 
 @pytest.mark.parametrize(

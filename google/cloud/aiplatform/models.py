@@ -38,7 +38,8 @@ from google.cloud.aiplatform.compat.types import (
     machine_resources_v1beta1 as gca_machine_resources_v1beta1,
     model as gca_model_compat,
     model_v1beta1 as gca_model_v1beta1,
-    env_var as gca_env_var,
+    env_var as gca_env_var_compat,
+    env_var_v1beta1 as gca_env_var_v1beta1,
 )
 
 from google.protobuf import json_format
@@ -1319,9 +1320,11 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
 
         gca_endpoint = gca_endpoint_compat
         gca_model = gca_model_compat
+        gca_env_var = gca_env_var_compat
         if explanation_metadata and explanation_parameters:
             gca_endpoint = gca_endpoint_v1beta1
             gca_model = gca_model_v1beta1
+            gca_env_var = gca_env_var_v1beta1
 
         api_client = cls._instantiate_client(location, credentials)
         env = None
@@ -1357,7 +1360,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
 
         # TODO(b/182388545) initializer.global_config.get_encryption_spec from a sync function
         encryption_spec = initializer.global_config.get_encryption_spec(
-            encryption_spec_key_name=encryption_spec_key_name
+            encryption_spec_key_name=encryption_spec_key_name,
         )
 
         managed_model = gca_model.Model(

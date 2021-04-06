@@ -20,7 +20,7 @@ from concurrent import futures
 import logging
 import pkg_resources
 import os
-from typing import Optional, Type
+from typing import Optional, Type, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -28,11 +28,15 @@ import google.auth
 from google.auth import credentials as auth_credentials
 from google.auth.exceptions import GoogleAuthError
 
+from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import utils
 
-from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
-
+from google.cloud.aiplatform.compat.types import (
+    encryption_spec as gca_encryption_spec_compat,
+    encryption_spec_v1 as gca_encryption_spec_v1,
+    encryption_spec_v1beta1 as gca_encryption_spec_v1beta1,
+)
 
 class _Config:
     """Stores common parameters and options for API calls."""
@@ -93,17 +97,23 @@ class _Config:
             self._encryption_spec_key_name = encryption_spec_key_name
 
     def get_encryption_spec(
-        self, encryption_spec_key_name: Optional[str]
-    ) -> Optional[gca_encryption_spec.EncryptionSpec]:
+        self,
+        encryption_spec_key_name: Optional[str],
+        select_version: Optional[str] = compat.DEFAULT_VERSION,
+    ) -> Optional[Union[gca_encryption_spec_v1.EncryptionSpec, gca_encryption_spec_v1beta1.EncryptionSpec]]:
         """Creates a gca_encryption_spec.EncryptionSpec instance from the given key name.
         If the provided key name is None, it uses the default key name if provided.
 
         Args:
             encryption_spec_key_name (Optional[str]): The default encryption key name to use when creating resources.
+            select_version: The default version is set to compat.DEFAULT_VERSION
         """
         kms_key_name = encryption_spec_key_name or self.encryption_spec_key_name
         encryption_spec = None
         if kms_key_name:
+            gca_encryption_spec = gca_encryption_spec_compat
+            if select_version == compat.V1BETA1:
+                gca_encryption_spec = gca_encryption_spec_v1beta1
             encryption_spec = gca_encryption_spec.EncryptionSpec(
                 kms_key_name=kms_key_name
             )

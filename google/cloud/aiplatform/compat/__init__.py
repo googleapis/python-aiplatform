@@ -21,7 +21,7 @@ from google.cloud.aiplatform.compat import types
 V1BETA1 = "v1beta1"
 V1 = "v1"
 
-DEFAULT_VERSION = V1BETA1
+DEFAULT_VERSION = V1
 
 if DEFAULT_VERSION == V1BETA1:
 

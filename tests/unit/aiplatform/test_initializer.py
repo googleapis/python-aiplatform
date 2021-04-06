@@ -22,10 +22,12 @@ from unittest import mock
 
 import google.auth
 from google.auth import credentials
+
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1.services.model_service import (
+
+from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
 

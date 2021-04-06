@@ -25,16 +25,23 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
 
-from google.cloud.aiplatform_v1beta1 import GcsSource
-from google.cloud.aiplatform_v1beta1 import ImportDataConfig
-from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
-from google.cloud.aiplatform_v1beta1.types import io as gca_io
-from google.cloud.aiplatform_v1beta1.types import model as gca_model
-from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state
 from google.cloud.aiplatform_v1beta1.types import (
+    dataset as gca_dataset_v1beta1,
+    encryption_spec as gca_encryption_spec_v1beta1,
+    io as gca_io_v1beta1,
+    model as gca_model_v1beta1,
+    pipeline_state as gca_pipeline_state_v1beta1,
+    training_pipeline as gca_training_pipeline_v1beta1,
+)
+
+from google.cloud.aiplatform_v1.types import (
+    dataset as gca_dataset,
+    encryption_spec as gca_encryption_spec,
+    io as gca_io,
+    model as gca_model,
+    pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
 )
-from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 
 import test_datasets
 from test_datasets import create_dataset_mock  # noqa: F401
@@ -61,7 +68,9 @@ from google.protobuf import struct_pb2
 
 # dataset_encryption
 _TEST_ENCRYPTION_KEY_NAME = "key_1234"
-_TEST_ENCRYPTION_SPEC = EncryptionSpec(kms_key_name=_TEST_ENCRYPTION_KEY_NAME)
+_TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
+    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
+)
 
 
 class TestEndToEnd:
@@ -168,15 +177,15 @@ class TestEndToEnd:
             parameters={"param": 3.0},
         )
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=test_datasets._TEST_DISPLAY_NAME,
             metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
             metadata=test_datasets._TEST_NONTABULAR_DATASET_METADATA,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[test_datasets._TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[test_datasets._TEST_SOURCE_URI_GCS]),
             import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
             data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
         )
@@ -354,15 +363,15 @@ class TestEndToEnd:
         with pytest.raises(RuntimeError):
             created_endpoint.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=test_datasets._TEST_DISPLAY_NAME,
             metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
             metadata=test_datasets._TEST_NONTABULAR_DATASET_METADATA,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[test_datasets._TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[test_datasets._TEST_SOURCE_URI_GCS]),
             import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
             data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
         )

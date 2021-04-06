@@ -439,10 +439,12 @@ class BatchPredictionJob(_Job):
         gca_bp_job = gca_bp_job_compat
         gca_io = gca_io_compat
         gca_machine_resources = gca_machine_resources_compat
+        select_version = compat.DEFAULT_VERSION
         if generate_explanation:
             gca_bp_job = gca_bp_job_v1beta1
             gca_io = gca_io_v1beta1
             gca_machine_resources = gca_machine_resources_v1beta1
+            select_version = compat.V1BETA1
 
         gapic_batch_prediction_job = gca_bp_job.BatchPredictionJob()
 
@@ -484,7 +486,8 @@ class BatchPredictionJob(_Job):
 
         # Optional Fields
         gapic_batch_prediction_job.encryption_spec = initializer.global_config.get_encryption_spec(
-            encryption_spec_key_name=encryption_spec_key_name
+            encryption_spec_key_name=encryption_spec_key_name,
+            select_version=select_version
         )
 
         if model_parameters:
