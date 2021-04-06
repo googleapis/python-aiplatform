@@ -25,15 +25,6 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
 
-from google.cloud.aiplatform_v1beta1.types import (
-    dataset as gca_dataset_v1beta1,
-    encryption_spec as gca_encryption_spec_v1beta1,
-    io as gca_io_v1beta1,
-    model as gca_model_v1beta1,
-    pipeline_state as gca_pipeline_state_v1beta1,
-    training_pipeline as gca_training_pipeline_v1beta1,
-)
-
 from google.cloud.aiplatform_v1.types import (
     dataset as gca_dataset,
     encryption_spec as gca_encryption_spec,

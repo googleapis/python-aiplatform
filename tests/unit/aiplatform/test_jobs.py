@@ -39,19 +39,15 @@ from google.cloud.aiplatform_v1beta1.types import (
     batch_prediction_job as gca_batch_prediction_job_v1beta1,
     explanation as gca_explanation_v1beta1,
     io as gca_io_v1beta1,
-    job_state as gca_job_state_v1beta1,
     machine_resources as gca_machine_resources_v1beta1,
 )
 
-from google.cloud.aiplatform_v1.services.job_service import (
-    client as job_service_client,
-)
+from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
 
 from google.cloud.aiplatform_v1.types import (
     batch_prediction_job as gca_batch_prediction_job,
     io as gca_io,
     job_state as gca_job_state,
-    machine_resources as gca_machine_resources,
 )
 
 _TEST_PROJECT = "test-project"
@@ -485,7 +481,9 @@ class TestBatchPredictionJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_with_all_args(self, create_batch_prediction_job_with_explanations_mock, sync):
+    def test_batch_predict_with_all_args(
+        self, create_batch_prediction_job_with_explanations_mock, sync
+    ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         creds = auth_credentials.AnonymousCredentials()
 
@@ -518,7 +516,9 @@ class TestBatchPredictionJob:
             model=_TEST_MODEL_NAME,
             input_config=gca_batch_prediction_job_v1beta1.BatchPredictionJob.InputConfig(
                 instances_format="jsonl",
-                gcs_source=gca_io_v1beta1.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+                gcs_source=gca_io_v1beta1.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
             ),
             output_config=gca_batch_prediction_job_v1beta1.BatchPredictionJob.OutputConfig(
                 gcs_destination=gca_io_v1beta1.GcsDestination(

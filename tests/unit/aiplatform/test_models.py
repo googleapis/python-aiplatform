@@ -43,7 +43,6 @@ from google.cloud.aiplatform_v1beta1.types import (
     env_var as gca_env_var_v1beta1,
     explanation as gca_explanation_v1beta1,
     io as gca_io_v1beta1,
-    job_state as gca_job_state_v1beta1,
     model as gca_model_v1beta1,
     endpoint as gca_endpoint_v1beta1,
     machine_resources as gca_machine_resources_v1beta1,
@@ -55,15 +54,12 @@ from google.cloud.aiplatform_v1beta1.types import (
 from google.cloud.aiplatform_v1.services.endpoint_service import (
     client as endpoint_service_client,
 )
-from google.cloud.aiplatform_v1.services.job_service import (
-    client as job_service_client,
-)
+from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
 from google.cloud.aiplatform_v1.types import (
     batch_prediction_job as gca_batch_prediction_job,
-    env_var as gca_env_var,
     io as gca_io,
     job_state as gca_job_state,
     model as gca_model,
@@ -184,6 +180,7 @@ def get_model_mock():
         )
         yield get_model_mock
 
+
 @pytest.fixture
 def get_model_with_explanations_mock():
     with mock.patch.object(
@@ -193,6 +190,7 @@ def get_model_with_explanations_mock():
             display_name=_TEST_MODEL_NAME, name=_TEST_MODEL_RESOURCE_NAME,
         )
         yield get_model_mock
+
 
 @pytest.fixture
 def get_model_with_custom_location_mock():
@@ -242,7 +240,6 @@ def upload_model_with_explanations_mock():
         )
         upload_model_mock.return_value = mock_lro
         yield upload_model_mock
-
 
 
 @pytest.fixture
@@ -300,7 +297,6 @@ def deploy_model_mock():
         yield deploy_model_mock
 
 
-
 @pytest.fixture
 def deploy_model_with_explanations_mock():
     with mock.patch.object(
@@ -343,6 +339,7 @@ def create_batch_prediction_job_mock():
         create_batch_prediction_job_mock.return_value = batch_prediction_job_mock
         yield create_batch_prediction_job_mock
 
+
 @pytest.fixture
 def create_batch_prediction_job_with_explanations_mock():
     with mock.patch.object(
@@ -354,6 +351,7 @@ def create_batch_prediction_job_with_explanations_mock():
         batch_prediction_job_mock.name = _TEST_BATCH_PREDICTION_JOB_NAME
         create_batch_prediction_job_mock.return_value = batch_prediction_job_mock
         yield create_batch_prediction_job_mock
+
 
 @pytest.fixture
 def create_client_mock():
@@ -746,7 +744,9 @@ class TestModel:
         "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
     )
     @pytest.mark.parametrize("sync", [True, False])
-    def test_deploy_no_endpoint_with_explanations(self, deploy_model_with_explanations_mock, sync):
+    def test_deploy_no_endpoint_with_explanations(
+        self, deploy_model_with_explanations_mock, sync
+    ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
         test_endpoint = test_model.deploy(
@@ -834,9 +834,7 @@ class TestModel:
             ),
             input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
                 instances_format="jsonl",
-                gcs_source=gca_io.GcsSource(
-                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                ),
+                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
             ),
             output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
                 gcs_destination=gca_io.GcsDestination(
@@ -940,7 +938,9 @@ class TestModel:
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
-    def test_batch_predict_with_all_args(self, create_batch_prediction_job_with_explanations_mock, sync):
+    def test_batch_predict_with_all_args(
+        self, create_batch_prediction_job_with_explanations_mock, sync
+    ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
         creds = auth_credentials.AnonymousCredentials()
@@ -977,7 +977,9 @@ class TestModel:
             ),
             input_config=gca_batch_prediction_job_v1beta1.BatchPredictionJob.InputConfig(
                 instances_format="jsonl",
-                gcs_source=gca_io_v1beta1.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+                gcs_source=gca_io_v1beta1.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
             ),
             output_config=gca_batch_prediction_job_v1beta1.BatchPredictionJob.OutputConfig(
                 gcs_destination=gca_io_v1beta1.GcsDestination(

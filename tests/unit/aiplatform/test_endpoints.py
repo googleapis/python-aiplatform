@@ -29,9 +29,6 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 
-from google.cloud.aiplatform_v1beta1.services.model_service import (
-    client as model_service_client_v1beta1,
-)
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
     client as endpoint_service_client_v1beta1,
 )
@@ -40,11 +37,9 @@ from google.cloud.aiplatform_v1beta1.services.prediction_service import (
 )
 from google.cloud.aiplatform_v1beta1.types import (
     endpoint as gca_endpoint_v1beta1,
-    model as gca_model_v1beta1,
     machine_resources as gca_machine_resources_v1beta1,
     prediction_service as gca_prediction_service_v1beta1,
     endpoint_service as gca_endpoint_service_v1beta1,
-    encryption_spec as gca_encryption_spec_v1beta1,
 )
 
 from google.cloud.aiplatform_v1.services.model_service import (
@@ -99,7 +94,9 @@ _TEST_MACHINE_TYPE = "n1-standard-32"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
 
-_TEST_EXPLANATIONS = [gca_prediction_service_v1beta1.explanation.Explanation(attributions=[])]
+_TEST_EXPLANATIONS = [
+    gca_prediction_service_v1beta1.explanation.Explanation(attributions=[])
+]
 
 _TEST_ATTRIBUTIONS = [
     gca_prediction_service_v1beta1.explanation.Attribution(

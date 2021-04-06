@@ -487,7 +487,7 @@ class BatchPredictionJob(_Job):
         # Optional Fields
         gapic_batch_prediction_job.encryption_spec = initializer.global_config.get_encryption_spec(
             encryption_spec_key_name=encryption_spec_key_name,
-            select_version=select_version
+            select_version=select_version,
         )
 
         if model_parameters:

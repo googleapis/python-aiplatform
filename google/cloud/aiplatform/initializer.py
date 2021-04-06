@@ -38,6 +38,7 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec_v1beta1 as gca_encryption_spec_v1beta1,
 )
 
+
 class _Config:
     """Stores common parameters and options for API calls."""
 
@@ -100,7 +101,12 @@ class _Config:
         self,
         encryption_spec_key_name: Optional[str],
         select_version: Optional[str] = compat.DEFAULT_VERSION,
-    ) -> Optional[Union[gca_encryption_spec_v1.EncryptionSpec, gca_encryption_spec_v1beta1.EncryptionSpec]]:
+    ) -> Optional[
+        Union[
+            gca_encryption_spec_v1.EncryptionSpec,
+            gca_encryption_spec_v1beta1.EncryptionSpec,
+        ]
+    ]:
         """Creates a gca_encryption_spec.EncryptionSpec instance from the given key name.
         If the provided key name is None, it uses the default key name if provided.
 
