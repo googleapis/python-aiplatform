@@ -15,16 +15,7 @@
 # limitations under the License.
 #
 
-from typing import (
-    Any,
-    AsyncIterable,
-    Awaitable,
-    Callable,
-    Iterable,
-    Sequence,
-    Tuple,
-    Optional,
-)
+from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple
 
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import model_evaluation
