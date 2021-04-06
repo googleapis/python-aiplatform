@@ -207,6 +207,15 @@ class FutureManager(metaclass=abc.ABCMeta):
     def _sync_object_with_future_result(self, result: "FutureManager"):
         """Should sync the object from _empty_constructor with result of future."""
 
+    def __repr__(self) -> str:
+        if self._exception:
+            return f"{object.__repr__(self)} failed with {str(self._exception)}"
+
+        if self.__latest_future:
+            return f"{object.__repr__(self)} is waiting for upstream dependencies to complete."
+
+        return object.__repr__(self)
+
 
 class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     """Base class the AI Platform resource nouns.
@@ -333,6 +342,9 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     def display_name(self) -> str:
         """Display name of this resource."""
         return self._gca_resource.display_name
+
+    def __repr__(self) -> str:
+        return repr(self._gca_resource)
 
 
 def optional_sync(
@@ -561,6 +573,12 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         """
         lro = getattr(self.api_client, self._delete_method)(name=self.resource_name)
         lro.result()
+
+    def __repr__(self) -> str:
+        if self._gca_resource:
+            return AiPlatformResourceNoun.__repr__(self)
+
+        return FutureManager.__repr__(self)
 
 
 def get_annotation_class(annotation: type) -> type:
