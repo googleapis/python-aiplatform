@@ -59,6 +59,7 @@ from google.rpc import code_pb2
 
 import proto
 
+
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 _LOGGER = logging.getLogger(__name__)
 
@@ -77,6 +78,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "trainingPipelines"
     _getter_method = "get_training_pipeline"
+    _list_method = "list_training_pipelines"
     _delete_method = "delete_training_pipeline"
 
     def __init__(

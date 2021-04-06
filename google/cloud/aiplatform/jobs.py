@@ -176,6 +176,7 @@ class BatchPredictionJob(_Job):
 
     _resource_noun = "batchPredictionJobs"
     _getter_method = "get_batch_prediction_job"
+    _list_method = "list_batch_prediction_jobs"
     _cancel_method = "cancel_batch_prediction_job"
     _delete_method = "delete_batch_prediction_job"
     _job_type = "batch-predictions"
@@ -676,6 +677,7 @@ class BatchPredictionJob(_Job):
 class CustomJob(_Job):
     _resource_noun = "customJobs"
     _getter_method = "get_custom_job"
+    _list_method = "list_custom_job"
     _cancel_method = "cancel_custom_job"
     _delete_method = "delete_custom_job"
     _job_type = "training"
@@ -685,6 +687,7 @@ class CustomJob(_Job):
 class DataLabelingJob(_Job):
     _resource_noun = "dataLabelingJobs"
     _getter_method = "get_data_labeling_job"
+    _list_method = "list_data_labeling_jobs"
     _cancel_method = "cancel_data_labeling_job"
     _delete_method = "delete_data_labeling_job"
     _job_type = "labeling-tasks"
@@ -694,6 +697,7 @@ class DataLabelingJob(_Job):
 class HyperparameterTuningJob(_Job):
     _resource_noun = "hyperparameterTuningJobs"
     _getter_method = "get_hyperparameter_tuning_job"
+    _list_method = "list_hyperparameter_tuning_jobs"
     _cancel_method = "cancel_hyperparameter_tuning_job"
     _delete_method = "delete_hyperparameter_tuning_job"
     pass

@@ -71,6 +71,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "endpoints"
     _getter_method = "get_endpoint"
+    _list_method = "list_endpoints"
     _delete_method = "delete_endpoint"
 
     def __init__(
@@ -1083,6 +1084,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "models"
     _getter_method = "get_model"
+    _list_method = "list_models"
     _delete_method = "delete_model"
 
     @property

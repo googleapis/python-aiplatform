@@ -40,9 +40,10 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "datasets"
     _getter_method = "get_dataset"
+    _list_method = "list_datasets"
     _delete_method = "delete_dataset"
 
-    _supported_metadata_schema_uris: Optional[Tuple[str]] = None
+    _supported_metadata_schema_uris: Optional[Tuple[str]] = ()
 
     def __init__(
         self,

@@ -17,16 +17,18 @@
 
 import abc
 from concurrent import futures
+import datetime
 import functools
 import inspect
+import proto
 import threading
 from typing import Any, Callable, Dict, Optional, Sequence, Union
 
-import proto
-
 from google.auth import credentials as auth_credentials
+from google.cloud import aiplatform
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
+from google.protobuf import field_mask_pb2 as field_mask
 
 
 class FutureManager(metaclass=abc.ABCMeta):
@@ -223,7 +225,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     @property
     @classmethod
     @abc.abstractmethod
-    def client_class(cls) -> utils.AiPlatformServiceClient:
+    def client_class(cls) -> "utils.AiPlatformServiceClient":
         """Client class required to interact with resource."""
         pass
 
@@ -238,6 +240,12 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def _getter_method(cls) -> str:
         """Name of getter method of client class for retrieving the resource."""
+        pass
+
+    @property
+    @abc.abstractmethod
+    def _list_method(cls) -> str:
+        """Name of list method of client class for listing resources."""
         pass
 
     @property
@@ -278,7 +286,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         cls,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> utils.AiPlatformServiceClient:
+    ) -> "utils.AiPlatformServiceClient":
         """Helper method to instantiate service client for resource noun.
 
         Args:
@@ -333,6 +341,16 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     def display_name(self) -> str:
         """Display name of this resource."""
         return self._gca_resource.display_name
+
+    @property
+    def create_time(self) -> datetime.datetime:
+        """Time this resource was created."""
+        return self._gca_resource.create_time
+
+    @property
+    def update_time(self) -> datetime.datetime:
+        """Time this resource was last updated."""
+        return self._gca_resource.update_time
 
 
 def optional_sync(
@@ -548,6 +566,117 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
             value = getattr(result, attribute, None)
             if value:
                 setattr(self, attribute, value)
+
+    def _construct_sdk_resource_from_gapic(
+        self, gapic_resource: proto.Message
+    ) -> AiPlatformResourceNoun:
+        """Given a GAPIC object, return the SDK representation."""
+        sdk_resource = self._empty_constructor()
+        sdk_resource._gca_resource = gapic_resource
+        return sdk_resource
+
+    # TODO(b/144545165) - Improve documentation for list filtering once available
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        page_size: Optional[int] = None,
+        read_mask: Optional[field_mask.FieldMask] = None,
+    ) -> Sequence[AiPlatformResourceNoun]:
+        """List all instances of this AI Platform Resource.
+
+        Example Usage:
+
+        aiplatform.BatchPredictionJobs.list(
+            filter='state="JOB_STATE_SUCCEEDED" AND display_name="my_job"',
+        )
+
+        aiplatform.Model.list(order_by="create_time desc, display_name")
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            page_size (int):
+                Optional. The standard list page size.
+            read_mask (field_mask.FieldMask):
+                Optional. Mask specifying which fields to read.
+
+        Returns:
+            Sequence[AiPlatformResourceNoun] - A list of SDK resource objects
+        """
+
+        self = cls._empty_constructor()
+
+        resource_list_method = getattr(self.api_client, self._list_method)
+        order_locally = False
+
+        list_request = {
+            "parent": initializer.global_config.common_location_path(),
+            "filter": filter,
+            "page_size": page_size,
+            "read_mask": read_mask,
+        }
+
+        # If list method does not offer `order_by` field, order locally
+        if (
+            issubclass(
+                type(self),
+                (
+                    aiplatform.jobs._Job,
+                    aiplatform.training_jobs._TrainingJob,
+                    aiplatform.models.Model,
+                ),
+            )
+            and order_by
+        ):
+            order_locally = True
+        elif order_by:
+            list_request["order_by"] = order_by
+
+        resource_list = resource_list_method(request=list_request) or []
+
+        # Only return objects specific to the calling subclass,
+        # for example TabularDataset.list() only lists TabularDatasets
+        if issubclass(type(self), aiplatform.datasets.Dataset):
+            final_list = [
+                self._construct_sdk_resource_from_gapic(gapic_resource)
+                for gapic_resource in resource_list
+                if gapic_resource.metadata_schema_uri
+                in self._supported_metadata_schema_uris
+            ]
+
+        elif issubclass(type(self), aiplatform.training_jobs._TrainingJob):
+            final_list = [
+                self._construct_sdk_resource_from_gapic(gapic_resource)
+                for gapic_resource in resource_list
+                if gapic_resource.training_task_definition
+                in self._supported_training_schemas
+            ]
+
+        else:
+            final_list = [
+                self._construct_sdk_resource_from_gapic(gapic_resource)
+                for gapic_resource in resource_list
+            ]
+
+        # Client-side sorting when API doesn't support `order_by`
+        if order_locally:
+            desc = "desc" in order_by
+            order_by = order_by.replace("desc", "")
+            order_by = order_by.split(",")
+
+            final_list.sort(
+                key=lambda x: tuple(getattr(x, field.strip()) for field in order_by),
+                reverse=desc,
+            )
+
+        return final_list
 
     @optional_sync()
     def delete(self, sync: bool = True) -> None:
