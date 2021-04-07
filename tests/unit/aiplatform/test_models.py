@@ -1005,7 +1005,10 @@ class TestModel:
     def test_print_model(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
-        assert repr(test_model) == repr(test_model._gca_resource)
+        assert (
+            repr(test_model)
+            == f"{object.__repr__(test_model)} \nresource name: {test_model.resource_name}"
+        )
 
     @pytest.mark.usefixtures("get_model_mock")
     def test_print_model_if_waiting(self):

@@ -344,7 +344,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         return self._gca_resource.display_name
 
     def __repr__(self) -> str:
-        return repr(self._gca_resource)
+        return f"{object.__repr__(self)} \nresource name: {self.resource_name}"
 
 
 def optional_sync(
