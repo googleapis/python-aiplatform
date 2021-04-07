@@ -1526,7 +1526,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         Usage with Dataset:
 
-        ds = aiplatform.Dataset(
+        ds = aiplatform.TabularDataset(
             'projects/my-project/locations/us-central1/datasets/12345')
 
         job.run(ds, replica_count=1, model_display_name='my-trained-model')
@@ -2016,7 +2016,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         Usage with Dataset:
 
-        ds = aiplatform.Dataset(
+        ds = aiplatform.TabularDataset(
             'projects/my-project/locations/us-central1/datasets/12345')
 
         job.run(ds, replica_count=1, model_display_name='my-trained-model')
@@ -3248,7 +3248,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
         Usage with Dataset:
 
-            ds = aiplatform.Dataset(
+            ds = aiplatform.TabularDataset(
                 'projects/my-project/locations/us-central1/datasets/12345'
             )
 
