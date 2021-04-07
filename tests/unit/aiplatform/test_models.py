@@ -18,6 +18,7 @@
 import importlib
 import pytest
 from unittest import mock
+from datetime import datetime, timedelta
 
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
@@ -112,6 +113,24 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_ENCRYPTION_KEY_NAME
 )
 
+_TEST_OUTPUT_DIR = "gs://my-output-bucket"
+
+_TEST_MODEL_LIST = [
+    gca_model.Model(
+        display_name="aac", create_time=datetime.now() - timedelta(minutes=15)
+    ),
+    gca_model.Model(
+        display_name="aab", create_time=datetime.now() - timedelta(minutes=5)
+    ),
+    gca_model.Model(
+        display_name="aaa", create_time=datetime.now() - timedelta(minutes=10)
+    ),
+]
+
+_TEST_LIST_FILTER = 'display_name="abc"'
+_TEST_LIST_ORDER_BY_CREATE_TIME = "create_time desc"
+_TEST_LIST_ORDER_BY_DISPLAY_NAME = "display_name"
+
 
 @pytest.fixture
 def get_endpoint_mock():
@@ -144,6 +163,13 @@ def delete_model_mock():
         delete_model_lro_mock.result.return_value = model_service.DeleteModelRequest()
         delete_model_mock.return_value = delete_model_lro_mock
         yield delete_model_mock
+
+
+@pytest.fixture
+def list_models_mock():
+    with mock.patch.object(ModelServiceClient, "list_models") as list_models_mock:
+        list_models_mock.return_value = _TEST_MODEL_LIST
+        yield list_models_mock
 
 
 @pytest.fixture
@@ -192,6 +218,7 @@ class TestModel:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
@@ -236,7 +263,7 @@ class TestModel:
             )
 
     def test_constructor_creates_client_with_custom_credentials(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
@@ -252,7 +279,7 @@ class TestModel:
             )
 
     def test_constructor_gets_model(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
@@ -268,7 +295,7 @@ class TestModel:
             )
 
     def test_constructor_gets_model_with_custom_project(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
@@ -283,7 +310,7 @@ class TestModel:
             )
 
     def test_constructor_gets_model_with_custom_location(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
@@ -300,7 +327,6 @@ class TestModel:
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model(self, sync):
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
@@ -348,8 +374,6 @@ class TestModel:
 
     def test_upload_raises_with_impartial_explanation_spec(self):
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-
         with pytest.raises(ValueError) as e:
             models.Model.upload(
                 display_name=_TEST_MODEL_NAME,
@@ -364,7 +388,6 @@ class TestModel:
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_all_args(self, sync):
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
@@ -449,7 +472,6 @@ class TestModel:
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_custom_project(self, sync):
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
@@ -500,7 +522,7 @@ class TestModel:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_custom_location(self, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         with mock.patch.object(
             initializer.global_config, "create_client"
         ) as create_client_mock:
@@ -552,7 +574,7 @@ class TestModel:
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
         test_endpoint = models.Endpoint(_TEST_ID)
 
@@ -581,7 +603,7 @@ class TestModel:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_no_endpoint(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
         test_endpoint = test_model.deploy(sync=sync)
 
@@ -608,7 +630,7 @@ class TestModel:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_no_endpoint_dedicated_resources(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
         test_endpoint = test_model.deploy(
             machine_type=_TEST_MACHINE_TYPE,
@@ -645,7 +667,7 @@ class TestModel:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_no_endpoint_with_explanations(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
         test_endpoint = test_model.deploy(
             machine_type=_TEST_MACHINE_TYPE,
@@ -687,7 +709,7 @@ class TestModel:
         "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
     )
     def test_deploy_raises_with_impartial_explanation_spec(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         with pytest.raises(ValueError) as e:
@@ -755,9 +777,7 @@ class TestModel:
     def test_batch_predict_gcs_source_and_dest(
         self, create_batch_prediction_job_mock, sync
     ):
-        aiplatform.init(
-            project=_TEST_PROJECT, location=_TEST_LOCATION,
-        )
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -801,7 +821,7 @@ class TestModel:
     def test_batch_predict_gcs_source_bq_dest(
         self, create_batch_prediction_job_mock, sync
     ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -843,7 +863,7 @@ class TestModel:
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_with_all_args(self, create_batch_prediction_job_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
         creds = auth_credentials.AnonymousCredentials()
 
@@ -914,7 +934,7 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_no_source(self, create_batch_prediction_job_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call without source
@@ -928,7 +948,7 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_two_sources(self, create_batch_prediction_job_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call with two sources
@@ -944,7 +964,7 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_no_destination(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call without destination
@@ -958,7 +978,7 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_wrong_instance_format(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -974,7 +994,7 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_wrong_prediction_format(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -991,7 +1011,7 @@ class TestModel:
     @pytest.mark.usefixtures("get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_delete_model(self, delete_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
         test_model.delete(sync=sync)
 
@@ -999,3 +1019,53 @@ class TestModel:
             test_model.wait()
 
         delete_model_mock.assert_called_once_with(name=test_model.resource_name)
+
+    def test_list_model_order_by_time(self, list_models_mock):
+        """Test call to Model.list() and ensure list is returned in descending order of create_time"""
+
+        ds_list = aiplatform.Model.list(
+            filter=_TEST_LIST_FILTER, order_by=_TEST_LIST_ORDER_BY_CREATE_TIME
+        )
+
+        # `order_by` is not passed to API since it is not an accepted field
+        list_models_mock.assert_called_once_with(
+            request={
+                "parent": _TEST_PARENT,
+                "filter": _TEST_LIST_FILTER,
+                "page_size": None,
+                "read_mask": None,
+            }
+        )
+
+        assert len(ds_list) == len(_TEST_MODEL_LIST)
+
+        for ds in ds_list:
+            assert type(ds) == aiplatform.Model
+
+        assert ds_list[0].create_time > ds_list[1].create_time > ds_list[2].create_time
+
+    def test_list_model_order_by_display_name(self, list_models_mock):
+        """Test call to Model.list() and ensure list is returned in order of display_name"""
+
+        ds_list = aiplatform.Model.list(
+            filter=_TEST_LIST_FILTER, order_by=_TEST_LIST_ORDER_BY_DISPLAY_NAME
+        )
+
+        # `order_by` is not passed to API since it is not an accepted field
+        list_models_mock.assert_called_once_with(
+            request={
+                "parent": _TEST_PARENT,
+                "filter": _TEST_LIST_FILTER,
+                "page_size": None,
+                "read_mask": None,
+            }
+        )
+
+        assert len(ds_list) == len(_TEST_MODEL_LIST)
+
+        for ds in ds_list:
+            assert type(ds) == aiplatform.Model
+
+        assert (
+            ds_list[0].display_name < ds_list[1].display_name < ds_list[2].display_name
+        )

@@ -106,6 +106,21 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
 # misc
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
 
+_TEST_TABULAR_DATASET_LIST = [
+    GapicDataset(
+        display_name="a", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
+    ),
+    GapicDataset(
+        display_name="b", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
+    ),
+    GapicDataset(
+        display_name="c", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
+    ),
+]
+
+_TEST_LIST_FILTER = 'display_name="abc"'
+_TEST_LIST_ORDER_BY = "create_time desc"
+
 
 @pytest.fixture
 def get_dataset_mock():
@@ -222,6 +237,13 @@ def export_data_mock():
     with patch.object(DatasetServiceClient, "export_data") as export_data_mock:
         export_data_mock.return_value = mock.Mock(operation.Operation)
         yield export_data_mock
+
+
+@pytest.fixture
+def list_datasets_mock():
+    with patch.object(DatasetServiceClient, "list_datasets") as list_datasets_mock:
+        list_datasets_mock.return_value = _TEST_TABULAR_DATASET_LIST
+        yield list_datasets_mock
 
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
@@ -669,18 +691,19 @@ class TestTabularDataset:
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
+        aiplatform.init(project=_TEST_PROJECT)
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
     def test_init_dataset_tabular(self, get_dataset_tabular_mock):
-        aiplatform.init(project=_TEST_PROJECT)
+
         datasets.TabularDataset(dataset_name=_TEST_NAME)
         get_dataset_tabular_mock.assert_called_once_with(name=_TEST_NAME)
 
     @pytest.mark.usefixtures("get_dataset_image_mock")
     def test_init_dataset_non_tabular(self):
-        aiplatform.init(project=_TEST_PROJECT)
+
         with pytest.raises(ValueError):
             datasets.TabularDataset(dataset_name=_TEST_NAME)
 
@@ -716,7 +739,6 @@ class TestTabularDataset:
     @pytest.mark.usefixtures("get_dataset_tabular_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset(self, create_dataset_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.TabularDataset.create(
             display_name=_TEST_DISPLAY_NAME,
@@ -743,12 +765,32 @@ class TestTabularDataset:
 
     @pytest.mark.usefixtures("get_dataset_tabular_mock")
     def test_no_import_data_method(self):
-        aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
 
         with pytest.raises(NotImplementedError):
             my_dataset.import_data()
+
+    def test_list_dataset(self, list_datasets_mock):
+
+        ds_list = aiplatform.TabularDataset.list(
+            filter=_TEST_LIST_FILTER, order_by=_TEST_LIST_ORDER_BY
+        )
+
+        list_datasets_mock.assert_called_once_with(
+            request={
+                "parent": _TEST_PARENT,
+                "filter": _TEST_LIST_FILTER,
+                "order_by": _TEST_LIST_ORDER_BY,
+                "page_size": None,
+                "read_mask": None,
+            }
+        )
+
+        assert len(ds_list) == len(_TEST_TABULAR_DATASET_LIST)
+
+        for ds in ds_list:
+            assert type(ds) == aiplatform.TabularDataset
 
 
 class TestTextDataset:
