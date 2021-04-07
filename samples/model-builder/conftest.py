@@ -63,6 +63,12 @@ def mock_create_image_dataset():
         mock.return_value = MagicMock(aiplatform.Dataset)
         yield mock
 
+@pytest.fixture
+def mock_import_data(mock_dataset):
+    with patch.object(aiplatform.datasets.Dataset, "import_data") as mock:
+        mock.return_value = mock_dataset
+        yield mock
+
 
 # ----------------------------------------------------------------------------
 # TrainingJob Fixtures
