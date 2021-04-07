@@ -16,6 +16,7 @@
 #
 
 import importlib
+from concurrent import futures
 import pytest
 from unittest import mock
 
@@ -999,3 +1000,35 @@ class TestModel:
             test_model.wait()
 
         delete_model_mock.assert_called_once_with(name=test_model.resource_name)
+
+    @pytest.mark.usefixtures("get_model_mock")
+    def test_print_model(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+        assert (
+            repr(test_model)
+            == f"{object.__repr__(test_model)} \nresource name: {test_model.resource_name}"
+        )
+
+    @pytest.mark.usefixtures("get_model_mock")
+    def test_print_model_if_waiting(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource = None
+        test_model._latest_future = futures.Future()
+        assert (
+            repr(test_model)
+            == f"{object.__repr__(test_model)} is waiting for upstream dependencies to complete."
+        )
+
+    @pytest.mark.usefixtures("get_model_mock")
+    def test_print_model_if_exception(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource = None
+        mock_exception = Exception("mock exception")
+        test_model._exception = mock_exception
+        assert (
+            repr(test_model)
+            == f"{object.__repr__(test_model)} failed with {str(mock_exception)}"
+        )
