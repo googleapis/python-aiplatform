@@ -626,17 +626,22 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         # Used these numbers so failures surface fast
         wait = 5  # start at five seconds
+        log_wait = 5
         max_wait = 60 * 5  # 5 minute wait
         multiplier = 2  # scale wait by 2 every iteration
 
+        previous_time = time.time()
         while self.state not in _PIPELINE_COMPLETE_STATES:
             self._sync_gca_resource()
+            current_time = time.time()
+            if current_time - previous_time >= log_wait:
+                _LOGGER.info(
+                    "Training %s current state:\n%s"
+                    % (self._gca_resource.name, self._gca_resource.state)
+                )
+                log_wait = min(log_wait * multiplier, max_wait)
+            previous_time = current_time
             time.sleep(wait)
-            _LOGGER.info(
-                "Training %s current state:\n%s"
-                % (self._gca_resource.name, self._gca_resource.state)
-            )
-            wait = min(wait * multiplier, max_wait)
 
         self._raise_failure()
 
