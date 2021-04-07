@@ -568,10 +568,12 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
                 setattr(self, attribute, value)
 
     def _construct_sdk_resource_from_gapic(
-        self, gapic_resource: proto.Message
+        self,
+        gapic_resource: proto.Message,
+        credentials: Optional[auth_credentials.Credentials] = None,
     ) -> AiPlatformResourceNoun:
         """Given a GAPIC object, return the SDK representation."""
-        sdk_resource = self._empty_constructor()
+        sdk_resource = self._empty_constructor(credentials=credentials)
         sdk_resource._gca_resource = gapic_resource
         return sdk_resource
 
@@ -610,8 +612,16 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         Returns:
             Sequence[AiPlatformResourceNoun] - A list of SDK resource objects
         """
+        _UNSUPPORTED_LIST_ORDER_BY_TYPES = (
+            aiplatform.jobs._Job,
+            aiplatform.models.Endpoint,
+            aiplatform.models.Model,
+            aiplatform.training_jobs._TrainingJob,
+        )
 
         self = cls._empty_constructor()
+
+        creds = initializer.global_config.credentials
 
         resource_list_method = getattr(self.api_client, self._list_method)
         order_locally = False
@@ -624,17 +634,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         }
 
         # If list method does not offer `order_by` field, order locally
-        if (
-            issubclass(
-                type(self),
-                (
-                    aiplatform.jobs._Job,
-                    aiplatform.training_jobs._TrainingJob,
-                    aiplatform.models.Model,
-                ),
-            )
-            and order_by
-        ):
+        if order_by and issubclass(type(self), _UNSUPPORTED_LIST_ORDER_BY_TYPES):
             order_locally = True
         elif order_by:
             list_request["order_by"] = order_by
@@ -645,7 +645,9 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         # for example TabularDataset.list() only lists TabularDatasets
         if issubclass(type(self), aiplatform.datasets.Dataset):
             final_list = [
-                self._construct_sdk_resource_from_gapic(gapic_resource)
+                self._construct_sdk_resource_from_gapic(
+                    gapic_resource, credentials=creds
+                )
                 for gapic_resource in resource_list
                 if gapic_resource.metadata_schema_uri
                 in self._supported_metadata_schema_uris
@@ -653,7 +655,9 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
 
         elif issubclass(type(self), aiplatform.training_jobs._TrainingJob):
             final_list = [
-                self._construct_sdk_resource_from_gapic(gapic_resource)
+                self._construct_sdk_resource_from_gapic(
+                    gapic_resource, credentials=creds
+                )
                 for gapic_resource in resource_list
                 if gapic_resource.training_task_definition
                 in self._supported_training_schemas
@@ -661,7 +665,9 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
 
         else:
             final_list = [
-                self._construct_sdk_resource_from_gapic(gapic_resource)
+                self._construct_sdk_resource_from_gapic(
+                    gapic_resource, credentials=creds
+                )
                 for gapic_resource in resource_list
             ]
 
