@@ -256,12 +256,12 @@ class TestDataset:
 
     def test_init_dataset(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        datasets.Dataset(dataset_name=_TEST_NAME)
+        datasets._Dataset(dataset_name=_TEST_NAME)
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
 
     def test_init_dataset_with_id_only(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        datasets.Dataset(dataset_name=_TEST_ID)
+        datasets._Dataset(dataset_name=_TEST_ID)
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
 
     @pytest.mark.usefixtures("get_dataset_without_name_mock")
@@ -270,21 +270,21 @@ class TestDataset:
     )
     def test_init_dataset_with_id_only_without_project_or_location(self):
         with pytest.raises(GoogleAuthError):
-            datasets.Dataset(
+            datasets._Dataset(
                 dataset_name=_TEST_ID,
                 credentials=auth_credentials.AnonymousCredentials(),
             )
 
     def test_init_dataset_with_location_override(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        datasets.Dataset(dataset_name=_TEST_ID, location=_TEST_ALT_LOCATION)
+        datasets._Dataset(dataset_name=_TEST_ID, location=_TEST_ALT_LOCATION)
         get_dataset_mock.assert_called_once_with(name=_TEST_ALT_NAME)
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_init_dataset_with_invalid_name(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-            datasets.Dataset(dataset_name=_TEST_INVALID_NAME)
+            datasets._Dataset(dataset_name=_TEST_INVALID_NAME)
 
     @pytest.mark.usefixtures("get_dataset_mock")
     @pytest.mark.parametrize("sync", [True, False])
@@ -295,7 +295,7 @@ class TestDataset:
             project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
-        my_dataset = datasets.Dataset.create(
+        my_dataset = datasets._Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             sync=sync,
@@ -322,7 +322,7 @@ class TestDataset:
     def test_create_dataset_nontabular(self, create_dataset_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_dataset = datasets.Dataset.create(
+        my_dataset = datasets._Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
@@ -349,7 +349,7 @@ class TestDataset:
     def test_create_dataset_tabular(self, create_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        datasets.Dataset.create(
+        datasets._Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             bq_source=_TEST_SOURCE_URI_BQ,
@@ -376,7 +376,7 @@ class TestDataset:
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_dataset = datasets.Dataset.create(
+        my_dataset = datasets._Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             gcs_source=_TEST_SOURCE_URI_GCS,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
@@ -420,7 +420,7 @@ class TestDataset:
     def test_import_data(self, import_data_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_dataset = datasets.Dataset(dataset_name=_TEST_NAME)
+        my_dataset = datasets._Dataset(dataset_name=_TEST_NAME)
 
         my_dataset.import_data(
             gcs_source=_TEST_SOURCE_URI_GCS,
@@ -446,7 +446,7 @@ class TestDataset:
     def test_export_data(self, export_data_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_dataset = datasets.Dataset(dataset_name=_TEST_NAME)
+        my_dataset = datasets._Dataset(dataset_name=_TEST_NAME)
 
         my_dataset.export_data(output_dir=_TEST_OUTPUT_DIR)
 
@@ -465,7 +465,7 @@ class TestDataset:
 
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_dataset = datasets.Dataset.create(
+        my_dataset = datasets._Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,

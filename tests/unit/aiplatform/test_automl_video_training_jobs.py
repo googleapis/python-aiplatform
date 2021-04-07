@@ -122,7 +122,7 @@ def mock_model_service_get():
 
 @pytest.fixture
 def mock_dataset_video():
-    ds = mock.MagicMock(datasets.Dataset)
+    ds = mock.MagicMock(datasets.VideoDataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
     ds._gca_resource = gca_dataset.Dataset(

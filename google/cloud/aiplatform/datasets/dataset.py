@@ -33,7 +33,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.datasets import _datasources
 
 
-class Dataset(base.AiPlatformResourceNounWithFutureManager):
+class _Dataset(base.AiPlatformResourceNounWithFutureManager):
     """Managed dataset resource for AI Platform"""
 
     client_class = utils.DatasetClientWithOverride
@@ -111,7 +111,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
-    ) -> "Dataset":
+    ) -> "_Dataset":
         """Creates a new dataset and optionally imports data into dataset when
         source and import_schema_uri are passed.
 
@@ -237,7 +237,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
         sync: bool = True,
-    ) -> "Dataset":
+    ) -> "_Dataset":
         """Creates a new dataset and optionally imports data into dataset when
         source and import_schema_uri are passed.
 
@@ -396,7 +396,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         import_schema_uri: str,
         data_item_labels: Optional[Dict] = None,
         sync: bool = True,
-    ) -> "Dataset":
+    ) -> "_Dataset":
         """Upload data to existing managed dataset.
 
         Args:

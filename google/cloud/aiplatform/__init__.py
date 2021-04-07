@@ -20,9 +20,8 @@ from google.cloud.aiplatform import explain
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.datasets import (
-    Dataset,
-    TabularDataset,
     ImageDataset,
+    TabularDataset,
     TextDataset,
     VideoDataset,
 )
@@ -59,7 +58,6 @@ __all__ = (
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",
-    "Dataset",
     "Endpoint",
     "ImageDataset",
     "Model",
