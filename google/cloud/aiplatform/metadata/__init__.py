@@ -15,6 +15,4 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.metadata.metadata_store import MetadataStore
-
 __all__ = "MetadataStore"

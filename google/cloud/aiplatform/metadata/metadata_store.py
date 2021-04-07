@@ -66,9 +66,7 @@ class MetadataStore(base.AiPlatformResourceNounWithFutureManager):
         super().__init__(
             project=project, location=location, credentials=credentials,
         )
-        self._gca_resource = self._get_gca_resource(
-            resource_name=metadata_store_name, allow_str_id=True
-        )
+        self._gca_resource = self._get_gca_resource(resource_name=metadata_store_name)
 
     @classmethod
     def create(
