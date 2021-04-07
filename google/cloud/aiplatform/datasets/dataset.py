@@ -24,19 +24,19 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 
-from google.cloud.aiplatform.datasets import _datasources
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
-from google.cloud.aiplatform_v1beta1.types import io as gca_io
-from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
-from google.cloud.aiplatform_v1beta1.services.dataset_service import (
-    client as dataset_service_client,
+from google.cloud.aiplatform.compat.services import dataset_service_client
+from google.cloud.aiplatform.compat.types import (
+    dataset as gca_dataset,
+    encryption_spec as gca_encryption_spec,
+    io as gca_io,
 )
+from google.cloud.aiplatform.datasets import _datasources
 
 
 class Dataset(base.AiPlatformResourceNounWithFutureManager):
     """Managed dataset resource for AI Platform"""
 
-    client_class = dataset_service_client.DatasetServiceClient
+    client_class = utils.DatasetClientWithOverride
     _is_client_prediction_client = False
     _resource_noun = "datasets"
     _getter_method = "get_dataset"
