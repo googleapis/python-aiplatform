@@ -215,7 +215,6 @@ class TestDataset:
 
         img_dataset = aiplatform.ImageDataset.create(
             display_name=f"temp_sdk_integration_create_and_import_dataset_{uuid.uuid4()}",
-            metadata_schema_uri=aiplatform.schema.dataset.metadata.image,
             gcs_source=_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE,
             import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
         )
@@ -237,7 +236,6 @@ class TestDataset:
 
         tabular_dataset = aiplatform.TabularDataset.create(
             display_name=f"temp_sdk_integration_create_and_import_dataset_{uuid.uuid4()}",
-            metadata_schema_uri=aiplatform.schema.dataset.metadata.tabular,
             gcs_source=[_TEST_TABULAR_CLASSIFICATION_GCS_SOURCE],
         )
 
