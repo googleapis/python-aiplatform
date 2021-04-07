@@ -26,7 +26,10 @@ from google.cloud.aiplatform.datasets import (
     TextDataset,
     VideoDataset,
 )
-from google.cloud.aiplatform.metadata import MetadataStore
+from google.cloud.aiplatform.metadata import (
+    MetadataStore,
+    Context,
+)
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
 from google.cloud.aiplatform.jobs import BatchPredictionJob
@@ -56,6 +59,7 @@ __all__ = (
     "AutoMLTextTrainingJob",
     "AutoMLVideoTrainingJob",
     "BatchPredictionJob",
+    "Context",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",

@@ -153,7 +153,7 @@ class TestMetadataStore:
         get_metadata_store_mock.assert_called_once_with(name=_TEST_ALT_LOC_NAME)
 
     @pytest.mark.usefixtures("get_metadata_store_mock")
-    def test_init_dataset_with_invalid_name(self):
+    def test_init_metadata_store_with_invalid_name(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
             metadata.MetadataStore(metadata_store_name=_TEST_INVALID_NAME)

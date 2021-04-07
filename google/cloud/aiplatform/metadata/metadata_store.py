@@ -38,7 +38,7 @@ class MetadataStore(base.AiPlatformResourceNounWithFutureManager):
 
     def __init__(
         self,
-        metadata_store_name: Optional[str] = "default",
+        metadata_store_name: str = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -47,7 +47,7 @@ class MetadataStore(base.AiPlatformResourceNounWithFutureManager):
 
         Args:
             metadata_store_name (str):
-                Optional. A fully-qualified MetadataStore resource name or metadataStore ID.
+                A fully-qualified MetadataStore resource name or metadataStore ID.
                 Example: "projects/123/locations/us-central1/metadataStores/my-store" or
                 "my-store" when project and location are initialized or passed.
                 If not set, metadata_store_name will be set to "default".
@@ -79,13 +79,13 @@ class MetadataStore(base.AiPlatformResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
     ) -> "MetadataStore":
-        """Creates a new MetadataStore if it does not exist.
+        f"""Creates a new MetadataStore if it does not exist.
 
         Args:
             metadata_store_id (str):
-                The {metadatastore} portion of the resource name with
+                The {metadata_store_id} portion of the resource name with
                 the format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}
                 If not provided, the MetadataStore's ID will be set to "default" to create a default MetadataStore.
             project (str):
                 Project to upload this model to. Overrides project set in
@@ -130,7 +130,7 @@ class MetadataStore(base.AiPlatformResourceNounWithFutureManager):
                 metadata_store_id=metadata_store_id,
             )
         except exceptions.AlreadyExists:
-            logging.info("MetadataStore %s already exists" % metadata_store_id)
+            logging.info(f"MetadataStore '{metadata_store_id}' already exists")
 
         return cls(
             metadata_store_name=metadata_store_id,
