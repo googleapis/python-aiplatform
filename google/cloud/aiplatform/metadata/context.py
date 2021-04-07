@@ -14,17 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import re
 import logging
 from typing import Optional, Dict
-from google.cloud.aiplatform import utils
 
 from google.api_core import exceptions
+from google.cloud.aiplatform import utils
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform_v1beta1.types import context as gca_context
 from google.cloud.aiplatform_v1beta1.services.metadata_service import (
     client as metadata_service_client,
+)
+
+
+RESOURCE_NAME_PATTERN = re.compile(
+    r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/metadataStores\/(?P<store>[\w-]+)\/contexts\/(?P<id>[\w-]+)$"
 )
 
 
@@ -40,7 +46,7 @@ class Context(base.AiPlatformResourceNounWithFutureManager):
     def __init__(
         self,
         context_name: str,
-        metadata_store_id: str = "default",
+        metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -54,6 +60,7 @@ class Context(base.AiPlatformResourceNounWithFutureManager):
                 or "my-context" when project and location are initialized or passed.
             metadata_store_id (str):
                 MetadataStore to retrieve resource from. If not set, metadata_store_id is set to "default".
+                If context_name is a fully-qualified Context, its metadata_store_id overrides this one.
             project (str):
                 Optional project to retrieve resource from. If not set, project
                 set in aiplatform.init will be used.
@@ -69,20 +76,19 @@ class Context(base.AiPlatformResourceNounWithFutureManager):
             project=project, location=location, credentials=credentials,
         )
 
-        # If it's a full resource name, just retrieve it.
+        # If we receive a full resource name, we extract the metadata_store_id and use that
         if context_name.find("/") != -1:
-            self._gca_resource = self._get_gca_resource(resource_name=context_name)
-        else:
-            # Need to build the resource name using the parent metadataStore and reuse the functionality in utils.
-            resource_name = utils.full_resource_name(
-                resource_name=context_name,
-                resource_noun=f"metadataStores/{metadata_store_id}/{self._resource_noun}",
-                project=self.project,
-                location=self.location,
-            )
-            self._gca_resource = getattr(self.api_client, self._getter_method)(
-                name=resource_name
-            )
+            metadata_store_id = Context._extract_metadata_store_id(context_name)
+
+        resource_name = utils.full_resource_name(
+            resource_name=context_name,
+            resource_noun=f"metadataStores/{metadata_store_id}/{self._resource_noun}",
+            project=self.project,
+            location=self.location,
+        )
+        self._gca_resource = getattr(self.api_client, self._getter_method)(
+            name=resource_name
+        )
 
     @classmethod
     def create(
@@ -166,3 +172,24 @@ class Context(base.AiPlatformResourceNounWithFutureManager):
             location=location,
             credentials=credentials,
         )
+
+    @classmethod
+    def _extract_metadata_store_id(cls, resource_name) -> str:
+        """Extracts the metadata store id from the resource name.
+
+        Args:
+            resource_name (str):
+                Required. A fully-qualified metadata resource name. For example
+                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/contexts/{context_id}.
+        Returns:
+            metadata_store_id (str):
+                The metadata store id for the particular resource name.
+        Raises:
+            ValueError if it does not exist.
+        """
+        match = RESOURCE_NAME_PATTERN.match(resource_name)
+        if not match:
+            raise ValueError(
+                f"failed to extract metadata_store_id from resource {resource_name}"
+            )
+        return match["store"]

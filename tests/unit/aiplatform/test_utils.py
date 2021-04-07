@@ -95,6 +95,18 @@ def test_extract_fields_from_resource_name_with_extracted_fields(
             "batchPredictionJobs",
             False,
         ),
+        # Expects pattern "projects/.../locations/.../metadataStores/.../contexts/..."
+        (
+            "projects/857392/locations/us-central1/metadataStores/default/contexts/123",
+            "metadataStores/default/contexts",
+            True,
+        ),
+        # Expects pattern "projects/.../locations/.../tensorboards/.../experiments/.../runs/.../timeSeries/..."
+        (
+            "projects/857392/locations/us-central1/tensorboards/123/experiments/456/runs/789/timeSeries/1",
+            "tensorboards/123/experiments/456/runs/789/timeSeries",
+            True,
+        ),
     ],
 )
 def test_extract_fields_from_resource_name_with_resource_noun(
@@ -134,6 +146,18 @@ def test_invalid_region_does_not_raise_with_valid_region():
             "us-west20",
             "projects/857392/locations/us-central1/trainingPipelines/347292",
         ),
+        (
+            "metadataStores/default/contexts",
+            "123456",
+            "europe-west4",
+            "projects/857392/locations/us-central1/metadataStores/default/contexts/123",
+        ),
+        (
+            "tensorboards/123/experiments/456/runs/789/timeSeries",
+            "857392",
+            "us-central1",
+            "projects/857392/locations/us-central1/tensorboards/123/experiments/456/runs/789/timeSeries/1",
+        ),
     ],
 )
 def test_full_resource_name_with_full_name(
@@ -167,6 +191,20 @@ def test_full_resource_name_with_full_name(
             "857392",
             "us-central1",
             "projects/857392/locations/us-central1/trainingPipelines/347292",
+        ),
+        (
+            "123",
+            "metadataStores/default/contexts",
+            "857392",
+            "us-central1",
+            "projects/857392/locations/us-central1/metadataStores/default/contexts/123",
+        ),
+        (
+            "1",
+            "tensorboards/123/experiments/456/runs/789/timeSeries",
+            "857392",
+            "us-central1",
+            "projects/857392/locations/us-central1/tensorboards/123/experiments/456/runs/789/timeSeries/1",
         ),
     ],
 )

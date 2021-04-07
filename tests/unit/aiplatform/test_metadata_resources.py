@@ -15,17 +15,10 @@
 # limitations under the License.
 #
 
-import os
-
 import pytest
 
-from unittest import mock
 from importlib import reload
 from unittest.mock import patch
-
-from google.api_core import operation
-from google.auth.exceptions import GoogleAuthError
-from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import metadata
@@ -33,8 +26,6 @@ from google.cloud.aiplatform import initializer
 
 from google.cloud.aiplatform_v1beta1 import MetadataServiceClient
 from google.cloud.aiplatform_v1beta1 import Context as GapicContext
-from google.cloud.aiplatform_v1beta1.types import metadata_service
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 
 # project
 _TEST_PROJECT = "test-project"
@@ -57,9 +48,7 @@ _TEST_CONTEXT_NAME = f"{_TEST_PARENT}/contexts/{_TEST_CONTEXT_ID}"
 
 @pytest.fixture
 def get_context_mock():
-    with patch.object(
-        MetadataServiceClient, "get_context"
-    ) as get_context_mock:
+    with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
         get_context_mock.return_value = GapicContext(
             name=_TEST_CONTEXT_NAME,
             display_name=_TEST_DISPLAY_NAME,
@@ -73,10 +62,8 @@ def get_context_mock():
 
 @pytest.fixture
 def create_context_mock():
-    with patch.object(
-        MetadataServiceClient, "create_context"
-    ) as create_context_mock:
-        create_context_mock = GapicContext(
+    with patch.object(MetadataServiceClient, "create_context") as create_context_mock:
+        create_context_mock.return_value = GapicContext(
             name=_TEST_CONTEXT_NAME,
             display_name=_TEST_DISPLAY_NAME,
             schema_title=_TEST_SCHEMA_TITLE,
@@ -100,10 +87,12 @@ class TestContext:
         metadata.Context(context_name=_TEST_CONTEXT_NAME)
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
 
-    def test_init_context_with_id(self, get_metadata_store_mock):
+    def test_init_context_with_id(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata.Context(context_name=_TEST_CONTEXT_ID, metadata_store_id=_TEST_METADATA_STORE)
-        get_metadata_store_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
+        metadata.Context(
+            context_name=_TEST_CONTEXT_ID, metadata_store_id=_TEST_METADATA_STORE
+        )
+        get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
 
     @pytest.mark.usefixtures("get_context_mock")
     def test_create_context(self, create_context_mock):
@@ -128,7 +117,5 @@ class TestContext:
         )
 
         create_context_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            context_id=_TEST_CONTEXT_ID,
-            context=expected_context,
+            parent=_TEST_PARENT, context_id=_TEST_CONTEXT_ID, context=expected_context,
         )

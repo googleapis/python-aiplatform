@@ -59,9 +59,8 @@ AiPlatformServiceClient = TypeVar(
     job_service_client.JobServiceClient,
 )
 
-# TODO(b/170334098): Add support for resource names more than one level deep
 RESOURCE_NAME_PATTERN = re.compile(
-    r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>\w+)\/(?P<id>[\w-]+)$"
+    r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>[\w\-\/]+)\/(?P<id>[\w-]+)$"
 )
 RESOURCE_ID_PATTERN = re.compile(r"^[\w-]+$")
 
@@ -97,10 +96,12 @@ def extract_fields_from_resource_name(
             Required. A fully-qualified AI Platform (Unified) resource name
 
         resource_noun (str):
-            A plural resource noun to validate the resource name against.
+            A resource noun to validate the resource name against.
             For example, you would pass "datasets" to validate
             "projects/123/locations/us-central1/datasets/456".
-
+            In the case of deeper naming structures, e.g.,
+            "projects/123/locations/us-central1/metadataStores/123/contexts/456",
+            you would pass "metadataStores/123/contexts" as the resource_noun.
     Returns:
         fields (Fields):
             A named tuple containing four extracted fields from a resource name:
@@ -131,9 +132,12 @@ def full_resource_name(
             Required. A fully-qualified AI Platform (Unified) resource name or
             resource ID.
         resource_noun (str):
-            A plural resource noun to validate the resource name against.
+            A resource noun to validate the resource name against.
             For example, you would pass "datasets" to validate
             "projects/123/locations/us-central1/datasets/456".
+            In the case of deeper naming structures, e.g.,
+            "projects/123/locations/us-central1/metadataStores/123/contexts/456",
+            you would pass "metadataStores/123/contexts" as the resource_noun.
         project (str):
             Optional project to retrieve resource_noun from. If not set, project
             set in aiplatform.init will be used.
@@ -150,7 +154,8 @@ def full_resource_name(
             If resource name, resource ID or project ID not provided.
     """
     validate_resource_noun(resource_noun)
-    # Fully qualified resource name, i.e. "projects/.../locations/.../datasets/12345"
+    # Fully qualified resource name, e.g., "projects/.../locations/.../datasets/12345" or
+    # "projects/.../locations/.../metadataStores/.../contexts/12345"
     valid_name = extract_fields_from_resource_name(
         resource_name=resource_name, resource_noun=resource_noun
     )
