@@ -360,6 +360,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     def update_time(self) -> datetime.datetime:
         """Time this resource was last updated."""
         return self._gca_resource.update_time
+
     def __repr__(self) -> str:
         return f"{object.__repr__(self)} \nresource name: {self.resource_name}"
 
