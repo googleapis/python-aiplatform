@@ -71,9 +71,7 @@ class Context(base.AiPlatformResourceNounWithFutureManager):
 
         # If it's a full resource name, just retrieve it.
         if context_name.find("/") != -1:
-            self._gca_resource = self._get_gca_resource(
-                resource_name=context_name, allow_str_id=True
-            )
+            self._gca_resource = self._get_gca_resource(resource_name=context_name)
         else:
             # Need to build the resource name using the parent metadataStore and reuse the functionality in utils.
             resource_name = utils.full_resource_name(

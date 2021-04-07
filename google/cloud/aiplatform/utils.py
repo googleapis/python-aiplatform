@@ -59,12 +59,11 @@ AiPlatformServiceClient = TypeVar(
     job_service_client.JobServiceClient,
 )
 
-# TODO(b/170334193): Add support for resource names with non-integer IDs
 # TODO(b/170334098): Add support for resource names more than one level deep
 RESOURCE_NAME_PATTERN = re.compile(
-    r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>\w+)\/(?P<id>\d+)$"
+    r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>\w+)\/(?P<id>[\w-]+)$"
 )
-RESOURCE_ID_PATTERN = re.compile(r"^\d+$")
+RESOURCE_ID_PATTERN = re.compile(r"^[\w-]+$")
 
 Fields = namedtuple("Fields", ["project", "location", "resource", "id"],)
 
