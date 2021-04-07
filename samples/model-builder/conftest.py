@@ -69,6 +69,12 @@ def mock_import_data(mock_dataset):
         mock.return_value = mock_dataset
         yield mock
 
+@pytest.fixture
+def mock_import_data_mock(mock_dataset):
+    with patch.object(mock_dataset, "import_data") as mock:
+        mock.return_value = mock_dataset
+        yield mock
+
 
 # ----------------------------------------------------------------------------
 # TrainingJob Fixtures
