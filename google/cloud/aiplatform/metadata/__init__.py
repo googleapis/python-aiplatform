@@ -15,9 +15,9 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.metadata.metadata_store import MetadataStore
-from google.cloud.aiplatform.metadata.context import Context
-from google.cloud.aiplatform.metadata.artifact import Artifact
-from google.cloud.aiplatform.metadata.execution import Execution
+from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
+from google.cloud.aiplatform.metadata.context import _Context
+from google.cloud.aiplatform.metadata.artifact import _Artifact
+from google.cloud.aiplatform.metadata.execution import _Execution
 
-__all__ = ("MetadataStore", "Context", "Artifact", "Execution")
+__all__ = ("_MetadataStore", "_Context", "_Artifact", "_Execution")

@@ -22,12 +22,8 @@ from google.cloud.aiplatform.metadata._resource import Resource
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform_v1beta1.types import context as gca_context
-from google.cloud.aiplatform_v1beta1.services.metadata_service import (
-    client as metadata_service_client,
-)
 
-
-class Context(Resource):
+class _Context(Resource):
     """Metadata Context resource for AI Platform"""
 
     _resource_noun = "contexts"
@@ -83,7 +79,7 @@ class Context(Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "Context":
+    ) -> "_Context":
         """Creates a new Context resource.
 
         Args:

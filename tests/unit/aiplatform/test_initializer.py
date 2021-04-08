@@ -22,10 +22,12 @@ from unittest import mock
 
 import google.auth
 from google.auth import credentials
+
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform_v1beta1.services.model_service import (
+
+from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
 
@@ -97,10 +99,10 @@ class TestInit:
     def test_create_client_returns_client(self):
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         client = initializer.global_config.create_client(
-            model_service_client.ModelServiceClient
+            client_class=utils.ModelClientWithOverride
         )
         assert client._client_class is model_service_client.ModelServiceClient
-        assert isinstance(client, utils.WrappedClient)
+        assert isinstance(client, utils.ModelClientWithOverride)
         assert (
             client._transport._host == f"{_TEST_LOCATION}-{constants.API_BASE_PATH}:443"
         )
@@ -109,22 +111,22 @@ class TestInit:
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         creds = credentials.AnonymousCredentials()
         client = initializer.global_config.create_client(
-            model_service_client.ModelServiceClient,
+            client_class=utils.ModelClientWithOverride,
             credentials=creds,
             location_override=_TEST_LOCATION_2,
             prediction_client=True,
         )
-        assert isinstance(client, model_service_client.ModelServiceClient)
+        assert isinstance(client, utils.ModelClientWithOverride)
         assert (
             client._transport._host
-            == f"{_TEST_LOCATION_2}-prediction-{constants.API_BASE_PATH}:443"
+            == f"{_TEST_LOCATION_2}-{constants.API_BASE_PATH}:443"
         )
         assert client._transport._credentials == creds
 
     def test_create_client_user_agent(self):
         initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         client = initializer.global_config.create_client(
-            model_service_client.ModelServiceClient
+            client_class=utils.ModelClientWithOverride
         )
 
         for wrapped_method in client._transport._wrapped_methods.values():
@@ -134,36 +136,21 @@ class TestInit:
             assert user_agent.startswith("model-builder/")
 
     @pytest.mark.parametrize(
-        "init_location, location_override, prediction, expected_endpoint",
+        "init_location, location_override, expected_endpoint",
         [
-            ("us-central1", None, False, "us-central1-aiplatform.googleapis.com"),
-            (
-                "us-central1",
-                "europe-west4",
-                False,
-                "europe-west4-aiplatform.googleapis.com",
-            ),
-            ("asia-east1", None, False, "asia-east1-aiplatform.googleapis.com"),
-            (
-                "asia-east1",
-                None,
-                True,
-                "asia-east1-prediction-aiplatform.googleapis.com",
-            ),
+            ("us-central1", None, "us-central1-aiplatform.googleapis.com"),
+            ("us-central1", "europe-west4", "europe-west4-aiplatform.googleapis.com",),
+            ("asia-east1", None, "asia-east1-aiplatform.googleapis.com"),
         ],
     )
     def test_get_client_options(
-        self,
-        init_location: str,
-        location_override: str,
-        prediction: bool,
-        expected_endpoint: str,
+        self, init_location: str, location_override: str, expected_endpoint: str,
     ):
         initializer.global_config.init(location=init_location)
 
         assert (
             initializer.global_config.get_client_options(
-                location_override=location_override, prediction_client=prediction
+                location_override=location_override
             ).api_endpoint
             == expected_endpoint
         )

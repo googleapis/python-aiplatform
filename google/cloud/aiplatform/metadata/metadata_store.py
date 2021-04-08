@@ -21,16 +21,15 @@ from google.auth import credentials as auth_credentials
 from google.api_core import exceptions
 
 from google.cloud.aiplatform import base, initializer
+from google.cloud.aiplatform import compat
+from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1.types import metadata_store as gca_metadata_store
-from google.cloud.aiplatform_v1beta1.services.metadata_service import (
-    client as metadata_service_client,
-)
 
 
-class MetadataStore(base.AiPlatformResourceNounWithFutureManager):
+class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
     """Managed MetadataStore resource for AI Platform"""
 
-    client_class = metadata_service_client.MetadataServiceClient
+    client_class = utils.MetadataClientWithOverride
     _is_client_prediction_client = False
     _resource_noun = "metadataStores"
     _getter_method = "get_metadata_store"
@@ -76,7 +75,7 @@ class MetadataStore(base.AiPlatformResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
-    ) -> "MetadataStore":
+    ) -> "_MetadataStore":
         f"""Creates a new MetadataStore if it does not exist.
 
         Args:
@@ -115,7 +114,8 @@ class MetadataStore(base.AiPlatformResourceNounWithFutureManager):
         api_client = cls._instantiate_client(location=location, credentials=credentials)
         gapic_metadata_store = gca_metadata_store.MetadataStore(
             encryption_spec=initializer.global_config.get_encryption_spec(
-                encryption_spec_key_name=encryption_spec_key_name
+                encryption_spec_key_name=encryption_spec_key_name,
+                select_version=compat.V1BETA1,
             )
         )
 
@@ -126,7 +126,7 @@ class MetadataStore(base.AiPlatformResourceNounWithFutureManager):
                 ),
                 metadata_store=gapic_metadata_store,
                 metadata_store_id=metadata_store_id,
-            )
+            ).result()
         except exceptions.AlreadyExists:
             logging.info(f"MetadataStore '{metadata_store_id}' already exists")
 
