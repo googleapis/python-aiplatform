@@ -31,26 +31,28 @@ from unittest.mock import patch
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
+
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
-from google.cloud.aiplatform_v1beta1.services.model_service import (
+
+from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
-from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
+from google.cloud.aiplatform_v1.services.pipeline_service import (
     client as pipeline_service_client,
 )
 
-from google.cloud.aiplatform_v1beta1.types import io as gca_io
-from google.cloud.aiplatform_v1beta1.types import env_var
-from google.cloud.aiplatform_v1beta1.types import model as gca_model
-from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state
-from google.cloud.aiplatform_v1beta1.types import (
+from google.cloud.aiplatform_v1.types import (
+    dataset as gca_dataset,
+    encryption_spec as gca_encryption_spec,
+    env_var as gca_env_var,
+    io as gca_io,
+    model as gca_model,
+    pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
 )
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
-from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 
 from google.cloud import storage
 from google.protobuf import json_format
@@ -490,7 +492,7 @@ def mock_tabular_dataset():
     ds = mock.MagicMock(datasets.Dataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
-    ds._gca_resource = GapicDataset(
+    ds._gca_resource = gca_dataset.Dataset(
         display_name=_TEST_DATASET_DISPLAY_NAME,
         metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
         labels={},
@@ -505,7 +507,7 @@ def mock_nontabular_dataset():
     ds = mock.MagicMock(datasets.Dataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
-    ds._gca_resource = GapicDataset(
+    ds._gca_resource = gca_dataset.Dataset(
         display_name=_TEST_DATASET_DISPLAY_NAME,
         metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
         labels={},
@@ -608,7 +610,7 @@ class TestCustomTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -758,7 +760,7 @@ class TestCustomTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -1457,7 +1459,7 @@ class TestCustomTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -1689,7 +1691,7 @@ class TestCustomContainerTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -1835,7 +1837,7 @@ class TestCustomContainerTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -2450,7 +2452,7 @@ class TestCustomContainerTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -2882,7 +2884,7 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -3030,7 +3032,7 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -3660,7 +3662,7 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
