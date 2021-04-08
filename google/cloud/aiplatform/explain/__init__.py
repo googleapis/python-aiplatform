@@ -15,29 +15,33 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform_v1beta1.types.explanation_metadata import (
-    ExplanationMetadata,
+from google.cloud.aiplatform.compat.types import (
+    explanation_metadata_v1beta1 as explanation_metadata,
+    explanation_v1beta1 as explanation,
 )
-from google.cloud.aiplatform_v1beta1.types.explanation import ExplanationParameters
 
-from google.cloud.aiplatform_v1beta1.types.explanation import FeatureNoiseSigma
-
-# Classes used by ExplanationParameters
-from google.cloud.aiplatform_v1beta1.types.explanation import (
-    IntegratedGradientsAttribution,
-)
-from google.cloud.aiplatform_v1beta1.types.explanation import SampledShapleyAttribution
-from google.cloud.aiplatform_v1beta1.types.explanation import SmoothGradConfig
-from google.cloud.aiplatform_v1beta1.types.explanation import XraiAttribution
+ExplanationMetadata = explanation_metadata.ExplanationMetadata
 
 # ExplanationMetadata subclasses
 InputMetadata = ExplanationMetadata.InputMetadata
 OutputMetadata = ExplanationMetadata.OutputMetadata
 
 # InputMetadata subclasses
-Encoding = ExplanationMetadata.InputMetadata.Encoding
-FeatureValueDomain = ExplanationMetadata.InputMetadata.FeatureValueDomain
-Visualization = ExplanationMetadata.InputMetadata.Visualization
+Encoding = InputMetadata.Encoding
+FeatureValueDomain = InputMetadata.FeatureValueDomain
+Visualization = InputMetadata.Visualization
+
+
+ExplanationParameters = explanation.ExplanationParameters
+FeatureNoiseSigma = explanation.FeatureNoiseSigma
+
+# Classes used by ExplanationParameters
+IntegratedGradientsAttribution = explanation.IntegratedGradientsAttribution
+
+SampledShapleyAttribution = explanation.SampledShapleyAttribution
+SmoothGradConfig = explanation.SmoothGradConfig
+XraiAttribution = explanation.XraiAttribution
+
 
 __all__ = (
     "Encoding",
