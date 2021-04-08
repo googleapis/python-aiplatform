@@ -14,10 +14,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
-from google.cloud.aiplatform.metadata.context import _Context
-from google.cloud.aiplatform.metadata.artifact import _Artifact
-from google.cloud.aiplatform.metadata.execution import _Execution
-
-__all__ = ("_MetadataStore", "_Context", "_Artifact", "_Execution")

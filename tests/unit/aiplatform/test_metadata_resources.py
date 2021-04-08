@@ -21,8 +21,10 @@ from importlib import reload
 from unittest.mock import patch
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform import metadata
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.metadata import context
+from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.metadata import execution
 
 from google.cloud.aiplatform_v1beta1 import MetadataServiceClient
 from google.cloud.aiplatform_v1beta1 import Context as GapicContext
@@ -152,12 +154,12 @@ class TestContext:
 
     def test_init_context(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        metadata._Context(context_name=_TEST_CONTEXT_NAME)
+        context._Context(context_name=_TEST_CONTEXT_NAME)
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
 
     def test_init_context_with_id(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata._Context(
+        context._Context(
             context_name=_TEST_CONTEXT_ID, metadata_store_id=_TEST_METADATA_STORE
         )
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
@@ -166,7 +168,7 @@ class TestContext:
     def test_create_context(self, create_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_context = metadata._Context.create(
+        my_context = context._Context.create(
             context_id=_TEST_CONTEXT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -202,12 +204,12 @@ class TestExecution:
 
     def test_init_execution(self, get_execution_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        metadata._Execution(execution_name=_TEST_EXECUTION_NAME)
+        execution._Execution(execution_name=_TEST_EXECUTION_NAME)
         get_execution_mock.assert_called_once_with(name=_TEST_EXECUTION_NAME)
 
     def test_init_execution_with_id(self, get_execution_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata._Execution(
+        execution._Execution(
             execution_name=_TEST_EXECUTION_ID, metadata_store_id=_TEST_METADATA_STORE
         )
         get_execution_mock.assert_called_once_with(name=_TEST_EXECUTION_NAME)
@@ -216,7 +218,7 @@ class TestExecution:
     def test_create_execution(self, create_execution_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_execution = metadata._Execution.create(
+        my_execution = execution._Execution.create(
             execution_id=_TEST_EXECUTION_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -254,12 +256,12 @@ class TestArtifact:
 
     def test_init_artifact(self, get_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        metadata._Artifact(artifact_name=_TEST_ARTIFACT_NAME)
+        artifact._Artifact(artifact_name=_TEST_ARTIFACT_NAME)
         get_artifact_mock.assert_called_once_with(name=_TEST_ARTIFACT_NAME)
 
     def test_init_artifact_with_id(self, get_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata._Artifact(
+        artifact._Artifact(
             artifact_name=_TEST_ARTIFACT_ID, metadata_store_id=_TEST_METADATA_STORE
         )
         get_artifact_mock.assert_called_once_with(name=_TEST_ARTIFACT_NAME)
@@ -268,7 +270,7 @@ class TestArtifact:
     def test_create_artifact(self, create_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_artifact = metadata._Artifact.create(
+        my_artifact = artifact._Artifact.create(
             artifact_id=_TEST_ARTIFACT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
