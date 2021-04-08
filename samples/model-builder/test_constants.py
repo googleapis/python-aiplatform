@@ -48,3 +48,8 @@ VALIDATION_FRACTION_SPLIT = 0.15
 BUDGET_MILLI_NODE_HOURS_8000 = 8000
 
 ENCRYPTION_SPEC_KEY_NAME = f"{PARENT}/keyRings/{RESOURCE_ID}/cryptoKeys/{RESOURCE_ID_2}"
+
+PYTHON_PACKAGE = "gs://my-packages/training.tar.gz"
+PYTHON_PACKAGE_CMDARGS = f"--model-dir={GCS_DESTINATION}"
+TRAIN_IMAGE = "gcr.io/train_image:latest"
+DEPLOY_IMAGE = "gcr.io/deploy_image:latest"
