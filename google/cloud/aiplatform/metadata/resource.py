@@ -25,15 +25,12 @@ from google.cloud.aiplatform import utils
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base, initializer
-from google.cloud.aiplatform_v1beta1.services.metadata_service import (
-    client as metadata_service_client,
-)
 
 
-class Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
+class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
     """Metadata Resource for AI Platform"""
 
-    client_class = metadata_service_client.MetadataServiceClient
+    client_class = utils.MetadataClientWithOverride
     _is_client_prediction_client = False
     _delete_method = None
 
@@ -72,7 +69,7 @@ class Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
 
         # If we receive a full resource name, we extract the metadata_store_id and use that
         if resource_name.find("/") != -1:
-            metadata_store_id = Resource._extract_metadata_store_id(
+            metadata_store_id = _Resource._extract_metadata_store_id(
                 resource_name, self._resource_noun
             )
 
@@ -153,7 +150,7 @@ class Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
     @abc.abstractmethod
     def create_resource(
         cls,
-        client: utils.AiPlatformServiceClient,
+        client: utils.AiPlatformServiceClientWithOverride,
         parent: str,
         resource: proto.Message,
         resource_id: str,

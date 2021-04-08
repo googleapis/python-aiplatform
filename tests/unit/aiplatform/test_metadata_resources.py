@@ -88,7 +88,7 @@ def create_context_mock():
 def get_execution_mock():
     with patch.object(MetadataServiceClient, "get_execution") as get_execution_mock:
         get_execution_mock.return_value = GapicExecution(
-            name=_TEST_CONTEXT_NAME,
+            name=_TEST_EXECUTION_NAME,
             display_name=_TEST_DISPLAY_NAME,
             schema_title=_TEST_SCHEMA_TITLE,
             schema_version=_TEST_SCHEMA_VERSION,
@@ -100,9 +100,11 @@ def get_execution_mock():
 
 @pytest.fixture
 def create_execution_mock():
-    with patch.object(MetadataServiceClient, "create_execution") as create_execution_mock:
+    with patch.object(
+        MetadataServiceClient, "create_execution"
+    ) as create_execution_mock:
         create_execution_mock.return_value = GapicExecution(
-            name=_TEST_CONTEXT_NAME,
+            name=_TEST_EXECUTION_NAME,
             display_name=_TEST_DISPLAY_NAME,
             schema_title=_TEST_SCHEMA_TITLE,
             schema_version=_TEST_SCHEMA_VERSION,
@@ -116,7 +118,7 @@ def create_execution_mock():
 def get_artifact_mock():
     with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
         get_artifact_mock.return_value = GapicArtifact(
-            name=_TEST_CONTEXT_NAME,
+            name=_TEST_ARTIFACT_NAME,
             display_name=_TEST_DISPLAY_NAME,
             schema_title=_TEST_SCHEMA_TITLE,
             schema_version=_TEST_SCHEMA_VERSION,
@@ -130,7 +132,7 @@ def get_artifact_mock():
 def create_artifact_mock():
     with patch.object(MetadataServiceClient, "create_artifact") as create_artifact_mock:
         create_artifact_mock.return_value = GapicArtifact(
-            name=_TEST_CONTEXT_NAME,
+            name=_TEST_ARTIFACT_NAME,
             display_name=_TEST_DISPLAY_NAME,
             schema_title=_TEST_SCHEMA_TITLE,
             schema_version=_TEST_SCHEMA_VERSION,
@@ -200,12 +202,12 @@ class TestExecution:
 
     def test_init_execution(self, get_execution_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        metadata.Execution(execution_name=_TEST_EXECUTION_NAME)
+        metadata._Execution(execution_name=_TEST_EXECUTION_NAME)
         get_execution_mock.assert_called_once_with(name=_TEST_EXECUTION_NAME)
 
     def test_init_execution_with_id(self, get_execution_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata.Execution(
+        metadata._Execution(
             execution_name=_TEST_EXECUTION_ID, metadata_store_id=_TEST_METADATA_STORE
         )
         get_execution_mock.assert_called_once_with(name=_TEST_EXECUTION_NAME)
@@ -214,7 +216,7 @@ class TestExecution:
     def test_create_execution(self, create_execution_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        metadata.Execution.create(
+        my_execution = metadata._Execution.create(
             execution_id=_TEST_EXECUTION_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -233,8 +235,13 @@ class TestExecution:
         )
 
         create_execution_mock.assert_called_once_with(
-            parent=_TEST_PARENT, execution_id=_TEST_EXECUTION_ID, execution=expected_execution,
+            parent=_TEST_PARENT,
+            execution_id=_TEST_EXECUTION_ID,
+            execution=expected_execution,
         )
+
+        expected_execution.name = _TEST_EXECUTION_NAME
+        assert my_execution._gca_resource == expected_execution
 
 
 class TestArtifact:
@@ -247,12 +254,12 @@ class TestArtifact:
 
     def test_init_artifact(self, get_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        metadata.Artifact(artifact_name=_TEST_ARTIFACT_NAME)
+        metadata._Artifact(artifact_name=_TEST_ARTIFACT_NAME)
         get_artifact_mock.assert_called_once_with(name=_TEST_ARTIFACT_NAME)
 
     def test_init_artifact_with_id(self, get_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata.Artifact(
+        metadata._Artifact(
             artifact_name=_TEST_ARTIFACT_ID, metadata_store_id=_TEST_METADATA_STORE
         )
         get_artifact_mock.assert_called_once_with(name=_TEST_ARTIFACT_NAME)
@@ -261,7 +268,7 @@ class TestArtifact:
     def test_create_artifact(self, create_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        metadata.Artifact.create(
+        my_artifact = metadata._Artifact.create(
             artifact_id=_TEST_ARTIFACT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -280,5 +287,10 @@ class TestArtifact:
         )
 
         create_artifact_mock.assert_called_once_with(
-            parent=_TEST_PARENT, artifact_id=_TEST_ARTIFACT_ID, artifact=expected_artifact,
+            parent=_TEST_PARENT,
+            artifact_id=_TEST_ARTIFACT_ID,
+            artifact=expected_artifact,
         )
+
+        expected_artifact.name = _TEST_ARTIFACT_NAME
+        assert my_artifact._gca_resource == expected_artifact

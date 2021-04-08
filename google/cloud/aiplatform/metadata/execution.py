@@ -18,16 +18,13 @@ import proto
 from typing import Optional, Dict
 
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.metadata._resource import Resource
+from google.cloud.aiplatform.metadata.resource import _Resource
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
-from google.cloud.aiplatform_v1beta1.services.metadata_service import (
-    client as metadata_service_client,
-)
 
 
-class Execution(Resource):
+class _Execution(_Resource):
     """Metadata Execution resource for AI Platform"""
 
     _resource_noun = "executions"
@@ -83,7 +80,7 @@ class Execution(Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "Execution":
+    ) -> "_Execution":
         """Creates a new Execution resource.
 
         Args:
@@ -118,7 +115,7 @@ class Execution(Resource):
                 credentials set in aiplatform.init.
 
         Returns:
-            execution (Execution):
+            execution (_Execution):
                 Instantiated representation of the managed Metadata Execution resource.
 
         """
@@ -152,7 +149,7 @@ class Execution(Resource):
     @classmethod
     def create_resource(
         cls,
-        client: utils.AiPlatformServiceClient,
+        client: utils.AiPlatformServiceClientWithOverride,
         parent: str,
         resource: proto.Message,
         resource_id: str,

@@ -18,12 +18,13 @@ import proto
 from typing import Optional, Dict
 
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.metadata._resource import Resource
+from google.cloud.aiplatform.metadata.resource import _Resource
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform_v1beta1.types import context as gca_context
 
-class _Context(Resource):
+
+class _Context(_Resource):
     """Metadata Context resource for AI Platform"""
 
     _resource_noun = "contexts"
@@ -114,7 +115,7 @@ class _Context(Resource):
                 credentials set in aiplatform.init.
 
         Returns:
-            context (Context):
+            context (_Context):
                 Instantiated representation of the managed Metadata Context resource.
 
         """
@@ -148,7 +149,7 @@ class _Context(Resource):
     @classmethod
     def create_resource(
         cls,
-        client: utils.AiPlatformServiceClient,
+        client: utils.AiPlatformServiceClientWithOverride,
         parent: str,
         resource: proto.Message,
         resource_id: str,
