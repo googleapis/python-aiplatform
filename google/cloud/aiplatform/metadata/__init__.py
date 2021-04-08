@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.metadata.metadata_store import MetadataStore
-from google.cloud.aiplatform.metadata.context import Context
+from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
+from google.cloud.aiplatform.metadata.context import _Context
 
-__all__ = ("MetadataStore", "Context")
+__all__ = ("_MetadataStore", "_Context")

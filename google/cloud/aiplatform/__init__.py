@@ -26,10 +26,6 @@ from google.cloud.aiplatform.datasets import (
     TextDataset,
     VideoDataset,
 )
-from google.cloud.aiplatform.metadata import (
-    MetadataStore,
-    Context,
-)
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
 from google.cloud.aiplatform.jobs import BatchPredictionJob
@@ -52,21 +48,20 @@ aiplatform.init(project='my_project')
 init = initializer.global_config.init
 
 __all__ = (
-    gapic,
-    explain,
+    "explain",
+    "gapic",
+    "init",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
     "AutoMLTextTrainingJob",
     "AutoMLVideoTrainingJob",
     "BatchPredictionJob",
-    "Context",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",
     "Dataset",
     "Endpoint",
     "ImageDataset",
-    "MetadataStore",
     "Model",
     "TabularDataset",
     "TextDataset",

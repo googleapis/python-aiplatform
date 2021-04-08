@@ -24,20 +24,16 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform_v1beta1.types import context as gca_context
-from google.cloud.aiplatform_v1beta1.services.metadata_service import (
-    client as metadata_service_client,
-)
-
 
 RESOURCE_NAME_PATTERN = re.compile(
     r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/metadataStores\/(?P<store>[\w-]+)\/contexts\/(?P<id>[\w-]+)$"
 )
 
 
-class Context(base.AiPlatformResourceNounWithFutureManager):
+class _Context(base.AiPlatformResourceNounWithFutureManager):
     """Metadata Context resource for AI Platform"""
 
-    client_class = metadata_service_client.MetadataServiceClient
+    client_class = utils.MetadataClientWithOverride
     _is_client_prediction_client = False
     _resource_noun = "contexts"
     _getter_method = "get_context"
@@ -78,7 +74,7 @@ class Context(base.AiPlatformResourceNounWithFutureManager):
 
         # If we receive a full resource name, we extract the metadata_store_id and use that
         if context_name.find("/") != -1:
-            metadata_store_id = Context._extract_metadata_store_id(context_name)
+            metadata_store_id = _Context._extract_metadata_store_id(context_name)
 
         resource_name = utils.full_resource_name(
             resource_name=context_name,
@@ -166,7 +162,7 @@ class Context(base.AiPlatformResourceNounWithFutureManager):
 
         return cls(
             context_name=parent
-            + f"/metadataStores/{metadata_store_id}/{Context._resource_noun}/{context_id}",
+            + f"/metadataStores/{metadata_store_id}/{_Context._resource_noun}/{context_id}",
             metadata_store_id={metadata_store_id},
             project=project,
             location=location,

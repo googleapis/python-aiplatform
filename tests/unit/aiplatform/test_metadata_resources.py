@@ -84,12 +84,12 @@ class TestContext:
 
     def test_init_context(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        metadata.Context(context_name=_TEST_CONTEXT_NAME)
+        metadata._Context(context_name=_TEST_CONTEXT_NAME)
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
 
     def test_init_context_with_id(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata.Context(
+        metadata._Context(
             context_name=_TEST_CONTEXT_ID, metadata_store_id=_TEST_METADATA_STORE
         )
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
@@ -98,7 +98,7 @@ class TestContext:
     def test_create_context(self, create_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        metadata.Context.create(
+        my_context = metadata._Context.create(
             context_id=_TEST_CONTEXT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -119,3 +119,6 @@ class TestContext:
         create_context_mock.assert_called_once_with(
             parent=_TEST_PARENT, context_id=_TEST_CONTEXT_ID, context=expected_context,
         )
+
+        expected_context.name = _TEST_CONTEXT_NAME
+        assert my_context._gca_resource == expected_context
