@@ -71,6 +71,7 @@ AiPlatformServiceClient = TypeVar(
     job_service_client_v1.JobServiceClient,
 )
 
+# TODO(b/170334098): Add support for resource names more than one level deep
 RESOURCE_NAME_PATTERN = re.compile(
     r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>[\w\-\/]+)\/(?P<id>[\w-]+)$"
 )
