@@ -30,11 +30,8 @@ from google.cloud.aiplatform_v1beta1.services.metadata_service import (
 class Artifact(Resource):
     """Metadata Artifact resource for AI Platform"""
 
-    client_class = metadata_service_client.MetadataServiceClient
-    _is_client_prediction_client = False
     _resource_noun = "artifacts"
     _getter_method = "get_artifact"
-    _delete_method = None
 
     def __init__(
         self,
