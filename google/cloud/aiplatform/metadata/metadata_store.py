@@ -75,7 +75,7 @@ class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
-    ) -> "MetadataStore":
+    ) -> "_MetadataStore":
         f"""Creates a new MetadataStore if it does not exist.
 
         Args:

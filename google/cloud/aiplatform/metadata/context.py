@@ -99,7 +99,7 @@ class _Context(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "Context":
+    ) -> "_Context":
         """Creates a new Context resource.
 
         Args:
