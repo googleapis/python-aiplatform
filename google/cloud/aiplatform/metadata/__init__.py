@@ -14,8 +14,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
-from google.cloud.aiplatform.metadata.context import _Context
-
-__all__ = ("_MetadataStore", "_Context")

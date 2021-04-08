@@ -21,8 +21,8 @@ from importlib import reload
 from unittest.mock import patch
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform import metadata
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.metadata import context
 
 from google.cloud.aiplatform_v1beta1 import MetadataServiceClient
 from google.cloud.aiplatform_v1beta1 import Context as GapicContext
@@ -84,12 +84,12 @@ class TestContext:
 
     def test_init_context(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        metadata._Context(context_name=_TEST_CONTEXT_NAME)
+        context._Context(context_name=_TEST_CONTEXT_NAME)
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
 
     def test_init_context_with_id(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata._Context(
+        context._Context(
             context_name=_TEST_CONTEXT_ID, metadata_store_id=_TEST_METADATA_STORE
         )
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
@@ -98,7 +98,7 @@ class TestContext:
     def test_create_context(self, create_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_context = metadata._Context.create(
+        my_context = context._Context.create(
             context_id=_TEST_CONTEXT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
