@@ -28,7 +28,7 @@ from google.auth.exceptions import GoogleAuthError
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform import metadata
+from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform import initializer
 
 from google.cloud.aiplatform_v1beta1 import MetadataServiceClient
@@ -145,17 +145,17 @@ class TestMetadataStore:
 
     def test_init_metadata_store(self, get_metadata_store_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        metadata._MetadataStore(metadata_store_name=_TEST_NAME)
+        metadata_store._MetadataStore(metadata_store_name=_TEST_NAME)
         get_metadata_store_mock.assert_called_once_with(name=_TEST_NAME)
 
     def test_init_metadata_store_with_id(self, get_metadata_store_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata._MetadataStore(metadata_store_name=_TEST_ID)
+        metadata_store._MetadataStore(metadata_store_name=_TEST_ID)
         get_metadata_store_mock.assert_called_once_with(name=_TEST_NAME)
 
     def test_init_metadata_store_with_default_id(self, get_metadata_store_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata._MetadataStore()
+        metadata_store._MetadataStore()
         get_metadata_store_mock.assert_called_once_with(name=_TEST_DEFAULT_NAME)
 
     @pytest.mark.usefixtures("get_metadata_store_without_name_mock")
@@ -164,14 +164,14 @@ class TestMetadataStore:
     )
     def test_init_metadata_store_with_id_without_project_or_location(self):
         with pytest.raises(GoogleAuthError):
-            metadata._MetadataStore(
+            metadata_store._MetadataStore(
                 metadata_store_name=_TEST_ID,
                 credentials=auth_credentials.AnonymousCredentials(),
             )
 
     def test_init_metadata_store_with_location_override(self, get_metadata_store_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata._MetadataStore(
+        metadata_store._MetadataStore(
             metadata_store_name=_TEST_ID, location=_TEST_ALT_LOCATION
         )
         get_metadata_store_mock.assert_called_once_with(name=_TEST_ALT_LOC_NAME)
@@ -180,7 +180,7 @@ class TestMetadataStore:
     def test_init_metadata_store_with_invalid_name(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-            metadata._MetadataStore(metadata_store_name=_TEST_INVALID_NAME)
+            metadata_store._MetadataStore(metadata_store_name=_TEST_INVALID_NAME)
 
     @pytest.mark.usefixtures("get_default_metadata_store_mock")
     def test_init_aiplatform_with_encryption_key_name_and_create_default_metadata_store(
@@ -190,7 +190,7 @@ class TestMetadataStore:
             project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
-        my_metadata_store = metadata._MetadataStore.create(
+        my_metadata_store = metadata_store._MetadataStore.create(
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
@@ -211,7 +211,7 @@ class TestMetadataStore:
     def test_create_non_default_metadata_store(self, create_metadata_store_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_metadata_store = metadata._MetadataStore.create(
+        my_metadata_store = metadata_store._MetadataStore.create(
             metadata_store_id=_TEST_ID,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
