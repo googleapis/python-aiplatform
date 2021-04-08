@@ -34,6 +34,7 @@ if DEFAULT_VERSION == V1BETA1:
     services.specialist_pool_service_client = (
         services.specialist_pool_service_client_v1beta1
     )
+    services.metadata_service_client = services.metadata_service_client_v1beta1
 
     types.accelerator_type = types.accelerator_type_v1beta1
     types.annotation = types.annotation_v1beta1
@@ -69,6 +70,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.specialist_pool = types.specialist_pool_v1beta1
     types.specialist_pool_service = types.specialist_pool_service_v1beta1
     types.training_pipeline = types.training_pipeline_v1beta1
+    types.metadata_service = types.metadata_service_v1beta1
 
 if DEFAULT_VERSION == V1:
 

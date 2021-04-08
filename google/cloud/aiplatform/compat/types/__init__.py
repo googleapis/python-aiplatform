@@ -50,6 +50,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     specialist_pool as specialist_pool_v1beta1,
     specialist_pool_service as specialist_pool_service_v1beta1,
     training_pipeline as training_pipeline_v1beta1,
+    metadata_service as metadata_service_v1beta1,
 )
 from google.cloud.aiplatform_v1.types import (
     accelerator_type as accelerator_type_v1,
@@ -155,4 +156,5 @@ __all__ = (
     specialist_pool_v1beta1,
     specialist_pool_service_v1beta1,
     training_pipeline_v1beta1,
+    metadata_service_v1beta1,
 )
