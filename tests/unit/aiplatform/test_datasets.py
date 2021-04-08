@@ -48,6 +48,7 @@ from google.cloud.aiplatform_v1.types import (
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_ALT_PROJECT = "test-project_alt"
 
 _TEST_ALT_LOCATION = "europe-west4"
 _TEST_INVALID_LOCATION = "us-central2"
@@ -258,6 +259,38 @@ class TestDataset:
         aiplatform.init(project=_TEST_PROJECT)
         datasets.Dataset(dataset_name=_TEST_NAME)
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_init_dataset_with_id_only_with_project_and_location(
+        self, get_dataset_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        datasets.Dataset(
+            dataset_name=_TEST_ID, project=_TEST_PROJECT, location=_TEST_LOCATION
+        )
+        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_init_dataset_with_project_and_location(self, get_dataset_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        datasets.Dataset(
+            dataset_name=_TEST_NAME, project=_TEST_PROJECT, location=_TEST_LOCATION
+        )
+        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_init_dataset_with_alt_project_and_location(self, get_dataset_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        datasets.Dataset(
+            dataset_name=_TEST_NAME, project=_TEST_ALT_PROJECT, location=_TEST_LOCATION
+        )
+        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_init_dataset_with_project_and_alt_location(self):
+        aiplatform.init(project=_TEST_PROJECT)
+        with pytest.raises(RuntimeError):
+            datasets.Dataset(
+                dataset_name=_TEST_NAME,
+                project=_TEST_PROJECT,
+                location=_TEST_ALT_LOCATION,
+            )
 
     def test_init_dataset_with_id_only(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)

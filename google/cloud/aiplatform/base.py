@@ -20,7 +20,7 @@ from concurrent import futures
 import functools
 import inspect
 import threading
-from typing import Any, Callable, Dict, Optional, Sequence, Type, Union
+from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Type, Union
 
 import proto
 
@@ -266,6 +266,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
     ):
         """Initializes class with project, location, and api_client.
 
@@ -274,7 +275,13 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
             location(str): The location of the resource noun.
             credentials(google.auth.crendentials.Crendentials): Optional custom
                 credentials to use when accessing interacting with resource noun.
+            resource_name(str): A fully-qualified resource name or ID.
         """
+
+        if resource_name:
+            project, location = self._get_and_validate_project_location(
+                resource_name=resource_name, project=project, location=location
+            )
 
         self.project = project or initializer.global_config.project
         self.location = location or initializer.global_config.location
@@ -305,6 +312,41 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
             location_override=location,
             prediction_client=cls._is_client_prediction_client,
         )
+
+    def _get_and_validate_project_location(
+        self,
+        resource_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+    ) -> Tuple:
+
+        """Validate the project and location for the resource.
+
+        Args:
+            resource_name(str): Required. A fully-qualified resource name or ID.
+            project(str): Project of the resource noun.
+            location(str): The location of the resource noun.
+
+        Raises:
+            RuntimeError if location is different from resource location
+        """
+
+        if not project and not location:
+            return project, location
+
+        fields = utils.extract_fields_from_resource_name(
+            resource_name, self._resource_noun
+        )
+        if not fields:
+            return project, location
+
+        if location and fields.location != location:
+            raise RuntimeError(
+                f"location {location} is provided, but different from "
+                f"the resource location {fields.location}"
+            )
+
+        return fields.project, fields.location
 
     def _get_gca_resource(self, resource_name: str) -> proto.Message:
         """Returns GAPIC service representation of client class resource."""
@@ -493,6 +535,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
     ):
         """Initializes class with project, location, and api_client.
 
@@ -502,9 +545,14 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
             credentials(google.auth.crendentials.Crendentials):
                 Optional. custom credentials to use when accessing interacting with
                 resource noun.
+            resource_name(str): A fully-qualified resource name or ID.
         """
         AiPlatformResourceNoun.__init__(
-            self, project=project, location=location, credentials=credentials
+            self,
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
         )
         FutureManager.__init__(self)
 
@@ -514,6 +562,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
     ) -> "AiPlatformResourceNounWithFutureManager":
         """Initializes with all attributes set to None.
 
@@ -526,11 +575,18 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
             credentials(google.auth.crendentials.Crendentials):
                 Optional. custom credentials to use when accessing interacting with
                 resource noun.
+            resource_name(str): A fully-qualified resource name or ID.
         Returns:
             An instance of this class with attributes set to None.
         """
         self = cls.__new__(cls)
-        AiPlatformResourceNoun.__init__(self, project, location, credentials)
+        AiPlatformResourceNoun.__init__(
+            self,
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
+        )
         FutureManager.__init__(self)
         self._gca_resource = None
         return self
