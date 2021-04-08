@@ -37,6 +37,7 @@ from google.cloud.aiplatform.compat.services import (
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
+    metadata_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -60,6 +61,7 @@ AiPlatformServiceClient = TypeVar(
     prediction_service_client_v1beta1.PredictionServiceClient,
     pipeline_service_client_v1beta1.PipelineServiceClient,
     job_service_client_v1beta1.JobServiceClient,
+    metadata_service_client_v1beta1.MetadataServiceClient,
     # v1
     dataset_service_client_v1.DatasetServiceClient,
     endpoint_service_client_v1.EndpointServiceClient,
@@ -69,12 +71,11 @@ AiPlatformServiceClient = TypeVar(
     job_service_client_v1.JobServiceClient,
 )
 
-# TODO(b/170334193): Add support for resource names with non-integer IDs
 # TODO(b/170334098): Add support for resource names more than one level deep
 RESOURCE_NAME_PATTERN = re.compile(
-    r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>\w+)\/(?P<id>\d+)$"
+    r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>\w+)\/(?P<id>[\w-]+)$"
 )
-RESOURCE_ID_PATTERN = re.compile(r"^\d+$")
+RESOURCE_ID_PATTERN = re.compile(r"^[\w-]+$")
 
 Fields = namedtuple("Fields", ["project", "location", "resource", "id"],)
 
@@ -454,6 +455,14 @@ class PredictionClientWithOverride(ClientWithOverride):
     )
 
 
+class MetadataClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (compat.V1BETA1, metadata_service_client_v1beta1.MetadataServiceClient),
+    )
+
+
 AiPlatformServiceClientWithOverride = TypeVar(
     "AiPlatformServiceClientWithOverride",
     DatasetClientWithOverride,
@@ -462,6 +471,7 @@ AiPlatformServiceClientWithOverride = TypeVar(
     ModelClientWithOverride,
     PipelineClientWithOverride,
     PredictionClientWithOverride,
+    MetadataClientWithOverride,
 )
 
 
