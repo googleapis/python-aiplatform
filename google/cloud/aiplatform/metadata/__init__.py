@@ -17,4 +17,4 @@
 
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 
-__all__ = "MetadataStore"
+__all__ = "_MetadataStore"
