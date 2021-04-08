@@ -21,39 +21,39 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata._resource import Resource
 from google.auth import credentials as auth_credentials
 
-from google.cloud.aiplatform_v1beta1.types import context as gca_context
+from google.cloud.aiplatform_v1beta1.types import artifact as gca_artifact
 from google.cloud.aiplatform_v1beta1.services.metadata_service import (
     client as metadata_service_client,
 )
 
 
-class Context(Resource):
-    """Metadata Context resource for AI Platform"""
+class Artifact(Resource):
+    """Metadata Artifact resource for AI Platform"""
 
     client_class = metadata_service_client.MetadataServiceClient
     _is_client_prediction_client = False
-    _resource_noun = "contexts"
-    _getter_method = "get_context"
+    _resource_noun = "artifacts"
+    _getter_method = "get_artifact"
     _delete_method = None
 
     def __init__(
         self,
-        context_name: str,
+        artifact_name: str,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
-        """Retrieves an existing Context given a Context name or ID.
+        """Retrieves an existing Artifact given an Artifact name or ID.
 
         Args:
-            context_name (str):
-                A fully-qualified Context resource name or context ID
-                Example: "projects/123/locations/us-central1/metadataStores/default/contexts/my-context".
-                or "my-context" when project and location are initialized or passed.
+            artifact_name (str):
+                A fully-qualified Artifact resource name or artifact ID
+                Example: "projects/123/locations/us-central1/metadataStores/default/artifacts/my-artifact".
+                or "my-artifact" when project and location are initialized or passed.
             metadata_store_id (str):
                 MetadataStore to retrieve resource from. If not set, metadata_store_id is set to "default".
-                If context_name is a fully-qualified Context, its metadata_store_id overrides this one.
+                If artifact_name is a fully-qualified Artifact, its metadata_store_id overrides this one.
             project (str):
                 Optional project to retrieve resource from. If not set, project
                 set in aiplatform.init will be used.
@@ -66,7 +66,7 @@ class Context(Resource):
         """
 
         super().__init__(
-            resource_name=context_name,
+            resource_name=artifact_name,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,
@@ -76,7 +76,7 @@ class Context(Resource):
     @classmethod
     def create(
         cls,
-        context_id: str,
+        artifact_id: str,
         schema_title: str,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -86,47 +86,47 @@ class Context(Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "Context":
-        """Creates a new Context resource.
+    ) -> "Artifact":
+        f"""Creates a new Artifact resource.
 
         Args:
-            context_id (str):
-                Required. The {context_id} portion of the resource name with
+            artifact_id (str):
+                Required. The {artifact_id} portion of the resource name with
                 the format:
-                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/contexts/{context_id}.
+                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/artifacts/{artifact_id}.
             schema_title (str):
-                Required. schema_title identifies the schema title used by the context.
+                Required. schema_title identifies the schema title used by the artifact.
             display_name (str):
-                Optional. The user-defined name of the context.
+                Optional. The user-defined name of the artifact.
             schema_version (str):
-                Optional. schema_version specifies the version used by the context.
+                Optional. schema_version specifies the version used by the artifact.
                 If not set, defaults to use the latest version.
             description (str):
-                Optional. Describes the purpose and content of the context resource to be created.
+                Optional. Describes the purpose and content of the artifact resource to be created.
             metadata (Dict):
-                Optional. metadata contains the metadata information that will be stored in the context resource.
+                Optional. metadata contains the metadata information that will be stored in the artifact resource.
             metadata_store_id (str):
                 The {metadata_store_id} portion of the resource name with
                 the format:
-                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/contexts/{context_id}
+                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/artifacts/{artifact_id}
                 If not provided, the MetadataStore's ID will be set to "default".
             project (str):
-                Project to create this context into. Overrides project set in
+                Project to create this execution into. Overrides project set in
                 aiplatform.init.
             location (str):
-                Location to create this context into. Overrides location set in
+                Location to create this execution into. Overrides location set in
                 aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to create this context. Overrides
+                Custom credentials to use to create this execution. Overrides
                 credentials set in aiplatform.init.
 
         Returns:
-            context (Context):
-                Instantiated representation of the managed Metadata Context resource.
+            artifact (Artifact):
+                Instantiated representation of the managed Metadata Artifact resource.
 
         """
 
-        gapic_context = gca_context.Context(
+        gapic_artifact = gca_artifact.Artifact(
             schema_title=schema_title,
             schema_version=schema_version,
             display_name=display_name,
@@ -135,9 +135,9 @@ class Context(Resource):
         )
 
         resource_name = super().create(
-            resource_id=context_id,
+            resource_id=artifact_id,
             resource_noun=cls._resource_noun,
-            gapic_resource=gapic_context,
+            gapic_resource=gapic_artifact,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,
@@ -145,7 +145,7 @@ class Context(Resource):
         )
 
         return cls(
-            context_name=resource_name,
+            artifact_name=resource_name,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,
@@ -160,6 +160,6 @@ class Context(Resource):
         resource: proto.Message,
         resource_id: str,
     ) -> proto.Message:
-        return client.create_context(
-            parent=parent, context=resource, context_id=resource_id,
+        return client.create_artifact(
+            parent=parent, artifact=resource, artifact_id=resource_id,
         )

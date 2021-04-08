@@ -48,6 +48,9 @@ from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
 from google.cloud.aiplatform_v1beta1.services.prediction_service import (
     client as prediction_client,
 )
+from google.cloud.aiplatform_v1beta1.services.metadata_service import (
+    client as metadata_client,
+)
 
 AiPlatformServiceClient = TypeVar(
     "AiPlatformServiceClient",
@@ -57,6 +60,7 @@ AiPlatformServiceClient = TypeVar(
     prediction_client.PredictionServiceClient,
     pipeline_service_client.PipelineServiceClient,
     job_service_client.JobServiceClient,
+    metadata_client.MetadataServiceClient,
 )
 
 RESOURCE_NAME_PATTERN = re.compile(

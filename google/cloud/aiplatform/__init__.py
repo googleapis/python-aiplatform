@@ -29,6 +29,8 @@ from google.cloud.aiplatform.datasets import (
 from google.cloud.aiplatform.metadata import (
     MetadataStore,
     Context,
+    Artifact,
+    Execution,
 )
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
@@ -60,6 +62,8 @@ __all__ = (
     "AutoMLVideoTrainingJob",
     "BatchPredictionJob",
     "Context",
+    "Artifact",
+    "Execution",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",
