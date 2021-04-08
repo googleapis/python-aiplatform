@@ -25,10 +25,17 @@ from string import ascii_letters
 from google.api_core import client_options
 from google.api_core import gapic_v1
 from google.cloud import aiplatform
+from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import utils
+
 from google.cloud.aiplatform_v1beta1.services.model_service import (
-    client as model_service_client,
+    client as model_service_client_v1beta1,
 )
+from google.cloud.aiplatform_v1.services.model_service import (
+    client as model_service_client_v1,
+)
+
+model_service_client_default = model_service_client_v1
 
 
 @pytest.mark.parametrize(
@@ -252,12 +259,48 @@ def test_wrapped_client():
     test_client_info = gapic_v1.client_info.ClientInfo()
     test_client_options = client_options.ClientOptions()
 
-    wrapped_client = utils.WrappedClient(
-        client_class=model_service_client.ModelServiceClient,
+    wrapped_client = utils.ClientWithOverride.WrappedClient(
+        client_class=model_service_client_default.ModelServiceClient,
         client_options=test_client_options,
         client_info=test_client_info,
     )
 
     assert isinstance(
-        wrapped_client.get_model.__self__, model_service_client.ModelServiceClient
+        wrapped_client.get_model.__self__,
+        model_service_client_default.ModelServiceClient,
+    )
+
+
+def test_client_w_override_default_version():
+
+    test_client_info = gapic_v1.client_info.ClientInfo()
+    test_client_options = client_options.ClientOptions()
+
+    client_w_override = utils.ModelClientWithOverride(
+        client_options=test_client_options, client_info=test_client_info,
+    )
+    assert isinstance(
+        client_w_override._clients[
+            client_w_override._default_version
+        ].get_model.__self__,
+        model_service_client_default.ModelServiceClient,
+    )
+
+
+def test_client_w_override_select_version():
+
+    test_client_info = gapic_v1.client_info.ClientInfo()
+    test_client_options = client_options.ClientOptions()
+
+    client_w_override = utils.ModelClientWithOverride(
+        client_options=test_client_options, client_info=test_client_info,
+    )
+
+    assert isinstance(
+        client_w_override.select_version(compat.V1BETA1).get_model.__self__,
+        model_service_client_v1beta1.ModelServiceClient,
+    )
+    assert isinstance(
+        client_w_override.select_version(compat.V1).get_model.__self__,
+        model_service_client_v1.ModelServiceClient,
     )

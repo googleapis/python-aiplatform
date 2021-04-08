@@ -17,6 +17,7 @@
 
 
 import re
+import abc
 import logging
 
 from typing import Any, Match, Optional, Type, TypeVar, Tuple
@@ -25,38 +26,47 @@ from collections import namedtuple
 from google.api_core import client_options
 from google.api_core import gapic_v1
 from google.auth import credentials as auth_credentials
+from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform_v1beta1.types import (
+
+from google.cloud.aiplatform.compat.services import (
+    dataset_service_client_v1beta1,
+    endpoint_service_client_v1beta1,
+    job_service_client_v1beta1,
+    model_service_client_v1beta1,
+    pipeline_service_client_v1beta1,
+    prediction_service_client_v1beta1,
+)
+from google.cloud.aiplatform.compat.services import (
+    dataset_service_client_v1,
+    endpoint_service_client_v1,
+    job_service_client_v1,
+    model_service_client_v1,
+    pipeline_service_client_v1,
+    prediction_service_client_v1,
+)
+
+from google.cloud.aiplatform.compat.types import (
     accelerator_type as gca_accelerator_type,
-)
-from google.cloud.aiplatform_v1beta1.services.dataset_service import (
-    client as dataset_client,
-)
-from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
-    client as endpoint_client,
-)
-from google.cloud.aiplatform_v1beta1.services.job_service import (
-    client as job_service_client,
-)
-from google.cloud.aiplatform_v1beta1.services.model_service import (
-    client as model_client,
-)
-from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
-    client as pipeline_service_client,
-)
-from google.cloud.aiplatform_v1beta1.services.prediction_service import (
-    client as prediction_client,
 )
 
 AiPlatformServiceClient = TypeVar(
     "AiPlatformServiceClient",
-    dataset_client.DatasetServiceClient,
-    endpoint_client.EndpointServiceClient,
-    model_client.ModelServiceClient,
-    prediction_client.PredictionServiceClient,
-    pipeline_service_client.PipelineServiceClient,
-    job_service_client.JobServiceClient,
+    # v1beta1
+    dataset_service_client_v1beta1.DatasetServiceClient,
+    endpoint_service_client_v1beta1.EndpointServiceClient,
+    model_service_client_v1beta1.ModelServiceClient,
+    prediction_service_client_v1beta1.PredictionServiceClient,
+    pipeline_service_client_v1beta1.PipelineServiceClient,
+    job_service_client_v1beta1.JobServiceClient,
+    # v1
+    dataset_service_client_v1.DatasetServiceClient,
+    endpoint_service_client_v1.EndpointServiceClient,
+    model_service_client_v1.ModelServiceClient,
+    prediction_service_client_v1.PredictionServiceClient,
+    pipeline_service_client_v1.PipelineServiceClient,
+    job_service_client_v1.JobServiceClient,
 )
 
 # TODO(b/170334098): Add support for resource names more than one level deep
@@ -295,20 +305,68 @@ def extract_bucket_and_prefix_from_gcs_path(gcs_path: str) -> Tuple[str, Optiona
     return (gcs_bucket, gcs_blob_prefix)
 
 
-class WrappedClient:
-    """Wrapper class for client that creates client at API invocation time."""
+class ClientWithOverride:
+    class WrappedClient:
+        """Wrapper class for client that creates client at API invocation time."""
+
+        def __init__(
+            self,
+            client_class: Type[AiPlatformServiceClient],
+            client_options: client_options.ClientOptions,
+            client_info: gapic_v1.client_info.ClientInfo,
+            credentials: Optional[auth_credentials.Credentials] = None,
+        ):
+            """Stores parameters needed to instantiate client.
+
+            client_class (AiPlatformServiceClient):
+                Required. Class of the client to use.
+            client_options (client_options.ClientOptions):
+                Required. Client options to pass to client.
+            client_info (gapic_v1.client_info.ClientInfo):
+                Required. Client info to pass to client.
+            credentials (auth_credentials.credentials):
+                Optional. Client credentials to pass to client.
+            """
+
+            self._client_class = client_class
+            self._credentials = credentials
+            self._client_options = client_options
+            self._client_info = client_info
+
+        def __getattr__(self, name: str) -> Any:
+            """Instantiates client and returns attribute of the client."""
+            temporary_client = self._client_class(
+                credentials=self._credentials,
+                client_options=self._client_options,
+                client_info=self._client_info,
+            )
+            return getattr(temporary_client, name)
+
+    @property
+    @abc.abstractmethod
+    def _is_temporary(self) -> bool:
+        pass
+
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def _default_version(self) -> str:
+        pass
+
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def _version_map(self) -> Tuple:
+        pass
 
     def __init__(
         self,
-        client_class: Type[AiPlatformServiceClient],
         client_options: client_options.ClientOptions,
         client_info: gapic_v1.client_info.ClientInfo,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
         """Stores parameters needed to instantiate client.
 
-        client_class (AiPlatformServiceClient):
-            Required. Class of the client to use.
         client_options (client_options.ClientOptions):
             Required. Client options to pass to client.
         client_info (gapic_v1.client_info.ClientInfo):
@@ -317,19 +375,93 @@ class WrappedClient:
             Optional. Client credentials to pass to client.
         """
 
-        self._client_class = client_class
-        self._credentials = credentials
-        self._client_options = client_options
-        self._client_info = client_info
+        self._clients = {
+            version: self.WrappedClient(
+                client_class=client_class,
+                client_options=client_options,
+                client_info=client_info,
+                credentials=credentials,
+            )
+            if self._is_temporary
+            else client_class(
+                client_options=client_options,
+                client_info=client_info,
+                credentials=credentials,
+            )
+            for version, client_class in self._version_map
+        }
 
     def __getattr__(self, name: str) -> Any:
         """Instantiates client and returns attribute of the client."""
-        temporary_client = self._client_class(
-            credentials=self._credentials,
-            client_options=self._client_options,
-            client_info=self._client_info,
-        )
-        return getattr(temporary_client, name)
+        return getattr(self._clients[self._default_version], name)
+
+    def select_version(self, version: str) -> AiPlatformServiceClient:
+        return self._clients[version]
+
+
+class DatasetClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, dataset_service_client_v1.DatasetServiceClient),
+        (compat.V1BETA1, dataset_service_client_v1beta1.DatasetServiceClient),
+    )
+
+
+class EndpointClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, endpoint_service_client_v1.EndpointServiceClient),
+        (compat.V1BETA1, endpoint_service_client_v1beta1.EndpointServiceClient),
+    )
+
+
+class JobpointClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, job_service_client_v1.JobServiceClient),
+        (compat.V1BETA1, job_service_client_v1beta1.JobServiceClient),
+    )
+
+
+class ModelClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, model_service_client_v1.ModelServiceClient),
+        (compat.V1BETA1, model_service_client_v1beta1.ModelServiceClient),
+    )
+
+
+class PipelineClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, pipeline_service_client_v1.PipelineServiceClient),
+        (compat.V1BETA1, pipeline_service_client_v1beta1.PipelineServiceClient),
+    )
+
+
+class PredictionClientWithOverride(ClientWithOverride):
+    _is_temporary = False
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, prediction_service_client_v1.PredictionServiceClient),
+        (compat.V1BETA1, prediction_service_client_v1beta1.PredictionServiceClient),
+    )
+
+
+AiPlatformServiceClientWithOverride = TypeVar(
+    "AiPlatformServiceClientWithOverride",
+    DatasetClientWithOverride,
+    EndpointClientWithOverride,
+    JobpointClientWithOverride,
+    ModelClientWithOverride,
+    PipelineClientWithOverride,
+    PredictionClientWithOverride,
+)
 
 
 class LoggingWarningFilter(logging.Filter):

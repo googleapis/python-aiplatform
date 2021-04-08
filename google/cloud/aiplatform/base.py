@@ -20,13 +20,13 @@ from concurrent import futures
 import functools
 import inspect
 import threading
-from typing import Any, Callable, Dict, Optional, Sequence, Union
+from typing import Any, Callable, Dict, Optional, Sequence, Type, Union
 
 import proto
 
 from google.auth import credentials as auth_credentials
-from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import utils
 
 
 class FutureManager(metaclass=abc.ABCMeta):
@@ -207,6 +207,15 @@ class FutureManager(metaclass=abc.ABCMeta):
     def _sync_object_with_future_result(self, result: "FutureManager"):
         """Should sync the object from _empty_constructor with result of future."""
 
+    def __repr__(self) -> str:
+        if self._exception:
+            return f"{object.__repr__(self)} failed with {str(self._exception)}"
+
+        if self.__latest_future:
+            return f"{object.__repr__(self)} is waiting for upstream dependencies to complete."
+
+        return object.__repr__(self)
+
 
 class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     """Base class the AI Platform resource nouns.
@@ -223,8 +232,8 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     @property
     @classmethod
     @abc.abstractmethod
-    def client_class(cls) -> utils.AiPlatformServiceClient:
-        """Client class required to interact with resource."""
+    def client_class(cls) -> Type[utils.AiPlatformServiceClientWithOverride]:
+        """Client class required to interact with resource with optional overrides."""
         pass
 
     @property
@@ -278,7 +287,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         cls,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> utils.AiPlatformServiceClient:
+    ) -> utils.AiPlatformServiceClientWithOverride:
         """Helper method to instantiate service client for resource noun.
 
         Args:
@@ -287,8 +296,8 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
                 Optional custom credentials to use when accessing interacting with
                 resource noun.
         Returns:
-            client (utils.AiPlatformServiceClient):
-                Initialized service client for this service noun.
+            client (utils.AiPlatformServiceClientWithOverride):
+                Initialized service client for this service noun with optional overrides.
         """
         return initializer.global_config.create_client(
             client_class=cls.client_class,
@@ -333,6 +342,9 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     def display_name(self) -> str:
         """Display name of this resource."""
         return self._gca_resource.display_name
+
+    def __repr__(self) -> str:
+        return f"{object.__repr__(self)} \nresource name: {self.resource_name}"
 
 
 def optional_sync(
@@ -561,6 +573,12 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         """
         lro = getattr(self.api_client, self._delete_method)(name=self.resource_name)
         lro.result()
+
+    def __repr__(self) -> str:
+        if self._gca_resource:
+            return AiPlatformResourceNoun.__repr__(self)
+
+        return FutureManager.__repr__(self)
 
 
 def get_annotation_class(annotation: type) -> type:
