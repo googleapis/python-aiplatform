@@ -37,7 +37,7 @@ class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
 
     def __init__(
         self,
-        metadata_store_name: str = "default",
+        metadata_store_name: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -46,7 +46,7 @@ class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
 
         Args:
             metadata_store_name (str):
-                A fully-qualified MetadataStore resource name or metadataStore ID.
+                Optional. A fully-qualified MetadataStore resource name or metadataStore ID.
                 Example: "projects/123/locations/us-central1/metadataStores/my-store" or
                 "my-store" when project and location are initialized or passed.
                 If not set, metadata_store_name will be set to "default".
@@ -76,13 +76,13 @@ class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
     ) -> "_MetadataStore":
-        f"""Creates a new MetadataStore if it does not exist.
+        """Creates a new MetadataStore if it does not exist.
 
         Args:
             metadata_store_id (str):
-                The {metadata_store_id} portion of the resource name with
+                The {metadatastore} portion of the resource name with
                 the format:
-                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}
+                projects/{project}/locations/{location}/metadataStores/{metadatastore}
                 If not provided, the MetadataStore's ID will be set to "default" to create a default MetadataStore.
             project (str):
                 Project to upload this model to. Overrides project set in
