@@ -16,7 +16,6 @@
 #
 
 import logging
-from google.api_core import exceptions
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
@@ -31,40 +30,41 @@ class _MetadataService:
         self._run = None
         self._metrics = None
 
-    def set_experiment(self, experiment_name):
-        if not experiment_name:
-            raise ValueError(f"Invalid experiment_name {experiment_name}.")
+    def set_experiment(self, experiment):
+        if not experiment:
+            raise ValueError(f"Invalid experiment_name {experiment}.")
 
         store = _MetadataStore.get()
         if not store:
             logging.info(
-                f"Creating a default MetadataStore for experiment {experiment_name}"
+                f"Creating a default MetadataStore for experiment {experiment}"
             )
             _MetadataStore.create()
 
-        context = _Context.get(context_name=experiment_name)
+        context = _Context.get(context_name=experiment)
         if not context:
-            logging.info(f"Creating a Context for experiment {experiment_name}")
+            logging.info(f"Creating a Context for experiment {experiment}")
             context = _Context.create(
-                context_id=experiment_name,
+                context_id=experiment,
                 schema_title="system.Experiment",
                 schema_version="0.0.1",
             )
         self._experiment = context.name
 
-    def set_run(self, run_name):
+    def set_run(self, run):
         if not self._experiment:
             raise ValueError(
-                "No experiment found for this run. Make sure to call aiplatform.init with an experiment name or aiplatform.set_experiment before trying to set a run."
+                "No experiment found for this run. Make sure to call aiplatform.init with an experiment name or "
+                "aiplatform.set_experiment before trying to set a run. "
             )
-        if not run_name:
-            raise ValueError(f"Invalid run_name {run_name}.")
+        if not run:
+            raise ValueError(f"Invalid run_name {run}.")
 
-        execution = _Execution.get(execution_name=run_name)
+        execution = _Execution.get(execution_name=run)
         if not execution:
-            logging.info(f"Creating an Execution for run {run_name}")
+            logging.info(f"Creating an Execution for run {run}")
             execution = _Execution.create(
-                execution_id=run_name,
+                execution_id=run,
                 schema_title="system.Run",
                 schema_version="0.0.1",
             )
@@ -73,11 +73,13 @@ class _MetadataService:
     def log_params(self, **params):
         if not self._experiment:
             raise ValueError(
-                "No experiment found for logging parameters. Make sure to call aiplatform.init with an experiment name or aiplatform.set_experiment before trying to log params."
+                "No experiment found for logging parameters. Make sure to call aiplatform.init with an experiment "
+                "name or aiplatform.set_experiment before trying to log params. "
             )
         if not self._run:
             raise ValueError(
-                "No run found for logging parameters. Make sure to call aiplatform.init with a run name or aiplatform.set_run before trying to log params."
+                "No run found for logging parameters. Make sure to call aiplatform.init with a run name or "
+                "aiplatform.set_run before trying to log params. "
             )
         execution = _Execution.get(execution_name=self._run)
         if not execution:
@@ -91,14 +93,16 @@ class _MetadataService:
             execution = _Execution.update(execution_name=self._run, metadata=params)
         self._run = execution.name
 
-    def log_metrics(self, metrics):
+    def log_metrics(self, **metrics):
         if not self._experiment:
             raise ValueError(
-                "No experiment found for logging metrics. Make sure to call aiplatform.init with an experiment name or aiplatform.set_experiment before trying to log metrics."
+                "No experiment found for logging metrics. Make sure to call aiplatform.init with an experiment name "
+                "or aiplatform.set_experiment before trying to log metrics. "
             )
         if not self._run:
             raise ValueError(
-                "No run found for logging metrics. Make sure to call aiplatform.init with a run name or aiplatform.set_run before trying to log metrics."
+                "No run found for logging metrics. Make sure to call aiplatform.init with a run name or "
+                "aiplatform.set_run before trying to log metrics. "
             )
         # Only one metrics artifact for the (experiment, run) tuple.
         artifact_id = f"{self._experiment}-{self._run}"
@@ -112,7 +116,7 @@ class _MetadataService:
                 metadata=metrics,
             )
         else:
-            artifact = _Artifact.update(artifact_name=artifact_id, metadata=metrics)
+            artifact = _Artifact.update(resource_name=artifact_id, metadata=metrics)
         self._metrics = artifact.name
 
     def get_experiment(self, experiment_name):
