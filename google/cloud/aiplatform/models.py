@@ -99,7 +99,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
         """
 
-        super().__init__(project=project, location=location, credentials=credentials)
+        super().__init__(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=endpoint_name,
+        )
         self._gca_resource = self._get_gca_resource(resource_name=endpoint_name)
         self._prediction_client = self._instantiate_prediction_client(
             location=location or initializer.global_config.location,
@@ -1144,7 +1149,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init will be used.
         """
 
-        super().__init__(project=project, location=location, credentials=credentials)
+        super().__init__(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=model_name,
+        )
         self._gca_resource = self._get_gca_resource(resource_name=model_name)
 
     # TODO(b/170979552) Add support for predict schemata

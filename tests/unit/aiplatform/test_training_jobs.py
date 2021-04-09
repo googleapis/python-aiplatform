@@ -65,7 +65,6 @@ _TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
 _TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
 _TEST_LOCAL_SCRIPT_FILE_NAME = "____test____script.py"
 _TEST_LOCAL_SCRIPT_FILE_PATH = f"path/to/{_TEST_LOCAL_SCRIPT_FILE_NAME}"
-_TEST_PROJECT = "test-project"
 _TEST_PYTHON_SOURCE = """
 print('hello world')
 """
@@ -107,6 +106,8 @@ _TEST_ID = "12345"
 _TEST_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/{_TEST_ID}"
 )
+_TEST_ALT_PROJECT = "test-project-alt"
+_TEST_ALT_LOCATION = "europe-west4"
 
 _TEST_MODEL_INSTANCE_SCHEMA_URI = "instance_schema_uri.yaml"
 _TEST_MODEL_PARAMETERS_SCHEMA_URI = "parameters_schema_uri.yaml"
@@ -1380,6 +1381,42 @@ class TestCustomTrainingJob:
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         training_jobs.CustomTrainingJob.get(resource_name=_TEST_ID)
         get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_get_training_job_with_id_only_with_project_and_location(
+        self, get_training_job_custom_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        training_jobs.CustomTrainingJob.get(
+            resource_name=_TEST_ID, project=_TEST_PROJECT, location=_TEST_LOCATION
+        )
+        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_get_training_job_with_project_and_location(
+        self, get_training_job_custom_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        training_jobs.CustomTrainingJob.get(
+            resource_name=_TEST_NAME, project=_TEST_PROJECT, location=_TEST_LOCATION
+        )
+        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_get_training_job_with_alt_project_and_location(
+        self, get_training_job_custom_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        training_jobs.CustomTrainingJob.get(
+            resource_name=_TEST_NAME, project=_TEST_ALT_PROJECT, location=_TEST_LOCATION
+        )
+        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_get_training_job_with_project_and_alt_location(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        with pytest.raises(RuntimeError):
+            training_jobs.CustomTrainingJob.get(
+                resource_name=_TEST_NAME,
+                project=_TEST_PROJECT,
+                location=_TEST_ALT_LOCATION,
+            )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_nontabular_dataset(

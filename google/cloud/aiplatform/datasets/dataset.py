@@ -71,7 +71,10 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
         """
 
         super().__init__(
-            project=project, location=location, credentials=credentials,
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=dataset_name,
         )
         self._gca_resource = self._get_gca_resource(resource_name=dataset_name)
         self._validate_metadata_schema_uri()
