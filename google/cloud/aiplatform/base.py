@@ -19,6 +19,8 @@ import abc
 from concurrent import futures
 import functools
 import inspect
+import logging
+import sys
 import threading
 from typing import Any, Callable, Dict, Optional, Sequence, Type, Union
 
@@ -592,3 +594,36 @@ def get_annotation_class(annotation: type) -> type:
         return annotation.__args__[0]
     else:
         return annotation
+
+
+logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+
+
+class Logger:
+
+    def __init__(self, name):
+        self.logger = logging.getLogger(name)
+
+    def log_create_with_lro(self, cls, lro: Optional=None):
+        self.logger.info(f"Creating {cls.__name__}")
+
+        if lro:
+            self.logger.info(f"Create {cls.__name__} backing LRO: {lro.operation.name}")
+
+    def log_create_complete(self, cls, resource, variable_name):
+        self.logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
+        self.logger.info(f"You can use this {cls.__name__} in another session:")
+        self.logger.info(f"{variable_name} = aiplatform.{cls.__name__}({resource.name})")
+
+    def log_action_start_against_resource(self, action: str, noun: Optional[str], resource_noun_obj):
+        self.logger.info(f"{action} {resource_noun_obj.__class__.__name__} {noun}: {resource_noun_obj.resource_name}")
+
+    def log_action_started_against_resource_with_lro(self, action: str, noun: str, cls, lro):
+        self.logger.info(f"{action} {cls.__name__} {noun} backing LRO: {lro.operation.name}")
+
+    def log_action_completed_against_resource(self, noun, action, resource_noun_obj):
+        self.logger.info(f"{self.__class__.__name__} {noun} {action}. Resource name: {resource_noun_obj.resource_name}")
+
+
+    def __getattr__(self, attr):
+        return getattr(self.logger, attr)

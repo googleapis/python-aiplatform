@@ -56,7 +56,7 @@ from google.rpc import code_pb2
 import proto
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = base.Logger(__name__)
 
 _PIPELINE_COMPLETE_STATES = set(
     [
@@ -542,6 +542,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         if self._assert_has_run():
             return
 
+        self._sync_gca_resource()
         return self._gca_resource.state
 
     def get_model(self, sync=True) -> models.Model:
@@ -629,18 +630,19 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         previous_time = time.time()
         while self.state not in _PIPELINE_COMPLETE_STATES:
-            self._sync_gca_resource()
             current_time = time.time()
             if current_time - previous_time >= log_wait:
                 _LOGGER.info(
-                    "Training %s current state:\n%s"
-                    % (self._gca_resource.name, self._gca_resource.state)
+                    "%s %s current state:\n%s"
+                    % (self.__class__.__name__, self._gca_resource.name, self._gca_resource.state)
                 )
                 log_wait = min(log_wait * multiplier, max_wait)
             previous_time = current_time
             time.sleep(wait)
 
         self._raise_failure()
+
+        _LOGGER.log_action_completed_against_resource('', 'run', self)
 
         if self._gca_resource.model_to_upload and not self.has_failed:
             _LOGGER.info(
