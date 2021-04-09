@@ -15,8 +15,10 @@
 # limitations under the License.
 #
 import proto
+import logging
 from typing import Optional, Dict
 
+from google.api_core import exceptions
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata.resource import _Resource
 from google.auth import credentials as auth_credentials
@@ -233,3 +235,51 @@ class _Execution(_Resource):
         cls, client: utils.AiPlatformServiceClientWithOverride, resource: proto.Message,
     ) -> proto.Message:
         return client.update_execution(execution=resource)
+
+    @classmethod
+    def get(
+        cls,
+        execution_name: str,
+        metadata_store_id: Optional[str] = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "_Execution":
+        f"""Returns an Execution resource.
+
+        Args:
+            execution_name (str):
+                A fully-qualified Execution resource name or execution ID
+                Example: "projects/123/locations/us-central1/metadataStores/default/executions/my-execution".
+                or "my-execution" when project and location are initialized or passed.
+            metadata_store_id (str):
+                The {metadata_store_id} portion of the resource name with
+                the format:
+                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/executions/{execution_id}
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Project to get this execution into. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Location to get this execution into. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to get this execution. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            execution (_Execution):
+                Instantiated representation of the managed Metadata Execution resource.
+
+        """
+
+        try:
+            return cls(
+                execution_name=execution_name,
+                metadata_store_id=metadata_store_id,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )._gca_resource
+        except exceptions.NotFound:
+            logging.info(f"Execution {execution_name} not found.")

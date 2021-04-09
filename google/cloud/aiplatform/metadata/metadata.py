@@ -31,24 +31,20 @@ class _MetadataService:
         self._run = None
         self._metrics = None
 
-    # TODO(nachocano) Error handling this way is not very readable. Find a better way.
     def set_experiment(self, experiment_name):
         if not experiment_name:
             raise ValueError(f"Invalid experiment_name {experiment_name}.")
-        try:
-            _MetadataStore()
-        except exceptions.NotFound:
+
+        store = _MetadataStore.get()
+        if not store:
             logging.info(
                 f"Creating a default MetadataStore for experiment {experiment_name}"
             )
             _MetadataStore.create()
 
-        try:
-            context = _Context(context_name=experiment_name)
-        except exceptions.NotFound:
-            logging.info(
-                f"Creating a Context for experiment {experiment_name}"
-            )
+        context = _Context.get(context_name=experiment_name)
+        if not context:
+            logging.info(f"Creating a Context for experiment {experiment_name}")
             context = _Context.create(
                 context_id=experiment_name,
                 schema_title="system.Experiment",
@@ -63,12 +59,10 @@ class _MetadataService:
             )
         if not run_name:
             raise ValueError(f"Invalid run_name {run_name}.")
-        try:
-            execution = _Execution(execution_name=run_name)
-        except exceptions.NotFound:
-            logging.info(
-                f"Creating an Execution for run {run_name}"
-            )
+
+        execution = _Execution.get(execution_name=run_name)
+        if not execution:
+            logging.info(f"Creating an Execution for run {run_name}")
             execution = _Execution.create(
                 execution_id=run_name,
                 schema_title="system.Run",
@@ -76,7 +70,7 @@ class _MetadataService:
             )
         self._run = execution.name
 
-    def log_params(self, params):
+    def log_params(self, **params):
         if not self._experiment:
             raise ValueError(
                 "No experiment found for logging parameters. Make sure to call aiplatform.init with an experiment name or aiplatform.set_experiment before trying to log params."
@@ -85,9 +79,17 @@ class _MetadataService:
             raise ValueError(
                 "No run found for logging parameters. Make sure to call aiplatform.init with a run name or aiplatform.set_run before trying to log params."
             )
-        # Given that we do not support deletion, if we reach this point it means that it should exist an Execution.
-        run = _Execution.update(execution_name=self._run, metadata=params)
-        self._run = run.name
+        execution = _Execution.get(execution_name=self._run)
+        if not execution:
+            execution = _Execution.create(
+                execution_id=self._run,
+                schema_title="system.Run",
+                schema_version="0.0.1",
+                metadata=params,
+            )
+        else:
+            execution = _Execution.update(execution_name=self._run, metadata=params)
+        self._run = execution.name
 
     def log_metrics(self, metrics):
         if not self._experiment:
@@ -100,12 +102,9 @@ class _MetadataService:
             )
         # Only one metrics artifact for the (experiment, run) tuple.
         artifact_id = f"{self._experiment}-{self._run}"
-        try:
-            _Artifact(artifact_name=artifact_id)
-        except exceptions.NotFound:
-            logging.info(
-                f"Creating an Artifact for run {self._run}"
-            )
+        artifact = _Artifact.get(artifact_name=artifact_id)
+        if not artifact:
+            logging.info(f"Creating an Artifact for run {self._run}")
             artifact = _Artifact.create(
                 artifact_id=artifact_id,
                 schema_title="system.Metrics",

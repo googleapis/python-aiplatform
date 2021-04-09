@@ -136,3 +136,44 @@ class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
             location=location,
             credentials=credentials,
         )
+
+    @classmethod
+    def get(
+        cls,
+        metadata_store_name: Optional[str] = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "_MetadataStore":
+        f"""Returns a MetadataStore resource.
+
+        Args:
+            metadata_store_name (str):
+                Optional. A fully-qualified MetadataStore resource name or metadataStore ID.
+                Example: "projects/123/locations/us-central1/metadataStores/my-store" or
+                "my-store" when project and location are initialized or passed.
+                If not set, metadata_store_name will be set to "default".
+            project (str):
+                Optional project to retrieve resource from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional location to retrieve resource from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            metadata_store (_MetadataStore):
+                Instantiated representation of the managed Metadata Store resource.
+        """
+
+        try:
+            return cls(
+                metadata_store_name=metadata_store_name,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )._gca_resource
+        except exceptions.NotFound:
+            logging.info(f"MetadataStore {metadata_store_name} not found.")
