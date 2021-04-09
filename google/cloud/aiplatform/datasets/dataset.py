@@ -320,14 +320,11 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         return dataset_obj
 
     def _import_and_wait(self, datasource):
-        # _LOGGER.info(f"Importing {self.__class__.__name__} data: {self.resource_name}")
-
         _LOGGER.log_action_start_against_resource(
             "Importing", "data", self,
         )
 
         import_lro = self._import(datasource=datasource)
-        # _LOGGER.info(f"Import {self.__class__.__name__} data backing LRO: {import_lro.operation.name}")
 
         _LOGGER.log_action_started_against_resource_with_lro(
             "Import", "data", self.__class__, import_lro
@@ -335,7 +332,6 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
         import_lro.result()
 
-        # _LOGGER.info(f"{self.__class__.__name__} data imported. Resource name: {self.name}")
         _LOGGER.log_action_completed_against_resource("data", "imported", self)
 
     @classmethod

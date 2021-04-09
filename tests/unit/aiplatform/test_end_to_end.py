@@ -88,7 +88,7 @@ class TestEndToEnd:
         mock_python_package_to_gcs,  # noqa: F811
         mock_pipeline_service_create,  # noqa: F811
         mock_model_service_get,  # noqa: F811
-        mock_pipeline_service_get, # noqa: F811
+        mock_pipeline_service_get,  # noqa: F811
         sync,
     ):
 
@@ -343,7 +343,6 @@ class TestEndToEnd:
             test_fraction_split=test_training_jobs._TEST_TEST_FRACTION_SPLIT,
             sync=sync,
         )
-            
 
         with pytest.raises(RuntimeError):
             my_endpoint = model_from_job.deploy(sync=sync)
