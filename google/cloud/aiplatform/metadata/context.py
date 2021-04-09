@@ -255,7 +255,7 @@ class _Context(_Resource):
             metadata_store_id (str):
                 The {metadata_store_id} portion of the resource name with
                 the format:
-                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/contexts/{context_id}
+                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/contexts/my-context
                 If not provided, the MetadataStore's ID will be set to "default".
             project (str):
                 Project to get this context into. Overrides project set in

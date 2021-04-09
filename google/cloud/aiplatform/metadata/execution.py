@@ -255,7 +255,7 @@ class _Execution(_Resource):
             metadata_store_id (str):
                 The {metadata_store_id} portion of the resource name with
                 the format:
-                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/executions/{execution_id}
+                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/executions/my-execution
                 If not provided, the MetadataStore's ID will be set to "default".
             project (str):
                 Project to get this execution into. Overrides project set in
