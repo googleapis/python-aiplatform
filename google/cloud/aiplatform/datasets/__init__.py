@@ -15,17 +15,12 @@
 # limitations under the License.
 #
 
-from typing import TypeVar
-
 from google.cloud.aiplatform.datasets.dataset import _Dataset
 from google.cloud.aiplatform.datasets.tabular_dataset import TabularDataset
 from google.cloud.aiplatform.datasets.image_dataset import ImageDataset
 from google.cloud.aiplatform.datasets.text_dataset import TextDataset
 from google.cloud.aiplatform.datasets.video_dataset import VideoDataset
 
-SupportedDatasets = TypeVar(
-    "SupportedDatasets", ImageDataset, TabularDataset, TextDataset, VideoDataset,
-)
 
 __all__ = (
     "_Dataset",

@@ -211,7 +211,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
     @staticmethod
     def _create_input_data_config(
-        dataset: Optional[datasets.SupportedDatasets] = None,
+        dataset: Optional[datasets._Dataset] = None,
         annotation_schema_uri: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -223,7 +223,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         """Constructs a input data config to pass to the training pipeline.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (datasets._Dataset):
                 The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -357,7 +357,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         self,
         training_task_definition: str,
         training_task_inputs: Union[dict, proto.Message],
-        dataset: Optional[datasets.SupportedDatasets],
+        dataset: Optional[datasets._Dataset],
         training_fraction_split: float,
         validation_fraction_split: float,
         test_fraction_split: float,
@@ -385,7 +385,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 read access.
             training_task_inputs (Union[dict, proto.Message]):
                 Required. The training task's input that corresponds to the training_task_definition parameter.
-            dataset (datasets.SupportedDatasets):
+            dataset (datasets._Dataset):
                 The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -1701,7 +1701,14 @@ class CustomTrainingJob(_CustomTrainingJob):
     # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
     def run(
         self,
-        dataset: Optional[datasets.SupportedDatasets] = None,
+        dataset: Optional[
+            Union[
+                datasets.ImageDataset,
+                datasets.TabularDataset,
+                datasets.TextDataset,
+                datasets.VideoDataset,
+            ]
+        ] = None,
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
@@ -1733,9 +1740,16 @@ class CustomTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (
+                Union[
+                    datasets.ImageDataset,
+                    datasets.TabularDataset,
+                    datasets.TextDataset,
+                    datasets.VideoDataset,
+                ]
+            ):
                 AI Platform to fit this training against. Custom training script should
-                retrieve datasets through passed in environement variables uris:
+                retrieve datasets through passed in environment variables uris:
 
                 os.environ["AIP_TRAINING_DATA_URI"]
                 os.environ["AIP_VALIDATION_DATA_URI"]
@@ -1863,7 +1877,14 @@ class CustomTrainingJob(_CustomTrainingJob):
     def _run(
         self,
         python_packager: _TrainingScriptPythonPackager,
-        dataset: Optional[datasets.SupportedDatasets],
+        dataset: Optional[
+            Union[
+                datasets.ImageDataset,
+                datasets.TabularDataset,
+                datasets.TextDataset,
+                datasets.VideoDataset,
+            ]
+        ],
         annotation_schema_uri: Optional[str],
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
@@ -1881,7 +1902,14 @@ class CustomTrainingJob(_CustomTrainingJob):
         Args:
             python_packager (_TrainingScriptPythonPackager):
                 Required. Python Packager pointing to training script locally.
-            dataset (datasets.SupportedDatasets):
+            dataset (
+                Union[
+                    datasets.ImageDataset,
+                    datasets.TabularDataset,
+                    datasets.TextDataset,
+                    datasets.VideoDataset,
+                ]
+            ):
                 AI Platform to fit this training against.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
@@ -2190,7 +2218,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
     def run(
         self,
-        dataset: Optional[datasets.SupportedDatasets] = None,
+        dataset: Optional[
+            Union[
+                datasets.ImageDataset,
+                datasets.TabularDataset,
+                datasets.TextDataset,
+                datasets.VideoDataset,
+            ]
+        ] = None,
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
@@ -2222,7 +2257,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (
+                Union[
+                    datasets.ImageDataset,
+                    datasets.TabularDataset,
+                    datasets.TextDataset,
+                    datasets.VideoDataset,
+                ]
+            ):
                 AI Platform to fit this training against. Custom training script should
                 retrieve datasets through passed in environment variables uris:
 
@@ -2350,7 +2392,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     @base.optional_sync(construct_object_on_arg="managed_model")
     def _run(
         self,
-        dataset: Optional[datasets.SupportedDatasets],
+        dataset: Optional[
+            Union[
+                datasets.ImageDataset,
+                datasets.TabularDataset,
+                datasets.TextDataset,
+                datasets.VideoDataset,
+            ]
+        ],
         annotation_schema_uri: Optional[str],
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
@@ -2365,7 +2414,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (
+                Union[
+                    datasets.ImageDataset,
+                    datasets.TabularDataset,
+                    datasets.TextDataset,
+                    datasets.VideoDataset,
+                ]
+            ):
                 AI Platform to fit this training against.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
@@ -2585,7 +2641,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
     def run(
         self,
-        dataset: datasets.SupportedDatasets,
+        dataset: datasets.TabularDataset,
         target_column: str,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -2607,7 +2663,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (datasets.TabularDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -2700,7 +2756,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
     @base.optional_sync()
     def _run(
         self,
-        dataset: datasets.SupportedDatasets,
+        dataset: datasets.TabularDataset,
         target_column: str,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -2722,7 +2778,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (datasets.TabularDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -2986,7 +3042,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
     def run(
         self,
-        dataset: datasets.SupportedDatasets,
+        dataset: datasets.ImageDataset,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -3005,7 +3061,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (datasets.ImageDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -3077,7 +3133,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
     @base.optional_sync()
     def _run(
         self,
-        dataset: datasets.SupportedDatasets,
+        dataset: datasets.ImageDataset,
         base_model: Optional[models.Model] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -3097,7 +3153,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (datasets.ImageDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -3427,7 +3483,14 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
     def run(
         self,
-        dataset: Optional[datasets.SupportedDatasets] = None,
+        dataset: Optional[
+            Union[
+                datasets.ImageDataset,
+                datasets.TabularDataset,
+                datasets.TextDataset,
+                datasets.VideoDataset,
+            ]
+        ] = None,
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
@@ -3459,7 +3522,14 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (
+                Union[
+                    datasets.ImageDataset,
+                    datasets.TabularDataset,
+                    datasets.TextDataset,
+                    datasets.VideoDataset,
+                ]
+            ):
                 AI Platform to fit this training against. Custom training script should
                 retrieve datasets through passed in environement variables uris:
 
@@ -3582,7 +3652,14 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
     @base.optional_sync(construct_object_on_arg="managed_model")
     def _run(
         self,
-        dataset: Optional[datasets.SupportedDatasets],
+        dataset: Optional[
+            Union[
+                datasets.ImageDataset,
+                datasets.TabularDataset,
+                datasets.TextDataset,
+                datasets.VideoDataset,
+            ]
+        ],
         annotation_schema_uri: Optional[str],
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
@@ -3598,7 +3675,14 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         """Packages local script and launches training_job.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (
+                Union[
+                    datasets.ImageDataset,
+                    datasets.TabularDataset,
+                    datasets.TextDataset,
+                    datasets.VideoDataset,
+                ]
+            ):
                 AI Platform to fit this training against.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
@@ -3797,7 +3881,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
 
     def run(
         self,
-        dataset: datasets.SupportedDatasets,
+        dataset: datasets.VideoDataset,
         training_fraction_split: float = 0.8,
         test_fraction_split: float = 0.2,
         model_display_name: Optional[str] = None,
@@ -3811,7 +3895,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         by default roughly 80% of data will be used for training, and 20% for test.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (datasets.VideoDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -3858,7 +3942,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
     @base.optional_sync()
     def _run(
         self,
-        dataset: datasets.SupportedDatasets,
+        dataset: datasets.VideoDataset,
         training_fraction_split: float = 0.8,
         test_fraction_split: float = 0.2,
         model_display_name: Optional[str] = None,
@@ -3872,7 +3956,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         by default roughly 80% of data will be used for training, and 20% for test.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (datasets.VideoDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -4063,7 +4147,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
     def run(
         self,
-        dataset: datasets.SupportedDatasets,
+        dataset: datasets.TextDataset,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -4080,7 +4164,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (datasets.TextDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -4130,7 +4214,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
     @base.optional_sync()
     def _run(
         self,
-        dataset: datasets.SupportedDatasets,
+        dataset: datasets.TextDataset,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -4147,7 +4231,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.SupportedDatasets):
+            dataset (datasets.TextDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
