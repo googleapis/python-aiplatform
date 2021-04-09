@@ -156,6 +156,7 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
         max_wait = 60 * 5  # 5 minute wait
         multiplier = 2  # scale wait by 2 every iteration
 
+        previous_time = time.time()
         while self.state not in _JOB_COMPLETE_STATES:
             current_time = time.time()
             if current_time - previous_time >= log_wait:
