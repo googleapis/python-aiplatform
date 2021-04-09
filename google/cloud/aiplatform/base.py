@@ -22,7 +22,7 @@ import functools
 import inspect
 import proto
 import threading
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Type, Union
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer

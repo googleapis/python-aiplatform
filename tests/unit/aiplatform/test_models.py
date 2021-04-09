@@ -302,7 +302,9 @@ def delete_model_mock():
 
 @pytest.fixture
 def list_models_mock():
-    with mock.patch.object(ModelServiceClient, "list_models") as list_models_mock:
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "list_models"
+    ) as list_models_mock:
         list_models_mock.return_value = _TEST_MODEL_LIST
         yield list_models_mock
 
@@ -588,7 +590,39 @@ class TestModel:
     ):
 
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        test_model_resource_name = model_service_client.ModelServiceClient.model_path(
+            _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
+        )
+
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            artifact_uri=_TEST_ARTIFACT_URI,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            project=_TEST_PROJECT_2,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+        )
+
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            artifact_uri=_TEST_ARTIFACT_URI,
+            container_spec=container_spec,
+        )
+
+        upload_model_with_custom_project_mock.assert_called_once_with(
             parent=f"projects/{_TEST_PROJECT_2}/locations/{_TEST_LOCATION}",
+            model=managed_model,
         )
 
         get_model_with_custom_project_mock.assert_called_once_with(

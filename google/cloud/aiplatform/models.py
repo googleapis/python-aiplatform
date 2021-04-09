@@ -24,6 +24,7 @@ from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
+from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform.compat.services import endpoint_service_client
@@ -1059,7 +1060,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List["aiplatform.Endpoint"]:
+    ) -> List["models.Endpoint"]:
         """List all Endpoint resource instances.
 
         Example Usage:
@@ -1087,7 +1088,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[aiplatform.Endpoint] - A list of Endpoint resource objects
+            List[models.Endpoint] - A list of Endpoint resource objects
         """
 
         return cls._list_with_local_order(
@@ -1913,7 +1914,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List["aiplatform.Model"]:
+    ) -> List["models.Model"]:
         """List all Model resource instances.
 
         Example Usage:
@@ -1941,7 +1942,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[aiplatform.Model] - A list of Model resource objects
+            List[models.Model] - A list of Model resource objects
         """
 
         return cls._list_with_local_order(

@@ -110,17 +110,19 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
 
 _TEST_DATASET_LIST = [
-    GapicDataset(
+    gca_dataset.Dataset(
         display_name="a", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
     ),
-    GapicDataset(
+    gca_dataset.Dataset(
         display_name="d", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR
     ),
-    GapicDataset(
+    gca_dataset.Dataset(
         display_name="b", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
     ),
-    GapicDataset(display_name="e", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT),
-    GapicDataset(
+    gca_dataset.Dataset(
+        display_name="e", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT
+    ),
+    gca_dataset.Dataset(
         display_name="c", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
     ),
 ]
@@ -266,7 +268,9 @@ def export_data_mock():
 
 @pytest.fixture
 def list_datasets_mock():
-    with patch.object(DatasetServiceClient, "list_datasets") as list_datasets_mock:
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "list_datasets"
+    ) as list_datasets_mock:
         list_datasets_mock.return_value = _TEST_DATASET_LIST
         yield list_datasets_mock
 
