@@ -344,7 +344,6 @@ class TestEndToEnd:
             sync=sync,
         )
             
-        assert endpoint_deploy_return is None
 
         with pytest.raises(RuntimeError):
             my_endpoint = model_from_job.deploy(sync=sync)
@@ -352,6 +351,7 @@ class TestEndToEnd:
 
         with pytest.raises(RuntimeError):
             endpoint_deploy_return = created_endpoint.deploy(model_from_job, sync=sync)
+            assert endpoint_deploy_return is None
             created_endpoint.wait()
 
         expected_dataset = gca_dataset.Dataset(
