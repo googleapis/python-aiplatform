@@ -138,6 +138,7 @@ def mock_dataset_video():
     ds = mock.MagicMock(datasets.Dataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
+    ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
         display_name=_TEST_DATASET_DISPLAY_NAME,
         metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_VIDEO,
@@ -153,6 +154,7 @@ def mock_model():
     model = mock.MagicMock(models.Model)
     model.name = _TEST_MODEL_ID
     model._latest_future = None
+    model._exception = None
     model._gca_resource = gca_model.Model(
         display_name=_TEST_MODEL_DISPLAY_NAME, name=_TEST_MODEL_NAME,
     )

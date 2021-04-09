@@ -161,6 +161,7 @@ def mock_dataset_tabular():
     ds = mock.MagicMock(datasets.Dataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
+    ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
         display_name=_TEST_DATASET_DISPLAY_NAME,
         metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
@@ -176,6 +177,7 @@ def mock_dataset_nontabular():
     ds = mock.MagicMock(datasets.Dataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
+    ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
         display_name=_TEST_DATASET_DISPLAY_NAME,
         metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
