@@ -80,13 +80,9 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
             location=self.location,
         )
 
-        try:
-            self._gca_resource = getattr(self.api_client, self._getter_method)(
-                name=full_resource_name
-            )
-            self.found = True
-        except exceptions.NotFound:
-            logging.info(f"Resource {full_resource_name} not found.")
+        self._gca_resource = getattr(self.api_client, self._getter_method)(
+            name=full_resource_name
+        )
 
     @classmethod
     def create(
