@@ -263,8 +263,10 @@ class FutureManager(metaclass=abc.ABCMeta):
 
             """
 
+            print(method)
             for future in set(deps):
                 future.result()
+                print(future)
 
             result = method(*args, **kwargs)
 
@@ -281,6 +283,17 @@ class FutureManager(metaclass=abc.ABCMeta):
             for arg in list(args) + list(kwargs.values())
             if isinstance(arg, FutureManager)
         ]
+
+        # Retrieves exceptions and raises
+        # if any upstream dependency has an exception
+        exceptions = [
+            arg._exception
+            for arg in list(args) + list(kwargs.values())
+            if isinstance(arg, FutureManager) and arg._exception
+        ]
+
+        if exceptions:
+            raise exceptions[0]
 
         # filter out objects that do not have pending tasks
         deps = [dep for dep in deps if dep]
