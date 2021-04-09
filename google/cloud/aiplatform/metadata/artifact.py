@@ -77,7 +77,7 @@ class _Artifact(_Resource):
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
-        metadata: Optional[Dict] = {},
+        metadata: Optional[Dict] = None,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -151,7 +151,7 @@ class _Artifact(_Resource):
     @classmethod
     def create_resource(
         cls,
-        client: utils.AiPlatformServiceClientWithOverride,
+        client: utils.MetadataClientWithOverride,
         parent: str,
         resource: proto.Message,
         resource_id: str,
@@ -164,7 +164,7 @@ class _Artifact(_Resource):
     def update(
         cls,
         artifact_id: str,
-        metadata: Optional[Dict] = {},
+        metadata: Optional[Dict] = None,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -219,9 +219,6 @@ class _Artifact(_Resource):
             credentials=credentials,
         )
 
-        if not resource_name:
-            raise ValueError("Error while updating artifact")
-
         return cls(
             artifact_name=resource_name,
             metadata_store_id=metadata_store_id,
@@ -232,7 +229,7 @@ class _Artifact(_Resource):
 
     @classmethod
     def update_resource(
-        cls, client: utils.AiPlatformServiceClientWithOverride, resource: proto.Message,
+        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
     ) -> proto.Message:
         return client.update_artifact(artifact=resource)
 

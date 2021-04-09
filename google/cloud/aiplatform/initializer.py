@@ -94,7 +94,8 @@ class _Config:
         if run:
             if not experiment:
                 raise ValueError(
-                    "No experiment found. Provide and experiment for this run."
+                    "No experiment set. Provide an experiment for this run, e.g., aiplatform.init("
+                    "experiment='my-experiment')."
                 )
             metadata.metadata_service.set_run(run)
         if staging_bucket:

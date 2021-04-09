@@ -37,6 +37,7 @@ _TEST_LOCATION = "us-central1"
 _TEST_LOCATION_2 = "europe-west4"
 _TEST_INVALID_LOCATION = "test-invalid-location"
 _TEST_EXPERIMENT = "test-experiment"
+_TEST_RUN = "test-run"
 _TEST_STAGING_BUCKET = "test-bucket"
 
 
@@ -69,9 +70,17 @@ class TestInit:
         with pytest.raises(ValueError):
             initializer.global_config.init(location=_TEST_INVALID_LOCATION)
 
-    def test_init_experiment_sets_experiment(self):
-        initializer.global_config.init(experiment=_TEST_EXPERIMENT)
-        assert initializer.global_config.experiment == _TEST_EXPERIMENT
+    # TODO(nachocano) Mock the call to set_experiment
+    # def test_init_experiment_calls_metadata_service(self):
+    #     initializer.global_config.init(experiment=_TEST_EXPERIMENT)
+
+    def test_init_run_alone_without_experiment_raises(self):
+        with pytest.raises(ValueError):
+            initializer.global_config.init(run=_TEST_RUN)
+
+    # TODO(nachocano) Mock the call to set_experiment and set_run
+    # def test_init_experiment_and_run_calls_metadata_service(self):
+    #     initializer.global_config.init(experiment=_TEST_EXPERIMENT, run=_TEST_RUN)
 
     def test_init_staging_bucket_sets_staging_bucket(self):
         initializer.global_config.init(staging_bucket=_TEST_STAGING_BUCKET)

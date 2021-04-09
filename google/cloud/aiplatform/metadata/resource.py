@@ -210,13 +210,9 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
             + f"/metadataStores/{metadata_store_id}"
         )
 
-        try:
-            cls.update_resource(
-                client=api_client, resource=gapic_resource,
-            )
-        except exceptions.NotFound:
-            logging.error(f"Resource '{resource_id}' not found")
-            return None
+        cls.update_resource(
+            client=api_client, resource=gapic_resource,
+        )
 
         return f"{parent}/{resource_noun}/{resource_id}"
 

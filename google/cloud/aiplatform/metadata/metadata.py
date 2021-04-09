@@ -16,6 +16,8 @@
 #
 
 import logging
+from typing import Dict
+
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
@@ -30,9 +32,9 @@ class _MetadataService:
         self._run = None
         self._metrics = None
 
-    def set_experiment(self, experiment):
+    def set_experiment(self, experiment: str):
         if not experiment:
-            raise ValueError(f"Invalid experiment_name {experiment}.")
+            raise ValueError(f"Invalid experiment {experiment}.")
 
         store = _MetadataStore.get()
         if not store:
@@ -51,26 +53,24 @@ class _MetadataService:
             )
         self._experiment = context.name
 
-    def set_run(self, run):
+    def set_run(self, run: str):
         if not self._experiment:
             raise ValueError(
                 "No experiment found for this run. Make sure to call aiplatform.init with an experiment name or "
                 "aiplatform.set_experiment before trying to set a run. "
             )
         if not run:
-            raise ValueError(f"Invalid run_name {run}.")
+            raise ValueError(f"Invalid run {run}.")
 
         execution = _Execution.get(execution_name=run)
         if not execution:
             logging.info(f"Creating an Execution for run {run}")
             execution = _Execution.create(
-                execution_id=run,
-                schema_title="system.Run",
-                schema_version="0.0.1",
+                execution_id=run, schema_title="system.Run", schema_version="0.0.1",
             )
         self._run = execution.name
 
-    def log_params(self, **params):
+    def log_params(self, params: Dict):
         if not self._experiment:
             raise ValueError(
                 "No experiment found for logging parameters. Make sure to call aiplatform.init with an experiment "
@@ -93,7 +93,7 @@ class _MetadataService:
             execution = _Execution.update(execution_name=self._run, metadata=params)
         self._run = execution.name
 
-    def log_metrics(self, **metrics):
+    def log_metrics(self, metrics: Dict):
         if not self._experiment:
             raise ValueError(
                 "No experiment found for logging metrics. Make sure to call aiplatform.init with an experiment name "
@@ -119,10 +119,13 @@ class _MetadataService:
             artifact = _Artifact.update(resource_name=artifact_id, metadata=metrics)
         self._metrics = artifact.name
 
-    def get_experiment(self, experiment_name):
+    def get_experiment(self, experiment: str):
         raise NotImplementedError("get_experiment not implemented")
 
-    def get_pipeline(self, pipeline_name):
+    def get_run(self, run: str):
+        raise NotImplementedError("get_run not implemented")
+
+    def get_pipeline(self, pipeline: str):
         raise NotImplementedError("get_pipeline not implemented")
 
 
