@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Iterable, Optional, Union, Sequence, Dict
+from typing import Iterable, Optional, Union, Sequence, Dict, List
 
 import abc
 import sys
@@ -165,6 +165,53 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
         # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
         if self.state in _JOB_ERROR_STATES:
             raise RuntimeError("Job failed with:\n%s" % self._gca_resource.error)
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[base.AiPlatformResourceNoun]:
+        """List all instances of this Job Resource.
+
+        Example Usage:
+
+        aiplatform.BatchPredictionJobs.list(
+            filter='state="JOB_STATE_SUCCEEDED" AND display_name="my_job"',
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[AiPlatformResourceNoun] - A list of Job resource objects
+        """
+
+        return cls._list_with_local_order(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
 
     def cancel(self) -> None:
         """Cancels this Job. Success of cancellation is not guaranteed. Use `Job.state`

@@ -782,11 +782,7 @@ class TestTabularDataset:
         )
 
         list_datasets_mock.assert_called_once_with(
-            request={
-                "parent": _TEST_PARENT,
-                "filter": _TEST_LIST_FILTER,
-                "order_by": _TEST_LIST_ORDER_BY,
-            }
+            request={"parent": _TEST_PARENT, "filter": _TEST_LIST_FILTER}
         )
 
         # Ensure returned list is smaller since it filtered out non-tabular datasets

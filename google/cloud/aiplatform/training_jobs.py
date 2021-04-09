@@ -690,6 +690,60 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             )
         return False
 
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["base.AiPlatformResourceNoune"]:
+        """List all instances of this TrainingJob resource.
+
+        Example Usage:
+
+        aiplatform.CustomTrainingJob.list(
+            filter='display_name="experiment_a27"',
+            order_by='create_time desc'
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[AiPlatformResourceNoun] - A list of TrainingJob resource objects
+        """
+
+        training_job_subclass_filter = (
+            lambda gapic_obj: gapic_obj.training_task_definition
+            in cls._supported_training_schemas
+        )
+
+        return cls._list_with_local_order(
+            cls_filter=training_job_subclass_filter,
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
     def cancel(self) -> None:
         """Starts asynchronous cancellation on the TrainingJob. The server
         makes a best effort to cancel the job, but success is not guaranteed.

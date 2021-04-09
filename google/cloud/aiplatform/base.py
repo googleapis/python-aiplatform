@@ -25,7 +25,6 @@ import threading
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 from google.auth import credentials as auth_credentials
-from google.cloud import aiplatform
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
 
@@ -596,6 +595,76 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
     # TODO(b/144545165): Improve documentation for list filtering once available
     # TODO(b/184910159): Expose `page_size` field in list method
     @classmethod
+    def _list(
+        cls,
+        cls_filter: Callable[[proto.Message], bool] = lambda _: True,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[AiPlatformResourceNoun]:
+
+        self = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+
+        # Fetch credentials once and re-use for all `_empty_constructor()` calls
+        creds = initializer.global_config.credentials
+
+        resource_list_method = getattr(self.api_client, self._list_method)
+
+        list_request = {
+            "parent": initializer.global_config.common_location_path(),
+            "filter": filter,
+        }
+
+        if order_by:
+            list_request["order_by"] = order_by
+
+        resource_list = resource_list_method(request=list_request) or []
+
+        return [
+            self._construct_sdk_resource_from_gapic(
+                gapic_resource, project=project, location=location, credentials=creds
+            )
+            for gapic_resource in resource_list
+            if cls_filter(gapic_resource)
+        ]
+
+    @classmethod
+    def _list_with_local_order(
+        cls,
+        cls_filter: Callable[[proto.Message], bool] = lambda _: True,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[AiPlatformResourceNoun]:
+        """Client-side sorting when list API doesn't support `order_by`"""
+
+        li = cls._list(
+            cls_filter=cls_filter,
+            filter=filter,
+            order_by=None,  # This method will handle the ordering locally
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        desc = "desc" in order_by
+        order_by = order_by.replace("desc", "")
+        order_by = order_by.split(",")
+
+        li.sort(
+            key=lambda x: tuple(getattr(x, field.strip()) for field in order_by),
+            reverse=desc,
+        )
+
+        return li
+
+    @classmethod
     def list(
         cls,
         filter: Optional[str] = None,
@@ -633,79 +702,16 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
                 credentials set in aiplatform.init.
 
         Returns:
-            Sequence[AiPlatformResourceNoun] - A list of SDK resource objects
+            List[AiPlatformResourceNoun] - A list of SDK resource objects
         """
-        _UNSUPPORTED_LIST_ORDER_BY_TYPES = (
-            aiplatform.jobs._Job,
-            aiplatform.models.Endpoint,
-            aiplatform.models.Model,
-            aiplatform.training_jobs._TrainingJob,
+
+        return cls._list(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
-
-        self = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
-        )
-
-        creds = initializer.global_config.credentials
-
-        resource_list_method = getattr(self.api_client, self._list_method)
-        order_locally = False
-
-        list_request = {
-            "parent": initializer.global_config.common_location_path(),
-            "filter": filter,
-        }
-
-        # If list method does not offer `order_by` field, order locally
-        if order_by and issubclass(type(self), _UNSUPPORTED_LIST_ORDER_BY_TYPES):
-            order_locally = True
-        elif order_by:
-            list_request["order_by"] = order_by
-
-        resource_list = resource_list_method(request=list_request) or []
-
-        # Only return objects specific to the calling subclass,
-        # for example TabularDataset.list() only lists TabularDatasets
-        if issubclass(type(self), aiplatform.datasets.Dataset):
-            final_list = [
-                self._construct_sdk_resource_from_gapic(
-                    gapic_resource, credentials=creds
-                )
-                for gapic_resource in resource_list
-                if gapic_resource.metadata_schema_uri
-                in self._supported_metadata_schema_uris
-            ]
-
-        elif issubclass(type(self), aiplatform.training_jobs._TrainingJob):
-            final_list = [
-                self._construct_sdk_resource_from_gapic(
-                    gapic_resource, credentials=creds
-                )
-                for gapic_resource in resource_list
-                if gapic_resource.training_task_definition
-                in self._supported_training_schemas
-            ]
-
-        else:
-            final_list = [
-                self._construct_sdk_resource_from_gapic(
-                    gapic_resource, credentials=creds
-                )
-                for gapic_resource in resource_list
-            ]
-
-        # Client-side sorting when API doesn't support `order_by`
-        if order_locally:
-            desc = "desc" in order_by
-            order_by = order_by.replace("desc", "")
-            order_by = order_by.split(",")
-
-            final_list.sort(
-                key=lambda x: tuple(getattr(x, field.strip()) for field in order_by),
-                reverse=desc,
-            )
-
-        return final_list
 
     @optional_sync()
     def delete(self, sync: bool = True) -> None:

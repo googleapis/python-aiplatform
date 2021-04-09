@@ -1031,6 +1031,53 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             explanations=explain_response.explanations,
         )
 
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["aiplatform.Endpoint"]:
+        """List all Endpoint resource instances.
+
+        Example Usage:
+
+        aiplatform.Endpoint.list(
+            filter='labels.my_label="my_label_value" OR display_name=!"old_endpoint"',
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[aiplatform.Endpoint] - A list of Endpoint resource objects
+        """
+
+        return cls._list_with_local_order(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
     def list_models(self) -> Sequence[gca_endpoint.DeployedModel]:
         """Returns a list of the models deployed to this Endpoint.
 
@@ -1830,4 +1877,51 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             credentials=credentials or self.credentials,
             encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
+        )
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["aiplatform.Model"]:
+        """List all Model resource instances.
+
+        Example Usage:
+
+        aiplatform.Model.list(
+            filter='labels.my_label="my_label_value" AND display_name="my_model"',
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[aiplatform.Model] - A list of Model resource objects
+        """
+
+        return cls._list_with_local_order(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
