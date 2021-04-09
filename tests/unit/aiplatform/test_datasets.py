@@ -106,13 +106,17 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
 # misc
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
 
-_TEST_TABULAR_DATASET_LIST = [
+_TEST_DATASET_LIST = [
     GapicDataset(
         display_name="a", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
     ),
     GapicDataset(
+        display_name="d", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR
+    ),
+    GapicDataset(
         display_name="b", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
     ),
+    GapicDataset(display_name="e", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT),
     GapicDataset(
         display_name="c", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
     ),
@@ -242,7 +246,7 @@ def export_data_mock():
 @pytest.fixture
 def list_datasets_mock():
     with patch.object(DatasetServiceClient, "list_datasets") as list_datasets_mock:
-        list_datasets_mock.return_value = _TEST_TABULAR_DATASET_LIST
+        list_datasets_mock.return_value = _TEST_DATASET_LIST
         yield list_datasets_mock
 
 
@@ -782,12 +786,11 @@ class TestTabularDataset:
                 "parent": _TEST_PARENT,
                 "filter": _TEST_LIST_FILTER,
                 "order_by": _TEST_LIST_ORDER_BY,
-                "page_size": None,
-                "read_mask": None,
             }
         )
 
-        assert len(ds_list) == len(_TEST_TABULAR_DATASET_LIST)
+        # Ensure returned list is smaller since it filtered out non-tabular datasets
+        assert len(ds_list) < len(_TEST_DATASET_LIST)
 
         for ds in ds_list:
             assert type(ds) == aiplatform.TabularDataset

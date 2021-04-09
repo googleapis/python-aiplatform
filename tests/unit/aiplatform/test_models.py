@@ -1030,12 +1030,7 @@ class TestModel:
 
         # `order_by` is not passed to API since it is not an accepted field
         list_models_mock.assert_called_once_with(
-            request={
-                "parent": _TEST_PARENT,
-                "filter": _TEST_LIST_FILTER,
-                "page_size": None,
-                "read_mask": None,
-            }
+            request={"parent": _TEST_PARENT, "filter": _TEST_LIST_FILTER}
         )
 
         assert len(ds_list) == len(_TEST_MODEL_LIST)
@@ -1054,12 +1049,7 @@ class TestModel:
 
         # `order_by` is not passed to API since it is not an accepted field
         list_models_mock.assert_called_once_with(
-            request={
-                "parent": _TEST_PARENT,
-                "filter": _TEST_LIST_FILTER,
-                "page_size": None,
-                "read_mask": None,
-            }
+            request={"parent": _TEST_PARENT, "filter": _TEST_LIST_FILTER}
         )
 
         assert len(ds_list) == len(_TEST_MODEL_LIST)

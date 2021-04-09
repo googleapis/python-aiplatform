@@ -43,7 +43,7 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
     _list_method = "list_datasets"
     _delete_method = "delete_dataset"
 
-    _supported_metadata_schema_uris: Optional[Tuple[str]] = ()
+    _supported_metadata_schema_uris: Tuple[str] = ()
 
     def __init__(
         self,

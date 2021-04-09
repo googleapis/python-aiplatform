@@ -22,13 +22,12 @@ import functools
 import inspect
 import proto
 import threading
-from typing import Any, Callable, Dict, Optional, Sequence, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
-from google.protobuf import field_mask_pb2 as field_mask
 
 
 class FutureManager(metaclass=abc.ABCMeta):
@@ -359,6 +358,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     @property
     def update_time(self) -> datetime.datetime:
         """Time this resource was last updated."""
+        self._sync_gca_resource()
         return self._gca_resource.update_time
 
     def __repr__(self) -> str:
@@ -582,22 +582,28 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
     def _construct_sdk_resource_from_gapic(
         self,
         gapic_resource: proto.Message,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> AiPlatformResourceNoun:
         """Given a GAPIC object, return the SDK representation."""
-        sdk_resource = self._empty_constructor(credentials=credentials)
+        sdk_resource = self._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
         sdk_resource._gca_resource = gapic_resource
         return sdk_resource
 
-    # TODO(b/144545165) - Improve documentation for list filtering once available
+    # TODO(b/144545165): Improve documentation for list filtering once available
+    # TODO(b/184910159): Expose `page_size` field in list method
     @classmethod
     def list(
         cls,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
-        page_size: Optional[int] = None,
-        read_mask: Optional[field_mask.FieldMask] = None,
-    ) -> Sequence[AiPlatformResourceNoun]:
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[AiPlatformResourceNoun]:
         """List all instances of this AI Platform Resource.
 
         Example Usage:
@@ -616,10 +622,15 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
                 Supported fields: `display_name`, `create_time`, `update_time`
-            page_size (int):
-                Optional. The standard list page size.
-            read_mask (field_mask.FieldMask):
-                Optional. Mask specifying which fields to read.
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
 
         Returns:
             Sequence[AiPlatformResourceNoun] - A list of SDK resource objects
@@ -631,7 +642,9 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
             aiplatform.training_jobs._TrainingJob,
         )
 
-        self = cls._empty_constructor()
+        self = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
 
         creds = initializer.global_config.credentials
 
@@ -641,8 +654,6 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         list_request = {
             "parent": initializer.global_config.common_location_path(),
             "filter": filter,
-            "page_size": page_size,
-            "read_mask": read_mask,
         }
 
         # If list method does not offer `order_by` field, order locally
