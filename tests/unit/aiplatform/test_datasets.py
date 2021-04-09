@@ -28,18 +28,21 @@ from google.auth.exceptions import GoogleAuthError
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
+
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 
-from google.cloud.aiplatform_v1beta1 import GcsSource
-from google.cloud.aiplatform_v1beta1 import GcsDestination
-from google.cloud.aiplatform_v1beta1 import ImportDataConfig
-from google.cloud.aiplatform_v1beta1 import ExportDataConfig
-from google.cloud.aiplatform_v1beta1 import DatasetServiceClient
-from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
-from google.cloud.aiplatform_v1beta1.types import dataset_service
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.services.dataset_service import (
+    client as dataset_service_client,
+)
+
+from google.cloud.aiplatform_v1.types import (
+    dataset as gca_dataset,
+    dataset_service as gca_dataset_service,
+    encryption_spec as gca_encryption_spec,
+    io as gca_io,
+)
 
 # project
 _TEST_PROJECT = "test-project"
@@ -128,8 +131,10 @@ _TEST_LIST_ORDER_BY = "create_time desc"
 
 @pytest.fixture
 def get_dataset_mock():
-    with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
-        get_dataset_mock.return_value = GapicDataset(
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "get_dataset"
+    ) as get_dataset_mock:
+        get_dataset_mock.return_value = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             name=_TEST_NAME,
@@ -141,8 +146,10 @@ def get_dataset_mock():
 
 @pytest.fixture
 def get_dataset_without_name_mock():
-    with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
-        get_dataset_mock.return_value = GapicDataset(
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "get_dataset"
+    ) as get_dataset_mock:
+        get_dataset_mock.return_value = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
@@ -152,8 +159,10 @@ def get_dataset_without_name_mock():
 
 @pytest.fixture
 def get_dataset_image_mock():
-    with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
-        get_dataset_mock.return_value = GapicDataset(
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "get_dataset"
+    ) as get_dataset_mock:
+        get_dataset_mock.return_value = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_IMAGE,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -165,8 +174,10 @@ def get_dataset_image_mock():
 
 @pytest.fixture
 def get_dataset_tabular_mock():
-    with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
-        get_dataset_mock.return_value = GapicDataset(
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "get_dataset"
+    ) as get_dataset_mock:
+        get_dataset_mock.return_value = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             metadata=_TEST_METADATA_TABULAR_BQ,
@@ -178,8 +189,10 @@ def get_dataset_tabular_mock():
 
 @pytest.fixture
 def get_dataset_text_mock():
-    with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
-        get_dataset_mock.return_value = GapicDataset(
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "get_dataset"
+    ) as get_dataset_mock:
+        get_dataset_mock.return_value = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -191,8 +204,10 @@ def get_dataset_text_mock():
 
 @pytest.fixture
 def get_dataset_video_mock():
-    with patch.object(DatasetServiceClient, "get_dataset") as get_dataset_mock:
-        get_dataset_mock.return_value = GapicDataset(
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "get_dataset"
+    ) as get_dataset_mock:
+        get_dataset_mock.return_value = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_VIDEO,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -204,9 +219,11 @@ def get_dataset_video_mock():
 
 @pytest.fixture
 def create_dataset_mock():
-    with patch.object(DatasetServiceClient, "create_dataset") as create_dataset_mock:
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "create_dataset"
+    ) as create_dataset_mock:
         create_dataset_lro_mock = mock.Mock(operation.Operation)
-        create_dataset_lro_mock.result.return_value = GapicDataset(
+        create_dataset_lro_mock.result.return_value = gca_dataset.Dataset(
             name=_TEST_NAME,
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
@@ -219,11 +236,11 @@ def create_dataset_mock():
 @pytest.fixture
 def delete_dataset_mock():
     with mock.patch.object(
-        DatasetServiceClient, "delete_dataset"
+        dataset_service_client.DatasetServiceClient, "delete_dataset"
     ) as delete_dataset_mock:
         delete_dataset_lro_mock = mock.Mock(operation.Operation)
         delete_dataset_lro_mock.result.return_value = (
-            dataset_service.DeleteDatasetRequest()
+            gca_dataset_service.DeleteDatasetRequest()
         )
         delete_dataset_mock.return_value = delete_dataset_lro_mock
         yield delete_dataset_mock
@@ -231,14 +248,18 @@ def delete_dataset_mock():
 
 @pytest.fixture
 def import_data_mock():
-    with patch.object(DatasetServiceClient, "import_data") as import_data_mock:
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "import_data"
+    ) as import_data_mock:
         import_data_mock.return_value = mock.Mock(operation.Operation)
         yield import_data_mock
 
 
 @pytest.fixture
 def export_data_mock():
-    with patch.object(DatasetServiceClient, "export_data") as export_data_mock:
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "export_data"
+    ) as export_data_mock:
         export_data_mock.return_value = mock.Mock(operation.Operation)
         yield export_data_mock
 
@@ -309,7 +330,7 @@ class TestDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -337,7 +358,7 @@ class TestDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -361,7 +382,7 @@ class TestDataset:
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             metadata=_TEST_METADATA_TABULAR_BQ,
@@ -394,15 +415,15 @@ class TestDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
         )
@@ -437,8 +458,8 @@ class TestDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
         )
@@ -455,8 +476,8 @@ class TestDataset:
 
         my_dataset.export_data(output_dir=_TEST_OUTPUT_DIR)
 
-        expected_export_config = ExportDataConfig(
-            gcs_destination=GcsDestination(output_uri_prefix=_TEST_OUTPUT_DIR)
+        expected_export_config = gca_dataset.ExportDataConfig(
+            gcs_destination=gca_io.GcsDestination(output_uri_prefix=_TEST_OUTPUT_DIR)
         )
 
         export_data_mock.assert_called_once_with(
@@ -487,15 +508,15 @@ class TestDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
         )
@@ -562,7 +583,7 @@ class TestImageDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_IMAGE,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -593,7 +614,7 @@ class TestImageDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_IMAGE,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -606,8 +627,8 @@ class TestImageDataset:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
         )
         import_data_mock.assert_called_once_with(
@@ -633,8 +654,8 @@ class TestImageDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
         )
 
@@ -664,7 +685,7 @@ class TestImageDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_IMAGE,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -678,8 +699,8 @@ class TestImageDataset:
 
         get_dataset_image_mock.assert_called_once_with(name=_TEST_NAME)
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
         )
 
@@ -727,7 +748,7 @@ class TestTabularDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             metadata=_TEST_METADATA_TABULAR_BQ,
@@ -754,7 +775,7 @@ class TestTabularDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             metadata=_TEST_METADATA_TABULAR_BQ,
@@ -825,7 +846,7 @@ class TestTextDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -856,7 +877,7 @@ class TestTextDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -869,8 +890,8 @@ class TestTextDataset:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
         )
         import_data_mock.assert_called_once_with(
@@ -898,8 +919,8 @@ class TestTextDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
         )
 
@@ -929,7 +950,7 @@ class TestTextDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -943,8 +964,8 @@ class TestTextDataset:
 
         get_dataset_text_mock.assert_called_once_with(name=_TEST_NAME)
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
         )
 
@@ -989,7 +1010,7 @@ class TestVideoDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_VIDEO,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -1020,7 +1041,7 @@ class TestVideoDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_VIDEO,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -1033,8 +1054,8 @@ class TestVideoDataset:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
         )
         import_data_mock.assert_called_once_with(
@@ -1060,8 +1081,8 @@ class TestVideoDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
         )
 
@@ -1091,7 +1112,7 @@ class TestVideoDataset:
         if not sync:
             my_dataset.wait()
 
-        expected_dataset = GapicDataset(
+        expected_dataset = gca_dataset.Dataset(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_VIDEO,
             metadata=_TEST_NONTABULAR_DATASET_METADATA,
@@ -1105,8 +1126,8 @@ class TestVideoDataset:
 
         get_dataset_video_mock.assert_called_once_with(name=_TEST_NAME)
 
-        expected_import_config = ImportDataConfig(
-            gcs_source=GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
         )
 

@@ -25,8 +25,8 @@ import threading
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 from google.auth import credentials as auth_credentials
-from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import utils
 
 
 class FutureManager(metaclass=abc.ABCMeta):
@@ -232,8 +232,8 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     @property
     @classmethod
     @abc.abstractmethod
-    def client_class(cls) -> "utils.AiPlatformServiceClient":
-        """Client class required to interact with resource."""
+    def client_class(cls) -> Type[utils.AiPlatformServiceClientWithOverride]:
+        """Client class required to interact with resource with optional overrides."""
         pass
 
     @property
@@ -293,7 +293,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         cls,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "utils.AiPlatformServiceClient":
+    ) -> utils.AiPlatformServiceClientWithOverride:
         """Helper method to instantiate service client for resource noun.
 
         Args:
@@ -302,8 +302,8 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
                 Optional custom credentials to use when accessing interacting with
                 resource noun.
         Returns:
-            client (utils.AiPlatformServiceClient):
-                Initialized service client for this service noun.
+            client (utils.AiPlatformServiceClientWithOverride):
+                Initialized service client for this service noun with optional overrides.
         """
         return initializer.global_config.create_client(
             client_class=cls.client_class,

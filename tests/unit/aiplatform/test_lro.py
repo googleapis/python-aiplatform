@@ -17,14 +17,15 @@ from unittest import mock
 
 
 from google.api_core import operation
+
 from google.cloud import aiplatform
+
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import lro
-from google.cloud.aiplatform_v1beta1.services.model_service.client import (
-    ModelServiceClient,
-)
-from google.cloud.aiplatform_v1beta1.types import model as gca_model
+from google.cloud.aiplatform import utils
+
+from google.cloud.aiplatform_v1.types import model as gca_model
 from google.longrunning import operations_pb2
 from google.protobuf import struct_pb2 as struct
 
@@ -45,7 +46,7 @@ def teardown_module(module):
 
 
 class AiPlatformResourceNounImpl(base.AiPlatformResourceNoun):
-    client_class = ModelServiceClient
+    client_class = utils.ModelClientWithOverride
     _is_client_prediction_client = False
     _resource_noun = None
     _getter_method = None

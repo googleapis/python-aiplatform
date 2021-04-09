@@ -18,28 +18,29 @@ import proto
 from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
-from google.cloud import aiplatform
+
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import compat
+from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import jobs
+from google.cloud.aiplatform import utils
 
-from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
-    client as endpoint_service_client,
-)
-from google.cloud.aiplatform_v1beta1.services.model_service import (
-    client as model_service_client,
-)
-from google.cloud.aiplatform_v1beta1.services.prediction_service import (
-    client as prediction_service_client,
-)
+from google.cloud.aiplatform.compat.services import endpoint_service_client
 
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
-from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
-from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
-from google.cloud.aiplatform_v1beta1.types import machine_resources
-from google.cloud.aiplatform_v1beta1.types import model as gca_model
-from google.cloud.aiplatform_v1beta1.types import env_var
+from google.cloud.aiplatform.compat.types import (
+    encryption_spec as gca_encryption_spec,
+    endpoint as gca_endpoint_compat,
+    endpoint_v1 as gca_endpoint_v1,
+    endpoint_v1beta1 as gca_endpoint_v1beta1,
+    explanation_v1beta1 as gca_explanation_v1beta1,
+    machine_resources as gca_machine_resources_compat,
+    machine_resources_v1beta1 as gca_machine_resources_v1beta1,
+    model as gca_model_compat,
+    model_v1beta1 as gca_model_v1beta1,
+    env_var as gca_env_var_compat,
+    env_var_v1beta1 as gca_env_var_v1beta1,
+)
 
 from google.protobuf import json_format
 
@@ -62,12 +63,12 @@ class Prediction(NamedTuple):
 
     predictions: Dict[str, List]
     deployed_model_id: str
-    explanations: Optional[Sequence[gca_explanation.Explanation]] = None
+    explanations: Optional[Sequence[gca_explanation_v1beta1.Explanation]] = None
 
 
 class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
-    client_class = endpoint_service_client.EndpointServiceClient
+    client_class = utils.EndpointClientWithOverride
     _is_client_prediction_client = False
     _resource_noun = "endpoints"
     _getter_method = "get_endpoint"
@@ -258,7 +259,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             project=project, location=location
         )
 
-        gapic_endpoint = gca_endpoint.Endpoint(
+        gapic_endpoint = gca_endpoint_compat.Endpoint(
             display_name=display_name,
             description=description,
             labels=labels,
@@ -363,6 +364,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         deployed_model_display_name: Optional[str],
         traffic_split: Optional[Dict[str, int]],
         traffic_percentage: int,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
     ):
         """Helper method to validate deploy arguments.
 
@@ -405,11 +408,21 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 not be provided. Traffic of previously deployed models at the endpoint
                 will be scaled down to accommodate new deployed model's traffic.
                 Should not be provided if traffic_split is provided.
+            explanation_metadata (explain.ExplanationMetadata):
+                Optional. Metadata describing the Model's input and output for explanation.
+                Both `explanation_metadata` and `explanation_parameters` must be
+                passed together when used. For more details, see
+                `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's predictions.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
 
         Raises:
             ValueError if Min or Max replica is negative. Traffic percentage > 100 or
             < 0. Or if traffic_split does not sum to 100.
 
+            ValueError if either explanation_metadata or explanation_parameters
+            but not both are specified.
         """
         if min_replica_count < 0:
             raise ValueError("Min replica cannot be negative.")
@@ -431,6 +444,11 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                     "Sum of all traffic within traffic split needs to be 100."
                 )
 
+        if bool(explanation_metadata) != bool(explanation_parameters):
+            raise ValueError(
+                "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
+            )
+
         # Raises ValueError if invalid accelerator
         if accelerator_type:
             utils.validate_accelerator_type(accelerator_type)
@@ -446,10 +464,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
-        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
-        explanation_parameters: Optional[
-            "aiplatform.explain.ExplanationParameters"
-        ] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
@@ -502,12 +518,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
-            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+            explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.explain.ExplanationParameters):
+            explanation_parameters (explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -526,6 +542,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             deployed_model_display_name,
             traffic_split,
             traffic_percentage,
+            explanation_metadata,
+            explanation_parameters,
         )
 
         self._deploy(
@@ -556,10 +574,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
-        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
-        explanation_parameters: Optional[
-            "aiplatform.explain.ExplanationParameters"
-        ] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
@@ -612,12 +628,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
-            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+            explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.explain.ExplanationParameters):
+            explanation_parameters (explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -667,10 +683,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
-        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
-        explanation_parameters: Optional[
-            "aiplatform.explain.ExplanationParameters"
-        ] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
     ):
         """Helper method to deploy model to endpoint.
@@ -721,12 +735,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
-            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+            explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.explain.ExplanationParameters):
+            explanation_parameters (explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -749,20 +763,22 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             raise ValueError(
                 "Both `accelerator_type` and `accelerator_count` should be specified or None."
             )
-        if bool(explanation_metadata) != bool(explanation_parameters):
-            raise ValueError(
-                "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
-            )
+
+        gca_endpoint = gca_endpoint_compat
+        gca_machine_resources = gca_machine_resources_compat
+        if explanation_metadata and explanation_parameters:
+            gca_endpoint = gca_endpoint_v1beta1
+            gca_machine_resources = gca_machine_resources_v1beta1
 
         if machine_type:
-            machine_spec = machine_resources.MachineSpec(machine_type=machine_type)
+            machine_spec = gca_machine_resources.MachineSpec(machine_type=machine_type)
 
             if accelerator_type and accelerator_count:
                 utils.validate_accelerator_type(accelerator_type)
                 machine_spec.accelerator_type = accelerator_type
                 machine_spec.accelerator_count = accelerator_count
 
-            dedicated_resources = machine_resources.DedicatedResources(
+            dedicated_resources = gca_machine_resources.DedicatedResources(
                 machine_spec=machine_spec,
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
@@ -773,7 +789,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 display_name=deployed_model_display_name,
             )
         else:
-            automatic_resources = machine_resources.AutomaticResources(
+            automatic_resources = gca_machine_resources.AutomaticResources(
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
             )
@@ -785,6 +801,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
         # Service will throw error if both metadata and parameters are not provided
         if explanation_metadata and explanation_parameters:
+            api_client = api_client.select_version(compat.V1BETA1)
             explanation_spec = gca_endpoint.explanation.ExplanationSpec()
             explanation_spec.metadata = explanation_metadata
             explanation_spec.parameters = explanation_parameters
@@ -915,8 +932,9 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     def _instantiate_prediction_client(
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> prediction_service_client.PredictionServiceClient:
-        """Helper method to instantiates prediction client for this endpoint.
+    ) -> utils.PredictionClientWithOverride:
+
+        """Helper method to instantiates prediction client with optional overrides for this endpoint.
 
         Args:
             location (str): The location of this endpoint.
@@ -925,10 +943,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 the prediction client.
         Returns:
             prediction_client (prediction_service_client.PredictionServiceClient):
-                Initalized prediction client.
+                Initalized prediction client with optional overrides.
         """
         return initializer.global_config.create_client(
-            client_class=prediction_service_client.PredictionServiceClient,
+            client_class=utils.PredictionClientWithOverride,
             credentials=credentials,
             location_override=location,
             prediction_client=True,
@@ -1015,7 +1033,9 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         """
         self.wait()
 
-        explain_response = self._prediction_client.explain(
+        explain_response = self._prediction_client.select_version(
+            compat.V1BETA1
+        ).explain(
             endpoint=self.resource_name,
             instances=instances,
             parameters=parameters,
@@ -1078,7 +1098,11 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             credentials=credentials,
         )
 
-    def list_models(self) -> Sequence[gca_endpoint.DeployedModel]:
+    def list_models(
+        self,
+    ) -> Sequence[
+        Union[gca_endpoint_v1.DeployedModel, gca_endpoint_v1beta1.DeployedModel]
+    ]:
         """Returns a list of the models deployed to this Endpoint.
 
         Returns:
@@ -1127,7 +1151,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
 class Model(base.AiPlatformResourceNounWithFutureManager):
 
-    client_class = model_service_client.ModelServiceClient
+    client_class = utils.ModelClientWithOverride
     _is_client_prediction_client = False
     _resource_noun = "models"
     _getter_method = "get_model"
@@ -1192,10 +1216,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
         prediction_schema_uri: Optional[str] = None,
-        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
-        explanation_parameters: Optional[
-            "aiplatform.explain.ExplanationParameters"
-        ] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1304,12 +1326,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
-            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+            explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.explain.ExplanationParameters):
+            explanation_parameters (explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             project: Optional[str]=None,
@@ -1345,13 +1367,21 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
             )
 
+        gca_endpoint = gca_endpoint_compat
+        gca_model = gca_model_compat
+        gca_env_var = gca_env_var_compat
+        if explanation_metadata and explanation_parameters:
+            gca_endpoint = gca_endpoint_v1beta1
+            gca_model = gca_model_v1beta1
+            gca_env_var = gca_env_var_v1beta1
+
         api_client = cls._instantiate_client(location, credentials)
         env = None
         ports = None
 
         if serving_container_environment_variables:
             env = [
-                env_var.EnvVar(name=str(key), value=str(value))
+                gca_env_var.EnvVar(name=str(key), value=str(value))
                 for key, value in serving_container_environment_variables.items()
             ]
         if serving_container_ports:
@@ -1379,7 +1409,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
 
         # TODO(b/182388545) initializer.global_config.get_encryption_spec from a sync function
         encryption_spec = initializer.global_config.get_encryption_spec(
-            encryption_spec_key_name=encryption_spec_key_name
+            encryption_spec_key_name=encryption_spec_key_name,
         )
 
         managed_model = gca_model.Model(
@@ -1395,6 +1425,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
 
         # Override explanation_spec if both required fields are provided
         if explanation_metadata and explanation_parameters:
+            api_client = api_client.select_version(compat.V1BETA1)
             explanation_spec = gca_endpoint.explanation.ExplanationSpec()
             explanation_spec.metadata = explanation_metadata
             explanation_spec.parameters = explanation_parameters
@@ -1404,7 +1435,6 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             parent=initializer.global_config.common_location_path(project, location),
             model=managed_model,
         )
-
         managed_model = lro.result()
         fields = utils.extract_fields_from_resource_name(managed_model.model)
         return cls(
@@ -1423,10 +1453,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
-        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
-        explanation_parameters: Optional[
-            "aiplatform.explain.ExplanationParameters"
-        ] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
@@ -1480,12 +1508,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
-            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+            explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.explain.ExplanationParameters):
+            explanation_parameters (explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -1519,6 +1547,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             deployed_model_display_name,
             traffic_split,
             traffic_percentage,
+            explanation_metadata,
+            explanation_parameters,
         )
 
         return self._deploy(
@@ -1551,10 +1581,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
-        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
-        explanation_parameters: Optional[
-            "aiplatform.explain.ExplanationParameters"
-        ] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
@@ -1608,12 +1636,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
-            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+            explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
                 passed together when used. For more details, see
                 `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.explain.ExplanationParameters):
+            explanation_parameters (explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             metadata (Sequence[Tuple[str, str]]):
@@ -1687,10 +1715,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         starting_replica_count: Optional[int] = None,
         max_replica_count: Optional[int] = None,
         generate_explanation: Optional[bool] = False,
-        explanation_metadata: Optional["aiplatform.explain.ExplanationMetadata"] = None,
-        explanation_parameters: Optional[
-            "aiplatform.explain.ExplanationParameters"
-        ] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
         labels: Optional[dict] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
@@ -1807,7 +1833,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                         keyed `explanation`. The value of the entry is a JSON object that
                         conforms to the [aiplatform.gapic.Explanation] object.
                     - `csv`: Generating explanations for CSV format is not supported.
-            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+            explanation_metadata (explain.ExplanationMetadata):
                 Optional. Explanation metadata configuration for this BatchPredictionJob.
                 Can be specified only if `generate_explanation` is set to `True`.
 
@@ -1816,7 +1842,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 a field of the `explanation_metadata` object is not populated, the
                 corresponding field of the `Model.explanation_metadata` object is inherited.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.explain.ExplanationParameters):
+            explanation_parameters (explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 Can be specified only if `generate_explanation` is set to `True`.
 

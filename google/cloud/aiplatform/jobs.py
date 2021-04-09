@@ -30,20 +30,22 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import utils
 
-from google.cloud.aiplatform_v1beta1.services.job_service import (
-    client as job_service_client,
+from google.cloud.aiplatform.compat.services import job_service_client
+from google.cloud.aiplatform.compat.types import (
+    io as gca_io_compat,
+    io_v1beta1 as gca_io_v1beta1,
+    job_state as gca_job_state,
+    batch_prediction_job as gca_bp_job_compat,
+    batch_prediction_job_v1 as gca_bp_job_v1,
+    batch_prediction_job_v1beta1 as gca_bp_job_v1beta1,
+    machine_resources as gca_machine_resources_compat,
+    machine_resources_v1beta1 as gca_machine_resources_v1beta1,
+    explanation_v1beta1 as gca_explanation_v1beta1,
 )
-from google.cloud.aiplatform_v1beta1.types import io as gca_io
-from google.cloud.aiplatform_v1beta1.types import job_state as gca_job_state
-from google.cloud.aiplatform_v1beta1.types import batch_prediction_job as gca_bp_job
-from google.cloud.aiplatform_v1beta1.types import (
-    machine_resources as gca_machine_resources,
-)
-
-from google.cloud.aiplatform_v1beta1.types import explanation as gca_explanation
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 _LOGGER = logging.getLogger(__name__)
@@ -77,7 +79,7 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
     _delete_method (str): The name of the specific JobServiceClient delete method
     """
 
-    client_class = job_service_client.JobServiceClient
+    client_class = utils.JobpointClientWithOverride
     _is_client_prediction_client = False
 
     def __init__(
@@ -482,6 +484,15 @@ class BatchPredictionJob(_Job):
                 f"{predictions_format} is not an accepted prediction format "
                 f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
             )
+        gca_bp_job = gca_bp_job_compat
+        gca_io = gca_io_compat
+        gca_machine_resources = gca_machine_resources_compat
+        select_version = compat.DEFAULT_VERSION
+        if generate_explanation:
+            gca_bp_job = gca_bp_job_v1beta1
+            gca_io = gca_io_v1beta1
+            gca_machine_resources = gca_machine_resources_v1beta1
+            select_version = compat.V1BETA1
 
         gapic_batch_prediction_job = gca_bp_job.BatchPredictionJob()
 
@@ -523,7 +534,8 @@ class BatchPredictionJob(_Job):
 
         # Optional Fields
         gapic_batch_prediction_job.encryption_spec = initializer.global_config.get_encryption_spec(
-            encryption_spec_key_name=encryption_spec_key_name
+            encryption_spec_key_name=encryption_spec_key_name,
+            select_version=select_version,
         )
 
         if model_parameters:
@@ -555,7 +567,7 @@ class BatchPredictionJob(_Job):
             gapic_batch_prediction_job.generate_explanation = generate_explanation
 
         if explanation_metadata or explanation_parameters:
-            gapic_batch_prediction_job.explanation_spec = gca_explanation.ExplanationSpec(
+            gapic_batch_prediction_job.explanation_spec = gca_explanation_v1beta1.ExplanationSpec(
                 metadata=explanation_metadata, parameters=explanation_parameters
             )
 
@@ -569,6 +581,7 @@ class BatchPredictionJob(_Job):
                 project=project, location=location
             ),
             batch_prediction_job=gapic_batch_prediction_job,
+            generate_explanation=generate_explanation,
             project=project or initializer.global_config.project,
             location=location or initializer.global_config.location,
             credentials=credentials or initializer.global_config.credentials,
@@ -581,7 +594,10 @@ class BatchPredictionJob(_Job):
         cls,
         api_client: job_service_client.JobServiceClient,
         parent: str,
-        batch_prediction_job: gca_bp_job.BatchPredictionJob,
+        batch_prediction_job: Union[
+            gca_bp_job_v1beta1.BatchPredictionJob, gca_bp_job_v1.BatchPredictionJob
+        ],
+        generate_explanation: bool,
         project: str,
         location: str,
         credentials: Optional[auth_credentials.Credentials],
@@ -595,6 +611,9 @@ class BatchPredictionJob(_Job):
                 already set based on user's preferences.
             batch_prediction_job (gca_bp_job.BatchPredictionJob):
                 Required. a batch prediction job proto for creating a batch prediction job on AI Platform.
+            generate_explanation (bool):
+                Required. Generate explanation along with the batch prediction
+                results.
             parent (str):
                 Required. Also known as common location path, that usually contains the
                 project and location that the user provided to the upstream method.
@@ -620,6 +639,10 @@ class BatchPredictionJob(_Job):
                 by AI Platform.
 
         """
+        # select v1beta1 if explain else use default v1
+        if generate_explanation:
+            api_client = api_client.select_version(compat.V1BETA1)
+
         gca_batch_prediction_job = api_client.create_batch_prediction_job(
             parent=parent, batch_prediction_job=batch_prediction_job
         )

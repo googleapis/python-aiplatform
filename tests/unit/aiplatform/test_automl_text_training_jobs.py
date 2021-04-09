@@ -3,28 +3,28 @@ import importlib
 from unittest import mock
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform import schema
-from google.cloud.aiplatform import models
+
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
-
+from google.cloud.aiplatform import models
+from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
 
-from google.cloud.aiplatform_v1beta1.services.model_service import (
+from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
-from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
+from google.cloud.aiplatform_v1.services.pipeline_service import (
     client as pipeline_service_client,
 )
-from google.cloud.aiplatform_v1beta1.types import model as gca_model
-from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state
-from google.cloud.aiplatform_v1beta1.types import (
+from google.cloud.aiplatform_v1.types import (
+    dataset as gca_dataset,
+    encryption_spec as gca_encryption_spec,
+    model as gca_model,
+    pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
 )
-from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
-from google.cloud.aiplatform.v1beta1.schema.trainingjob import (
-    definition_v1beta1 as training_job_inputs,
+from google.cloud.aiplatform.v1.schema.trainingjob import (
+    definition_v1 as training_job_inputs,
 )
 
 _TEST_PROJECT = "test-project"
