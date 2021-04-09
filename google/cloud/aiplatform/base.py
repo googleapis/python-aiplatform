@@ -26,9 +26,101 @@ from typing import Any, Callable, Dict, Optional, Sequence, Type, Union
 
 import proto
 
+from google.api_core import operation
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+
+
+logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+
+
+class Logger:
+    """Logging wrapper class with high level helper methods."""
+
+    def __init__(self, name: str=''):
+        """Initializes logger with name.
+
+        Args:
+            name (str): Name to associate with logger.
+        """
+        self._logger = logging.getLogger(name)
+
+    def log_create_with_lro(self, cls: Type['AiPlatformResourceNoun'], lro: Optional[operation.Operation]=None):
+        """Logs create event with LRO.
+
+        Args:
+            cls (AiPlatformResourceNoune):
+                AI Platform Resource Noun class that is being created.
+            lro (operation.Operation):
+                Optional. Backing LRO for creation.
+        """
+        self._logger.info(f"Creating {cls.__name__}")
+
+        if lro:
+            self._logger.info(f"Create {cls.__name__} backing LRO: {lro.operation.name}")
+
+    def log_create_complete(self, cls: Type['AiPlatformResourceNoun'], resource: proto.Message, variable_name: str):
+        """Logs create event is complete.
+
+        Will also include code snippet to instantiate resource in SDK.
+
+        Args:
+            cls (AiPlatformResourceNoun):
+                AI Platform Resource Noun class that is being created.
+            resource (proto.Message):
+                AI Platform Resourc proto.Message
+            variable_name (str): Name of variable to use for code snippet
+
+        """
+        self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
+        self._logger.info(f"To use this {cls.__name__} in another session:")
+        self._logger.info(f"{variable_name} = aiplatform.{cls.__name__}({resource.name})")
+
+    def log_action_start_against_resource(self, action: str, noun: str, resource_noun_obj: 'AiPlatformResourceNoun'):
+        """Logs intention to start an action against a resource.
+
+        Args:
+            action (str): Action to complete against the resource ie: "Deploying". Can be empty string.
+            noun (str): Noun the action acts on against the resource. Can be empty string.
+            resource_noun_obj (AiPlatformResourceNoun):
+                Resource noun object the action is acting against.
+        """
+        self._logger.info(
+            f"{action} {resource_noun_obj.__class__.__name__} {noun}: {resource_noun_obj.resource_name}")
+
+    def log_action_started_against_resource_with_lro(self, action: str, noun: str, cls: Type['AiPlatformResourceNoun'], lro: operation.Operation):
+        """Logs an action started against a resource with lro.
+
+        Args:
+            action (str): Action started against resource. ie: "Deploy". Can be empty string.
+            noun (str): Noun the action acts on against the resource. Can be empty string.
+            cls (AiPlatformResourceNoun):
+                Resource noun object the action is acting against.
+            lro (operation.Operation): Backing LRO for action.    
+        """
+        self._logger.info(
+            f"{action} {cls.__name__} {noun} backing LRO: {lro.operation.name}")
+
+    def log_action_completed_against_resource(self, noun: str, action: str, resource_noun_obj: 'AiPlatformResourceNoun'):
+        """Logs action completed against resource.
+
+        Args:
+            noun (str): Noun the action acts on against the resource. Can be empty string.
+            action (str): Action started against resource. ie: "Deployed". Can be empty string.
+            cls (AiPlatformResourceNoun):
+                Resource noun object the action is acting against.
+            resource_noun_obj (AiPlatformResourceNoun):
+                Resource noun object the action is acting against
+        """
+        self._logger.info(
+            f"{self.__class__.__name__} {noun} {action}. Resource name: {resource_noun_obj.resource_name}")
+
+    def __getattr__(self, attr:str):
+        """Forward remainder of logging to underlying logger."""
+        return getattr(self._logger, attr)
+
+_LOGGER = Logger(__name__)
 
 
 class FutureManager(metaclass=abc.ABCMeta):
@@ -573,8 +665,11 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
+        _LOGGER.log_action_start_against_resource('Deleting', '', self)
         lro = getattr(self.api_client, self._delete_method)(name=self.resource_name)
+        _LOGGER.log_action_started_against_resource_with_lro('Delete', '', self.__class__, lro)
         lro.result()
+        _LOGGER.log_action_completed_against_resource('deleted.', '', self)
 
     def __repr__(self) -> str:
         if self._gca_resource:
@@ -594,36 +689,3 @@ def get_annotation_class(annotation: type) -> type:
         return annotation.__args__[0]
     else:
         return annotation
-
-
-logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-
-
-class Logger:
-
-    def __init__(self, name):
-        self.logger = logging.getLogger(name)
-
-    def log_create_with_lro(self, cls, lro: Optional=None):
-        self.logger.info(f"Creating {cls.__name__}")
-
-        if lro:
-            self.logger.info(f"Create {cls.__name__} backing LRO: {lro.operation.name}")
-
-    def log_create_complete(self, cls, resource, variable_name):
-        self.logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
-        self.logger.info(f"You can use this {cls.__name__} in another session:")
-        self.logger.info(f"{variable_name} = aiplatform.{cls.__name__}({resource.name})")
-
-    def log_action_start_against_resource(self, action: str, noun: Optional[str], resource_noun_obj):
-        self.logger.info(f"{action} {resource_noun_obj.__class__.__name__} {noun}: {resource_noun_obj.resource_name}")
-
-    def log_action_started_against_resource_with_lro(self, action: str, noun: str, cls, lro):
-        self.logger.info(f"{action} {cls.__name__} {noun} backing LRO: {lro.operation.name}")
-
-    def log_action_completed_against_resource(self, noun, action, resource_noun_obj):
-        self.logger.info(f"{self.__class__.__name__} {noun} {action}. Resource name: {resource_noun_obj.resource_name}")
-
-
-    def __getattr__(self, attr):
-        return getattr(self.logger, attr)

@@ -91,6 +91,19 @@ def mock_pipeline_service_create():
 
 
 @pytest.fixture
+def mock_pipeline_service_get():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as mock_get_training_pipeline:
+        mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        )
+        yield mock_get_training_pipeline
+
+
+@pytest.fixture
 def mock_pipeline_service_create_and_get_with_fail():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
@@ -190,6 +203,7 @@ class TestAutoMLVideoTrainingJob:
     def test_init_aiplatform_with_encryption_key_name_and_create_training_job(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_dataset_video,
         mock_model_service_get,
         mock_model,
@@ -252,7 +266,7 @@ class TestAutoMLVideoTrainingJob:
         )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
         assert model_from_job._gca_resource is mock_model_service_get.return_value
         assert job.get_model()._gca_resource is mock_model_service_get.return_value
         assert not job.has_failed
@@ -262,6 +276,7 @@ class TestAutoMLVideoTrainingJob:
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_dataset_video,
         mock_model_service_get,
         mock_model,
@@ -320,12 +335,13 @@ class TestAutoMLVideoTrainingJob:
         )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
         assert model_from_job._gca_resource is mock_model_service_get.return_value
         assert job.get_model()._gca_resource is mock_model_service_get.return_value
         assert not job.has_failed
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_if_no_model_display_name(
         self,
@@ -376,13 +392,14 @@ class TestAutoMLVideoTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
+        "mock_model_service_get",
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self,
-        mock_pipeline_service_create,
-        mock_dataset_video,
-        mock_model_service_get,
-        sync,
+        self, mock_dataset_video, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT)
 

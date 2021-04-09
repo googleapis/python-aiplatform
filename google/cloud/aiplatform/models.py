@@ -47,6 +47,7 @@ from google.protobuf import json_format
 
 _LOGGER = base.Logger(__name__)
 
+
 class Prediction(NamedTuple):
     """Prediction class envelopes returned Model predictions and the Model id.
 
@@ -260,7 +261,6 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             project=project, location=location
         )
 
-
         gapic_endpoint = gca_endpoint_compat.Endpoint(
             display_name=display_name,
             description=description,
@@ -276,7 +276,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
 
         created_endpoint = operation_future.result()
 
-        _LOGGER.log_create_complete(cls, created_endpoint, 'endpoint')
+        _LOGGER.log_create_complete(cls, created_endpoint, "endpoint")
 
         return cls(
             endpoint_name=created_endpoint.name,
@@ -654,7 +654,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             is not 0 or 100.
         """
         _LOGGER.log_action_start_against_resource(
-            f'Deploying Model {model.resource_name} to', '',  self)
+            f"Deploying Model {model.resource_name} to", "", self
+        )
 
         self._deploy_call(
             self.api_client,
@@ -674,7 +675,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             metadata=metadata,
         )
 
-        _LOGGER.log_action_completed_against_resource('model', 'deployed', self)
+        _LOGGER.log_action_completed_against_resource("model", "deployed", self)
 
         self._sync_gca_resource()
 
@@ -842,10 +843,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
-            'Deploy', 'model', cls, operation_future)
+            "Deploy", "model", cls, operation_future
+        )
 
         operation_future.result()
-
 
     def undeploy(
         self,
@@ -929,7 +930,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             )
             current_traffic_split.pop(deployed_model_id)
 
-        _LOGGER.log_action_start_against_resource('Undeploying', 'model', self)
+        _LOGGER.log_action_start_against_resource("Undeploying", "model", self)
 
         operation_future = self.api_client.undeploy_model(
             endpoint=self.resource_name,
@@ -938,12 +939,14 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             metadata=metadata,
         )
 
-        _LOGGER.log_action_started_against_resource_with_lro('Undeploy', 'model', operation_future)
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Undeploy", "model", self.__class__, operation_future
+        )
 
         # block before returning
         operation_future.result()
 
-        _LOGGER.log_action_completed_against_resource('model', 'undeployed', self)
+        _LOGGER.log_action_completed_against_resource("model", "undeployed", self)
 
         # update local resource
         self._sync_gca_resource()
@@ -1410,11 +1413,13 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
 
         _LOGGER.log_create_with_lro(cls, lro)
 
-        managed_model = lro.result()
+        model_upload_response = lro.result()
 
-        _LOGGER.log_create_complete(cls, managed_model, 'model')
+        this_model = cls(model_upload_response.model)
 
-        return cls(managed_model.model)
+        _LOGGER.log_create_complete(cls, this_model._gca_resource, "model")
+
+        return this_model
 
     # TODO(b/172502059) support deploying with endpoint resource name
     def deploy(
@@ -1652,7 +1657,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 encryption_spec_key_name=encryption_spec_key_name,
             )
 
-        _LOGGER.log_action_start_against_resource('Deploying model to', '', endpoint)
+        _LOGGER.log_action_start_against_resource("Deploying model to", "", endpoint)
 
         Endpoint._deploy_call(
             endpoint.api_client,
@@ -1672,8 +1677,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             metadata=metadata,
         )
 
-        _LOGGER.log_action_completed_against_resource(
-            'model', 'deployed', endpoint)
+        _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
 
         endpoint._sync_gca_resource()
 

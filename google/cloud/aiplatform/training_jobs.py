@@ -634,7 +634,11 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             if current_time - previous_time >= log_wait:
                 _LOGGER.info(
                     "%s %s current state:\n%s"
-                    % (self.__class__.__name__, self._gca_resource.name, self._gca_resource.state)
+                    % (
+                        self.__class__.__name__,
+                        self._gca_resource.name,
+                        self._gca_resource.state,
+                    )
                 )
                 log_wait = min(log_wait * multiplier, max_wait)
             previous_time = current_time
@@ -642,7 +646,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         self._raise_failure()
 
-        _LOGGER.log_action_completed_against_resource('', 'run', self)
+        _LOGGER.log_action_completed_against_resource("", "run", self)
 
         if self._gca_resource.model_to_upload and not self.has_failed:
             _LOGGER.info(

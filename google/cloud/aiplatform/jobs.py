@@ -161,13 +161,17 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
             if current_time - previous_time >= log_wait:
                 _LOGGER.info(
                     "%s %s current state:\n%s"
-                    % (self.__class__.__name__, self._gca_resource.name, self._gca_resource.state)
+                    % (
+                        self.__class__.__name__,
+                        self._gca_resource.name,
+                        self._gca_resource.state,
+                    )
                 )
                 log_wait = min(log_wait * multiplier, max_wait)
             previous_time = current_time
             time.sleep(wait)
 
-        _LOGGER.log_action_completed_against_resource('', 'run', self)
+        _LOGGER.log_action_completed_against_resource("", "run", self)
 
         # Error is only populated when the job state is
         # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
@@ -178,7 +182,7 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
         """Cancels this Job. Success of cancellation is not guaranteed. Use `Job.state`
         property to verify if cancellation was successful."""
 
-        _LOGGER.log_action_start_against_resource('Cancelling', 'run', self)
+        _LOGGER.log_action_start_against_resource("Cancelling", "run", self)
         getattr(self.api_client, self._cancel_method)(name=self.resource_name)
 
 
@@ -602,7 +606,7 @@ class BatchPredictionJob(_Job):
         # select v1beta1 if explain else use default v1
         if generate_explanation:
             api_client = api_client.select_version(compat.V1BETA1)
- 
+
         _LOGGER.log_create_with_lro(cls)
 
         gca_batch_prediction_job = api_client.create_batch_prediction_job(
@@ -616,7 +620,7 @@ class BatchPredictionJob(_Job):
             credentials=credentials,
         )
 
-        _LOGGER.log_create_complete(cls, batch_prediction_job._gca_resource, 'bpj')
+        _LOGGER.log_create_complete(cls, batch_prediction_job._gca_resource, "bpj")
 
         _LOGGER.info(
             "View Batch Prediction Job:\n%s" % batch_prediction_job._dashboard_uri()

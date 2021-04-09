@@ -88,7 +88,7 @@ class TestEndToEnd:
         mock_python_package_to_gcs,  # noqa: F811
         mock_pipeline_service_create,  # noqa: F811
         mock_model_service_get,  # noqa: F811
-        mock_pipeline_service_get, # noqa: F811
+        mock_pipeline_service_get,  # noqa: F811
         sync,
     ):
 
