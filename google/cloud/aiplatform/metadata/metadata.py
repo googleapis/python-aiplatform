@@ -56,8 +56,8 @@ class _MetadataService:
     def set_run(self, run: str):
         if not self._experiment:
             raise ValueError(
-                "No experiment found for this run. Make sure to call aiplatform.init with an experiment name or "
-                "aiplatform.set_experiment before trying to set a run. "
+                "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') or "
+                "aiplatform.set_experiment(experiment='my-experiment') before trying to set_run. "
             )
         if not run:
             raise ValueError(f"Invalid run {run}.")
@@ -73,13 +73,14 @@ class _MetadataService:
     def log_params(self, params: Dict):
         if not self._experiment:
             raise ValueError(
-                "No experiment found for logging parameters. Make sure to call aiplatform.init with an experiment "
-                "name or aiplatform.set_experiment before trying to log params. "
+                "No experiment set for logging parameters. Make sure to call aiplatform.init("
+                "experiment='my-experiment') or aiplatform.set_experiment(experiment='my-experiment') before trying "
+                "to log_params. "
             )
         if not self._run:
             raise ValueError(
-                "No run found for logging parameters. Make sure to call aiplatform.init with a run name or "
-                "aiplatform.set_run before trying to log params. "
+                "No run set for logging parameters. Make sure to call aiplatform.init(experiment='my-experiment', "
+                "run='my-run') or aiplatform.set_run('my-run') before trying to log_params. "
             )
         execution = _Execution.get(execution_name=self._run)
         if not execution:
@@ -96,13 +97,13 @@ class _MetadataService:
     def log_metrics(self, metrics: Dict):
         if not self._experiment:
             raise ValueError(
-                "No experiment found for logging metrics. Make sure to call aiplatform.init with an experiment name "
-                "or aiplatform.set_experiment before trying to log metrics. "
+                "No experiment set for logging metrics. Make sure to call aiplatform.init(experiment='my-experiment') "
+                "or aiplatform.set_experiment(experiment='my-experiment') before trying to log_metrics. "
             )
         if not self._run:
             raise ValueError(
-                "No run found for logging metrics. Make sure to call aiplatform.init with a run name or "
-                "aiplatform.set_run before trying to log metrics. "
+                "No run set for logging metrics. Make sure to call aiplatform.init(experiment='my-experiment', "
+                "run='my-run') or aiplatform.set_run('my-run') before trying to log_metrics. "
             )
         # Only one metrics artifact for the (experiment, run) tuple.
         artifact_id = f"{self._experiment}-{self._run}"
