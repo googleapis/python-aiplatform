@@ -27,9 +27,16 @@ from google.api_core import gapic_v1
 import google.auth
 from google.auth import credentials as auth_credentials
 from google.auth.exceptions import GoogleAuthError
-from google.cloud.aiplatform import utils
+
+from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import constants
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform import utils
+
+from google.cloud.aiplatform.compat.types import (
+    encryption_spec as gca_encryption_spec_compat,
+    encryption_spec_v1 as gca_encryption_spec_v1,
+    encryption_spec_v1beta1 as gca_encryption_spec_v1beta1,
+)
 
 
 class _Config:
@@ -91,17 +98,28 @@ class _Config:
             self._encryption_spec_key_name = encryption_spec_key_name
 
     def get_encryption_spec(
-        self, encryption_spec_key_name: Optional[str]
-    ) -> Optional[gca_encryption_spec.EncryptionSpec]:
+        self,
+        encryption_spec_key_name: Optional[str],
+        select_version: Optional[str] = compat.DEFAULT_VERSION,
+    ) -> Optional[
+        Union[
+            gca_encryption_spec_v1.EncryptionSpec,
+            gca_encryption_spec_v1beta1.EncryptionSpec,
+        ]
+    ]:
         """Creates a gca_encryption_spec.EncryptionSpec instance from the given key name.
         If the provided key name is None, it uses the default key name if provided.
 
         Args:
             encryption_spec_key_name (Optional[str]): The default encryption key name to use when creating resources.
+            select_version: The default version is set to compat.DEFAULT_VERSION
         """
         kms_key_name = encryption_spec_key_name or self.encryption_spec_key_name
         encryption_spec = None
         if kms_key_name:
+            gca_encryption_spec = gca_encryption_spec_compat
+            if select_version == compat.V1BETA1:
+                gca_encryption_spec = gca_encryption_spec_v1beta1
             encryption_spec = gca_encryption_spec.EncryptionSpec(
                 kms_key_name=kms_key_name
             )
@@ -163,7 +181,7 @@ class _Config:
         return self._encryption_spec_key_name
 
     def get_client_options(
-        self, location_override: Optional[str] = None, prediction_client: bool = False,
+        self, location_override: Optional[str] = None
     ) -> client_options.ClientOptions:
         """Creates GAPIC client_options using location and type.
 
@@ -173,15 +191,11 @@ class _Config:
                 location set by initializer. Must be a GCP region supported by AI
                 Platform (Unified).
 
-            prediction_client (bool):
-                True if service client is a PredictionServiceClient, otherwise defaults
-                to False. This is used to provide a prediction-specific API endpoint.
-
         Returns:
-            clients_options (dict):
-                A dictionary containing client_options with one key, for example
+            clients_options (google.api_core.client_options.ClientOptions):
+                A ClientOptions object set with regionalized API endpoint, i.e.
                 { "api_endpoint": "us-central1-aiplatform.googleapis.com" } or
-                { "api_endpoint": "asia-east1-prediction-aiplatform.googleapis.com" }
+                { "api_endpoint": "asia-east1-aiplatform.googleapis.com" }
         """
         if not (self.location or location_override):
             raise ValueError(
@@ -190,12 +204,11 @@ class _Config:
 
         region = location_override or self.location
         region = region.lower()
-        prediction = "prediction-" if prediction_client else ""
 
         utils.validate_region(region)
 
         return client_options.ClientOptions(
-            api_endpoint=f"{region}-{prediction}{constants.API_BASE_PATH}"
+            api_endpoint=f"{region}-{constants.API_BASE_PATH}"
         )
 
     def common_location_path(
@@ -223,22 +236,22 @@ class _Config:
 
     def create_client(
         self,
-        client_class: Type[utils.AiPlatformServiceClient],
+        client_class: Type[utils.AiPlatformServiceClientWithOverride],
         credentials: Optional[auth_credentials.Credentials] = None,
         location_override: Optional[str] = None,
         prediction_client: bool = False,
-    ) -> Union[utils.WrappedClient, utils.AiPlatformServiceClient]:
+    ) -> utils.AiPlatformServiceClientWithOverride:
         """Instantiates a given AiPlatformServiceClient with optional overrides.
 
         Args:
-            client_class (utils.AiPlatformServiceClient):
-                (Required)An AI Platform Service Client.
+            client_class (utils.AiPlatformServiceClientWithOverride):
+                (Required) An AI Platform Service Client with optional overrides.
             credentials (auth_credentials.Credentials):
                 Custom auth credentials. If not provided will use the current config.
             location_override (str): Optional location override.
             prediction_client (str): Optional flag to use a prediction endpoint.
         Returns:
-            client: Instantiated AI Platform Service client
+            client: Instantiated AI Platform Service client with optional overrides
         """
         gapic_version = pkg_resources.get_distribution(
             "google-cloud-aiplatform",
@@ -250,16 +263,12 @@ class _Config:
         kwargs = {
             "credentials": credentials or self.credentials,
             "client_options": self.get_client_options(
-                location_override=location_override, prediction_client=prediction_client
+                location_override=location_override
             ),
             "client_info": client_info,
         }
 
-        if prediction_client:
-            return client_class(**kwargs)
-        else:
-            kwargs["client_class"] = client_class
-            return utils.WrappedClient(**kwargs)
+        return client_class(**kwargs)
 
 
 # global config to store init parameters: ie, aiplatform.init(project=..., location=...)

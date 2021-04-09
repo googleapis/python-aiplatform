@@ -49,8 +49,9 @@ aiplatform.init(project='my_project')
 init = initializer.global_config.init
 
 __all__ = (
-    gapic,
-    explain,
+    "explain",
+    "gapic",
+    "init",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
     "AutoMLForecastingTrainingJob",

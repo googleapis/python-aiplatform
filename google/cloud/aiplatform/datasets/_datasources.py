@@ -17,10 +17,12 @@
 
 import abc
 from typing import Optional, Dict, Sequence, Union
-from google.cloud.aiplatform_v1beta1.types import io as gca_io
-from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
-
 from google.cloud.aiplatform import schema
+
+from google.cloud.aiplatform.compat.types import (
+    io as gca_io,
+    dataset as gca_dataset,
+)
 
 
 class Datasource(abc.ABC):
