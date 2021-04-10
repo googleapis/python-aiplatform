@@ -1945,7 +1945,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             List[models.Model] - A list of Model resource objects
         """
 
-        return cls._list_with_local_order(
+        return cls._list(
             filter=filter,
             order_by=order_by,
             project=project,

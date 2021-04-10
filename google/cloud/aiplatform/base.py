@@ -585,7 +585,26 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> AiPlatformResourceNoun:
-        """Given a GAPIC object, return the SDK representation."""
+        """Given a GAPIC resource object, return the SDK representation.
+
+        Args:
+            gapic_resource (proto.Message):
+                A GAPIC representation of an AI Platform resource, usually
+                retrieved by a get_* or in a list_* API call.
+            project (str):
+                Optional. Project to construct SDK object from. If not set,
+                project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to construct SDK object from. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to construct SDK object.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            AiPlatformResourceNoun:
+                An initialized SDK object that represents GAPIC type.
+        """
         sdk_resource = self._empty_constructor(
             project=project, location=location, credentials=credentials
         )
@@ -604,7 +623,35 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List[AiPlatformResourceNoun]:
+        """Private method to list all instances of this AI Platform Resource,
+        takes a `cls_filter` arg to filter to a particular SDK resource subclass.
 
+        Args:
+            cls_filter (Callable[[proto.Message], bool]):
+                A function that takes one argument, a GAPIC resource, and returns
+                a bool. If the function returns False, that resource will be
+                excluded from the returned list. Example usage:
+                cls_filter = lambda obj: obj.metadata in cls.valid_metadatas
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[AiPlatformResourceNoun] - A list of SDK resource objects
+        """
         self = cls._empty_constructor(
             project=project, location=location, credentials=credentials
         )
@@ -615,7 +662,9 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         resource_list_method = getattr(self.api_client, self._list_method)
 
         list_request = {
-            "parent": initializer.global_config.common_location_path(),
+            "parent": initializer.global_config.common_location_path(
+                project=project, location=location
+            ),
             "filter": filter,
         }
 
@@ -642,7 +691,36 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List[AiPlatformResourceNoun]:
-        """Client-side sorting when list API doesn't support `order_by`"""
+        """Private method to list all instances of this AI Platform Resource,
+        takes a `cls_filter` arg to filter to a particular SDK resource subclass.
+        Provides client-side sorting when a list API doesn't support `order_by`.
+
+        Args:
+            cls_filter (Callable[[proto.Message], bool]):
+                A function that takes one argument, a GAPIC resource, and returns
+                a bool. If the function returns False, that resource will be
+                excluded from the returned list. Example usage:
+                cls_filter = lambda obj: obj.metadata in cls.valid_metadatas
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[AiPlatformResourceNoun] - A list of SDK resource objects
+        """
 
         li = cls._list(
             cls_filter=cls_filter,
