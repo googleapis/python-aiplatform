@@ -139,7 +139,7 @@ def mock_model_service_get():
 
 @pytest.fixture
 def mock_dataset_text():
-    ds = mock.MagicMock(datasets.Dataset)
+    ds = mock.MagicMock(datasets.TextDataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
     ds._exception = None
