@@ -234,7 +234,7 @@ class FutureManager(metaclass=abc.ABCMeta):
         kwargs: Dict[str, Any],
         additional_dependencies: Optional[Sequence[futures.Future]] = None,
         callbacks: Optional[Sequence[Callable[[futures.Future], Any]]] = None,
-        internal_callbacks=None,
+        internal_callbacks: Iterable[Callable[[Any], Any]] = None,
     ) -> futures.Future:
         """Submit a method as a future against this object.
 
@@ -258,7 +258,7 @@ class FutureManager(metaclass=abc.ABCMeta):
             method: Callable[..., Any],
             args: Sequence[Any],
             kwargs: Dict[str, Any],
-            internal_callbacks: Callable[[Any], Any],
+            internal_callbacks: Iterable[Callable[[Any], Any]],
         ) -> Any:
             """Wrapper method to wait on any dependencies before submitting method.
 
