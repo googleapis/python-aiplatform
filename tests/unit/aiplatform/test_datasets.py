@@ -294,21 +294,21 @@ class TestDataset:
         self, get_dataset_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
-        datasets.Dataset(
+        datasets._Dataset(
             dataset_name=_TEST_ID, project=_TEST_PROJECT, location=_TEST_LOCATION
         )
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
 
     def test_init_dataset_with_project_and_location(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        datasets.Dataset(
+        datasets._Dataset(
             dataset_name=_TEST_NAME, project=_TEST_PROJECT, location=_TEST_LOCATION
         )
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
 
     def test_init_dataset_with_alt_project_and_location(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        datasets.Dataset(
+        datasets._Dataset(
             dataset_name=_TEST_NAME, project=_TEST_ALT_PROJECT, location=_TEST_LOCATION
         )
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
@@ -316,7 +316,7 @@ class TestDataset:
     def test_init_dataset_with_project_and_alt_location(self):
         aiplatform.init(project=_TEST_PROJECT)
         with pytest.raises(RuntimeError):
-            datasets.Dataset(
+            datasets._Dataset(
                 dataset_name=_TEST_NAME,
                 project=_TEST_PROJECT,
                 location=_TEST_ALT_LOCATION,
