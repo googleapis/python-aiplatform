@@ -107,7 +107,12 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
                 Custom credentials to use. If not set, credentials set in
                 aiplatform.init will be used.
         """
-        super().__init__(project=project, location=location, credentials=credentials)
+        super().__init__(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=job_name,
+        )
         self._gca_resource = self._get_gca_resource(resource_name=job_name)
 
     @property

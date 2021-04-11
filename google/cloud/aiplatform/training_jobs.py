@@ -182,7 +182,10 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         # These parameters won't be used as user can not run the job again.
         # If they try, an exception will be raised.
         self = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
         )
 
         self._gca_resource = self._get_gca_resource(resource_name=resource_name)
