@@ -46,6 +46,9 @@ from google.cloud.aiplatform.compat.types import (
 from google.protobuf import json_format
 
 
+_LOGGER = base.Logger(__name__)
+
+
 class Prediction(NamedTuple):
     """Prediction class envelopes returned Model predictions and the Model id.
 
@@ -276,7 +279,11 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             parent=parent, endpoint=gapic_endpoint, metadata=metadata
         )
 
+        _LOGGER.log_create_with_lro(cls, operation_future)
+
         created_endpoint = operation_future.result()
+
+        _LOGGER.log_create_complete(cls, created_endpoint, "endpoint")
 
         return cls(
             endpoint_name=created_endpoint.name,
@@ -653,6 +660,9 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             ValueError if there is not current traffic split and traffic percentage
             is not 0 or 100.
         """
+        _LOGGER.log_action_start_against_resource(
+            f"Deploying Model {model.resource_name} to", "", self
+        )
 
         self._deploy_call(
             self.api_client,
@@ -671,6 +681,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             explanation_parameters=explanation_parameters,
             metadata=metadata,
         )
+
+        _LOGGER.log_action_completed_against_resource("model", "deployed", self)
 
         self._sync_gca_resource()
 
@@ -837,6 +849,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             metadata=metadata,
         )
 
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Deploy", "model", cls, operation_future
+        )
+
         operation_future.result()
 
     def undeploy(
@@ -921,6 +937,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             )
             current_traffic_split.pop(deployed_model_id)
 
+        _LOGGER.log_action_start_against_resource("Undeploying", "model", self)
+
         operation_future = self.api_client.undeploy_model(
             endpoint=self.resource_name,
             deployed_model_id=deployed_model_id,
@@ -928,8 +946,14 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             metadata=metadata,
         )
 
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Undeploy", "model", self.__class__, operation_future
+        )
+
         # block before returning
         operation_future.result()
+
+        _LOGGER.log_action_completed_against_resource("model", "undeployed", self)
 
         # update local resource
         self._sync_gca_resource()
@@ -1446,11 +1470,16 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             parent=initializer.global_config.common_location_path(project, location),
             model=managed_model,
         )
-        managed_model = lro.result()
-        fields = utils.extract_fields_from_resource_name(managed_model.model)
-        return cls(
-            model_name=fields.id, project=fields.project, location=fields.location
-        )
+
+        _LOGGER.log_create_with_lro(cls, lro)
+
+        model_upload_response = lro.result()
+
+        this_model = cls(model_upload_response.model)
+
+        _LOGGER.log_create_complete(cls, this_model._gca_resource, "model")
+
+        return this_model
 
     # TODO(b/172502059) support deploying with endpoint resource name
     def deploy(
@@ -1688,6 +1717,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 encryption_spec_key_name=encryption_spec_key_name,
             )
 
+        _LOGGER.log_action_start_against_resource("Deploying model to", "", endpoint)
+
         Endpoint._deploy_call(
             endpoint.api_client,
             endpoint.resource_name,
@@ -1705,6 +1736,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             explanation_parameters=explanation_parameters,
             metadata=metadata,
         )
+
+        _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
 
         endpoint._sync_gca_resource()
 

@@ -49,6 +49,7 @@ from test_models import deploy_model_mock  # noqa: F401
 import test_training_jobs
 from test_training_jobs import mock_model_service_get  # noqa: F401
 from test_training_jobs import mock_pipeline_service_create  # noqa: F401
+from test_training_jobs import mock_pipeline_service_get  # noqa: F401
 from test_training_jobs import (  # noqa: F401
     mock_pipeline_service_create_and_get_with_fail,
 )
@@ -87,6 +88,7 @@ class TestEndToEnd:
         mock_python_package_to_gcs,  # noqa: F811
         mock_pipeline_service_create,  # noqa: F811
         mock_model_service_get,  # noqa: F811
+        mock_pipeline_service_get,  # noqa: F811
         sync,
     ):
 
@@ -262,7 +264,7 @@ class TestEndToEnd:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(
             name=test_training_jobs._TEST_MODEL_NAME
@@ -339,16 +341,13 @@ class TestEndToEnd:
             sync=sync,
         )
 
-        my_endpoint = model_from_job.deploy(sync=sync)
-
-        endpoint_deploy_return = created_endpoint.deploy(model_from_job, sync=sync)
-
-        assert endpoint_deploy_return is None
-
         with pytest.raises(RuntimeError):
+            my_endpoint = model_from_job.deploy(sync=sync)
             my_endpoint.wait()
 
         with pytest.raises(RuntimeError):
+            endpoint_deploy_return = created_endpoint.deploy(model_from_job, sync=sync)
+            assert endpoint_deploy_return is None
             created_endpoint.wait()
 
         expected_dataset = gca_dataset.Dataset(

@@ -207,11 +207,23 @@ def get_batch_prediction_job_mock():
     with patch.object(
         job_service_client.JobServiceClient, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job.BatchPredictionJob(
-            name=_TEST_BATCH_PREDICTION_JOB_NAME,
-            display_name=_TEST_DISPLAY_NAME,
-            state=_TEST_JOB_STATE_SUCCESS,
-        )
+        get_batch_prediction_job_mock.side_effect = [
+            gca_batch_prediction_job.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_JOB_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                state=_TEST_JOB_STATE_RUNNING,
+            ),
+            gca_batch_prediction_job.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_JOB_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                state=_TEST_JOB_STATE_SUCCESS,
+            ),
+            gca_batch_prediction_job.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_JOB_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                state=_TEST_JOB_STATE_SUCCESS,
+            ),
+        ]
         yield get_batch_prediction_job_mock
 
 

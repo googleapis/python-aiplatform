@@ -32,6 +32,8 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform.datasets import _datasources
 
+_LOGGER = base.Logger(__name__)
+
 
 class _Dataset(base.AiPlatformResourceNounWithFutureManager):
     """Managed dataset resource for AI Platform"""
@@ -302,7 +304,11 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
             encryption_spec=encryption_spec,
         )
 
+        _LOGGER.log_create_with_lro(cls, create_dataset_lro)
+
         created_dataset = create_dataset_lro.result()
+
+        _LOGGER.log_create_complete(cls, created_dataset, "ds")
 
         dataset_obj = cls(
             dataset_name=created_dataset.name,
@@ -313,10 +319,24 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
 
         # Import if import datasource is DatasourceImportable
         if isinstance(datasource, _datasources.DatasourceImportable):
-            import_lro = dataset_obj._import(datasource=datasource)
-            import_lro.result()
+            dataset_obj._import_and_wait(datasource)
 
         return dataset_obj
+
+    def _import_and_wait(self, datasource):
+        _LOGGER.log_action_start_against_resource(
+            "Importing", "data", self,
+        )
+
+        import_lro = self._import(datasource=datasource)
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Import", "data", self.__class__, import_lro
+        )
+
+        import_lro.result()
+
+        _LOGGER.log_action_completed_against_resource("data", "imported", self)
 
     @classmethod
     def _create(
@@ -378,7 +398,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
 
     def _import(
         self, datasource: _datasources.DatasourceImportable,
-    ) -> Optional[operation.Operation]:
+    ) -> operation.Operation:
         """Imports data into managed dataset by directly calling API client.
 
         Args:
@@ -449,9 +469,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
             data_item_labels=data_item_labels,
         )
 
-        import_lro = self._import(datasource=datasource)
-        import_lro.result()
-
+        self._import_and_wait(datasource=datasource)
         return self
 
     # TODO(b/174751568) add optional sync support
@@ -485,11 +503,19 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
             gcs_destination=gca_io.GcsDestination(output_uri_prefix=output_dir)
         )
 
+        _LOGGER.log_action_start_against_resource("Exporting", "data", self)
+
         export_lro = self.api_client.export_data(
             name=self.resource_name, export_config=export_data_config
         )
 
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Export", "data", self.__class__, export_lro
+        )
+
         export_data_response = export_lro.result()
+
+        _LOGGER.log_action_completed_against_resource("data", "export", self)
 
         return export_data_response.exported_files
 

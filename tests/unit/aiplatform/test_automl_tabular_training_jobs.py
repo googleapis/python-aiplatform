@@ -114,6 +114,19 @@ def mock_pipeline_service_create():
 
 
 @pytest.fixture
+def mock_pipeline_service_get():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as mock_get_training_pipeline:
+        mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        )
+        yield mock_get_training_pipeline
+
+
+@pytest.fixture
 def mock_pipeline_service_create_and_get_with_fail():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
@@ -148,6 +161,7 @@ def mock_dataset_tabular():
     ds = mock.MagicMock(datasets.TabularDataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
+    ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
         display_name=_TEST_DATASET_DISPLAY_NAME,
         metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
@@ -163,6 +177,7 @@ def mock_dataset_nontabular():
     ds = mock.MagicMock(datasets.ImageDataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
+    ds._exception = None
     ds._gca_resource = gca_dataset.Dataset(
         display_name=_TEST_DATASET_DISPLAY_NAME,
         metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
@@ -185,6 +200,7 @@ class TestAutoMLTabularTrainingJob:
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_dataset_tabular,
         mock_model_service_get,
         sync,
@@ -254,7 +270,7 @@ class TestAutoMLTabularTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -266,6 +282,7 @@ class TestAutoMLTabularTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_if_no_model_display_name(
         self,
@@ -330,14 +347,13 @@ class TestAutoMLTabularTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
+        "mock_model_service_get",
+    )
     @pytest.mark.parametrize("sync", [True, False])
-    def test_run_called_twice_raises(
-        self,
-        mock_pipeline_service_create,
-        mock_dataset_nontabular,
-        mock_model_service_get,
-        sync,
-    ):
+    def test_run_called_twice_raises(self, mock_dataset_tabular, sync):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
         job = training_jobs.AutoMLTabularTrainingJob(
@@ -350,7 +366,7 @@ class TestAutoMLTabularTrainingJob:
         )
 
         job.run(
-            dataset=mock_dataset_nontabular,
+            dataset=mock_dataset_tabular,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,

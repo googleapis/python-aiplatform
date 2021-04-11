@@ -16,12 +16,11 @@
 #
 
 
-import re
 import abc
-import logging
-
-from typing import Any, Match, Optional, Type, TypeVar, Tuple
 from collections import namedtuple
+import logging
+import re
+from typing import Any, Match, Optional, Type, TypeVar, Tuple
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
