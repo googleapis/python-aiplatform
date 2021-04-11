@@ -96,9 +96,8 @@ class TestEndToEnd:
             credentials=test_training_jobs._TEST_CREDENTIALS,
         )
 
-        my_dataset = aiplatform.Dataset.create(
+        my_dataset = aiplatform.ImageDataset.create(
             display_name=test_datasets._TEST_DISPLAY_NAME,
-            metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
         )
@@ -301,10 +300,8 @@ class TestEndToEnd:
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
-        my_dataset = aiplatform.Dataset.create(
-            display_name=test_datasets._TEST_DISPLAY_NAME,
-            metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            sync=sync,
+        my_dataset = aiplatform.ImageDataset.create(
+            display_name=test_datasets._TEST_DISPLAY_NAME, sync=sync,
         )
 
         my_dataset.import_data(
