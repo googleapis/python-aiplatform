@@ -19,7 +19,6 @@ import importlib
 from concurrent import futures
 import pytest
 from unittest import mock
-from datetime import datetime, timedelta
 
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
@@ -158,22 +157,6 @@ _TEST_MODEL_RESOURCE_NAME_CUSTOM_LOCATION = model_service_client.ModelServiceCli
 
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
 
-_TEST_MODEL_LIST = [
-    gca_model.Model(
-        display_name="aac", create_time=datetime.now() - timedelta(minutes=15)
-    ),
-    gca_model.Model(
-        display_name="aab", create_time=datetime.now() - timedelta(minutes=5)
-    ),
-    gca_model.Model(
-        display_name="aaa", create_time=datetime.now() - timedelta(minutes=10)
-    ),
-]
-
-_TEST_LIST_FILTER = 'display_name="abc"'
-_TEST_LIST_ORDER_BY_CREATE_TIME = "create_time desc"
-_TEST_LIST_ORDER_BY_DISPLAY_NAME = "display_name"
-
 
 @pytest.fixture
 def get_endpoint_mock():
@@ -298,15 +281,6 @@ def delete_model_mock():
         )
         delete_model_mock.return_value = delete_model_lro_mock
         yield delete_model_mock
-
-
-@pytest.fixture
-def list_models_mock():
-    with mock.patch.object(
-        model_service_client.ModelServiceClient, "list_models"
-    ) as list_models_mock:
-        list_models_mock.return_value = _TEST_MODEL_LIST
-        yield list_models_mock
 
 
 @pytest.fixture
@@ -1122,46 +1096,6 @@ class TestModel:
             test_model.wait()
 
         delete_model_mock.assert_called_once_with(name=test_model.resource_name)
-
-    def test_list_model_order_by_time(self, list_models_mock):
-        """Test call to Model.list() and ensure list is returned in descending order of create_time"""
-
-        ds_list = aiplatform.Model.list(
-            filter=_TEST_LIST_FILTER, order_by=_TEST_LIST_ORDER_BY_CREATE_TIME
-        )
-
-        # `order_by` is not passed to API since it is not an accepted field
-        list_models_mock.assert_called_once_with(
-            request={"parent": _TEST_PARENT, "filter": _TEST_LIST_FILTER}
-        )
-
-        assert len(ds_list) == len(_TEST_MODEL_LIST)
-
-        for ds in ds_list:
-            assert type(ds) == aiplatform.Model
-
-        assert ds_list[0].create_time > ds_list[1].create_time > ds_list[2].create_time
-
-    def test_list_model_order_by_display_name(self, list_models_mock):
-        """Test call to Model.list() and ensure list is returned in order of display_name"""
-
-        ds_list = aiplatform.Model.list(
-            filter=_TEST_LIST_FILTER, order_by=_TEST_LIST_ORDER_BY_DISPLAY_NAME
-        )
-
-        # `order_by` is not passed to API since it is not an accepted field
-        list_models_mock.assert_called_once_with(
-            request={"parent": _TEST_PARENT, "filter": _TEST_LIST_FILTER}
-        )
-
-        assert len(ds_list) == len(_TEST_MODEL_LIST)
-
-        for ds in ds_list:
-            assert type(ds) == aiplatform.Model
-
-        assert (
-            ds_list[0].display_name < ds_list[1].display_name < ds_list[2].display_name
-        )
 
     @pytest.mark.usefixtures("get_model_mock")
     def test_print_model(self):
