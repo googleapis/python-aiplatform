@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Sequence, Dict, Tuple, Union
+from typing import Optional, Sequence, Dict, Tuple, Union, List
 
 from google.api_core import operation
 from google.auth import credentials as auth_credentials
@@ -42,9 +42,10 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "datasets"
     _getter_method = "get_dataset"
+    _list_method = "list_datasets"
     _delete_method = "delete_dataset"
 
-    _supported_metadata_schema_uris: Optional[Tuple[str]] = None
+    _supported_metadata_schema_uris: Tuple[str] = ()
 
     def __init__(
         self,
@@ -73,7 +74,10 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
         """
 
         super().__init__(
-            project=project, location=location, credentials=credentials,
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=dataset_name,
         )
         self._gca_resource = self._get_gca_resource(resource_name=dataset_name)
         self._validate_metadata_schema_uri()
@@ -517,3 +521,57 @@ class Dataset(base.AiPlatformResourceNounWithFutureManager):
 
     def update(self):
         raise NotImplementedError("Update dataset has not been implemented yet")
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[base.AiPlatformResourceNoun]:
+        """List all instances of this Dataset resource.
+
+        Example Usage:
+
+        aiplatform.TabularDataset.list(
+            filter='labels.my_key="my_value"',
+            order_by='display_name'
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[base.AiPlatformResourceNoun] - A list of Dataset resource objects
+        """
+
+        dataset_subclass_filter = (
+            lambda gapic_obj: gapic_obj.metadata_schema_uri
+            in cls._supported_metadata_schema_uris
+        )
+
+        return cls._list_with_local_order(
+            cls_filter=dataset_subclass_filter,
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
