@@ -24,6 +24,7 @@ from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
+from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform.compat.services import endpoint_service_client
@@ -72,6 +73,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "endpoints"
     _getter_method = "get_endpoint"
+    _list_method = "list_endpoints"
     _delete_method = "delete_endpoint"
 
     def __init__(
@@ -1055,6 +1057,53 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             explanations=explain_response.explanations,
         )
 
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["models.Endpoint"]:
+        """List all Endpoint resource instances.
+
+        Example Usage:
+
+        aiplatform.Endpoint.list(
+            filter='labels.my_label="my_label_value" OR display_name=!"old_endpoint"',
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[models.Endpoint] - A list of Endpoint resource objects
+        """
+
+        return cls._list_with_local_order(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
     def list_models(
         self,
     ) -> Sequence[
@@ -1112,6 +1161,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "models"
     _getter_method = "get_model"
+    _list_method = "list_models"
     _delete_method = "delete_model"
 
     @property
@@ -1864,4 +1914,51 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             credentials=credentials or self.credentials,
             encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
+        )
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["models.Model"]:
+        """List all Model resource instances.
+
+        Example Usage:
+
+        aiplatform.Model.list(
+            filter='labels.my_label="my_label_value" AND display_name="my_model"',
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[models.Model] - A list of Model resource objects
+        """
+
+        return cls._list(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
         )

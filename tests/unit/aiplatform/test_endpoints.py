@@ -19,6 +19,7 @@ import pytest
 
 from unittest import mock
 from importlib import reload
+from datetime import datetime, timedelta
 
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
@@ -136,6 +137,23 @@ _TEST_ENCRYPTION_KEY_NAME = "key_1234"
 _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_ENCRYPTION_KEY_NAME
 )
+
+
+_TEST_ENDPOINT_LIST = [
+    gca_endpoint.Endpoint(
+        display_name="aac", create_time=datetime.now() - timedelta(minutes=15)
+    ),
+    gca_endpoint.Endpoint(
+        display_name="aab", create_time=datetime.now() - timedelta(minutes=5)
+    ),
+    gca_endpoint.Endpoint(
+        display_name="aaa", create_time=datetime.now() - timedelta(minutes=10)
+    ),
+]
+
+_TEST_LIST_FILTER = 'display_name="abc"'
+_TEST_LIST_ORDER_BY_CREATE_TIME = "create_time desc"
+_TEST_LIST_ORDER_BY_DISPLAY_NAME = "display_name"
 
 
 @pytest.fixture
@@ -265,6 +283,15 @@ def sdk_undeploy_all_mock():
 
 
 @pytest.fixture
+def list_endpoints_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "list_endpoints"
+    ) as list_endpoints_mock:
+        list_endpoints_mock.return_value = _TEST_ENDPOINT_LIST
+        yield list_endpoints_mock
+
+
+@pytest.fixture
 def create_client_mock():
     with mock.patch.object(
         initializer.global_config, "create_client", autospec=True,
@@ -307,6 +334,7 @@ class TestEndpoint:
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
@@ -972,6 +1000,46 @@ class TestEndpoint:
                 for deployed_model in _TEST_DEPLOYED_MODELS
             ],
             any_order=True,
+        )
+
+    def test_list_endpoint_order_by_time(self, list_endpoints_mock):
+        """Test call to Endpoint.list() and ensure list is returned in descending order of create_time"""
+
+        ep_list = aiplatform.Endpoint.list(
+            filter=_TEST_LIST_FILTER, order_by=_TEST_LIST_ORDER_BY_CREATE_TIME
+        )
+
+        # `order_by` is not passed to API since it is not an accepted field
+        list_endpoints_mock.assert_called_once_with(
+            request={"parent": _TEST_PARENT, "filter": _TEST_LIST_FILTER}
+        )
+
+        assert len(ep_list) == len(_TEST_ENDPOINT_LIST)
+
+        for ep in ep_list:
+            assert type(ep) == aiplatform.Endpoint
+
+        assert ep_list[0].create_time > ep_list[1].create_time > ep_list[2].create_time
+
+    def test_list_endpoint_order_by_display_name(self, list_endpoints_mock):
+        """Test call to Endpoint.list() and ensure list is returned in order of display_name"""
+
+        ep_list = aiplatform.Endpoint.list(
+            filter=_TEST_LIST_FILTER, order_by=_TEST_LIST_ORDER_BY_DISPLAY_NAME
+        )
+
+        # `order_by` is not passed to API since it is not an accepted field
+        list_endpoints_mock.assert_called_once_with(
+            request={"parent": _TEST_PARENT, "filter": _TEST_LIST_FILTER}
+        )
+
+        assert len(ep_list) == len(_TEST_ENDPOINT_LIST)
+
+        for ep in ep_list:
+            assert type(ep) == aiplatform.Endpoint
+
+        assert (
+            ep_list[0].display_name < ep_list[1].display_name < ep_list[2].display_name
         )
 
     @pytest.mark.usefixtures("get_endpoint_with_models_mock")
