@@ -23,7 +23,7 @@ import inspect
 import logging
 import sys
 import threading
-from typing import Any, Callable, Dict, List, Iterable, Optional, Sequence, Type, Union
+from typing import Any, Callable, Dict, List, Iterable, Optional, Sequence, Tuple, Type, Union
 
 import proto
 
