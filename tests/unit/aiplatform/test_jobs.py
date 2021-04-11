@@ -141,6 +141,7 @@ _TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
 )
 
 _TEST_JOB_GET_METHOD_NAME = "get_fake_job"
+_TEST_JOB_LIST_METHOD_NAME = "list_fake_job"
 _TEST_JOB_CANCEL_METHOD_NAME = "cancel_fake_job"
 _TEST_JOB_DELETE_METHOD_NAME = "delete_fake_job"
 _TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/fakeJobs/{_TEST_ID}"
@@ -170,6 +171,7 @@ class TestJob:
         _job_type = "fake-job"
         _resource_noun = "fakeJobs"
         _getter_method = _TEST_JOB_GET_METHOD_NAME
+        _list_method = _TEST_JOB_LIST_METHOD_NAME
         _cancel_method = _TEST_JOB_CANCEL_METHOD_NAME
         _delete_method = _TEST_JOB_DELETE_METHOD_NAME
         resource_name = _TEST_JOB_RESOURCE_NAME

@@ -50,6 +50,7 @@ class AiPlatformResourceNounImpl(base.AiPlatformResourceNoun):
     _is_client_prediction_client = False
     _resource_noun = None
     _getter_method = None
+    _list_method = None
     _delete_method = None
 
 
