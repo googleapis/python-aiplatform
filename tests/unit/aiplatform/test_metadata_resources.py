@@ -154,13 +154,13 @@ class TestContext:
 
     def test_init_context(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        context._Context(context_name=_TEST_CONTEXT_NAME)
+        context._Context(resource_name=_TEST_CONTEXT_NAME)
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
 
     def test_init_context_with_id(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         context._Context(
-            context_name=_TEST_CONTEXT_ID, metadata_store_id=_TEST_METADATA_STORE
+            resource_name=_TEST_CONTEXT_ID, metadata_store_id=_TEST_METADATA_STORE
         )
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
 
@@ -169,7 +169,7 @@ class TestContext:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_context = context._Context.create(
-            context_id=_TEST_CONTEXT_ID,
+            resource_id=_TEST_CONTEXT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
@@ -204,13 +204,13 @@ class TestExecution:
 
     def test_init_execution(self, get_execution_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        execution._Execution(execution_name=_TEST_EXECUTION_NAME)
+        execution._Execution(resource_name=_TEST_EXECUTION_NAME)
         get_execution_mock.assert_called_once_with(name=_TEST_EXECUTION_NAME)
 
     def test_init_execution_with_id(self, get_execution_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         execution._Execution(
-            execution_name=_TEST_EXECUTION_ID, metadata_store_id=_TEST_METADATA_STORE
+            resource_name=_TEST_EXECUTION_ID, metadata_store_id=_TEST_METADATA_STORE
         )
         get_execution_mock.assert_called_once_with(name=_TEST_EXECUTION_NAME)
 
@@ -219,7 +219,7 @@ class TestExecution:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_execution = execution._Execution.create(
-            execution_id=_TEST_EXECUTION_ID,
+            resource_id=_TEST_EXECUTION_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
@@ -256,13 +256,13 @@ class TestArtifact:
 
     def test_init_artifact(self, get_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        artifact._Artifact(artifact_name=_TEST_ARTIFACT_NAME)
+        artifact._Artifact(resource_name=_TEST_ARTIFACT_NAME)
         get_artifact_mock.assert_called_once_with(name=_TEST_ARTIFACT_NAME)
 
     def test_init_artifact_with_id(self, get_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         artifact._Artifact(
-            artifact_name=_TEST_ARTIFACT_ID, metadata_store_id=_TEST_METADATA_STORE
+            resource_name=_TEST_ARTIFACT_ID, metadata_store_id=_TEST_METADATA_STORE
         )
         get_artifact_mock.assert_called_once_with(name=_TEST_ARTIFACT_NAME)
 
@@ -271,7 +271,7 @@ class TestArtifact:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_artifact = artifact._Artifact.create(
-            artifact_id=_TEST_ARTIFACT_ID,
+            resource_id=_TEST_ARTIFACT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,

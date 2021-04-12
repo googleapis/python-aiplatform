@@ -47,7 +47,7 @@ class _MetadataService:
         if not context:
             logging.info(f"Creating a Context for experiment {experiment}")
             context = _Context.create(
-                context_id=experiment,
+                resource_id=experiment,
                 schema_title="system.Experiment",
                 schema_version="0.0.1",
             )
@@ -66,7 +66,7 @@ class _MetadataService:
         if not execution:
             logging.info(f"Creating an Execution for run {run}")
             execution = _Execution.create(
-                execution_id=run, schema_title="system.Run", schema_version="0.0.1",
+                resource_id=run, schema_title="system.Run", schema_version="0.0.1",
             )
         self._run = execution.name
 
@@ -86,7 +86,7 @@ class _MetadataService:
         if not execution:
             logging.info(f"Creating an Execution for run {self._run}")
             execution = _Execution.create(
-                execution_id=self._run,
+                resource_id=self._run,
                 schema_title="system.Run",
                 schema_version="0.0.1",
                 metadata=params,
@@ -113,7 +113,7 @@ class _MetadataService:
         if not artifact:
             logging.info(f"Creating an Artifact for run {self._run}")
             artifact = _Artifact.create(
-                artifact_id=artifact_id,
+                resource_id=artifact_id,
                 schema_title="system.Metrics",
                 schema_version="0.0.1",
                 metadata=metrics,
