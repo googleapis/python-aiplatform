@@ -7893,6 +7893,241 @@ async def test_list_metadata_schemas_async_pages():
             assert page_.raw_page.next_page_token == token
 
 
+def test_query_artifact_lineage_subgraph(transport: str = 'grpc', request_type=metadata_service.QueryArtifactLineageSubgraphRequest):
+    client = MetadataServiceClient(
+        credentials=credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+            type(client.transport.query_artifact_lineage_subgraph),
+            '__call__') as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = lineage_subgraph.LineageSubgraph(
+        )
+
+        response = client.query_artifact_lineage_subgraph(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == metadata_service.QueryArtifactLineageSubgraphRequest()
+
+    # Establish that the response is the type that we expect.
+
+    assert isinstance(response, lineage_subgraph.LineageSubgraph)
+
+
+def test_query_artifact_lineage_subgraph_from_dict():
+    test_query_artifact_lineage_subgraph(request_type=dict)
+
+
+def test_query_artifact_lineage_subgraph_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = MetadataServiceClient(
+        credentials=credentials.AnonymousCredentials(),
+        transport='grpc',
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+            type(client.transport.query_artifact_lineage_subgraph),
+            '__call__') as call:
+        client.query_artifact_lineage_subgraph()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == metadata_service.QueryArtifactLineageSubgraphRequest()
+
+@pytest.mark.asyncio
+async def test_query_artifact_lineage_subgraph_async(transport: str = 'grpc_asyncio', request_type=metadata_service.QueryArtifactLineageSubgraphRequest):
+    client = MetadataServiceAsyncClient(
+        credentials=credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+            type(client.transport.query_artifact_lineage_subgraph),
+            '__call__') as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(lineage_subgraph.LineageSubgraph(
+        ))
+
+        response = await client.query_artifact_lineage_subgraph(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == metadata_service.QueryArtifactLineageSubgraphRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, lineage_subgraph.LineageSubgraph)
+
+
+@pytest.mark.asyncio
+async def test_query_artifact_lineage_subgraph_async_from_dict():
+    await test_query_artifact_lineage_subgraph_async(request_type=dict)
+
+
+def test_query_artifact_lineage_subgraph_field_headers():
+    client = MetadataServiceClient(
+        credentials=credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = metadata_service.QueryArtifactLineageSubgraphRequest()
+    request.artifact = 'artifact/value'
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+            type(client.transport.query_artifact_lineage_subgraph),
+            '__call__') as call:
+        call.return_value = lineage_subgraph.LineageSubgraph()
+
+        client.query_artifact_lineage_subgraph(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        'x-goog-request-params',
+        'artifact=artifact/value',
+    ) in kw['metadata']
+
+
+@pytest.mark.asyncio
+async def test_query_artifact_lineage_subgraph_field_headers_async():
+    client = MetadataServiceAsyncClient(
+        credentials=credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = metadata_service.QueryArtifactLineageSubgraphRequest()
+    request.artifact = 'artifact/value'
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+            type(client.transport.query_artifact_lineage_subgraph),
+            '__call__') as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(lineage_subgraph.LineageSubgraph())
+
+        await client.query_artifact_lineage_subgraph(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        'x-goog-request-params',
+        'artifact=artifact/value',
+    ) in kw['metadata']
+
+
+def test_query_artifact_lineage_subgraph_flattened():
+    client = MetadataServiceClient(
+        credentials=credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+            type(client.transport.query_artifact_lineage_subgraph),
+            '__call__') as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = lineage_subgraph.LineageSubgraph()
+
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.query_artifact_lineage_subgraph(
+            artifact='artifact_value',
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0].artifact == 'artifact_value'
+
+
+def test_query_artifact_lineage_subgraph_flattened_error():
+    client = MetadataServiceClient(
+        credentials=credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.query_artifact_lineage_subgraph(
+            metadata_service.QueryArtifactLineageSubgraphRequest(),
+            artifact='artifact_value',
+        )
+
+
+@pytest.mark.asyncio
+async def test_query_artifact_lineage_subgraph_flattened_async():
+    client = MetadataServiceAsyncClient(
+        credentials=credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+            type(client.transport.query_artifact_lineage_subgraph),
+            '__call__') as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = lineage_subgraph.LineageSubgraph()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(lineage_subgraph.LineageSubgraph())
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.query_artifact_lineage_subgraph(
+            artifact='artifact_value',
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0].artifact == 'artifact_value'
+
+
+@pytest.mark.asyncio
+async def test_query_artifact_lineage_subgraph_flattened_error_async():
+    client = MetadataServiceAsyncClient(
+        credentials=credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.query_artifact_lineage_subgraph(
+            metadata_service.QueryArtifactLineageSubgraphRequest(),
+            artifact='artifact_value',
+        )
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.MetadataServiceGrpcTransport(
@@ -8017,6 +8252,7 @@ def test_metadata_service_base_transport():
         'create_metadata_schema',
         'get_metadata_schema',
         'list_metadata_schemas',
+        'query_artifact_lineage_subgraph',
         )
     for method in methods:
         with pytest.raises(NotImplementedError):

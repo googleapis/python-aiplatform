@@ -233,6 +233,7 @@ from .types.metadata_service import ListMetadataSchemasRequest
 from .types.metadata_service import ListMetadataSchemasResponse
 from .types.metadata_service import ListMetadataStoresRequest
 from .types.metadata_service import ListMetadataStoresResponse
+from .types.metadata_service import QueryArtifactLineageSubgraphRequest
 from .types.metadata_service import QueryContextLineageSubgraphRequest
 from .types.metadata_service import QueryExecutionInputsAndOutputsRequest
 from .types.metadata_service import UpdateArtifactRequest
@@ -607,6 +608,7 @@ __all__ = (
     'PredictSchemata',
     'PredictionServiceClient',
     'PythonPackageSpec',
+    'QueryArtifactLineageSubgraphRequest',
     'QueryContextLineageSubgraphRequest',
     'QueryExecutionInputsAndOutputsRequest',
     'ReadFeatureValuesRequest',

@@ -66,6 +66,7 @@ __protobuf__ = proto.module(
         'GetMetadataSchemaRequest',
         'ListMetadataSchemasRequest',
         'ListMetadataSchemasResponse',
+        'QueryArtifactLineageSubgraphRequest',
     },
 )
 
@@ -895,6 +896,32 @@ class ListMetadataSchemasResponse(proto.Message):
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
+
+
+class QueryArtifactLineageSubgraphRequest(proto.Message):
+    r"""Request message for
+    ``MetadataService.QueryArtifactLineageSubgraph``.
+
+    Attributes:
+        artifact (str):
+            Required. The resource name of the Artifact whose Lineage
+            needs to be retrieved as a LineageSubgraph. Format:
+            projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
+
+            The request may error with FAILED_PRECONDITION if the number
+            of Artifacts, the number of Executions, or the number of
+            Events that would be returned for the Context exceeds 1000.
+        max_hops (int):
+            Specifies the size of the lineage graph in terms of number
+            of hops from the specified artifact. Negative Value:
+            INVALID_ARGUMENT error is returned 0: Only input artifact is
+            returned. No value: Transitive closure is performed to
+            return the complete graph.
+    """
+
+    artifact = proto.Field(proto.STRING, number=1)
+
+    max_hops = proto.Field(proto.INT32, number=2)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

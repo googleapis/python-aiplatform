@@ -241,6 +241,11 @@ class MetadataServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.query_artifact_lineage_subgraph: gapic_v1.method.wrap_method(
+                self.query_artifact_lineage_subgraph,
+                default_timeout=None,
+                client_info=client_info,
+            ),
 
         }
 
@@ -471,6 +476,15 @@ class MetadataServiceTransport(abc.ABC):
             typing.Union[
                 metadata_service.ListMetadataSchemasResponse,
                 typing.Awaitable[metadata_service.ListMetadataSchemasResponse]
+            ]]:
+        raise NotImplementedError()
+
+    @property
+    def query_artifact_lineage_subgraph(self) -> typing.Callable[
+            [metadata_service.QueryArtifactLineageSubgraphRequest],
+            typing.Union[
+                lineage_subgraph.LineageSubgraph,
+                typing.Awaitable[lineage_subgraph.LineageSubgraph]
             ]]:
         raise NotImplementedError()
 
