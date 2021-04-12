@@ -26,7 +26,7 @@ DISPLAY_NAME = (
 )
 
 EXECUTOR_IMAGE_URI = "us.gcr.io/cloud-aiplatform/training/tf-gpu.2-1:latest"
-PACKAGE_URI = "gs://ucaip-test-us-central1/training/pythonpackages/trainer.tar.bz2"
+PACKAGE_URI = "gs://cloud-samples-data-us-central1/ai-platform-unified/training/pythonpackages/trainer.tar.bz2"
 PYTHON_MODULE = "trainer.hptuning_trainer"
 
 
