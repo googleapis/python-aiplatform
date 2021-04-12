@@ -48,9 +48,9 @@ aiplatform.init(project='my_project')
 """
 init = initializer.global_config.init
 
-# log_param = metadata.metadata_service.log_param
+log_param = metadata.metadata_service.log_param
 log_params = metadata.metadata_service.log_params
-# log_metric = metadata.metadata_service.log_metric
+log_metric = metadata.metadata_service.log_metric
 log_metrics = metadata.metadata_service.log_metrics
 set_experiment = metadata.metadata_service.set_experiment
 get_experiment = metadata.metadata_service.get_experiment
@@ -61,14 +61,13 @@ __all__ = (
     "explain",
     "gapic",
     "init",
-    # "log_param",
+    "log_param",
     "log_params",
-    # "log_metric",
+    "log_metric",
     "log_metrics",
     "get_experiment",
     "set_experiment",
     "set_run",
-    "get_pipeline",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
     "AutoMLTextTrainingJob",
