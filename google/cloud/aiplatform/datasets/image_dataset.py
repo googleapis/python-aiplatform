@@ -26,7 +26,7 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
 
-class ImageDataset(datasets.Dataset):
+class ImageDataset(datasets._Dataset):
     """Managed image dataset resource for AI Platform"""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (

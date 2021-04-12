@@ -35,6 +35,7 @@ RESOURCE_ID_2 = str(randint(10000000, 99999999))
 
 BATCH_PREDICTION_JOB_NAME = f"{PARENT}/batchPredictionJobs/{RESOURCE_ID}"
 DATASET_NAME = f"{PARENT}/datasets/{RESOURCE_ID}"
+ENDPOINT_NAME = f"{PARENT}/endpoints/{RESOURCE_ID}"
 MODEL_NAME = f"{PARENT}/models/{RESOURCE_ID}"
 TRAINING_JOB_NAME = f"{PARENT}/trainingJobs/{RESOURCE_ID}"
 
@@ -53,3 +54,5 @@ PYTHON_PACKAGE = "gs://my-packages/training.tar.gz"
 PYTHON_PACKAGE_CMDARGS = f"--model-dir={GCS_DESTINATION}"
 TRAIN_IMAGE = "gcr.io/train_image:latest"
 DEPLOY_IMAGE = "gcr.io/deploy_image:latest"
+
+PREDICTION_TEXT_INSTANCE = "This is some text for testing NLP prediction output"

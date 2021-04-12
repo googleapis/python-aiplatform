@@ -55,8 +55,9 @@ from google.rpc import code_pb2
 
 import proto
 
+
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = base.Logger(__name__)
 
 _PIPELINE_COMPLETE_STATES = set(
     [
@@ -74,6 +75,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "trainingPipelines"
     _getter_method = "get_training_pipeline"
+    _list_method = "list_training_pipelines"
     _delete_method = "delete_training_pipeline"
 
     def __init__(
@@ -180,7 +182,10 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         # These parameters won't be used as user can not run the job again.
         # If they try, an exception will be raised.
         self = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
         )
 
         self._gca_resource = self._get_gca_resource(resource_name=resource_name)
@@ -211,7 +216,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
     @staticmethod
     def _create_input_data_config(
-        dataset: Optional[datasets.Dataset] = None,
+        dataset: Optional[datasets._Dataset] = None,
         annotation_schema_uri: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -223,7 +228,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         """Constructs a input data config to pass to the training pipeline.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets._Dataset):
                 The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -357,7 +362,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         self,
         training_task_definition: str,
         training_task_inputs: Union[dict, proto.Message],
-        dataset: Optional[datasets.Dataset],
+        dataset: Optional[datasets._Dataset],
         training_fraction_split: float,
         validation_fraction_split: float,
         test_fraction_split: float,
@@ -385,7 +390,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 read access.
             training_task_inputs (Union[dict, proto.Message]):
                 Required. The training task's input that corresponds to the training_task_definition parameter.
-            dataset (datasets.Dataset):
+            dataset (datasets._Dataset):
                 The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -542,6 +547,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         if self._assert_has_run():
             return
 
+        self._sync_gca_resource()
         return self._gca_resource.state
 
     def get_model(self, sync=True) -> models.Model:
@@ -629,18 +635,23 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         previous_time = time.time()
         while self.state not in _PIPELINE_COMPLETE_STATES:
-            self._sync_gca_resource()
             current_time = time.time()
             if current_time - previous_time >= log_wait:
                 _LOGGER.info(
-                    "Training %s current state:\n%s"
-                    % (self._gca_resource.name, self._gca_resource.state)
+                    "%s %s current state:\n%s"
+                    % (
+                        self.__class__.__name__,
+                        self._gca_resource.name,
+                        self._gca_resource.state,
+                    )
                 )
                 log_wait = min(log_wait * multiplier, max_wait)
             previous_time = current_time
             time.sleep(wait)
 
         self._raise_failure()
+
+        _LOGGER.log_action_completed_against_resource("", "run", self)
 
         if self._gca_resource.model_to_upload and not self.has_failed:
             _LOGGER.info(
@@ -689,6 +700,60 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 " TrainingPipeline using TrainingPipeline.run. "
             )
         return False
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["base.AiPlatformResourceNoune"]:
+        """List all instances of this TrainingJob resource.
+
+        Example Usage:
+
+        aiplatform.CustomTrainingJob.list(
+            filter='display_name="experiment_a27"',
+            order_by='create_time desc'
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[AiPlatformResourceNoun] - A list of TrainingJob resource objects
+        """
+
+        training_job_subclass_filter = (
+            lambda gapic_obj: gapic_obj.training_task_definition
+            in cls._supported_training_schemas
+        )
+
+        return cls._list_with_local_order(
+            cls_filter=training_job_subclass_filter,
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
 
     def cancel(self) -> None:
         """Starts asynchronous cancellation on the TrainingJob. The server
@@ -1531,7 +1596,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         Usage with Dataset:
 
-        ds = aiplatform.Dataset(
+        ds = aiplatform.TabularDataset(
             'projects/my-project/locations/us-central1/datasets/12345')
 
         job.run(ds, replica_count=1, model_display_name='my-trained-model')
@@ -1706,7 +1771,14 @@ class CustomTrainingJob(_CustomTrainingJob):
     # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
     def run(
         self,
-        dataset: Optional[datasets.Dataset] = None,
+        dataset: Optional[
+            Union[
+                datasets.ImageDataset,
+                datasets.TabularDataset,
+                datasets.TextDataset,
+                datasets.VideoDataset,
+            ]
+        ] = None,
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
@@ -1738,9 +1810,16 @@ class CustomTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (
+                Union[
+                    datasets.ImageDataset,
+                    datasets.TabularDataset,
+                    datasets.TextDataset,
+                    datasets.VideoDataset,
+                ]
+            ):
                 AI Platform to fit this training against. Custom training script should
-                retrieve datasets through passed in environement variables uris:
+                retrieve datasets through passed in environment variables uris:
 
                 os.environ["AIP_TRAINING_DATA_URI"]
                 os.environ["AIP_VALIDATION_DATA_URI"]
@@ -1868,7 +1947,14 @@ class CustomTrainingJob(_CustomTrainingJob):
     def _run(
         self,
         python_packager: _TrainingScriptPythonPackager,
-        dataset: Optional[datasets.Dataset],
+        dataset: Optional[
+            Union[
+                datasets.ImageDataset,
+                datasets.TabularDataset,
+                datasets.TextDataset,
+                datasets.VideoDataset,
+            ]
+        ],
         annotation_schema_uri: Optional[str],
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
@@ -1886,7 +1972,14 @@ class CustomTrainingJob(_CustomTrainingJob):
         Args:
             python_packager (_TrainingScriptPythonPackager):
                 Required. Python Packager pointing to training script locally.
-            dataset (datasets.Dataset):
+            dataset (
+                Union[
+                    datasets.ImageDataset,
+                    datasets.TabularDataset,
+                    datasets.TextDataset,
+                    datasets.VideoDataset,
+                ]
+            ):
                 AI Platform to fit this training against.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
@@ -2021,7 +2114,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         Usage with Dataset:
 
-        ds = aiplatform.Dataset(
+        ds = aiplatform.TabularDataset(
             'projects/my-project/locations/us-central1/datasets/12345')
 
         job.run(ds, replica_count=1, model_display_name='my-trained-model')
@@ -2195,7 +2288,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     # TODO(b/172368070) add timestamp split, training_pipeline.TimestampSplit
     def run(
         self,
-        dataset: Optional[datasets.Dataset] = None,
+        dataset: Optional[
+            Union[
+                datasets.ImageDataset,
+                datasets.TabularDataset,
+                datasets.TextDataset,
+                datasets.VideoDataset,
+            ]
+        ] = None,
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
@@ -2227,7 +2327,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (
+                Union[
+                    datasets.ImageDataset,
+                    datasets.TabularDataset,
+                    datasets.TextDataset,
+                    datasets.VideoDataset,
+                ]
+            ):
                 AI Platform to fit this training against. Custom training script should
                 retrieve datasets through passed in environment variables uris:
 
@@ -2355,7 +2462,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     @base.optional_sync(construct_object_on_arg="managed_model")
     def _run(
         self,
-        dataset: Optional[datasets.Dataset],
+        dataset: Optional[
+            Union[
+                datasets.ImageDataset,
+                datasets.TabularDataset,
+                datasets.TextDataset,
+                datasets.VideoDataset,
+            ]
+        ],
         annotation_schema_uri: Optional[str],
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
@@ -2370,7 +2484,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
         Args:
-            dataset (datasets.Dataset):
+            dataset (
+                Union[
+                    datasets.ImageDataset,
+                    datasets.TabularDataset,
+                    datasets.TextDataset,
+                    datasets.VideoDataset,
+                ]
+            ):
                 AI Platform to fit this training against.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
@@ -2590,7 +2711,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
     def run(
         self,
-        dataset: datasets.Dataset,
+        dataset: datasets.TabularDataset,
         target_column: str,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -2612,7 +2733,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TabularDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -2705,7 +2826,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
     @base.optional_sync()
     def _run(
         self,
-        dataset: datasets.Dataset,
+        dataset: datasets.TabularDataset,
         target_column: str,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -2727,7 +2848,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TabularDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -2991,7 +3112,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
     def run(
         self,
-        dataset: datasets.Dataset,
+        dataset: datasets.ImageDataset,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -3010,7 +3131,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.ImageDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -3082,7 +3203,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
     @base.optional_sync()
     def _run(
         self,
-        dataset: datasets.Dataset,
+        dataset: datasets.ImageDataset,
         base_model: Optional[models.Model] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -3102,7 +3223,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.ImageDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -3253,7 +3374,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
         Usage with Dataset:
 
-            ds = aiplatform.Dataset(
+            ds = aiplatform.TabularDataset(
                 'projects/my-project/locations/us-central1/datasets/12345'
             )
 
@@ -3432,7 +3553,14 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
     def run(
         self,
-        dataset: Optional[datasets.Dataset] = None,
+        dataset: Optional[
+            Union[
+                datasets.ImageDataset,
+                datasets.TabularDataset,
+                datasets.TextDataset,
+                datasets.VideoDataset,
+            ]
+        ] = None,
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
@@ -3464,7 +3592,14 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (
+                Union[
+                    datasets.ImageDataset,
+                    datasets.TabularDataset,
+                    datasets.TextDataset,
+                    datasets.VideoDataset,
+                ]
+            ):
                 AI Platform to fit this training against. Custom training script should
                 retrieve datasets through passed in environement variables uris:
 
@@ -3587,7 +3722,14 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
     @base.optional_sync(construct_object_on_arg="managed_model")
     def _run(
         self,
-        dataset: Optional[datasets.Dataset],
+        dataset: Optional[
+            Union[
+                datasets.ImageDataset,
+                datasets.TabularDataset,
+                datasets.TextDataset,
+                datasets.VideoDataset,
+            ]
+        ],
         annotation_schema_uri: Optional[str],
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
@@ -3603,7 +3745,14 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         """Packages local script and launches training_job.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (
+                Union[
+                    datasets.ImageDataset,
+                    datasets.TabularDataset,
+                    datasets.TextDataset,
+                    datasets.VideoDataset,
+                ]
+            ):
                 AI Platform to fit this training against.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
@@ -3802,7 +3951,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
 
     def run(
         self,
-        dataset: datasets.Dataset,
+        dataset: datasets.VideoDataset,
         training_fraction_split: float = 0.8,
         test_fraction_split: float = 0.2,
         model_display_name: Optional[str] = None,
@@ -3816,7 +3965,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         by default roughly 80% of data will be used for training, and 20% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.VideoDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -3863,7 +4012,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
     @base.optional_sync()
     def _run(
         self,
-        dataset: datasets.Dataset,
+        dataset: datasets.VideoDataset,
         training_fraction_split: float = 0.8,
         test_fraction_split: float = 0.2,
         model_display_name: Optional[str] = None,
@@ -3877,7 +4026,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         by default roughly 80% of data will be used for training, and 20% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.VideoDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -4068,7 +4217,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
     def run(
         self,
-        dataset: datasets.Dataset,
+        dataset: datasets.TextDataset,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -4085,7 +4234,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TextDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used
@@ -4135,7 +4284,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
     @base.optional_sync()
     def _run(
         self,
-        dataset: datasets.Dataset,
+        dataset: datasets.TextDataset,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -4152,7 +4301,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (datasets.Dataset):
+            dataset (datasets.TextDataset):
                 Required. The dataset within the same Project from which data will be used to train the Model. The
                 Dataset must use schema compatible with Model being trained,
                 and what is compatible should be described in the used

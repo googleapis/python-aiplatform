@@ -48,6 +48,7 @@ from google.cloud.aiplatform_v1.types import (
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_ALT_PROJECT = "test-project_alt"
 
 _TEST_ALT_LOCATION = "europe-west4"
 _TEST_INVALID_LOCATION = "us-central2"
@@ -108,6 +109,27 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
 
 # misc
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
+
+_TEST_DATASET_LIST = [
+    gca_dataset.Dataset(
+        display_name="a", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
+    ),
+    gca_dataset.Dataset(
+        display_name="d", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR
+    ),
+    gca_dataset.Dataset(
+        display_name="b", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
+    ),
+    gca_dataset.Dataset(
+        display_name="e", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TEXT
+    ),
+    gca_dataset.Dataset(
+        display_name="c", metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR
+    ),
+]
+
+_TEST_LIST_FILTER = 'display_name="abc"'
+_TEST_LIST_ORDER_BY = "create_time desc"
 
 
 @pytest.fixture
@@ -245,6 +267,15 @@ def export_data_mock():
         yield export_data_mock
 
 
+@pytest.fixture
+def list_datasets_mock():
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "list_datasets"
+    ) as list_datasets_mock:
+        list_datasets_mock.return_value = _TEST_DATASET_LIST
+        yield list_datasets_mock
+
+
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
 class TestDataset:
     def setup_method(self):
@@ -256,12 +287,44 @@ class TestDataset:
 
     def test_init_dataset(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        datasets.Dataset(dataset_name=_TEST_NAME)
+        datasets._Dataset(dataset_name=_TEST_NAME)
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_init_dataset_with_id_only_with_project_and_location(
+        self, get_dataset_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        datasets._Dataset(
+            dataset_name=_TEST_ID, project=_TEST_PROJECT, location=_TEST_LOCATION
+        )
+        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_init_dataset_with_project_and_location(self, get_dataset_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        datasets._Dataset(
+            dataset_name=_TEST_NAME, project=_TEST_PROJECT, location=_TEST_LOCATION
+        )
+        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_init_dataset_with_alt_project_and_location(self, get_dataset_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        datasets._Dataset(
+            dataset_name=_TEST_NAME, project=_TEST_ALT_PROJECT, location=_TEST_LOCATION
+        )
+        get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_init_dataset_with_project_and_alt_location(self):
+        aiplatform.init(project=_TEST_PROJECT)
+        with pytest.raises(RuntimeError):
+            datasets._Dataset(
+                dataset_name=_TEST_NAME,
+                project=_TEST_PROJECT,
+                location=_TEST_ALT_LOCATION,
+            )
 
     def test_init_dataset_with_id_only(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        datasets.Dataset(dataset_name=_TEST_ID)
+        datasets._Dataset(dataset_name=_TEST_ID)
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
 
     @pytest.mark.usefixtures("get_dataset_without_name_mock")
@@ -270,21 +333,21 @@ class TestDataset:
     )
     def test_init_dataset_with_id_only_without_project_or_location(self):
         with pytest.raises(GoogleAuthError):
-            datasets.Dataset(
+            datasets._Dataset(
                 dataset_name=_TEST_ID,
                 credentials=auth_credentials.AnonymousCredentials(),
             )
 
     def test_init_dataset_with_location_override(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        datasets.Dataset(dataset_name=_TEST_ID, location=_TEST_ALT_LOCATION)
+        datasets._Dataset(dataset_name=_TEST_ID, location=_TEST_ALT_LOCATION)
         get_dataset_mock.assert_called_once_with(name=_TEST_ALT_NAME)
 
     @pytest.mark.usefixtures("get_dataset_mock")
     def test_init_dataset_with_invalid_name(self):
         with pytest.raises(ValueError):
             aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-            datasets.Dataset(dataset_name=_TEST_INVALID_NAME)
+            datasets._Dataset(dataset_name=_TEST_INVALID_NAME)
 
     @pytest.mark.usefixtures("get_dataset_mock")
     @pytest.mark.parametrize("sync", [True, False])
@@ -295,7 +358,7 @@ class TestDataset:
             project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
-        my_dataset = datasets.Dataset.create(
+        my_dataset = datasets._Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             sync=sync,
@@ -322,7 +385,7 @@ class TestDataset:
     def test_create_dataset_nontabular(self, create_dataset_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_dataset = datasets.Dataset.create(
+        my_dataset = datasets._Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
@@ -349,7 +412,7 @@ class TestDataset:
     def test_create_dataset_tabular(self, create_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        datasets.Dataset.create(
+        datasets._Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             bq_source=_TEST_SOURCE_URI_BQ,
@@ -376,7 +439,7 @@ class TestDataset:
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_dataset = datasets.Dataset.create(
+        my_dataset = datasets._Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             gcs_source=_TEST_SOURCE_URI_GCS,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
@@ -420,7 +483,7 @@ class TestDataset:
     def test_import_data(self, import_data_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_dataset = datasets.Dataset(dataset_name=_TEST_NAME)
+        my_dataset = datasets._Dataset(dataset_name=_TEST_NAME)
 
         my_dataset.import_data(
             gcs_source=_TEST_SOURCE_URI_GCS,
@@ -446,7 +509,7 @@ class TestDataset:
     def test_export_data(self, export_data_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_dataset = datasets.Dataset(dataset_name=_TEST_NAME)
+        my_dataset = datasets._Dataset(dataset_name=_TEST_NAME)
 
         my_dataset.export_data(output_dir=_TEST_OUTPUT_DIR)
 
@@ -465,7 +528,7 @@ class TestDataset:
 
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_dataset = datasets.Dataset.create(
+        my_dataset = datasets._Dataset.create(
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
@@ -690,18 +753,19 @@ class TestTabularDataset:
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
+        aiplatform.init(project=_TEST_PROJECT)
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
     def test_init_dataset_tabular(self, get_dataset_tabular_mock):
-        aiplatform.init(project=_TEST_PROJECT)
+
         datasets.TabularDataset(dataset_name=_TEST_NAME)
         get_dataset_tabular_mock.assert_called_once_with(name=_TEST_NAME)
 
     @pytest.mark.usefixtures("get_dataset_image_mock")
     def test_init_dataset_non_tabular(self):
-        aiplatform.init(project=_TEST_PROJECT)
+
         with pytest.raises(ValueError):
             datasets.TabularDataset(dataset_name=_TEST_NAME)
 
@@ -737,7 +801,6 @@ class TestTabularDataset:
     @pytest.mark.usefixtures("get_dataset_tabular_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset(self, create_dataset_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.TabularDataset.create(
             display_name=_TEST_DISPLAY_NAME,
@@ -764,12 +827,27 @@ class TestTabularDataset:
 
     @pytest.mark.usefixtures("get_dataset_tabular_mock")
     def test_no_import_data_method(self):
-        aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
 
         with pytest.raises(NotImplementedError):
             my_dataset.import_data()
+
+    def test_list_dataset(self, list_datasets_mock):
+
+        ds_list = aiplatform.TabularDataset.list(
+            filter=_TEST_LIST_FILTER, order_by=_TEST_LIST_ORDER_BY
+        )
+
+        list_datasets_mock.assert_called_once_with(
+            request={"parent": _TEST_PARENT, "filter": _TEST_LIST_FILTER}
+        )
+
+        # Ensure returned list is smaller since it filtered out non-tabular datasets
+        assert len(ds_list) < len(_TEST_DATASET_LIST)
+
+        for ds in ds_list:
+            assert type(ds) == aiplatform.TabularDataset
 
 
 class TestTextDataset:

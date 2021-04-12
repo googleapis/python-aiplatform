@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Iterable, Optional, Union, Sequence, Dict
+from typing import Iterable, Optional, Union, Sequence, Dict, List
 
 import abc
 import sys
@@ -48,7 +48,7 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = base.Logger(__name__)
 
 _JOB_COMPLETE_STATES = (
     gca_job_state.JobState.JOB_STATE_SUCCEEDED,
@@ -107,7 +107,12 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
                 Custom credentials to use. If not set, credentials set in
                 aiplatform.init will be used.
         """
-        super().__init__(project=project, location=location, credentials=credentials)
+        super().__init__(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=job_name,
+        )
         self._gca_resource = self._get_gca_resource(resource_name=job_name)
 
     @property
@@ -152,25 +157,85 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
 
         # Used these numbers so failures surface fast
         wait = 5  # start at five seconds
+        log_wait = 5
         max_wait = 60 * 5  # 5 minute wait
         multiplier = 2  # scale wait by 2 every iteration
 
+        previous_time = time.time()
         while self.state not in _JOB_COMPLETE_STATES:
+            current_time = time.time()
+            if current_time - previous_time >= log_wait:
+                _LOGGER.info(
+                    "%s %s current state:\n%s"
+                    % (
+                        self.__class__.__name__,
+                        self._gca_resource.name,
+                        self._gca_resource.state,
+                    )
+                )
+                log_wait = min(log_wait * multiplier, max_wait)
+            previous_time = current_time
             time.sleep(wait)
-            _LOGGER.info(
-                " %s current state:\n%s"
-                % (self.resource_name, self._gca_resource.state)
-            )
-            wait = min(wait * multiplier, max_wait)
+
+        _LOGGER.log_action_completed_against_resource("", "run", self)
 
         # Error is only populated when the job state is
         # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
         if self.state in _JOB_ERROR_STATES:
             raise RuntimeError("Job failed with:\n%s" % self._gca_resource.error)
 
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[base.AiPlatformResourceNoun]:
+        """List all instances of this Job Resource.
+
+        Example Usage:
+
+        aiplatform.BatchPredictionJobs.list(
+            filter='state="JOB_STATE_SUCCEEDED" AND display_name="my_job"',
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[AiPlatformResourceNoun] - A list of Job resource objects
+        """
+
+        return cls._list_with_local_order(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
     def cancel(self) -> None:
         """Cancels this Job. Success of cancellation is not guaranteed. Use `Job.state`
         property to verify if cancellation was successful."""
+
+        _LOGGER.log_action_start_against_resource("Cancelling", "run", self)
         getattr(self.api_client, self._cancel_method)(name=self.resource_name)
 
 
@@ -178,6 +243,7 @@ class BatchPredictionJob(_Job):
 
     _resource_noun = "batchPredictionJobs"
     _getter_method = "get_batch_prediction_job"
+    _list_method = "list_batch_prediction_jobs"
     _cancel_method = "cancel_batch_prediction_job"
     _delete_method = "delete_batch_prediction_job"
     _job_type = "batch-predictions"
@@ -595,6 +661,8 @@ class BatchPredictionJob(_Job):
         if generate_explanation:
             api_client = api_client.select_version(compat.V1BETA1)
 
+        _LOGGER.log_create_with_lro(cls)
+
         gca_batch_prediction_job = api_client.create_batch_prediction_job(
             parent=parent, batch_prediction_job=batch_prediction_job
         )
@@ -605,6 +673,8 @@ class BatchPredictionJob(_Job):
             location=location,
             credentials=credentials,
         )
+
+        _LOGGER.log_create_complete(cls, batch_prediction_job._gca_resource, "bpj")
 
         _LOGGER.info(
             "View Batch Prediction Job:\n%s" % batch_prediction_job._dashboard_uri()
@@ -699,6 +769,7 @@ class BatchPredictionJob(_Job):
 class CustomJob(_Job):
     _resource_noun = "customJobs"
     _getter_method = "get_custom_job"
+    _list_method = "list_custom_job"
     _cancel_method = "cancel_custom_job"
     _delete_method = "delete_custom_job"
     _job_type = "training"
@@ -708,6 +779,7 @@ class CustomJob(_Job):
 class DataLabelingJob(_Job):
     _resource_noun = "dataLabelingJobs"
     _getter_method = "get_data_labeling_job"
+    _list_method = "list_data_labeling_jobs"
     _cancel_method = "cancel_data_labeling_job"
     _delete_method = "delete_data_labeling_job"
     _job_type = "labeling-tasks"
@@ -717,6 +789,7 @@ class DataLabelingJob(_Job):
 class HyperparameterTuningJob(_Job):
     _resource_noun = "hyperparameterTuningJobs"
     _getter_method = "get_hyperparameter_tuning_job"
+    _list_method = "list_hyperparameter_tuning_jobs"
     _cancel_method = "cancel_hyperparameter_tuning_job"
     _delete_method = "delete_hyperparameter_tuning_job"
     pass
