@@ -99,7 +99,7 @@ class Logger:
         self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
         self._logger.info(f"To use this {cls.__name__} in another session:")
         self._logger.info(
-            f"{variable_name} = aiplatform.{cls.__name__}({resource.name})"
+            f"{variable_name} = aiplatform.{cls.__name__}('{resource.name}')"
         )
 
     def log_action_start_against_resource(
