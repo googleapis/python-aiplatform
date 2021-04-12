@@ -141,8 +141,5 @@ class _MetadataService:
     def get_run(self, run: str):
         raise NotImplementedError("get_run not implemented")
 
-    def get_pipeline(self, pipeline: str):
-        raise NotImplementedError("get_pipeline not implemented")
-
 
 metadata_service = _MetadataService()
