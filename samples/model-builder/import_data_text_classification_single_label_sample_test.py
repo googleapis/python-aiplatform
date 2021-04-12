@@ -20,10 +20,10 @@ from google.cloud.aiplatform import schema
 
 
 def test_import_data_text_classification_single_label_sample(
-    mock_sdk_init, mock_init_text_dataset, mock_import_text_dataset
+    mock_sdk_init, mock_get_text_dataset, mock_import_text_dataset
 ):
 
-    import_data_text_classification_single_label_sample.import_data_text_classification_single_label_sample(
+    import_data_text_classification_single_label_sample.import_data_text_classification_single_label(
         project=constants.PROJECT,
         location=constants.LOCATION,
         dataset=constants.DATASET_NAME,
@@ -34,9 +34,7 @@ def test_import_data_text_classification_single_label_sample(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_init_text_dataset.assert_called_once_with(
-        dataset_name=constants.DATASET_NAME,
-    )
+    mock_get_text_dataset.assert_called_once_with(constants.DATASET_NAME)
 
     mock_import_text_dataset.assert_called_once_with(
         gcs_source=constants.GCS_SOURCES,

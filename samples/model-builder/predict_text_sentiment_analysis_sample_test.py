@@ -17,12 +17,12 @@ import test_constants as constants
 import predict_text_sentiment_analysis_sample
 
 
-def test_predict_text_sentiment_analysis_sample(mock_sdk_init, mock_init_endpoint):
+def test_predict_text_sentiment_analysis_sample(mock_sdk_init, mock_get_endpoint):
 
     predict_text_sentiment_analysis_sample.predict_text_sentiment_analysis_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        endpoint=constants.ENDPOINT_NAME,
+        endpoint_id=constants.ENDPOINT_NAME,
         content=constants.PREDICTION_TEXT_INSTANCE,
     )
 
@@ -30,6 +30,4 @@ def test_predict_text_sentiment_analysis_sample(mock_sdk_init, mock_init_endpoin
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_init_endpoint.assert_called_once_with(
-        endpoint_name=constants.ENDPOINT_NAME,
-    )
+    mock_get_endpoint.assert_called_once_with(constants.ENDPOINT_NAME,)
