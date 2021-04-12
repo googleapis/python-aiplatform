@@ -30,7 +30,6 @@ class _MetadataService:
     def __init__(self):
         self._experiment = None
         self._run = None
-        self._metrics = None
 
     def set_experiment(self, experiment: str):
         if not experiment:
@@ -126,7 +125,7 @@ class _MetadataService:
         artifact = _Artifact.get(resource_name=artifact_id)
         if not artifact:
             logging.info(f"Creating an Artifact for run {self._run}")
-            artifact = _Artifact.create(
+            _Artifact.create(
                 resource_id=artifact_id,
                 schema_title="system.Metrics",
                 schema_version="0.0.1",
@@ -135,7 +134,6 @@ class _MetadataService:
         else:
             logging.info(f"Updating Artifact for run {self._run}")
             artifact.update(metadata=metrics)
-        self._metrics = artifact.name
 
     def get_experiment(self, experiment: str):
         raise NotImplementedError("get_experiment not implemented")
