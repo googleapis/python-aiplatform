@@ -38,29 +38,29 @@ def mock_dataset():
 
 @pytest.fixture
 def mock_new_dataset(mock_dataset):
-    with patch.object(aiplatform.datasets.Dataset, "__new__") as mock_new_dataset:
+    with patch.object(aiplatform.datasets._Dataset, "__new__") as mock_new_dataset:
         mock_new_dataset.return_value = mock_dataset
         yield mock_new_dataset
 
 
 @pytest.fixture
 def mock_init_dataset(mock_new_dataset):
-    with patch.object(aiplatform.datasets.Dataset, "__init__") as mock_init_dataset:
+    with patch.object(aiplatform.datasets._Dataset, "__init__") as mock_init_dataset:
         mock_init_dataset.return_value = None
         yield mock_init_dataset
 
 
 @pytest.fixture
 def mock_create_dataset():
-    with patch.object(aiplatform.datasets.Dataset, "create") as mock:
-        mock.return_value = MagicMock(aiplatform.Dataset)
+    with patch.object(aiplatform.datasets._Dataset, "create") as mock:
+        mock.return_value = MagicMock(aiplatform._Dataset)
         yield mock
 
 
 @pytest.fixture
 def mock_create_image_dataset():
     with patch.object(aiplatform.datasets.ImageDataset, "create") as mock:
-        mock.return_value = MagicMock(aiplatform.Dataset)
+        mock.return_value = MagicMock(aiplatform.ImageDataset)
         yield mock
 
 
