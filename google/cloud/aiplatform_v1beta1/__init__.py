@@ -17,6 +17,8 @@
 
 from .services.dataset_service import DatasetServiceClient
 from .services.endpoint_service import EndpointServiceClient
+from .services.featurestore_online_serving_service import FeaturestoreOnlineServingServiceClient
+from .services.featurestore_service import FeaturestoreServiceClient
 from .services.job_service import JobServiceClient
 from .services.metadata_service import MetadataServiceClient
 from .services.migration_service import MigrationServiceClient
@@ -81,6 +83,7 @@ from .types.endpoint_service import UndeployModelOperationMetadata
 from .types.endpoint_service import UndeployModelRequest
 from .types.endpoint_service import UndeployModelResponse
 from .types.endpoint_service import UpdateEndpointRequest
+from .types.entity_type import EntityType
 from .types.env_var import EnvVar
 from .types.event import Event
 from .types.execution import Execution
@@ -97,13 +100,63 @@ from .types.explanation import SampledShapleyAttribution
 from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
 from .types.explanation_metadata import ExplanationMetadata
+from .types.feature import Feature
 from .types.feature_monitoring_stats import FeatureStatsAnomaly
+from .types.feature_selector import FeatureSelector
+from .types.feature_selector import IdMatcher
+from .types.featurestore import Featurestore
+from .types.featurestore_monitoring import FeaturestoreMonitoringConfig
+from .types.featurestore_online_service import FeatureValue
+from .types.featurestore_online_service import FeatureValueList
+from .types.featurestore_online_service import ReadFeatureValuesRequest
+from .types.featurestore_online_service import ReadFeatureValuesResponse
+from .types.featurestore_online_service import ReadSetting
+from .types.featurestore_online_service import StreamingReadFeatureValuesRequest
+from .types.featurestore_service import BatchCreateFeaturesOperationMetadata
+from .types.featurestore_service import BatchCreateFeaturesRequest
+from .types.featurestore_service import BatchCreateFeaturesResponse
+from .types.featurestore_service import BatchReadFeatureValuesOperationMetadata
+from .types.featurestore_service import BatchReadFeatureValuesRequest
+from .types.featurestore_service import BatchReadFeatureValuesResponse
+from .types.featurestore_service import CreateEntityTypeOperationMetadata
+from .types.featurestore_service import CreateEntityTypeRequest
+from .types.featurestore_service import CreateFeatureOperationMetadata
+from .types.featurestore_service import CreateFeatureRequest
+from .types.featurestore_service import CreateFeaturestoreOperationMetadata
+from .types.featurestore_service import CreateFeaturestoreRequest
+from .types.featurestore_service import DeleteEntityTypeRequest
+from .types.featurestore_service import DeleteFeatureRequest
+from .types.featurestore_service import DeleteFeaturestoreRequest
+from .types.featurestore_service import DestinationFeatureSetting
+from .types.featurestore_service import FeatureValueDestination
+from .types.featurestore_service import GetEntityTypeRequest
+from .types.featurestore_service import GetFeatureRequest
+from .types.featurestore_service import GetFeaturestoreRequest
+from .types.featurestore_service import ImportFeatureValuesOperationMetadata
+from .types.featurestore_service import ImportFeatureValuesRequest
+from .types.featurestore_service import ImportFeatureValuesResponse
+from .types.featurestore_service import ListEntityTypesRequest
+from .types.featurestore_service import ListEntityTypesResponse
+from .types.featurestore_service import ListFeaturesRequest
+from .types.featurestore_service import ListFeaturesResponse
+from .types.featurestore_service import ListFeaturestoresRequest
+from .types.featurestore_service import ListFeaturestoresResponse
+from .types.featurestore_service import SearchFeaturesRequest
+from .types.featurestore_service import SearchFeaturesResponse
+from .types.featurestore_service import UpdateEntityTypeRequest
+from .types.featurestore_service import UpdateFeatureRequest
+from .types.featurestore_service import UpdateFeaturestoreOperationMetadata
+from .types.featurestore_service import UpdateFeaturestoreRequest
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
+from .types.io import AvroSource
 from .types.io import BigQueryDestination
 from .types.io import BigQuerySource
 from .types.io import ContainerRegistryDestination
+from .types.io import CsvDestination
+from .types.io import CsvSource
 from .types.io import GcsDestination
 from .types.io import GcsSource
+from .types.io import TFRecordDestination
 from .types.job_service import CancelBatchPredictionJobRequest
 from .types.job_service import CancelCustomJobRequest
 from .types.job_service import CancelDataLabelingJobRequest
@@ -259,6 +312,10 @@ from .types.training_pipeline import InputDataConfig
 from .types.training_pipeline import PredefinedSplit
 from .types.training_pipeline import TimestampSplit
 from .types.training_pipeline import TrainingPipeline
+from .types.types import BoolArray
+from .types.types import DoubleArray
+from .types.types import Int64Array
+from .types.types import StringArray
 from .types.user_action_reference import UserActionReference
 from .types.vizier_service import AddTrialMeasurementRequest
 from .types.vizier_service import CheckTrialEarlyStoppingStateMetatdata
@@ -300,13 +357,21 @@ __all__ = (
     'Attribution',
     'AutomaticResources',
     'AutoscalingMetricSpec',
+    'AvroSource',
+    'BatchCreateFeaturesOperationMetadata',
+    'BatchCreateFeaturesRequest',
+    'BatchCreateFeaturesResponse',
     'BatchDedicatedResources',
     'BatchMigrateResourcesOperationMetadata',
     'BatchMigrateResourcesRequest',
     'BatchMigrateResourcesResponse',
     'BatchPredictionJob',
+    'BatchReadFeatureValuesOperationMetadata',
+    'BatchReadFeatureValuesRequest',
+    'BatchReadFeatureValuesResponse',
     'BigQueryDestination',
     'BigQuerySource',
+    'BoolArray',
     'CancelBatchPredictionJobRequest',
     'CancelCustomJobRequest',
     'CancelDataLabelingJobRequest',
@@ -329,7 +394,13 @@ __all__ = (
     'CreateDatasetRequest',
     'CreateEndpointOperationMetadata',
     'CreateEndpointRequest',
+    'CreateEntityTypeOperationMetadata',
+    'CreateEntityTypeRequest',
     'CreateExecutionRequest',
+    'CreateFeatureOperationMetadata',
+    'CreateFeatureRequest',
+    'CreateFeaturestoreOperationMetadata',
+    'CreateFeaturestoreRequest',
     'CreateHyperparameterTuningJobRequest',
     'CreateMetadataSchemaRequest',
     'CreateMetadataStoreOperationMetadata',
@@ -340,6 +411,8 @@ __all__ = (
     'CreateStudyRequest',
     'CreateTrainingPipelineRequest',
     'CreateTrialRequest',
+    'CsvDestination',
+    'CsvSource',
     'CustomJob',
     'CustomJobSpec',
     'DataItem',
@@ -353,6 +426,9 @@ __all__ = (
     'DeleteDataLabelingJobRequest',
     'DeleteDatasetRequest',
     'DeleteEndpointRequest',
+    'DeleteEntityTypeRequest',
+    'DeleteFeatureRequest',
+    'DeleteFeaturestoreRequest',
     'DeleteHyperparameterTuningJobRequest',
     'DeleteMetadataStoreOperationMetadata',
     'DeleteMetadataStoreRequest',
@@ -368,10 +444,13 @@ __all__ = (
     'DeployModelResponse',
     'DeployedModel',
     'DeployedModelRef',
+    'DestinationFeatureSetting',
     'DiskSpec',
+    'DoubleArray',
     'EncryptionSpec',
     'Endpoint',
     'EndpointServiceClient',
+    'EntityType',
     'EnvVar',
     'Event',
     'Execution',
@@ -390,8 +469,17 @@ __all__ = (
     'ExportModelOperationMetadata',
     'ExportModelRequest',
     'ExportModelResponse',
+    'Feature',
     'FeatureNoiseSigma',
+    'FeatureSelector',
     'FeatureStatsAnomaly',
+    'FeatureValue',
+    'FeatureValueDestination',
+    'FeatureValueList',
+    'Featurestore',
+    'FeaturestoreMonitoringConfig',
+    'FeaturestoreOnlineServingServiceClient',
+    'FeaturestoreServiceClient',
     'FilterSplit',
     'FractionSplit',
     'GcsDestination',
@@ -405,7 +493,10 @@ __all__ = (
     'GetDataLabelingJobRequest',
     'GetDatasetRequest',
     'GetEndpointRequest',
+    'GetEntityTypeRequest',
     'GetExecutionRequest',
+    'GetFeatureRequest',
+    'GetFeaturestoreRequest',
     'GetHyperparameterTuningJobRequest',
     'GetMetadataSchemaRequest',
     'GetMetadataStoreRequest',
@@ -418,11 +509,16 @@ __all__ = (
     'GetTrainingPipelineRequest',
     'GetTrialRequest',
     'HyperparameterTuningJob',
+    'IdMatcher',
     'ImportDataConfig',
     'ImportDataOperationMetadata',
     'ImportDataRequest',
     'ImportDataResponse',
+    'ImportFeatureValuesOperationMetadata',
+    'ImportFeatureValuesRequest',
+    'ImportFeatureValuesResponse',
     'InputDataConfig',
+    'Int64Array',
     'IntegratedGradientsAttribution',
     'JobServiceClient',
     'JobState',
@@ -445,8 +541,14 @@ __all__ = (
     'ListDatasetsResponse',
     'ListEndpointsRequest',
     'ListEndpointsResponse',
+    'ListEntityTypesRequest',
+    'ListEntityTypesResponse',
     'ListExecutionsRequest',
     'ListExecutionsResponse',
+    'ListFeaturesRequest',
+    'ListFeaturesResponse',
+    'ListFeaturestoresRequest',
+    'ListFeaturestoresResponse',
     'ListHyperparameterTuningJobsRequest',
     'ListHyperparameterTuningJobsResponse',
     'ListMetadataSchemasRequest',
@@ -507,12 +609,17 @@ __all__ = (
     'PythonPackageSpec',
     'QueryContextLineageSubgraphRequest',
     'QueryExecutionInputsAndOutputsRequest',
+    'ReadFeatureValuesRequest',
+    'ReadFeatureValuesResponse',
+    'ReadSetting',
     'ResourcesConsumed',
     'ResumeModelDeploymentMonitoringJobRequest',
     'SampleConfig',
     'SampledShapleyAttribution',
     'SamplingStrategy',
     'Scheduling',
+    'SearchFeaturesRequest',
+    'SearchFeaturesResponse',
     'SearchMigratableResourcesRequest',
     'SearchMigratableResourcesResponse',
     'SearchModelDeploymentMonitoringStatsAnomaliesRequest',
@@ -521,11 +628,14 @@ __all__ = (
     'SpecialistPool',
     'SpecialistPoolServiceClient',
     'StopTrialRequest',
+    'StreamingReadFeatureValuesRequest',
+    'StringArray',
     'Study',
     'StudySpec',
     'SuggestTrialsMetadata',
     'SuggestTrialsRequest',
     'SuggestTrialsResponse',
+    'TFRecordDestination',
     'ThresholdConfig',
     'TimestampSplit',
     'TrainingConfig',
@@ -538,7 +648,11 @@ __all__ = (
     'UpdateContextRequest',
     'UpdateDatasetRequest',
     'UpdateEndpointRequest',
+    'UpdateEntityTypeRequest',
     'UpdateExecutionRequest',
+    'UpdateFeatureRequest',
+    'UpdateFeaturestoreOperationMetadata',
+    'UpdateFeaturestoreRequest',
     'UpdateModelDeploymentMonitoringJobOperationMetadata',
     'UpdateModelDeploymentMonitoringJobRequest',
     'UpdateModelRequest',

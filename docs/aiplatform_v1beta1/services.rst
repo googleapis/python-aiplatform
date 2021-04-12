@@ -5,6 +5,8 @@ Services for Google Cloud Aiplatform v1beta1 API
 
     dataset_service
     endpoint_service
+    featurestore_online_serving_service
+    featurestore_service
     job_service
     metadata_service
     migration_service

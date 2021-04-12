@@ -32,7 +32,7 @@ from google.auth.transport.grpc import SslCredentials             # type: ignore
 from google.auth.exceptions import MutualTLSChannelError          # type: ignore
 from google.oauth2 import service_account                         # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.metadata_service import pagers
 from google.cloud.aiplatform_v1beta1.types import artifact
@@ -397,7 +397,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             retry: retries.Retry = gapic_v1.method.DEFAULT,
             timeout: float = None,
             metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+            ) -> gac_operation.Operation:
         r"""Initializes a MetadataStore, including allocation of
         resources.
 
@@ -497,7 +497,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             gca_metadata_store.MetadataStore,
@@ -685,7 +685,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             retry: retries.Retry = gapic_v1.method.DEFAULT,
             timeout: float = None,
             metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+            ) -> gac_operation.Operation:
         r"""Deletes a single MetadataStore.
 
         Args:
@@ -768,7 +768,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             empty.Empty,
@@ -1508,7 +1508,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             retry: retries.Retry = gapic_v1.method.DEFAULT,
             timeout: float = None,
             metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+            ) -> gac_operation.Operation:
         r"""Deletes a stored Context.
 
         Args:
@@ -1591,7 +1591,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             empty.Empty,

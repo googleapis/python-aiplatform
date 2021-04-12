@@ -32,7 +32,7 @@ from google.auth.transport.grpc import SslCredentials             # type: ignore
 from google.auth.exceptions import MutualTLSChannelError          # type: ignore
 from google.oauth2 import service_account                         # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.endpoint_service import pagers
 from google.cloud.aiplatform_v1.types import encryption_spec
@@ -352,7 +352,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             retry: retries.Retry = gapic_v1.method.DEFAULT,
             timeout: float = None,
             metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+            ) -> gac_operation.Operation:
         r"""Creates an Endpoint.
 
         Args:
@@ -431,7 +431,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             gca_endpoint.Endpoint,
@@ -707,7 +707,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             retry: retries.Retry = gapic_v1.method.DEFAULT,
             timeout: float = None,
             metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+            ) -> gac_operation.Operation:
         r"""Deletes an Endpoint.
 
         Args:
@@ -790,7 +790,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             empty.Empty,
@@ -809,7 +809,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             retry: retries.Retry = gapic_v1.method.DEFAULT,
             timeout: float = None,
             metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+            ) -> gac_operation.Operation:
         r"""Deploys a Model into this Endpoint, creating a
         DeployedModel within it.
 
@@ -919,7 +919,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             endpoint_service.DeployModelResponse,
@@ -938,7 +938,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             retry: retries.Retry = gapic_v1.method.DEFAULT,
             timeout: float = None,
             metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+            ) -> gac_operation.Operation:
         r"""Undeploys a Model from an Endpoint, removing a
         DeployedModel from it, and freeing all resources it's
         using.
@@ -1039,7 +1039,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             endpoint_service.UndeployModelResponse,

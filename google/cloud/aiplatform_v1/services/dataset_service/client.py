@@ -32,7 +32,7 @@ from google.auth.transport.grpc import SslCredentials             # type: ignore
 from google.auth.exceptions import MutualTLSChannelError          # type: ignore
 from google.oauth2 import service_account                         # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.dataset_service import pagers
 from google.cloud.aiplatform_v1.types import annotation
@@ -378,7 +378,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             retry: retries.Retry = gapic_v1.method.DEFAULT,
             timeout: float = None,
             metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+            ) -> gac_operation.Operation:
         r"""Creates a Dataset.
 
         Args:
@@ -458,7 +458,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             gca_dataset.Dataset,
@@ -737,7 +737,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             retry: retries.Retry = gapic_v1.method.DEFAULT,
             timeout: float = None,
             metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+            ) -> gac_operation.Operation:
         r"""Deletes a Dataset.
 
         Args:
@@ -820,7 +820,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             empty.Empty,
@@ -838,7 +838,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             retry: retries.Retry = gapic_v1.method.DEFAULT,
             timeout: float = None,
             metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+            ) -> gac_operation.Operation:
         r"""Imports data into a Dataset.
 
         Args:
@@ -921,7 +921,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             dataset_service.ImportDataResponse,
@@ -939,7 +939,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             retry: retries.Retry = gapic_v1.method.DEFAULT,
             timeout: float = None,
             metadata: Sequence[Tuple[str, str]] = (),
-            ) -> ga_operation.Operation:
+            ) -> gac_operation.Operation:
         r"""Exports data from a Dataset.
 
         Args:
@@ -1021,7 +1021,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             dataset_service.ExportDataResponse,

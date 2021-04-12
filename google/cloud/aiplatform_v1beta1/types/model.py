@@ -428,8 +428,9 @@ class PredictSchemata(proto.Message):
 
 
 class ModelContainerSpec(proto.Message):
-    r"""Specification of a container for serving predictions. This message
-    is a subset of the Kubernetes Container v1 core
+    r"""Specification of a container for serving predictions. Some fields in
+    this message correspond to fields in the Kubernetes Container v1
+    core
     `specification <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
 
     Attributes:

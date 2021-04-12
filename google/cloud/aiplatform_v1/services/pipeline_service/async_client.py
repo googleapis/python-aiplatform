@@ -28,7 +28,7 @@ from google.api_core import retry as retries           # type: ignore
 from google.auth import credentials                    # type: ignore
 from google.oauth2 import service_account              # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.pipeline_service import pagers
 from google.cloud.aiplatform_v1.types import encryption_spec

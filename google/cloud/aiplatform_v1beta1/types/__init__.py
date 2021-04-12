@@ -100,6 +100,9 @@ from .endpoint_service import (
     UndeployModelResponse,
     UpdateEndpointRequest,
 )
+from .entity_type import (
+    EntityType,
+)
 from .env_var import (
     EnvVar,
 )
@@ -126,18 +129,80 @@ from .explanation import (
 from .explanation_metadata import (
     ExplanationMetadata,
 )
+from .feature import (
+    Feature,
+)
 from .feature_monitoring_stats import (
     FeatureStatsAnomaly,
+)
+from .feature_selector import (
+    FeatureSelector,
+    IdMatcher,
+)
+from .featurestore import (
+    Featurestore,
+)
+from .featurestore_monitoring import (
+    FeaturestoreMonitoringConfig,
+)
+from .featurestore_online_service import (
+    FeatureValue,
+    FeatureValueList,
+    ReadFeatureValuesRequest,
+    ReadFeatureValuesResponse,
+    ReadSetting,
+    StreamingReadFeatureValuesRequest,
+)
+from .featurestore_service import (
+    BatchCreateFeaturesOperationMetadata,
+    BatchCreateFeaturesRequest,
+    BatchCreateFeaturesResponse,
+    BatchReadFeatureValuesOperationMetadata,
+    BatchReadFeatureValuesRequest,
+    BatchReadFeatureValuesResponse,
+    CreateEntityTypeOperationMetadata,
+    CreateEntityTypeRequest,
+    CreateFeatureOperationMetadata,
+    CreateFeatureRequest,
+    CreateFeaturestoreOperationMetadata,
+    CreateFeaturestoreRequest,
+    DeleteEntityTypeRequest,
+    DeleteFeatureRequest,
+    DeleteFeaturestoreRequest,
+    DestinationFeatureSetting,
+    FeatureValueDestination,
+    GetEntityTypeRequest,
+    GetFeatureRequest,
+    GetFeaturestoreRequest,
+    ImportFeatureValuesOperationMetadata,
+    ImportFeatureValuesRequest,
+    ImportFeatureValuesResponse,
+    ListEntityTypesRequest,
+    ListEntityTypesResponse,
+    ListFeaturesRequest,
+    ListFeaturesResponse,
+    ListFeaturestoresRequest,
+    ListFeaturestoresResponse,
+    SearchFeaturesRequest,
+    SearchFeaturesResponse,
+    UpdateEntityTypeRequest,
+    UpdateFeatureRequest,
+    UpdateFeaturestoreOperationMetadata,
+    UpdateFeaturestoreRequest,
 )
 from .hyperparameter_tuning_job import (
     HyperparameterTuningJob,
 )
 from .io import (
+    AvroSource,
     BigQueryDestination,
     BigQuerySource,
     ContainerRegistryDestination,
+    CsvDestination,
+    CsvSource,
     GcsDestination,
     GcsSource,
+    TFRecordDestination,
 )
 from .job_service import (
     CancelBatchPredictionJobRequest,
@@ -336,6 +401,12 @@ from .training_pipeline import (
     TimestampSplit,
     TrainingPipeline,
 )
+from .types import (
+    BoolArray,
+    DoubleArray,
+    Int64Array,
+    StringArray,
+)
 from .user_action_reference import (
     UserActionReference,
 )
@@ -421,6 +492,7 @@ __all__ = (
     'UndeployModelRequest',
     'UndeployModelResponse',
     'UpdateEndpointRequest',
+    'EntityType',
     'EnvVar',
     'Event',
     'Execution',
@@ -437,13 +509,63 @@ __all__ = (
     'SmoothGradConfig',
     'XraiAttribution',
     'ExplanationMetadata',
+    'Feature',
     'FeatureStatsAnomaly',
+    'FeatureSelector',
+    'IdMatcher',
+    'Featurestore',
+    'FeaturestoreMonitoringConfig',
+    'FeatureValue',
+    'FeatureValueList',
+    'ReadFeatureValuesRequest',
+    'ReadFeatureValuesResponse',
+    'ReadSetting',
+    'StreamingReadFeatureValuesRequest',
+    'BatchCreateFeaturesOperationMetadata',
+    'BatchCreateFeaturesRequest',
+    'BatchCreateFeaturesResponse',
+    'BatchReadFeatureValuesOperationMetadata',
+    'BatchReadFeatureValuesRequest',
+    'BatchReadFeatureValuesResponse',
+    'CreateEntityTypeOperationMetadata',
+    'CreateEntityTypeRequest',
+    'CreateFeatureOperationMetadata',
+    'CreateFeatureRequest',
+    'CreateFeaturestoreOperationMetadata',
+    'CreateFeaturestoreRequest',
+    'DeleteEntityTypeRequest',
+    'DeleteFeatureRequest',
+    'DeleteFeaturestoreRequest',
+    'DestinationFeatureSetting',
+    'FeatureValueDestination',
+    'GetEntityTypeRequest',
+    'GetFeatureRequest',
+    'GetFeaturestoreRequest',
+    'ImportFeatureValuesOperationMetadata',
+    'ImportFeatureValuesRequest',
+    'ImportFeatureValuesResponse',
+    'ListEntityTypesRequest',
+    'ListEntityTypesResponse',
+    'ListFeaturesRequest',
+    'ListFeaturesResponse',
+    'ListFeaturestoresRequest',
+    'ListFeaturestoresResponse',
+    'SearchFeaturesRequest',
+    'SearchFeaturesResponse',
+    'UpdateEntityTypeRequest',
+    'UpdateFeatureRequest',
+    'UpdateFeaturestoreOperationMetadata',
+    'UpdateFeaturestoreRequest',
     'HyperparameterTuningJob',
+    'AvroSource',
     'BigQueryDestination',
     'BigQuerySource',
     'ContainerRegistryDestination',
+    'CsvDestination',
+    'CsvSource',
     'GcsDestination',
     'GcsSource',
+    'TFRecordDestination',
     'CancelBatchPredictionJobRequest',
     'CancelCustomJobRequest',
     'CancelDataLabelingJobRequest',
@@ -599,6 +721,10 @@ __all__ = (
     'PredefinedSplit',
     'TimestampSplit',
     'TrainingPipeline',
+    'BoolArray',
+    'DoubleArray',
+    'Int64Array',
+    'StringArray',
     'UserActionReference',
     'AddTrialMeasurementRequest',
     'CheckTrialEarlyStoppingStateMetatdata',
