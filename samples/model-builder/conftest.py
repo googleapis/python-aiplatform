@@ -32,7 +32,7 @@ def mock_sdk_init():
 
 @pytest.fixture
 def mock_dataset():
-    mock = MagicMock(aiplatform.datasets.Dataset)
+    mock = MagicMock(aiplatform.datasets._Dataset)
     yield mock
 
 
