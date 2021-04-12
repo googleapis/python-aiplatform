@@ -3016,7 +3016,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
 
     def run(
         self,
-        dataset: datasets.Dataset,
+        dataset: datasets.TimeSeriesDataset,
         target_column: str,
         time_column: str,
         time_series_identifier_column: str,
@@ -3205,7 +3205,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
     @base.optional_sync()
     def _run(
         self,
-        dataset: datasets.Dataset,
+        dataset: datasets.TimeSeriesDataset,
         target_column: str,
         time_column: str,
         time_series_identifier_column: str,

@@ -8,19 +8,18 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform.training_jobs import AutoMLForecastingTrainingJob
 
-from google.cloud.aiplatform_v1beta1.services.model_service import (
+from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
-from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
+from google.cloud.aiplatform_v1.services.pipeline_service import (
     client as pipeline_service_client,
-)
-from google.cloud.aiplatform_v1beta1.types import model as gca_model
-from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state
-from google.cloud.aiplatform_v1beta1.types import (
+) 
+from google.cloud.aiplatform_v1.types import (
+    dataset as gca_dataset,
+    model as gca_model,
+    pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
 )
-from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
-
 from google.protobuf import json_format
 from google.protobuf import struct_pb2
 
@@ -124,6 +123,17 @@ def mock_pipeline_service_create():
         )
         yield mock_create_training_pipeline
 
+@pytest.fixture
+def mock_pipeline_service_get():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as mock_get_training_pipeline:
+        mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        )
+        yield mock_get_training_pipeline
 
 @pytest.fixture
 def mock_pipeline_service_create_and_get_with_fail():
@@ -156,11 +166,12 @@ def mock_model_service_get():
 
 
 @pytest.fixture
-def mock_dataset_timeseries():
-    ds = mock.MagicMock(datasets.Dataset)
+def mock_dataset_time_series():
+    ds = mock.MagicMock(datasets.TimeSeriesDataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
-    ds._gca_resource = GapicDataset(
+    ds._exception = None
+    ds._gca_resource = gca_dataset.Dataset(
         display_name=_TEST_DATASET_DISPLAY_NAME,
         metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TIMESERIES,
         labels={},
@@ -172,10 +183,11 @@ def mock_dataset_timeseries():
 
 @pytest.fixture
 def mock_dataset_nontimeseries():
-    ds = mock.MagicMock(datasets.Dataset)
+    ds = mock.MagicMock(datasets.ImageDataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
-    ds._gca_resource = GapicDataset(
+    ds._exception = None
+    ds._gca_resource = gca_dataset.Dataset(
         display_name=_TEST_DATASET_DISPLAY_NAME,
         metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTIMESERIES,
         labels={},
@@ -197,7 +209,8 @@ class TestAutoMLForecastingTrainingJob:
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
-        mock_dataset_timeseries,
+        mock_pipeline_service_get,
+        mock_dataset_time_series,
         mock_model_service_get,
         sync,
     ):
@@ -210,7 +223,7 @@ class TestAutoMLForecastingTrainingJob:
         )
 
         model_from_job = job.run(
-            dataset=mock_dataset_timeseries,
+            dataset=mock_dataset_time_series,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             time_column=_TEST_TRAINING_TIME_COLUMN,
             time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
@@ -250,7 +263,7 @@ class TestAutoMLForecastingTrainingJob:
             predefined_split=gca_training_pipeline.PredefinedSplit(
                 key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
             ),
-            dataset_id=mock_dataset_timeseries.name,
+            dataset_id=mock_dataset_time_series.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -266,7 +279,7 @@ class TestAutoMLForecastingTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -278,11 +291,12 @@ class TestAutoMLForecastingTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_if_no_model_display_name(
         self,
         mock_pipeline_service_create,
-        mock_dataset_timeseries,
+        mock_dataset_time_series,
         mock_model_service_get,
         sync,
     ):
@@ -295,7 +309,7 @@ class TestAutoMLForecastingTrainingJob:
         )
 
         model_from_job = job.run(
-            dataset=mock_dataset_timeseries,
+            dataset=mock_dataset_time_series,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             time_column=_TEST_TRAINING_TIME_COLUMN,
             time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
@@ -330,7 +344,7 @@ class TestAutoMLForecastingTrainingJob:
         true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_timeseries.name,
+            fraction_split=true_fraction_split, dataset_id=mock_dataset_time_series.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -346,12 +360,15 @@ class TestAutoMLForecastingTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
+        "mock_model_service_get",
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
         self,
-        mock_pipeline_service_create,
-        mock_dataset_nontimeseries,
-        mock_model_service_get,
+        mock_dataset_time_series,
         sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
@@ -363,7 +380,7 @@ class TestAutoMLForecastingTrainingJob:
         )
 
         job.run(
-            dataset=mock_dataset_nontimeseries,
+            dataset=mock_dataset_time_series,
             target_column=_TEST_TRAINING_TARGET_COLUMN,
             time_column=_TEST_TRAINING_TIME_COLUMN,
             time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
@@ -388,7 +405,7 @@ class TestAutoMLForecastingTrainingJob:
 
         with pytest.raises(RuntimeError):
             job.run(
-                dataset=mock_dataset_timeseries,
+                dataset=mock_dataset_time_series,
                 target_column=_TEST_TRAINING_TARGET_COLUMN,
                 time_column=_TEST_TRAINING_TIME_COLUMN,
                 time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
@@ -415,7 +432,7 @@ class TestAutoMLForecastingTrainingJob:
     def test_run_raises_if_pipeline_fails(
         self,
         mock_pipeline_service_create_and_get_with_fail,
-        mock_dataset_timeseries,
+        mock_dataset_time_series,
         sync,
     ):
 
@@ -429,7 +446,7 @@ class TestAutoMLForecastingTrainingJob:
 
         with pytest.raises(RuntimeError):
             job.run(
-                dataset=mock_dataset_timeseries,
+                dataset=mock_dataset_time_series,
                 target_column=_TEST_TRAINING_TARGET_COLUMN,
                 time_column=_TEST_TRAINING_TIME_COLUMN,
                 time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
