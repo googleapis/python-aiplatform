@@ -70,6 +70,13 @@ class _MetadataService:
             )
         self._run = execution.name
 
+    def log_param(self, name: str, value):
+        if not isinstance(value, (float, int, str)):
+            raise ValueError(
+                f"Invalid type for parameter value {value}. It should be one of [int, float, str]"
+            )
+        return self.log_params({name: value})
+
     def log_params(self, params: Dict):
         if not self._experiment:
             raise ValueError(
@@ -95,6 +102,13 @@ class _MetadataService:
             logging.info(f"Updating Execution for run {self._run}")
             execution.update(metadata=params)
         self._run = execution.name
+
+    def log_metric(self, name: str, value):
+        if not isinstance(value, (float, int, str)):
+            raise ValueError(
+                f"Invalid type for metric value {value}. It should be one of [int, float, str]"
+            )
+        return self.log_metrics({name: value})
 
     def log_metrics(self, metrics: Dict):
         if not self._experiment:
