@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ipdb import set_trace
-
 from typing import List, Union
 
 from google.cloud import aiplatform
