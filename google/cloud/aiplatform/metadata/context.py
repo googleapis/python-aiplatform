@@ -28,7 +28,6 @@ class _Context(_Resource):
 
     _resource_noun = "contexts"
     _getter_method = "get_context"
-    _update_method = "update_context"
 
     @classmethod
     def _create_resource(
