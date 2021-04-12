@@ -155,6 +155,8 @@ _TEST_MODEL_RESOURCE_NAME_CUSTOM_LOCATION = model_service_client.ModelServiceCli
     _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
 )
 
+_TEST_OUTPUT_DIR = "gs://my-output-bucket"
+
 
 @pytest.fixture
 def get_endpoint_mock():
@@ -367,6 +369,7 @@ class TestModel:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
@@ -468,8 +471,6 @@ class TestModel:
         get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
 
     def test_upload_raises_with_impartial_explanation_spec(self):
-
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         with pytest.raises(ValueError) as e:
             models.Model.upload(
@@ -652,7 +653,7 @@ class TestModel:
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
         test_endpoint = models.Endpoint(_TEST_ID)
 
@@ -681,7 +682,7 @@ class TestModel:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_no_endpoint(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
         test_endpoint = test_model.deploy(sync=sync)
 
@@ -708,7 +709,7 @@ class TestModel:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_no_endpoint_dedicated_resources(self, deploy_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
         test_endpoint = test_model.deploy(
             machine_type=_TEST_MACHINE_TYPE,
@@ -789,7 +790,7 @@ class TestModel:
         "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
     )
     def test_deploy_raises_with_impartial_explanation_spec(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         with pytest.raises(ValueError) as e:
@@ -855,9 +856,7 @@ class TestModel:
     def test_batch_predict_gcs_source_and_dest(
         self, create_batch_prediction_job_mock, sync
     ):
-        aiplatform.init(
-            project=_TEST_PROJECT, location=_TEST_LOCATION,
-        )
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -899,7 +898,7 @@ class TestModel:
     def test_batch_predict_gcs_source_bq_dest(
         self, create_batch_prediction_job_mock, sync
     ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -1012,7 +1011,7 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_no_source(self, create_batch_prediction_job_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call without source
@@ -1026,7 +1025,7 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_two_sources(self, create_batch_prediction_job_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call with two sources
@@ -1042,7 +1041,7 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_no_destination(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call without destination
@@ -1056,7 +1055,7 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_wrong_instance_format(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -1072,7 +1071,7 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_batch_predict_wrong_prediction_format(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
 
         # Make SDK batch_predict method call
@@ -1089,7 +1088,7 @@ class TestModel:
     @pytest.mark.usefixtures("get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_delete_model(self, delete_model_mock, sync):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         test_model = models.Model(_TEST_ID)
         test_model.delete(sync=sync)
 

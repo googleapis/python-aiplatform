@@ -24,6 +24,7 @@ from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
+from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform.compat.services import endpoint_service_client
@@ -43,6 +44,9 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 from google.protobuf import json_format
+
+
+_LOGGER = base.Logger(__name__)
 
 
 class Prediction(NamedTuple):
@@ -72,6 +76,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "endpoints"
     _getter_method = "get_endpoint"
+    _list_method = "list_endpoints"
     _delete_method = "delete_endpoint"
 
     def __init__(
@@ -99,7 +104,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
         """
 
-        super().__init__(project=project, location=location, credentials=credentials)
+        super().__init__(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=endpoint_name,
+        )
         self._gca_resource = self._get_gca_resource(resource_name=endpoint_name)
         self._prediction_client = self._instantiate_prediction_client(
             location=location or initializer.global_config.location,
@@ -269,7 +279,11 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             parent=parent, endpoint=gapic_endpoint, metadata=metadata
         )
 
+        _LOGGER.log_create_with_lro(cls, operation_future)
+
         created_endpoint = operation_future.result()
+
+        _LOGGER.log_create_complete(cls, created_endpoint, "endpoint")
 
         return cls(
             endpoint_name=created_endpoint.name,
@@ -646,6 +660,9 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             ValueError if there is not current traffic split and traffic percentage
             is not 0 or 100.
         """
+        _LOGGER.log_action_start_against_resource(
+            f"Deploying Model {model.resource_name} to", "", self
+        )
 
         self._deploy_call(
             self.api_client,
@@ -664,6 +681,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             explanation_parameters=explanation_parameters,
             metadata=metadata,
         )
+
+        _LOGGER.log_action_completed_against_resource("model", "deployed", self)
 
         self._sync_gca_resource()
 
@@ -830,6 +849,10 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             metadata=metadata,
         )
 
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Deploy", "model", cls, operation_future
+        )
+
         operation_future.result()
 
     def undeploy(
@@ -914,6 +937,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             )
             current_traffic_split.pop(deployed_model_id)
 
+        _LOGGER.log_action_start_against_resource("Undeploying", "model", self)
+
         operation_future = self.api_client.undeploy_model(
             endpoint=self.resource_name,
             deployed_model_id=deployed_model_id,
@@ -921,8 +946,14 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             metadata=metadata,
         )
 
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Undeploy", "model", self.__class__, operation_future
+        )
+
         # block before returning
         operation_future.result()
+
+        _LOGGER.log_action_completed_against_resource("model", "undeployed", self)
 
         # update local resource
         self._sync_gca_resource()
@@ -1050,6 +1081,53 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             explanations=explain_response.explanations,
         )
 
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["models.Endpoint"]:
+        """List all Endpoint resource instances.
+
+        Example Usage:
+
+        aiplatform.Endpoint.list(
+            filter='labels.my_label="my_label_value" OR display_name=!"old_endpoint"',
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[models.Endpoint] - A list of Endpoint resource objects
+        """
+
+        return cls._list_with_local_order(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
     def list_models(
         self,
     ) -> Sequence[
@@ -1107,6 +1185,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
     _is_client_prediction_client = False
     _resource_noun = "models"
     _getter_method = "get_model"
+    _list_method = "list_models"
     _delete_method = "delete_model"
 
     @property
@@ -1144,7 +1223,12 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init will be used.
         """
 
-        super().__init__(project=project, location=location, credentials=credentials)
+        super().__init__(
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=model_name,
+        )
         self._gca_resource = self._get_gca_resource(resource_name=model_name)
 
     # TODO(b/170979552) Add support for predict schemata
@@ -1386,11 +1470,16 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             parent=initializer.global_config.common_location_path(project, location),
             model=managed_model,
         )
-        managed_model = lro.result()
-        fields = utils.extract_fields_from_resource_name(managed_model.model)
-        return cls(
-            model_name=fields.id, project=fields.project, location=fields.location
-        )
+
+        _LOGGER.log_create_with_lro(cls, lro)
+
+        model_upload_response = lro.result()
+
+        this_model = cls(model_upload_response.model)
+
+        _LOGGER.log_create_complete(cls, this_model._gca_resource, "model")
+
+        return this_model
 
     # TODO(b/172502059) support deploying with endpoint resource name
     def deploy(
@@ -1628,6 +1717,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 encryption_spec_key_name=encryption_spec_key_name,
             )
 
+        _LOGGER.log_action_start_against_resource("Deploying model to", "", endpoint)
+
         Endpoint._deploy_call(
             endpoint.api_client,
             endpoint.resource_name,
@@ -1645,6 +1736,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             explanation_parameters=explanation_parameters,
             metadata=metadata,
         )
+
+        _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)
 
         endpoint._sync_gca_resource()
 
@@ -1854,4 +1947,51 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             credentials=credentials or self.credentials,
             encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
+        )
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List["models.Model"]:
+        """List all Model resource instances.
+
+        Example Usage:
+
+        aiplatform.Model.list(
+            filter='labels.my_label="my_label_value" AND display_name="my_model"',
+        )
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[models.Model] - A list of Model resource objects
+        """
+
+        return cls._list(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
