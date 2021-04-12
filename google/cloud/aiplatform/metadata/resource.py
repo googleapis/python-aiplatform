@@ -69,7 +69,7 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         )
 
         # If we receive a full resource name, we extract the metadata_store_id and use that
-        if resource_name.find("/") != -1:
+        if "/" in resource_name:
             metadata_store_id = _Resource._extract_metadata_store_id(
                 resource_name, self._resource_noun
             )
