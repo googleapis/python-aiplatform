@@ -27,17 +27,27 @@ from google.cloud import bigquery
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
+
 from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import initializer
 
 from google.cloud.aiplatform_v1beta1.services.job_service import (
-    client as job_service_client,
+    client as job_service_client_v1beta1,
 )
-from google.cloud.aiplatform_v1beta1 import types as gapic_types
+
 from google.cloud.aiplatform_v1beta1.types import (
+    batch_prediction_job as gca_batch_prediction_job_v1beta1,
+    explanation as gca_explanation_v1beta1,
+    io as gca_io_v1beta1,
+    machine_resources as gca_machine_resources_v1beta1,
+)
+
+from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
+
+from google.cloud.aiplatform_v1.types import (
+    batch_prediction_job as gca_batch_prediction_job,
     io as gca_io,
     job_state as gca_job_state,
-    batch_prediction_job as gca_batch_prediction_job,
 )
 
 _TEST_PROJECT = "test-project"
@@ -131,6 +141,7 @@ _TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
 )
 
 _TEST_JOB_GET_METHOD_NAME = "get_fake_job"
+_TEST_JOB_LIST_METHOD_NAME = "list_fake_job"
 _TEST_JOB_CANCEL_METHOD_NAME = "cancel_fake_job"
 _TEST_JOB_DELETE_METHOD_NAME = "delete_fake_job"
 _TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/fakeJobs/{_TEST_ID}"
@@ -160,6 +171,7 @@ class TestJob:
         _job_type = "fake-job"
         _resource_noun = "fakeJobs"
         _getter_method = _TEST_JOB_GET_METHOD_NAME
+        _list_method = _TEST_JOB_LIST_METHOD_NAME
         _cancel_method = _TEST_JOB_CANCEL_METHOD_NAME
         _delete_method = _TEST_JOB_DELETE_METHOD_NAME
         resource_name = _TEST_JOB_RESOURCE_NAME
@@ -195,11 +207,23 @@ def get_batch_prediction_job_mock():
     with patch.object(
         job_service_client.JobServiceClient, "get_batch_prediction_job"
     ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.return_value = gca_batch_prediction_job.BatchPredictionJob(
-            name=_TEST_BATCH_PREDICTION_JOB_NAME,
-            display_name=_TEST_DISPLAY_NAME,
-            state=_TEST_JOB_STATE_SUCCESS,
-        )
+        get_batch_prediction_job_mock.side_effect = [
+            gca_batch_prediction_job.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_JOB_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                state=_TEST_JOB_STATE_RUNNING,
+            ),
+            gca_batch_prediction_job.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_JOB_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                state=_TEST_JOB_STATE_SUCCESS,
+            ),
+            gca_batch_prediction_job.BatchPredictionJob(
+                name=_TEST_BATCH_PREDICTION_JOB_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                state=_TEST_JOB_STATE_SUCCESS,
+            ),
+        ]
         yield get_batch_prediction_job_mock
 
 
@@ -209,6 +233,19 @@ def create_batch_prediction_job_mock():
         job_service_client.JobServiceClient, "create_batch_prediction_job"
     ) as create_batch_prediction_job_mock:
         create_batch_prediction_job_mock.return_value = gca_batch_prediction_job.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+        )
+        yield create_batch_prediction_job_mock
+
+
+@pytest.fixture
+def create_batch_prediction_job_with_explanations_mock():
+    with mock.patch.object(
+        job_service_client_v1beta1.JobServiceClient, "create_batch_prediction_job"
+    ) as create_batch_prediction_job_mock:
+        create_batch_prediction_job_mock.return_value = gca_batch_prediction_job_v1beta1.BatchPredictionJob(
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
             display_name=_TEST_DISPLAY_NAME,
             state=_TEST_JOB_STATE_SUCCESS,
@@ -458,7 +495,9 @@ class TestBatchPredictionJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_with_all_args(self, create_batch_prediction_job_mock, sync):
+    def test_batch_predict_with_all_args(
+        self, create_batch_prediction_job_with_explanations_mock, sync
+    ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         creds = auth_credentials.AnonymousCredentials()
 
@@ -486,21 +525,23 @@ class TestBatchPredictionJob:
             batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_v1beta1.BatchPredictionJob(
             display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
             model=_TEST_MODEL_NAME,
-            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+            input_config=gca_batch_prediction_job_v1beta1.BatchPredictionJob.InputConfig(
                 instances_format="jsonl",
-                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+                gcs_source=gca_io_v1beta1.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
             ),
-            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
-                gcs_destination=gca_io.GcsDestination(
+            output_config=gca_batch_prediction_job_v1beta1.BatchPredictionJob.OutputConfig(
+                gcs_destination=gca_io_v1beta1.GcsDestination(
                     output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
                 ),
                 predictions_format="csv",
             ),
-            dedicated_resources=gapic_types.BatchDedicatedResources(
-                machine_spec=gapic_types.MachineSpec(
+            dedicated_resources=gca_machine_resources_v1beta1.BatchDedicatedResources(
+                machine_spec=gca_machine_resources_v1beta1.MachineSpec(
                     machine_type=_TEST_MACHINE_TYPE,
                     accelerator_type=_TEST_ACCELERATOR_TYPE,
                     accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -509,14 +550,14 @@ class TestBatchPredictionJob:
                 max_replica_count=_TEST_MAX_REPLICA_COUNT,
             ),
             generate_explanation=True,
-            explanation_spec=gapic_types.ExplanationSpec(
+            explanation_spec=gca_explanation_v1beta1.ExplanationSpec(
                 metadata=_TEST_EXPLANATION_METADATA,
                 parameters=_TEST_EXPLANATION_PARAMETERS,
             ),
             labels=_TEST_LABEL,
         )
 
-        create_batch_prediction_job_mock.assert_called_once_with(
+        create_batch_prediction_job_with_explanations_mock.assert_called_once_with(
             parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
             batch_prediction_job=expected_gapic_batch_prediction_job,
         )

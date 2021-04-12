@@ -31,26 +31,28 @@ from unittest.mock import patch
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
+
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
-from google.cloud.aiplatform_v1beta1.services.model_service import (
+
+from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
-from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
+from google.cloud.aiplatform_v1.services.pipeline_service import (
     client as pipeline_service_client,
 )
 
-from google.cloud.aiplatform_v1beta1.types import io as gca_io
-from google.cloud.aiplatform_v1beta1.types import env_var
-from google.cloud.aiplatform_v1beta1.types import model as gca_model
-from google.cloud.aiplatform_v1beta1.types import pipeline_state as gca_pipeline_state
-from google.cloud.aiplatform_v1beta1.types import (
+from google.cloud.aiplatform_v1.types import (
+    dataset as gca_dataset,
+    encryption_spec as gca_encryption_spec,
+    env_var as gca_env_var,
+    io as gca_io,
+    model as gca_model,
+    pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
 )
-from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
-from google.cloud.aiplatform_v1beta1 import Dataset as GapicDataset
 
 from google.cloud import storage
 from google.protobuf import json_format
@@ -63,7 +65,6 @@ _TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
 _TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
 _TEST_LOCAL_SCRIPT_FILE_NAME = "____test____script.py"
 _TEST_LOCAL_SCRIPT_FILE_PATH = f"path/to/{_TEST_LOCAL_SCRIPT_FILE_NAME}"
-_TEST_PROJECT = "test-project"
 _TEST_PYTHON_SOURCE = """
 print('hello world')
 """
@@ -105,6 +106,8 @@ _TEST_ID = "12345"
 _TEST_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/{_TEST_ID}"
 )
+_TEST_ALT_PROJECT = "test-project-alt"
+_TEST_ALT_LOCATION = "europe-west4"
 
 _TEST_MODEL_INSTANCE_SCHEMA_URI = "instance_schema_uri.yaml"
 _TEST_MODEL_PARAMETERS_SCHEMA_URI = "parameters_schema_uri.yaml"
@@ -427,6 +430,19 @@ def mock_pipeline_service_create():
 
 
 @pytest.fixture
+def mock_pipeline_service_get():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as mock_get_training_pipeline:
+        mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        )
+        yield mock_get_training_pipeline
+
+
+@pytest.fixture
 def mock_pipeline_service_cancel():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "cancel_training_pipeline"
@@ -444,6 +460,18 @@ def mock_pipeline_service_create_with_no_model_to_upload():
             state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
         )
         yield mock_create_training_pipeline
+
+
+@pytest.fixture
+def mock_pipeline_service_get_with_no_model_to_upload():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as mock_get_training_pipeline:
+        mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
+            name=_TEST_PIPELINE_RESOURCE_NAME,
+            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+        )
+        yield mock_get_training_pipeline
 
 
 @pytest.fixture
@@ -472,7 +500,7 @@ def mock_model_service_get():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
     ) as mock_get_model:
-        mock_get_model.return_value = gca_model.Model()
+        mock_get_model.return_value = gca_model.Model(name=_TEST_MODEL_NAME)
         yield mock_get_model
 
 
@@ -487,10 +515,11 @@ def mock_python_package_to_gcs():
 
 @pytest.fixture
 def mock_tabular_dataset():
-    ds = mock.MagicMock(datasets.Dataset)
+    ds = mock.MagicMock(datasets.TabularDataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
-    ds._gca_resource = GapicDataset(
+    ds._exception = None
+    ds._gca_resource = gca_dataset.Dataset(
         display_name=_TEST_DATASET_DISPLAY_NAME,
         metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
         labels={},
@@ -502,10 +531,11 @@ def mock_tabular_dataset():
 
 @pytest.fixture
 def mock_nontabular_dataset():
-    ds = mock.MagicMock(datasets.Dataset)
+    ds = mock.MagicMock(datasets.ImageDataset)
     ds.name = _TEST_DATASET_NAME
     ds._latest_future = None
-    ds._gca_resource = GapicDataset(
+    ds._exception = None
+    ds._gca_resource = gca_dataset.Dataset(
         display_name=_TEST_DATASET_DISPLAY_NAME,
         metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
         labels={},
@@ -530,6 +560,7 @@ class TestCustomTrainingJob:
     def test_run_call_pipeline_service_create_with_tabular_dataset(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_python_package_to_gcs,
         mock_tabular_dataset,
         mock_model_service_get,
@@ -608,7 +639,7 @@ class TestCustomTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -670,7 +701,7 @@ class TestCustomTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -686,6 +717,7 @@ class TestCustomTrainingJob:
     def test_run_call_pipeline_service_create_with_bigquery_destination(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_python_package_to_gcs,
         mock_tabular_dataset,
         mock_model_service_get,
@@ -758,7 +790,7 @@ class TestCustomTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -820,7 +852,7 @@ class TestCustomTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -832,14 +864,15 @@ class TestCustomTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
+        "mock_python_package_to_gcs",
+        "mock_model_service_get",
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self,
-        mock_pipeline_service_create,
-        mock_python_package_to_gcs,
-        mock_tabular_dataset,
-        mock_model_service_get,
-        sync,
+        self, mock_tabular_dataset, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -959,6 +992,7 @@ class TestCustomTrainingJob:
     def test_run_call_pipeline_service_create_with_no_dataset(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_python_package_to_gcs,
         mock_model_service_get,
         sync,
@@ -1046,19 +1080,20 @@ class TestCustomTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_no_model_to_upload",
+        "mock_pipeline_service_get_with_no_model_to_upload",
+        "mock_python_package_to_gcs",
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
-        self,
-        mock_pipeline_service_create_with_no_model_to_upload,
-        mock_python_package_to_gcs,
-        mock_tabular_dataset,
-        sync,
+        self, mock_tabular_dataset, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -1084,13 +1119,14 @@ class TestCustomTrainingJob:
 
         assert model is None
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_no_model_to_upload",
+        "mock_pipeline_service_get_with_no_model_to_upload",
+        "mock_python_package_to_gcs",
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_get_model_raises_if_no_model_to_upload(
-        self,
-        mock_pipeline_service_create_with_no_model_to_upload,
-        mock_python_package_to_gcs,
-        mock_tabular_dataset,
-        sync,
+        self, mock_tabular_dataset, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -1196,6 +1232,7 @@ class TestCustomTrainingJob:
     def test_run_call_pipeline_service_create_distributed_training(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_python_package_to_gcs,
         mock_tabular_dataset,
         mock_model_service_get,
@@ -1325,7 +1362,7 @@ class TestCustomTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -1379,10 +1416,47 @@ class TestCustomTrainingJob:
         training_jobs.CustomTrainingJob.get(resource_name=_TEST_ID)
         get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
 
+    def test_get_training_job_with_id_only_with_project_and_location(
+        self, get_training_job_custom_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        training_jobs.CustomTrainingJob.get(
+            resource_name=_TEST_ID, project=_TEST_PROJECT, location=_TEST_LOCATION
+        )
+        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_get_training_job_with_project_and_location(
+        self, get_training_job_custom_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        training_jobs.CustomTrainingJob.get(
+            resource_name=_TEST_NAME, project=_TEST_PROJECT, location=_TEST_LOCATION
+        )
+        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_get_training_job_with_alt_project_and_location(
+        self, get_training_job_custom_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        training_jobs.CustomTrainingJob.get(
+            resource_name=_TEST_NAME, project=_TEST_ALT_PROJECT, location=_TEST_LOCATION
+        )
+        get_training_job_custom_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_get_training_job_with_project_and_alt_location(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        with pytest.raises(RuntimeError):
+            training_jobs.CustomTrainingJob.get(
+                resource_name=_TEST_NAME,
+                project=_TEST_PROJECT,
+                location=_TEST_ALT_LOCATION,
+            )
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_nontabular_dataset(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_python_package_to_gcs,
         mock_nontabular_dataset,
         mock_model_service_get,
@@ -1457,7 +1531,7 @@ class TestCustomTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -1515,7 +1589,7 @@ class TestCustomTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -1565,6 +1639,7 @@ class TestCustomTrainingJob:
 
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
         "mock_python_package_to_gcs",
         "mock_model_service_get",
     )
@@ -1620,6 +1695,7 @@ class TestCustomContainerTrainingJob:
     def test_run_call_pipeline_service_create_with_tabular_dataset(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_tabular_dataset,
         mock_model_service_get,
         sync,
@@ -1689,7 +1765,7 @@ class TestCustomContainerTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -1751,7 +1827,7 @@ class TestCustomContainerTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -1767,6 +1843,7 @@ class TestCustomContainerTrainingJob:
     def test_run_call_pipeline_service_create_with_bigquery_destination(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_tabular_dataset,
         mock_model_service_get,
         sync,
@@ -1835,7 +1912,7 @@ class TestCustomContainerTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -1897,7 +1974,7 @@ class TestCustomContainerTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -1909,14 +1986,15 @@ class TestCustomContainerTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
+        "mock_python_package_to_gcs",
+        "mock_model_service_get",
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self,
-        mock_pipeline_service_create,
-        mock_python_package_to_gcs,
-        mock_tabular_dataset,
-        mock_model_service_get,
-        sync,
+        self, mock_tabular_dataset, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -2034,7 +2112,11 @@ class TestCustomContainerTrainingJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_no_dataset(
-        self, mock_pipeline_service_create, mock_model_service_get, sync,
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_model_service_get,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -2108,7 +2190,7 @@ class TestCustomContainerTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -2118,6 +2200,7 @@ class TestCustomContainerTrainingJob:
     def test_run_returns_none_if_no_model_to_upload(
         self,
         mock_pipeline_service_create_with_no_model_to_upload,
+        mock_pipeline_service_get_with_no_model_to_upload,
         mock_tabular_dataset,
         sync,
     ):
@@ -2145,12 +2228,13 @@ class TestCustomContainerTrainingJob:
 
         assert model is None
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_no_model_to_upload",
+        "mock_pipeline_service_get_with_no_model_to_upload",
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_get_model_raises_if_no_model_to_upload(
-        self,
-        mock_pipeline_service_create_with_no_model_to_upload,
-        mock_tabular_dataset,
-        sync,
+        self, mock_tabular_dataset, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -2253,6 +2337,7 @@ class TestCustomContainerTrainingJob:
     def test_run_call_pipeline_service_create_distributed_training(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_tabular_dataset,
         mock_model_service_get,
         sync,
@@ -2369,7 +2454,7 @@ class TestCustomContainerTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -2385,6 +2470,7 @@ class TestCustomContainerTrainingJob:
     def test_run_call_pipeline_service_create_with_nontabular_dataset(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_python_package_to_gcs,
         mock_nontabular_dataset,
         mock_model_service_get,
@@ -2450,7 +2536,7 @@ class TestCustomContainerTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -2508,7 +2594,7 @@ class TestCustomContainerTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -2811,6 +2897,7 @@ class TestCustomPythonPackageTrainingJob:
     def test_run_call_pipeline_service_create_with_tabular_dataset(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_tabular_dataset,
         mock_model_service_get,
         sync,
@@ -2882,7 +2969,7 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -2944,7 +3031,7 @@ class TestCustomPythonPackageTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -2960,6 +3047,7 @@ class TestCustomPythonPackageTrainingJob:
     def test_run_call_pipeline_service_create_with_bigquery_destination(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_tabular_dataset,
         mock_model_service_get,
         sync,
@@ -3030,7 +3118,7 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -3092,7 +3180,7 @@ class TestCustomPythonPackageTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -3104,14 +3192,15 @@ class TestCustomPythonPackageTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
+        "mock_python_package_to_gcs",
+        "mock_model_service_get",
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self,
-        mock_pipeline_service_create,
-        mock_python_package_to_gcs,
-        mock_tabular_dataset,
-        mock_model_service_get,
-        sync,
+        self, mock_tabular_dataset, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -3232,7 +3321,11 @@ class TestCustomPythonPackageTrainingJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_no_dataset(
-        self, mock_pipeline_service_create, mock_model_service_get, sync,
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_model_service_get,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -3308,18 +3401,19 @@ class TestCustomPythonPackageTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_no_model_to_upload",
+        "mock_pipeline_service_get_with_no_model_to_upload",
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
-        self,
-        mock_pipeline_service_create_with_no_model_to_upload,
-        mock_tabular_dataset,
-        sync,
+        self, mock_tabular_dataset, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -3346,12 +3440,13 @@ class TestCustomPythonPackageTrainingJob:
 
         assert model is None
 
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create_with_no_model_to_upload",
+        "mock_pipeline_service_get_with_no_model_to_upload",
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_get_model_raises_if_no_model_to_upload(
-        self,
-        mock_pipeline_service_create_with_no_model_to_upload,
-        mock_tabular_dataset,
-        sync,
+        self, mock_tabular_dataset, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -3458,6 +3553,7 @@ class TestCustomPythonPackageTrainingJob:
     def test_run_call_pipeline_service_create_distributed_training(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_tabular_dataset,
         mock_model_service_get,
         sync,
@@ -3577,7 +3673,7 @@ class TestCustomPythonPackageTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -3593,6 +3689,7 @@ class TestCustomPythonPackageTrainingJob:
     def test_run_call_pipeline_service_create_with_nontabular_dataset(
         self,
         mock_pipeline_service_create,
+        mock_pipeline_service_get,
         mock_python_package_to_gcs,
         mock_nontabular_dataset,
         mock_model_service_get,
@@ -3660,7 +3757,7 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         env = [
-            env_var.EnvVar(name=str(key), value=str(value))
+            gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
         ]
 
@@ -3718,7 +3815,7 @@ class TestCustomPythonPackageTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_create.return_value
+        assert job._gca_resource is mock_pipeline_service_get.return_value
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
