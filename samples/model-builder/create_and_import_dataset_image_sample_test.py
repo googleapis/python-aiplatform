@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import test_constants as constants
-import create_and_import_dataset_image_sample
-
 from google.cloud.aiplatform import schema
+
+import create_and_import_dataset_image_sample
+import test_constants as constants
 
 
 def test_create_and_import_dataset_image_sample(

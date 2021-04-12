@@ -14,8 +14,9 @@
 
 
 import pytest
-import test_constants as constants
+
 import create_training_pipeline_image_classification_sample
+import test_constants as constants
 
 
 @pytest.mark.usefixtures("mock_init_dataset")
