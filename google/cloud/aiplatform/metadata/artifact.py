@@ -15,10 +15,8 @@
 # limitations under the License.
 #
 import proto
-import logging
 from typing import Optional, Dict
 
-from google.api_core import exceptions
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata.resource import _Resource
 from google.auth import credentials as auth_credentials
@@ -31,43 +29,6 @@ class _Artifact(_Resource):
 
     _resource_noun = "artifacts"
     _getter_method = "get_artifact"
-
-    def __init__(
-        self,
-        artifact_name: str,
-        metadata_store_id: Optional[str] = "default",
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ):
-        """Retrieves an existing Artifact given an Artifact name or ID.
-
-        Args:
-            artifact_name (str):
-                A fully-qualified Artifact resource name or artifact ID
-                Example: "projects/123/locations/us-central1/metadataStores/default/artifacts/my-artifact".
-                or "my-artifact" when project and location are initialized or passed.
-            metadata_store_id (str):
-                MetadataStore to retrieve resource from. If not set, metadata_store_id is set to "default".
-                If artifact_name is a fully-qualified Artifact, its metadata_store_id overrides this one.
-            project (str):
-                Optional project to retrieve resource from. If not set, project
-                set in aiplatform.init will be used.
-            location (str):
-                Optional location to retrieve resource from. If not set, location
-                set in aiplatform.init will be used.
-            credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
-                credentials set in aiplatform.init.
-        """
-
-        super().__init__(
-            resource_name=artifact_name,
-            metadata_store_id=metadata_store_id,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
 
     @classmethod
     def create(
@@ -141,7 +102,7 @@ class _Artifact(_Resource):
         )
 
         return cls(
-            artifact_name=resource_name,
+            resource_name=resource_name,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,
@@ -159,54 +120,6 @@ class _Artifact(_Resource):
         return client.create_artifact(
             parent=parent, artifact=resource, artifact_id=resource_id,
         )
-
-    @classmethod
-    def get(
-        cls,
-        artifact_name: str,
-        metadata_store_id: Optional[str] = "default",
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "_Artifact":
-        f"""Returns an Artifact resource.
-
-        Args:
-            artifact_name (str):
-                A fully-qualified Artifact resource name or artifact ID
-                Example: "projects/123/locations/us-central1/metadataStores/default/artifacts/my-artifact".
-                or "my-artifact" when project and location are initialized or passed.
-            metadata_store_id (str):
-                The {metadata_store_id} portion of the resource name with
-                the format:
-                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/artifacts/my-artifact
-                If not provided, the MetadataStore's ID will be set to "default".
-            project (str):
-                Project to get this artifact into. Overrides project set in
-                aiplatform.init.
-            location (str):
-                Location to get this artifact into. Overrides location set in
-                aiplatform.init.
-            credentials (auth_credentials.Credentials):
-                Custom credentials to use to get this artifact. Overrides
-                credentials set in aiplatform.init.
-
-        Returns:
-            artifact (_Artifact):
-                Instantiated representation of the managed Metadata Artifact resource.
-
-        """
-
-        try:
-            return cls(
-                artifact_name=artifact_name,
-                metadata_store_id=metadata_store_id,
-                project=project,
-                location=location,
-                credentials=credentials,
-            )
-        except exceptions.NotFound:
-            logging.info(f"Artifact {artifact_name} not found.")
 
     @classmethod
     def _update_resource(

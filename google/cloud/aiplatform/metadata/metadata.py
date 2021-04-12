@@ -43,7 +43,7 @@ class _MetadataService:
             )
             _MetadataStore.create()
 
-        context = _Context.get(context_name=experiment)
+        context = _Context.get(resource_name=experiment)
         if not context:
             logging.info(f"Creating a Context for experiment {experiment}")
             context = _Context.create(
@@ -62,7 +62,7 @@ class _MetadataService:
         if not run:
             raise ValueError(f"Invalid run {run}.")
 
-        execution = _Execution.get(execution_name=run)
+        execution = _Execution.get(resource_name=run)
         if not execution:
             logging.info(f"Creating an Execution for run {run}")
             execution = _Execution.create(
@@ -82,7 +82,7 @@ class _MetadataService:
                 "No run set for logging parameters. Make sure to call aiplatform.init(experiment='my-experiment', "
                 "run='my-run') or aiplatform.set_run('my-run') before trying to log_params. "
             )
-        execution = _Execution.get(execution_name=self._run)
+        execution = _Execution.get(resource_name=self._run)
         if not execution:
             logging.info(f"Creating an Execution for run {self._run}")
             execution = _Execution.create(
@@ -93,7 +93,7 @@ class _MetadataService:
             )
         else:
             logging.info(f"Updating Execution for run {self._run}")
-            execution = execution.update(metadata=params)
+            execution.update(metadata=params)
         self._run = execution.name
 
     def log_metrics(self, metrics: Dict):
@@ -109,7 +109,7 @@ class _MetadataService:
             )
         # Only one metrics artifact for the (experiment, run) tuple.
         artifact_id = f"{self._experiment}-{self._run}"
-        artifact = _Artifact.get(artifact_name=artifact_id)
+        artifact = _Artifact.get(resource_name=artifact_id)
         if not artifact:
             logging.info(f"Creating an Artifact for run {self._run}")
             artifact = _Artifact.create(
@@ -120,7 +120,7 @@ class _MetadataService:
             )
         else:
             logging.info(f"Updating Artifact for run {self._run}")
-            artifact = artifact.update(metadata=metrics)
+            artifact.update(metadata=metrics)
         self._metrics = artifact.name
 
     def get_experiment(self, experiment: str):

@@ -48,16 +48,16 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         Args:
             resource_name (str):
                 A fully-qualified resource name or ID
-                Example: "projects/123/locations/us-central1/metadataStores/default/{resource_noun}/my-resource".
+                Example: "projects/123/locations/us-central1/metadataStores/default/<resource_noun>/my-resource".
                 or "my-resource" when project and location are initialized or passed.
             metadata_store_id (str):
                 MetadataStore to retrieve resource from. If not set, metadata_store_id is set to "default".
                 If resource_name is a fully-qualified resource, its metadata_store_id overrides this one.
             project (str):
-                Optional project to retrieve resource from. If not set, project
+                Optional project to retrieve the resource from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional location to retrieve resource from. If not set, location
+                Optional location to retrieve the resource from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
@@ -148,6 +148,54 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
 
         return f"{parent}/{resource_noun}/{resource_id}"
 
+    @classmethod
+    def get(
+        cls,
+        resource_name: str,
+        metadata_store_id: Optional[str] = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "_Resource":
+        """Returns a metadata Resource.
+
+        Args:
+            resource_name (str):
+                A fully-qualified resource name or resource ID
+                Example: "projects/123/locations/us-central1/metadataStores/default/<resource_noun>/my-resource".
+                or "my-resource" when project and location are initialized or passed.
+            metadata_store_id (str):
+                The metadata_store_id portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/<resource_noun>/my-resource
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Project to get this resource from. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Location to get this resource from. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to get this resource. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            resource (_Resource):
+                Instantiated representation of the managed Metadata resource.
+
+        """
+
+        try:
+            return cls(
+                resource_name=resource_name,
+                metadata_store_id=metadata_store_id,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+        except exceptions.NotFound:
+            logging.info(f"Resource {resource_name} not found.")
+
     def update(
         self,
         metadata: Optional[Dict] = None,
@@ -161,10 +209,6 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to update this resource. Overrides
                 credentials set in aiplatform.init.
-
-        Returns:
-            resource (_Resource):
-                The updated resource.
 
         """
 
@@ -182,8 +226,6 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
             self._gca_resource = update_gca_resource
         except exceptions.NotFound:
             logging.info(f"Resource to update '{self.name}' not found.")
-
-        return self
 
     @classmethod
     @abc.abstractmethod
