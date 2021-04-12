@@ -145,7 +145,7 @@ class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "_MetadataStore":
-        f"""Returns a MetadataStore resource.
+        """Returns a MetadataStore resource.
 
         Args:
             metadata_store_name (str):
@@ -174,6 +174,6 @@ class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
                 project=project,
                 location=location,
                 credentials=credentials,
-            )._gca_resource
+            )
         except exceptions.NotFound:
             logging.info(f"MetadataStore {metadata_store_name} not found.")

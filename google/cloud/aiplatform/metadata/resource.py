@@ -18,7 +18,8 @@ import abc
 import re
 import proto
 import logging
-from typing import Optional
+from typing import Optional, Dict
+from copy import deepcopy
 
 from google.api_core import exceptions
 from google.cloud.aiplatform import utils
@@ -136,7 +137,7 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         )
 
         try:
-            cls.create_resource(
+            cls._create_resource(
                 client=api_client,
                 parent=parent,
                 resource=gapic_resource,
@@ -147,11 +148,48 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
 
         return f"{parent}/{resource_noun}/{resource_id}"
 
+    def update(
+        self,
+        metadata: Optional[Dict] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Updates an existing Metadata resource with new metadata.
+
+        Args:
+            metadata (Dict):
+                Optional. metadata contains the updated metadata information.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to update this resource. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            resource (_Resource):
+                The updated resource.
+
+        """
+
+        if not self._gca_resource:
+            raise ValueError("Invalid resource to update")
+
+        gca_resource = deepcopy(self._gca_resource)
+        gca_resource.metadata.update(metadata)
+        api_client = self._instantiate_client(credentials=credentials)
+
+        try:
+            update_gca_resource = self.__class__._update_resource(
+                client=api_client, resource=gca_resource,
+            )
+            self._gca_resource = update_gca_resource
+        except exceptions.NotFound:
+            logging.info(f"Resource to update '{self.name}' not found.")
+
+        return self
+
     @classmethod
     @abc.abstractmethod
-    def create_resource(
+    def _create_resource(
         cls,
-        client: utils.AiPlatformServiceClientWithOverride,
+        client: utils.MetadataClientWithOverride,
         parent: str,
         resource: proto.Message,
         resource_id: str,
@@ -160,66 +198,9 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         pass
 
     @classmethod
-    def update(
-        cls,
-        resource_id: str,
-        resource_noun: str,
-        gapic_resource: proto.Message,
-        metadata_store_id: str = "default",
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ):
-        """Updates an existing Metadata resource.
-
-        Args:
-            resource_id (str):
-                Required. The {resource_id} portion of the resource name with
-                the format:
-                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/{resource_noun}/{resource_id}.
-            resource_noun (str):
-                Required. The resource noun to update the resource under.
-            gapic_resource (proto.Message):
-                Required. The gapic object used to construct the resource.
-            metadata_store_id (str):
-                The {metadata_store_id} portion of the resource name with
-                the format:
-                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/{resource_noun}/{resource_id}
-                If not provided, the MetadataStore's ID will be set to "default".
-            project (str):
-                Project where this resource belongs. Overrides project set in
-                aiplatform.init.
-            location (str):
-                Location where this resource belongs. Overrides location set in
-                aiplatform.init.
-            credentials (auth_credentials.Credentials):
-                Custom credentials to use to update this resource. Overrides
-                credentials set in aiplatform.init.
-
-        Returns:
-            resource_name (str):
-                The name of the instantiated resource.
-
-        """
-        api_client = cls._instantiate_client(location=location, credentials=credentials)
-
-        parent = (
-            initializer.global_config.common_location_path(
-                project=project, location=location
-            )
-            + f"/metadataStores/{metadata_store_id}"
-        )
-
-        cls.update_resource(
-            client=api_client, resource=gapic_resource,
-        )
-
-        return f"{parent}/{resource_noun}/{resource_id}"
-
-    @classmethod
     @abc.abstractmethod
-    def update_resource(
-        cls, client: utils.AiPlatformServiceClientWithOverride, resource: proto.Message,
+    def _update_resource(
+        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
     ) -> proto.Message:
         """Update resource method."""
         pass

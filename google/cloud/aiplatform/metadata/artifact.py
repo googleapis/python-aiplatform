@@ -127,7 +127,7 @@ class _Artifact(_Resource):
             schema_version=schema_version,
             display_name=display_name,
             description=description,
-            metadata=metadata,
+            metadata=metadata if metadata else {},
         )
 
         resource_name = super().create(
@@ -149,7 +149,7 @@ class _Artifact(_Resource):
         )
 
     @classmethod
-    def create_resource(
+    def _create_resource(
         cls,
         client: utils.MetadataClientWithOverride,
         parent: str,
@@ -159,79 +159,6 @@ class _Artifact(_Resource):
         return client.create_artifact(
             parent=parent, artifact=resource, artifact_id=resource_id,
         )
-
-    @classmethod
-    def update(
-        cls,
-        artifact_id: str,
-        metadata: Optional[Dict] = None,
-        metadata_store_id: Optional[str] = "default",
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "_Artifact":
-        f"""Updates an Artifact resource.
-
-        Args:
-            artifact_id (str):
-                Required. The {artifact_id} portion of the resource name with
-                the format:
-                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/artifacts/{artifact_id}.
-            metadata (Dict):
-                Optional. metadata information to update the artifact with.
-            metadata_store_id (str):
-                The {metadata_store_id} portion of the resource name with
-                the format:
-                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/artifacts/{artifact_id}
-                If not provided, the MetadataStore's ID will be set to "default".
-            project (str):
-                Project where this artifact belongs. Overrides project set in
-                aiplatform.init.
-            location (str):
-                Location where this artifact belongs. Overrides location set in
-                aiplatform.init.
-            credentials (auth_credentials.Credentials):
-                Custom credentials to use to update this artifact. Overrides
-                credentials set in aiplatform.init.
-
-        Returns:
-            artifact (_Artifact):
-                Updated representation of the managed Metadata Artifact resource.
-
-        """
-
-        gapic_artifact = cls(
-            artifact_name=artifact_id,
-            metadata_store_id=metadata_store_id,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )._gca_resource
-        gapic_artifact.metadata = metadata
-
-        resource_name = super().update(
-            resource_id=artifact_id,
-            resource_noun=cls._resource_noun,
-            gapic_resource=gapic_artifact,
-            metadata_store_id=metadata_store_id,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
-
-        return cls(
-            artifact_name=resource_name,
-            metadata_store_id=metadata_store_id,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
-
-    @classmethod
-    def update_resource(
-        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
-    ) -> proto.Message:
-        return client.update_artifact(artifact=resource)
 
     @classmethod
     def get(
@@ -277,6 +204,12 @@ class _Artifact(_Resource):
                 project=project,
                 location=location,
                 credentials=credentials,
-            )._gca_resource
+            )
         except exceptions.NotFound:
             logging.info(f"Artifact {artifact_name} not found.")
+
+    @classmethod
+    def _update_resource(
+        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
+    ) -> proto.Message:
+        return client.update_artifact(artifact=resource)

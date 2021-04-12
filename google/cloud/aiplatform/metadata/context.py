@@ -31,6 +31,7 @@ class _Context(_Resource):
 
     _resource_noun = "contexts"
     _getter_method = "get_context"
+    _update_method = "update_context"
 
     def __init__(
         self,
@@ -127,7 +128,7 @@ class _Context(_Resource):
             schema_version=schema_version,
             display_name=display_name,
             description=description,
-            metadata=metadata,
+            metadata=metadata if metadata else {},
         )
 
         resource_name = super().create(
@@ -149,7 +150,7 @@ class _Context(_Resource):
         )
 
     @classmethod
-    def create_resource(
+    def _create_resource(
         cls,
         client: utils.MetadataClientWithOverride,
         parent: str,
@@ -159,79 +160,6 @@ class _Context(_Resource):
         return client.create_context(
             parent=parent, context=resource, context_id=resource_id,
         )
-
-    @classmethod
-    def update(
-        cls,
-        context_id: str,
-        metadata: Optional[Dict] = None,
-        metadata_store_id: Optional[str] = "default",
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "_Artifact":
-        f"""Updates a Context resource.
-
-        Args:
-            context_id (str):
-                Required. The {context_id} portion of the resource name with
-                the format:
-                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/contexts/{context_id}.
-            metadata (Dict):
-                Optional. metadata information to update the context with.
-            metadata_store_id (str):
-                The {metadata_store_id} portion of the resource name with
-                the format:
-                projects/{project}/locations/{location}/metadataStores/{metadata_store_id}/contexts/{context_id}
-                If not provided, the MetadataStore's ID will be set to "default".
-            project (str):
-                Project where this context belongs. Overrides project set in
-                aiplatform.init.
-            location (str):
-                Location where this context belongs. Overrides location set in
-                aiplatform.init.
-            credentials (auth_credentials.Credentials):
-                Custom credentials to use to update this context. Overrides
-                credentials set in aiplatform.init.
-
-        Returns:
-            context (_Context):
-                Updated representation of the managed Metadata Context resource.
-
-        """
-
-        gapic_context = cls(
-            context_name=context_id,
-            metadata_store_id=metadata_store_id,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )._gca_resource
-        gapic_context.metadata = metadata
-
-        resource_name = super().update(
-            resource_id=context_id,
-            resource_noun=cls._resource_noun,
-            gapic_resource=gapic_context,
-            metadata_store_id=metadata_store_id,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
-
-        return cls(
-            context_name=resource_name,
-            metadata_store_id=metadata_store_id,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
-
-    @classmethod
-    def update_resource(
-        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
-    ) -> proto.Message:
-        return client.update_context(context=resource)
 
     @classmethod
     def get(
@@ -277,6 +205,12 @@ class _Context(_Resource):
                 project=project,
                 location=location,
                 credentials=credentials,
-            )._gca_resource
+            )
         except exceptions.NotFound:
             logging.info(f"Context {context_name} not found.")
+
+    @classmethod
+    def _update_resource(
+        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
+    ) -> proto.Message:
+        return client.update_context(context=resource)

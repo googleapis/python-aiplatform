@@ -84,6 +84,7 @@ class _MetadataService:
             )
         execution = _Execution.get(execution_name=self._run)
         if not execution:
+            logging.info(f"Creating an Execution for run {self._run}")
             execution = _Execution.create(
                 execution_id=self._run,
                 schema_title="system.Run",
@@ -91,7 +92,8 @@ class _MetadataService:
                 metadata=params,
             )
         else:
-            execution = _Execution.update(execution_name=self._run, metadata=params)
+            logging.info(f"Updating Execution for run {self._run}")
+            execution = execution.update(metadata=params)
         self._run = execution.name
 
     def log_metrics(self, metrics: Dict):
@@ -117,7 +119,8 @@ class _MetadataService:
                 metadata=metrics,
             )
         else:
-            artifact = _Artifact.update(resource_name=artifact_id, metadata=metrics)
+            logging.info(f"Updating Artifact for run {self._run}")
+            artifact = artifact.update(metadata=metrics)
         self._metrics = artifact.name
 
     def get_experiment(self, experiment: str):
