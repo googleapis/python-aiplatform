@@ -53,6 +53,7 @@ class _MetadataService:
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
         )
         self._run = execution.name
+        _Context.add_artifacts_or_executions(context_id=self._experiment, execution_ids=self._run)
 
     def log_param(self, name: str, value: Union[float, int, str]):
         return self.log_params({name: value})
