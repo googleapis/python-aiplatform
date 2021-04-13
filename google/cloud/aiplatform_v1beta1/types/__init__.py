@@ -75,6 +75,9 @@ from .dataset_service import (
     ListDatasetsResponse,
     UpdateDatasetRequest,
 )
+from .deployed_index_ref import (
+    DeployedIndexRef,
+)
 from .deployed_model_ref import (
     DeployedModelRef,
 )
@@ -192,6 +195,41 @@ from .featurestore_service import (
 )
 from .hyperparameter_tuning_job import (
     HyperparameterTuningJob,
+)
+from .index import (
+    Index,
+)
+from .index_endpoint import (
+    DeployedIndex,
+    DeployedIndexAuthConfig,
+    IndexEndpoint,
+    IndexPrivateEndpoints,
+)
+from .index_endpoint_service import (
+    CreateIndexEndpointOperationMetadata,
+    CreateIndexEndpointRequest,
+    DeleteIndexEndpointRequest,
+    DeployIndexOperationMetadata,
+    DeployIndexRequest,
+    DeployIndexResponse,
+    GetIndexEndpointRequest,
+    ListIndexEndpointsRequest,
+    ListIndexEndpointsResponse,
+    UndeployIndexOperationMetadata,
+    UndeployIndexRequest,
+    UndeployIndexResponse,
+    UpdateIndexEndpointRequest,
+)
+from .index_service import (
+    CreateIndexOperationMetadata,
+    CreateIndexRequest,
+    DeleteIndexRequest,
+    GetIndexRequest,
+    ListIndexesRequest,
+    ListIndexesResponse,
+    NearestNeighborSearchOperationMetadata,
+    UpdateIndexOperationMetadata,
+    UpdateIndexRequest,
 )
 from .io import (
     AvroSource,
@@ -476,6 +514,7 @@ __all__ = (
     'ListDatasetsRequest',
     'ListDatasetsResponse',
     'UpdateDatasetRequest',
+    'DeployedIndexRef',
     'DeployedModelRef',
     'EncryptionSpec',
     'DeployedModel',
@@ -558,6 +597,33 @@ __all__ = (
     'UpdateFeaturestoreOperationMetadata',
     'UpdateFeaturestoreRequest',
     'HyperparameterTuningJob',
+    'Index',
+    'DeployedIndex',
+    'DeployedIndexAuthConfig',
+    'IndexEndpoint',
+    'IndexPrivateEndpoints',
+    'CreateIndexEndpointOperationMetadata',
+    'CreateIndexEndpointRequest',
+    'DeleteIndexEndpointRequest',
+    'DeployIndexOperationMetadata',
+    'DeployIndexRequest',
+    'DeployIndexResponse',
+    'GetIndexEndpointRequest',
+    'ListIndexEndpointsRequest',
+    'ListIndexEndpointsResponse',
+    'UndeployIndexOperationMetadata',
+    'UndeployIndexRequest',
+    'UndeployIndexResponse',
+    'UpdateIndexEndpointRequest',
+    'CreateIndexOperationMetadata',
+    'CreateIndexRequest',
+    'DeleteIndexRequest',
+    'GetIndexRequest',
+    'ListIndexesRequest',
+    'ListIndexesResponse',
+    'NearestNeighborSearchOperationMetadata',
+    'UpdateIndexOperationMetadata',
+    'UpdateIndexRequest',
     'AvroSource',
     'BigQueryDestination',
     'BigQuerySource',

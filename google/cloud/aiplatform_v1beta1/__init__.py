@@ -19,6 +19,8 @@ from .services.dataset_service import DatasetServiceClient
 from .services.endpoint_service import EndpointServiceClient
 from .services.featurestore_online_serving_service import FeaturestoreOnlineServingServiceClient
 from .services.featurestore_service import FeaturestoreServiceClient
+from .services.index_endpoint_service import IndexEndpointServiceClient
+from .services.index_service import IndexServiceClient
 from .services.job_service import JobServiceClient
 from .services.metadata_service import MetadataServiceClient
 from .services.migration_service import MigrationServiceClient
@@ -66,6 +68,7 @@ from .types.dataset_service import ListDataItemsResponse
 from .types.dataset_service import ListDatasetsRequest
 from .types.dataset_service import ListDatasetsResponse
 from .types.dataset_service import UpdateDatasetRequest
+from .types.deployed_index_ref import DeployedIndexRef
 from .types.deployed_model_ref import DeployedModelRef
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
@@ -148,6 +151,33 @@ from .types.featurestore_service import UpdateFeatureRequest
 from .types.featurestore_service import UpdateFeaturestoreOperationMetadata
 from .types.featurestore_service import UpdateFeaturestoreRequest
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
+from .types.index import Index
+from .types.index_endpoint import DeployedIndex
+from .types.index_endpoint import DeployedIndexAuthConfig
+from .types.index_endpoint import IndexEndpoint
+from .types.index_endpoint import IndexPrivateEndpoints
+from .types.index_endpoint_service import CreateIndexEndpointOperationMetadata
+from .types.index_endpoint_service import CreateIndexEndpointRequest
+from .types.index_endpoint_service import DeleteIndexEndpointRequest
+from .types.index_endpoint_service import DeployIndexOperationMetadata
+from .types.index_endpoint_service import DeployIndexRequest
+from .types.index_endpoint_service import DeployIndexResponse
+from .types.index_endpoint_service import GetIndexEndpointRequest
+from .types.index_endpoint_service import ListIndexEndpointsRequest
+from .types.index_endpoint_service import ListIndexEndpointsResponse
+from .types.index_endpoint_service import UndeployIndexOperationMetadata
+from .types.index_endpoint_service import UndeployIndexRequest
+from .types.index_endpoint_service import UndeployIndexResponse
+from .types.index_endpoint_service import UpdateIndexEndpointRequest
+from .types.index_service import CreateIndexOperationMetadata
+from .types.index_service import CreateIndexRequest
+from .types.index_service import DeleteIndexRequest
+from .types.index_service import GetIndexRequest
+from .types.index_service import ListIndexesRequest
+from .types.index_service import ListIndexesResponse
+from .types.index_service import NearestNeighborSearchOperationMetadata
+from .types.index_service import UpdateIndexOperationMetadata
+from .types.index_service import UpdateIndexRequest
 from .types.io import AvroSource
 from .types.io import BigQueryDestination
 from .types.io import BigQuerySource
@@ -403,6 +433,10 @@ __all__ = (
     'CreateFeaturestoreOperationMetadata',
     'CreateFeaturestoreRequest',
     'CreateHyperparameterTuningJobRequest',
+    'CreateIndexEndpointOperationMetadata',
+    'CreateIndexEndpointRequest',
+    'CreateIndexOperationMetadata',
+    'CreateIndexRequest',
     'CreateMetadataSchemaRequest',
     'CreateMetadataStoreOperationMetadata',
     'CreateMetadataStoreRequest',
@@ -431,6 +465,8 @@ __all__ = (
     'DeleteFeatureRequest',
     'DeleteFeaturestoreRequest',
     'DeleteHyperparameterTuningJobRequest',
+    'DeleteIndexEndpointRequest',
+    'DeleteIndexRequest',
     'DeleteMetadataStoreOperationMetadata',
     'DeleteMetadataStoreRequest',
     'DeleteModelDeploymentMonitoringJobRequest',
@@ -440,9 +476,15 @@ __all__ = (
     'DeleteStudyRequest',
     'DeleteTrainingPipelineRequest',
     'DeleteTrialRequest',
+    'DeployIndexOperationMetadata',
+    'DeployIndexRequest',
+    'DeployIndexResponse',
     'DeployModelOperationMetadata',
     'DeployModelRequest',
     'DeployModelResponse',
+    'DeployedIndex',
+    'DeployedIndexAuthConfig',
+    'DeployedIndexRef',
     'DeployedModel',
     'DeployedModelRef',
     'DestinationFeatureSetting',
@@ -499,6 +541,8 @@ __all__ = (
     'GetFeatureRequest',
     'GetFeaturestoreRequest',
     'GetHyperparameterTuningJobRequest',
+    'GetIndexEndpointRequest',
+    'GetIndexRequest',
     'GetMetadataSchemaRequest',
     'GetMetadataStoreRequest',
     'GetModelDeploymentMonitoringJobRequest',
@@ -518,6 +562,11 @@ __all__ = (
     'ImportFeatureValuesOperationMetadata',
     'ImportFeatureValuesRequest',
     'ImportFeatureValuesResponse',
+    'Index',
+    'IndexEndpoint',
+    'IndexEndpointServiceClient',
+    'IndexPrivateEndpoints',
+    'IndexServiceClient',
     'InputDataConfig',
     'Int64Array',
     'IntegratedGradientsAttribution',
@@ -552,6 +601,10 @@ __all__ = (
     'ListFeaturestoresResponse',
     'ListHyperparameterTuningJobsRequest',
     'ListHyperparameterTuningJobsResponse',
+    'ListIndexEndpointsRequest',
+    'ListIndexEndpointsResponse',
+    'ListIndexesRequest',
+    'ListIndexesResponse',
     'ListMetadataSchemasRequest',
     'ListMetadataSchemasResponse',
     'ListMetadataStoresRequest',
@@ -598,6 +651,7 @@ __all__ = (
     'ModelMonitoringObjectiveConfig',
     'ModelMonitoringStatsAnomalies',
     'ModelServiceClient',
+    'NearestNeighborSearchOperationMetadata',
     'PauseModelDeploymentMonitoringJobRequest',
     'PipelineServiceClient',
     'PipelineState',
@@ -643,6 +697,9 @@ __all__ = (
     'TrainingConfig',
     'TrainingPipeline',
     'Trial',
+    'UndeployIndexOperationMetadata',
+    'UndeployIndexRequest',
+    'UndeployIndexResponse',
     'UndeployModelOperationMetadata',
     'UndeployModelRequest',
     'UndeployModelResponse',
@@ -655,6 +712,9 @@ __all__ = (
     'UpdateFeatureRequest',
     'UpdateFeaturestoreOperationMetadata',
     'UpdateFeaturestoreRequest',
+    'UpdateIndexEndpointRequest',
+    'UpdateIndexOperationMetadata',
+    'UpdateIndexRequest',
     'UpdateModelDeploymentMonitoringJobOperationMetadata',
     'UpdateModelDeploymentMonitoringJobRequest',
     'UpdateModelRequest',
