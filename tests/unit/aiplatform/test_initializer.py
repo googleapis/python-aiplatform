@@ -39,7 +39,6 @@ _TEST_LOCATION = "us-central1"
 _TEST_LOCATION_2 = "europe-west4"
 _TEST_INVALID_LOCATION = "test-invalid-location"
 _TEST_EXPERIMENT = "test-experiment"
-_TEST_RUN = "test-run"
 _TEST_STAGING_BUCKET = "test-bucket"
 
 
@@ -76,19 +75,6 @@ class TestInit:
     def test_init_experiment_calls_metadata_service(self, set_experiment_mock):
         initializer.global_config.init(experiment=_TEST_EXPERIMENT)
         set_experiment_mock.assert_called_once_with(_TEST_EXPERIMENT)
-
-    def test_init_run_alone_without_experiment_raises(self):
-        with pytest.raises(ValueError):
-            initializer.global_config.init(run=_TEST_RUN)
-
-    @patch.object(metadata_service, "set_run")
-    @patch.object(metadata_service, "set_experiment")
-    def test_init_experiment_and_run_calls_metadata_service(
-        self, set_experiment_mock, set_run_mock
-    ):
-        initializer.global_config.init(experiment=_TEST_EXPERIMENT, run=_TEST_RUN)
-        set_experiment_mock.assert_called_once_with(_TEST_EXPERIMENT)
-        set_run_mock.assert_called_once_with(_TEST_RUN)
 
     def test_init_staging_bucket_sets_staging_bucket(self):
         initializer.global_config.init(staging_bucket=_TEST_STAGING_BUCKET)
