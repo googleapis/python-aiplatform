@@ -31,6 +31,7 @@ from google.auth.exceptions import GoogleAuthError
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.metadata import metadata
 
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
@@ -44,7 +45,6 @@ class _Config:
 
     def __init__(self):
         self._project = None
-        self._experiment = None
         self._location = None
         self._staging_bucket = None
         self._credentials = None
@@ -56,6 +56,7 @@ class _Config:
         project: Optional[str] = None,
         location: Optional[str] = None,
         experiment: Optional[str] = None,
+        run: Optional[str] = None,
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
@@ -66,7 +67,8 @@ class _Config:
             project (str): The default project to use when making API calls.
             location (str): The default location to use when making API calls. If not
                 set defaults to us-central-1
-            experiment (str): The experiment to assign
+            experiment (str): The experiment name
+            run (str): The run name
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
             credentials (google.auth.crendentials.Credentials): The default custom
@@ -88,8 +90,14 @@ class _Config:
             utils.validate_region(location)
             self._location = location
         if experiment:
-            logging.warning("Experiments currently not supported.")
-            self._experiment = experiment
+            metadata.metadata_service.set_experiment(experiment)
+        if run:
+            if not experiment:
+                raise ValueError(
+                    "No experiment set. Provide an experiment for this run, e.g., aiplatform.init("
+                    "experiment='my-experiment')."
+                )
+            metadata.metadata_service.set_run(run)
         if staging_bucket:
             self._staging_bucket = staging_bucket
         if credentials:
@@ -152,11 +160,6 @@ class _Config:
     def location(self) -> str:
         """Default location."""
         return self._location or constants.DEFAULT_REGION
-
-    @property
-    def experiment(self) -> Optional[str]:
-        """Default experiment, if provided."""
-        return self._experiment
 
     @property
     def staging_bucket(self) -> Optional[str]:

@@ -38,6 +38,7 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
 )
+from google.cloud.aiplatform.metadata import metadata
 
 """
 Usage:
@@ -47,10 +48,26 @@ aiplatform.init(project='my_project')
 """
 init = initializer.global_config.init
 
+log_param = metadata.metadata_service.log_param
+log_params = metadata.metadata_service.log_params
+log_metric = metadata.metadata_service.log_metric
+log_metrics = metadata.metadata_service.log_metrics
+set_experiment = metadata.metadata_service.set_experiment
+get_experiment = metadata.metadata_service.get_experiment
+set_run = metadata.metadata_service.set_run
+
+
 __all__ = (
     "explain",
     "gapic",
     "init",
+    "log_param",
+    "log_params",
+    "log_metric",
+    "log_metrics",
+    "get_experiment",
+    "set_experiment",
+    "set_run",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
     "AutoMLTextTrainingJob",

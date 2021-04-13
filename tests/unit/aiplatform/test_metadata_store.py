@@ -190,7 +190,7 @@ class TestMetadataStore:
             project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
-        my_metadata_store = metadata_store._MetadataStore.create(
+        my_metadata_store = metadata_store._MetadataStore._create(
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
@@ -211,7 +211,7 @@ class TestMetadataStore:
     def test_create_non_default_metadata_store(self, create_metadata_store_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_metadata_store = metadata_store._MetadataStore.create(
+        my_metadata_store = metadata_store._MetadataStore._create(
             metadata_store_id=_TEST_ID,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
