@@ -43,8 +43,8 @@ class _MetadataService:
     def set_run(self, run: str):
         if not self._experiment:
             raise ValueError(
-                "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') or "
-                "aiplatform.set_experiment(experiment='my-experiment') before trying to set_run. "
+                "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') "
+                "before trying to set_run. "
             )
         execution = _Execution.get_or_create(
             resource_id=run,
@@ -52,9 +52,6 @@ class _MetadataService:
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
         )
         self._run = execution.name
-
-    def log_param(self, name: str, value: Union[float, int, str]):
-        return self.log_params({name: value})
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
         self._validate_experiment_and_run(method_name="log_params")
@@ -65,9 +62,6 @@ class _MetadataService:
         )
         execution.update(metadata=params)
         self._run = execution.name
-
-    def log_metric(self, name: str, value: Union[str, float, int]):
-        return self.log_metrics({name: value})
 
     def log_metrics(self, metrics: Dict[str, Union[str, float, int]]):
         self._validate_experiment_and_run(method_name="log_metrics")
@@ -83,16 +77,18 @@ class _MetadataService:
     def get_experiment(self, experiment: str):
         raise NotImplementedError("get_experiment not implemented")
 
+    def get_pipeline(self, pipeline: str):
+        raise NotImplementedError("get_pipeline not implemented")
+
     def _validate_experiment_and_run(self, method_name: str):
         if not self._experiment:
             raise ValueError(
                 f"No experiment set. Make sure to call aiplatform.init(experiment='my-experiment') "
-                f"or aiplatform.set_experiment(experiment='my-experiment') before trying to {method_name}. "
+                f"before trying to {method_name}. "
             )
         if not self._run:
             raise ValueError(
-                f"No run set. Make sure to call aiplatform.init(experiment='my-experiment', "
-                f"run='my-run') or aiplatform.set_run('my-run') before trying to {method_name}. "
+                f"No run set. Make sure to call aiplatform.set_run('my-run') before trying to {method_name}. "
             )
 
 

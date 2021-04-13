@@ -56,23 +56,21 @@ class _Config:
         project: Optional[str] = None,
         location: Optional[str] = None,
         experiment: Optional[str] = None,
-        run: Optional[str] = None,
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
     ):
-        """Updates common initalization parameters with provided options.
+        """Updates common initialization parameters with provided options.
 
         Args:
             project (str): The default project to use when making API calls.
             location (str): The default location to use when making API calls. If not
                 set defaults to us-central-1
             experiment (str): The experiment name
-            run (str): The run name
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
-            credentials (google.auth.crendentials.Credentials): The default custom
-                credentials to use when making API calls. If not provided crendentials
+            credentials (google.auth.credentials.Credentials): The default custom
+                credentials to use when making API calls. If not provided credentials
                 will be ascertained from the environment.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
@@ -91,13 +89,6 @@ class _Config:
             self._location = location
         if experiment:
             metadata.metadata_service.set_experiment(experiment)
-        if run:
-            if not experiment:
-                raise ValueError(
-                    "No experiment set. Provide an experiment for this run, e.g., aiplatform.init("
-                    "experiment='my-experiment')."
-                )
-            metadata.metadata_service.set_run(run)
         if staging_bucket:
             self._staging_bucket = staging_bucket
         if credentials:
