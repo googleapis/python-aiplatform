@@ -225,19 +225,6 @@ Endpoint Fixtures
 
 
 @pytest.fixture
-def mock_init_endpoint():
-    with patch.object(aiplatform.Endpoint, "__init__") as mock:
-        mock.return_value = None
-        yield mock
-
-
-@pytest.fixture
-def mock_endpoint_predict():
-    with patch.object(aiplatform.Endpoint, "predict") as mock:
-        yield mock
-
-
-@pytest.fixture
 def mock_endpoint():
     mock = MagicMock(aiplatform.models.Endpoint)
     yield mock
@@ -248,3 +235,10 @@ def mock_get_endpoint(mock_endpoint):
     with patch.object(aiplatform, "Endpoint") as mock_get_endpoint:
         mock_get_endpoint.return_value = mock_endpoint
         yield mock_get_endpoint
+
+
+@pytest.fixture
+def mock_endpoint_predict(mock_endpoint):
+    with patch.object(mock_endpoint, "predict") as mock:
+        mock.return_value = []
+        yield mock
