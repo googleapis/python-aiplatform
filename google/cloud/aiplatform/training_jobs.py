@@ -3362,7 +3362,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             "forecastHorizon": forecast_horizon,
             "dataGranularity": {
                 "unit": data_granularity_unit,
-                "quantity": data_granularity_count
+                "quantity": data_granularity_count,
             },
             "transformations": self._column_transformations,
             "trainBudgetMilliNodeHours": budget_milli_node_hours,
