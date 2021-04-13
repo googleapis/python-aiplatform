@@ -46,6 +46,7 @@ class _MetadataService:
                 "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') or "
                 "aiplatform.set_experiment(experiment='my-experiment') before trying to set_run. "
             )
+        # TODO: update run execution name to include information of the experiment. Ex: experiment-run.
         execution = _Execution.get_or_create(
             resource_id=run,
             schema_title=constants.SYSTEM_RUN,
@@ -72,7 +73,7 @@ class _MetadataService:
     def log_metrics(self, metrics: Dict[str, Union[str, float, int]]):
         self._validate_experiment_and_run(method_name="log_metrics")
         # Only one metrics artifact for the (experiment, run) tuple.
-        artifact_id = f"{self._experiment}-{self._run}"
+        artifact_id = f"{self._experiment}-{self._run}-metrics"
         artifact = _Artifact.get_or_create(
             resource_id=artifact_id,
             schema_title=constants.SYSTEM_METRICS,
