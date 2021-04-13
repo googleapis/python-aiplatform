@@ -19,11 +19,13 @@ import importlib
 import os
 import pytest
 from unittest import mock
+from unittest.mock import patch
 
 import google.auth
 from google.auth import credentials
 
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.metadata.metadata import metadata_service
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import utils
 
@@ -70,17 +72,23 @@ class TestInit:
         with pytest.raises(ValueError):
             initializer.global_config.init(location=_TEST_INVALID_LOCATION)
 
-    # TODO(nachocano) Mock the call to set_experiment
-    # def test_init_experiment_calls_metadata_service(self):
-    #     initializer.global_config.init(experiment=_TEST_EXPERIMENT)
+    @patch.object(metadata_service, "set_experiment")
+    def test_init_experiment_calls_metadata_service(self, set_experiment_mock):
+        initializer.global_config.init(experiment=_TEST_EXPERIMENT)
+        set_experiment_mock.assert_called_once_with(_TEST_EXPERIMENT)
 
     def test_init_run_alone_without_experiment_raises(self):
         with pytest.raises(ValueError):
             initializer.global_config.init(run=_TEST_RUN)
 
-    # TODO(nachocano) Mock the call to set_experiment and set_run
-    # def test_init_experiment_and_run_calls_metadata_service(self):
-    #     initializer.global_config.init(experiment=_TEST_EXPERIMENT, run=_TEST_RUN)
+    @patch.object(metadata_service, "set_run")
+    @patch.object(metadata_service, "set_experiment")
+    def test_init_experiment_and_run_calls_metadata_service(
+        self, set_experiment_mock, set_run_mock
+    ):
+        initializer.global_config.init(experiment=_TEST_EXPERIMENT, run=_TEST_RUN)
+        set_experiment_mock.assert_called_once_with(_TEST_EXPERIMENT)
+        set_run_mock.assert_called_once_with(_TEST_RUN)
 
     def test_init_staging_bucket_sets_staging_bucket(self):
         initializer.global_config.init(staging_bucket=_TEST_STAGING_BUCKET)
