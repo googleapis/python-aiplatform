@@ -43,8 +43,8 @@ class _MetadataService:
     def set_run(self, run: str):
         if not self._experiment:
             raise ValueError(
-                "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') or "
-                "aiplatform.set_experiment(experiment='my-experiment') before trying to set_run. "
+                "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') "
+                "before trying to set_run. "
             )
         execution = _Execution.get_or_create(
             resource_id=run,
@@ -84,12 +84,11 @@ class _MetadataService:
         if not self._experiment:
             raise ValueError(
                 f"No experiment set. Make sure to call aiplatform.init(experiment='my-experiment') "
-                f"or aiplatform.set_experiment(experiment='my-experiment') before trying to {method_name}. "
+                f"before trying to {method_name}. "
             )
         if not self._run:
             raise ValueError(
-                f"No run set. Make sure to call aiplatform.init(experiment='my-experiment', "
-                f"run='my-run') or aiplatform.set_run('my-run') before trying to {method_name}. "
+                f"No run set. Make sure to call aiplatform.set_run('my-run') before trying to {method_name}. "
             )
 
 
