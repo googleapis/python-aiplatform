@@ -651,7 +651,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         self._raise_failure()
 
-        _LOGGER.log_action_completed_against_resource("", "run", self)
+        _LOGGER.log_action_completed_against_resource("run", "completed", self)
 
         if self._gca_resource.model_to_upload and not self.has_failed:
             _LOGGER.info(
