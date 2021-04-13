@@ -13,7 +13,7 @@ from google.cloud.aiplatform_v1.services.model_service import (
 )
 from google.cloud.aiplatform_v1.services.pipeline_service import (
     client as pipeline_service_client,
-) 
+)
 from google.cloud.aiplatform_v1.types import (
     dataset as gca_dataset,
     model as gca_model,
@@ -123,6 +123,7 @@ def mock_pipeline_service_create():
         )
         yield mock_create_training_pipeline
 
+
 @pytest.fixture
 def mock_pipeline_service_get():
     with mock.patch.object(
@@ -134,6 +135,7 @@ def mock_pipeline_service_get():
             model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
         )
         yield mock_get_training_pipeline
+
 
 @pytest.fixture
 def mock_pipeline_service_create_and_get_with_fail():
@@ -344,7 +346,8 @@ class TestAutoMLForecastingTrainingJob:
         true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_time_series.name,
+            fraction_split=true_fraction_split,
+            dataset_id=mock_dataset_time_series.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -367,9 +370,7 @@ class TestAutoMLForecastingTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self,
-        mock_dataset_time_series,
-        sync,
+        self, mock_dataset_time_series, sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 

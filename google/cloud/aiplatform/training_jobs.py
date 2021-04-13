@@ -2962,7 +2962,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
 class AutoMLForecastingTrainingJob(_TrainingJob):
     _supported_training_schemas = (schema.training_job.definition.automl_forecasting,)
-    
+
     def __init__(
         self,
         display_name: str,
