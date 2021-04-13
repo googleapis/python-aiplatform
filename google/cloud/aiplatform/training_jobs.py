@@ -646,7 +646,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                     )
                 )
                 log_wait = min(log_wait * multiplier, max_wait)
-            previous_time = current_time
+                previous_time = current_time
             time.sleep(wait)
 
         self._raise_failure()
