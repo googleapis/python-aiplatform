@@ -86,7 +86,107 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         )
 
     @classmethod
-    def create(
+    def get_or_create(
+        cls,
+        resource_id: str,
+        schema_title: str,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+        metadata_store_id: Optional[str] = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "_Resource":
+        """Retrieves or Creates (if it does not exist) a Metadata resource.
+
+        Args:
+            resource_id (str):
+                Required. The <resource_id> portion of the resource name with the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/<resource_noun>/<resource_id>.
+            schema_title (str):
+                Required. schema_title identifies the schema title used by the resource.
+            display_name (str):
+                Optional. The user-defined name of the resource.
+            schema_version (str):
+                Optional. schema_version specifies the version used by the resource.
+                If not set, defaults to use the latest version.
+            description (str):
+                Optional. Describes the purpose of the resource to be created.
+            metadata (Dict):
+                Optional. Contains the metadata information that will be stored in the resource.
+            metadata_store_id (str):
+                The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/<resource_noun>/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Project used to retrieve or create this resource. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Location used to retrieve or create this resource. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Custom credentials used to retrieve or create this resource. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            resource (_Resource):
+                Instantiated representation of the managed Metadata resource.
+
+        """
+
+        resource = cls._get(
+            resource_name=resource_id,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        if not resource:
+            logging.info(f"Creating Resource {resource_id}")
+            resource = cls._create(
+                resource_id=resource_id,
+                schema_title=schema_title,
+                display_name=display_name,
+                schema_version=schema_version,
+                description=description,
+                metadata=metadata,
+                metadata_store_id=metadata_store_id,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+        return resource
+
+    def update(
+        self,
+        metadata: Dict,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Updates an existing Metadata resource with new metadata.
+
+        Args:
+            metadata (Dict):
+                Required. metadata contains the updated metadata information.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to update this resource. Overrides
+                credentials set in aiplatform.init.
+
+        """
+
+        gca_resource = deepcopy(self._gca_resource)
+        gca_resource.metadata.update(metadata)
+        api_client = self._instantiate_client(credentials=credentials)
+
+        update_gca_resource = self._update_resource(
+            client=api_client, resource=gca_resource,
+        )
+        self._gca_resource = update_gca_resource
+
+    @classmethod
+    def _create(
         cls,
         resource_id: str,
         schema_title: str,
@@ -169,7 +269,7 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         )
 
     @classmethod
-    def get(
+    def _get(
         cls,
         resource_name: str,
         metadata_store_id: Optional[str] = "default",
@@ -215,31 +315,6 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
             )
         except exceptions.NotFound:
             logging.info(f"Resource {resource_name} not found.")
-
-    def update(
-        self,
-        metadata: Dict,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ):
-        """Updates an existing Metadata resource with new metadata.
-
-        Args:
-            metadata (Dict):
-                Required. metadata contains the updated metadata information.
-            credentials (auth_credentials.Credentials):
-                Custom credentials to use to update this resource. Overrides
-                credentials set in aiplatform.init.
-
-        """
-
-        gca_resource = deepcopy(self._gca_resource)
-        gca_resource.metadata.update(metadata)
-        api_client = self._instantiate_client(credentials=credentials)
-
-        update_gca_resource = self._update_resource(
-            client=api_client, resource=gca_resource,
-        )
-        self._gca_resource = update_gca_resource
 
     @classmethod
     @abc.abstractmethod

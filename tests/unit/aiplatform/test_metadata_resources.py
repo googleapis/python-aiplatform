@@ -168,7 +168,7 @@ class TestContext:
     def test_create_context(self, create_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_context = context._Context.create(
+        my_context = context._Context._create(
             resource_id=_TEST_CONTEXT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -218,7 +218,7 @@ class TestExecution:
     def test_create_execution(self, create_execution_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_execution = execution._Execution.create(
+        my_execution = execution._Execution._create(
             resource_id=_TEST_EXECUTION_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -270,7 +270,7 @@ class TestArtifact:
     def test_create_artifact(self, create_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_artifact = artifact._Artifact.create(
+        my_artifact = artifact._Artifact._create(
             resource_id=_TEST_ARTIFACT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,

@@ -68,7 +68,7 @@ class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
         self._gca_resource = self._get_gca_resource(resource_name=metadata_store_name)
 
     @classmethod
-    def create(
+    def get_or_create(
         cls,
         metadata_store_id: str = "default",
         project: Optional[str] = None,
@@ -76,22 +76,21 @@ class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
     ) -> "_MetadataStore":
-        """Creates a new MetadataStore if it does not exist.
+        """"Retrieves or Creates (if it does not exist) a Metadata Store.
 
         Args:
             metadata_store_id (str):
-                The {metadatastore} portion of the resource name with
-                the format:
-                projects/{project}/locations/{location}/metadataStores/{metadatastore}
+                The <metadatastore> portion of the resource name with the format:
+                projects/123/locations/us-central1/metadataStores/<metadatastore>
                 If not provided, the MetadataStore's ID will be set to "default" to create a default MetadataStore.
             project (str):
-                Project to upload this model to. Overrides project set in
+                Project used to retrieve or create the metadata store. Overrides project set in
                 aiplatform.init.
             location (str):
-                Location to upload this model to. Overrides location set in
+                Location used to retrieve or create the metadata store. Overrides location set in
                 aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Custom credentials used to retrieve or create the metadata store. Overrides
                 credentials set in aiplatform.init.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
@@ -107,7 +106,68 @@ class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
 
 
         Returns:
-            metadata_store (MetadataStore):
+            metadata_store (_MetadataStore):
+                Instantiated representation of the managed metadata store resource.
+
+        """
+
+        store = cls._get(
+            metadata_store_name=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        if not store:
+            store = cls._create(
+                metadata_store_id=metadata_store_id,
+                project=project,
+                location=location,
+                credentials=credentials,
+                encryption_spec_key_name=encryption_spec_key_name,
+            )
+        return store
+
+    @classmethod
+    def _create(
+        cls,
+        metadata_store_id: str = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+    ) -> "_MetadataStore":
+        """Creates a new MetadataStore if it does not exist.
+
+        Args:
+            metadata_store_id (str):
+                The <metadatastore> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadatastore>
+                If not provided, the MetadataStore's ID will be set to "default" to create a default MetadataStore.
+            project (str):
+                Project used to create the metadata store. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Location used to create the metadata store. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Custom credentials used to create the metadata store. Overrides
+                credentials set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the metadata store. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this MetadataStore and all sub-resources of this MetadataStore will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+
+
+        Returns:
+            metadata_store (_MetadataStore):
                 Instantiated representation of the managed metadata store resource.
 
         """
@@ -138,13 +198,13 @@ class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
         )
 
     @classmethod
-    def get(
+    def _get(
         cls,
         metadata_store_name: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "_MetadataStore":
+    ) -> "Optional[_MetadataStore]":
         """Returns a MetadataStore resource.
 
         Args:
@@ -154,18 +214,18 @@ class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
                 "my-store" when project and location are initialized or passed.
                 If not set, metadata_store_name will be set to "default".
             project (str):
-                Optional project to retrieve resource from. If not set, project
+                Optional project to retrieve the metadata store from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional location to retrieve resource from. If not set, location
+                Optional location to retrieve the metadata store from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Custom credentials to retrieve this metadata store. Overrides
                 credentials set in aiplatform.init.
 
         Returns:
-            metadata_store (_MetadataStore):
-                Instantiated representation of the managed Metadata Store resource.
+            metadata_store (Optional[_MetadataStore]):
+                An optional instantiated representation of the managed Metadata Store resource.
         """
 
         try:
