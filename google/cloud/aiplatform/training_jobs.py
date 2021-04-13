@@ -3020,16 +3020,15 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         target_column: str,
         time_column: str,
         time_series_identifier_column: str,
-        time_variant_past_only_columns: List[str],
-        time_variant_past_and_future_columns: List[str],
-        forecast_window_end: int,
-        period_unit: str,
-        period_count: int,
+        unavailable_at_forecast_columns: List[str],
+        available_at_forecast_columns: List[str],
+        forecast_horizon: int,
+        data_granularity_unit: str,
+        data_granularity_count: int,
         predefined_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
-        static_columns: Optional[List[str]] = None,
-        forecast_window_start: Optional[int] = None,
-        past_horizon: Optional[int] = None,
+        time_series_attribute_columns: Optional[List[str]] = None,
+        context_window: Optional[int] = None,
         export_evaluated_data_items: bool = False,
         export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
         export_evaluated_data_items_override_destination: bool = False,
@@ -3059,24 +3058,26 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Required. Name of the column that identifies time order in the time series.
             time_series_identifier_column (str):
                 Required. Name of the column that identifies the time series.
-            time_variant_past_only_columns (List[str]):
-                Required. Column names that should be used as time variant past only columns.
+            unavailable_at_forecast_columns (List[str]):
+                Required. Column names of columns that are unavailable at forecast.
                 Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is known for the past but not the future
+                [time_series_identifier_column]) that is unknown before the forecast
                 (e.g. population of a city in a given year, or weather on a given day).
-            time_variant_past_and_future_columns (List[str]):
-                Required. Column names that should be used as time variant past and future columns.
+            available_at_forecast_columns (List[str]):
+                Required. Column names of columns that are available at forecast.
                 Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is known for the past and the future.
-            forecast_window_end: (int):
-                Required. The number of periods offset into the future as the end of the forecast window
-                (the window of future values to predict, relative to the present.), where each period is one unit
-                of granularity as defined by [period]. Inclusive.
-            period_unit (str):
-                Required. The time granularity unit of this time period. Accepted values are ``minute``,
+                [time_series_identifier_column]) that is known at forecast.
+            forecast_horizon: (int):
+                Required. The amount of time into the future for which forecasted values for the target are
+                returned. Expressed in number of units defined by the [data_granularity_unit] and
+                [data_granularity_count] field. Inclusive.
+            data_granularity_unit (str):
+                Required. The data granularity unit. Accepted values are ``minute``,
                 ``hour``, ``day``, ``week``, ``month``, ``year``.
-            period_count (int):
-                Required. The number of units per period, e.g. 3 weeks or 2 months.
+            data_granularity_count (int):
+                Required. The number of data granularity units between data points in the training
+                data. If [data_granularity_unit] is `minute`, can be 1, 5, 10, 15, or 30. For all other
+                values of [data_granularity_unit], must be 1.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -3094,17 +3095,14 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 10000 inclusively, and 0 value means that the row is ignored.
                 If the weight column field is not set, then all rows are assumed to have
                 equal weight of 1.
-            static_columns (List[str]):
-                Optional. Column names that should be used as static columns.
+            time_series_attribute_columns (List[str]):
+                Optional. Column names that should be used as attribute columns.
                 Each column is constant within a time series.
-            forecast_window_start (int):
-                Optional. The number of periods offset into the future as the start of the forecast window
-                (the window of future values to predict, relative to the present.), where each period is one
-                unit of granularity as defined by [period]. Inclusive.
-            past_horizon (int):
-                Optional. The number of periods offset into the past to restrict past sequence, where each
-                period is one unit of granularity as defined by [period]. When not provided uses the
-                default value of 0 which means the model sets each series historical window to be 0 (also
+            context_window (int):
+                Optional. The amount of time into the past training and prediction data is used for
+                model training and prediction respectively. Expressed in number of units defined by the
+                [data_granularity_unit] and [data_granularity_count] fields. When not provided uses the
+                default value of 0 which means the model sets each series context window to be 0 (also
                 known as "cold start"). Inclusive.
             export_evaluated_data_items (bool):
                 Whether to export the test set predictions to a BigQuery table.
@@ -3182,16 +3180,15 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             target_column=target_column,
             time_column=time_column,
             time_series_identifier_column=time_series_identifier_column,
-            time_variant_past_only_columns=time_variant_past_only_columns,
-            time_variant_past_and_future_columns=time_variant_past_and_future_columns,
-            forecast_window_end=forecast_window_end,
-            period_unit=period_unit,
-            period_count=period_count,
+            unavailable_at_forecast_columns=unavailable_at_forecast_columns,
+            available_at_forecast_columns=available_at_forecast_columns,
+            forecast_horizon=forecast_horizon,
+            data_granularity_unit=data_granularity_unit,
+            data_granularity_count=data_granularity_count,
             predefined_split_column_name=predefined_split_column_name,
             weight_column=weight_column,
-            static_columns=static_columns,
-            forecast_window_start=forecast_window_start,
-            past_horizon=past_horizon,
+            time_series_attribute_columns=time_series_attribute_columns,
+            context_window=context_window,
             budget_milli_node_hours=budget_milli_node_hours,
             export_evaluated_data_items=export_evaluated_data_items,
             export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
@@ -3209,16 +3206,15 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         target_column: str,
         time_column: str,
         time_series_identifier_column: str,
-        time_variant_past_only_columns: List[str],
-        time_variant_past_and_future_columns: List[str],
-        forecast_window_end: int,
-        period_unit: str,
-        period_count: int,
+        unavailable_at_forecast_columns: List[str],
+        available_at_forecast_columns: List[str],
+        forecast_horizon: int,
+        data_granularity_unit: str,
+        data_granularity_count: int,
         predefined_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
-        static_columns: Optional[List[str]] = None,
-        forecast_window_start: Optional[int] = None,
-        past_horizon: Optional[int] = None,
+        time_series_attribute_columns: Optional[List[str]] = None,
+        context_window: Optional[int] = None,
         export_evaluated_data_items: bool = False,
         export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
         export_evaluated_data_items_override_destination: bool = False,
@@ -3248,24 +3244,26 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Required. Name of the column that identifies time order in the time series.
             time_series_identifier_column (str):
                 Required. Name of the column that identifies the time series.
-            time_variant_past_only_columns (List[str]):
-                Required. Column names that should be used as time variant past only columns.
+            unavailable_at_forecast_columns (List[str]):
+                Required. Column names of columns that are unavailable at forecast.
                 Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is known for the past but not the future
+                [time_series_identifier_column]) that is unknown before the forecast
                 (e.g. population of a city in a given year, or weather on a given day).
-            time_variant_past_and_future_columns (List[str]):
-                Required. Column names that should be used as time variant past and future columns.
+            available_at_forecast_columns (List[str]):
+                Required. Column names of columns that are available at forecast.
                 Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is known for the past and the future.
-            forecast_window_end: (int):
-                Required. The number of periods offset into the future as the end of the forecast window
-                (the window of future values to predict, relative to the present.), where each period is one unit
-                of granularity as defined by [period]. Inclusive.
-            period_unit (str):
-                Required. The time granularity unit of this time period. Accepted values are ``minute``,
+                [time_series_identifier_column]) that is known at forecast.
+            forecast_horizon: (int):
+                Required. The amount of time into the future for which forecasted values for the target are
+                returned. Expressed in number of units defined by the [data_granularity_unit] and
+                [data_granularity_count] field. Inclusive.
+            data_granularity_unit (str):
+                Required. The data granularity unit. Accepted values are ``minute``,
                 ``hour``, ``day``, ``week``, ``month``, ``year``.
-            period_count (int):
-                Required. The number of units per period, e.g. 3 weeks or 2 months.
+            data_granularity_count (int):
+                Required. The number of data granularity units between data points in the training
+                data. If [data_granularity_unit] is `minute`, can be 1, 5, 10, 15, or 30. For all other
+                values of [data_granularity_unit], must be 1.
             predefined_split_column_name (str):
                 Optional. The key is a name of one of the Dataset's data
                 columns. The value of the key (either the label's value or
@@ -3283,14 +3281,10 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 10000 inclusively, and 0 value means that the row is ignored.
                 If the weight column field is not set, then all rows are assumed to have
                 equal weight of 1.
-            static_columns (List[str]):
-                Optional. Column names that should be used as static columns.
+            time_series_attribute_columns (List[str]):
+                Optional. Column names that should be used as attribute columns.
                 Each column is constant within a time series.
-            forecast_window_start (int):
-                Optional. The number of periods offset into the future as the start of the forecast window
-                (the window of future values to predict, relative to the present.), where each period is one
-                unit of granularity as defined by [period]. Inclusive.
-            past_horizon (int):
+            context_window (int):
                 Optional. The number of periods offset into the past to restrict past sequence, where each
                 period is one unit of granularity as defined by [period]. When not provided uses the
                 default value of 0 which means the model sets each series historical window to be 0 (also
@@ -3362,17 +3356,19 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             "targetColumn": target_column,
             "timeColumn": time_column,
             "timeSeriesIdentifierColumn": time_series_identifier_column,
-            "staticColumns": static_columns,
-            "timeVariantPastOnlyColumns": time_variant_past_only_columns,
-            "timeVariantPastAndFutureColumns": time_variant_past_and_future_columns,
-            "forecastWindowEnd": forecast_window_end,
-            "period": {"unit": period_unit, "quantity": period_count},
+            "timeSeriesAttributeColumns": time_series_attribute_columns,
+            "unavailableAtForecastColumns": unavailable_at_forecast_columns,
+            "availableAtForecastColumns": available_at_forecast_columns,
+            "forecastHorizon": forecast_horizon,
+            "dataGranularity": {
+                "unit": data_granularity_unit,
+                "quantity": data_granularity_count
+            },
             "transformations": self._column_transformations,
             "trainBudgetMilliNodeHours": budget_milli_node_hours,
             # optional inputs
             "weightColumn": weight_column,
-            "forecastWindowStart": forecast_window_start,
-            "pastHorizon": past_horizon,
+            "contextWindow": context_window,
             "quantiles": quantiles,
             "validationOptions": validation_options,
             "optimizationObjective": self._optimization_objective,
