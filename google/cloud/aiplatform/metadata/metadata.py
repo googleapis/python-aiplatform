@@ -16,9 +16,10 @@
 #
 
 import logging
-from typing import Dict
+from typing import Dict, Union
 
 from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
+from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
 from google.cloud.aiplatform.metadata.artifact import _Artifact
@@ -32,23 +33,17 @@ class _MetadataService:
         self._run = None
 
     def set_experiment(self, experiment: str):
-        if not experiment:
-            raise ValueError(f"Invalid experiment {experiment}.")
-
         store = _MetadataStore.get()
         if not store:
-            logging.info(
-                f"Creating a default MetadataStore for experiment {experiment}"
-            )
             _MetadataStore.create()
 
         context = _Context.get(resource_name=experiment)
         if not context:
-            logging.info(f"Creating a Context for experiment {experiment}")
+            logging.info(f"Creating Experiment {experiment}")
             context = _Context.create(
                 resource_id=experiment,
-                schema_title="system.Experiment",
-                schema_version="0.0.1",
+                schema_title=constants.SYSTEM_EXPERIMENT,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
             )
         self._experiment = context.name
 
@@ -58,88 +53,69 @@ class _MetadataService:
                 "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') or "
                 "aiplatform.set_experiment(experiment='my-experiment') before trying to set_run. "
             )
-        if not run:
-            raise ValueError(f"Invalid run {run}.")
-
         execution = _Execution.get(resource_name=run)
         if not execution:
-            logging.info(f"Creating an Execution for run {run}")
+            logging.info(f"Creating Run {run}")
             execution = _Execution.create(
-                resource_id=run, schema_title="system.Run", schema_version="0.0.1",
+                resource_id=run,
+                schema_title=constants.SYSTEM_RUN,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
             )
         self._run = execution.name
 
-    def log_param(self, name: str, value):
-        if not isinstance(value, (float, int, str)):
-            raise ValueError(
-                f"Invalid type for parameter value {value}. It should be one of [int, float, str]"
-            )
+    def log_param(self, name: str, value: Union[float, int, str]):
         return self.log_params({name: value})
 
-    def log_params(self, params: Dict):
-        if not self._experiment:
-            raise ValueError(
-                "No experiment set for logging parameters. Make sure to call aiplatform.init("
-                "experiment='my-experiment') or aiplatform.set_experiment(experiment='my-experiment') before trying "
-                "to log_params. "
-            )
-        if not self._run:
-            raise ValueError(
-                "No run set for logging parameters. Make sure to call aiplatform.init(experiment='my-experiment', "
-                "run='my-run') or aiplatform.set_run('my-run') before trying to log_params. "
-            )
+    def log_params(self, params: Dict[str, Union[float, int, str]]):
+        self._validate_experiment_and_run(method_name="log_params")
         execution = _Execution.get(resource_name=self._run)
         if not execution:
-            logging.info(f"Creating an Execution for run {self._run}")
+            logging.info(f"Creating Run {self._run}")
             execution = _Execution.create(
                 resource_id=self._run,
-                schema_title="system.Run",
-                schema_version="0.0.1",
+                schema_title=constants.SYSTEM_RUN,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
                 metadata=params,
             )
         else:
-            logging.info(f"Updating Execution for run {self._run}")
+            logging.info(f"Updating Run {self._run}")
             execution.update(metadata=params)
         self._run = execution.name
 
-    def log_metric(self, name: str, value):
-        if not isinstance(value, (float, int, str)):
-            raise ValueError(
-                f"Invalid type for metric value {value}. It should be one of [int, float, str]"
-            )
+    def log_metric(self, name: str, value: Union[str, float, int]):
         return self.log_metrics({name: value})
 
-    def log_metrics(self, metrics: Dict):
-        if not self._experiment:
-            raise ValueError(
-                "No experiment set for logging metrics. Make sure to call aiplatform.init(experiment='my-experiment') "
-                "or aiplatform.set_experiment(experiment='my-experiment') before trying to log_metrics. "
-            )
-        if not self._run:
-            raise ValueError(
-                "No run set for logging metrics. Make sure to call aiplatform.init(experiment='my-experiment', "
-                "run='my-run') or aiplatform.set_run('my-run') before trying to log_metrics. "
-            )
+    def log_metrics(self, metrics: Dict[str, Union[str, float, int]]):
+        self._validate_experiment_and_run(method_name="log_metrics")
         # Only one metrics artifact for the (experiment, run) tuple.
         artifact_id = f"{self._experiment}-{self._run}"
         artifact = _Artifact.get(resource_name=artifact_id)
         if not artifact:
-            logging.info(f"Creating an Artifact for run {self._run}")
+            logging.info(f"Creating Metrics for Run {self._run}")
             _Artifact.create(
                 resource_id=artifact_id,
-                schema_title="system.Metrics",
-                schema_version="0.0.1",
+                schema_title=constants.SYSTEM_METRICS,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
                 metadata=metrics,
             )
         else:
-            logging.info(f"Updating Artifact for run {self._run}")
+            logging.info(f"Updating Metrics for Run {self._run}")
             artifact.update(metadata=metrics)
 
     def get_experiment(self, experiment: str):
         raise NotImplementedError("get_experiment not implemented")
 
-    def get_run(self, run: str):
-        raise NotImplementedError("get_run not implemented")
+    def _validate_experiment_and_run(self, method_name: str):
+        if not self._experiment:
+            raise ValueError(
+                f"No experiment set. Make sure to call aiplatform.init(experiment='my-experiment') "
+                f"or aiplatform.set_experiment(experiment='my-experiment') before trying to {method_name}. "
+            )
+        if not self._run:
+            raise ValueError(
+                f"No run set. Make sure to call aiplatform.init(experiment='my-experiment', "
+                f"run='my-run') or aiplatform.set_run('my-run') before trying to {method_name}. "
+            )
 
 
 metadata_service = _MetadataService()

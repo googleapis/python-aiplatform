@@ -176,7 +176,7 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "_Resource":
+    ) -> Optional["_Resource"]:
         """Returns a metadata Resource.
 
         Args:
@@ -200,8 +200,8 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
                 credentials set in aiplatform.init.
 
         Returns:
-            resource (_Resource):
-                Instantiated representation of the managed Metadata resource.
+            resource (Optional[_Resource]):
+                An optional instantiated representation of the managed Metadata resource.
 
         """
 
@@ -218,34 +218,28 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
 
     def update(
         self,
-        metadata: Optional[Dict] = None,
+        metadata: Dict,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
         """Updates an existing Metadata resource with new metadata.
 
         Args:
             metadata (Dict):
-                Optional. metadata contains the updated metadata information.
+                Required. metadata contains the updated metadata information.
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to update this resource. Overrides
                 credentials set in aiplatform.init.
 
         """
 
-        if not self._gca_resource:
-            raise ValueError("Invalid resource to update")
-
         gca_resource = deepcopy(self._gca_resource)
         gca_resource.metadata.update(metadata)
         api_client = self._instantiate_client(credentials=credentials)
 
-        try:
-            update_gca_resource = self.__class__._update_resource(
-                client=api_client, resource=gca_resource,
-            )
-            self._gca_resource = update_gca_resource
-        except exceptions.NotFound:
-            logging.info(f"Resource to update '{self.name}' not found.")
+        update_gca_resource = self._update_resource(
+            client=api_client, resource=gca_resource,
+        )
+        self._gca_resource = update_gca_resource
 
     @classmethod
     @abc.abstractmethod
@@ -271,8 +265,8 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         """Update resource method."""
         pass
 
-    @classmethod
-    def _extract_metadata_store_id(cls, resource_name, resource_noun) -> str:
+    @staticmethod
+    def _extract_metadata_store_id(resource_name, resource_noun) -> str:
         """Extracts the metadata store id from the resource name.
 
         Args:
