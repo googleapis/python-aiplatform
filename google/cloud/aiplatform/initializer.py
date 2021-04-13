@@ -60,7 +60,7 @@ class _Config:
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
     ):
-        """Updates common initalization parameters with provided options.
+        """Updates common initialization parameters with provided options.
 
         Args:
             project (str): The default project to use when making API calls.
@@ -69,8 +69,8 @@ class _Config:
             experiment (str): The experiment name
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
-            credentials (google.auth.crendentials.Credentials): The default custom
-                credentials to use when making API calls. If not provided crendentials
+            credentials (google.auth.credentials.Credentials): The default custom
+                credentials to use when making API calls. If not provided credentials
                 will be ascertained from the environment.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
