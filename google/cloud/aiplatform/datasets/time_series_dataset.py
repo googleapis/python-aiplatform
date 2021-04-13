@@ -30,7 +30,7 @@ class TimeSeriesDataset(datasets._Dataset):
     """Managed time series dataset resource for AI Platform"""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
-        schema.dataset.metadata.tabular,
+        schema.dataset.metadata.time_series,
     )
 
     @classmethod
