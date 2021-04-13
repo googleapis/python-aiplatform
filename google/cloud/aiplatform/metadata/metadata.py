@@ -53,9 +53,6 @@ class _MetadataService:
         )
         self._run = execution.name
 
-    def log_param(self, name: str, value: Union[float, int, str]):
-        return self.log_params({name: value})
-
     def log_params(self, params: Dict[str, Union[float, int, str]]):
         self._validate_experiment_and_run(method_name="log_params")
         execution = _Execution.get_or_create(
@@ -65,9 +62,6 @@ class _MetadataService:
         )
         execution.update(metadata=params)
         self._run = execution.name
-
-    def log_metric(self, name: str, value: Union[str, float, int]):
-        return self.log_metrics({name: value})
 
     def log_metrics(self, metrics: Dict[str, Union[str, float, int]]):
         self._validate_experiment_and_run(method_name="log_metrics")
@@ -82,6 +76,9 @@ class _MetadataService:
 
     def get_experiment(self, experiment: str):
         raise NotImplementedError("get_experiment not implemented")
+
+    def get_pipeline(self, pipeline: str):
+        raise NotImplementedError("get_pipeline not implemented")
 
     def _validate_experiment_and_run(self, method_name: str):
         if not self._experiment:
