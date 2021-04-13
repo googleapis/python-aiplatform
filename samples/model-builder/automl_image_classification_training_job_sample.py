@@ -2,12 +2,11 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_automl_image_classification_training_job_sample]
 def automl_image_classification_training_job_sample(
-    project: str,
-    location: str,
-    display_name: str,
-    dataset: aiplatform.datasets.image_dataset.ImageDataset,
+    project: str, location: str, dataset_id: str, display_name: str,
 ):
     aiplatform.init(project=project, location=location)
+
+    dataset = aiplatform.ImageDataset(dataset_id)
 
     job = aiplatform.AutoMLImageTrainingJob(
         display_name=display_name,
