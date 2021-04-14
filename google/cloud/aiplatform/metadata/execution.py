@@ -18,7 +18,6 @@
 from typing import Optional, Dict
 
 import proto
-from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata.resource import _Resource

@@ -18,11 +18,8 @@
 from typing import Optional, Dict, Sequence
 
 import proto
-from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.metadata.artifact import _Artifact
-from google.cloud.aiplatform.metadata.execution import _Execution
 from google.cloud.aiplatform.metadata.resource import _Resource
 from google.cloud.aiplatform_v1beta1.types import context as gca_context
 
