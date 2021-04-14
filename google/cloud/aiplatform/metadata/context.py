@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from typing import Optional, Dict, Sequence
+
 # Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +17,10 @@
 # limitations under the License.
 #
 import proto
-from typing import Optional, Dict, Sequence
-
-from google.cloud.aiplatform import utils, initializer
-from google.cloud.aiplatform.metadata.resource import _Resource
-
 from google.auth import credentials as auth_credentials
+
+from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.metadata.resource import _Resource
 from google.cloud.aiplatform_v1beta1.types import context as gca_context
 
 
