@@ -30,8 +30,7 @@ class _MetadataService:
     def __init__(self):
         self._experiment = None
         self._run = None
-        self._metric = None
-        self._experiment_resource = None
+        self._metrics = None
 
     def set_experiment(self, experiment: str):
         _MetadataStore.get_or_create()
@@ -42,8 +41,7 @@ class _MetadataService:
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
             metadata={constants.EXPERIMENT_DELETED_KEY: constants.EXPERIMENT_DELETED_VALUE},
         )
-        self._experiment = context.name
-        self._experiment_resource = context
+        self._experiment = context
 
     def set_run(self, run: str):
         if not self._experiment:
@@ -51,18 +49,18 @@ class _MetadataService:
                 "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') "
                 "before trying to set_run. "
             )
-        run_execution_id = f"{self._experiment}-{run}"
+        run_execution_id = f"{self._experiment.name}-{run}"
         run_execution = _Execution.get_or_create(
             resource_id=run_execution_id,
             display_name=run,
             schema_title=constants.SYSTEM_RUN,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
         )
-        self._experiment_resource.add_artifacts_and_executions(
+        self._experiment.add_artifacts_and_executions(
             execution_resource_names=[run_execution.resource_name]
         )
 
-        metrics_artifact_id = f"{self._experiment}-{run}-metrics"
+        metrics_artifact_id = f"{self._experiment.name}-{run}-metrics"
         metrics_artifact = _Artifact.get_or_create(
             resource_id=metrics_artifact_id,
             display_name=metrics_artifact_id,
@@ -71,13 +69,14 @@ class _MetadataService:
         )
         run_execution.add_artifact(artifact_resource_name=metrics_artifact.resource_name, input=False)
 
-        self._run = run_execution.name
-        self._metric = metrics_artifact.name
+        self._run = run_execution
+        self._metrics = metrics_artifact
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
         self._validate_experiment_and_run(method_name="log_params")
+        # query the latest run execution resource before logging.
         execution = _Execution.get_or_create(
-            resource_id=self._run,
+            resource_id=self._run.name,
             schema_title=constants.SYSTEM_RUN,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
         )
@@ -85,8 +84,9 @@ class _MetadataService:
 
     def log_metrics(self, metrics: Dict[str, Union[str, float, int]]):
         self._validate_experiment_and_run(method_name="log_metrics")
+        # query the latest metrics artifact resource before logging.
         artifact = _Artifact.get_or_create(
-            resource_id=self._metric,
+            resource_id=self._metrics.name,
             schema_title=constants.SYSTEM_METRICS,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
         )
