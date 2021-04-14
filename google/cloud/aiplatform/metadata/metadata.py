@@ -39,7 +39,7 @@ class _MetadataService:
             display_name=experiment,
             schema_title=constants.SYSTEM_EXPERIMENT,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
-            metadata={constants.EXPERIMENT_DELETED_KEY: constants.EXPERIMENT_DELETED_VALUE},
+            metadata=constants.EXPERIMENT_METADATA,
         )
         self._experiment = context
 
@@ -67,7 +67,9 @@ class _MetadataService:
             schema_title=constants.SYSTEM_METRICS,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
         )
-        run_execution.add_artifact(artifact_resource_name=metrics_artifact.resource_name, input=False)
+        run_execution.add_artifact(
+            artifact_resource_name=metrics_artifact.resource_name, input=False
+        )
 
         self._run = run_execution
         self._metrics = metrics_artifact

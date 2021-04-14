@@ -76,5 +76,7 @@ class _Context(_Resource):
                 Optional. The full resource name of Executions to associate with the Context.
         """
         self.api_client.add_context_artifacts_and_executions(
-            context=self.resource_name, artifacts=artifact_resource_names, executions=execution_resource_names,
+            context=self.resource_name,
+            artifacts=artifact_resource_names,
+            executions=execution_resource_names,
         )

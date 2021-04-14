@@ -74,7 +74,8 @@ class _Execution(_Resource):
         """
 
         event = Event(
-            artifact=artifact_resource_name, type_=Event.Type.INPUT if input else Event.Type.OUTPUT,
+            artifact=artifact_resource_name,
+            type_=Event.Type.INPUT if input else Event.Type.OUTPUT,
         )
 
         self.api_client.add_execution_events(

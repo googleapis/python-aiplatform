@@ -27,6 +27,6 @@ SCHEMA_VERSIONS = {
     SYSTEM_METRICS: _DEFAULT_SCHEMA_VERSION,
 }
 
-# The EXPERIMENT_DELETED_KEY is needed until we support context deletion in backend service.
-EXPERIMENT_DELETED_KEY = "experiment_deleted"
-EXPERIMENT_DELETED_VALUE = False
+# The EXPERIMENT_METADATA is needed until we support context deletion in backend service.
+# TODO: delete EXPERIMENT_METADATA once backend supports context deletion.
+EXPERIMENT_METADATA = {"experiment_deleted": False, "experiment_type": "MB"}
