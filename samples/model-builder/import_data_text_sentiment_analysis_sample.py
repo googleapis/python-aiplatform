@@ -16,6 +16,7 @@ from typing import List, Union
 
 from google.cloud import aiplatform
 
+
 #  [START aiplatform_sdk_import_data_text_sentiment_analysis_sample]
 def import_data_text_sentiment_analysis_sample(
     project: str,

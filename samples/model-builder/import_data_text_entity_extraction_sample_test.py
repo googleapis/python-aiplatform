@@ -13,10 +13,10 @@
 # limitations under the License.
 
 
-import test_constants as constants
-import import_data_text_entity_extraction_sample
-
 from google.cloud.aiplatform import schema
+
+import import_data_text_entity_extraction_sample
+import test_constants as constants
 
 
 def test_import_data_text_entity_extraction_sample(
@@ -34,7 +34,9 @@ def test_import_data_text_entity_extraction_sample(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_get_text_dataset.assert_called_once_with(constants.DATASET_NAME,)
+    mock_get_text_dataset.assert_called_once_with(
+        constants.DATASET_NAME,
+    )
 
     mock_import_text_dataset.assert_called_once_with(
         gcs_source=constants.GCS_SOURCES,
