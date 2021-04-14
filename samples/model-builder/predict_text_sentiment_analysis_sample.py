@@ -15,6 +15,7 @@
 
 from google.cloud import aiplatform
 
+
 #  [START aiplatform_sdk_predict_text_sentiment_analysis_sample]
 def predict_text_sentiment_analysis_sample(project, location, endpoint_id, content):
 

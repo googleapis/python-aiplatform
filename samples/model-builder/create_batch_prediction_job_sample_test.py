@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
-import test_constants as constants
 import create_batch_prediction_job_sample
+import test_constants as constants
 
 
 def test_create_batch_prediction_job_sample(

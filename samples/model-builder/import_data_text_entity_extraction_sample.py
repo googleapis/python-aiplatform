@@ -16,6 +16,7 @@ from typing import List, Union
 
 from google.cloud import aiplatform
 
+
 #  [START aiplatform_sdk_import_data_text_entity_extraction_sample]
 def import_data_text_entity_extraction_sample(
     project: str,

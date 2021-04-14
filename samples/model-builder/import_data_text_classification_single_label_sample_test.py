@@ -13,10 +13,10 @@
 # limitations under the License.
 
 
-import test_constants as constants
-import import_data_text_classification_single_label_sample
-
 from google.cloud.aiplatform import schema
+
+import import_data_text_classification_single_label_sample
+import test_constants as constants
 
 
 def test_import_data_text_classification_single_label_sample(
