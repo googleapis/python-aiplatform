@@ -849,6 +849,20 @@ class TestTabularDataset:
         for ds in ds_list:
             assert type(ds) == aiplatform.TabularDataset
 
+    def test_list_dataset_no_order_or_filter(self, list_datasets_mock):
+
+        ds_list = aiplatform.TabularDataset.list()
+
+        list_datasets_mock.assert_called_once_with(
+            request={"parent": _TEST_PARENT, "filter": None}
+        )
+
+        # Ensure returned list is smaller since it filtered out non-tabular datasets
+        assert len(ds_list) < len(_TEST_DATASET_LIST)
+
+        for ds in ds_list:
+            assert type(ds) == aiplatform.TabularDataset
+
 
 class TestTextDataset:
     def setup_method(self):
