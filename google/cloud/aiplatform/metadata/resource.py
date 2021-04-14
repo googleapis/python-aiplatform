@@ -22,9 +22,9 @@ from typing import Optional, Dict
 from copy import deepcopy
 
 from google.api_core import exceptions
-from google.cloud.aiplatform import utils
 from google.auth import credentials as auth_credentials
 
+from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import base, initializer
 
 

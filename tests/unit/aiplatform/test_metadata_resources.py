@@ -26,7 +26,12 @@ from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import execution
 
-from google.cloud.aiplatform_v1beta1 import MetadataServiceClient
+from google.cloud.aiplatform_v1beta1 import (
+    MetadataServiceClient,
+    AddExecutionEventsResponse,
+    Event,
+)
+from google.cloud.aiplatform_v1beta1 import AddContextArtifactsAndExecutionsResponse
 from google.cloud.aiplatform_v1beta1 import Context as GapicContext
 from google.cloud.aiplatform_v1beta1 import Execution as GapicExecution
 from google.cloud.aiplatform_v1beta1 import Artifact as GapicArtifact
@@ -87,6 +92,17 @@ def create_context_mock():
 
 
 @pytest.fixture
+def add_context_artifacts_and_executions_mock():
+    with patch.object(
+        MetadataServiceClient, "add_context_artifacts_and_executions"
+    ) as add_context_artifacts_and_executions_mock:
+        add_context_artifacts_and_executions_mock.return_value = (
+            AddContextArtifactsAndExecutionsResponse()
+        )
+        yield add_context_artifacts_and_executions_mock
+
+
+@pytest.fixture
 def get_execution_mock():
     with patch.object(MetadataServiceClient, "get_execution") as get_execution_mock:
         get_execution_mock.return_value = GapicExecution(
@@ -114,6 +130,15 @@ def create_execution_mock():
             metadata=_TEST_METADATA,
         )
         yield create_execution_mock
+
+
+@pytest.fixture
+def add_execution_events_mock():
+    with patch.object(
+        MetadataServiceClient, "add_execution_events"
+    ) as add_execution_events_mock:
+        add_execution_events_mock.return_value = AddExecutionEventsResponse()
+        yield add_execution_events_mock
 
 
 @pytest.fixture
@@ -193,6 +218,48 @@ class TestContext:
         expected_context.name = _TEST_CONTEXT_NAME
         assert my_context._gca_resource == expected_context
 
+    def test_add_artifacts_and_executions(
+        self, add_context_artifacts_and_executions_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        context._Context.add_artifacts_or_executions(
+            context_id=_TEST_CONTEXT_ID,
+            metadata_store_id=_TEST_METADATA_STORE,
+            artifact_ids=[_TEST_ARTIFACT_ID],
+            execution_ids=[_TEST_EXECUTION_ID],
+        )
+        add_context_artifacts_and_executions_mock.assert_called_once_with(
+            context=_TEST_CONTEXT_NAME,
+            artifacts=[_TEST_ARTIFACT_NAME],
+            executions=[_TEST_EXECUTION_NAME],
+        )
+
+    def test_add_artifacts_only(self, add_context_artifacts_and_executions_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        context._Context.add_artifacts_or_executions(
+            context_id=_TEST_CONTEXT_ID,
+            metadata_store_id=_TEST_METADATA_STORE,
+            artifact_ids=[_TEST_ARTIFACT_ID],
+        )
+        add_context_artifacts_and_executions_mock.assert_called_once_with(
+            context=_TEST_CONTEXT_NAME,
+            artifacts=[_TEST_ARTIFACT_NAME],
+            executions=None,
+        )
+
+    def test_add_executions_only(self, add_context_artifacts_and_executions_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        context._Context.add_artifacts_or_executions(
+            context_id=_TEST_CONTEXT_ID,
+            metadata_store_id=_TEST_METADATA_STORE,
+            execution_ids=[_TEST_EXECUTION_ID],
+        )
+        add_context_artifacts_and_executions_mock.assert_called_once_with(
+            context=_TEST_CONTEXT_NAME,
+            artifacts=None,
+            executions=[_TEST_EXECUTION_NAME],
+        )
+
 
 class TestExecution:
     def setup_method(self):
@@ -244,6 +311,19 @@ class TestExecution:
 
         expected_execution.name = _TEST_EXECUTION_NAME
         assert my_execution._gca_resource == expected_execution
+
+    def test_add_artifact(self, add_execution_events_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        execution._Execution.add_artifact(
+            execution_id=_TEST_EXECUTION_ID,
+            artifact_id=_TEST_ARTIFACT_ID,
+            input=False,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+        add_execution_events_mock.assert_called_once_with(
+            execution=_TEST_EXECUTION_NAME,
+            events=[Event(artifact=_TEST_ARTIFACT_NAME, type_=Event.Type.OUTPUT)],
+        )
 
 
 class TestArtifact:

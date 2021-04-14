@@ -78,7 +78,7 @@ class _Context(_Resource):
                 the format:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/<resource_noun>/<resource_id>.
             artifact_ids (Sequence[str]):
-                Optional. The resource_ids of the Artifacts to attribute to the Context..
+                Optional. The resource_ids of the Artifacts to attribute to the Context.
             execution_ids (Sequence[str]):
                 Optional. The resource_ids of the Executions to associate with the Context.
             metadata_store_id (str):
@@ -98,38 +98,41 @@ class _Context(_Resource):
         """
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
-        parent = (
-            initializer.global_config.common_location_path(
-                project=project, location=location
-            )
-            + f"/metadataStores/{metadata_store_id}"
-        )
-
         context_resource_name = utils.full_resource_name(
-            context_id, cls._resource_noun, project=project, location=location
+            resource_name=context_id,
+            resource_noun=f"metadataStores/{metadata_store_id}/{cls._resource_noun}",
+            project=project,
+            location=location,
         )
 
         artifact_resource_names = None
         execution_resource_names = None
         if artifact_ids is not None:
-            artifact_resource_names = map(
-                lambda x: utils.full_resource_name(
-                    x, "artifacts", project=project, location=location
-                ),
-                artifact_ids,
+            artifact_resource_names = list(
+                map(
+                    lambda x: utils.full_resource_name(
+                        resource_name=x,
+                        resource_noun=f"metadataStores/{metadata_store_id}/artifacts",
+                        project=project,
+                        location=location,
+                    ),
+                    artifact_ids,
+                )
             )
         if execution_ids is not None:
-            execution_resource_names = map(
-                lambda x: utils.full_resource_name(
-                    x, "executions", project=project, location=location
-                ),
-                execution_ids,
+            execution_resource_names = list(
+                map(
+                    lambda x: utils.full_resource_name(
+                        resource_name=x,
+                        resource_noun=f"metadataStores/{metadata_store_id}/executions",
+                        project=project,
+                        location=location,
+                    ),
+                    execution_ids,
+                )
             )
 
-        print(type(execution_resource_names))
-        print(execution_resource_names)
-
-        return api_client.add_context_artifacts_and_executions(
+        api_client.add_context_artifacts_and_executions(
             context=context_resource_name,
             artifacts=artifact_resource_names,
             executions=execution_resource_names,
