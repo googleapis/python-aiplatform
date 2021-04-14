@@ -923,14 +923,15 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
             credentials=credentials,
         )
 
-        desc = "desc" in order_by
-        order_by = order_by.replace("desc", "")
-        order_by = order_by.split(",")
+        if order_by:
+            desc = "desc" in order_by
+            order_by = order_by.replace("desc", "")
+            order_by = order_by.split(",")
 
-        li.sort(
-            key=lambda x: tuple(getattr(x, field.strip()) for field in order_by),
-            reverse=desc,
-        )
+            li.sort(
+                key=lambda x: tuple(getattr(x, field.strip()) for field in order_by),
+                reverse=desc,
+            )
 
         return li
 
