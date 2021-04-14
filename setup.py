@@ -31,7 +31,7 @@ with io.open(readme_filename, encoding="utf-8") as readme_file:
 
 setuptools.setup(
     name=name,
-    version=version,
+    version=setuptools.sic(version),
     description=description,
     long_description=readme,
     packages=setuptools.PEP420PackageFinder.find(),
