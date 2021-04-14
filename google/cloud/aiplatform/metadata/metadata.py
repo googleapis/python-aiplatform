@@ -17,11 +17,11 @@
 
 from typing import Dict, Union
 
-from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 from google.cloud.aiplatform.metadata import constants
+from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import _Execution
-from google.cloud.aiplatform.metadata.artifact import _Artifact
+from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
 
 
 class _MetadataService:
@@ -31,6 +31,7 @@ class _MetadataService:
         self._experiment = None
         self._run = None
         self._metric = None
+        self._experiment_resource = None
 
     def set_experiment(self, experiment: str):
         _MetadataStore.get_or_create()
@@ -42,6 +43,7 @@ class _MetadataService:
             metadata={constants.UI_DETECTION_KEY: constants.UI_DETECTION_VALUE},
         )
         self._experiment = context.name
+        self._experiment_resource = context
 
     def set_run(self, run: str):
         if not self._experiment:
@@ -50,29 +52,27 @@ class _MetadataService:
                 "before trying to set_run. "
             )
         run_execution_id = f"{self._experiment}-{run}"
-        execution = _Execution.get_or_create(
+        run_execution = _Execution.get_or_create(
             resource_id=run_execution_id,
             display_name=run,
             schema_title=constants.SYSTEM_RUN,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
         )
-        _Context.add_artifacts_or_executions(
-            context_id=self._experiment, execution_ids=[execution.name]
+        self._experiment_resource.add_artifacts_or_executions(
+            executions=[run_execution.resource_name]
         )
 
         metrics_artifact_id = f"{self._experiment}-{run}-metrics"
-        artifact = _Artifact.get_or_create(
+        metrics_artifact = _Artifact.get_or_create(
             resource_id=metrics_artifact_id,
             display_name=metrics_artifact_id,
             schema_title=constants.SYSTEM_METRICS,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
         )
-        _Execution.add_artifact(
-            execution_id=run_execution_id, artifact_id=metrics_artifact_id, input=False
-        )
+        run_execution.add_artifact(artifact=metrics_artifact.resource_name, input=False)
 
-        self._run = execution.name
-        self._metric = artifact.name
+        self._run = run_execution.name
+        self._metric = metrics_artifact.name
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
         self._validate_experiment_and_run(method_name="log_params")

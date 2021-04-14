@@ -294,15 +294,25 @@ class TestContext:
         update_context_mock.assert_called_once_with(context=updated_context,)
         assert my_context._gca_resource == updated_context
 
+    @pytest.mark.usefixtures("get_context_mock")
     def test_add_artifacts_and_executions(
         self, add_context_artifacts_and_executions_mock
     ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        context._Context.add_artifacts_or_executions(
-            context_id=_TEST_CONTEXT_ID,
+
+        my_context = context._Context.get_or_create(
+            resource_id=_TEST_CONTEXT_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
             metadata_store_id=_TEST_METADATA_STORE,
-            artifact_ids=[_TEST_ARTIFACT_ID],
-            execution_ids=[_TEST_EXECUTION_ID],
+        )
+
+        my_context.add_artifacts_or_executions(
+            artifacts=[_TEST_ARTIFACT_NAME],
+            executions=[_TEST_EXECUTION_NAME],
         )
         add_context_artifacts_and_executions_mock.assert_called_once_with(
             context=_TEST_CONTEXT_NAME,
@@ -310,26 +320,40 @@ class TestContext:
             executions=[_TEST_EXECUTION_NAME],
         )
 
+    @pytest.mark.usefixtures("get_context_mock")
     def test_add_artifacts_only(self, add_context_artifacts_and_executions_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        context._Context.add_artifacts_or_executions(
-            context_id=_TEST_CONTEXT_ID,
+        my_context = context._Context.get_or_create(
+            resource_id=_TEST_CONTEXT_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
             metadata_store_id=_TEST_METADATA_STORE,
-            artifact_ids=[_TEST_ARTIFACT_ID],
         )
+
+        my_context.add_artifacts_or_executions(artifacts=[_TEST_ARTIFACT_NAME])
         add_context_artifacts_and_executions_mock.assert_called_once_with(
             context=_TEST_CONTEXT_NAME,
             artifacts=[_TEST_ARTIFACT_NAME],
             executions=None,
         )
 
+    @pytest.mark.usefixtures("get_context_mock")
     def test_add_executions_only(self, add_context_artifacts_and_executions_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        context._Context.add_artifacts_or_executions(
-            context_id=_TEST_CONTEXT_ID,
+        my_context = context._Context.get_or_create(
+            resource_id=_TEST_CONTEXT_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
             metadata_store_id=_TEST_METADATA_STORE,
-            execution_ids=[_TEST_EXECUTION_ID],
         )
+
+        my_context.add_artifacts_or_executions(executions=[_TEST_EXECUTION_NAME])
         add_context_artifacts_and_executions_mock.assert_called_once_with(
             context=_TEST_CONTEXT_NAME,
             artifacts=None,
@@ -416,13 +440,22 @@ class TestExecution:
         update_execution_mock.assert_called_once_with(execution=updated_execution)
         assert my_execution._gca_resource == updated_execution
 
+    @pytest.mark.usefixtures("get_execution_mock")
     def test_add_artifact(self, add_execution_events_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        execution._Execution.add_artifact(
-            execution_id=_TEST_EXECUTION_ID,
-            artifact_id=_TEST_ARTIFACT_ID,
-            input=False,
+
+        my_execution = execution._Execution.get_or_create(
+            resource_id=_TEST_EXECUTION_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
             metadata_store_id=_TEST_METADATA_STORE,
+        )
+        my_execution.add_artifact(
+            artifact=_TEST_ARTIFACT_NAME,
+            input=False,
         )
         add_execution_events_mock.assert_called_once_with(
             execution=_TEST_EXECUTION_NAME,

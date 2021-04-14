@@ -14,18 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import abc
-import re
-import proto
-import logging
-from typing import Optional, Dict
-from copy import deepcopy
 
+import abc
+import logging
+import re
+from copy import deepcopy
+from typing import Optional, Dict
+
+import proto
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 
-from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import base, initializer
+from google.cloud.aiplatform import utils
 
 
 class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
