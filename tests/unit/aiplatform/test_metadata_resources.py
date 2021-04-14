@@ -16,9 +16,10 @@
 #
 
 from importlib import reload
-from unittest.mock import patch
+from unittest.mock import patch, call
 
 import pytest
+from google.api_core import exceptions
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
@@ -82,6 +83,25 @@ def get_context_mock():
 
 
 @pytest.fixture
+def get_context_for_get_or_create_mock():
+    with patch.object(
+        MetadataServiceClient, "get_context"
+    ) as get_context_for_get_or_create_mock:
+        get_context_for_get_or_create_mock.side_effect = [
+            exceptions.NotFound("test: Context Not Found"),
+            GapicContext(
+                name=_TEST_CONTEXT_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                schema_title=_TEST_SCHEMA_TITLE,
+                schema_version=_TEST_SCHEMA_VERSION,
+                description=_TEST_DESCRIPTION,
+                metadata=_TEST_METADATA,
+            ),
+        ]
+        yield get_context_for_get_or_create_mock
+
+
+@pytest.fixture
 def create_context_mock():
     with patch.object(MetadataServiceClient, "create_context") as create_context_mock:
         create_context_mock.return_value = GapicContext(
@@ -132,6 +152,25 @@ def get_execution_mock():
             metadata=_TEST_METADATA,
         )
         yield get_execution_mock
+
+
+@pytest.fixture
+def get_execution_for_get_or_create_mock():
+    with patch.object(
+        MetadataServiceClient, "get_execution"
+    ) as get_execution_for_get_or_create_mock:
+        get_execution_for_get_or_create_mock.side_effect = [
+            exceptions.NotFound("test: Execution Not Found"),
+            GapicExecution(
+                name=_TEST_EXECUTION_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                schema_title=_TEST_SCHEMA_TITLE,
+                schema_version=_TEST_SCHEMA_VERSION,
+                description=_TEST_DESCRIPTION,
+                metadata=_TEST_METADATA,
+            ),
+        ]
+        yield get_execution_for_get_or_create_mock
 
 
 @pytest.fixture
@@ -190,6 +229,25 @@ def get_artifact_mock():
 
 
 @pytest.fixture
+def get_artifact_for_get_or_create_mock():
+    with patch.object(
+        MetadataServiceClient, "get_artifact"
+    ) as get_artifact_for_get_or_create_mock:
+        get_artifact_for_get_or_create_mock.side_effect = [
+            exceptions.NotFound("test: Artifact Not Found"),
+            GapicArtifact(
+                name=_TEST_ARTIFACT_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                schema_title=_TEST_SCHEMA_TITLE,
+                schema_version=_TEST_SCHEMA_VERSION,
+                description=_TEST_DESCRIPTION,
+                metadata=_TEST_METADATA,
+            ),
+        ]
+        yield get_artifact_for_get_or_create_mock
+
+
+@pytest.fixture
 def create_artifact_mock():
     with patch.object(MetadataServiceClient, "create_artifact") as create_artifact_mock:
         create_artifact_mock.return_value = GapicArtifact(
@@ -237,11 +295,12 @@ class TestContext:
         )
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
 
-    @pytest.mark.usefixtures("get_context_mock")
-    def test_create_context(self, create_context_mock):
+    def test_get_or_create_context(
+        self, get_context_for_get_or_create_mock, create_context_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_context = context._Context._create(
+        my_context = context._Context.get_or_create(
             resource_id=_TEST_CONTEXT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -258,7 +317,9 @@ class TestContext:
             description=_TEST_DESCRIPTION,
             metadata=_TEST_METADATA,
         )
-
+        get_context_for_get_or_create_mock.assert_has_calls(
+            calls=[call(name=_TEST_CONTEXT_NAME), call(name=_TEST_CONTEXT_NAME)]
+        )
         create_context_mock.assert_called_once_with(
             parent=_TEST_PARENT, context_id=_TEST_CONTEXT_ID, context=expected_context,
         )
@@ -385,11 +446,12 @@ class TestExecution:
         )
         get_execution_mock.assert_called_once_with(name=_TEST_EXECUTION_NAME)
 
-    @pytest.mark.usefixtures("get_execution_mock")
-    def test_create_execution(self, create_execution_mock):
+    def test_get_or_create_execution(
+        self, get_execution_for_get_or_create_mock, create_execution_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_execution = execution._Execution._create(
+        my_execution = execution._Execution.get_or_create(
             resource_id=_TEST_EXECUTION_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -406,7 +468,9 @@ class TestExecution:
             description=_TEST_DESCRIPTION,
             metadata=_TEST_METADATA,
         )
-
+        get_execution_for_get_or_create_mock.assert_has_calls(
+            calls=[call(name=_TEST_EXECUTION_NAME), call(name=_TEST_EXECUTION_NAME)]
+        )
         create_execution_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             execution_id=_TEST_EXECUTION_ID,
@@ -486,11 +550,12 @@ class TestArtifact:
         )
         get_artifact_mock.assert_called_once_with(name=_TEST_ARTIFACT_NAME)
 
-    @pytest.mark.usefixtures("get_artifact_mock")
-    def test_create_artifact(self, create_artifact_mock):
+    def test_get_or_create_artifact(
+        self, get_artifact_for_get_or_create_mock, create_artifact_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_artifact = artifact._Artifact._create(
+        my_artifact = artifact._Artifact.get_or_create(
             resource_id=_TEST_ARTIFACT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -507,7 +572,9 @@ class TestArtifact:
             description=_TEST_DESCRIPTION,
             metadata=_TEST_METADATA,
         )
-
+        get_artifact_for_get_or_create_mock.assert_has_calls(
+            calls=[call(name=_TEST_ARTIFACT_NAME), call(name=_TEST_ARTIFACT_NAME)]
+        )
         create_artifact_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             artifact_id=_TEST_ARTIFACT_ID,
