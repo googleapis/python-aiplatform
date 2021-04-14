@@ -27,7 +27,6 @@ SCHEMA_VERSIONS = {
     SYSTEM_METRICS: _DEFAULT_SCHEMA_VERSION,
 }
 
-# GCP UI currently only displays experiment context which has a "experiment_deleted" key and False value.
-# This is a temporary solution to integrate tensorboard results into GCP UI.
-UI_DETECTION_KEY = "experiment_deleted"
-UI_DETECTION_VALUE = False
+# The EXPERIMENT_DELETED_KEY is needed until we support context deletion in backend service.
+EXPERIMENT_DELETED_KEY = "experiment_deleted"
+EXPERIMENT_DELETED_VALUE = False

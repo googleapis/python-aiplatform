@@ -62,19 +62,19 @@ class _Execution(_Resource):
         return client.update_execution(execution=resource)
 
     def add_artifact(
-        self, artifact: str, input: bool,
+        self, artifact_resource_name: str, input: bool,
     ):
         """Creates a new Metadata resource.
 
         Args:
-            artifact (str):
+            artifact_resource_name (str):
                 Required. The full resource name of the Artifact to connect to the Execution through an Event.
             input (bool)
                 Required. Whether Artifact is an input event to the Execution or not.
         """
 
         event = Event(
-            artifact=artifact, type_=Event.Type.INPUT if input else Event.Type.OUTPUT,
+            artifact=artifact_resource_name, type_=Event.Type.INPUT if input else Event.Type.OUTPUT,
         )
 
         self.api_client.add_execution_events(

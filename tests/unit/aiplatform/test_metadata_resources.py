@@ -310,9 +310,9 @@ class TestContext:
             metadata_store_id=_TEST_METADATA_STORE,
         )
 
-        my_context.add_artifacts_or_executions(
-            artifacts=[_TEST_ARTIFACT_NAME],
-            executions=[_TEST_EXECUTION_NAME],
+        my_context.add_artifacts_and_executions(
+            artifact_resource_names=[_TEST_ARTIFACT_NAME],
+            execution_resource_names=[_TEST_EXECUTION_NAME],
         )
         add_context_artifacts_and_executions_mock.assert_called_once_with(
             context=_TEST_CONTEXT_NAME,
@@ -333,7 +333,7 @@ class TestContext:
             metadata_store_id=_TEST_METADATA_STORE,
         )
 
-        my_context.add_artifacts_or_executions(artifacts=[_TEST_ARTIFACT_NAME])
+        my_context.add_artifacts_and_executions(artifact_resource_names=[_TEST_ARTIFACT_NAME])
         add_context_artifacts_and_executions_mock.assert_called_once_with(
             context=_TEST_CONTEXT_NAME,
             artifacts=[_TEST_ARTIFACT_NAME],
@@ -353,7 +353,7 @@ class TestContext:
             metadata_store_id=_TEST_METADATA_STORE,
         )
 
-        my_context.add_artifacts_or_executions(executions=[_TEST_EXECUTION_NAME])
+        my_context.add_artifacts_and_executions(execution_resource_names=[_TEST_EXECUTION_NAME])
         add_context_artifacts_and_executions_mock.assert_called_once_with(
             context=_TEST_CONTEXT_NAME,
             artifacts=None,
@@ -454,7 +454,7 @@ class TestExecution:
             metadata_store_id=_TEST_METADATA_STORE,
         )
         my_execution.add_artifact(
-            artifact=_TEST_ARTIFACT_NAME,
+            artifact_resource_name=_TEST_ARTIFACT_NAME,
             input=False,
         )
         add_execution_events_mock.assert_called_once_with(

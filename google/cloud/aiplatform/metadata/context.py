@@ -62,19 +62,19 @@ class _Context(_Resource):
     ) -> proto.Message:
         return client.update_context(context=resource)
 
-    def add_artifacts_or_executions(
+    def add_artifacts_and_executions(
         self,
-        artifacts: Optional[Sequence[str]] = None,
-        executions: Optional[Sequence[str]] = None,
+        artifact_resource_names: Optional[Sequence[str]] = None,
+        execution_resource_names: Optional[Sequence[str]] = None,
     ):
         """Creates a new Metadata resource.
 
         Args:
-            artifacts (Sequence[str]):
+            artifact_resource_names (Sequence[str]):
                 Optional. The full resource name of Artifacts to attribute to the Context.
-            executions (Sequence[str]):
+            execution_resource_names (Sequence[str]):
                 Optional. The full resource name of Executions to associate with the Context.
         """
         self.api_client.add_context_artifacts_and_executions(
-            context=self.resource_name, artifacts=artifacts, executions=executions,
+            context=self.resource_name, artifacts=artifact_resource_names, executions=execution_resource_names,
         )
