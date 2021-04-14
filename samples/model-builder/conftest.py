@@ -130,11 +130,15 @@ def mock_import_text_dataset(mock_text_dataset):
         yield mock
 
 
-"""
-----------------------------------------------------------------------------
-TrainingJob Fixtures
-----------------------------------------------------------------------------
-"""
+@pytest.fixture
+def mock_import_video_data(mock_video_dataset):
+    with patch.object(mock_video_dataset, "import_data") as mock:
+        yield mock
+
+
+# ----------------------------------------------------------------------------
+# TrainingJob Fixtures
+# ----------------------------------------------------------------------------
 
 
 @pytest.fixture
