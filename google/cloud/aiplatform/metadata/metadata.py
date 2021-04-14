@@ -82,7 +82,6 @@ class _MetadataService:
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
         )
         execution.update(metadata=params)
-        self._run = execution.name
 
     def log_metrics(self, metrics: Dict[str, Union[str, float, int]]):
         self._validate_experiment_and_run(method_name="log_metrics")

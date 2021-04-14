@@ -15,26 +15,25 @@
 # limitations under the License.
 #
 
-import pytest
-
 from importlib import reload
 from unittest.mock import patch
 
+import pytest
+
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
-
+from google.cloud.aiplatform_v1beta1 import AddContextArtifactsAndExecutionsResponse
+from google.cloud.aiplatform_v1beta1 import Artifact as GapicArtifact
+from google.cloud.aiplatform_v1beta1 import Context as GapicContext
+from google.cloud.aiplatform_v1beta1 import Execution as GapicExecution
 from google.cloud.aiplatform_v1beta1 import (
     MetadataServiceClient,
     AddExecutionEventsResponse,
     Event,
 )
-from google.cloud.aiplatform_v1beta1 import AddContextArtifactsAndExecutionsResponse
-from google.cloud.aiplatform_v1beta1 import Context as GapicContext
-from google.cloud.aiplatform_v1beta1 import Execution as GapicExecution
-from google.cloud.aiplatform_v1beta1 import Artifact as GapicArtifact
 
 # project
 _TEST_PROJECT = "test-project"
@@ -49,6 +48,11 @@ _TEST_SCHEMA_TITLE = "test.Example"
 _TEST_SCHEMA_VERSION = "0.0.1"
 _TEST_DESCRIPTION = "test description"
 _TEST_METADATA = {"test-param1": 1, "test-param2": "test-value", "test-param3": True}
+_TEST_UPDATED_METADATA = {
+    "test-param1": 2,
+    "test-param2": "test-value-1",
+    "test-param3": False,
+}
 
 # context
 _TEST_CONTEXT_ID = "test-context-id"
@@ -89,6 +93,20 @@ def create_context_mock():
             metadata=_TEST_METADATA,
         )
         yield create_context_mock
+
+
+@pytest.fixture
+def update_context_mock():
+    with patch.object(MetadataServiceClient, "update_context") as update_context_mock:
+        update_context_mock.return_value = GapicContext(
+            name=_TEST_CONTEXT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        yield update_context_mock
 
 
 @pytest.fixture
@@ -133,6 +151,22 @@ def create_execution_mock():
 
 
 @pytest.fixture
+def update_execution_mock():
+    with patch.object(
+        MetadataServiceClient, "update_execution"
+    ) as update_execution_mock:
+        update_execution_mock.return_value = GapicExecution(
+            name=_TEST_EXECUTION_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        yield update_execution_mock
+
+
+@pytest.fixture
 def add_execution_events_mock():
     with patch.object(
         MetadataServiceClient, "add_execution_events"
@@ -167,6 +201,20 @@ def create_artifact_mock():
             metadata=_TEST_METADATA,
         )
         yield create_artifact_mock
+
+
+@pytest.fixture
+def update_artifact_mock():
+    with patch.object(MetadataServiceClient, "update_artifact") as update_artifact_mock:
+        update_artifact_mock.return_value = GapicArtifact(
+            name=_TEST_ARTIFACT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        yield update_artifact_mock
 
 
 class TestContext:
@@ -217,6 +265,34 @@ class TestContext:
 
         expected_context.name = _TEST_CONTEXT_NAME
         assert my_context._gca_resource == expected_context
+
+    @pytest.mark.usefixtures("get_context_mock")
+    @pytest.mark.usefixtures("create_context_mock")
+    def test_update_context(self, update_context_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_context = context._Context._create(
+            resource_id=_TEST_CONTEXT_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+        my_context.update(_TEST_UPDATED_METADATA)
+
+        updated_context = GapicContext(
+            name=_TEST_CONTEXT_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+
+        update_context_mock.assert_called_once_with(context=updated_context,)
+        assert my_context._gca_resource == updated_context
 
     def test_add_artifacts_and_executions(
         self, add_context_artifacts_and_executions_mock
@@ -312,6 +388,34 @@ class TestExecution:
         expected_execution.name = _TEST_EXECUTION_NAME
         assert my_execution._gca_resource == expected_execution
 
+    @pytest.mark.usefixtures("get_execution_mock")
+    @pytest.mark.usefixtures("create_execution_mock")
+    def test_update_execution(self, update_execution_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_execution = execution._Execution._create(
+            resource_id=_TEST_EXECUTION_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+        my_execution.update(_TEST_UPDATED_METADATA)
+
+        updated_execution = GapicExecution(
+            name=_TEST_EXECUTION_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+
+        update_execution_mock.assert_called_once_with(execution=updated_execution)
+        assert my_execution._gca_resource == updated_execution
+
     def test_add_artifact(self, add_execution_events_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         execution._Execution.add_artifact(
@@ -376,3 +480,31 @@ class TestArtifact:
 
         expected_artifact.name = _TEST_ARTIFACT_NAME
         assert my_artifact._gca_resource == expected_artifact
+
+    @pytest.mark.usefixtures("get_artifact_mock")
+    @pytest.mark.usefixtures("create_artifact_mock")
+    def test_update_artifact(self, update_artifact_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_artifact = artifact._Artifact._create(
+            resource_id=_TEST_ARTIFACT_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+        my_artifact.update(_TEST_UPDATED_METADATA)
+
+        updated_artifact = GapicArtifact(
+            name=_TEST_ARTIFACT_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+
+        update_artifact_mock.assert_called_once_with(artifact=updated_artifact)
+        assert my_artifact._gca_resource == updated_artifact

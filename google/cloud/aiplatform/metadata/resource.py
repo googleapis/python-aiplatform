@@ -177,7 +177,10 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         """
 
         gca_resource = deepcopy(self._gca_resource)
-        gca_resource.metadata.update(metadata)
+        if gca_resource.metadata:
+            gca_resource.metadata.update(metadata)
+        else:
+            gca_resource.metadata = metadata
         api_client = self._instantiate_client(credentials=credentials)
 
         update_gca_resource = self._update_resource(
