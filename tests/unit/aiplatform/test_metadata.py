@@ -92,9 +92,7 @@ def get_context_mock():
             display_name=_TEST_EXPERIMENT,
             schema_title=constants.SYSTEM_EXPERIMENT,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
-            metadata={
-                constants.EXPERIMENT_DELETED_KEY: constants.EXPERIMENT_DELETED_VALUE
-            },
+            metadata=constants.EXPERIMENT_METADATA,
         )
         yield get_context_mock
 
