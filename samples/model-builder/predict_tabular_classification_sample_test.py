@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
-import test_constants as constants
 import predict_tabular_classification_sample
+import test_constants as constants
 
 
 def test_predict_tabular_classification_sample(

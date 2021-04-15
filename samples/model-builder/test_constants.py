@@ -44,6 +44,9 @@ BIGQUERY_SOURCE = F"bq://{PROJECT}.{DATASET_NAME}.table1"
 GCS_SOURCES = ["gs://bucket1/source1.jsonl", "gs://bucket7/source4.jsonl"]
 GCS_DESTINATION = "gs://bucket3/output-dir/"
 
+TABULAR_REGRESSION_OPTIMIZATION_PREDICTION_TYPE = 'regression'
+TABULAR_CLASSIFICATION_OPTIMIZATOIN_PREDICTION_TYPE = 'classification'
+
 TRAINING_FRACTION_SPLIT = 0.7
 TEST_FRACTION_SPLIT = 0.15
 VALIDATION_FRACTION_SPLIT = 0.15
@@ -64,28 +67,28 @@ PREDICTION_TABULAR_CLASSIFICATION_INSTANCE = [
 ]
 PREDICTION_TABULAR_REGRESSOIN_INSTANCE = [
     {
-    "BOOLEAN_2unique_NULLABLE": False,
-    "DATETIME_1unique_NULLABLE": "2019-01-01 00:00:00",
-    "DATE_1unique_NULLABLE": "2019-01-01",
-    "FLOAT_5000unique_NULLABLE": 1611,
-    "FLOAT_5000unique_REPEATED": [2320, 1192],
-    "INTEGER_5000unique_NULLABLE": "8",
-    "NUMERIC_5000unique_NULLABLE": 16,
-    "STRING_5000unique_NULLABLE": "str-2",
-    "STRUCT_NULLABLE": {
         "BOOLEAN_2unique_NULLABLE": False,
-        "DATE_1unique_NULLABLE": "2019-01-01",
         "DATETIME_1unique_NULLABLE": "2019-01-01 00:00:00",
-        "FLOAT_5000unique_NULLABLE": 1308,
-        "FLOAT_5000unique_REPEATED": [2323, 1178],
-        "FLOAT_5000unique_REQUIRED": 3089,
-        "INTEGER_5000unique_NULLABLE": "1777",
-        "NUMERIC_5000unique_NULLABLE": 3323,
-        "TIME_1unique_NULLABLE": "23:59:59.999999",
-        "STRING_5000unique_NULLABLE": "str-49",
+        "DATE_1unique_NULLABLE": "2019-01-01",
+        "FLOAT_5000unique_NULLABLE": 1611,
+        "FLOAT_5000unique_REPEATED": [2320, 1192],
+        "INTEGER_5000unique_NULLABLE": "8",
+        "NUMERIC_5000unique_NULLABLE": 16,
+        "STRING_5000unique_NULLABLE": "str-2",
+        "STRUCT_NULLABLE": {
+            "BOOLEAN_2unique_NULLABLE": False,
+            "DATE_1unique_NULLABLE": "2019-01-01",
+            "DATETIME_1unique_NULLABLE": "2019-01-01 00:00:00",
+            "FLOAT_5000unique_NULLABLE": 1308,
+            "FLOAT_5000unique_REPEATED": [2323, 1178],
+            "FLOAT_5000unique_REQUIRED": 3089,
+            "INTEGER_5000unique_NULLABLE": "1777",
+            "NUMERIC_5000unique_NULLABLE": 3323,
+            "TIME_1unique_NULLABLE": "23:59:59.999999",
+            "STRING_5000unique_NULLABLE": "str-49",
+            "TIMESTAMP_1unique_NULLABLE": "1546387199999999",
+        },
         "TIMESTAMP_1unique_NULLABLE": "1546387199999999",
-    },
-    "TIMESTAMP_1unique_NULLABLE": "1546387199999999",
-    "TIME_1unique_NULLABLE": "23:59:59.999999",
+        "TIME_1unique_NULLABLE": "23:59:59.999999",
     }
 ]

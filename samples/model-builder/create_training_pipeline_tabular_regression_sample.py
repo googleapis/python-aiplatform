@@ -14,6 +14,7 @@
 
 from google.cloud import aiplatform
 
+
 #  [START aiplatform_sdk_create_training_pipeline_tabular_regression_sample]
 def create_training_pipeline_tabular_regression_sample(
     project: str,

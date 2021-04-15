@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
-import test_constants as constants
 import create_and_import_dataset_tabular_gcs_sample
+import test_constants as constants
 
 
 def test_create_and_import_dataset_tabular_gcs_sample(mock_sdk_init, mock_create_tabular_dataset):

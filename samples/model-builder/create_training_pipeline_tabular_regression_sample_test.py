@@ -14,8 +14,9 @@
 
 
 import pytest
-import test_constants as constants
+
 import create_training_pipeline_tabular_regression_sample
+import test_constants as constants
 
 
 def test_create_training_pipeline_tabular_regression_sample(
@@ -43,10 +44,9 @@ def test_create_training_pipeline_tabular_regression_sample(
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
-    # TODO add prediction types to constants
     mock_init_automl_tabular_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
-        optimization_prediction_type='regression',
+        optimization_prediction_type=constants.TABULAR_REGRESSION_OPTIMIZATION_PREDICTION_TYPE,
     )
     mock_run_automl_tabular_training_job.assert_called_once_with(
         dataset=mock_tabular_dataset,

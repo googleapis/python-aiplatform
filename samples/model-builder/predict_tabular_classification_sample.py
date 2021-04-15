@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 from typing import Dict, List
 
 from google.cloud import aiplatform
+
 
 #  [START aiplatform_sdk_predict_tabular_classification_sample]
 def predict_tabular_classification_sample(

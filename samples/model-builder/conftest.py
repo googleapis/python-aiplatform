@@ -137,6 +137,7 @@ TrainingJob Fixtures
 ----------------------------------------------------------------------------
 """
 
+
 @pytest.fixture
 def mock_init_automl_tabular_training_job():
     with patch.object(
@@ -145,13 +146,14 @@ def mock_init_automl_tabular_training_job():
         mock.return_value = None
         yield mock
 
+
 @pytest.fixture
 def mock_run_automl_tabular_training_job():
-    with patch.object(aiplatform.training_jobs.AutoMLTabularTrainingJob, "run"
+    with patch.object(
+        aiplatform.training_jobs.AutoMLTabularTrainingJob, "run"
     ) as mock:
         yield mock
     
-
 
 @pytest.fixture
 def mock_init_automl_image_training_job():
@@ -212,6 +214,7 @@ Endpoint Fixtures
 def mock_create_endpoint():
     with patch.object(aiplatform.Endpoint, "create") as mock:
         yield mock
+        
 
 @pytest.fixture
 def mock_endpoint():

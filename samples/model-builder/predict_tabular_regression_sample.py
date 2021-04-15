@@ -16,6 +16,7 @@ from typing import Dict, List
 
 from google.cloud import aiplatform
 
+
 #  [START aiplatform_sdk_predict_tabular_regression_sample]
 def predict_tabular_regression_sample(
     project: str,

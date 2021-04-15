@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
-import test_constants as constants
 import create_endpoint_sample
+import test_constants as constants
 
 
 def test_create_endpoint_sample(
