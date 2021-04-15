@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import Optional
 
 import logging
-from google.auth import credentials as auth_credentials
+from typing import Optional
+
 from google.api_core import exceptions
+from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import compat

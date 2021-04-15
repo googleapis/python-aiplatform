@@ -14,12 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import proto
+
 from typing import Optional, Dict
+
+import proto
 
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata.resource import _Resource
-
 from google.cloud.aiplatform_v1beta1.types import artifact as gca_artifact
 
 

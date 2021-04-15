@@ -26,3 +26,7 @@ SCHEMA_VERSIONS = {
     SYSTEM_EXPERIMENT: _DEFAULT_SCHEMA_VERSION,
     SYSTEM_METRICS: _DEFAULT_SCHEMA_VERSION,
 }
+
+# The EXPERIMENT_METADATA is needed until we support context deletion in backend service.
+# TODO: delete EXPERIMENT_METADATA once backend supports context deletion.
+EXPERIMENT_METADATA = {"experiment_deleted": False, "experiment_type": "MB"}

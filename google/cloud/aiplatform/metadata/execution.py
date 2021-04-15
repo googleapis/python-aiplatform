@@ -14,12 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import proto
+
 from typing import Optional, Dict
+
+import proto
 
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata.resource import _Resource
-
+from google.cloud.aiplatform_v1beta1 import Event
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
 
 
@@ -57,3 +59,24 @@ class _Execution(_Resource):
         cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
     ) -> proto.Message:
         return client.update_execution(execution=resource)
+
+    def add_artifact(
+        self, artifact_resource_name: str, input: bool,
+    ):
+        """Creates a new Metadata resource.
+
+        Args:
+            artifact_resource_name (str):
+                Required. The full resource name of the Artifact to connect to the Execution through an Event.
+            input (bool)
+                Required. Whether Artifact is an input event to the Execution or not.
+        """
+
+        event = Event(
+            artifact=artifact_resource_name,
+            type_=Event.Type.INPUT if input else Event.Type.OUTPUT,
+        )
+
+        self.api_client.add_execution_events(
+            execution=self.resource_name, events=[event],
+        )

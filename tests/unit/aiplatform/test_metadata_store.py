@@ -16,25 +16,22 @@
 #
 
 import os
-
-import pytest
-
-from unittest import mock
 from importlib import reload
+from unittest import mock
 from unittest.mock import patch
 
+import pytest
 from google.api_core import operation
-from google.auth.exceptions import GoogleAuthError
 from google.auth import credentials as auth_credentials
+from google.auth.exceptions import GoogleAuthError
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform import initializer
-
+from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform_v1beta1 import MetadataServiceClient
 from google.cloud.aiplatform_v1beta1 import MetadataStore as GapicMetadataStore
-from google.cloud.aiplatform_v1beta1.types import metadata_service
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1beta1.types import metadata_service
 
 # project
 _TEST_PROJECT = "test-project"
