@@ -21,6 +21,7 @@ import proto
 
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata.resource import _Resource
+from google.cloud.aiplatform_v1beta1 import ListContextsRequest
 from google.cloud.aiplatform_v1beta1.types import context as gca_context
 
 
@@ -29,6 +30,25 @@ class _Context(_Resource):
 
     _resource_noun = "contexts"
     _getter_method = "get_context"
+
+    def add_artifacts_and_executions(
+        self,
+        artifact_resource_names: Optional[Sequence[str]] = None,
+        execution_resource_names: Optional[Sequence[str]] = None,
+    ):
+        """Creates a new Metadata resource.
+
+        Args:
+            artifact_resource_names (Sequence[str]):
+                Optional. The full resource name of Artifacts to attribute to the Context.
+            execution_resource_names (Sequence[str]):
+                Optional. The full resource name of Executions to associate with the Context.
+        """
+        self.api_client.add_context_artifacts_and_executions(
+            context=self.resource_name,
+            artifacts=artifact_resource_names,
+            executions=execution_resource_names,
+        )
 
     @classmethod
     def _create_resource(
@@ -59,21 +79,14 @@ class _Context(_Resource):
     ) -> proto.Message:
         return client.update_context(context=resource)
 
-    def add_artifacts_and_executions(
-        self,
-        artifact_resource_names: Optional[Sequence[str]] = None,
-        execution_resource_names: Optional[Sequence[str]] = None,
-    ):
-        """Creates a new Metadata resource.
+    @classmethod
+    def _list_resources(
+        cls,
+        client: utils.MetadataClientWithOverride,
+        parent: str,
+        filter: Optional[str] = None,
+    ) -> Sequence[proto.Message]:
+        list_request = ListContextsRequest(parent=parent, filter=filter,)
+        return client.list_executions(request=list_request)
 
-        Args:
-            artifact_resource_names (Sequence[str]):
-                Optional. The full resource name of Artifacts to attribute to the Context.
-            execution_resource_names (Sequence[str]):
-                Optional. The full resource name of Executions to associate with the Context.
-        """
-        self.api_client.add_context_artifacts_and_executions(
-            context=self.resource_name,
-            artifacts=artifact_resource_names,
-            executions=execution_resource_names,
-        )
+

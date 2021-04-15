@@ -14,10 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+import logging
 from typing import Dict, Union
 
 import pandas as pd
+from google.api_core import exceptions
 
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import constants
@@ -144,30 +145,92 @@ class _MetadataService:
               experiment: Name of the Experiment to filter results.
 
             Returns:
-              Pandas Dataframe of Experiments with metrics and parameters.
+              Pandas Dataframe of Experiment with metrics and parameters.
             """
 
-        experiment_context_name = utils.full_resource_name(
-            resource_name=experiment, resource_noun="metadataStores/default/contexts"
-        )
-        # filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{experiment_context_name}")'
-        # filter = f'in_context("{experiment_context_name}")'
-        filter = f'schema_title="{constants.SYSTEM_RUN}"'
+        # TODO remove this extra API call once our BE can support project ID in filters.
+        try:
+            experiment_context = _Context(resource_name=experiment)
+        except exceptions.NotFound:
+            logging.error(f"Experiment {experiment} not found.")
+            return
+        if experiment_context.schema_title != constants.SYSTEM_EXPERIMENT:
+            raise ValueError(
+                f"Please provide a valid experiment name. {experiment} is not a experiment."
+            )
+
+        filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{experiment_context.resource_name}")'
         run_executions = _Execution.list(filter=filter)
+
         experiment_dict = []
         for run_execution in run_executions:
-            run_dict = {'experiment_name': experiment, 'run_name': run_execution.display_name}
-            run_dict.update(self._execution_to_column_named_metadata("param", run_execution.metadata))
+            run_dict = {
+                "experiment_name": experiment,
+                "run_name": run_execution.display_name,
+            }
+            run_dict.update(
+                self._execution_to_column_named_metadata(
+                    "param", run_execution.metadata
+                )
+            )
 
             for metric_artifact in run_execution.query_input_and_output_artifacts():
-                run_dict.update(self._execution_to_column_named_metadata("metric", metric_artifact.metadata))
+                run_dict.update(
+                    self._execution_to_column_named_metadata(
+                        "metric", metric_artifact.metadata
+                    )
+                )
 
             experiment_dict.append(run_dict)
 
         return pd.DataFrame(experiment_dict)
 
-    def get_pipeline(self, pipeline: str):
-        raise NotImplementedError("get_pipeline not implemented")
+    def get_pipeline(self, pipeline: str) -> pd.DataFrame:
+        """Returns a Pandas DataFrame of the parameters and metrics associated with one pipeline.
+
+                    Args:
+                      pipeline: Name of the Pipeline to filter results.
+
+                    Returns:
+                      Pandas Dataframe of Pipeline with metrics and parameters.
+                    """
+
+        # TODO remove this extra API call once our BE can support project ID in filters.
+        try:
+            pipeline_context = _Context(resource_name=pipeline)
+        except exceptions.NotFound:
+            logging.error(f"Pipeline {pipeline} not found.")
+            return
+        if pipeline_context.schema_title != constants.SYSTEM_PIPELINE:
+            raise ValueError(
+                f"Please provide a valid pipeline name. {pipeline} is not a pipeline."
+            )
+
+        filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{pipeline_context.resource_name}")'
+        run_executions = _Execution.list(filter=filter)
+
+        pipeline_dict = []
+        for run_execution in run_executions:
+            run_dict = {
+                "pipeline_name": pipeline,
+                "run_name": run_execution.display_name,
+            }
+            run_dict.update(
+                self._execution_to_column_named_metadata(
+                    "param", run_execution.metadata
+                )
+            )
+
+            for metric_artifact in run_execution.query_input_and_output_artifacts():
+                run_dict.update(
+                    self._execution_to_column_named_metadata(
+                        "metric", metric_artifact.metadata
+                    )
+                )
+
+            pipeline_dict.append(run_dict)
+
+        return pd.DataFrame(pipeline_dict)
 
     def _validate_experiment_and_run(self, method_name: str):
         if not self._experiment:
@@ -181,8 +244,9 @@ class _MetadataService:
             )
 
     @staticmethod
-    def _execution_to_column_named_metadata(metadata_type: str, metadata: Dict,
-                                            ) -> Dict[str, Union[int, float, str]]:
+    def _execution_to_column_named_metadata(
+        metadata_type: str, metadata: Dict,
+    ) -> Dict[str, Union[int, float, str]]:
         """Returns a dict of the Execution/Artifact metadata with column names.
 
         Args:
@@ -193,10 +257,7 @@ class _MetadataService:
           Dict of custom properties with keys mapped to column names
         """
 
-        return {
-            '.'.join([metadata_type, key]): value
-            for key, value in metadata
-        }
+        return {".".join([metadata_type, key]): value for key, value in metadata}
 
 
 metadata_service = _MetadataService()

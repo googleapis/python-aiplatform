@@ -34,46 +34,6 @@ class _Execution(_Resource):
     _resource_noun = "executions"
     _getter_method = "get_execution"
 
-    @classmethod
-    def _create_resource(
-        cls,
-        client: utils.MetadataClientWithOverride,
-        parent: str,
-        resource_id: str,
-        schema_title: str,
-        display_name: Optional[str] = None,
-        schema_version: Optional[str] = None,
-        description: Optional[str] = None,
-        metadata: Optional[Dict] = None,
-    ) -> proto.Message:
-        gapic_execution = gca_execution.Execution(
-            schema_title=schema_title,
-            schema_version=schema_version,
-            display_name=display_name,
-            description=description,
-            metadata=metadata if metadata else {},
-        )
-        return client.create_execution(
-            parent=parent, execution=gapic_execution, execution_id=resource_id,
-        )
-
-    @classmethod
-    def _list_resources(
-        cls,
-        client: utils.MetadataClientWithOverride,
-        parent: str,
-        filter: Optional[str] = None,
-    ) -> Sequence[proto.Message]:
-        list_request = ListExecutionsRequest(parent=parent, filter=filter,)
-        print(list_request)
-        return client.list_executions(request=list_request)
-
-    @classmethod
-    def _update_resource(
-        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
-    ) -> proto.Message:
-        return client.update_execution(execution=resource)
-
     def add_artifact(
         self, artifact_resource_name: str, input: bool,
     ):
@@ -118,3 +78,43 @@ class _Execution(_Resource):
             )
             for artifact in artifacts
         ]
+
+    @classmethod
+    def _create_resource(
+        cls,
+        client: utils.MetadataClientWithOverride,
+        parent: str,
+        resource_id: str,
+        schema_title: str,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ) -> proto.Message:
+        gapic_execution = gca_execution.Execution(
+            schema_title=schema_title,
+            schema_version=schema_version,
+            display_name=display_name,
+            description=description,
+            metadata=metadata if metadata else {},
+        )
+        return client.create_execution(
+            parent=parent, execution=gapic_execution, execution_id=resource_id,
+        )
+
+    @classmethod
+    def _list_resources(
+        cls,
+        client: utils.MetadataClientWithOverride,
+        parent: str,
+        filter: Optional[str] = None,
+    ) -> Sequence[proto.Message]:
+        list_request = ListExecutionsRequest(parent=parent, filter=filter,)
+        return client.list_executions(request=list_request)
+
+    @classmethod
+    def _update_resource(
+        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
+    ) -> proto.Message:
+        return client.update_execution(execution=resource)
+

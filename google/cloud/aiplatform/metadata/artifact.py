@@ -15,12 +15,13 @@
 # limitations under the License.
 #
 
-from typing import Optional, Dict
+from typing import Optional, Dict, Sequence
 
 import proto
 
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata.resource import _Resource
+from google.cloud.aiplatform_v1beta1 import ListArtifactsRequest
 from google.cloud.aiplatform_v1beta1.types import artifact as gca_artifact
 
 
@@ -58,3 +59,13 @@ class _Artifact(_Resource):
         cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
     ) -> proto.Message:
         return client.update_artifact(artifact=resource)
+
+    @classmethod
+    def _list_resources(
+        cls,
+        client: utils.MetadataClientWithOverride,
+        parent: str,
+        filter: Optional[str] = None,
+    ) -> Sequence[proto.Message]:
+        list_request = ListArtifactsRequest(parent=parent, filter=filter,)
+        return client.list_executions(request=list_request)

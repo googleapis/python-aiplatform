@@ -17,6 +17,7 @@
 
 SYSTEM_RUN = "system.Run"
 SYSTEM_EXPERIMENT = "system.Experiment"
+SYSTEM_PIPELINE = "system.Pipeline"
 SYSTEM_METRICS = "system.Metrics"
 
 _DEFAULT_SCHEMA_VERSION = "0.0.1"
