@@ -66,6 +66,6 @@ class _Artifact(_Resource):
         client: utils.MetadataClientWithOverride,
         parent: str,
         filter: Optional[str] = None,
-    ) -> Sequence[proto.Message]:
+    ):
         list_request = ListArtifactsRequest(parent=parent, filter=filter,)
-        return client.list_executions(request=list_request)
+        return client.list_artifacts(request=list_request)

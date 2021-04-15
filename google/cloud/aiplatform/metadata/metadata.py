@@ -14,13 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import logging
 from typing import Dict, Union
 
 import pandas as pd
 from google.api_core import exceptions
 
-from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context

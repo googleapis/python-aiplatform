@@ -85,8 +85,6 @@ class _Context(_Resource):
         client: utils.MetadataClientWithOverride,
         parent: str,
         filter: Optional[str] = None,
-    ) -> Sequence[proto.Message]:
+    ):
         list_request = ListContextsRequest(parent=parent, filter=filter,)
-        return client.list_executions(request=list_request)
-
-
+        return client.list_contexts(request=list_request)

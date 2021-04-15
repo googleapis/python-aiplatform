@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import logging
+
 from typing import Optional, Dict, Sequence
 
 import proto
@@ -108,7 +108,7 @@ class _Execution(_Resource):
         client: utils.MetadataClientWithOverride,
         parent: str,
         filter: Optional[str] = None,
-    ) -> Sequence[proto.Message]:
+    ):
         list_request = ListExecutionsRequest(parent=parent, filter=filter,)
         return client.list_executions(request=list_request)
 
@@ -117,4 +117,3 @@ class _Execution(_Resource):
         cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
     ) -> proto.Message:
         return client.update_execution(execution=resource)
-
