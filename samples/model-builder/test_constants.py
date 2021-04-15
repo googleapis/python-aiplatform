@@ -39,6 +39,8 @@ ENDPOINT_NAME = f"{PARENT}/endpoints/{RESOURCE_ID}"
 MODEL_NAME = f"{PARENT}/models/{RESOURCE_ID}"
 TRAINING_JOB_NAME = f"{PARENT}/trainingJobs/{RESOURCE_ID}"
 
+BIGQUERY_SOURCE = F"bq://{PROJECT}.{DATASET_NAME}.table1"
+
 GCS_SOURCES = ["gs://bucket1/source1.jsonl", "gs://bucket7/source4.jsonl"]
 GCS_DESTINATION = "gs://bucket3/output-dir/"
 
