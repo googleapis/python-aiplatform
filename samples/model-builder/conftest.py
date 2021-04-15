@@ -209,6 +209,11 @@ Endpoint Fixtures
 
 
 @pytest.fixture
+def mock_create_endpoint():
+    with patch.object(aiplatform.Endpoint, "create") as mock:
+        yield mock
+
+@pytest.fixture
 def mock_endpoint():
     mock = MagicMock(aiplatform.models.Endpoint)
     yield mock
