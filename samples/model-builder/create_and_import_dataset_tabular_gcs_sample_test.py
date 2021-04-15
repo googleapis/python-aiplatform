@@ -14,12 +14,12 @@
 
 
 import test_constants as constants
-import create_and_import_dataset_sample
+import create_and_import_dataset_tabular_gcs_sample
 
 
-def test_create_and_import_dataset_sample(mock_sdk_init, mock_create_tabular_dataset):
+def test_create_and_import_dataset_tabular_gcs_sample(mock_sdk_init, mock_create_tabular_dataset):
 
-    create_and_import_dataset_sample.create_and_import_dataset_sample(
+    create_and_import_dataset_tabular_gcs_sample.create_and_import_dataset_tabular_gcs_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         gcs_source=constants.GCS_SOURCES,

@@ -16,11 +16,9 @@ from typing import List, Union
 
 from google.cloud import aiplatform
 
-# TODO: Should I make separate sample using 'bq_source' input?
 
-
-# [START aiplatform_sdk_create_and_import_dataset_sample]
-def create_and_import_dataset_sample(
+# [START aiplatform_sdk_create_and_import_dataset_tabular_gcs_sample]
+def create_and_import_dataset_tabular_gcs_sample(
     display_name: str,
     project: str,
     location: str,
@@ -28,14 +26,6 @@ def create_and_import_dataset_sample(
 ):
 
     aiplatform.init(project=project, location=location)
-    ''' TablesDatasetMetadata : fields: input_config
-        input_config {
-            "source" {
-                "gcs_source": [gcs_uri];
-                "bq_source": bigquery_source;
-            }
-        }
-    '''
 
     dataset = aiplatform.TabularDataset.create(
         display_name=display_name,
@@ -46,4 +36,4 @@ def create_and_import_dataset_sample(
 
     print(f'\tDataset: "{dataset.display_name}"')
     print(f'\tname: "{dataset.resource_name}"')
-# [END aiplatform_sdk_create_and_import_dataset_sample]
+# [END aiplatform_sdk_create_and_import_dataset_tabular_gcs_sample]
