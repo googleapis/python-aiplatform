@@ -17,6 +17,9 @@
 
 from typing import Dict, Union
 
+import pandas as pd
+
+from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
@@ -44,6 +47,13 @@ class _MetadataService:
         self._experiment = context
 
     def set_run(self, run: str):
+        """Setup a run to current session.
+
+        Args:
+            run (str):
+                Required. Name of the run to assign current session with.
+        """
+
         if not self._experiment:
             raise ValueError(
                 "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') "
@@ -75,6 +85,13 @@ class _MetadataService:
         self._metrics = metrics_artifact
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
+        """Log single or multiple parameters with specified key and value pairs.
+
+        Args:
+            params (Dict):
+                Required. Parameter key/value pairs.
+        """
+
         self._validate_experiment_and_run(method_name="log_params")
         # query the latest run execution resource before logging.
         execution = _Execution.get_or_create(
@@ -85,6 +102,13 @@ class _MetadataService:
         execution.update(metadata=params)
 
     def log_metrics(self, metrics: Dict[str, Union[str, float, int]]):
+        """Log single or multiple Metrics with specified key and value pairs.
+
+        Args:
+            metrics (Dict):
+                Required. Metrics key/value pairs.
+        """
+
         self._validate_experiment_and_run(method_name="log_metrics")
         # query the latest metrics artifact resource before logging.
         artifact = _Artifact.get_or_create(
@@ -94,8 +118,53 @@ class _MetadataService:
         )
         artifact.update(metadata=metrics)
 
-    def get_experiment(self, experiment: str):
-        raise NotImplementedError("get_experiment not implemented")
+    def get_experiment(self, experiment: str) -> pd.DataFrame:
+        """Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.
+
+            Example:
+
+            aiplatform.init(experiment='exp-1')
+            aiplatform.set_run(run='run-1')
+            aiplatform.log_params({'learning_rate': 0.1})
+            aiplatform.log_metrics({'accuracy': 0.9})
+
+            aiplatform.set_run(run='run-2')
+            aiplatform.log_params({'learning_rate': 0.2})
+            aiplatform.log_metrics({'accuracy': 0.95})
+
+            Will result in the following DataFrame
+            ___________________________________________________________________________
+            | experiment_name | run_name      | param.learning_rate | metric.accuracy |
+            ---------------------------------------------------------------------------
+            | exp-1           | run-1         | 0.1                 | 0.9             |
+            | exp-1           | run-2         | 0.2                 | 0.95            |
+            ---------------------------------------------------------------------------
+
+            Args:
+              experiment: Name of the Experiment to filter results.
+
+            Returns:
+              Pandas Dataframe of Experiments with metrics and parameters.
+            """
+
+        experiment_context_name = utils.full_resource_name(
+            resource_name=experiment, resource_noun="metadataStores/default/contexts"
+        )
+        # filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{experiment_context_name}")'
+        # filter = f'in_context("{experiment_context_name}")'
+        filter = f'schema_title="{constants.SYSTEM_RUN}"'
+        run_executions = _Execution.list(filter=filter)
+        experiment_dict = []
+        for run_execution in run_executions:
+            run_dict = {'experiment_name': experiment, 'run_name': run_execution.display_name}
+            run_dict.update(self._execution_to_column_named_metadata("param", run_execution.metadata))
+
+            for metric_artifact in run_execution.query_input_and_output_artifacts():
+                run_dict.update(self._execution_to_column_named_metadata("metric", metric_artifact.metadata))
+
+            experiment_dict.append(run_dict)
+
+        return pd.DataFrame(experiment_dict)
 
     def get_pipeline(self, pipeline: str):
         raise NotImplementedError("get_pipeline not implemented")
@@ -110,6 +179,24 @@ class _MetadataService:
             raise ValueError(
                 f"No run set. Make sure to call aiplatform.set_run('my-run') before trying to {method_name}. "
             )
+
+    @staticmethod
+    def _execution_to_column_named_metadata(metadata_type: str, metadata: Dict,
+                                            ) -> Dict[str, Union[int, float, str]]:
+        """Returns a dict of the Execution/Artifact metadata with column names.
+
+        Args:
+          metadata_type: The type of this execution properties (param, metric).
+          metadata: Either an Execution or Artifact metadata field.
+
+        Returns:
+          Dict of custom properties with keys mapped to column names
+        """
+
+        return {
+            '.'.join([metadata_type, key]): value
+            for key, value in metadata
+        }
 
 
 metadata_service = _MetadataService()

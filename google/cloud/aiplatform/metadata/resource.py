@@ -37,12 +37,12 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
     _delete_method = None
 
     def __init__(
-        self,
-        resource_name: str,
-        metadata_store_id: Optional[str] = "default",
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
+            self,
+            resource_name: str,
+            metadata_store_id: Optional[str] = "default",
+            project: Optional[str] = None,
+            location: Optional[str] = None,
+            credentials: Optional[auth_credentials.Credentials] = None,
     ):
         """Retrieves an existing Metadata resource given a resource name or ID.
 
@@ -86,19 +86,23 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
             name=full_resource_name
         )
 
+    @property
+    def metadata(self) -> Dict:
+        return self._gca_resource.metadata.items()
+
     @classmethod
     def get_or_create(
-        cls,
-        resource_id: str,
-        schema_title: str,
-        display_name: Optional[str] = None,
-        schema_version: Optional[str] = None,
-        description: Optional[str] = None,
-        metadata: Optional[Dict] = None,
-        metadata_store_id: Optional[str] = "default",
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
+            cls,
+            resource_id: str,
+            schema_title: str,
+            display_name: Optional[str] = None,
+            schema_version: Optional[str] = None,
+            description: Optional[str] = None,
+            metadata: Optional[Dict] = None,
+            metadata_store_id: Optional[str] = "default",
+            project: Optional[str] = None,
+            location: Optional[str] = None,
+            credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "_Resource":
         """Retrieves or Creates (if it does not exist) a Metadata resource.
 
@@ -162,9 +166,9 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         return resource
 
     def update(
-        self,
-        metadata: Dict,
-        credentials: Optional[auth_credentials.Credentials] = None,
+            self,
+            metadata: Dict,
+            credentials: Optional[auth_credentials.Credentials] = None,
     ):
         """Updates an existing Metadata resource with new metadata.
 
@@ -190,18 +194,83 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         self._gca_resource = update_gca_resource
 
     @classmethod
+    def list(
+            cls,
+            filter: Optional[str] = None,
+            metadata_store_id: Optional[str] = "default",
+            project: Optional[str] = None,
+            location: Optional[str] = None,
+            credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """List Metadata resources that match the list filter in target metadataStore.
+
+        Args:
+            filter (str):
+                Optional. A query to filter available resources for
+                matching results.
+            metadata_store_id (str):
+                The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/<resource_noun>/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Project used to create this resource. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Location used to create this resource. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Custom credentials used to create this resource. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            resources (sequence[_Resource]):
+                a list of managed Metadata resource.
+
+        """
+        api_client = cls._instantiate_client(location=location, credentials=credentials)
+
+        parent = (
+                initializer.global_config.common_location_path(
+                    project=project, location=location
+                )
+                + f"/metadataStores/{metadata_store_id}"
+        )
+
+        try:
+            resources = cls._list_resources(
+                client=api_client, parent=parent, filter=filter,
+            )
+        except exceptions.NotFound:
+            logging.info(
+                f"No matching resources in metadataStore: {metadata_store_id} with filter: {filter}"
+            )
+            return []
+
+        return [
+            cls(
+                resource_name=resource.name,
+                metadata_store_id=metadata_store_id,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+            for resource in resources
+        ]
+
+    @classmethod
     def _create(
-        cls,
-        resource_id: str,
-        schema_title: str,
-        display_name: Optional[str] = None,
-        schema_version: Optional[str] = None,
-        description: Optional[str] = None,
-        metadata: Optional[Dict] = None,
-        metadata_store_id: Optional[str] = "default",
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
+            cls,
+            resource_id: str,
+            schema_title: str,
+            display_name: Optional[str] = None,
+            schema_version: Optional[str] = None,
+            description: Optional[str] = None,
+            metadata: Optional[Dict] = None,
+            metadata_store_id: Optional[str] = "default",
+            project: Optional[str] = None,
+            location: Optional[str] = None,
+            credentials: Optional[auth_credentials.Credentials] = None,
     ):
         """Creates a new Metadata resource.
 
@@ -244,10 +313,10 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         parent = (
-            initializer.global_config.common_location_path(
-                project=project, location=location
-            )
-            + f"/metadataStores/{metadata_store_id}"
+                initializer.global_config.common_location_path(
+                    project=project, location=location
+                )
+                + f"/metadataStores/{metadata_store_id}"
         )
 
         try:
@@ -274,12 +343,12 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
 
     @classmethod
     def _get(
-        cls,
-        resource_name: str,
-        metadata_store_id: Optional[str] = "default",
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
+            cls,
+            resource_name: str,
+            metadata_store_id: Optional[str] = "default",
+            project: Optional[str] = None,
+            location: Optional[str] = None,
+            credentials: Optional[auth_credentials.Credentials] = None,
     ) -> Optional["_Resource"]:
         """Returns a metadata Resource.
 
@@ -323,15 +392,15 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
     @classmethod
     @abc.abstractmethod
     def _create_resource(
-        cls,
-        client: utils.MetadataClientWithOverride,
-        parent: str,
-        resource_id: str,
-        schema_title: str,
-        display_name: Optional[str] = None,
-        schema_version: Optional[str] = None,
-        description: Optional[str] = None,
-        metadata: Optional[Dict] = None,
+            cls,
+            client: utils.MetadataClientWithOverride,
+            parent: str,
+            resource_id: str,
+            schema_title: str,
+            display_name: Optional[str] = None,
+            schema_version: Optional[str] = None,
+            description: Optional[str] = None,
+            metadata: Optional[Dict] = None,
     ) -> proto.Message:
         """Create resource method."""
         pass
@@ -339,7 +408,7 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
     @classmethod
     @abc.abstractmethod
     def _update_resource(
-        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
+            cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
     ) -> proto.Message:
         """Update resource method."""
         pass
