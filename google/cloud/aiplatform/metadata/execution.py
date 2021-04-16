@@ -37,7 +37,7 @@ class _Execution(_Resource):
     def add_artifact(
         self, artifact_resource_name: str, input: bool,
     ):
-        """Creates a new Metadata resource.
+        """Connect Artifact to a given Execution.
 
         Args:
             artifact_resource_name (str):

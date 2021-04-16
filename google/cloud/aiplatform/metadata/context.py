@@ -36,7 +36,7 @@ class _Context(_Resource):
         artifact_resource_names: Optional[Sequence[str]] = None,
         execution_resource_names: Optional[Sequence[str]] = None,
     ):
-        """Creates a new Metadata resource.
+        """Associate Executions and attribute Artifacts to a given Context.
 
         Args:
             artifact_resource_names (Sequence[str]):

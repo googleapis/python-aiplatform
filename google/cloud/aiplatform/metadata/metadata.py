@@ -58,7 +58,7 @@ class _MetadataService:
         if not self._experiment:
             raise ValueError(
                 "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') "
-                "before trying to set_run. "
+                "before trying to start_run. "
             )
         run_execution_id = f"{self._experiment.name}-{run}"
         run_execution = _Execution.get_or_create(
@@ -125,11 +125,11 @@ class _MetadataService:
             Example:
 
             aiplatform.init(experiment='exp-1')
-            aiplatform.set_run(run='run-1')
+            aiplatform.start_run(run='run-1')
             aiplatform.log_params({'learning_rate': 0.1})
             aiplatform.log_metrics({'accuracy': 0.9})
 
-            aiplatform.set_run(run='run-2')
+            aiplatform.start_run(run='run-2')
             aiplatform.log_params({'learning_rate': 0.2})
             aiplatform.log_metrics({'accuracy': 0.95})
 
@@ -148,22 +148,17 @@ class _MetadataService:
               Pandas Dataframe of Experiment with metrics and parameters.
             """
 
-        # TODO remove this extra API call once our BE can support project ID in filters.
-        try:
-            experiment_context = _Context(resource_name=experiment)
-        except exceptions.NotFound:
-            logging.error(f"Experiment {experiment} not found.")
-            return
-        if experiment_context.schema_title != constants.SYSTEM_EXPERIMENT:
-            raise ValueError(
-                f"Please provide a valid experiment name. {experiment} is not a experiment."
-            )
-
-        return self._query_runs_to_data_frame(
-            context_name=experiment,
-            context_resource_name=experiment_context.resource_name,
-            source="experiment",
+        source = "experiment"
+        experiment_resource_name = self._get_experiment_or_pipeline_resource_name(
+            name=experiment, source=source, expected_schema=constants.SYSTEM_EXPERIMENT,
         )
+
+        if experiment_resource_name:
+            return self._query_runs_to_data_frame(
+                context_name=experiment,
+                context_resource_name=experiment_resource_name,
+                source=source,
+            )
 
     def get_pipeline(self, pipeline: str) -> pd.DataFrame:
         """Returns a Pandas DataFrame of the parameters and metrics associated with one pipeline.
@@ -175,22 +170,17 @@ class _MetadataService:
                       Pandas Dataframe of Pipeline with metrics and parameters.
                     """
 
-        # TODO remove this extra API call once our BE can support project ID in filters.
-        try:
-            pipeline_context = _Context(resource_name=pipeline)
-        except exceptions.NotFound:
-            logging.error(f"Pipeline {pipeline} not found.")
-            return
-        if pipeline_context.schema_title != constants.SYSTEM_PIPELINE:
-            raise ValueError(
-                f"Please provide a valid pipeline name. {pipeline} is not a pipeline."
-            )
-
-        return self._query_runs_to_data_frame(
-            context_name=pipeline,
-            context_resource_name=pipeline_context.resource_name,
-            source="pipeline",
+        source = "pipeline"
+        pipeline_resource_name = self._get_experiment_or_pipeline_resource_name(
+            name=pipeline, source=source, expected_schema=constants.SYSTEM_PIPELINE
         )
+
+        if pipeline_resource_name:
+            return self._query_runs_to_data_frame(
+                context_name=pipeline,
+                context_resource_name=pipeline_resource_name,
+                source=source,
+            )
 
     def _validate_experiment_and_run(self, method_name: str):
         if not self._experiment:
@@ -200,8 +190,23 @@ class _MetadataService:
             )
         if not self._run:
             raise ValueError(
-                f"No run set. Make sure to call aiplatform.set_run('my-run') before trying to {method_name}. "
+                f"No run set. Make sure to call aiplatform.start_run('my-run') before trying to {method_name}. "
             )
+
+    @staticmethod
+    def _get_experiment_or_pipeline_resource_name(
+        name: str, source: str, expected_schema: str
+    ) -> str:
+        try:
+            context = _Context(resource_name=name)
+        except exceptions.NotFound:
+            logging.error(f"{source} {name} not found.")
+            return
+        if context.schema_title != expected_schema:
+            raise ValueError(
+                f"Please provide a valid {source} name. {name} is not a {source}."
+            )
+        return context.resource_name
 
     def _query_runs_to_data_frame(
         self, context_name: str, context_resource_name: str, source: str
@@ -209,7 +214,7 @@ class _MetadataService:
         filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{context_resource_name}")'
         run_executions = _Execution.list(filter=filter)
 
-        context_dict = []
+        context_summary = []
         for run_execution in run_executions:
             run_dict = {
                 f"{source}_name": context_name,
@@ -228,9 +233,9 @@ class _MetadataService:
                     )
                 )
 
-            context_dict.append(run_dict)
+            context_summary.append(run_dict)
 
-        return pd.DataFrame(context_dict)
+        return pd.DataFrame(context_summary)
 
     @staticmethod
     def _execution_to_column_named_metadata(
