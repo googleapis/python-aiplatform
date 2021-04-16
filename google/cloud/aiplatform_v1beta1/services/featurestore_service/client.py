@@ -1134,7 +1134,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateEntityTypeRequest):
                 The request object. Request message for
-                [FeaturestoreService.UpdateEntityTypes][].
+                ``FeaturestoreService.UpdateEntityType``.
             entity_type (google.cloud.aiplatform_v1beta1.types.EntityType):
                 Required. The EntityType's ``name`` field is used to
                 identify the EntityType to be updated. Format:
@@ -1157,6 +1157,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                 -  ``description``
                 -  ``labels``
+                -  ``monitoring_config.snapshot_analysis.disabled``
+                -  ``monitoring_config.snapshot_analysis.monitoring_interval``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

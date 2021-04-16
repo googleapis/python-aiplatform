@@ -130,7 +130,7 @@ class CsvDestination(proto.Message):
 
     Attributes:
         gcs_destination (google.cloud.aiplatform_v1beta1.types.GcsDestination):
-            Google Cloud Storage location.
+            Required. Google Cloud Storage location.
     """
 
     gcs_destination = proto.Field(proto.MESSAGE, number=1,
@@ -143,7 +143,7 @@ class TFRecordDestination(proto.Message):
 
     Attributes:
         gcs_destination (google.cloud.aiplatform_v1beta1.types.GcsDestination):
-            Google Cloud Storage location.
+            Required. Google Cloud Storage location.
     """
 
     gcs_destination = proto.Field(proto.MESSAGE, number=1,

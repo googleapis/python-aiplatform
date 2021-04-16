@@ -485,7 +485,9 @@ class FeatureValueDestination(proto.Message):
 
     Attributes:
         bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
-            Output in BigQuery format. output_uri in
+            Output in BigQuery format.
+            ``BigQueryDestination.output_uri``
+            in
             ``FeatureValueDestination.bigquery_destination``
             must refer to a table.
         tfrecord_destination (google.cloud.aiplatform_v1beta1.types.TFRecordDestination):
@@ -669,7 +671,8 @@ class ListEntityTypesResponse(proto.Message):
 
 
 class UpdateEntityTypeRequest(proto.Message):
-    r"""Request message for [FeaturestoreService.UpdateEntityTypes][].
+    r"""Request message for
+    ``FeaturestoreService.UpdateEntityType``.
 
     Attributes:
         entity_type (google.cloud.aiplatform_v1beta1.types.EntityType):
@@ -690,6 +693,8 @@ class UpdateEntityTypeRequest(proto.Message):
 
             -  ``description``
             -  ``labels``
+            -  ``monitoring_config.snapshot_analysis.disabled``
+            -  ``monitoring_config.snapshot_analysis.monitoring_interval``
     """
 
     entity_type = proto.Field(proto.MESSAGE, number=1,
@@ -738,7 +743,7 @@ class CreateFeatureRequest(proto.Message):
             This value may be up to 60 characters, and valid characters
             are ``[a-z0-9_]``. The first character cannot be a number.
 
-            The value must be unique within an entitytype.
+            The value must be unique within an EntityType.
     """
 
     parent = proto.Field(proto.STRING, number=1)
