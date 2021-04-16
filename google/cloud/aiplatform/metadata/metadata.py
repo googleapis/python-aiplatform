@@ -159,31 +159,11 @@ class _MetadataService:
                 f"Please provide a valid experiment name. {experiment} is not a experiment."
             )
 
-        filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{experiment_context.resource_name}")'
-        run_executions = _Execution.list(filter=filter)
-
-        experiment_dict = []
-        for run_execution in run_executions:
-            run_dict = {
-                "experiment_name": experiment,
-                "run_name": run_execution.display_name,
-            }
-            run_dict.update(
-                self._execution_to_column_named_metadata(
-                    "param", run_execution.metadata
-                )
-            )
-
-            for metric_artifact in run_execution.query_input_and_output_artifacts():
-                run_dict.update(
-                    self._execution_to_column_named_metadata(
-                        "metric", metric_artifact.metadata
-                    )
-                )
-
-            experiment_dict.append(run_dict)
-
-        return pd.DataFrame(experiment_dict)
+        return self._query_runs_to_data_frame(
+            context_name=experiment,
+            context_resource_name=experiment_context.resource_name,
+            source="experiment",
+        )
 
     def get_pipeline(self, pipeline: str) -> pd.DataFrame:
         """Returns a Pandas DataFrame of the parameters and metrics associated with one pipeline.
@@ -206,13 +186,33 @@ class _MetadataService:
                 f"Please provide a valid pipeline name. {pipeline} is not a pipeline."
             )
 
-        filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{pipeline_context.resource_name}")'
+        return self._query_runs_to_data_frame(
+            context_name=pipeline,
+            context_resource_name=pipeline_context.resource_name,
+            source="pipeline",
+        )
+
+    def _validate_experiment_and_run(self, method_name: str):
+        if not self._experiment:
+            raise ValueError(
+                f"No experiment set. Make sure to call aiplatform.init(experiment='my-experiment') "
+                f"before trying to {method_name}. "
+            )
+        if not self._run:
+            raise ValueError(
+                f"No run set. Make sure to call aiplatform.set_run('my-run') before trying to {method_name}. "
+            )
+
+    def _query_runs_to_data_frame(
+        self, context_name: str, context_resource_name: str, source: str
+    ) -> pd.DataFrame:
+        filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{context_resource_name}")'
         run_executions = _Execution.list(filter=filter)
 
-        pipeline_dict = []
+        context_dict = []
         for run_execution in run_executions:
             run_dict = {
-                "pipeline_name": pipeline,
+                f"{source}_name": context_name,
                 "run_name": run_execution.display_name,
             }
             run_dict.update(
@@ -228,20 +228,9 @@ class _MetadataService:
                     )
                 )
 
-            pipeline_dict.append(run_dict)
+            context_dict.append(run_dict)
 
-        return pd.DataFrame(pipeline_dict)
-
-    def _validate_experiment_and_run(self, method_name: str):
-        if not self._experiment:
-            raise ValueError(
-                f"No experiment set. Make sure to call aiplatform.init(experiment='my-experiment') "
-                f"before trying to {method_name}. "
-            )
-        if not self._run:
-            raise ValueError(
-                f"No run set. Make sure to call aiplatform.set_run('my-run') before trying to {method_name}. "
-            )
+        return pd.DataFrame(context_dict)
 
     @staticmethod
     def _execution_to_column_named_metadata(
