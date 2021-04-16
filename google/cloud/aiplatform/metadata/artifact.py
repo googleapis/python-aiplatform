@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Dict, Sequence
+from typing import Optional, Dict
 
 import proto
 

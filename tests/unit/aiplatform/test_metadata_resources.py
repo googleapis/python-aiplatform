@@ -35,8 +35,10 @@ from google.cloud.aiplatform_v1beta1 import (
     MetadataServiceClient,
     AddExecutionEventsResponse,
     Event,
+    ListExecutionsRequest,
+    ListArtifactsRequest,
+    ListContextsRequest,
 )
-from google.cloud.aiplatform_v1beta1.types import metadata_service
 
 # project
 _TEST_PROJECT = "test-project"
@@ -452,9 +454,7 @@ class TestContext:
         )
 
         list_contexts_mock.assert_called_once_with(
-            request=metadata_service.ListContextsRequest(
-                parent=_TEST_PARENT, filter=filter,
-            )
+            request=ListContextsRequest(parent=_TEST_PARENT, filter=filter,)
         )
         assert len(context_list) == 2
         assert context_list[0]._gca_resource == expected_context
@@ -632,9 +632,7 @@ class TestExecution:
         )
 
         list_executions_mock.assert_called_once_with(
-            request=metadata_service.ListExecutionsRequest(
-                parent=_TEST_PARENT, filter=filter,
-            )
+            request=ListExecutionsRequest(parent=_TEST_PARENT, filter=filter,)
         )
         assert len(execution_list) == 2
         assert execution_list[0]._gca_resource == expected_execution
@@ -796,9 +794,7 @@ class TestArtifact:
         )
 
         list_artifacts_mock.assert_called_once_with(
-            request=metadata_service.ListArtifactsRequest(
-                parent=_TEST_PARENT, filter=filter,
-            )
+            request=ListArtifactsRequest(parent=_TEST_PARENT, filter=filter,)
         )
         assert len(artifact_list) == 2
         assert artifact_list[0]._gca_resource == expected_artifact

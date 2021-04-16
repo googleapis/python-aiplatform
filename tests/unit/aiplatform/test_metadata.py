@@ -16,10 +16,11 @@
 #
 
 from importlib import reload
-from unittest.mock import patch
+from unittest.mock import patch, call
 
 import pandas as pd
 import pytest
+from google.api_core import exceptions
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
@@ -29,6 +30,7 @@ from google.cloud.aiplatform_v1beta1 import (
     AddContextArtifactsAndExecutionsResponse,
     Event,
     LineageSubgraph,
+    ListExecutionsRequest,
 )
 from google.cloud.aiplatform_v1beta1 import Artifact as GapicArtifact
 from google.cloud.aiplatform_v1beta1 import Context as GapicContext
@@ -40,12 +42,14 @@ from google.cloud.aiplatform_v1beta1 import (
 from google.cloud.aiplatform_v1beta1 import MetadataStore as GapicMetadataStore
 
 # project
+
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_PARENT = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default"
 )
 _TEST_EXPERIMENT = "test-experiment"
+_TEST_PIPELINE = _TEST_EXPERIMENT
 _TEST_RUN = "run-1"
 _TEST_OTHER_RUN = "run-2"
 
@@ -108,6 +112,30 @@ def get_context_mock():
             metadata=constants.EXPERIMENT_METADATA,
         )
         yield get_context_mock
+
+
+@pytest.fixture
+def get_pipeline_context_mock():
+    with patch.object(
+        MetadataServiceClient, "get_context"
+    ) as get_pipeline_context_mock:
+        get_pipeline_context_mock.return_value = GapicContext(
+            name=_TEST_CONTEXT_NAME,
+            display_name=_TEST_EXPERIMENT,
+            schema_title=constants.SYSTEM_PIPELINE,
+            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_PIPELINE],
+            metadata=constants.EXPERIMENT_METADATA,
+        )
+        yield get_pipeline_context_mock
+
+
+@pytest.fixture
+def get_context_not_found_mock():
+    with patch.object(
+        MetadataServiceClient, "get_context"
+    ) as get_context_not_found_mock:
+        get_context_not_found_mock.side_effect = exceptions.NotFound("test: not found")
+        yield get_context_not_found_mock
 
 
 @pytest.fixture
@@ -342,12 +370,23 @@ class TestMetadata:
         update_artifact_mock.assert_called_once_with(artifact=updated_artifact)
 
     @pytest.mark.usefixtures("get_context_mock")
-    @pytest.mark.usefixtures("list_executions_mock")
-    @pytest.mark.usefixtures("query_execution_inputs_and_outputs_mock")
-    def test_get_experiment(self):
+    def test_get_experiment(
+        self, list_executions_mock, query_execution_inputs_and_outputs_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
         experiment_df = aiplatform.get_experiment(_TEST_EXPERIMENT)
 
+        expected_filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{_TEST_CONTEXT_NAME}")'
+        list_executions_mock.assert_called_once_with(
+            request=ListExecutionsRequest(parent=_TEST_PARENT, filter=expected_filter,)
+        )
+        query_execution_inputs_and_outputs_mock.assert_has_calls(
+            [
+                call(execution=_TEST_EXECUTION_NAME),
+                call(execution=_TEST_OTHER_EXECUTION_NAME),
+            ]
+        )
         experiment_df_truth = pd.DataFrame(
             [
                 {
@@ -369,3 +408,67 @@ class TestMetadata:
         )
 
         _assert_frame_equal_with_sorted_columns(experiment_df, experiment_df_truth)
+
+    @pytest.mark.usefixtures("get_context_not_found_mock")
+    def test_get_experiment_not_exist(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        experiment_df = aiplatform.get_experiment(_TEST_EXPERIMENT)
+        assert not experiment_df
+
+    @pytest.mark.usefixtures("get_pipeline_context_mock")
+    def test_get_experiment_wrong_schema(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        with pytest.raises(ValueError):
+            aiplatform.get_experiment(_TEST_EXPERIMENT)
+
+    @pytest.mark.usefixtures("get_pipeline_context_mock")
+    def test_get_pipeline(
+        self, list_executions_mock, query_execution_inputs_and_outputs_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        pipeline_df = aiplatform.get_pipeline(_TEST_PIPELINE)
+
+        expected_filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{_TEST_CONTEXT_NAME}")'
+        list_executions_mock.assert_called_once_with(
+            request=ListExecutionsRequest(parent=_TEST_PARENT, filter=expected_filter,)
+        )
+        query_execution_inputs_and_outputs_mock.assert_has_calls(
+            [
+                call(execution=_TEST_EXECUTION_NAME),
+                call(execution=_TEST_OTHER_EXECUTION_NAME),
+            ]
+        )
+        pipeline_df_truth = pd.DataFrame(
+            [
+                {
+                    "pipeline_name": _TEST_PIPELINE,
+                    "run_name": _TEST_RUN,
+                    "param.%s" % _TEST_PARAM_KEY_1: 0.01,
+                    "param.%s" % _TEST_PARAM_KEY_2: 0.2,
+                    "metric.%s" % _TEST_METRIC_KEY_1: 222,
+                    "metric.%s" % _TEST_METRIC_KEY_2: 1,
+                },
+                {
+                    "pipeline_name": _TEST_PIPELINE,
+                    "run_name": _TEST_OTHER_RUN,
+                    "param.%s" % _TEST_PARAM_KEY_1: 0.02,
+                    "param.%s" % _TEST_PARAM_KEY_2: 0.3,
+                    "metric.%s" % _TEST_METRIC_KEY_2: 0.9,
+                },
+            ]
+        )
+
+        _assert_frame_equal_with_sorted_columns(pipeline_df, pipeline_df_truth)
+
+    @pytest.mark.usefixtures("get_context_not_found_mock")
+    def test_get_pipeline_not_exist(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        pipeline_df = aiplatform.get_pipeline(_TEST_PIPELINE)
+        assert not pipeline_df
+
+    @pytest.mark.usefixtures("get_context_mock")
+    def test_get_pipeline_wrong_schema(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        with pytest.raises(ValueError):
+            aiplatform.get_pipeline(_TEST_PIPELINE)
