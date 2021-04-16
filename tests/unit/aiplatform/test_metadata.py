@@ -18,6 +18,7 @@
 from importlib import reload
 from unittest.mock import patch
 
+import pandas as pd
 import pytest
 
 from google.cloud import aiplatform
@@ -27,6 +28,7 @@ from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform_v1beta1 import (
     AddContextArtifactsAndExecutionsResponse,
     Event,
+    LineageSubgraph,
 )
 from google.cloud.aiplatform_v1beta1 import Artifact as GapicArtifact
 from google.cloud.aiplatform_v1beta1 import Context as GapicContext
@@ -44,7 +46,8 @@ _TEST_PARENT = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default"
 )
 _TEST_EXPERIMENT = "test-experiment"
-_TEST_RUN = "run"
+_TEST_RUN = "run-1"
+_TEST_OTHER_RUN = "run-2"
 
 # resource attributes
 _TEST_METADATA = {"test-param1": 1, "test-param2": "test-value", "test-param3": True}
@@ -61,16 +64,26 @@ _TEST_CONTEXT_NAME = f"{_TEST_PARENT}/contexts/{_TEST_CONTEXT_ID}"
 # execution
 _TEST_EXECUTION_ID = f"{_TEST_EXPERIMENT}-{_TEST_RUN}"
 _TEST_EXECUTION_NAME = f"{_TEST_PARENT}/executions/{_TEST_EXECUTION_ID}"
+_TEST_OTHER_EXECUTION_ID = f"{_TEST_EXPERIMENT}-{_TEST_OTHER_RUN}"
+_TEST_OTHER_EXECUTION_NAME = f"{_TEST_PARENT}/executions/{_TEST_OTHER_EXECUTION_ID}"
 
 # artifact
 _TEST_ARTIFACT_ID = f"{_TEST_EXPERIMENT}-{_TEST_RUN}-metrics"
 _TEST_ARTIFACT_NAME = f"{_TEST_PARENT}/artifacts/{_TEST_ARTIFACT_ID}"
+_TEST_OTHER_ARTIFACT_ID = f"{_TEST_EXPERIMENT}-{_TEST_OTHER_RUN}-metrics"
+_TEST_OTHER_ARTIFACT_NAME = f"{_TEST_PARENT}/artifacts/{_TEST_OTHER_ARTIFACT_ID}"
 
 # parameters
-_TEST_PARAMS = {"learning_rate": 0.01, "dropout": 0.2}
+_TEST_PARAM_KEY_1 = "learning_rate"
+_TEST_PARAM_KEY_2 = "dropout"
+_TEST_PARAMS = {_TEST_PARAM_KEY_1: 0.01, _TEST_PARAM_KEY_2: 0.2}
+_TEST_OTHER_PARAMS = {_TEST_PARAM_KEY_1: 0.02, _TEST_PARAM_KEY_2: 0.3}
 
 # metrics
-_TEST_METRICS = {"rmse": 222, "accuracy": 1}
+_TEST_METRIC_KEY_1 = "rmse"
+_TEST_METRIC_KEY_2 = "accuracy"
+_TEST_METRICS = {_TEST_METRIC_KEY_1: 222, _TEST_METRIC_KEY_2: 1}
+_TEST_OTHER_METRICS = {_TEST_METRIC_KEY_2: 0.9}
 
 
 @pytest.fixture
@@ -145,6 +158,64 @@ def add_execution_events_mock():
 
 
 @pytest.fixture
+def list_executions_mock():
+    with patch.object(MetadataServiceClient, "list_executions") as list_executions_mock:
+        list_executions_mock.return_value = [
+            GapicExecution(
+                name=_TEST_EXECUTION_NAME,
+                display_name=_TEST_RUN,
+                schema_title=constants.SYSTEM_RUN,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
+                metadata=_TEST_PARAMS,
+            ),
+            GapicExecution(
+                name=_TEST_OTHER_EXECUTION_NAME,
+                display_name=_TEST_OTHER_RUN,
+                schema_title=constants.SYSTEM_RUN,
+                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
+                metadata=_TEST_OTHER_PARAMS,
+            ),
+        ]
+        yield list_executions_mock
+
+
+@pytest.fixture
+def query_execution_inputs_and_outputs_mock():
+    with patch.object(
+        MetadataServiceClient, "query_execution_inputs_and_outputs"
+    ) as query_execution_inputs_and_outputs_mock:
+        query_execution_inputs_and_outputs_mock.side_effect = [
+            LineageSubgraph(
+                artifacts=[
+                    GapicArtifact(
+                        name=_TEST_ARTIFACT_NAME,
+                        display_name=_TEST_ARTIFACT_ID,
+                        schema_title=constants.SYSTEM_METRICS,
+                        schema_version=constants.SCHEMA_VERSIONS[
+                            constants.SYSTEM_METRICS
+                        ],
+                        metadata=_TEST_METRICS,
+                    ),
+                ],
+            ),
+            LineageSubgraph(
+                artifacts=[
+                    GapicArtifact(
+                        name=_TEST_OTHER_ARTIFACT_NAME,
+                        display_name=_TEST_OTHER_ARTIFACT_ID,
+                        schema_title=constants.SYSTEM_METRICS,
+                        schema_version=constants.SCHEMA_VERSIONS[
+                            constants.SYSTEM_METRICS
+                        ],
+                        metadata=_TEST_OTHER_METRICS,
+                    ),
+                ],
+            ),
+        ]
+        yield query_execution_inputs_and_outputs_mock
+
+
+@pytest.fixture
 def get_artifact_mock():
     with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
         get_artifact_mock.return_value = GapicArtifact(
@@ -167,6 +238,12 @@ def update_artifact_mock():
             metadata=_TEST_METRICS,
         )
         yield update_artifact_mock
+
+
+def _assert_frame_equal_with_sorted_columns(dataframe_1, dataframe_2):
+    pd.testing.assert_frame_equal(
+        dataframe_1.sort_index(axis=1), dataframe_2.sort_index(axis=1), check_names=True
+    )
 
 
 class TestMetadata:
@@ -263,3 +340,32 @@ class TestMetadata:
         )
 
         update_artifact_mock.assert_called_once_with(artifact=updated_artifact)
+
+    @pytest.mark.usefixtures("get_context_mock")
+    @pytest.mark.usefixtures("list_executions_mock")
+    @pytest.mark.usefixtures("query_execution_inputs_and_outputs_mock")
+    def test_get_experiment(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        experiment_df = aiplatform.get_experiment(_TEST_EXPERIMENT)
+
+        experiment_df_truth = pd.DataFrame(
+            [
+                {
+                    "experiment_name": _TEST_EXPERIMENT,
+                    "run_name": _TEST_RUN,
+                    "param.%s" % _TEST_PARAM_KEY_1: 0.01,
+                    "param.%s" % _TEST_PARAM_KEY_2: 0.2,
+                    "metric.%s" % _TEST_METRIC_KEY_1: 222,
+                    "metric.%s" % _TEST_METRIC_KEY_2: 1,
+                },
+                {
+                    "experiment_name": _TEST_EXPERIMENT,
+                    "run_name": _TEST_OTHER_RUN,
+                    "param.%s" % _TEST_PARAM_KEY_1: 0.02,
+                    "param.%s" % _TEST_PARAM_KEY_2: 0.3,
+                    "metric.%s" % _TEST_METRIC_KEY_2: 0.9,
+                },
+            ]
+        )
+
+        _assert_frame_equal_with_sorted_columns(experiment_df, experiment_df_truth)

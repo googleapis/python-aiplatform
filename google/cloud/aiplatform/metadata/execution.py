@@ -71,7 +71,7 @@ class _Execution(_Resource):
 
         return [
             _Artifact(
-                resource_name=artifact.name,
+                resource=artifact,
                 project=self.project,
                 location=self.location,
                 credentials=self.credentials,

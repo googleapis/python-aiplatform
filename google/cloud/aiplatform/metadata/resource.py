@@ -38,7 +38,8 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: str = None,
+        resource: proto.Message = None,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -50,7 +51,11 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
             resource_name (str):
                 A fully-qualified resource name or ID
                 Example: "projects/123/locations/us-central1/metadataStores/default/<resource_noun>/my-resource".
-                or "my-resource" when project and location are initialized or passed.
+                or "my-resource" when project and location are initialized or passed. if ``resource`` is provided, this
+                should not be set.
+            resource (proto.Message):
+                The proto.Message that contains the full information of the resource. If both set, this field overrides
+                ``resource_name`` field.
             metadata_store_id (str):
                 MetadataStore to retrieve resource from. If not set, metadata_store_id is set to "default".
                 If resource_name is a fully-qualified resource, its metadata_store_id overrides this one.
@@ -69,18 +74,19 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
             project=project, location=location, credentials=credentials,
         )
 
-        # If we receive a full resource name, we extract the metadata_store_id and use that
-        if "/" in resource_name:
-            metadata_store_id = _Resource._extract_metadata_store_id(
-                resource_name, self._resource_noun
-            )
+        if resource:
+            self._gca_resource = resource
+            return
 
-        full_resource_name = utils.full_resource_name(
-            resource_name=resource_name,
-            resource_noun=f"metadataStores/{metadata_store_id}/{self._resource_noun}",
-            project=self.project,
-            location=self.location,
-        )
+        full_resource_name = resource_name
+        # Construct the full_resource_name if input resource_name is the resource_id
+        if "/" not in resource_name:
+            full_resource_name = utils.full_resource_name(
+                resource_name=resource_name,
+                resource_noun=f"metadataStores/{metadata_store_id}/{self._resource_noun}",
+                project=self.project,
+                location=self.location,
+            )
 
         self._gca_resource = getattr(self.api_client, self._getter_method)(
             name=full_resource_name
@@ -253,8 +259,7 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
 
         return [
             cls(
-                resource_name=resource.name,
-                metadata_store_id=metadata_store_id,
+                resource=resource,
                 project=project,
                 location=location,
                 credentials=credentials,
@@ -324,7 +329,7 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         )
 
         try:
-            cls._create_resource(
+            resource = cls._create_resource(
                 client=api_client,
                 parent=parent,
                 resource_id=resource_id,
@@ -336,10 +341,10 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
             )
         except exceptions.AlreadyExists:
             logging.info(f"Resource '{resource_id}' already exist")
+            return
 
         return cls(
-            resource_name=f"{parent}/{cls._resource_noun}/{resource_id}",
-            metadata_store_id=metadata_store_id,
+            resource=resource,
             project=project,
             location=location,
             credentials=credentials,
