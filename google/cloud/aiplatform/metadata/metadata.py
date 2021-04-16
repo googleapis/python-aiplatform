@@ -47,7 +47,7 @@ class _MetadataService:
         )
         self._experiment = context
 
-    def set_run(self, run: str):
+    def start_run(self, run: str):
         """Setup a run to current session.
 
         Args:

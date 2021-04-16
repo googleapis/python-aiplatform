@@ -295,7 +295,7 @@ class TestMetadata:
 
     @pytest.mark.usefixtures("get_metadata_store_mock")
     @pytest.mark.usefixtures("get_context_mock")
-    def test_set_run_with_existing_execution_and_artifact(
+    def test_start_run_with_existing_execution_and_artifact(
         self,
         get_execution_mock,
         add_context_artifacts_and_executions_mock,
@@ -305,7 +305,7 @@ class TestMetadata:
         aiplatform.init(
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
         )
-        aiplatform.set_run(_TEST_RUN)
+        aiplatform.start_run(_TEST_RUN)
 
         get_execution_mock.assert_called_once_with(name=_TEST_EXECUTION_NAME)
         add_context_artifacts_and_executions_mock.assert_called_once_with(
@@ -331,7 +331,7 @@ class TestMetadata:
         aiplatform.init(
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
         )
-        aiplatform.set_run(_TEST_RUN)
+        aiplatform.start_run(_TEST_RUN)
         aiplatform.log_params(_TEST_PARAMS)
 
         updated_execution = GapicExecution(
@@ -356,7 +356,7 @@ class TestMetadata:
         aiplatform.init(
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
         )
-        aiplatform.set_run(_TEST_RUN)
+        aiplatform.start_run(_TEST_RUN)
         aiplatform.log_metrics(_TEST_METRICS)
 
         updated_artifact = GapicArtifact(

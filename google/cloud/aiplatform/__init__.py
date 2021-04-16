@@ -52,7 +52,7 @@ log_params = metadata.metadata_service.log_params
 log_metrics = metadata.metadata_service.log_metrics
 get_experiment = metadata.metadata_service.get_experiment
 get_pipeline = metadata.metadata_service.get_pipeline
-set_run = metadata.metadata_service.set_run
+start_run = metadata.metadata_service.start_run
 
 
 __all__ = (
@@ -63,7 +63,7 @@ __all__ = (
     "log_metrics",
     "get_experiment",
     "get_pipeline",
-    "set_run",
+    "start_run",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
     "AutoMLTextTrainingJob",
