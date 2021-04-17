@@ -22,7 +22,7 @@ def test_upload_model_sample(mock_sdk_init, mock_upload_model):
     upload_model_sample.upload_model_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        display_name=constants.DISPLAY_NAME,
+        display_name=constants.MODEL_NAME,
         artifact_uri=constants.MODEL_ARTIFACT_URI,
         serving_container_image_uri=constants.SERVING_CONTAINER_IMAGE_URI,
         serving_container_predict_route=constants.SERVING_CONTAINER_PREDICT_ROUTE,
@@ -45,7 +45,7 @@ def test_upload_model_sample(mock_sdk_init, mock_upload_model):
     )
 
     mock_upload_model.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME,
+        display_name=constants.MODEL_NAME,
         artifact_uri=constants.MODEL_ARTIFACT_URI,
         serving_container_image_uri=constants.SERVING_CONTAINER_IMAGE_URI,
         serving_container_predict_route=constants.SERVING_CONTAINER_PREDICT_ROUTE,

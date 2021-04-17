@@ -220,9 +220,15 @@ def mock_model():
 
 
 @pytest.fixture
+<<<<<<< HEAD
 def mock_get_model(mock_model):
     with patch.object(aiplatform, "Model") as mock:
         mock.return_value = mock_model
+=======
+def mock_init_model(mock_model):
+    with patch.object(aiplatform.models.Model, "__init__") as mock:
+        mock.return_value = None
+>>>>>>> 190388a (Fixed tests)
         yield mock
 
 

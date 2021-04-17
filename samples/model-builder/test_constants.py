@@ -100,6 +100,7 @@ ACCELERATOR_TYPE = "ACCELERATOR_TYPE_UNSPECIFIED"
 ACCELERATOR_COUNT = 0
 
 # Model constants
+MODEL_RESOURCE_NAME = f"{PARENT}/models/1234"
 MODEL_ARTIFACT_URI = "gs://bucket3/output-dir/"
 SERVING_CONTAINER_IMAGE_URI = "http://gcr.io/test/test:latest"
 SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"

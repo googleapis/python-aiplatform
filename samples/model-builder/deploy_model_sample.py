@@ -39,7 +39,7 @@ def deploy_model_sample(
 
     aiplatform.init(project=project, location=location)
 
-    model = aiplatform.Model(model_resource_name)
+    model = aiplatform.Model(model_name=model_resource_name)
 
     model.deploy(
         endpoint=endpoint,
