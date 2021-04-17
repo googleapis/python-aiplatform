@@ -232,6 +232,18 @@ def mock_batch_predict_model(mock_model):
         yield mock
 
 
+@pytest.fixture
+def mock_upload_model():
+    with patch.object(aiplatform.models.Model, "upload") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_deploy_model():
+    with patch.object(aiplatform.models.Model, "deploy") as mock:
+        yield mock
+
+
 """
 ----------------------------------------------------------------------------
 Job Fixtures
