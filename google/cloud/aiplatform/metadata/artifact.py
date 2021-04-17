@@ -67,5 +67,15 @@ class _Artifact(_Resource):
         parent: str,
         filter: Optional[str] = None,
     ):
+        """List artifacts in the parent path that matches the filter.
+
+        Args:
+            client (utils.MetadataClientWithOverride):
+                Required. client to send require to Metadata Service.
+            parent (str):
+                Required. The path where Artifacts are stored.
+            filter (str):
+                Optional. filter string to restrict the list result
+        """
         list_request = ListArtifactsRequest(parent=parent, filter=filter,)
         return client.list_artifacts(request=list_request)

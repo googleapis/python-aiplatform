@@ -109,6 +109,17 @@ class _Execution(_Resource):
         parent: str,
         filter: Optional[str] = None,
     ):
+        """List Executions in the parent path that matches the filter.
+
+        Args:
+            client (utils.MetadataClientWithOverride):
+                Required. client to send require to Metadata Service.
+            parent (str):
+                Required. The path where Executions are stored.
+            filter (str):
+                Optional. filter string to restrict the list result
+        """
+
         list_request = ListExecutionsRequest(parent=parent, filter=filter,)
         return client.list_executions(request=list_request)
 

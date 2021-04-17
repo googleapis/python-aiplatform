@@ -16,7 +16,7 @@
 #
 
 import logging
-from typing import Dict, Union
+from typing import Dict, Union, Optional
 
 import pandas as pd
 from google.api_core import exceptions
@@ -119,7 +119,7 @@ class _MetadataService:
         )
         artifact.update(metadata=metrics)
 
-    def get_experiment(self, experiment: str) -> pd.DataFrame:
+    def get_experiment(self, experiment: Optional[str] = None) -> pd.DataFrame:
         """Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.
 
             Example:
@@ -142,45 +142,55 @@ class _MetadataService:
             ---------------------------------------------------------------------------
 
             Args:
-              experiment: Name of the Experiment to filter results.
+                experiment (str):
+                Name of the Experiment to filter results. If not set, return results of current active experiment.
 
             Returns:
-              Pandas Dataframe of Experiment with metrics and parameters.
+                Pandas Dataframe of Experiment with metrics and parameters.
+
+            Raise:
+                NotFound exception if experiment does not exist.
+                ValueError if given experiment is not associated with a wrong schema.
             """
+
+        if not experiment:
+            experiment = self._experiment
 
         source = "experiment"
         experiment_resource_name = self._get_experiment_or_pipeline_resource_name(
             name=experiment, source=source, expected_schema=constants.SYSTEM_EXPERIMENT,
         )
 
-        if experiment_resource_name:
-            return self._query_runs_to_data_frame(
-                context_name=experiment,
-                context_resource_name=experiment_resource_name,
-                source=source,
-            )
+        return self._query_runs_to_data_frame(
+            context_id=experiment,
+            context_resource_name=experiment_resource_name,
+            source=source,
+        )
 
     def get_pipeline(self, pipeline: str) -> pd.DataFrame:
         """Returns a Pandas DataFrame of the parameters and metrics associated with one pipeline.
 
-                    Args:
-                      pipeline: Name of the Pipeline to filter results.
+        Args:
+            pipeline: Name of the Pipeline to filter results.
 
-                    Returns:
-                      Pandas Dataframe of Pipeline with metrics and parameters.
-                    """
+        Returns:
+            Pandas Dataframe of Pipeline with metrics and parameters.
+
+        Raise:
+            NotFound exception if experiment does not exist.
+            ValueError if given experiment is not associated with a wrong schema.
+        """
 
         source = "pipeline"
         pipeline_resource_name = self._get_experiment_or_pipeline_resource_name(
             name=pipeline, source=source, expected_schema=constants.SYSTEM_PIPELINE
         )
 
-        if pipeline_resource_name:
-            return self._query_runs_to_data_frame(
-                context_name=pipeline,
-                context_resource_name=pipeline_resource_name,
-                source=source,
-            )
+        return self._query_runs_to_data_frame(
+            context_id=pipeline,
+            context_resource_name=pipeline_resource_name,
+            source=source,
+        )
 
     def _validate_experiment_and_run(self, method_name: str):
         if not self._experiment:
@@ -197,11 +207,25 @@ class _MetadataService:
     def _get_experiment_or_pipeline_resource_name(
         name: str, source: str, expected_schema: str
     ) -> str:
-        try:
-            context = _Context(resource_name=name)
-        except exceptions.NotFound:
-            logging.error(f"{source} {name} not found.")
-            return
+        """Get the full resource name of the Context representing an Experiment or Pipeline.
+
+        Args:
+            name (str):
+                Name of the Experiment or Pipeline.
+            source (str):
+                Identify whether the this is an Experiment or a Pipeline.
+            expected_schema (str):
+                expected_schema identifies the expected schema used for Experiment or Pipeline.
+
+        Returns:
+            The full resource name of the Experiment or Pipeline Context.
+
+        Raise:
+            NotFound exception if experiment or pipeline does not exist.
+        """
+
+        context = _Context(resource_name=name)
+
         if context.schema_title != expected_schema:
             raise ValueError(
                 f"Please provide a valid {source} name. {name} is not a {source}."
@@ -209,15 +233,29 @@ class _MetadataService:
         return context.resource_name
 
     def _query_runs_to_data_frame(
-        self, context_name: str, context_resource_name: str, source: str
+        self, context_id: str, context_resource_name: str, source: str
     ) -> pd.DataFrame:
+        """Get metrics and parameters associated with a given Context into a Dataframe.
+
+        Args:
+            context_id (str):
+                Name of the Experiment or Pipeline.
+            context_resource_name (str):
+                Full resource name of the Context associated with an Experiment or Pipeline.
+            source (str):
+                Identify whether the this is an Experiment or a Pipeline.
+
+        Returns:
+            The full resource name of the Experiment or Pipeline Context.
+        """
+
         filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{context_resource_name}")'
         run_executions = _Execution.list(filter=filter)
 
         context_summary = []
         for run_execution in run_executions:
             run_dict = {
-                f"{source}_name": context_name,
+                f"{source}_name": context_id,
                 "run_name": run_execution.display_name,
             }
             run_dict.update(

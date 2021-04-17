@@ -86,5 +86,16 @@ class _Context(_Resource):
         parent: str,
         filter: Optional[str] = None,
     ):
+        """List Contexts in the parent path that matches the filter.
+
+        Args:
+            client (utils.MetadataClientWithOverride):
+                Required. client to send require to Metadata Service.
+            parent (str):
+                Required. The path where Contexts are stored.
+            filter (str):
+                Optional. filter string to restrict the list result
+        """
+
         list_request = ListContextsRequest(parent=parent, filter=filter,)
         return client.list_contexts(request=list_request)

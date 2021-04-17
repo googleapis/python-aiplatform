@@ -19,7 +19,7 @@ import abc
 import logging
 import re
 from copy import deepcopy
-from typing import Optional, Dict
+from typing import Optional, Dict, Union, Sequence
 
 import proto
 from google.api_core import exceptions
@@ -27,6 +27,9 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform_v1beta1 import Artifact as GapicArtifact
+from google.cloud.aiplatform_v1beta1 import Context as GapicContext
+from google.cloud.aiplatform_v1beta1 import Execution as GapicExecution
 
 
 class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
@@ -38,8 +41,8 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
 
     def __init__(
         self,
-        resource_name: str = None,
-        resource: proto.Message = None,
+        resource_name: Optional[str] = None,
+        resource: Optional[Union[GapicContext, GapicArtifact, GapicExecution]] = None,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -53,7 +56,7 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
                 Example: "projects/123/locations/us-central1/metadataStores/default/<resource_noun>/my-resource".
                 or "my-resource" when project and location are initialized or passed. if ``resource`` is provided, this
                 should not be set.
-            resource (proto.Message):
+            resource (Union[GapicContext, GapicArtifact, GapicExecution]):
                 The proto.Message that contains the full information of the resource. If both set, this field overrides
                 ``resource_name`` field.
             metadata_store_id (str):
@@ -207,11 +210,11 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
     def list(
         cls,
         filter: Optional[str] = None,
-        metadata_store_id: Optional[str] = "default",
+        metadata_store_id: str = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ):
+    ) -> Sequence["_Resource"]:
         """List Metadata resources that match the list filter in target metadataStore.
 
         Args:

@@ -412,8 +412,8 @@ class TestMetadata:
     @pytest.mark.usefixtures("get_context_not_found_mock")
     def test_get_experiment_not_exist(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        experiment_df = aiplatform.get_experiment(_TEST_EXPERIMENT)
-        assert not experiment_df
+        with pytest.raises(exceptions.NotFound):
+            aiplatform.get_experiment(_TEST_EXPERIMENT)
 
     @pytest.mark.usefixtures("get_pipeline_context_mock")
     def test_get_experiment_wrong_schema(self):
@@ -464,8 +464,8 @@ class TestMetadata:
     @pytest.mark.usefixtures("get_context_not_found_mock")
     def test_get_pipeline_not_exist(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        pipeline_df = aiplatform.get_pipeline(_TEST_PIPELINE)
-        assert not pipeline_df
+        with pytest.raises(exceptions.NotFound):
+            aiplatform.get_pipeline(_TEST_PIPELINE)
 
     @pytest.mark.usefixtures("get_context_mock")
     def test_get_pipeline_wrong_schema(self):
