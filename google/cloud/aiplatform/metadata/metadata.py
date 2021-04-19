@@ -15,11 +15,7 @@
 # limitations under the License.
 #
 
-import logging
 from typing import Dict, Union, Optional
-
-import pandas as pd
-from google.api_core import exceptions
 
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import _Artifact
@@ -119,7 +115,7 @@ class _MetadataService:
         )
         artifact.update(metadata=metrics)
 
-    def get_experiment(self, experiment: Optional[str] = None) -> pd.DataFrame:
+    def get_experiment(self, experiment: Optional[str] = None) -> "pd.DataFrame":
         """Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.
 
             Example:
@@ -167,7 +163,7 @@ class _MetadataService:
             source=source,
         )
 
-    def get_pipeline(self, pipeline: str) -> pd.DataFrame:
+    def get_pipeline(self, pipeline: str) -> "pd.DataFrame":
         """Returns a Pandas DataFrame of the parameters and metrics associated with one pipeline.
 
         Args:
@@ -234,7 +230,7 @@ class _MetadataService:
 
     def _query_runs_to_data_frame(
         self, context_id: str, context_resource_name: str, source: str
-    ) -> pd.DataFrame:
+    ) -> "pd.DataFrame":
         """Get metrics and parameters associated with a given Context into a Dataframe.
 
         Args:
@@ -272,6 +268,14 @@ class _MetadataService:
                 )
 
             context_summary.append(run_dict)
+
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError(
+                "Pandas is not installed and is required to get dataframe as the return format. "
+                'Please install the SDK using "pip install python-aiplatform[full]"'
+            )
 
         return pd.DataFrame(context_summary)
 
