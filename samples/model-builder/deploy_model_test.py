@@ -22,7 +22,7 @@ def test_deploy_model_sample(mock_sdk_init, mock_model, mock_init_model, mock_de
     deploy_model_sample.deploy_model_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        model_resource_name=constants.MODEL_RESOURCE_NAME,
+        model_name=constants.MODEL_NAME,
         endpoint=constants.ENDPOINT_NAME,
         deployed_model_display_name=constants.DEPLOYED_MODEL_DISPLAY_NAME,
         traffic_percentage=constants.TRAFFIC_PERCENTAGE,
@@ -40,6 +40,10 @@ def test_deploy_model_sample(mock_sdk_init, mock_model, mock_init_model, mock_de
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
+    )
+
+    mock_init_model.assert_called_once_with(
+        model_name=constants.MODEL_NAME
     )
 
     mock_deploy_model.assert_called_once_with(

@@ -21,7 +21,7 @@ from google.cloud.aiplatform import explain
 def deploy_model_sample(
     project,
     location,
-    model_resource_name: str,
+    model_name: str,
     endpoint: Optional["Endpoint"] = None,
     deployed_model_display_name: Optional[str] = None,
     traffic_percentage: Optional[int] = 0,
@@ -39,7 +39,7 @@ def deploy_model_sample(
 
     aiplatform.init(project=project, location=location)
 
-    model = aiplatform.Model(model_name=model_resource_name)
+    model = aiplatform.Model(model_name=model_name)
 
     model.deploy(
         endpoint=endpoint,
