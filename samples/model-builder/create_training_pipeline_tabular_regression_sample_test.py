@@ -13,8 +13,6 @@
 # limitations under the License.
 
 
-import pytest
-
 import create_training_pipeline_tabular_regression_sample
 import test_constants as constants
 
