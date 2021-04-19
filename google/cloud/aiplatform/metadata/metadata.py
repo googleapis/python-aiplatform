@@ -293,7 +293,9 @@ class _MetadataService:
           Dict of custom properties with keys mapped to column names
         """
 
-        return {".".join([metadata_type, key]): value for key, value in metadata}
+        return {
+            ".".join([metadata_type, key]): value for key, value in metadata.items()
+        }
 
 
 metadata_service = _MetadataService()

@@ -97,7 +97,7 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
 
     @property
     def metadata(self) -> Dict:
-        return self._gca_resource.metadata.items()
+        return dict(self._gca_resource.metadata.items())
 
     @property
     def schema_title(self) -> str:
