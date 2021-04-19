@@ -24,6 +24,7 @@ from typing import Optional, Dict, Union, Sequence
 import proto
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
+from google.protobuf import json_format
 
 from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import utils
@@ -95,10 +96,9 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
             name=full_resource_name
         )
 
-    # TODO: update this method to use json_format or similar functions to parse info more than just the top layer.
     @property
     def metadata(self) -> Dict:
-        return dict(self._gca_resource.metadata.items())
+        return json_format.MessageToDict(self._gca_resource._pb)["metadata"]
 
     @property
     def schema_title(self) -> str:
