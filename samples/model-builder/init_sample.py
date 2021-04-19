@@ -14,8 +14,9 @@
 
 from typing import Optional
 
-from google.cloud import aiplatform
 from google.auth import credentials as auth_credentials
+from google.cloud import aiplatform
+
 
 #  [START aiplatform_sdk_init_sample]
 def init_sample(
