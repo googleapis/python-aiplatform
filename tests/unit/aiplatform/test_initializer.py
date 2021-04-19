@@ -19,13 +19,11 @@ import importlib
 import os
 import pytest
 from unittest import mock
-from unittest.mock import patch
 
 import google.auth
 from google.auth import credentials
 
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.metadata.metadata import metadata_service
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import utils
 
@@ -71,10 +69,9 @@ class TestInit:
         with pytest.raises(ValueError):
             initializer.global_config.init(location=_TEST_INVALID_LOCATION)
 
-    @patch.object(metadata_service, "set_experiment")
-    def test_init_experiment_calls_metadata_service(self, set_experiment_mock):
+    def test_init_experiment_sets_experiment(self):
         initializer.global_config.init(experiment=_TEST_EXPERIMENT)
-        set_experiment_mock.assert_called_once_with(_TEST_EXPERIMENT)
+        assert initializer.global_config.experiment == _TEST_EXPERIMENT
 
     def test_init_staging_bucket_sets_staging_bucket(self):
         initializer.global_config.init(staging_bucket=_TEST_STAGING_BUCKET)

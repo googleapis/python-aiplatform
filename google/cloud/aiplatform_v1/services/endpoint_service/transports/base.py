@@ -21,7 +21,7 @@ import pkg_resources
 
 from google import auth  # type: ignore
 from google.api_core import exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
+from google.api_core import gapic_v1    # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.auth import credentials  # type: ignore
@@ -35,29 +35,29 @@ from google.longrunning import operations_pb2 as operations  # type: ignore
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
+            'google-cloud-aiplatform',
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
-
 class EndpointServiceTransport(abc.ABC):
     """Abstract transport class for EndpointService."""
 
-    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
+    AUTH_SCOPES = (
+        'https://www.googleapis.com/auth/cloud-platform',
+    )
 
     def __init__(
-        self,
-        *,
-        host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
-        credentials_file: typing.Optional[str] = None,
-        scopes: typing.Optional[typing.Sequence[str]] = AUTH_SCOPES,
-        quota_project_id: typing.Optional[str] = None,
-        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-        **kwargs,
-    ) -> None:
+            self, *,
+            host: str = 'aiplatform.googleapis.com',
+            credentials: credentials.Credentials = None,
+            credentials_file: typing.Optional[str] = None,
+            scopes: typing.Optional[typing.Sequence[str]] = AUTH_SCOPES,
+            quota_project_id: typing.Optional[str] = None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            **kwargs,
+            ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -80,8 +80,8 @@ class EndpointServiceTransport(abc.ABC):
                 your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ":" not in host:
-            host += ":443"
+        if ':' not in host:
+            host += ':443'
         self._host = host
 
         # Save the scopes.
@@ -90,19 +90,17 @@ class EndpointServiceTransport(abc.ABC):
         # If no credentials are provided, then determine the appropriate
         # defaults.
         if credentials and credentials_file:
-            raise exceptions.DuplicateCredentialArgs(
-                "'credentials_file' and 'credentials' are mutually exclusive"
-            )
+            raise exceptions.DuplicateCredentialArgs("'credentials_file' and 'credentials' are mutually exclusive")
 
         if credentials_file is not None:
             credentials, _ = auth.load_credentials_from_file(
-                credentials_file, scopes=self._scopes, quota_project_id=quota_project_id
-            )
+                                credentials_file,
+                                scopes=self._scopes,
+                                quota_project_id=quota_project_id
+                            )
 
         elif credentials is None:
-            credentials, _ = auth.default(
-                scopes=self._scopes, quota_project_id=quota_project_id
-            )
+            credentials, _ = auth.default(scopes=self._scopes, quota_project_id=quota_project_id)
 
         # Save the credentials.
         self._credentials = credentials
@@ -111,26 +109,41 @@ class EndpointServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_endpoint: gapic_v1.method.wrap_method(
-                self.create_endpoint, default_timeout=None, client_info=client_info,
+                self.create_endpoint,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.get_endpoint: gapic_v1.method.wrap_method(
-                self.get_endpoint, default_timeout=None, client_info=client_info,
+                self.get_endpoint,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_endpoints: gapic_v1.method.wrap_method(
-                self.list_endpoints, default_timeout=None, client_info=client_info,
+                self.list_endpoints,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.update_endpoint: gapic_v1.method.wrap_method(
-                self.update_endpoint, default_timeout=None, client_info=client_info,
+                self.update_endpoint,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.delete_endpoint: gapic_v1.method.wrap_method(
-                self.delete_endpoint, default_timeout=None, client_info=client_info,
+                self.delete_endpoint,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.deploy_model: gapic_v1.method.wrap_method(
-                self.deploy_model, default_timeout=None, client_info=client_info,
+                self.deploy_model,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.undeploy_model: gapic_v1.method.wrap_method(
-                self.undeploy_model, default_timeout=None, client_info=client_info,
+                self.undeploy_model,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
+
         }
 
     @property
@@ -139,70 +152,69 @@ class EndpointServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
-    def create_endpoint(
-        self,
-    ) -> typing.Callable[
-        [endpoint_service.CreateEndpointRequest],
-        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
-    ]:
+    def create_endpoint(self) -> typing.Callable[
+            [endpoint_service.CreateEndpointRequest],
+            typing.Union[
+                operations.Operation,
+                typing.Awaitable[operations.Operation]
+            ]]:
         raise NotImplementedError()
 
     @property
-    def get_endpoint(
-        self,
-    ) -> typing.Callable[
-        [endpoint_service.GetEndpointRequest],
-        typing.Union[endpoint.Endpoint, typing.Awaitable[endpoint.Endpoint]],
-    ]:
+    def get_endpoint(self) -> typing.Callable[
+            [endpoint_service.GetEndpointRequest],
+            typing.Union[
+                endpoint.Endpoint,
+                typing.Awaitable[endpoint.Endpoint]
+            ]]:
         raise NotImplementedError()
 
     @property
-    def list_endpoints(
-        self,
-    ) -> typing.Callable[
-        [endpoint_service.ListEndpointsRequest],
-        typing.Union[
-            endpoint_service.ListEndpointsResponse,
-            typing.Awaitable[endpoint_service.ListEndpointsResponse],
-        ],
-    ]:
+    def list_endpoints(self) -> typing.Callable[
+            [endpoint_service.ListEndpointsRequest],
+            typing.Union[
+                endpoint_service.ListEndpointsResponse,
+                typing.Awaitable[endpoint_service.ListEndpointsResponse]
+            ]]:
         raise NotImplementedError()
 
     @property
-    def update_endpoint(
-        self,
-    ) -> typing.Callable[
-        [endpoint_service.UpdateEndpointRequest],
-        typing.Union[gca_endpoint.Endpoint, typing.Awaitable[gca_endpoint.Endpoint]],
-    ]:
+    def update_endpoint(self) -> typing.Callable[
+            [endpoint_service.UpdateEndpointRequest],
+            typing.Union[
+                gca_endpoint.Endpoint,
+                typing.Awaitable[gca_endpoint.Endpoint]
+            ]]:
         raise NotImplementedError()
 
     @property
-    def delete_endpoint(
-        self,
-    ) -> typing.Callable[
-        [endpoint_service.DeleteEndpointRequest],
-        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
-    ]:
+    def delete_endpoint(self) -> typing.Callable[
+            [endpoint_service.DeleteEndpointRequest],
+            typing.Union[
+                operations.Operation,
+                typing.Awaitable[operations.Operation]
+            ]]:
         raise NotImplementedError()
 
     @property
-    def deploy_model(
-        self,
-    ) -> typing.Callable[
-        [endpoint_service.DeployModelRequest],
-        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
-    ]:
+    def deploy_model(self) -> typing.Callable[
+            [endpoint_service.DeployModelRequest],
+            typing.Union[
+                operations.Operation,
+                typing.Awaitable[operations.Operation]
+            ]]:
         raise NotImplementedError()
 
     @property
-    def undeploy_model(
-        self,
-    ) -> typing.Callable[
-        [endpoint_service.UndeployModelRequest],
-        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
-    ]:
+    def undeploy_model(self) -> typing.Callable[
+            [endpoint_service.UndeployModelRequest],
+            typing.Union[
+                operations.Operation,
+                typing.Awaitable[operations.Operation]
+            ]]:
         raise NotImplementedError()
 
 
-__all__ = ("EndpointServiceTransport",)
+__all__ = (
+    'EndpointServiceTransport',
+)

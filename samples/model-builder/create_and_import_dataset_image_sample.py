@@ -16,6 +16,7 @@ from typing import List, Union
 
 from google.cloud import aiplatform
 
+
 #  [START aiplatform_sdk_create_and_import_dataset_image_sample]
 def create_and_import_dataset_image_sample(
     project: str,
