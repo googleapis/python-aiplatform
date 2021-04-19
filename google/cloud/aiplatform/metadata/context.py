@@ -77,6 +77,15 @@ class _Context(_Resource):
     def _update_resource(
         cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
     ) -> proto.Message:
+        """Update Contexts with given input.
+
+        Args:
+            client (utils.MetadataClientWithOverride):
+                Required. client to send require to Metadata Service.
+            resource (proto.Message):
+                Required. The proto.Message which contains the update information for the resource.
+        """
+
         return client.update_context(context=resource)
 
     @classmethod

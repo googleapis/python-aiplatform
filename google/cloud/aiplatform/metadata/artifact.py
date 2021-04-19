@@ -58,6 +58,15 @@ class _Artifact(_Resource):
     def _update_resource(
         cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
     ) -> proto.Message:
+        """Update Artifacts with given input.
+
+        Args:
+            client (utils.MetadataClientWithOverride):
+                Required. client to send require to Metadata Service.
+            resource (proto.Message):
+                Required. The proto.Message which contains the update information for the resource.
+        """
+
         return client.update_artifact(artifact=resource)
 
     @classmethod

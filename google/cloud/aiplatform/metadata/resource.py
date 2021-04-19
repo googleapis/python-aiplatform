@@ -95,6 +95,7 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
             name=full_resource_name
         )
 
+    # TODO: update this method to use json_format or similar functions to parse info more than just the top layer.
     @property
     def metadata(self) -> Dict:
         return dict(self._gca_resource.metadata.items())
