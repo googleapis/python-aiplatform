@@ -98,7 +98,11 @@ _TEST_DEFAULT_TEST_FRACTION_SPLIT = 0.1
 _TEST_TRAINING_FRACTION_SPLIT = 0.6
 _TEST_VALIDATION_FRACTION_SPLIT = 0.2
 _TEST_TEST_FRACTION_SPLIT = 0.2
+_TEST_TRAINING_FILTER_SPLIT = "train"
+_TEST_VALIDATION_FILTER_SPLIT = "validate"
+_TEST_TEST_FILTER_SPLIT = "test"
 _TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
+_TEST_TIMESTAMP_SPLIT_COLUMN_NAME = "timestamp"
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -603,6 +607,7 @@ class TestCustomTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
@@ -636,6 +641,15 @@ class TestCustomTrainingJob:
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+        true_predefined_split = gca_training_pipeline.PredefinedSplit(
+            key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+        )
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
         )
 
         env = [
@@ -672,9 +686,8 @@ class TestCustomTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            predefined_split=true_predefined_split,
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_tabular_dataset.name,
             gcs_destination=gca_io.GcsDestination(
                 output_uri_prefix=_TEST_BASE_OUTPUT_DIR
@@ -760,6 +773,7 @@ class TestCustomTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
@@ -787,6 +801,15 @@ class TestCustomTrainingJob:
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+        true_predefined_split = gca_training_pipeline.PredefinedSplit(
+            key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+        )
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
         )
 
         env = [
@@ -823,9 +846,8 @@ class TestCustomTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            predefined_split=true_predefined_split,
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_tabular_dataset.name,
             bigquery_destination=gca_io.BigQueryDestination(
                 output_uri=_TEST_BIGQUERY_DESTINATION
@@ -1529,6 +1551,11 @@ class TestCustomTrainingJob:
             validation_fraction=_TEST_DEFAULT_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
         )
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_DEFAULT_TRAINING_FILTER_SPLIT,
+            validation_filter=_TEST_DEFAULT_VALIDATION_FILTER_SPLIT,
+            test_filter=_TEST_DEFAULT_TEST_FILTER_SPLIT,
+        )
 
         env = [
             gca_env_var.EnvVar(name=str(key), value=str(value))
@@ -1563,6 +1590,7 @@ class TestCustomTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
+            friction_split=true_filter_split,
             dataset_id=mock_nontabular_dataset.name,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             gcs_destination=gca_io.GcsDestination(
@@ -1736,6 +1764,7 @@ class TestCustomContainerTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
@@ -1762,6 +1791,15 @@ class TestCustomContainerTrainingJob:
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+        true_predefined_split = gca_training_pipeline.PredefinedSplit(
+            key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+        )
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
         )
 
         env = [
@@ -1798,9 +1836,8 @@ class TestCustomContainerTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            predefined_split=true_predefined_split,
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_tabular_dataset.name,
             gcs_destination=gca_io.GcsDestination(
                 output_uri_prefix=_TEST_BASE_OUTPUT_DIR
@@ -1883,6 +1920,7 @@ class TestCustomContainerTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
@@ -1909,6 +1947,15 @@ class TestCustomContainerTrainingJob:
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+        true_predefined_split = gca_training_pipeline.PredefinedSplit(
+            key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+        )
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
         )
 
         env = [
@@ -1945,9 +1992,8 @@ class TestCustomContainerTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            predefined_split=true_predefined_split,
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_tabular_dataset.name,
             bigquery_destination=gca_io.BigQueryDestination(
                 output_uri=_TEST_BIGQUERY_DESTINATION
@@ -2535,6 +2581,12 @@ class TestCustomContainerTrainingJob:
             test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
         )
 
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_DEFAULT_TRAINING_FILTER_SPLIT,
+            validation_filter=_TEST_DEFAULT_VALIDATION_FILTER_SPLIT,
+            test_filter=_TEST_DEFAULT_TEST_FILTER_SPLIT,
+        )
+
         env = [
             gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
@@ -2568,6 +2620,7 @@ class TestCustomContainerTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
+            filter_split=true_filter_split,
             dataset_id=mock_nontabular_dataset.name,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             gcs_destination=gca_io.GcsDestination(
@@ -2939,6 +2992,7 @@ class TestCustomPythonPackageTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
@@ -2966,6 +3020,15 @@ class TestCustomPythonPackageTrainingJob:
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+        true_predefined_split = gca_training_pipeline.PredefinedSplit(
+            key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+        )
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
         )
 
         env = [
@@ -3002,9 +3065,8 @@ class TestCustomPythonPackageTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            predefined_split=true_predefined_split,
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_tabular_dataset.name,
             gcs_destination=gca_io.GcsDestination(
                 output_uri_prefix=_TEST_BASE_OUTPUT_DIR
@@ -3088,6 +3150,7 @@ class TestCustomPythonPackageTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             sync=sync,
         )
 
@@ -3115,6 +3178,15 @@ class TestCustomPythonPackageTrainingJob:
             training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
             validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+        true_predefined_split = gca_training_pipeline.PredefinedSplit(
+            key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+        )
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
         )
 
         env = [
@@ -3151,9 +3223,8 @@ class TestCustomPythonPackageTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
-            predefined_split=gca_training_pipeline.PredefinedSplit(
-                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
-            ),
+            predefined_split=true_predefined_split,
+            timestamp_split=true_timestamp_split,
             dataset_id=mock_tabular_dataset.name,
             bigquery_destination=gca_io.BigQueryDestination(
                 output_uri=_TEST_BIGQUERY_DESTINATION
@@ -3756,6 +3827,12 @@ class TestCustomPythonPackageTrainingJob:
             test_fraction=_TEST_DEFAULT_TEST_FRACTION_SPLIT,
         )
 
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_DEFAULT_TRAINING_FILTER_SPLIT,
+            validation_filter=_TEST_DEFAULT_VALIDATION_FILTER_SPLIT,
+            test_filter=_TEST_DEFAULT_TEST_FILTER_SPLIT,
+        )
+
         env = [
             gca_env_var.EnvVar(name=str(key), value=str(value))
             for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
@@ -3789,6 +3866,7 @@ class TestCustomPythonPackageTrainingJob:
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             fraction_split=true_fraction_split,
+            filter_split=true_filter_split,
             dataset_id=mock_nontabular_dataset.name,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             gcs_destination=gca_io.GcsDestination(
