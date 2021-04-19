@@ -26,7 +26,6 @@ def deploy_model_sample(
     deployed_model_display_name: Optional[str] = None,
     traffic_percentage: Optional[int] = 0,
     traffic_split: Optional[Dict[str, int]] = None,
-    machine_type: Optional[str] = None,
     min_replica_count: Optional[int] = 1,
     max_replica_count: Optional[int] = 1,
     accelerator_type: Optional[str] = None,
@@ -41,12 +40,14 @@ def deploy_model_sample(
 
     model = aiplatform.Model(model_name=model_name)
 
+    # AutoML models require a machine_type of None
+    # Other model types may require an actual machine_type instead.
     model.deploy(
         endpoint=endpoint,
         deployed_model_display_name=deployed_model_display_name,
         traffic_percentage=traffic_percentage,
         traffic_split=traffic_split,
-        machine_type=machine_type,
+        machine_type=None,
         min_replica_count=min_replica_count,
         max_replica_count=max_replica_count,
         accelerator_type=accelerator_type,
