@@ -17,7 +17,7 @@ import deploy_model_sample
 import test_constants as constants
 
 
-def test_deploy_model_sample(mock_sdk_init, mock_init_model, mock_deploy_model):
+def test_deploy_model_sample(mock_sdk_init, mock_model, mock_init_model, mock_deploy_model):
 
     deploy_model_sample.deploy_model_sample(
         project=constants.PROJECT,
@@ -43,7 +43,6 @@ def test_deploy_model_sample(mock_sdk_init, mock_init_model, mock_deploy_model):
     )
 
     mock_deploy_model.assert_called_once_with(
-        model_resource_name=constants.MODEL_RESOURCE_NAME,
         endpoint=constants.ENDPOINT_NAME,
         deployed_model_display_name=constants.DEPLOYED_MODEL_DISPLAY_NAME,
         traffic_percentage=constants.TRAFFIC_PERCENTAGE,
