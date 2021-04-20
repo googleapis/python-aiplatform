@@ -15,14 +15,17 @@
 # limitations under the License.
 #
 
-from typing import Optional, Dict
+from typing import Optional, Dict, Sequence
 
 import proto
+from google.api_core import exceptions
 
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.resource import _Resource
 from google.cloud.aiplatform_v1beta1 import Event
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
+from google.cloud.aiplatform_v1beta1.types.metadata_service import ListExecutionsRequest
 
 
 class _Execution(_Resource):
@@ -30,6 +33,51 @@ class _Execution(_Resource):
 
     _resource_noun = "executions"
     _getter_method = "get_execution"
+
+    def add_artifact(
+        self, artifact_resource_name: str, input: bool,
+    ):
+        """Connect Artifact to a given Execution.
+
+        Args:
+            artifact_resource_name (str):
+                Required. The full resource name of the Artifact to connect to the Execution through an Event.
+            input (bool)
+                Required. Whether Artifact is an input event to the Execution or not.
+        """
+
+        event = Event(
+            artifact=artifact_resource_name,
+            type_=Event.Type.INPUT if input else Event.Type.OUTPUT,
+        )
+
+        self.api_client.add_execution_events(
+            execution=self.resource_name, events=[event],
+        )
+
+    def query_input_and_output_artifacts(self) -> Sequence[_Artifact]:
+        """query the input and output artifacts connected to the execution.
+
+        Returns:
+              A Sequence of _Artifacts
+        """
+
+        try:
+            artifacts = self.api_client.query_execution_inputs_and_outputs(
+                execution=self.resource_name
+            ).artifacts
+        except exceptions.NotFound:
+            return []
+
+        return [
+            _Artifact(
+                resource=artifact,
+                project=self.project,
+                location=self.location,
+                credentials=self.credentials,
+            )
+            for artifact in artifacts
+        ]
 
     @classmethod
     def _create_resource(
@@ -55,28 +103,37 @@ class _Execution(_Resource):
         )
 
     @classmethod
+    def _list_resources(
+        cls,
+        client: utils.MetadataClientWithOverride,
+        parent: str,
+        filter: Optional[str] = None,
+    ):
+        """List Executions in the parent path that matches the filter.
+
+        Args:
+            client (utils.MetadataClientWithOverride):
+                Required. client to send require to Metadata Service.
+            parent (str):
+                Required. The path where Executions are stored.
+            filter (str):
+                Optional. filter string to restrict the list result
+        """
+
+        list_request = ListExecutionsRequest(parent=parent, filter=filter,)
+        return client.list_executions(request=list_request)
+
+    @classmethod
     def _update_resource(
         cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
     ) -> proto.Message:
-        return client.update_execution(execution=resource)
-
-    def add_artifact(
-        self, artifact_resource_name: str, input: bool,
-    ):
-        """Creates a new Metadata resource.
+        """Update Executions with given input.
 
         Args:
-            artifact_resource_name (str):
-                Required. The full resource name of the Artifact to connect to the Execution through an Event.
-            input (bool)
-                Required. Whether Artifact is an input event to the Execution or not.
+            client (utils.MetadataClientWithOverride):
+                Required. client to send require to Metadata Service.
+            resource (proto.Message):
+                Required. The proto.Message which contains the update information for the resource.
         """
 
-        event = Event(
-            artifact=artifact_resource_name,
-            type_=Event.Type.INPUT if input else Event.Type.OUTPUT,
-        )
-
-        self.api_client.add_execution_events(
-            execution=self.resource_name, events=[event],
-        )
+        return client.update_execution(execution=resource)

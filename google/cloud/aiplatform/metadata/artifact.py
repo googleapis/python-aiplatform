@@ -21,6 +21,7 @@ import proto
 
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata.resource import _Resource
+from google.cloud.aiplatform_v1beta1 import ListArtifactsRequest
 from google.cloud.aiplatform_v1beta1.types import artifact as gca_artifact
 
 
@@ -57,4 +58,33 @@ class _Artifact(_Resource):
     def _update_resource(
         cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
     ) -> proto.Message:
+        """Update Artifacts with given input.
+
+        Args:
+            client (utils.MetadataClientWithOverride):
+                Required. client to send require to Metadata Service.
+            resource (proto.Message):
+                Required. The proto.Message which contains the update information for the resource.
+        """
+
         return client.update_artifact(artifact=resource)
+
+    @classmethod
+    def _list_resources(
+        cls,
+        client: utils.MetadataClientWithOverride,
+        parent: str,
+        filter: Optional[str] = None,
+    ):
+        """List artifacts in the parent path that matches the filter.
+
+        Args:
+            client (utils.MetadataClientWithOverride):
+                Required. client to send require to Metadata Service.
+            parent (str):
+                Required. The path where Artifacts are stored.
+            filter (str):
+                Optional. filter string to restrict the list result
+        """
+        list_request = ListArtifactsRequest(parent=parent, filter=filter,)
+        return client.list_artifacts(request=list_request)

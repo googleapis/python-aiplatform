@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Dict, Union
+from typing import Dict, Union, Optional
 
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import _Artifact
@@ -43,11 +43,18 @@ class _MetadataService:
         )
         self._experiment = context
 
-    def set_run(self, run: str):
+    def start_run(self, run: str):
+        """Setup a run to current session.
+
+        Args:
+            run (str):
+                Required. Name of the run to assign current session with.
+        """
+
         if not self._experiment:
             raise ValueError(
                 "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') "
-                "before trying to set_run. "
+                "before trying to start_run. "
             )
         run_execution_id = f"{self._experiment.name}-{run}"
         run_execution = _Execution.get_or_create(
@@ -75,6 +82,13 @@ class _MetadataService:
         self._metrics = metrics_artifact
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
+        """Log single or multiple parameters with specified key and value pairs.
+
+        Args:
+            params (Dict):
+                Required. Parameter key/value pairs.
+        """
+
         self._validate_experiment_and_run(method_name="log_params")
         # query the latest run execution resource before logging.
         execution = _Execution.get_or_create(
@@ -85,6 +99,13 @@ class _MetadataService:
         execution.update(metadata=params)
 
     def log_metrics(self, metrics: Dict[str, Union[str, float, int]]):
+        """Log single or multiple Metrics with specified key and value pairs.
+
+        Args:
+            metrics (Dict):
+                Required. Metrics key/value pairs.
+        """
+
         self._validate_experiment_and_run(method_name="log_metrics")
         # query the latest metrics artifact resource before logging.
         artifact = _Artifact.get_or_create(
@@ -94,11 +115,80 @@ class _MetadataService:
         )
         artifact.update(metadata=metrics)
 
-    def get_experiment(self, experiment: str):
-        raise NotImplementedError("get_experiment not implemented")
+    def get_experiment(
+        self, experiment: Optional[str] = None
+    ) -> "pd.DataFrame":  # noqa: F821
+        """Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.
 
-    def get_pipeline(self, pipeline: str):
-        raise NotImplementedError("get_pipeline not implemented")
+            Example:
+
+            aiplatform.init(experiment='exp-1')
+            aiplatform.start_run(run='run-1')
+            aiplatform.log_params({'learning_rate': 0.1})
+            aiplatform.log_metrics({'accuracy': 0.9})
+
+            aiplatform.start_run(run='run-2')
+            aiplatform.log_params({'learning_rate': 0.2})
+            aiplatform.log_metrics({'accuracy': 0.95})
+
+            Will result in the following DataFrame
+            ___________________________________________________________________________
+            | experiment_name | run_name      | param.learning_rate | metric.accuracy |
+            ---------------------------------------------------------------------------
+            | exp-1           | run-1         | 0.1                 | 0.9             |
+            | exp-1           | run-2         | 0.2                 | 0.95            |
+            ---------------------------------------------------------------------------
+
+            Args:
+                experiment (str):
+                Name of the Experiment to filter results. If not set, return results of current active experiment.
+
+            Returns:
+                Pandas Dataframe of Experiment with metrics and parameters.
+
+            Raise:
+                NotFound exception if experiment does not exist.
+                ValueError if given experiment is not associated with a wrong schema.
+            """
+
+        if not experiment:
+            experiment = self._experiment
+
+        source = "experiment"
+        experiment_resource_name = self._get_experiment_or_pipeline_resource_name(
+            name=experiment, source=source, expected_schema=constants.SYSTEM_EXPERIMENT,
+        )
+
+        return self._query_runs_to_data_frame(
+            context_id=experiment,
+            context_resource_name=experiment_resource_name,
+            source=source,
+        )
+
+    def get_pipeline(self, pipeline: str) -> "pd.DataFrame":  # noqa: F821
+        """Returns a Pandas DataFrame of the parameters and metrics associated with one pipeline.
+
+        Args:
+            pipeline: Name of the Pipeline to filter results.
+
+        Returns:
+            Pandas Dataframe of Pipeline with metrics and parameters.
+
+        Raise:
+            NotFound exception if experiment does not exist.
+            ValueError if given experiment is not associated with a wrong schema.
+        """
+
+        source = "pipeline"
+        pipeline_resource_name = self._get_experiment_or_pipeline_resource_name(
+            name=pipeline, source=source, expected_schema=constants.SYSTEM_PIPELINE
+        )
+
+        return self._query_runs_to_data_frame(
+            context_id=pipeline,
+            context_resource_name=pipeline_resource_name,
+            source=source,
+        )
 
     def _validate_experiment_and_run(self, method_name: str):
         if not self._experiment:
@@ -108,8 +198,106 @@ class _MetadataService:
             )
         if not self._run:
             raise ValueError(
-                f"No run set. Make sure to call aiplatform.set_run('my-run') before trying to {method_name}. "
+                f"No run set. Make sure to call aiplatform.start_run('my-run') before trying to {method_name}. "
             )
+
+    @staticmethod
+    def _get_experiment_or_pipeline_resource_name(
+        name: str, source: str, expected_schema: str
+    ) -> str:
+        """Get the full resource name of the Context representing an Experiment or Pipeline.
+
+        Args:
+            name (str):
+                Name of the Experiment or Pipeline.
+            source (str):
+                Identify whether the this is an Experiment or a Pipeline.
+            expected_schema (str):
+                expected_schema identifies the expected schema used for Experiment or Pipeline.
+
+        Returns:
+            The full resource name of the Experiment or Pipeline Context.
+
+        Raise:
+            NotFound exception if experiment or pipeline does not exist.
+        """
+
+        context = _Context(resource_name=name)
+
+        if context.schema_title != expected_schema:
+            raise ValueError(
+                f"Please provide a valid {source} name. {name} is not a {source}."
+            )
+        return context.resource_name
+
+    def _query_runs_to_data_frame(
+        self, context_id: str, context_resource_name: str, source: str
+    ) -> "pd.DataFrame":  # noqa: F821
+        """Get metrics and parameters associated with a given Context into a Dataframe.
+
+        Args:
+            context_id (str):
+                Name of the Experiment or Pipeline.
+            context_resource_name (str):
+                Full resource name of the Context associated with an Experiment or Pipeline.
+            source (str):
+                Identify whether the this is an Experiment or a Pipeline.
+
+        Returns:
+            The full resource name of the Experiment or Pipeline Context.
+        """
+
+        filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{context_resource_name}")'
+        run_executions = _Execution.list(filter=filter)
+
+        context_summary = []
+        for run_execution in run_executions:
+            run_dict = {
+                f"{source}_name": context_id,
+                "run_name": run_execution.display_name,
+            }
+            run_dict.update(
+                self._execution_to_column_named_metadata(
+                    "param", run_execution.metadata
+                )
+            )
+
+            for metric_artifact in run_execution.query_input_and_output_artifacts():
+                run_dict.update(
+                    self._execution_to_column_named_metadata(
+                        "metric", metric_artifact.metadata
+                    )
+                )
+
+            context_summary.append(run_dict)
+
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError(
+                "Pandas is not installed and is required to get dataframe as the return format. "
+                'Please install the SDK using "pip install python-aiplatform[full]"'
+            )
+
+        return pd.DataFrame(context_summary)
+
+    @staticmethod
+    def _execution_to_column_named_metadata(
+        metadata_type: str, metadata: Dict,
+    ) -> Dict[str, Union[int, float, str]]:
+        """Returns a dict of the Execution/Artifact metadata with column names.
+
+        Args:
+          metadata_type: The type of this execution properties (param, metric).
+          metadata: Either an Execution or Artifact metadata field.
+
+        Returns:
+          Dict of custom properties with keys mapped to column names
+        """
+
+        return {
+            ".".join([metadata_type, key]): value for key, value in metadata.items()
+        }
 
 
 metadata_service = _MetadataService()

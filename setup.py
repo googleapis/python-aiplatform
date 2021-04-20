@@ -48,6 +48,7 @@ setuptools.setup(
         "google-cloud-storage >= 1.26.0, < 2.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
     ),
+    extras_require={"full": ["pandas>=1.0.0"]},
     python_requires=">=3.6",
     scripts=[],
     classifiers=[
