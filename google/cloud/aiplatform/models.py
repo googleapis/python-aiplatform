@@ -477,6 +477,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        service_account: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -531,6 +532,13 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
             explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
@@ -569,6 +577,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            service_account=service_account,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             metadata=metadata,
@@ -587,6 +596,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        service_account: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -641,6 +651,13 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
             explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
@@ -677,6 +694,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            service_account=service_account,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             metadata=metadata,
@@ -701,6 +719,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        service_account: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -753,6 +772,13 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
             explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
@@ -788,6 +814,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             gca_endpoint = gca_endpoint_v1beta1
             gca_machine_resources = gca_machine_resources_v1beta1
 
+        deployed_model = gca_endpoint.DeployedModel(
+            model=model_resource_name,
+            display_name=deployed_model_display_name,
+            service_account=service_account,
+        )
+
         if machine_type:
             machine_spec = gca_machine_resources.MachineSpec(machine_type=machine_type)
 
@@ -796,25 +828,16 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 machine_spec.accelerator_type = accelerator_type
                 machine_spec.accelerator_count = accelerator_count
 
-            dedicated_resources = gca_machine_resources.DedicatedResources(
+            deployed_model.dedicated_resources = gca_machine_resources.DedicatedResources(
                 machine_spec=machine_spec,
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
             )
-            deployed_model = gca_endpoint.DeployedModel(
-                dedicated_resources=dedicated_resources,
-                model=model_resource_name,
-                display_name=deployed_model_display_name,
-            )
+
         else:
-            automatic_resources = gca_machine_resources.AutomaticResources(
+            deployed_model.automatic_resources = gca_machine_resources.AutomaticResources(
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
-            )
-            deployed_model = gca_endpoint.DeployedModel(
-                automatic_resources=automatic_resources,
-                model=model_resource_name,
-                display_name=deployed_model_display_name,
             )
 
         # Service will throw error if both metadata and parameters are not provided
@@ -1493,6 +1516,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        service_account: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -1548,6 +1572,13 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
             explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
@@ -1601,6 +1632,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            service_account=service_account,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             metadata=metadata,
@@ -1621,6 +1653,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: Optional[int] = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        service_account: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -1676,6 +1709,13 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
             explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
@@ -1732,6 +1772,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            service_account=service_account,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             metadata=metadata,
