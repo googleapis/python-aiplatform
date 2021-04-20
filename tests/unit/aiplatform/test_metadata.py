@@ -268,6 +268,14 @@ def update_artifact_mock():
 
 
 def _assert_frame_equal_with_sorted_columns(dataframe_1, dataframe_2):
+    try:
+        import pandas as pd
+    except ImportError:
+        raise ImportError(
+            "Pandas is not installed and is required to test the get_experiment/pipeline method. "
+            'Please install the SDK using "pip install python-aiplatform[full]"'
+        )
+
     pd.testing.assert_frame_equal(
         dataframe_1.sort_index(axis=1), dataframe_2.sort_index(axis=1), check_names=True
     )
