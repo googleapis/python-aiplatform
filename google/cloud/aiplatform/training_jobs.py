@@ -1517,6 +1517,7 @@ class _CustomTrainingJob(_TrainingJob):
         self,
         worker_pool_specs: _DistributedTrainingSpec,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
 
@@ -1526,6 +1527,9 @@ class _CustomTrainingJob(_TrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
         Returns:
             Training task inputs and Output directory for custom job.
         """
@@ -1541,6 +1545,9 @@ class _CustomTrainingJob(_TrainingJob):
             "workerPoolSpecs": worker_pool_specs,
             "baseOutputDirectory": {"output_uri_prefix": base_output_dir},
         }
+
+        if service_account:
+            training_task_inputs["serviceAccount"] = service_account
 
         return training_task_inputs, base_output_dir
 
@@ -1787,6 +1794,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         replica_count: int = 0,
@@ -1864,6 +1872,9 @@ class CustomTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -1942,6 +1953,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             managed_model=managed_model,
             args=args,
             base_output_dir=base_output_dir,
+            service_account=service_account,
             bigquery_destination=bigquery_destination,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
@@ -1967,6 +1979,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -2000,6 +2013,9 @@ class CustomTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -2063,7 +2079,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             training_task_inputs,
             base_output_dir,
         ) = self._prepare_training_task_inputs_and_output_dir(
-            worker_pool_specs, base_output_dir
+            worker_pool_specs, base_output_dir, service_account
         )
 
         model = self._run_job(
@@ -2306,6 +2322,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         replica_count: int = 0,
@@ -2383,6 +2400,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -2460,6 +2480,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             managed_model=managed_model,
             args=args,
             base_output_dir=base_output_dir,
+            service_account=service_account,
             bigquery_destination=bigquery_destination,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
@@ -2484,6 +2505,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -2514,6 +2536,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             bigquery_destination (str):
                 The BigQuery project location where the training data is to
                 be written to. In the given project a new dataset is created
@@ -2570,7 +2595,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             training_task_inputs,
             base_output_dir,
         ) = self._prepare_training_task_inputs_and_output_dir(
-            worker_pool_specs, base_output_dir
+            worker_pool_specs, base_output_dir, service_account
         )
 
         model = self._run_job(
@@ -3573,6 +3598,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         replica_count: int = 0,
@@ -3650,6 +3676,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -3722,6 +3751,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             managed_model=managed_model,
             args=args,
             base_output_dir=base_output_dir,
+            service_account=service_account,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
@@ -3746,6 +3776,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -3777,6 +3808,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             training_fraction_split (float):
                 The fraction of the input data that is to be
                 used to train the Model.
@@ -3819,7 +3853,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             training_task_inputs,
             base_output_dir,
         ) = self._prepare_training_task_inputs_and_output_dir(
-            worker_pool_specs, base_output_dir
+            worker_pool_specs, base_output_dir, service_account
         )
 
         model = self._run_job(
