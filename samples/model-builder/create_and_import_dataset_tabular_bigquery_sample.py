@@ -17,8 +17,8 @@ from typing import List, Union
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_and_import_dataset_tabular_gcs_sample]
-def create_and_import_dataset_tabular_gcs_sample(
+#  [START aiplatform_sdk_create_and_import_dataset_tabular_bigquery_sample]
+def create_and_import_dataset_tabular_bigquery_sample(
     project: str,
     location: str,
     display_name: str,
@@ -29,7 +29,7 @@ def create_and_import_dataset_tabular_gcs_sample(
 
     ds = aiplatform.TabularDataset.create(
         display_name=display_name,
-        gcs_source=src_uris,
+        bq_source=src_uris,
         sync=sync,
     )
 
@@ -40,4 +40,4 @@ def create_and_import_dataset_tabular_gcs_sample(
     return ds
 
 
-#  [END aiplatform_sdk_create_and_import_dataset_tabular_gcs_sample]
+#  [END aiplatform_sdk_create_and_import_dataset_tabular_bigquery_sample]

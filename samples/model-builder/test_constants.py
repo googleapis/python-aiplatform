@@ -40,6 +40,7 @@ MODEL_NAME = f"{PARENT}/models/{RESOURCE_ID}"
 TRAINING_JOB_NAME = f"{PARENT}/trainingJobs/{RESOURCE_ID}"
 
 GCS_SOURCES = ["gs://bucket1/source1.jsonl", "gs://bucket7/source4.jsonl"]
+BIGQUERY_SOURCE = "bq://bigquery-public-data.ml_datasets.iris"
 GCS_DESTINATION = "gs://bucket3/output-dir/"
 
 TRAINING_FRACTION_SPLIT = 0.7
