@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Sequence, Union
+from typing import Sequence, Union
 
 from google.cloud import aiplatform
+
 
 #  [START aiplatform_sdk_create_batch_prediction_job_sample]
 def create_batch_prediction_job_sample(

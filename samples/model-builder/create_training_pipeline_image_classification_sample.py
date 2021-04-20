@@ -14,6 +14,7 @@
 
 from google.cloud import aiplatform
 
+
 #  [START aiplatform_sdk_create_training_pipeline_image_classification_sample]
 def create_training_pipeline_image_classification_sample(
     project: str,
@@ -32,7 +33,7 @@ def create_training_pipeline_image_classification_sample(
 
     job = aiplatform.AutoMLImageTrainingJob(display_name=display_name)
 
-    my_image_ds = aiplatform.Dataset(dataset_id)
+    my_image_ds = aiplatform.ImageDataset(dataset_id)
 
     model = job.run(
         dataset=my_image_ds,

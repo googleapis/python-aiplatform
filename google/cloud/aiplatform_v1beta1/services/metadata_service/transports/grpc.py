@@ -955,5 +955,39 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
             )
         return self._stubs["list_metadata_schemas"]
 
+    @property
+    def query_artifact_lineage_subgraph(
+        self,
+    ) -> Callable[
+        [metadata_service.QueryArtifactLineageSubgraphRequest],
+        lineage_subgraph.LineageSubgraph,
+    ]:
+        r"""Return a callable for the query artifact lineage
+        subgraph method over gRPC.
+
+        Retrieves lineage of an Artifact represented through
+        Artifacts and Executions connected by Event edges and
+        returned as a LineageSubgraph.
+
+        Returns:
+            Callable[[~.QueryArtifactLineageSubgraphRequest],
+                    ~.LineageSubgraph]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "query_artifact_lineage_subgraph" not in self._stubs:
+            self._stubs[
+                "query_artifact_lineage_subgraph"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/QueryArtifactLineageSubgraph",
+                request_serializer=metadata_service.QueryArtifactLineageSubgraphRequest.serialize,
+                response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
+            )
+        return self._stubs["query_artifact_lineage_subgraph"]
+
 
 __all__ = ("MetadataServiceGrpcTransport",)

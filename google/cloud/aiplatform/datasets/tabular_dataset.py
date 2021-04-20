@@ -26,7 +26,7 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
 
-class TabularDataset(datasets.Dataset):
+class TabularDataset(datasets._Dataset):
     """Managed tabular dataset resource for AI Platform"""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
