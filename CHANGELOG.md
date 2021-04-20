@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.7.2](https://www.github.com/googleapis/python-aiplatform/compare/v0.7.1...v0.7.2) (2021-04-20)
+
+
+### Bug Fixes
+
+* default model_display_name to _CustomTrainingJob.display_name when model_serving_container_image_uri is provided ([#324](https://www.github.com/googleapis/python-aiplatform/issues/324)) ([a5fa7a2](https://www.github.com/googleapis/python-aiplatform/commit/a5fa7a224570901988e5e7579c46cc2b823caa9b))
+
 ### [0.7.1](https://www.github.com/googleapis/python-aiplatform/compare/v0.7.0...v0.7.1) (2021-04-14)
 
 
