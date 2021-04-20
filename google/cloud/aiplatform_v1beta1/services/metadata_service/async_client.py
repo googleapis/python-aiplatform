@@ -28,7 +28,7 @@ from google.api_core import retry as retries  # type: ignore
 from google.auth import credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.metadata_service import pagers
 from google.cloud.aiplatform_v1beta1.types import artifact
@@ -2378,6 +2378,89 @@ class MetadataServiceAsyncClient:
         response = pagers.ListMetadataSchemasAsyncPager(
             method=rpc, request=request, response=response, metadata=metadata,
         )
+
+        # Done; return the response.
+        return response
+
+    async def query_artifact_lineage_subgraph(
+        self,
+        request: metadata_service.QueryArtifactLineageSubgraphRequest = None,
+        *,
+        artifact: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> lineage_subgraph.LineageSubgraph:
+        r"""Retrieves lineage of an Artifact represented through
+        Artifacts and Executions connected by Event edges and
+        returned as a LineageSubgraph.
+
+        Args:
+            request (:class:`google.cloud.aiplatform_v1beta1.types.QueryArtifactLineageSubgraphRequest`):
+                The request object. Request message for
+                ``MetadataService.QueryArtifactLineageSubgraph``.
+            artifact (:class:`str`):
+                Required. The resource name of the Artifact whose
+                Lineage needs to be retrieved as a LineageSubgraph.
+                Format:
+                projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
+
+                The request may error with FAILED_PRECONDITION if the
+                number of Artifacts, the number of Executions, or the
+                number of Events that would be returned for the Context
+                exceeds 1000.
+
+                This corresponds to the ``artifact`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.LineageSubgraph:
+                A subgraph of the overall lineage
+                graph. Event edges connect Artifact and
+                Execution nodes.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([artifact])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = metadata_service.QueryArtifactLineageSubgraphRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+
+        if artifact is not None:
+            request.artifact = artifact
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.query_artifact_lineage_subgraph,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("artifact", request.artifact),)),
+        )
+
+        # Send the request.
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response

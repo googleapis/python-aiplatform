@@ -26,7 +26,7 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
 
-class TextDataset(datasets.Dataset):
+class TextDataset(datasets._Dataset):
     """Managed text dataset resource for AI Platform"""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
@@ -89,7 +89,7 @@ class TextDataset(datasets.Dataset):
                 if their content bytes are identical (e.g. image bytes or
                 pdf bytes). These labels will be overridden by Annotation
                 labels specified inside index file refenced by
-                [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
+                ``import_schema_uri``,
                 e.g. jsonl file.
             project (str):
                 Project to upload this model to. Overrides project set in
