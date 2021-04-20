@@ -13,29 +13,25 @@
 # limitations under the License.
 
 
-from google.cloud.aiplatform import schema
-
-import create_and_import_dataset_image_sample
+import predict_text_classification_single_label_sample
 import test_constants as constants
 
 
-def test_create_and_import_dataset_image_sample(
-    mock_sdk_init, mock_create_image_dataset
+def test_predict_text_classification_single_label_sample(
+    mock_sdk_init, mock_get_endpoint
 ):
 
-    create_and_import_dataset_image_sample.create_and_import_dataset_image_sample(
+    predict_text_classification_single_label_sample.predict_text_classification_single_label_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        src_uris=constants.GCS_SOURCES,
-        display_name=constants.DISPLAY_NAME,
+        endpoint=constants.ENDPOINT_NAME,
+        content=constants.PREDICTION_TEXT_INSTANCE,
     )
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
-    mock_create_image_dataset.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME,
-        gcs_source=constants.GCS_SOURCES,
-        import_schema_uri=schema.dataset.ioformat.image.single_label_classification,
-        sync=True,
+
+    mock_get_endpoint.assert_called_once_with(
+        constants.ENDPOINT_NAME,
     )

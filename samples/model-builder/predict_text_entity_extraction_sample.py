@@ -12,33 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_and_import_dataset_image_sample]
-def create_and_import_dataset_image_sample(
-    project: str,
-    location: str,
-    display_name: str,
-    src_uris: Union[str, List[str]],
-    sync: bool = True,
-):
+#  [START aiplatform_sdk_predict_text_entity_extraction_sample]
+def predict_text_entity_extraction_sample(project, location, endpoint_id, content):
+
     aiplatform.init(project=project, location=location)
 
-    ds = aiplatform.ImageDataset.create(
-        display_name=display_name,
-        gcs_source=src_uris,
-        import_schema_uri=aiplatform.schema.dataset.ioformat.image.single_label_classification,
-        sync=sync,
-    )
+    endpoint = aiplatform.Endpoint(endpoint_id)
 
-    ds.wait()
+    response = endpoint.predict(instances=[{"content": content}], parameters={})
 
-    print(ds.display_name)
-    print(ds.resource_name)
-    return ds
+    for prediction_ in response.predictions:
+        print(prediction_)
 
 
-#  [END aiplatform_sdk_create_and_import_dataset_image_sample]
+#  [END aiplatform_sdk_predict_text_entity_extraction_sample]

@@ -30,7 +30,7 @@ DATASET_ID = "1084241610289446912"  # permanent_50_flowers_dataset
 ANNOTATION_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/dataset/annotation/image_classification_1.0.0.yaml"
 
 TRAINING_CONTAINER_SPEC_IMAGE_URI = (
-    "gcr.io/ucaip-test/custom-container-managed-dataset:latest"
+    "gcr.io/ucaip-sample-tests/custom-container-managed-dataset:latest"
 )
 MODEL_CONTAINER_SPEC_IMAGE_URI = "gcr.io/cloud-aiplatform/prediction/tf-gpu.1-15:latest"
 
