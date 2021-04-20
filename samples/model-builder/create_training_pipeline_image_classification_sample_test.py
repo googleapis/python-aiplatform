@@ -13,9 +13,8 @@
 # limitations under the License.
 
 
-import pytest
-import test_constants as constants
 import create_training_pipeline_image_classification_sample
+import test_constants as constants
 
 
 def test_create_training_pipeline_image_classification_sample(

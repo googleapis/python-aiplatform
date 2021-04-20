@@ -646,12 +646,12 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                     )
                 )
                 log_wait = min(log_wait * multiplier, max_wait)
-            previous_time = current_time
+                previous_time = current_time
             time.sleep(wait)
 
         self._raise_failure()
 
-        _LOGGER.log_action_completed_against_resource("", "run", self)
+        _LOGGER.log_action_completed_against_resource("run", "completed", self)
 
         if self._gca_resource.model_to_upload and not self.has_failed:
             _LOGGER.info(
