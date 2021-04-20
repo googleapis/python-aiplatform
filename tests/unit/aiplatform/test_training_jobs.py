@@ -84,6 +84,7 @@ _TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
 _TEST_ANNOTATION_SCHEMA_URI = schema.dataset.annotation.image.classification
 
 _TEST_BASE_OUTPUT_DIR = "gs://test-base-output-dir"
+_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
 _TEST_BIGQUERY_DESTINATION = "bq://test-project"
 _TEST_RUN_ARGS = ["-v", 0.1, "--test=arg"]
 _TEST_REPLICA_COUNT = 1
@@ -593,6 +594,7 @@ class TestCustomTrainingJob:
         model_from_job = job.run(
             dataset=mock_tabular_dataset,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            service_account=_TEST_SERVICE_ACCOUNT,
             args=_TEST_RUN_ARGS,
             replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
@@ -688,6 +690,7 @@ class TestCustomTrainingJob:
                 {
                     "workerPoolSpecs": [true_worker_pool_spec],
                     "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "serviceAccount": _TEST_SERVICE_ACCOUNT,
                 },
                 struct_pb2.Value(),
             ),
@@ -2501,6 +2504,7 @@ class TestCustomContainerTrainingJob:
             dataset=mock_nontabular_dataset,
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            service_account=_TEST_SERVICE_ACCOUNT,
             args=_TEST_RUN_ARGS,
             replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
@@ -2582,6 +2586,7 @@ class TestCustomContainerTrainingJob:
                 {
                     "workerPoolSpecs": [true_worker_pool_spec],
                     "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "serviceAccount": _TEST_SERVICE_ACCOUNT,
                 },
                 struct_pb2.Value(),
             ),
@@ -2930,6 +2935,7 @@ class TestCustomPythonPackageTrainingJob:
             dataset=mock_tabular_dataset,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            service_account=_TEST_SERVICE_ACCOUNT,
             args=_TEST_RUN_ARGS,
             replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
@@ -3018,6 +3024,7 @@ class TestCustomPythonPackageTrainingJob:
                 {
                     "workerPoolSpecs": [true_worker_pool_spec],
                     "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "serviceAccount": _TEST_SERVICE_ACCOUNT,
                 },
                 struct_pb2.Value(),
             ),
