@@ -1455,6 +1455,8 @@ class _CustomTrainingJob(_TrainingJob):
                 If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
             replica_count (int):
                 The number of worker replicas. If replica count = 1 then one chief
                 replica will be provisioned. If replica_count > 1 the remainder will be
@@ -1490,6 +1492,9 @@ class _CustomTrainingJob(_TrainingJob):
                 custom pipeline was constructed.
                 """
             )
+
+        if self._managed_model.container_spec.image_uri:
+            model_display_name = model_display_name or self._display_name + "-model"
 
         # validates args and will raise
         worker_pool_specs = _DistributedTrainingSpec.chief_worker_pool(
@@ -1862,6 +1867,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -2388,6 +2395,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -3662,6 +3671,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
