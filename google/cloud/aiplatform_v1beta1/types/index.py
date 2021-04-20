@@ -24,10 +24,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'Index',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"Index",},
 )
 
 
@@ -103,25 +100,19 @@ class Index(proto.Message):
 
     metadata_schema_uri = proto.Field(proto.STRING, number=4)
 
-    metadata = proto.Field(proto.MESSAGE, number=6,
-        message=struct.Value,
-    )
+    metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
 
-    deployed_indexes = proto.RepeatedField(proto.MESSAGE, number=7,
-        message=deployed_index_ref.DeployedIndexRef,
+    deployed_indexes = proto.RepeatedField(
+        proto.MESSAGE, number=7, message=deployed_index_ref.DeployedIndexRef,
     )
 
     etag = proto.Field(proto.STRING, number=8)
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=9)
 
-    create_time = proto.Field(proto.MESSAGE, number=10,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=10, message=timestamp.Timestamp,)
 
-    update_time = proto.Field(proto.MESSAGE, number=11,
-        message=timestamp.Timestamp,
-    )
+    update_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

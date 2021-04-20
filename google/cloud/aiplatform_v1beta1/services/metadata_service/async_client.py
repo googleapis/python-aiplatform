@@ -2382,14 +2382,15 @@ class MetadataServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def query_artifact_lineage_subgraph(self,
-            request: metadata_service.QueryArtifactLineageSubgraphRequest = None,
-            *,
-            artifact: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> lineage_subgraph.LineageSubgraph:
+    async def query_artifact_lineage_subgraph(
+        self,
+        request: metadata_service.QueryArtifactLineageSubgraphRequest = None,
+        *,
+        artifact: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> lineage_subgraph.LineageSubgraph:
         r"""Retrieves lineage of an Artifact represented through
         Artifacts and Executions connected by Event edges and
         returned as a LineageSubgraph.
@@ -2431,8 +2432,10 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([artifact])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = metadata_service.QueryArtifactLineageSubgraphRequest(request)
 
@@ -2453,18 +2456,11 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('artifact', request.artifact),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("artifact", request.artifact),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response

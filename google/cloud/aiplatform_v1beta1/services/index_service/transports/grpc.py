@@ -18,11 +18,11 @@
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple
 
-from google.api_core import grpc_helpers   # type: ignore
+from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google.api_core import gapic_v1       # type: ignore
-from google import auth                    # type: ignore
-from google.auth import credentials        # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google import auth  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
@@ -47,21 +47,24 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
     It sends protocol buffers over the wire using gRPC (which is built on
     top of HTTP/2); the ``grpcio`` package must be installed.
     """
+
     _stubs: Dict[str, Callable]
 
-    def __init__(self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            credentials_file: str = None,
-            scopes: Sequence[str] = None,
-            channel: grpc.Channel = None,
-            api_mtls_endpoint: str = None,
-            client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-            ssl_channel_credentials: grpc.ChannelCredentials = None,
-            client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
-            quota_project_id: Optional[str] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: str = None,
+        scopes: Sequence[str] = None,
+        channel: grpc.Channel = None,
+        api_mtls_endpoint: str = None,
+        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+        ssl_channel_credentials: grpc.ChannelCredentials = None,
+        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+        quota_project_id: Optional[str] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -173,13 +176,15 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
         self._prep_wrapped_messages(client_info)
 
     @classmethod
-    def create_channel(cls,
-                       host: str = 'aiplatform.googleapis.com',
-                       credentials: credentials.Credentials = None,
-                       credentials_file: str = None,
-                       scopes: Optional[Sequence[str]] = None,
-                       quota_project_id: Optional[str] = None,
-                       **kwargs) -> grpc.Channel:
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: str = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        **kwargs,
+    ) -> grpc.Channel:
         """Create and return a gRPC channel object.
         Args:
             host (Optional[str]): The host for the channel to use.
@@ -212,7 +217,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
             credentials_file=credentials_file,
             scopes=scopes,
             quota_project_id=quota_project_id,
-            **kwargs
+            **kwargs,
         )
 
     @property
@@ -230,17 +235,15 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
         """
         # Sanity check: Only create a new client if we do not already have one.
         if self._operations_client is None:
-            self._operations_client = operations_v1.OperationsClient(
-                self.grpc_channel
-            )
+            self._operations_client = operations_v1.OperationsClient(self.grpc_channel)
 
         # Return the client from cache.
         return self._operations_client
 
     @property
-    def create_index(self) -> Callable[
-            [index_service.CreateIndexRequest],
-            operations.Operation]:
+    def create_index(
+        self,
+    ) -> Callable[[index_service.CreateIndexRequest], operations.Operation]:
         r"""Return a callable for the create index method over gRPC.
 
         Creates an Index.
@@ -255,18 +258,16 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_index' not in self._stubs:
-            self._stubs['create_index'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.IndexService/CreateIndex',
+        if "create_index" not in self._stubs:
+            self._stubs["create_index"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.IndexService/CreateIndex",
                 request_serializer=index_service.CreateIndexRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['create_index']
+        return self._stubs["create_index"]
 
     @property
-    def get_index(self) -> Callable[
-            [index_service.GetIndexRequest],
-            index.Index]:
+    def get_index(self) -> Callable[[index_service.GetIndexRequest], index.Index]:
         r"""Return a callable for the get index method over gRPC.
 
         Gets an Index.
@@ -281,18 +282,20 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_index' not in self._stubs:
-            self._stubs['get_index'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.IndexService/GetIndex',
+        if "get_index" not in self._stubs:
+            self._stubs["get_index"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.IndexService/GetIndex",
                 request_serializer=index_service.GetIndexRequest.serialize,
                 response_deserializer=index.Index.deserialize,
             )
-        return self._stubs['get_index']
+        return self._stubs["get_index"]
 
     @property
-    def list_indexes(self) -> Callable[
-            [index_service.ListIndexesRequest],
-            index_service.ListIndexesResponse]:
+    def list_indexes(
+        self,
+    ) -> Callable[
+        [index_service.ListIndexesRequest], index_service.ListIndexesResponse
+    ]:
         r"""Return a callable for the list indexes method over gRPC.
 
         Lists Indexes in a Location.
@@ -307,18 +310,18 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_indexes' not in self._stubs:
-            self._stubs['list_indexes'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.IndexService/ListIndexes',
+        if "list_indexes" not in self._stubs:
+            self._stubs["list_indexes"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.IndexService/ListIndexes",
                 request_serializer=index_service.ListIndexesRequest.serialize,
                 response_deserializer=index_service.ListIndexesResponse.deserialize,
             )
-        return self._stubs['list_indexes']
+        return self._stubs["list_indexes"]
 
     @property
-    def update_index(self) -> Callable[
-            [index_service.UpdateIndexRequest],
-            operations.Operation]:
+    def update_index(
+        self,
+    ) -> Callable[[index_service.UpdateIndexRequest], operations.Operation]:
         r"""Return a callable for the update index method over gRPC.
 
         Updates an Index.
@@ -333,18 +336,18 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'update_index' not in self._stubs:
-            self._stubs['update_index'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.IndexService/UpdateIndex',
+        if "update_index" not in self._stubs:
+            self._stubs["update_index"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.IndexService/UpdateIndex",
                 request_serializer=index_service.UpdateIndexRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['update_index']
+        return self._stubs["update_index"]
 
     @property
-    def delete_index(self) -> Callable[
-            [index_service.DeleteIndexRequest],
-            operations.Operation]:
+    def delete_index(
+        self,
+    ) -> Callable[[index_service.DeleteIndexRequest], operations.Operation]:
         r"""Return a callable for the delete index method over gRPC.
 
         Deletes an Index. An Index can only be deleted when all its
@@ -361,15 +364,13 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'delete_index' not in self._stubs:
-            self._stubs['delete_index'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.IndexService/DeleteIndex',
+        if "delete_index" not in self._stubs:
+            self._stubs["delete_index"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.IndexService/DeleteIndex",
                 request_serializer=index_service.DeleteIndexRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['delete_index']
+        return self._stubs["delete_index"]
 
 
-__all__ = (
-    'IndexServiceGrpcTransport',
-)
+__all__ = ("IndexServiceGrpcTransport",)

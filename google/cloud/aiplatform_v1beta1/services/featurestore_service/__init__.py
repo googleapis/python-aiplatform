@@ -19,6 +19,6 @@ from .client import FeaturestoreServiceClient
 from .async_client import FeaturestoreServiceAsyncClient
 
 __all__ = (
-    'FeaturestoreServiceClient',
-    'FeaturestoreServiceAsyncClient',
+    "FeaturestoreServiceClient",
+    "FeaturestoreServiceAsyncClient",
 )
