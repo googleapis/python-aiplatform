@@ -272,7 +272,7 @@ def _assert_frame_equal_with_sorted_columns(dataframe_1, dataframe_2):
         import pandas as pd
     except ImportError:
         raise ImportError(
-            "Pandas is not installed and is required to test the get_experiment/pipeline method. "
+            "Pandas is not installed and is required to test the get_experiment_df/pipeline_df method. "
             'Please install the SDK using "pip install python-aiplatform[full]"'
         )
 
@@ -388,7 +388,7 @@ class TestMetadata:
             import pandas as pd
         except ImportError:
             raise ImportError(
-                "Pandas is not installed and is required to test the get_experiment method. "
+                "Pandas is not installed and is required to test the get_experiment_df method. "
                 'Please install the SDK using "pip install python-aiplatform[full]"'
             )
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -450,7 +450,7 @@ class TestMetadata:
             import pandas as pd
         except ImportError:
             raise ImportError(
-                "Pandas is not installed and is required to test the get_pipeline method. "
+                "Pandas is not installed and is required to test the get_pipeline_df method. "
                 'Please install the SDK using "pip install python-aiplatform[full]"'
             )
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
