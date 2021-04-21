@@ -13,16 +13,15 @@
 # limitations under the License.
 
 from google.cloud import aiplatform
-from typing import List
 
 
 #  [START aiplatform_sdk_create_training_pipeline_custom_job_sample]
-def create_training_pipeline_custom_job_sample(
+def create_training_pipeline_custom_training_managed_dataset_sample(
     project: str,
     display_name: str,
-    args: List[str],
     script_path: str,
     container_uri: str,
+    dataset_id: int,
     location: str = "us-central1",
     model_display_name: str = None,
     training_fraction_split: float = 0.8,
@@ -36,9 +35,11 @@ def create_training_pipeline_custom_job_sample(
         script_path=script_path,
         container_uri=container_uri)
 
+    my_image_ds = aiplatform.ImageDataset(dataset_id)
+
     model = job.run(
+        dataset=my_image_ds,
         model_display_name=model_display_name,
-        args=args,
         training_fraction_split=training_fraction_split,
         validation_fraction_split=validation_fraction_split,
         test_fraction_split=test_fraction_split,
