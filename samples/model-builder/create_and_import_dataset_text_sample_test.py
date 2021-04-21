@@ -13,10 +13,10 @@
 # limitations under the License.
 
 
-import test_constants as constants
-import create_and_import_dataset_text_sample
-
 from google.cloud.aiplatform import schema
+
+import create_and_import_dataset_text_sample
+import test_constants as constants
 
 
 def test_create_and_import_dataset_text_sample(mock_sdk_init, mock_create_text_dataset):

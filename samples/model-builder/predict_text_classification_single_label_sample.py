@@ -15,6 +15,7 @@
 
 from google.cloud import aiplatform
 
+
 #  [START aiplatform_sdk_predict_text_classification_single_label_sample]
 def predict_text_classification_single_label_sample(
     project, location, endpoint, content
