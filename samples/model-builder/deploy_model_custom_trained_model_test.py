@@ -35,7 +35,6 @@ def test_deploy_model_custom_trained_model_sample(mock_sdk_init, mock_model, moc
         explanation_metadata=constants.EXPLANATION_METADATA,
         explanation_parameters=constants.EXPLANATION_PARAMETERS,
         metadata=constants.METADATA,
-        sync=True,
     )
 
     mock_sdk_init.assert_called_once_with(
@@ -59,5 +58,4 @@ def test_deploy_model_custom_trained_model_sample(mock_sdk_init, mock_model, moc
         explanation_metadata=constants.EXPLANATION_METADATA,
         explanation_parameters=constants.EXPLANATION_PARAMETERS,
         metadata=constants.METADATA,
-        sync=True,
     )

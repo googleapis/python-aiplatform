@@ -60,8 +60,7 @@ def upload_model_sample(
         sync=sync,
     )
 
-    if not sync:
-        model.wait()
+    model.wait()
 
     print(model.display_name)
     print(model.resource_name)

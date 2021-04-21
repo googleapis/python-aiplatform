@@ -36,8 +36,7 @@ def test_upload_model_sample(mock_sdk_init, mock_upload_model):
         serving_container_environment_variables=constants.SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
         serving_container_ports=constants.SERVING_CONTAINER_PORTS,
         explanation_metadata=constants.EXPLANATION_METADATA,
-        explanation_parameters=constants.EXPLANATION_PARAMETERS,
-        sync=True,
+        explanation_parameters=constants.EXPLANATION_PARAMETERS
     )
 
     mock_sdk_init.assert_called_once_with(
