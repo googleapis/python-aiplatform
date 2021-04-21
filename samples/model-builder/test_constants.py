@@ -56,3 +56,7 @@ PREDICTION_TEXT_INSTANCE = "This is some text for testing NLP prediction output"
 SCRIPT_PATH = "task.py"
 CONTAINER_URI = "gcr.io/my_project/my_image:latest"
 ARGS = ["--tfds", "tf_flowers:3.*.*"]
+REPLICA_COUNT = 0
+MACHINE_TYPE = "n1-standard-4"
+ACCELERATOR_TYPE = "ACCELERATOR_TYPE_UNSPECIFIED"
+ACCELERATOR_COUNT = 0

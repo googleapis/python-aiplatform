@@ -27,6 +27,7 @@ def test_create_training_pipeline_image_classification_sample(
 
     create_training_pipeline_image_classification_sample.create_training_pipeline_image_classification_sample(
         project=constants.PROJECT,
+        location=constants.LOCATION,
         display_name=constants.DISPLAY_NAME,
         dataset_id=constants.RESOURCE_ID,
         model_display_name=constants.DISPLAY_NAME_2,

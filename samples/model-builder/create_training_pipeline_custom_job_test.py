@@ -25,12 +25,17 @@ def test_create_training_pipeline_custom_job_sample(
 
     create_training_pipeline_custom_job_sample.create_training_pipeline_custom_job_sample(
         project=constants.PROJECT,
+        location=constants.LOCATION,
         display_name=constants.DISPLAY_NAME,
         args=constants.ARGS,
         script_path=constants.SCRIPT_PATH,
         container_uri=constants.CONTAINER_URI,
         model_serving_container_image_uri=constants.CONTAINER_URI,
         model_display_name=constants.DISPLAY_NAME_2,
+        replica_count=constants.REPLICA_COUNT,
+        machine_type=constants.MACHINE_TYPE,
+        accelerator_type=constants.ACCELERATOR_TYPE,
+        accelerator_count=constants.ACCELERATOR_COUNT,
         training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
         test_fraction_split=constants.TEST_FRACTION_SPLIT,
@@ -47,6 +52,10 @@ def test_create_training_pipeline_custom_job_sample(
     )
     mock_run_custom_training_job.assert_called_once_with(
         model_display_name=constants.DISPLAY_NAME_2,
+        replica_count=constants.REPLICA_COUNT,
+        machine_type=constants.MACHINE_TYPE,
+        accelerator_type=constants.ACCELERATOR_TYPE,
+        accelerator_count=constants.ACCELERATOR_COUNT,
         args=constants.ARGS,
         training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,

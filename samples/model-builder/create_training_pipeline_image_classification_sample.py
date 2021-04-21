@@ -18,9 +18,9 @@ from typing import Optional
 #  [START aiplatform_sdk_create_training_pipeline_image_classification_sample]
 def create_training_pipeline_image_classification_sample(
     project: str,
+    location: str,
     display_name: str,
-    dataset_id: int,
-    location: str = "us-central1",
+    dataset_id: int,    
     model_display_name: Optional[str] = None,
     training_fraction_split: float = 0.8,
     validation_fraction_split: float = 0.1,

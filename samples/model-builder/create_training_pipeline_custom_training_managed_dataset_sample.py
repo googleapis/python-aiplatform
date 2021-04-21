@@ -18,14 +18,18 @@ from typing import List, Optional, Union
 #  [START aiplatform_sdk_create_training_pipeline_custom_job_sample]
 def create_training_pipeline_custom_training_managed_dataset_sample(
     project: str,
+    location: str,
     display_name: str,
     script_path: str,
     container_uri: str,
     model_serving_container_image_uri: str,
-    dataset_id: int,
-    args: Optional[List[Union[str, float, int]]] = None,
-    location: str = "us-central1",
+    dataset_id: int,        
     model_display_name: Optional[str] = None,
+    args: Optional[List[Union[str, float, int]]] = None,
+    replica_count: int = 0,
+    machine_type: str = "n1-standard-4",
+    accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
+    accelerator_count: int = 0,
     training_fraction_split: float = 0.8,
     validation_fraction_split: float = 0.1,
     test_fraction_split: float = 0.1,
@@ -43,10 +47,14 @@ def create_training_pipeline_custom_training_managed_dataset_sample(
     model = job.run(
         dataset=my_image_ds,
         model_display_name=model_display_name,
+        args=args,
+        replica_count=replica_count,
+        machine_type=machine_type,
+        accelerator_type=accelerator_type,
+        accelerator_count=accelerator_count,
         training_fraction_split=training_fraction_split,
         validation_fraction_split=validation_fraction_split,
-        test_fraction_split=test_fraction_split,
-        args=args,
+        test_fraction_split=test_fraction_split,        
         sync=sync,
     )
 
