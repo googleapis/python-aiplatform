@@ -26,7 +26,6 @@ def test_create_and_import_dataset_tabular_bigquery_sample(mock_sdk_init, mock_c
         location=constants.LOCATION,
         src_uris=constants.BIGQUERY_SOURCE,
         display_name=constants.DISPLAY_NAME,
-        sync=True,
     )
 
     mock_sdk_init.assert_called_once_with(

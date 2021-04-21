@@ -23,7 +23,7 @@ def create_and_import_dataset_tabular_bigquery_sample(
     location: str,
     display_name: str,
     src_uris: Union[str, List[str]],
-    sync: bool,
+    sync: bool = True,
 ):
     aiplatform.init(project=project, location=location)
 

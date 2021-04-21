@@ -26,7 +26,6 @@ def test_create_and_import_dataset_tabular_gcs_sample(mock_sdk_init, mock_create
         location=constants.LOCATION,
         src_uris=constants.GCS_SOURCES,
         display_name=constants.DISPLAY_NAME,
-        sync=True,
     )
 
     mock_sdk_init.assert_called_once_with(

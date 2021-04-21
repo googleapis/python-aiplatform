@@ -52,3 +52,6 @@ BUDGET_MILLI_NODE_HOURS_8000 = 8000
 ENCRYPTION_SPEC_KEY_NAME = f"{PARENT}/keyRings/{RESOURCE_ID}/cryptoKeys/{RESOURCE_ID_2}"
 
 PREDICTION_TEXT_INSTANCE = "This is some text for testing NLP prediction output"
+
+SCRIPT_PATH = "task.py"
+CONTAINER_URI = "gcr.io/my_project/my_image:latest"
