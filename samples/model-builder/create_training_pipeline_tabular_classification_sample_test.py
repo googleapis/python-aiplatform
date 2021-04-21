@@ -44,7 +44,6 @@ def test_create_training_pipeline_tabular_classification_sample(
     )
     mock_init_automl_tabular_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
-        optimization_prediction_type=constants.TABULAR_CLASSIFICATION_OPTIMIZATOIN_PREDICTION_TYPE,
     )
     mock_run_automl_tabular_training_job.assert_called_once_with(
         dataset=mock_tabular_dataset,
