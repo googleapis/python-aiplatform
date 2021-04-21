@@ -19,6 +19,91 @@ Python Client for Cloud AI Platform
 .. _Client Library Documentation: https://googleapis.dev/python/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/ai-platform-unified/docs
 
+Overview
+~~~~~~~~
+Importing
+^^^^^^^^^^^^^^^^^^^^
+All SDK functionality can be used from the root of the package:
+
+.. code-block:: Python
+
+    from google.cloud import aiplatform
+
+
+Initialization
+^^^^^^^^^^^^^^^^^^^^
+Initialize the SDK to store common configurations that will be used throughout the SDK.
+
+.. code-block:: Python
+
+    aiplatform.init(
+        # your GCP project ID or number
+        # environment default used is not set
+        project='my-project',
+
+        # the AI platform region you will use
+        # defaults to us-central1
+        location='us-central1',
+
+        # bucket in same region as location
+        # used to stage artifacts
+        staging_bucket='gs://my_staging_bucket',
+
+        # custom google.auth.credentials.Credentials
+        # environment default creds used if not set
+        credentials=my_credentials,
+
+        # customer managed encryption key resource name
+        # will be applied to all AI Platform resources if set
+        encryption_spec_key_name=my_encryption_key_name
+    )
+
+Datasets
+^^^^^^^^
+AI Platform provides managed Tabular, Text, Image, and Video datasets. In the SDK, Datasets can be used downstream to
+train models.
+
+To create a Tabular dataset:
+
+.. code-block:: Python
+
+    my_dataset = aiplatform.TabularDataset.create(
+        display_name="my-dataset", gcs_source=['gs://path/to/my/dataset.csv'])
+
+You can also create and import a dataset in separate steps:
+
+.. code-block:: Python
+
+    from google.cloud import aiplatform
+
+    my_dataset = aiplatform.TextDataset.create(
+        display_name="my-dataset")
+
+    my_dataset.import(
+        gcs_source=['gs://path/to/my/dataset.csv']
+        import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification
+    )
+
+AI Platform supports a variety of dataset schemas. References to these schemas are available under the
+:code:`aiplatform.schema.dataset` namespace. For more information on the supported dataset schemas please refer to the
+`Preparing data docs`_.
+
+.. _Preparing data docs: https://cloud.google.com/ai-platform-unified/docs/datasets/prepare
+
+Training
+^^^^^^^^
+The AI Platform SDK allows you train Custom and AutoML Models.
+
+Custom models can be trained using a custom Python script, custom Python package, or container.
+
+Preparing Your Custom Code
+--------------------------
+AI Platform custom training enables you to train on AI Platform Datasets and produce AI Platform Models. To do so your
+script must adhere to the following contract:
+
+1. It must read dataset from the given environment variables:
+
+
 Quick Start
 -----------
 
