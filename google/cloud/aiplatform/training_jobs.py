@@ -1186,7 +1186,7 @@ class _DistributedTrainingSpec(NamedTuple):
             accelerator_type (str):
                 Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
-                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
 
@@ -1466,7 +1466,7 @@ class _CustomTrainingJob(_TrainingJob):
             accelerator_type (str):
                 Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
-                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
         Returns:
@@ -1901,7 +1901,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             accelerator_type (str):
                 Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
-                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
             training_fraction_split (float):
@@ -2429,7 +2429,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             accelerator_type (str):
                 Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
-                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
             training_fraction_split (float):
@@ -3705,7 +3705,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             accelerator_type (str):
                 Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
-                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
             training_fraction_split (float):
