@@ -29,6 +29,7 @@ def test_create_training_pipeline_custom_job_sample(
         args=constants.ARGS,
         script_path=constants.SCRIPT_PATH,
         container_uri=constants.CONTAINER_URI,
+        model_serving_container_image_uri=constants.CONTAINER_URI,
         model_display_name=constants.DISPLAY_NAME_2,
         training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
@@ -42,6 +43,7 @@ def test_create_training_pipeline_custom_job_sample(
         display_name=constants.DISPLAY_NAME,
         script_path=constants.SCRIPT_PATH,
         container_uri=constants.CONTAINER_URI,
+        model_serving_container_image_uri=constants.CONTAINER_URI,
     )
     mock_run_custom_training_job.assert_called_once_with(
         model_display_name=constants.DISPLAY_NAME_2,

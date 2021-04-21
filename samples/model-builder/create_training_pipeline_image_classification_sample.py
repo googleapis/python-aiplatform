@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from google.cloud import aiplatform
-
+from typing import Optional
 
 #  [START aiplatform_sdk_create_training_pipeline_image_classification_sample]
 def create_training_pipeline_image_classification_sample(
@@ -21,7 +21,7 @@ def create_training_pipeline_image_classification_sample(
     display_name: str,
     dataset_id: int,
     location: str = "us-central1",
-    model_display_name: str = None,
+    model_display_name: Optional[str] = None,
     training_fraction_split: float = 0.8,
     validation_fraction_split: float = 0.1,
     test_fraction_split: float = 0.1,
