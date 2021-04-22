@@ -28,8 +28,6 @@ def deploy_model_sample(
     traffic_split: Optional[Dict[str, int]] = None,
     min_replica_count: int = 1,
     max_replica_count: int = 1,
-    explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-    explanation_parameters: Optional[explain.ExplanationParameters] = None,
     metadata: Optional[Sequence[Tuple[str, str]]] = (),
     sync: bool = True,
 ):
@@ -47,8 +45,6 @@ def deploy_model_sample(
         traffic_split=traffic_split,
         min_replica_count=min_replica_count,
         max_replica_count=max_replica_count,
-        explanation_metadata=explanation_metadata,
-        explanation_parameters=explanation_parameters,
         metadata=metadata,
         sync=sync,
     )

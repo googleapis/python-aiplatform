@@ -29,8 +29,6 @@ def test_deploy_model_sample(mock_sdk_init, mock_model, mock_init_model, mock_de
         traffic_split=constants.TRAFFIC_SPLIT,
         min_replica_count=constants.MIN_REPLICA_COUNT,
         max_replica_count=constants.MAX_REPLICA_COUNT,
-        explanation_metadata=constants.EXPLANATION_METADATA,
-        explanation_parameters=constants.EXPLANATION_PARAMETERS,
         metadata=constants.METADATA
     )
 
@@ -49,8 +47,6 @@ def test_deploy_model_sample(mock_sdk_init, mock_model, mock_init_model, mock_de
         traffic_split=constants.TRAFFIC_SPLIT,
         min_replica_count=constants.MIN_REPLICA_COUNT,
         max_replica_count=constants.MAX_REPLICA_COUNT,
-        explanation_metadata=constants.EXPLANATION_METADATA,
-        explanation_parameters=constants.EXPLANATION_PARAMETERS,
         metadata=constants.METADATA,
         sync=True,
     )
