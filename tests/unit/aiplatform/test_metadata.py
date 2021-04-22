@@ -272,7 +272,7 @@ def _assert_frame_equal_with_sorted_columns(dataframe_1, dataframe_2):
         import pandas as pd
     except ImportError:
         raise ImportError(
-            "Pandas is not installed and is required to test the get_experiment/pipeline method. "
+            "Pandas is not installed and is required to test the get_experiment_df/pipeline_df method. "
             'Please install the SDK using "pip install python-aiplatform[full]"'
         )
 
@@ -381,19 +381,19 @@ class TestMetadata:
         reason="Temporarily skip this test as extra required package are not installed in current setup"
     )
     @pytest.mark.usefixtures("get_context_mock")
-    def test_get_experiment(
+    def test_get_experiment_df(
         self, list_executions_mock, query_execution_inputs_and_outputs_mock
     ):
         try:
             import pandas as pd
         except ImportError:
             raise ImportError(
-                "Pandas is not installed and is required to test the get_experiment method. "
+                "Pandas is not installed and is required to test the get_experiment_df method. "
                 'Please install the SDK using "pip install python-aiplatform[full]"'
             )
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        experiment_df = aiplatform.get_experiment(_TEST_EXPERIMENT)
+        experiment_df = aiplatform.get_experiment_df(_TEST_EXPERIMENT)
 
         expected_filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{_TEST_CONTEXT_NAME}")'
         list_executions_mock.assert_called_once_with(
@@ -428,34 +428,34 @@ class TestMetadata:
         _assert_frame_equal_with_sorted_columns(experiment_df, experiment_df_truth)
 
     @pytest.mark.usefixtures("get_context_not_found_mock")
-    def test_get_experiment_not_exist(self):
+    def test_get_experiment_df_not_exist(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with pytest.raises(exceptions.NotFound):
-            aiplatform.get_experiment(_TEST_EXPERIMENT)
+            aiplatform.get_experiment_df(_TEST_EXPERIMENT)
 
     @pytest.mark.usefixtures("get_pipeline_context_mock")
-    def test_get_experiment_wrong_schema(self):
+    def test_get_experiment_df_wrong_schema(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with pytest.raises(ValueError):
-            aiplatform.get_experiment(_TEST_EXPERIMENT)
+            aiplatform.get_experiment_df(_TEST_EXPERIMENT)
 
     @pytest.mark.skip(
         reason="Temporarily skip this test as extra required package are not installed in current setup"
     )
     @pytest.mark.usefixtures("get_pipeline_context_mock")
-    def test_get_pipeline(
+    def test_get_pipeline_df(
         self, list_executions_mock, query_execution_inputs_and_outputs_mock
     ):
         try:
             import pandas as pd
         except ImportError:
             raise ImportError(
-                "Pandas is not installed and is required to test the get_pipeline method. "
+                "Pandas is not installed and is required to test the get_pipeline_df method. "
                 'Please install the SDK using "pip install python-aiplatform[full]"'
             )
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        pipeline_df = aiplatform.get_pipeline(_TEST_PIPELINE)
+        pipeline_df = aiplatform.get_pipeline_df(_TEST_PIPELINE)
 
         expected_filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{_TEST_CONTEXT_NAME}")'
         list_executions_mock.assert_called_once_with(
@@ -490,13 +490,13 @@ class TestMetadata:
         _assert_frame_equal_with_sorted_columns(pipeline_df, pipeline_df_truth)
 
     @pytest.mark.usefixtures("get_context_not_found_mock")
-    def test_get_pipeline_not_exist(self):
+    def test_get_pipeline_df_not_exist(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with pytest.raises(exceptions.NotFound):
-            aiplatform.get_pipeline(_TEST_PIPELINE)
+            aiplatform.get_pipeline_df(_TEST_PIPELINE)
 
     @pytest.mark.usefixtures("get_context_mock")
-    def test_get_pipeline_wrong_schema(self):
+    def test_get_pipeline_df_wrong_schema(self):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         with pytest.raises(ValueError):
-            aiplatform.get_pipeline(_TEST_PIPELINE)
+            aiplatform.get_pipeline_df(_TEST_PIPELINE)

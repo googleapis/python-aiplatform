@@ -115,7 +115,7 @@ class _MetadataService:
         )
         artifact.update(metadata=metrics)
 
-    def get_experiment(
+    def get_experiment_df(
         self, experiment: Optional[str] = None
     ) -> "pd.DataFrame":  # noqa: F821
         """Returns a Pandas DataFrame of the parameters and metrics associated with one experiment.
@@ -152,7 +152,7 @@ class _MetadataService:
             """
 
         if not experiment:
-            experiment = self._experiment
+            experiment = self._experiment.name
 
         source = "experiment"
         experiment_resource_name = self._get_experiment_or_pipeline_resource_name(
@@ -165,7 +165,7 @@ class _MetadataService:
             source=source,
         )
 
-    def get_pipeline(self, pipeline: str) -> "pd.DataFrame":  # noqa: F821
+    def get_pipeline_df(self, pipeline: str) -> "pd.DataFrame":  # noqa: F821
         """Returns a Pandas DataFrame of the parameters and metrics associated with one pipeline.
 
         Args:
