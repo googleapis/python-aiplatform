@@ -177,3 +177,17 @@ PREDICTION_TABULAR_INSTANCE = {
     "households": "270.0",
     "median_income": "3.014700",
 }
+MODEL_SERVING_CONTAINER_COMMAND = (["/usr/bin/tensorflow_model_server"],)
+MODEL_SERVING_CONTAINER_ARGS = (
+    [
+        f"--model_name={MODEL_NAME}",
+        "--model_base_path=$(AIP_STORAGE_URI)",
+        "--rest_api_port=8080",
+        "--port=8500",
+        "--file_system_poll_wait_seconds=31540000",
+    ],
+)
+PYTHON_PACKAGE_GCS_URI = (
+    "gs://bucket3/custom-training-python-package/my_app/trainer-0.1.tar.gz"
+)
+PYTHON_MODULE_NAME = "trainer.task"

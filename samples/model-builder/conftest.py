@@ -199,16 +199,14 @@ def mock_run_automl_image_training_job(mock_image_training_job):
 
 @pytest.fixture
 def mock_init_custom_training_job():
-    with patch.object(aiplatform.training_jobs.CustomTrainingJob, "__init__") as mock:
+    with patch.object(aiplatform.CustomTrainingJob, "__init__") as mock:
         mock.return_value = None
         yield mock
 
 
 @pytest.fixture
-def mock_run_custom_container_training_job():
-    with patch.object(
-        aiplatform.training_jobs.CustomContainerTrainingJob, "run"
-    ) as mock:
+def mock_run_custom_training_job():
+    with patch.object(aiplatform.CustomTrainingJob, "run") as mock:
         yield mock
 
 
@@ -222,8 +220,25 @@ def mock_init_custom_container_training_job():
 
 
 @pytest.fixture
-def mock_run_custom_training_job():
-    with patch.object(aiplatform.training_jobs.CustomTrainingJob, "run") as mock:
+def mock_run_custom_container_training_job():
+    with patch.object(aiplatform.CustomContainerTrainingJob, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_init_custom_package_training_job():
+    with patch.object(
+        aiplatform.training_jobs.CustomPythonPackageTrainingJob, "__init__"
+    ) as mock:
+        mock.return_value = None
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_package_training_job():
+    with patch.object(
+        aiplatform.training_jobs.CustomPythonPackageTrainingJob, "run"
+    ) as mock:
         yield mock
 
 
