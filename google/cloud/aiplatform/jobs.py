@@ -79,7 +79,7 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
     _delete_method (str): The name of the specific JobServiceClient delete method
     """
 
-    client_class = utils.JobpointClientWithOverride
+    client_class = utils.JobClientWithOverride
     _is_client_prediction_client = False
 
     def __init__(
