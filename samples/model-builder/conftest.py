@@ -205,6 +205,23 @@ def mock_init_custom_training_job():
 
 
 @pytest.fixture
+def mock_run_custom_container_training_job():
+    with patch.object(
+        aiplatform.training_jobs.CustomContainerTrainingJob, "run"
+    ) as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_init_custom_container_training_job():
+    with patch.object(
+        aiplatform.training_jobs.CustomContainerTrainingJob, "__init__"
+    ) as mock:
+        mock.return_value = None
+        yield mock
+
+
+@pytest.fixture
 def mock_run_custom_training_job():
     with patch.object(aiplatform.training_jobs.CustomTrainingJob, "run") as mock:
         yield mock
