@@ -62,7 +62,7 @@ def test_create_training_pipeline_custom_job_sample(
         replica_count=constants.REPLICA_COUNT,
         machine_type=constants.MACHINE_TYPE,
         accelerator_type=constants.ACCELERATOR_TYPE,
-        accelerator_count=constants.ACCELERATOR_COUNT,        
+        accelerator_count=constants.ACCELERATOR_COUNT,
         training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
         test_fraction_split=constants.TEST_FRACTION_SPLIT,

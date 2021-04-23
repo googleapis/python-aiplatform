@@ -18,9 +18,7 @@ import test_constants as constants
 
 
 def test_create_training_pipeline_custom_job_sample(
-    mock_sdk_init,
-    mock_init_custom_training_job,
-    mock_run_custom_training_job,
+    mock_sdk_init, mock_init_custom_training_job, mock_run_custom_training_job,
 ):
 
     create_training_pipeline_custom_job_sample.create_training_pipeline_custom_job_sample(
