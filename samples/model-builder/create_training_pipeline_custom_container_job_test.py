@@ -42,9 +42,11 @@ def test_create_training_pipeline_custom_container_job_sample(
     )
 
     mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION, staging_bucket=constants.STAGING_BUCKET
+        project=constants.PROJECT,
+        location=constants.LOCATION,
+        staging_bucket=constants.STAGING_BUCKET,
     )
-    
+
     mock_init_custom_container_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
         container_uri=constants.CONTAINER_URI,

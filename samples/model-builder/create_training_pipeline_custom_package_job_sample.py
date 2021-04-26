@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.cloud import aiplatform
 from typing import List, Optional, Union
+
+from google.cloud import aiplatform
 
 
 #  [START aiplatform_sdk_create_training_pipeline_custom_package_job_sample]
@@ -24,8 +25,8 @@ def create_training_pipeline_custom_package_job_sample(
     display_name: str,
     python_package_gcs_uri: str,
     python_module_name: str,
-    container_uri: str,    
-    model_serving_container_image_uri: str,    
+    container_uri: str,
+    model_serving_container_image_uri: str,
     model_display_name: Optional[str] = None,
     args: Optional[List[Union[str, float, int]]] = None,
     replica_count: int = 1,
@@ -56,7 +57,7 @@ def create_training_pipeline_custom_package_job_sample(
         accelerator_count=accelerator_count,
         training_fraction_split=training_fraction_split,
         validation_fraction_split=validation_fraction_split,
-        test_fraction_split=test_fraction_split,        
+        test_fraction_split=test_fraction_split,
         sync=sync,
     )
 

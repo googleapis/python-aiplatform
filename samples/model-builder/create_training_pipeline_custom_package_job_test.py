@@ -29,7 +29,7 @@ def test_create_training_pipeline_custom_package_job_sample(
         staging_bucket=constants.STAGING_BUCKET,
         display_name=constants.DISPLAY_NAME,
         python_package_gcs_uri=constants.PYTHON_PACKAGE_GCS_URI,
-        python_module_name=constants.PYTHON_MODULE_NAME,        
+        python_module_name=constants.PYTHON_MODULE_NAME,
         container_uri=constants.CONTAINER_URI,
         args=constants.ARGS,
         model_serving_container_image_uri=constants.CONTAINER_URI,
@@ -44,9 +44,11 @@ def test_create_training_pipeline_custom_package_job_sample(
     )
 
     mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION, staging_bucket=constants.STAGING_BUCKET
+        project=constants.PROJECT,
+        location=constants.LOCATION,
+        staging_bucket=constants.STAGING_BUCKET,
     )
-    
+
     mock_init_custom_package_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
         python_package_gcs_uri=constants.PYTHON_PACKAGE_GCS_URI,
