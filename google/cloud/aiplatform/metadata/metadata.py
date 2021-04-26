@@ -41,6 +41,11 @@ class _MetadataService:
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
             metadata=constants.EXPERIMENT_METADATA,
         )
+        if context.schema_title != constants.SYSTEM_EXPERIMENT:
+            raise ValueError(
+                f"Experiment name {experiment} has been used to create other type of resources in this MetadataStore, "
+                f"please choose a different experiment name."
+            )
         self._experiment = context
 
     def start_run(self, run: str):
@@ -63,6 +68,11 @@ class _MetadataService:
             schema_title=constants.SYSTEM_RUN,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
         )
+        if run_execution.schema_title != constants.SYSTEM_RUN:
+            raise ValueError(
+                f"Run name {run} has been used to create other type of resources in this MetadataStore, "
+                f"please choose a different run name."
+            )
         self._experiment.add_artifacts_and_executions(
             execution_resource_names=[run_execution.resource_name]
         )
@@ -74,6 +84,11 @@ class _MetadataService:
             schema_title=constants.SYSTEM_METRICS,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
         )
+        if metrics_artifact.schema_title != constants.SYSTEM_METRICS:
+            raise ValueError(
+                f"Run name {run} has been used to create other type of resources in this MetadataStore, "
+                f"please choose a different run name."
+            )
         run_execution.add_artifact(
             artifact_resource_name=metrics_artifact.resource_name, input=False
         )

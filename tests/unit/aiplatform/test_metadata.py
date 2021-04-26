@@ -88,6 +88,9 @@ _TEST_METRIC_KEY_2 = "accuracy"
 _TEST_METRICS = {_TEST_METRIC_KEY_1: 222, _TEST_METRIC_KEY_2: 1}
 _TEST_OTHER_METRICS = {_TEST_METRIC_KEY_2: 0.9}
 
+# schema
+_TEST_WRONG_SCHEMA_TITLE = "system.WrongSchema"
+
 
 @pytest.fixture
 def get_metadata_store_mock():
@@ -111,6 +114,21 @@ def get_context_mock():
             metadata=constants.EXPERIMENT_METADATA,
         )
         yield get_context_mock
+
+
+@pytest.fixture
+def get_context_wrong_schema_mock():
+    with patch.object(
+        MetadataServiceClient, "get_context"
+    ) as get_context_wrong_schema_mock:
+        get_context_wrong_schema_mock.return_value = GapicContext(
+            name=_TEST_CONTEXT_NAME,
+            display_name=_TEST_EXPERIMENT,
+            schema_title=_TEST_WRONG_SCHEMA_TITLE,
+            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
+            metadata=constants.EXPERIMENT_METADATA,
+        )
+        yield get_context_wrong_schema_mock
 
 
 @pytest.fixture
@@ -158,6 +176,20 @@ def get_execution_mock():
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
         )
         yield get_execution_mock
+
+
+@pytest.fixture
+def get_execution_wrong_schema_mock():
+    with patch.object(
+        MetadataServiceClient, "get_execution"
+    ) as get_execution_wrong_schema_mock:
+        get_execution_wrong_schema_mock.return_value = GapicExecution(
+            name=_TEST_EXECUTION_NAME,
+            display_name=_TEST_RUN,
+            schema_title=_TEST_WRONG_SCHEMA_TITLE,
+            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
+        )
+        yield get_execution_wrong_schema_mock
 
 
 @pytest.fixture
@@ -255,6 +287,20 @@ def get_artifact_mock():
 
 
 @pytest.fixture
+def get_artifact_wrong_schema_mock():
+    with patch.object(
+        MetadataServiceClient, "get_artifact"
+    ) as get_artifact_wrong_schema_mock:
+        get_artifact_wrong_schema_mock.return_value = GapicArtifact(
+            name=_TEST_ARTIFACT_NAME,
+            display_name=_TEST_ARTIFACT_ID,
+            schema_title=_TEST_WRONG_SCHEMA_TITLE,
+            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
+        )
+        yield get_artifact_wrong_schema_mock
+
+
+@pytest.fixture
 def update_artifact_mock():
     with patch.object(MetadataServiceClient, "update_artifact") as update_artifact_mock:
         update_artifact_mock.return_value = GapicArtifact(
@@ -284,8 +330,8 @@ def _assert_frame_equal_with_sorted_columns(dataframe_1, dataframe_2):
 class TestMetadata:
     def setup_method(self):
         reload(initializer)
-        reload(aiplatform)
         reload(metadata)
+        reload(aiplatform)
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
@@ -299,6 +345,16 @@ class TestMetadata:
 
         get_metadata_store_mock.assert_called_once_with(name=_TEST_METADATASTORE)
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_wrong_schema_mock")
+    def test_init_experiment_wrong_schema(self):
+        with pytest.raises(ValueError):
+            aiplatform.init(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                experiment=_TEST_EXPERIMENT,
+            )
 
     @pytest.mark.usefixtures("get_metadata_store_mock")
     @pytest.mark.usefixtures("get_context_mock")
@@ -325,6 +381,28 @@ class TestMetadata:
             execution=_TEST_EXECUTION_NAME,
             events=[Event(artifact=_TEST_ARTIFACT_NAME, type_=Event.Type.OUTPUT)],
         )
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_mock")
+    @pytest.mark.usefixtures("get_execution_wrong_schema_mock")
+    def test_start_run_with_wrong_run_execution_schema(self,):
+        aiplatform.init(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
+        )
+        with pytest.raises(ValueError):
+            aiplatform.start_run(_TEST_RUN)
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_mock")
+    @pytest.mark.usefixtures("get_execution_mock")
+    @pytest.mark.usefixtures("add_context_artifacts_and_executions_mock")
+    @pytest.mark.usefixtures("get_artifact_wrong_schema_mock")
+    def test_start_run_with_wrong_metrics_artifact_schema(self,):
+        aiplatform.init(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
+        )
+        with pytest.raises(ValueError):
+            aiplatform.start_run(_TEST_RUN)
 
     @pytest.mark.usefixtures("get_metadata_store_mock")
     @pytest.mark.usefixtures("get_context_mock")
