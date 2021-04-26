@@ -417,7 +417,7 @@ class EndpointClientWithOverride(ClientWithOverride):
     )
 
 
-class JobpointClientWithOverride(ClientWithOverride):
+class JobClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.DEFAULT_VERSION
     _version_map = (
@@ -457,7 +457,7 @@ AiPlatformServiceClientWithOverride = TypeVar(
     "AiPlatformServiceClientWithOverride",
     DatasetClientWithOverride,
     EndpointClientWithOverride,
-    JobpointClientWithOverride,
+    JobClientWithOverride,
     ModelClientWithOverride,
     PipelineClientWithOverride,
     PredictionClientWithOverride,
