@@ -36,8 +36,6 @@ def deploy_model_sample(
 
     model = aiplatform.Model(model_name=model_name)
 
-    # AutoML models require a machine_type of None
-    # Other model types may require an actual machine_type instead.
     model.deploy(
         endpoint=endpoint,
         deployed_model_display_name=deployed_model_display_name,
