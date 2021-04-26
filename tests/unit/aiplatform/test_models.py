@@ -157,6 +157,29 @@ _TEST_MODEL_RESOURCE_NAME_CUSTOM_LOCATION = model_service_client.ModelServiceCli
 )
 
 _TEST_OUTPUT_DIR = "gs://my-output-bucket"
+_TEST_CONTAINER_REGISTRY_DESTINATION = (
+    "us-central1-docker.pkg.dev/projectId/repoName/imageName"
+)
+
+_TEST_EXPORT_FORMAT_ID_IMAGE = "custom-trained"
+_TEST_EXPORT_FORMAT_ID_ARTIFACT = "tf-saved-model"
+
+_TEST_SUPPORTED_EXPORT_FORMATS_IMAGE = [
+    gca_model.Model.ExportFormat(
+        id=_TEST_EXPORT_FORMAT_ID_IMAGE,
+        exportable_contents=[gca_model.Model.ExportFormat.ExportableContent.IMAGE],
+    )
+]
+
+_TEST_SUPPORTED_EXPORT_FORMATS_ARTIFACT = [
+    gca_model.Model.ExportFormat(
+        id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
+        exportable_contents=[gca_model.Model.ExportFormat.ExportableContent.ARTIFACT],
+    )
+]
+
+_TEST_SUPPORTED_EXPORT_FORMATS_UNSUPPORTED = []
+_TEST_CONTAINER_REGISTRY_DESTINATION
 
 
 @pytest.fixture
@@ -220,6 +243,45 @@ def get_model_with_custom_project_mock():
 
 
 @pytest.fixture
+def get_model_with_supported_export_formats_image():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            name=_TEST_MODEL_RESOURCE_NAME,
+            supported_export_formats=_TEST_SUPPORTED_EXPORT_FORMATS_IMAGE,
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
+def get_model_with_supported_export_formats_artifact():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            name=_TEST_MODEL_RESOURCE_NAME,
+            supported_export_formats=_TEST_SUPPORTED_EXPORT_FORMATS_ARTIFACT,
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
+def get_model_with_unsupported_export_formats():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            name=_TEST_MODEL_RESOURCE_NAME,
+            supported_export_formats=_TEST_SUPPORTED_EXPORT_FORMATS_UNSUPPORTED,
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
 def upload_model_mock():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "upload_model"
@@ -269,6 +331,17 @@ def upload_model_with_custom_location_mock():
         )
         upload_model_mock.return_value = mock_lro
         yield upload_model_mock
+
+
+@pytest.fixture
+def export_model_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "export_model"
+    ) as export_model_mock:
+        export_model_lro_mock = mock.Mock(ga_operation.Operation)
+        export_model_lro_mock.result.return_value = None
+        export_model_mock.return_value = export_model_lro_mock
+        yield export_model_mock
 
 
 @pytest.fixture
@@ -406,7 +479,6 @@ class TestModel:
     def test_constructor_creates_client_with_custom_credentials(
         self, create_client_mock
     ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         creds = auth_credentials.AnonymousCredentials()
         models.Model(_TEST_ID, credentials=creds)
         create_client_mock.assert_called_once_with(
@@ -417,12 +489,10 @@ class TestModel:
         )
 
     def test_constructor_gets_model(self, get_model_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Model(_TEST_ID)
         get_model_mock.assert_called_once_with(name=_TEST_MODEL_RESOURCE_NAME)
 
     def test_constructor_gets_model_with_custom_project(self, get_model_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Model(_TEST_ID, project=_TEST_PROJECT_2)
         test_model_resource_name = model_service_client.ModelServiceClient.model_path(
             _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
@@ -430,7 +500,6 @@ class TestModel:
         get_model_mock.assert_called_once_with(name=test_model_resource_name)
 
     def test_constructor_gets_model_with_custom_location(self, get_model_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         models.Model(_TEST_ID, location=_TEST_LOCATION_2)
         test_model_resource_name = model_service_client.ModelServiceClient.model_path(
             _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
@@ -442,7 +511,6 @@ class TestModel:
         self, upload_model_mock, get_model_mock, sync
     ):
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         my_model = models.Model.upload(
             display_name=_TEST_MODEL_NAME,
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -488,8 +556,6 @@ class TestModel:
     def test_upload_uploads_and_gets_model_with_all_args(
         self, upload_model_with_explanations_mock, get_model_mock, sync
     ):
-
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         my_model = models.Model.upload(
             display_name=_TEST_MODEL_NAME,
@@ -564,8 +630,6 @@ class TestModel:
         sync,
     ):
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-
         test_model_resource_name = model_service_client.ModelServiceClient.model_path(
             _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
         )
@@ -612,7 +676,6 @@ class TestModel:
         get_model_with_custom_location_mock,
         sync,
     ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model_resource_name = model_service_client.ModelServiceClient.model_path(
             _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
         )
@@ -751,7 +814,6 @@ class TestModel:
     def test_deploy_no_endpoint_with_explanations(
         self, deploy_model_with_explanations_mock, sync
     ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
         test_endpoint = test_model.deploy(
             machine_type=_TEST_MACHINE_TYPE,
@@ -943,7 +1005,6 @@ class TestModel:
     def test_batch_predict_with_all_args(
         self, create_batch_prediction_job_with_explanations_mock, sync
     ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
         creds = auth_credentials.AnonymousCredentials()
 
@@ -1102,7 +1163,6 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock")
     def test_print_model(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
         assert (
             repr(test_model)
@@ -1111,7 +1171,6 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock")
     def test_print_model_if_waiting(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource = None
         test_model._latest_future = futures.Future()
@@ -1122,7 +1181,6 @@ class TestModel:
 
     @pytest.mark.usefixtures("get_model_mock")
     def test_print_model_if_exception(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource = None
         mock_exception = Exception("mock exception")
@@ -1131,3 +1189,104 @@ class TestModel:
             repr(test_model)
             == f"{object.__repr__(test_model)} failed with {str(mock_exception)}"
         )
+
+    @pytest.mark.usefixtures("get_model_with_supported_export_formats_artifact")
+    def test_export_model_as_artifact(self, export_model_mock):
+        test_model = models.Model(_TEST_ID)
+
+        test_model.export_model(
+            export_format_id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
+            artifact_destination=_TEST_OUTPUT_DIR,
+        )
+
+        expected_output_config = gca_model_service.ExportModelRequest.OutputConfig(
+            export_format_id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
+            artifact_destination=gca_io.GcsDestination(
+                output_uri_prefix=_TEST_OUTPUT_DIR
+            ),
+        )
+
+        export_model_mock.assert_called_once_with(
+            name=f"{_TEST_PARENT}/models/{_TEST_ID}",
+            output_config=expected_output_config,
+        )
+
+    @pytest.mark.usefixtures("get_model_with_supported_export_formats_image")
+    def test_export_model_as_image(self, export_model_mock):
+        test_model = models.Model(_TEST_ID)
+
+        test_model.export_model(
+            export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE,
+            image_destination=_TEST_CONTAINER_REGISTRY_DESTINATION,
+        )
+
+        expected_output_config = gca_model_service.ExportModelRequest.OutputConfig(
+            export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE,
+            image_destination=gca_io.ContainerRegistryDestination(
+                output_uri=_TEST_CONTAINER_REGISTRY_DESTINATION
+            ),
+        )
+
+        export_model_mock.assert_called_once_with(
+            name=f"{_TEST_PARENT}/models/{_TEST_ID}",
+            output_config=expected_output_config,
+        )
+
+    @pytest.mark.usefixtures("get_model_with_unsupported_export_formats")
+    def test_export_model_not_supported(self, export_model_mock):
+        test_model = models.Model(_TEST_ID)
+
+        with pytest.raises(ValueError) as e:
+            test_model.export_model(
+                export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE,
+                image_destination=_TEST_CONTAINER_REGISTRY_DESTINATION,
+            )
+
+            assert e.match(
+                regexp=f"The model `{_TEST_PARENT}/models/{_TEST_ID}` is not exportable."
+            )
+
+    @pytest.mark.usefixtures("get_model_with_supported_export_formats_image")
+    def test_export_model_as_image_with_invalid_args(self, export_model_mock):
+        test_model = models.Model(_TEST_ID)
+
+        # Passing an artifact destination on an image-only Model
+        with pytest.raises(ValueError) as e:
+            test_model.export_model(
+                export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE,
+                artifact_destination=_TEST_OUTPUT_DIR,
+            )
+            assert e.match(regexp=r"This model can not be exported as an artifact.")
+
+        # Passing both destination types
+        with pytest.raises(ValueError) as e:
+            test_model.export_model(
+                export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE,
+                artifact_destination=_TEST_OUTPUT_DIR,
+                image_destination=_TEST_CONTAINER_REGISTRY_DESTINATION,
+            )
+            assert e.match(regexp=r"Please provide either")
+
+        # Passing an invalid export format ID
+        with pytest.raises(ValueError) as e:
+            test_model.export_model(
+                export_format_id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
+                image_destination=_TEST_CONTAINER_REGISTRY_DESTINATION,
+            )
+            assert e.match(
+                regexp=f"'{_TEST_EXPORT_FORMAT_ID_ARTIFACT}' is not a supported export format"
+            )
+
+    @pytest.mark.usefixtures("get_model_with_supported_export_formats_artifact")
+    def test_export_model_as_artifact_with_invalid_args(self, export_model_mock):
+        test_model = models.Model(_TEST_ID)
+
+        # Passing an image destination on an artifact-only Model
+        with pytest.raises(ValueError) as e:
+            test_model.export_model(
+                export_format_id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
+                image_destination=_TEST_CONTAINER_REGISTRY_DESTINATION,
+            )
+            assert e.match(
+                regexp=r"This model can not be exported as a container image."
+            )

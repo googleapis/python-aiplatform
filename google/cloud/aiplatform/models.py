@@ -2079,7 +2079,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
 
             my_model.export(
                 export_format_id='custom-model'
-                image_destination='us-central1-docker.pkg.dev/projectId/repoName/'
+                image_destination='us-central1-docker.pkg.dev/projectId/repo/image'
             )
 
         Args:
@@ -2188,7 +2188,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             "Export", "model", self.__class__, operation_future
         )
 
-        # block before returning
+        # Block before returning
         operation_future.result()
 
         _LOGGER.log_action_completed_against_resource("model", "exported", self)
