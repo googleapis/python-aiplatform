@@ -32,6 +32,23 @@ class _MetadataService:
         self._run = None
         self._metrics = None
 
+    def reset(self):
+        self._experiment = None
+        self._run = None
+        self._metrics = None
+
+    @property
+    def experiment_name(self):
+        if self._experiment:
+            return self._experiment.display_name
+        return None
+
+    @property
+    def run_name(self):
+        if self._run:
+            return self._run.display_name
+        return None
+
     def set_experiment(self, experiment: str):
         _MetadataStore.get_or_create()
         context = _Context.get_or_create(

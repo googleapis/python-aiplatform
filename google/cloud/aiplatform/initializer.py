@@ -82,6 +82,14 @@ class _Config:
 
                 If set, this resource and all sub-resources will be secured by this key.
         """
+
+        # reset metadata_service config if project or location is updated.
+        if (project and project != self._project) or (
+            location and location != self._location
+        ):
+            if metadata.metadata_service.experiment_name:
+                logging.info("project/location updated, reset Metadata config.")
+            metadata.metadata_service.reset()
         if project:
             self._project = project
         if location:
