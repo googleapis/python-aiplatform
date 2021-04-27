@@ -61,7 +61,7 @@ class _MetadataService:
         if context.schema_title != constants.SYSTEM_EXPERIMENT:
             raise ValueError(
                 f"Experiment name {experiment} has been used to create other type of resources in this MetadataStore, "
-                f"please choose a different experiment name."
+                "please choose a different experiment name."
             )
         self._experiment = context
 
