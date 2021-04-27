@@ -41,6 +41,8 @@ def deploy_model_with_dedicated_resources_sample(
 
     model = aiplatform.Model(model_name=model_name)
 
+    # The explanation_metadata and explanation_parameters should only be
+    # provided for a custom trained model and not an AutoML model.
     model.deploy(
         endpoint=endpoint,
         deployed_model_display_name=deployed_model_display_name,
