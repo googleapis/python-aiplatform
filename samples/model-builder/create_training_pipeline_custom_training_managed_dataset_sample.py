@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.cloud import aiplatform
 from typing import List, Optional, Union
+
+from google.cloud import aiplatform
+
 
 #  [START aiplatform_sdk_create_training_pipeline_custom_job_sample]
 def create_training_pipeline_custom_training_managed_dataset_sample(

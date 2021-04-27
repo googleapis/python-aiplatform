@@ -12,15 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.cloud import aiplatform
 from typing import Optional
+
+from google.cloud import aiplatform
+
 
 #  [START aiplatform_sdk_create_training_pipeline_image_classification_sample]
 def create_training_pipeline_image_classification_sample(
     project: str,
     location: str,
     display_name: str,
-    dataset_id: int,    
+    dataset_id: int,
     model_display_name: Optional[str] = None,
     training_fraction_split: float = 0.8,
     validation_fraction_split: float = 0.1,

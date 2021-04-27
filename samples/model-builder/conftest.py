@@ -151,11 +151,10 @@ def mock_run_automl_image_training_job():
     with patch.object(aiplatform.training_jobs.AutoMLImageTrainingJob, "run") as mock:
         yield mock
 
+
 @pytest.fixture
 def mock_init_custom_training_job():
-    with patch.object(
-        aiplatform.training_jobs.CustomTrainingJob, "__init__"
-    ) as mock:
+    with patch.object(aiplatform.training_jobs.CustomTrainingJob, "__init__") as mock:
         mock.return_value = None
         yield mock
 
@@ -164,6 +163,7 @@ def mock_init_custom_training_job():
 def mock_run_custom_training_job():
     with patch.object(aiplatform.training_jobs.CustomTrainingJob, "run") as mock:
         yield mock
+
 
 """
 ----------------------------------------------------------------------------
