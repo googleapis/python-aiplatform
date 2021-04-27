@@ -1224,18 +1224,20 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         return self._gca_resource.description
 
     @property
-    def _supported_export_formats(self):
+    def _supported_export_formats(
+        self,
+    ) -> Dict[str, List[gca_model_compat.Model.ExportFormat.ExportableContent]]:
         """Store list of ExportFormat objects as a private dict for easy lookup"""
         return {
-            ef.id: [
+            export_format.id: [
                 gca_model_compat.Model.ExportFormat.ExportableContent(content)
-                for content in ef.exportable_contents
+                for content in export_format.exportable_contents
             ]
-            for ef in self._gca_resource.supported_export_formats
+            for export_format in self._gca_resource.supported_export_formats
         }
 
     @property
-    def supported_export_formats(self):
+    def supported_export_formats(self) -> List[str]:
         """The formats in which this Model may be exported.
         If empty, this Model is not available for export.
         """
@@ -2129,11 +2131,10 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         if not self.supported_export_formats:
             raise ValueError(f"The model `{self.resource_name}` is not exportable.")
 
-        # Both or neither provided
-        if bool(artifact_destination) == bool(image_destination):
+        # No destination provided
+        if not any((artifact_destination, image_destination)):
             raise ValueError(
-                "Please provide either `artifact_destination` or `image_destination` "
-                "but not both."
+                "Please provide an `artifact_destination` or `image_destination`."
             )
 
         export_format_id = export_format_id.lower()

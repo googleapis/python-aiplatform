@@ -178,6 +178,16 @@ _TEST_SUPPORTED_EXPORT_FORMATS_ARTIFACT = [
     )
 ]
 
+_TEST_SUPPORTED_EXPORT_FORMATS_BOTH = [
+    gca_model.Model.ExportFormat(
+        id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
+        exportable_contents=[
+            gca_model.Model.ExportFormat.ExportableContent.ARTIFACT,
+            gca_model.Model.ExportFormat.ExportableContent.IMAGE,
+        ],
+    )
+]
+
 _TEST_SUPPORTED_EXPORT_FORMATS_UNSUPPORTED = []
 _TEST_CONTAINER_REGISTRY_DESTINATION
 
@@ -264,6 +274,19 @@ def get_model_with_supported_export_formats_artifact():
             display_name=_TEST_MODEL_NAME,
             name=_TEST_MODEL_RESOURCE_NAME,
             supported_export_formats=_TEST_SUPPORTED_EXPORT_FORMATS_ARTIFACT,
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
+def get_model_with_both_supported_export_formats():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            name=_TEST_MODEL_RESOURCE_NAME,
+            supported_export_formats=_TEST_SUPPORTED_EXPORT_FORMATS_BOTH,
         )
         yield get_model_mock
 
@@ -1190,9 +1213,13 @@ class TestModel:
             == f"{object.__repr__(test_model)} failed with {str(mock_exception)}"
         )
 
+    @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_with_supported_export_formats_artifact")
-    def test_export_model_as_artifact(self, export_model_mock):
+    def test_export_model_as_artifact(self, export_model_mock, sync):
         test_model = models.Model(_TEST_ID)
+
+        if not sync:
+            test_model.wait()
 
         test_model.export_model(
             export_format_id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
@@ -1211,14 +1238,18 @@ class TestModel:
             output_config=expected_output_config,
         )
 
+    @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_with_supported_export_formats_image")
-    def test_export_model_as_image(self, export_model_mock):
+    def test_export_model_as_image(self, export_model_mock, sync):
         test_model = models.Model(_TEST_ID)
 
         test_model.export_model(
             export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE,
             image_destination=_TEST_CONTAINER_REGISTRY_DESTINATION,
         )
+
+        if not sync:
+            test_model.wait()
 
         expected_output_config = gca_model_service.ExportModelRequest.OutputConfig(
             export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE,
@@ -1232,8 +1263,40 @@ class TestModel:
             output_config=expected_output_config,
         )
 
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("get_model_with_both_supported_export_formats")
+    def test_export_model_as_both_formats(self, export_model_mock, sync):
+        """Exports a 'tf-saved-model' as both an artifact and an image"""
+
+        test_model = models.Model(_TEST_ID)
+
+        test_model.export_model(
+            export_format_id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
+            image_destination=_TEST_CONTAINER_REGISTRY_DESTINATION,
+            artifact_destination=_TEST_OUTPUT_DIR,
+        )
+
+        if not sync:
+            test_model.wait()
+
+        expected_output_config = gca_model_service.ExportModelRequest.OutputConfig(
+            export_format_id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
+            image_destination=gca_io.ContainerRegistryDestination(
+                output_uri=_TEST_CONTAINER_REGISTRY_DESTINATION
+            ),
+            artifact_destination=gca_io.GcsDestination(
+                output_uri_prefix=_TEST_OUTPUT_DIR
+            ),
+        )
+
+        export_model_mock.assert_called_once_with(
+            name=f"{_TEST_PARENT}/models/{_TEST_ID}",
+            output_config=expected_output_config,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_with_unsupported_export_formats")
-    def test_export_model_not_supported(self, export_model_mock):
+    def test_export_model_not_supported(self, export_model_mock, sync):
         test_model = models.Model(_TEST_ID)
 
         with pytest.raises(ValueError) as e:
@@ -1241,44 +1304,65 @@ class TestModel:
                 export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE,
                 image_destination=_TEST_CONTAINER_REGISTRY_DESTINATION,
             )
+
+            if not sync:
+                test_model.wait()
 
             assert e.match(
                 regexp=f"The model `{_TEST_PARENT}/models/{_TEST_ID}` is not exportable."
             )
 
+    @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_with_supported_export_formats_image")
-    def test_export_model_as_image_with_invalid_args(self, export_model_mock):
-        test_model = models.Model(_TEST_ID)
+    def test_export_model_as_image_with_invalid_args(self, export_model_mock, sync):
 
         # Passing an artifact destination on an image-only Model
-        with pytest.raises(ValueError) as e:
-            test_model.export_model(
-                export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE,
-                artifact_destination=_TEST_OUTPUT_DIR,
-            )
-            assert e.match(regexp=r"This model can not be exported as an artifact.")
+        with pytest.raises(ValueError) as dest_type_err:
+            test_model = models.Model(_TEST_ID)
 
-        # Passing both destination types
-        with pytest.raises(ValueError) as e:
             test_model.export_model(
                 export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE,
                 artifact_destination=_TEST_OUTPUT_DIR,
-                image_destination=_TEST_CONTAINER_REGISTRY_DESTINATION,
+                sync=sync,
             )
-            assert e.match(regexp=r"Please provide either")
+
+            if not sync:
+                test_model.wait()
+
+        # Passing no destination type
+        with pytest.raises(ValueError) as no_dest_err:
+            test_model = models.Model(_TEST_ID)
+
+            test_model.export_model(
+                export_format_id=_TEST_EXPORT_FORMAT_ID_IMAGE, sync=sync,
+            )
+
+            if not sync:
+                test_model.wait()
 
         # Passing an invalid export format ID
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(ValueError) as format_err:
+            test_model = models.Model(_TEST_ID)
             test_model.export_model(
                 export_format_id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
                 image_destination=_TEST_CONTAINER_REGISTRY_DESTINATION,
-            )
-            assert e.match(
-                regexp=f"'{_TEST_EXPORT_FORMAT_ID_ARTIFACT}' is not a supported export format"
+                sync=sync,
             )
 
+            if not sync:
+                test_model.wait()
+
+        assert dest_type_err.match(
+            regexp=r"This model can not be exported as an artifact."
+        )
+        assert no_dest_err.match(regexp=r"Please provide an")
+        assert format_err.match(
+            regexp=f"'{_TEST_EXPORT_FORMAT_ID_ARTIFACT}' is not a supported export format"
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_with_supported_export_formats_artifact")
-    def test_export_model_as_artifact_with_invalid_args(self, export_model_mock):
+    def test_export_model_as_artifact_with_invalid_args(self, export_model_mock, sync):
         test_model = models.Model(_TEST_ID)
 
         # Passing an image destination on an artifact-only Model
@@ -1286,7 +1370,12 @@ class TestModel:
             test_model.export_model(
                 export_format_id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
                 image_destination=_TEST_CONTAINER_REGISTRY_DESTINATION,
+                sync=sync,
             )
+
+            if not sync:
+                test_model.wait()
+
             assert e.match(
                 regexp=r"This model can not be exported as a container image."
             )

@@ -541,14 +541,6 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     def __repr__(self) -> str:
         return f"{object.__repr__(self)} \nresource name: {self.resource_name}"
 
-    def __getattr__(self, attr) -> Any:
-        try:
-            return self._gca_resource.__getattr__(attr)
-        except AttributeError:
-            raise AttributeError(
-                f"'{self.__class__.__name__}' object has no attribute '{attr}'"
-            )
-
 
 def optional_sync(
     construct_object_on_arg: Optional[str] = None,
