@@ -104,7 +104,7 @@ class _MetadataService:
         if metrics_artifact.schema_title != constants.SYSTEM_METRICS:
             raise ValueError(
                 f"Run name {run} has been used to create other type of resources in this MetadataStore, "
-                f"please choose a different run name."
+                "please choose a different run name."
             )
         run_execution.add_artifact(
             artifact_resource_name=metrics_artifact.resource_name, input=False
