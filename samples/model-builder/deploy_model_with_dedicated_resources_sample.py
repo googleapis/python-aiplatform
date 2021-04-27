@@ -17,8 +17,8 @@ from google.cloud import aiplatform
 from typing import Optional, Sequence, Tuple, Dict
 from google.cloud.aiplatform import explain
 
-#  [START aiplatform_sdk_deploy_model_custom_trained_model_sample]
-def deploy_model_custom_trained_model_sample(
+#  [START aiplatform_sdk_deploy_model_with_dedicated_resources_sample]
+def deploy_model_with_dedicated_resources_sample(
     project,
     location,
     model_name: str,
@@ -26,7 +26,7 @@ def deploy_model_custom_trained_model_sample(
     endpoint: Optional["Endpoint"] = None,
     deployed_model_display_name: Optional[str] = None,
     traffic_percentage: Optional[int] = 0,
-    traffic_split: Optional[Dict[str, int]] = None,    
+    traffic_split: Optional[Dict[str, int]] = None,
     min_replica_count: int = 1,
     max_replica_count: int = 1,
     accelerator_type: Optional[str] = None,
@@ -64,4 +64,4 @@ def deploy_model_custom_trained_model_sample(
     return model
 
 
-#  [END aiplatform_sdk_deploy_model_custom_trained_model_sample]
+#  [END aiplatform_sdk_deploy_model_with_dedicated_resources_sample]

@@ -13,13 +13,18 @@
 # limitations under the License.
 
 
-import deploy_model_sample
+import deploy_model_with_automatic_resources_sample
 import test_constants as constants
 
 
-def test_deploy_model_sample(mock_sdk_init, mock_model, mock_init_model, mock_deploy_model):
+def test_deploy_model_with_automatic_resources_sample(
+    mock_sdk_init,
+    mock_model,
+    mock_init_model,
+    mock_deploy_model_with_automatic_resources,
+):
 
-    deploy_model_sample.deploy_model_sample(
+    deploy_model_with_automatic_resources_sample.deploy_model_with_automatic_resources_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         model_name=constants.MODEL_NAME,
@@ -29,18 +34,16 @@ def test_deploy_model_sample(mock_sdk_init, mock_model, mock_init_model, mock_de
         traffic_split=constants.TRAFFIC_SPLIT,
         min_replica_count=constants.MIN_REPLICA_COUNT,
         max_replica_count=constants.MAX_REPLICA_COUNT,
-        metadata=constants.METADATA
+        metadata=constants.METADATA,
     )
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_init_model.assert_called_once_with(
-        model_name=constants.MODEL_NAME
-    )
+    mock_init_model.assert_called_once_with(model_name=constants.MODEL_NAME)
 
-    mock_deploy_model.assert_called_once_with(
+    mock_deploy_model_with_automatic_resources.assert_called_once_with(
         endpoint=constants.ENDPOINT_NAME,
         deployed_model_display_name=constants.DEPLOYED_MODEL_DISPLAY_NAME,
         traffic_percentage=constants.TRAFFIC_PERCENTAGE,

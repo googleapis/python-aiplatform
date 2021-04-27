@@ -17,8 +17,8 @@ from google.cloud import aiplatform
 from typing import Optional, Sequence, Tuple, Dict
 from google.cloud.aiplatform import explain
 
-#  [START aiplatform_sdk_deploy_model_sample]
-def deploy_model_sample(
+#  [START aiplatform_sdk_deploy_model_with_automatic_resources_sample]
+def deploy_model_with_automatic_resources_sample(
     project,
     location,
     model_name: str,
@@ -54,4 +54,4 @@ def deploy_model_sample(
     return model
 
 
-#  [END aiplatform_sdk_deploy_model_sample]
+#  [END aiplatform_sdk_deploy_model_with_automatic_resources_sample]
