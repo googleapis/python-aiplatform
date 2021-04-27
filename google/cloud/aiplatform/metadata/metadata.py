@@ -33,23 +33,35 @@ class _MetadataService:
         self._metrics = None
 
     def reset(self):
+        """Reset all _MetadataService fields to None"""
         self._experiment = None
         self._run = None
         self._metrics = None
 
     @property
     def experiment_name(self) -> Optional[str]:
+        """Return the experiment name of the _MetadataService, if experiment is not set, return None"""
         if self._experiment:
             return self._experiment.display_name
         return None
 
     @property
     def run_name(self) -> Optional[str]:
+        """Return the run name of the _MetadataService, if run is not set, return None"""
         if self._run:
             return self._run.display_name
         return None
 
     def set_experiment(self, experiment: str):
+        """Setup a experiment to current session.
+
+        Args:
+            experiment (str):
+                Required. Name of the experiment to assign current session with.
+        Raises:
+            ValueError if a context with the same name as the experiment is create but with a different schema.
+        """
+
         _MetadataStore.get_or_create()
         context = _Context.get_or_create(
             resource_id=experiment,
@@ -60,8 +72,8 @@ class _MetadataService:
         )
         if context.schema_title != constants.SYSTEM_EXPERIMENT:
             raise ValueError(
-                f"Experiment name {experiment} has been used to create other type of resources in this MetadataStore, "
-                "please choose a different experiment name."
+                f"Experiment name {experiment} has been used to create other type of resources "
+                f"({context.schema_title}) in this MetadataStore, please choose a different experiment name."
             )
         self._experiment = context
 
@@ -71,6 +83,9 @@ class _MetadataService:
         Args:
             run (str):
                 Required. Name of the run to assign current session with.
+        Raise:
+            ValueError if experiment is not set. Or if run execution or metrics artifact
+            is already created but with a different schema.
         """
 
         if not self._experiment:
@@ -87,8 +102,8 @@ class _MetadataService:
         )
         if run_execution.schema_title != constants.SYSTEM_RUN:
             raise ValueError(
-                f"Run name {run} has been used to create other type of resources in this MetadataStore, "
-                f"please choose a different run name."
+                f"Run name {run} has been used to create other type of resources ({run_execution.schema_title}) "
+                "in this MetadataStore, please choose a different run name."
             )
         self._experiment.add_artifacts_and_executions(
             execution_resource_names=[run_execution.resource_name]
@@ -103,8 +118,8 @@ class _MetadataService:
         )
         if metrics_artifact.schema_title != constants.SYSTEM_METRICS:
             raise ValueError(
-                f"Run name {run} has been used to create other type of resources in this MetadataStore, "
-                "please choose a different run name."
+                f"Run name {run} has been used to create other type of resources ({metrics_artifact.schema_title}) "
+                "in this MetadataStore, please choose a different run name."
             )
         run_execution.add_artifact(
             artifact_resource_name=metrics_artifact.resource_name, input=False
