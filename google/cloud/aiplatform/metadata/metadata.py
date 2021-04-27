@@ -44,7 +44,7 @@ class _MetadataService:
         return None
 
     @property
-    def run_name(self):
+    def run_name(self) -> Optional[str]:
         if self._run:
             return self._run.display_name
         return None
