@@ -13,29 +13,35 @@
 # limitations under the License.
 
 
-import create_training_pipeline_image_classification_sample
+import create_training_pipeline_custom_training_managed_dataset_sample
 import test_constants as constants
 
 
-def test_create_training_pipeline_image_classification_sample(
+def test_create_training_pipeline_custom_job_sample(
     mock_sdk_init,
     mock_image_dataset,
-    mock_init_automl_image_training_job,
-    mock_run_automl_image_training_job,
+    mock_init_custom_training_job,
+    mock_run_custom_training_job,
     mock_get_image_dataset,
 ):
 
-    create_training_pipeline_image_classification_sample.create_training_pipeline_image_classification_sample(
+    create_training_pipeline_custom_training_managed_dataset_sample.create_training_pipeline_custom_training_managed_dataset_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         display_name=constants.DISPLAY_NAME,
+        args=constants.ARGS,
+        script_path=constants.SCRIPT_PATH,
+        container_uri=constants.CONTAINER_URI,
+        model_serving_container_image_uri=constants.CONTAINER_URI,
         dataset_id=constants.RESOURCE_ID,
         model_display_name=constants.DISPLAY_NAME_2,
+        replica_count=constants.REPLICA_COUNT,
+        machine_type=constants.MACHINE_TYPE,
+        accelerator_type=constants.ACCELERATOR_TYPE,
+        accelerator_count=constants.ACCELERATOR_COUNT,
         training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
         test_fraction_split=constants.TEST_FRACTION_SPLIT,
-        budget_milli_node_hours=constants.BUDGET_MILLI_NODE_HOURS_8000,
-        disable_early_stopping=False,
     )
 
     mock_get_image_dataset.assert_called_once_with(constants.RESOURCE_ID)
@@ -43,16 +49,22 @@ def test_create_training_pipeline_image_classification_sample(
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
-    mock_init_automl_image_training_job.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME
+    mock_init_custom_training_job.assert_called_once_with(
+        display_name=constants.DISPLAY_NAME,
+        script_path=constants.SCRIPT_PATH,
+        container_uri=constants.CONTAINER_URI,
+        model_serving_container_image_uri=constants.CONTAINER_URI,
     )
-    mock_run_automl_image_training_job.assert_called_once_with(
+    mock_run_custom_training_job.assert_called_once_with(
         dataset=mock_image_dataset,
         model_display_name=constants.DISPLAY_NAME_2,
+        args=constants.ARGS,
+        replica_count=constants.REPLICA_COUNT,
+        machine_type=constants.MACHINE_TYPE,
+        accelerator_type=constants.ACCELERATOR_TYPE,
+        accelerator_count=constants.ACCELERATOR_COUNT,
         training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
         test_fraction_split=constants.TEST_FRACTION_SPLIT,
-        budget_milli_node_hours=constants.BUDGET_MILLI_NODE_HOURS_8000,
-        disable_early_stopping=False,
         sync=True,
     )
