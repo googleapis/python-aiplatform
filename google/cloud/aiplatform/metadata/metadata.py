@@ -38,7 +38,7 @@ class _MetadataService:
         self._metrics = None
 
     @property
-    def experiment_name(self):
+    def experiment_name(self) -> Optional[str]:
         if self._experiment:
             return self._experiment.display_name
         return None
