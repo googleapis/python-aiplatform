@@ -2,7 +2,10 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_image_dataset_create_object_detection_sample]
 def image_dataset_create_object_detection_sample(
-    project, location, display_name, src_uris
+    project : str, 
+    location : str, 
+    display_name : str, 
+    src_uris : list
 ):
     aiplatform.init(project=project, location=location)
 

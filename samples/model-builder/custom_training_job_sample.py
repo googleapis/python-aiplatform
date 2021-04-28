@@ -2,16 +2,16 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_custom_training_job_sample]
 def custom_training_job_sample(
-    project,
-    location,
-    bucket,
-    display_name,
-    script_path,
-    script_args,
-    train_image,
-    deploy_image,
-    requirements,
-    replica_count,
+    project : str,
+    location : str,
+    bucket : str,
+    display_name : str,
+    script_path : str,
+    script_args : str,
+    train_image : str,
+    deploy_image : str,
+    requirements : str,
+    replica_count : int
 ):
     aiplatform.init(project=project, location=location, staging_bucket=bucket)
 
