@@ -15,19 +15,19 @@
 
 from google.cloud import aiplatform
 
-#  [START aiplatform_sdk_endpoint_predict_sample]
-def endpoint_predict_sample(project : str, 
-                            location : str, 
-                            instances : str, 
-                            endpoint : str
-                           ):
+
+#  [START aiplatform_sdk_predict_text_classification_single_label_sample]
+def predict_text_classification_single_label_sample(
+    project, location, endpoint, content
+):
     aiplatform.init(project=project, location=location)
 
-    endpoint = aiplatform.Endpoint(endpoint_id)
+    endpoint = aiplatform.Endpoint(endpoint)
 
-    prediction = endpoint.predict(instances=instances)
-    print(prediction)
-    return prediction
+    response = endpoint.predict(instances=[{"content": content}], parameters={})
+
+    for prediction_ in response.predictions:
+        print(prediction_)
 
 
-#  [END aiplatform_sdk_endpoint_predict_sample]
+#  [END aiplatform_sdk_predict_text_classification_single_label_sample]

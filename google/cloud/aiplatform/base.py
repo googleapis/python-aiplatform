@@ -17,16 +17,147 @@
 
 import abc
 from concurrent import futures
+import datetime
 import functools
 import inspect
+import logging
+import sys
 import threading
-from typing import Any, Callable, Dict, Optional, Sequence, Type, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Iterable,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 
 import proto
 
+from google.api_core import operation
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+
+
+logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+
+
+class Logger:
+    """Logging wrapper class with high level helper methods."""
+
+    def __init__(self, name: str = ""):
+        """Initializes logger with name.
+
+        Args:
+            name (str): Name to associate with logger.
+        """
+        self._logger = logging.getLogger(name)
+
+    def log_create_with_lro(
+        self,
+        cls: Type["AiPlatformResourceNoun"],
+        lro: Optional[operation.Operation] = None,
+    ):
+        """Logs create event with LRO.
+
+        Args:
+            cls (AiPlatformResourceNoune):
+                AI Platform Resource Noun class that is being created.
+            lro (operation.Operation):
+                Optional. Backing LRO for creation.
+        """
+        self._logger.info(f"Creating {cls.__name__}")
+
+        if lro:
+            self._logger.info(
+                f"Create {cls.__name__} backing LRO: {lro.operation.name}"
+            )
+
+    def log_create_complete(
+        self,
+        cls: Type["AiPlatformResourceNoun"],
+        resource: proto.Message,
+        variable_name: str,
+    ):
+        """Logs create event is complete.
+
+        Will also include code snippet to instantiate resource in SDK.
+
+        Args:
+            cls (AiPlatformResourceNoun):
+                AI Platform Resource Noun class that is being created.
+            resource (proto.Message):
+                AI Platform Resourc proto.Message
+            variable_name (str): Name of variable to use for code snippet
+
+        """
+        self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
+        self._logger.info(f"To use this {cls.__name__} in another session:")
+        self._logger.info(
+            f"{variable_name} = aiplatform.{cls.__name__}('{resource.name}')"
+        )
+
+    def log_action_start_against_resource(
+        self, action: str, noun: str, resource_noun_obj: "AiPlatformResourceNoun"
+    ):
+        """Logs intention to start an action against a resource.
+
+        Args:
+            action (str): Action to complete against the resource ie: "Deploying". Can be empty string.
+            noun (str): Noun the action acts on against the resource. Can be empty string.
+            resource_noun_obj (AiPlatformResourceNoun):
+                Resource noun object the action is acting against.
+        """
+        self._logger.info(
+            f"{action} {resource_noun_obj.__class__.__name__} {noun}: {resource_noun_obj.resource_name}"
+        )
+
+    def log_action_started_against_resource_with_lro(
+        self,
+        action: str,
+        noun: str,
+        cls: Type["AiPlatformResourceNoun"],
+        lro: operation.Operation,
+    ):
+        """Logs an action started against a resource with lro.
+
+        Args:
+            action (str): Action started against resource. ie: "Deploy". Can be empty string.
+            noun (str): Noun the action acts on against the resource. Can be empty string.
+            cls (AiPlatformResourceNoun):
+                Resource noun object the action is acting against.
+            lro (operation.Operation): Backing LRO for action.
+        """
+        self._logger.info(
+            f"{action} {cls.__name__} {noun} backing LRO: {lro.operation.name}"
+        )
+
+    def log_action_completed_against_resource(
+        self, noun: str, action: str, resource_noun_obj: "AiPlatformResourceNoun"
+    ):
+        """Logs action completed against resource.
+
+        Args:
+            noun (str): Noun the action acts on against the resource. Can be empty string.
+            action (str): Action started against resource. ie: "Deployed". Can be empty string.
+            resource_noun_obj (AiPlatformResourceNoun):
+                Resource noun object the action is acting against
+        """
+        self._logger.info(
+            f"{resource_noun_obj.__class__.__name__} {noun} {action}. Resource name: {resource_noun_obj.resource_name}"
+        )
+
+    def __getattr__(self, attr: str):
+        """Forward remainder of logging to underlying logger."""
+        return getattr(self._logger, attr)
+
+
+_LOGGER = Logger(__name__)
 
 
 class FutureManager(metaclass=abc.ABCMeta):
@@ -103,7 +234,7 @@ class FutureManager(metaclass=abc.ABCMeta):
         kwargs: Dict[str, Any],
         additional_dependencies: Optional[Sequence[futures.Future]] = None,
         callbacks: Optional[Sequence[Callable[[futures.Future], Any]]] = None,
-        internal_callbacks=None,
+        internal_callbacks: Iterable[Callable[[Any], Any]] = None,
     ) -> futures.Future:
         """Submit a method as a future against this object.
 
@@ -127,7 +258,7 @@ class FutureManager(metaclass=abc.ABCMeta):
             method: Callable[..., Any],
             args: Sequence[Any],
             kwargs: Dict[str, Any],
-            internal_callbacks: Callable[[Any], Any],
+            internal_callbacks: Iterable[Callable[[Any], Any]],
         ) -> Any:
             """Wrapper method to wait on any dependencies before submitting method.
 
@@ -162,6 +293,17 @@ class FutureManager(metaclass=abc.ABCMeta):
             for arg in list(args) + list(kwargs.values())
             if isinstance(arg, FutureManager)
         ]
+
+        # Retrieves exceptions and raises
+        # if any upstream dependency has an exception
+        exceptions = [
+            arg._exception
+            for arg in list(args) + list(kwargs.values())
+            if isinstance(arg, FutureManager) and arg._exception
+        ]
+
+        if exceptions:
+            raise exceptions[0]
 
         # filter out objects that do not have pending tasks
         deps = [dep for dep in deps if dep]
@@ -266,6 +408,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
     ):
         """Initializes class with project, location, and api_client.
 
@@ -274,7 +417,13 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
             location(str): The location of the resource noun.
             credentials(google.auth.crendentials.Crendentials): Optional custom
                 credentials to use when accessing interacting with resource noun.
+            resource_name(str): A fully-qualified resource name or ID.
         """
+
+        if resource_name:
+            project, location = self._get_and_validate_project_location(
+                resource_name=resource_name, project=project, location=location
+            )
 
         self.project = project or initializer.global_config.project
         self.location = location or initializer.global_config.location
@@ -305,6 +454,41 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
             location_override=location,
             prediction_client=cls._is_client_prediction_client,
         )
+
+    def _get_and_validate_project_location(
+        self,
+        resource_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+    ) -> Tuple:
+
+        """Validate the project and location for the resource.
+
+        Args:
+            resource_name(str): Required. A fully-qualified resource name or ID.
+            project(str): Project of the resource noun.
+            location(str): The location of the resource noun.
+
+        Raises:
+            RuntimeError if location is different from resource location
+        """
+
+        if not project and not location:
+            return project, location
+
+        fields = utils.extract_fields_from_resource_name(
+            resource_name, self._resource_noun
+        )
+        if not fields:
+            return project, location
+
+        if location and fields.location != location:
+            raise RuntimeError(
+                f"location {location} is provided, but different from "
+                f"the resource location {fields.location}"
+            )
+
+        return fields.project, fields.location
 
     def _get_gca_resource(self, resource_name: str) -> proto.Message:
         """Returns GAPIC service representation of client class resource."""
@@ -342,6 +526,17 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     def display_name(self) -> str:
         """Display name of this resource."""
         return self._gca_resource.display_name
+
+    @property
+    def create_time(self) -> datetime.datetime:
+        """Time this resource was created."""
+        return self._gca_resource.create_time
+
+    @property
+    def update_time(self) -> datetime.datetime:
+        """Time this resource was last updated."""
+        self._sync_gca_resource()
+        return self._gca_resource.update_time
 
     def __repr__(self) -> str:
         return f"{object.__repr__(self)} \nresource name: {self.resource_name}"
@@ -493,6 +688,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
     ):
         """Initializes class with project, location, and api_client.
 
@@ -502,9 +698,14 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
             credentials(google.auth.crendentials.Crendentials):
                 Optional. custom credentials to use when accessing interacting with
                 resource noun.
+            resource_name(str): A fully-qualified resource name or ID.
         """
         AiPlatformResourceNoun.__init__(
-            self, project=project, location=location, credentials=credentials
+            self,
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
         )
         FutureManager.__init__(self)
 
@@ -514,6 +715,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        resource_name: Optional[str] = None,
     ) -> "AiPlatformResourceNounWithFutureManager":
         """Initializes with all attributes set to None.
 
@@ -526,11 +728,18 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
             credentials(google.auth.crendentials.Crendentials):
                 Optional. custom credentials to use when accessing interacting with
                 resource noun.
+            resource_name(str): A fully-qualified resource name or ID.
         Returns:
             An instance of this class with attributes set to None.
         """
         self = cls.__new__(cls)
-        AiPlatformResourceNoun.__init__(self, project, location, credentials)
+        AiPlatformResourceNoun.__init__(
+            self,
+            project=project,
+            location=location,
+            credentials=credentials,
+            resource_name=resource_name,
+        )
         FutureManager.__init__(self)
         self._gca_resource = None
         return self
@@ -561,6 +770,220 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
             if value:
                 setattr(self, attribute, value)
 
+    def _construct_sdk_resource_from_gapic(
+        self,
+        gapic_resource: proto.Message,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> AiPlatformResourceNoun:
+        """Given a GAPIC resource object, return the SDK representation.
+
+        Args:
+            gapic_resource (proto.Message):
+                A GAPIC representation of an AI Platform resource, usually
+                retrieved by a get_* or in a list_* API call.
+            project (str):
+                Optional. Project to construct SDK object from. If not set,
+                project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to construct SDK object from. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to construct SDK object.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            AiPlatformResourceNoun:
+                An initialized SDK object that represents GAPIC type.
+        """
+        sdk_resource = self._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+        sdk_resource._gca_resource = gapic_resource
+        return sdk_resource
+
+    # TODO(b/144545165): Improve documentation for list filtering once available
+    # TODO(b/184910159): Expose `page_size` field in list method
+    @classmethod
+    def _list(
+        cls,
+        cls_filter: Callable[[proto.Message], bool] = lambda _: True,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[AiPlatformResourceNoun]:
+        """Private method to list all instances of this AI Platform Resource,
+        takes a `cls_filter` arg to filter to a particular SDK resource subclass.
+
+        Args:
+            cls_filter (Callable[[proto.Message], bool]):
+                A function that takes one argument, a GAPIC resource, and returns
+                a bool. If the function returns False, that resource will be
+                excluded from the returned list. Example usage:
+                cls_filter = lambda obj: obj.metadata in cls.valid_metadatas
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[AiPlatformResourceNoun] - A list of SDK resource objects
+        """
+        self = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+
+        # Fetch credentials once and re-use for all `_empty_constructor()` calls
+        creds = initializer.global_config.credentials
+
+        resource_list_method = getattr(self.api_client, self._list_method)
+
+        list_request = {
+            "parent": initializer.global_config.common_location_path(
+                project=project, location=location
+            ),
+            "filter": filter,
+        }
+
+        if order_by:
+            list_request["order_by"] = order_by
+
+        resource_list = resource_list_method(request=list_request) or []
+
+        return [
+            self._construct_sdk_resource_from_gapic(
+                gapic_resource, project=project, location=location, credentials=creds
+            )
+            for gapic_resource in resource_list
+            if cls_filter(gapic_resource)
+        ]
+
+    @classmethod
+    def _list_with_local_order(
+        cls,
+        cls_filter: Callable[[proto.Message], bool] = lambda _: True,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[AiPlatformResourceNoun]:
+        """Private method to list all instances of this AI Platform Resource,
+        takes a `cls_filter` arg to filter to a particular SDK resource subclass.
+        Provides client-side sorting when a list API doesn't support `order_by`.
+
+        Args:
+            cls_filter (Callable[[proto.Message], bool]):
+                A function that takes one argument, a GAPIC resource, and returns
+                a bool. If the function returns False, that resource will be
+                excluded from the returned list. Example usage:
+                cls_filter = lambda obj: obj.metadata in cls.valid_metadatas
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[AiPlatformResourceNoun] - A list of SDK resource objects
+        """
+
+        li = cls._list(
+            cls_filter=cls_filter,
+            filter=filter,
+            order_by=None,  # This method will handle the ordering locally
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        if order_by:
+            desc = "desc" in order_by
+            order_by = order_by.replace("desc", "")
+            order_by = order_by.split(",")
+
+            li.sort(
+                key=lambda x: tuple(getattr(x, field.strip()) for field in order_by),
+                reverse=desc,
+            )
+
+        return li
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[AiPlatformResourceNoun]:
+        """List all instances of this AI Platform Resource.
+
+        Example Usage:
+
+        aiplatform.BatchPredictionJobs.list(
+            filter='state="JOB_STATE_SUCCEEDED" AND display_name="my_job"',
+        )
+
+        aiplatform.Model.list(order_by="create_time desc, display_name")
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
+            project (str):
+                Optional. Project to retrieve list from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve list from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve list. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            List[AiPlatformResourceNoun] - A list of SDK resource objects
+        """
+
+        return cls._list(
+            filter=filter,
+            order_by=order_by,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
     @optional_sync()
     def delete(self, sync: bool = True) -> None:
         """Deletes this AI Platform resource. WARNING: This deletion is permament.
@@ -571,8 +994,13 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         """
+        _LOGGER.log_action_start_against_resource("Deleting", "", self)
         lro = getattr(self.api_client, self._delete_method)(name=self.resource_name)
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Delete", "", self.__class__, lro
+        )
         lro.result()
+        _LOGGER.log_action_completed_against_resource("deleted.", "", self)
 
     def __repr__(self) -> str:
         if self._gca_resource:

@@ -13,26 +13,23 @@
 # limitations under the License.
 
 
+import predict_text_entity_extraction_sample
 import test_constants as constants
 
-import endpoint_predict_sample
 
+def test_predict_text_entity_extraction_sample(mock_sdk_init, mock_get_endpoint):
 
-def test_endpoint_predict_sample(
-    mock_sdk_init, mock_endpoint_predict, mock_get_endpoint
-):
-
-    endpoint_predict_sample.endpoint_predict_sample(
+    predict_text_entity_extraction_sample.predict_text_entity_extraction_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        instances=[],
         endpoint_id=constants.ENDPOINT_NAME,
+        content=constants.PREDICTION_TEXT_INSTANCE,
     )
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_get_endpoint.assert_called_once_with(constants.ENDPOINT_NAME)
-
-    mock_endpoint_predict.assert_called_once_with(instances=[])
+    mock_get_endpoint.assert_called_once_with(
+        constants.ENDPOINT_NAME,
+    )

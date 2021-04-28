@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
-from unittest import mock
 from unittest.mock import MagicMock, patch
 
 from google.cloud import aiplatform
+import pytest
 
 
 @pytest.fixture
@@ -25,60 +24,135 @@ def mock_sdk_init():
         yield mock
 
 
-# ----------------------------------------------------------------------------
-# Dataset Fixtures
-# ----------------------------------------------------------------------------
+"""
+----------------------------------------------------------------------------
+Dataset Fixtures
+----------------------------------------------------------------------------
+"""
+
+"""Dataset objects returned by SomeDataset(), create(), import_data(), etc. """
 
 
 @pytest.fixture
-def mock_dataset():
-    mock = MagicMock(aiplatform.datasets.Dataset)
+def mock_image_dataset():
+    mock = MagicMock(aiplatform.datasets.ImageDataset)
     yield mock
 
 
 @pytest.fixture
-def mock_new_dataset(mock_dataset):
-    with patch.object(aiplatform.datasets.Dataset, "__new__") as mock_new_dataset:
-        mock_new_dataset.return_value = mock_dataset
-        yield mock_new_dataset
+def mock_tabular_dataset():
+    mock = MagicMock(aiplatform.datasets.TabularDataset)
+    yield mock
 
 
 @pytest.fixture
-def mock_init_dataset(mock_new_dataset):
-    with patch.object(aiplatform.datasets.Dataset, "__init__") as mock_init_dataset:
-        mock_init_dataset.return_value = None
-        yield mock_init_dataset
+def mock_text_dataset():
+    mock = MagicMock(aiplatform.datasets.TextDataset)
+    yield mock
 
 
 @pytest.fixture
-def mock_create_dataset():
-    with patch.object(aiplatform.datasets.Dataset, "create") as mock:
-        mock.return_value = MagicMock(aiplatform.Dataset)
+def mock_video_dataset():
+    mock = MagicMock(aiplatform.datasets.VideoDataset)
+    yield mock
+
+
+"""Mocks for getting an existing Dataset, i.e. ds = aiplatform.ImageDataset(...) """
+
+
+@pytest.fixture
+def mock_get_image_dataset(mock_image_dataset):
+    with patch.object(aiplatform, "ImageDataset") as mock_get_image_dataset:
+        mock_get_image_dataset.return_value = mock_image_dataset
+        yield mock_get_image_dataset
+
+
+@pytest.fixture
+def mock_get_tabular_dataset(mock_tabular_dataset):
+    with patch.object(aiplatform, "TabularDataset") as mock_get_tabular_dataset:
+        mock_get_tabular_dataset.return_value = mock_tabular_dataset
+        yield mock_get_tabular_dataset
+
+
+@pytest.fixture
+def mock_get_text_dataset(mock_text_dataset):
+    with patch.object(aiplatform, "TextDataset") as mock_get_text_dataset:
+        mock_get_text_dataset.return_value = mock_text_dataset
+        yield mock_get_text_dataset
+
+
+@pytest.fixture
+def mock_get_video_dataset(mock_video_dataset):
+    with patch.object(aiplatform, "VideoDataset") as mock_get_video_dataset:
+        mock_get_video_dataset.return_value = mock_video_dataset
+        yield mock_get_video_dataset
+
+
+"""Mocks for creating a new Dataset, i.e. aiplatform.ImageDataset.create(...) """
+
+
+@pytest.fixture
+def mock_create_image_dataset(mock_image_dataset):
+    with patch.object(aiplatform.ImageDataset, "create") as mock_create_image_dataset:
+        mock_create_image_dataset.return_value = mock_image_dataset
+        yield mock_create_image_dataset
+
+
+@pytest.fixture
+def mock_create_tabular_dataset(mock_tabular_dataset):
+    with patch.object(
+        aiplatform.TabularDataset, "create"
+    ) as mock_create_tabular_dataset:
+        mock_create_tabular_dataset.return_value = mock_tabular_dataset
+        yield mock_create_tabular_dataset
+
+
+@pytest.fixture
+def mock_create_text_dataset(mock_text_dataset):
+    with patch.object(aiplatform.TextDataset, "create") as mock_create_text_dataset:
+        mock_create_text_dataset.return_value = mock_text_dataset
+        yield mock_create_text_dataset
+
+
+@pytest.fixture
+def mock_create_video_dataset(mock_video_dataset):
+    with patch.object(aiplatform.VideoDataset, "create") as mock_create_video_dataset:
+        mock_create_video_dataset.return_value = mock_video_dataset
+        yield mock_create_video_dataset
+
+
+"""Mocks for SomeDataset.import_data() """
+
+
+@pytest.fixture
+def mock_import_image_dataset(mock_image_dataset):
+    with patch.object(mock_image_dataset, "import_data") as mock:
         yield mock
 
 
 @pytest.fixture
-def mock_create_image_dataset():
-    with patch.object(aiplatform.datasets.ImageDataset, "create") as mock:
-        mock.return_value = MagicMock(aiplatform.Dataset)
+def mock_import_tabular_dataset(mock_tabular_dataset):
+    with patch.object(mock_tabular_dataset, "import_data") as mock:
         yield mock
+
 
 @pytest.fixture
-def mock_import_data(mock_dataset):
-    with patch.object(aiplatform.datasets.Dataset, "import_data") as mock:
-        mock.return_value = mock_dataset
+def mock_import_text_dataset(mock_text_dataset):
+    with patch.object(mock_text_dataset, "import_data") as mock:
         yield mock
+
 
 @pytest.fixture
-def mock_import_data_mock(mock_dataset):
-    with patch.object(mock_dataset, "import_data") as mock:
-        mock.return_value = mock_dataset
+def mock_import_video_dataset(mock_video_dataset):
+    with patch.object(mock_video_dataset, "import_data") as mock:
         yield mock
 
 
-# ----------------------------------------------------------------------------
-# TrainingJob Fixtures
-# ----------------------------------------------------------------------------
+"""
+----------------------------------------------------------------------------
+TrainingJob Fixtures
+----------------------------------------------------------------------------
+"""
 
 
 @pytest.fixture
@@ -98,9 +172,7 @@ def mock_run_automl_image_training_job():
 
 @pytest.fixture
 def mock_init_custom_training_job():
-    with patch.object(
-        aiplatform.training_jobs.CustomTrainingJob, "__init__"
-    ) as mock:
+    with patch.object(aiplatform.training_jobs.CustomTrainingJob, "__init__") as mock:
         mock.return_value = None
         yield mock
 
@@ -111,9 +183,11 @@ def mock_run_custom_training_job():
         yield mock
 
 
-# ----------------------------------------------------------------------------
-# Model Fixtures
-# ----------------------------------------------------------------------------
+"""
+----------------------------------------------------------------------------
+Model Fixtures
+----------------------------------------------------------------------------
+"""
 
 
 @pytest.fixture
@@ -129,9 +203,11 @@ def mock_batch_predict_model():
         yield mock
 
 
-# ----------------------------------------------------------------------------
-# Job Fixtures
-# ----------------------------------------------------------------------------
+"""
+----------------------------------------------------------------------------
+Job Fixtures
+----------------------------------------------------------------------------
+"""
 
 
 @pytest.fixture
@@ -140,19 +216,28 @@ def mock_create_batch_prediction_job():
         yield mock
 
 
-# ----------------------------------------------------------------------------
-# Endpoint Fixtures
-# ----------------------------------------------------------------------------
+"""
+----------------------------------------------------------------------------
+Endpoint Fixtures
+----------------------------------------------------------------------------
+"""
 
 
 @pytest.fixture
-def mock_init_endpoint():
-    with patch.object(aiplatform.Endpoint, "__init__") as mock:
-        mock.return_value = None
-        yield mock
- 
+def mock_endpoint():
+    mock = MagicMock(aiplatform.models.Endpoint)
+    yield mock
+
 
 @pytest.fixture
-def mock_endpoint_predict():
-    with patch.object(aiplatform.Endpoint, "predict") as mock:
+def mock_get_endpoint(mock_endpoint):
+    with patch.object(aiplatform, "Endpoint") as mock_get_endpoint:
+        mock_get_endpoint.return_value = mock_endpoint
+        yield mock_get_endpoint
+
+
+@pytest.fixture
+def mock_endpoint_predict(mock_endpoint):
+    with patch.object(mock_endpoint, "predict") as mock:
+        mock.return_value = []
         yield mock

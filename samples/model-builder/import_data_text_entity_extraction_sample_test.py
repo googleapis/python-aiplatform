@@ -13,26 +13,33 @@
 # limitations under the License.
 
 
+from google.cloud.aiplatform import schema
+
+import import_data_text_entity_extraction_sample
 import test_constants as constants
 
-import endpoint_predict_sample
 
-
-def test_endpoint_predict_sample(
-    mock_sdk_init, mock_endpoint_predict, mock_get_endpoint
+def test_import_data_text_entity_extraction_sample(
+    mock_sdk_init, mock_get_text_dataset, mock_import_text_dataset
 ):
 
-    endpoint_predict_sample.endpoint_predict_sample(
+    import_data_text_entity_extraction_sample.import_data_text_entity_extraction_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        instances=[],
-        endpoint_id=constants.ENDPOINT_NAME,
+        dataset=constants.DATASET_NAME,
+        src_uris=constants.GCS_SOURCES,
     )
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_get_endpoint.assert_called_once_with(constants.ENDPOINT_NAME)
+    mock_get_text_dataset.assert_called_once_with(
+        constants.DATASET_NAME,
+    )
 
-    mock_endpoint_predict.assert_called_once_with(instances=[])
+    mock_import_text_dataset.assert_called_once_with(
+        gcs_source=constants.GCS_SOURCES,
+        import_schema_uri=schema.dataset.ioformat.text.extraction,
+        sync=True,
+    )

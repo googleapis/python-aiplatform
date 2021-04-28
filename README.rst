@@ -1,14 +1,6 @@
 Python Client for Cloud AI Platform
 =================================================
 
-**Experimental**
-
-This is an Experimental release. Experiments are focused on validating a prototype. They are not guaranteed to be released and might be subject to backward-incompatible changes. They are not intended for production use or covered by any SLA,  support obligation, or deprecation policy. They are covered by the `Pre-GA Offerings Terms`_ of the Google Cloud Platform Terms of Services.
-
-.. _Pre-GA Offerings Terms:  https://cloud.google.com/terms/service-terms#1
-
-----
-
 |beta| |pypi| |versions|
 
 

@@ -12,22 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List, Union
 
 from google.cloud import aiplatform
 
-#  [START aiplatform_sdk_endpoint_predict_sample]
-def endpoint_predict_sample(project : str, 
-                            location : str, 
-                            instances : str, 
-                            endpoint : str
-                           ):
+
+#  [START aiplatform_sdk_create_and_import_dataset_text_sample]
+def create_and_import_dataset_text_sample(
+    project: str,
+    location: str,
+    display_name: str,
+    src_uris: Union[str, List[str]],
+    sync: bool = True,
+):
     aiplatform.init(project=project, location=location)
 
-    endpoint = aiplatform.Endpoint(endpoint_id)
+    ds = aiplatform.TextDataset.create(
+        display_name=display_name,
+        gcs_source=src_uris,
+        import_schema_uri=aiplatform.schema.dataset.ioformat.text.single_label_classification,
+        sync=sync,
+    )
 
-    prediction = endpoint.predict(instances=instances)
-    print(prediction)
-    return prediction
+    ds.wait()
+
+    print(ds.display_name)
+    print(ds.resource_name)
+    return ds
 
 
-#  [END aiplatform_sdk_endpoint_predict_sample]
+#  [END aiplatform_sdk_create_and_import_dataset_text_sample]

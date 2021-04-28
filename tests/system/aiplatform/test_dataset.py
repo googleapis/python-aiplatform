@@ -29,7 +29,7 @@ from google.cloud import storage
 from google.cloud import aiplatform
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform_v1beta1.types import dataset
+from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.services import dataset_service
 
 from test_utils.vpcsc_config import vpcsc_config
@@ -101,7 +101,7 @@ class TestDataset:
     @pytest.fixture()
     def create_text_dataset(self, dataset_gapic_client, shared_state):
 
-        gapic_dataset = dataset.Dataset(
+        gapic_dataset = gca_dataset.Dataset(
             display_name=f"temp_sdk_integration_test_create_text_dataset_{uuid.uuid4()}",
             metadata_schema_uri=aiplatform.schema.dataset.metadata.text,
         )
@@ -116,7 +116,7 @@ class TestDataset:
     @pytest.fixture()
     def create_tabular_dataset(self, dataset_gapic_client, shared_state):
 
-        gapic_dataset = dataset.Dataset(
+        gapic_dataset = gca_dataset.Dataset(
             display_name=f"temp_sdk_integration_test_create_tabular_dataset_{uuid.uuid4()}",
             metadata_schema_uri=aiplatform.schema.dataset.metadata.tabular,
         )
@@ -131,7 +131,7 @@ class TestDataset:
     @pytest.fixture()
     def create_image_dataset(self, dataset_gapic_client, shared_state):
 
-        gapic_dataset = dataset.Dataset(
+        gapic_dataset = gca_dataset.Dataset(
             display_name=f"temp_sdk_integration_test_create_image_dataset_{uuid.uuid4()}",
             metadata_schema_uri=aiplatform.schema.dataset.metadata.image,
         )
@@ -163,7 +163,7 @@ class TestDataset:
 
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        flowers_dataset = aiplatform.Dataset(dataset_name=_TEST_IMAGE_DATASET_ID)
+        flowers_dataset = aiplatform.ImageDataset(dataset_name=_TEST_IMAGE_DATASET_ID)
         assert flowers_dataset.name == _TEST_IMAGE_DATASET_ID
         assert flowers_dataset.display_name == _TEST_DATASET_DISPLAY_NAME
 
@@ -175,7 +175,7 @@ class TestDataset:
 
         # AI Platform service returns 404
         with pytest.raises(exceptions.NotFound):
-            aiplatform.Dataset(dataset_name="0")
+            aiplatform.ImageDataset(dataset_name="0")
 
     @pytest.mark.usefixtures("create_text_dataset", "delete_new_dataset")
     def test_get_new_dataset_and_import(self, dataset_gapic_client, shared_state):
@@ -185,7 +185,7 @@ class TestDataset:
         assert shared_state["dataset_name"]
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        my_dataset = aiplatform.Dataset(dataset_name=shared_state["dataset_name"])
+        my_dataset = aiplatform.TextDataset(dataset_name=shared_state["dataset_name"])
 
         data_items_pre_import = dataset_gapic_client.list_data_items(
             parent=my_dataset.resource_name
@@ -213,9 +213,8 @@ class TestDataset:
 
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        img_dataset = aiplatform.Dataset.create(
+        img_dataset = aiplatform.ImageDataset.create(
             display_name=f"temp_sdk_integration_create_and_import_dataset_{uuid.uuid4()}",
-            metadata_schema_uri=aiplatform.schema.dataset.metadata.image,
             gcs_source=_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE,
             import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
         )
@@ -235,9 +234,8 @@ class TestDataset:
 
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        tabular_dataset = aiplatform.Dataset.create(
+        tabular_dataset = aiplatform.TabularDataset.create(
             display_name=f"temp_sdk_integration_create_and_import_dataset_{uuid.uuid4()}",
-            metadata_schema_uri=aiplatform.schema.dataset.metadata.tabular,
             gcs_source=[_TEST_TABULAR_CLASSIFICATION_GCS_SOURCE],
         )
 
@@ -270,7 +268,7 @@ class TestDataset:
             staging_bucket=f"gs://{shared_state['staging_bucket']}",
         )
 
-        text_dataset = aiplatform.Dataset(dataset_name=_TEST_TEXT_DATASET_ID)
+        text_dataset = aiplatform.TextDataset(dataset_name=_TEST_TEXT_DATASET_ID)
 
         exported_files = text_dataset.export_data(
             output_dir=f"gs://{shared_state['staging_bucket']}"
