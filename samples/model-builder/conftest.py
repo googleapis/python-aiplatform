@@ -125,8 +125,26 @@ def mock_create_video_dataset(mock_video_dataset):
 
 
 @pytest.fixture
+def mock_import_image_dataset(mock_image_dataset):
+    with patch.object(mock_image_dataset, "import_data") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_import_tabular_dataset(mock_tabular_dataset):
+    with patch.object(mock_tabular_dataset, "import_data") as mock:
+        yield mock
+
+
+@pytest.fixture
 def mock_import_text_dataset(mock_text_dataset):
     with patch.object(mock_text_dataset, "import_data") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_import_video_dataset(mock_video_dataset):
+    with patch.object(mock_video_dataset, "import_data") as mock:
         yield mock
 
 
@@ -149,6 +167,19 @@ def mock_init_automl_image_training_job():
 @pytest.fixture
 def mock_run_automl_image_training_job():
     with patch.object(aiplatform.training_jobs.AutoMLImageTrainingJob, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_init_custom_training_job():
+    with patch.object(aiplatform.training_jobs.CustomTrainingJob, "__init__") as mock:
+        mock.return_value = None
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_training_job():
+    with patch.object(aiplatform.training_jobs.CustomTrainingJob, "run") as mock:
         yield mock
 
 
@@ -203,3 +234,10 @@ def mock_get_endpoint(mock_endpoint):
     with patch.object(aiplatform, "Endpoint") as mock_get_endpoint:
         mock_get_endpoint.return_value = mock_endpoint
         yield mock_get_endpoint
+
+
+@pytest.fixture
+def mock_endpoint_predict(mock_endpoint):
+    with patch.object(mock_endpoint, "predict") as mock:
+        mock.return_value = []
+        yield mock
