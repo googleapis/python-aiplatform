@@ -23,8 +23,8 @@ def custom_training_job_sample(
     display_name : str,
     script_path : str,
     script_args : str,
-    train_image : str,
-    deploy_image : str,
+    container_uri : str,
+    model_serving_container_image_uri : str,
     requirements : str,
     replica_count : int
 ):
@@ -33,9 +33,9 @@ def custom_training_job_sample(
     job = aiplatform.CustomTrainingJob(
         display_name=display_name,
         script_path=script_path,
-        container_uri=train_image,
+        container_uri=container_uri,
         requirements=requirements,
-        model_serving_container_image_uri=deploy_image,
+        model_serving_container_image_uri=model_serving_container_image_uri
     )
 
     model = job.run(

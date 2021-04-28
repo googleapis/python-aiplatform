@@ -30,7 +30,7 @@ def test_custom_training_job_sample(
         script_args=constants.PYTHON_PACKAGE_CMDARGS,
         train_image=constants.TRAIN_IMAGE,
         deploy_image=constants.DEPLOY_IMAGE,
-        requirements="",
+        requirements=[],
         replica_count=1,
     )
 
