@@ -2827,9 +2827,32 @@ class AutoMLTabularTrainingJob(_TrainingJob):
     # TODO: Add docstrings
     @classmethod
     def _retrieve_gcs_source_columns(
-        cls, project_id: str, gcs_source: str
+        cls, project_id: str, gcs_csv_file_path: str
     ) -> List[str]:
-        gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(gcs_source)
+        """Retrieve the columns from a comma-delimited CSV file stored on Google Cloud Storage
+
+        Example Usage:
+
+            column_names = _retrieve_gcs_source_columns(
+                "gs://example-bucket/path/to/csv_file"
+            )
+
+            # column_names = ["column_1", "column_2"]
+
+        Args:
+            gcs_csv_file_path (str):
+                Required. A full path to a CSV files stored on Google Cloud Storage.
+                Must include "gs://" prefix.
+
+        Returns:
+            List[str]
+                A list of columns names in the CSV file.
+                
+        Raises:
+            RuntimeError: When the retrieved CSV file is invalid.
+        """
+
+        gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(gcs_csv_file_path)
         client = storage.Client(project=project_id)
         bucket = client.bucket(gcs_bucket)
         blob = bucket.blob(gcs_blob)
@@ -2862,8 +2885,28 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         return next(csv_reader)
 
     @classmethod
-    def _retrieve_bq_source_columns(cls, bq_source: str) -> List[str]:
-        bq_source_components = bq_source.removeprefix("bq://").split(".")
+    def _retrieve_bq_source_columns(cls, bq_table_uri: str) -> List[str]:
+        """Retrieve the columns from a table on Google BigQuery
+
+        Example Usage:
+
+            column_names = _retrieve_bq_source_columns(
+                "bq://project_id.dataset.table"
+            )
+
+            # column_names = ["column_1", "column_2"]
+
+        Args:
+            bq_table_uri (str):
+                Required. A URI to a BigQuery table. 
+                Can include "bq://" prefix but not required.
+
+        Returns:
+            List[str]
+                A list of columns names in the BigQuery table.
+        """
+
+        bq_source_components = bq_table_uri.removeprefix("bq://").split(".")
         bq_project_id = bq_source_components[0]
         bq_dataset_name = bq_source_components[1]
         bq_table_name = bq_source_components[2]
