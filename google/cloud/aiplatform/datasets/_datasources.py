@@ -86,9 +86,9 @@ class TabularDatasource(Datasource):
             raise ValueError("One of gcs_source or bq_source must be set.")
 
         if gcs_source:
-            dataset_metadata = {"input_config": {"gcs_source": {"uri": gcs_source}}}
+            dataset_metadata = {"inputConfig": {"gcsSource": {"uri": gcs_source}}}
         elif bq_source:
-            dataset_metadata = {"input_config": {"bigquery_source": {"uri": bq_source}}}
+            dataset_metadata = {"inputConfig": {"bigquerySource": {"uri": bq_source}}}
 
         self._dataset_metadata = dataset_metadata
 

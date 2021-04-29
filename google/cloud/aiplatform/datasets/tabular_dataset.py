@@ -41,13 +41,13 @@ class TabularDataset(datasets._Dataset):
 
     @property
     def column_names(self) -> List[str]:
-        input_config = self._gca_resource.metadata.get("input_config")
+        input_config = self._gca_resource.metadata.get("inputConfig")
 
         if input_config is None:
-            raise RuntimeError("No input_config found for dataset")
+            raise RuntimeError("No inputConfig found for dataset")
 
-        gcs_source = input_config.get("gcs_source")
-        bq_source = input_config.get("bigquery_source")
+        gcs_source = input_config.get("gcsSource")
+        bq_source = input_config.get("bigquerySource")
 
         if gcs_source:
             gcs_source_uris = gcs_source.get("uri")

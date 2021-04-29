@@ -97,10 +97,10 @@ _TEST_REQUEST_METADATA = ()
 # dataset_metadata
 _TEST_NONTABULAR_DATASET_METADATA = None
 _TEST_METADATA_TABULAR_GCS = {
-    "input_config": {"gcs_source": {"uri": [_TEST_SOURCE_URI_GCS]}}
+    "inputConfig": {"gcsSource": {"uri": [_TEST_SOURCE_URI_GCS]}}
 }
 _TEST_METADATA_TABULAR_BQ = {
-    "input_config": {"bigquery_source": {"uri": _TEST_SOURCE_URI_BQ}}
+    "inputConfig": {"bigquerySource": {"uri": _TEST_SOURCE_URI_BQ}}
 }
 
 # CMEK encryption
