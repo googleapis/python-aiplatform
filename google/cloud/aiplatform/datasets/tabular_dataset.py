@@ -62,30 +62,38 @@ class TabularDataset(datasets._Dataset):
                 )
         elif bq_source:
             bq_table_uri = bq_source.get("uri")
-            return TabularDataset._retrieve_bq_source_columns(bq_table_uri)
+            if bq_table_uri:
+                return TabularDataset._retrieve_bq_source_columns(
+                    self.project, bq_table_uri
+                )
 
         raise RuntimeError("No valid CSV or BigQuery datasource found.")
 
     @classmethod
     def _retrieve_gcs_source_columns(
-        cls, project_id: str, gcs_csv_file_path: str
+        cls, project: str, gcs_csv_file_path: str
     ) -> List[str]:
         """Retrieve the columns from a comma-delimited CSV file stored on Google Cloud Storage
 
         Example Usage:
 
             column_names = _retrieve_gcs_source_columns(
+                "project_id",
                 "gs://example-bucket/path/to/csv_file"
             )
 
             # column_names = ["column_1", "column_2"]
 
         Args:
+            project (str):
+                Required. Project to initiate the Google Cloud Storage client with.
             gcs_csv_file_path (str):
                 Required. A full path to a CSV files stored on Google Cloud Storage.
                 Must include "gs://" prefix.
 
         Returns:
+            str
+
             List[str]
                 A list of columns names in the CSV file.
                 
@@ -128,18 +136,21 @@ class TabularDataset(datasets._Dataset):
         return next(csv_reader)
 
     @classmethod
-    def _retrieve_bq_source_columns(cls, bq_table_uri: str) -> List[str]:
+    def _retrieve_bq_source_columns(cls, project: str, bq_table_uri: str) -> List[str]:
         """Retrieve the columns from a table on Google BigQuery
 
         Example Usage:
 
             column_names = _retrieve_bq_source_columns(
+                "project_id",
                 "bq://project_id.dataset.table"
             )
 
             # column_names = ["column_1", "column_2"]
 
         Args:
+            project (str):
+                Required. Project to initiate the BigQuery client with.
             bq_table_uri (str):
                 Required. A URI to a BigQuery table. 
                 Can include "bq://" prefix but not required.
@@ -154,24 +165,9 @@ class TabularDataset(datasets._Dataset):
         if bq_table_uri.startswith(prefix):
             bq_table_uri = bq_table_uri[len(prefix) :]
 
-        bq_source_components = bq_table_uri.split(".")
-        bq_project_id = bq_source_components[0]
-        bq_dataset_name = bq_source_components[1]
-        bq_table_name = bq_source_components[2]
-
-        query = f"""
-            SELECT column_name
-            FROM {bq_project_id}.{bq_dataset_name}.INFORMATION_SCHEMA.COLUMNS
-            WHERE table_name = '{bq_table_name}'
-        """
-
-        # Construct a BigQuery client object.
-        client = bigquery.Client(project=bq_project_id)
+        client = bigquery.Client(project=project)
         table = client.get_table(bq_table_uri)
-        table.schema()
-        query_job = client.query(query)  # Make an API request.
-
-        return [row.column_name for row in query_job]
+        return [schema.name for schema in table.schema]
 
     @classmethod
     def create(
