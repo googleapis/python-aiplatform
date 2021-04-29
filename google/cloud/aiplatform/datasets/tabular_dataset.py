@@ -41,7 +41,23 @@ class TabularDataset(datasets._Dataset):
 
     @property
     def column_names(self) -> List[str]:
-        input_config = self._gca_resource.metadata.get("inputConfig")
+        """Retrieve the columns for the dataset by extracting it from the Google Cloud Storage or 
+        Google BigQuery source.
+
+        Returns:
+            List[str]
+                A list of columns names
+                
+        Raises:
+            RuntimeError: When no valid source is found.
+        """
+
+        metadata = self._gca_resource.metadata
+
+        if metadata is None:
+            raise RuntimeError("No metadata found for dataset")
+
+        input_config = metadata.get("inputConfig")
 
         if input_config is None:
             raise RuntimeError("No inputConfig found for dataset")
@@ -92,8 +108,6 @@ class TabularDataset(datasets._Dataset):
                 Must include "gs://" prefix.
 
         Returns:
-            str
-
             List[str]
                 A list of columns names in the CSV file.
                 

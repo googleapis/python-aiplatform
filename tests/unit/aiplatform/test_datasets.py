@@ -193,7 +193,7 @@ def get_dataset_tabular_gcs_mock():
 
 
 @pytest.fixture
-def get_dataset_tabular_mock():
+def get_dataset_tabular_bq_mock():
     with patch.object(
         dataset_service_client.DatasetServiceClient, "get_dataset"
     ) as get_dataset_mock:
@@ -201,6 +201,21 @@ def get_dataset_tabular_mock():
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             metadata=_TEST_METADATA_TABULAR_BQ,
+            name=_TEST_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+        yield get_dataset_mock
+
+
+@pytest.fixture
+def get_dataset_tabular_missing_metadata_mock():
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "get_dataset"
+    ) as get_dataset_mock:
+        get_dataset_mock.return_value = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+            metadata=None,
             name=_TEST_NAME,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
@@ -616,7 +631,7 @@ class TestDataset:
         expected_dataset.name = _TEST_NAME
         assert my_dataset._gca_resource == expected_dataset
 
-    @pytest.mark.usefixtures("get_dataset_tabular_mock")
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_delete_dataset(self, delete_dataset_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
@@ -643,7 +658,7 @@ class TestImageDataset:
         datasets.ImageDataset(dataset_name=_TEST_NAME)
         get_dataset_image_mock.assert_called_once_with(name=_TEST_NAME)
 
-    @pytest.mark.usefixtures("get_dataset_tabular_mock")
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     def test_init_dataset_non_image(self):
         aiplatform.init(project=_TEST_PROJECT)
         with pytest.raises(ValueError):
@@ -801,10 +816,10 @@ class TestTabularDataset:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_init_dataset_tabular(self, get_dataset_tabular_mock):
+    def test_init_dataset_tabular(self, get_dataset_tabular_bq_mock):
 
         datasets.TabularDataset(dataset_name=_TEST_NAME)
-        get_dataset_tabular_mock.assert_called_once_with(name=_TEST_NAME)
+        get_dataset_tabular_bq_mock.assert_called_once_with(name=_TEST_NAME)
 
     @pytest.mark.usefixtures("get_dataset_image_mock")
     def test_init_dataset_non_tabular(self):
@@ -812,7 +827,7 @@ class TestTabularDataset:
         with pytest.raises(ValueError):
             datasets.TabularDataset(dataset_name=_TEST_NAME)
 
-    @pytest.mark.usefixtures("get_dataset_tabular_mock")
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset_with_default_encryption_key(
         self, create_dataset_mock, sync
@@ -841,7 +856,7 @@ class TestTabularDataset:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-    @pytest.mark.usefixtures("get_dataset_tabular_mock")
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset(self, create_dataset_mock, sync):
 
@@ -868,7 +883,7 @@ class TestTabularDataset:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-    @pytest.mark.usefixtures("get_dataset_tabular_mock")
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     def test_no_import_data_method(self):
 
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
@@ -906,6 +921,13 @@ class TestTabularDataset:
         for ds in ds_list:
             assert type(ds) == aiplatform.TabularDataset
 
+    @pytest.mark.usefixtures("get_dataset_tabular_missing_metadata_mock")
+    def test_tabular_dataset_column_name_missing_metadata(self):
+        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
+
+        with pytest.raises(RuntimeError):
+            my_dataset.column_names
+
     @pytest.mark.usefixtures(
         "get_dataset_tabular_gcs_mock", "gcs_client_download_as_bytes_mock"
     )
@@ -915,7 +937,9 @@ class TestTabularDataset:
         assert my_dataset.column_names == ["column_1", "column_2"]
 
     @pytest.mark.usefixtures(
-        "get_dataset_tabular_mock", "bigquery_client_mock", "bigquery_table_schema_mock"
+        "get_dataset_tabular_bq_mock",
+        "bigquery_client_mock",
+        "bigquery_table_schema_mock",
     )
     def test_tabular_dataset_column_name_bigquery(self):
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
@@ -1100,6 +1124,7 @@ class TestVideoDataset:
         datasets.VideoDataset(dataset_name=_TEST_NAME)
         get_dataset_video_mock.assert_called_once_with(name=_TEST_NAME)
 
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
     def test_init_dataset_non_video(self):
         aiplatform.init(project=_TEST_PROJECT)
         with pytest.raises(ValueError):
