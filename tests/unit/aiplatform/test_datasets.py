@@ -28,6 +28,7 @@ from google.auth.exceptions import GoogleAuthError
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
+from google.cloud import bigquery
 
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
@@ -86,7 +87,7 @@ _TEST_SOURCE_URIS_GCS = [
     "gs://my-bucket/index_file_2.jsonl",
     "gs://my-bucket/index_file_3.jsonl",
 ]
-_TEST_SOURCE_URI_BQ = "bigquery://my-project/my-dataset"
+_TEST_SOURCE_URI_BQ = "bq://my-project.my-dataset.table"
 _TEST_INVALID_SOURCE_URIS = ["gs://my-bucket/index_file_1.jsonl", 123]
 
 # request_metadata
@@ -274,6 +275,18 @@ def list_datasets_mock():
     ) as list_datasets_mock:
         list_datasets_mock.return_value = _TEST_DATASET_LIST
         yield list_datasets_mock
+
+
+@pytest.fixture
+def get_bigquery_columns_names_mock():
+    with patch.object(bigquery.Client, "query") as bigquery_client_mock:
+        bigquery_client_mock.return_value = iter(
+            [
+                bigquery.Row(("column_1",), {"column_name": 0}),
+                bigquery.Row(("column_2",), {"column_name": 0}),
+            ]
+        )
+        yield bigquery_client_mock
 
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
@@ -862,6 +875,16 @@ class TestTabularDataset:
 
         for ds in ds_list:
             assert type(ds) == aiplatform.TabularDataset
+
+    @pytest.mark.usefixtures(
+        "get_dataset_tabular_mock", "get_bigquery_columns_names_mock"
+    )
+    def test_tabular_dataset_column_name_bigquery(self):
+        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
+
+        assert my_dataset.column_names == ["column_1", "column_2"]
+        # with pytest.raises(NotImplementedError):
+        #     my_dataset.import_data()
 
 
 class TestTextDataset:
