@@ -278,15 +278,22 @@ def list_datasets_mock():
 
 
 @pytest.fixture
-def get_bigquery_columns_names_mock():
-    with patch.object(bigquery.Client, "query") as bigquery_client_mock:
-        bigquery_client_mock.return_value = iter(
-            [
-                bigquery.Row(("column_1",), {"column_name": 0}),
-                bigquery.Row(("column_2",), {"column_name": 0}),
-            ]
-        )
+def bigquery_client_mock():
+    with patch.object(bigquery.Client, "get_table") as bigquery_client_mock:
+        bigquery_client_mock.return_value = bigquery.Table("project.dataset.table")
         yield bigquery_client_mock
+
+
+@pytest.fixture
+def bigquery_table_schema_mock():
+    with patch.object(
+        bigquery.Table, "schema", new_callable=mock.PropertyMock
+    ) as bigquery_table_schema_mock:
+        bigquery_table_schema_mock.return_value = [
+            bigquery.SchemaField("column_1", "FLOAT", "NULLABLE", "", (), None),
+            bigquery.SchemaField("column_2", "FLOAT", "NULLABLE", "", (), None),
+        ]
+        yield bigquery_table_schema_mock
 
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
@@ -877,14 +884,12 @@ class TestTabularDataset:
             assert type(ds) == aiplatform.TabularDataset
 
     @pytest.mark.usefixtures(
-        "get_dataset_tabular_mock", "get_bigquery_columns_names_mock"
+        "get_dataset_tabular_mock", "bigquery_client_mock", "bigquery_table_schema_mock"
     )
     def test_tabular_dataset_column_name_bigquery(self):
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
 
         assert my_dataset.column_names == ["column_1", "column_2"]
-        # with pytest.raises(NotImplementedError):
-        #     my_dataset.import_data()
 
 
 class TestTextDataset:

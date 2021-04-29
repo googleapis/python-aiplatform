@@ -167,7 +167,8 @@ class TabularDataset(datasets._Dataset):
 
         client = bigquery.Client(project=project)
         table = client.get_table(bq_table_uri)
-        return [schema.name for schema in table.schema]
+        schema = table.schema
+        return [schema.name for schema in schema]
 
     @classmethod
     def create(
