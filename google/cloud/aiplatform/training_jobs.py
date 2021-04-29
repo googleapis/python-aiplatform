@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import csv
 import datetime
 import functools
 import logging
@@ -28,6 +29,7 @@ from typing import Callable, Dict, List, Optional, NamedTuple, Sequence, Tuple, 
 
 import abc
 
+from google.cloud import bigquery
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import constants
@@ -130,7 +132,6 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         super().__init__(project=project, location=location, credentials=credentials)
         self._display_name = display_name
-        self._project = project
         self._training_encryption_spec = initializer.global_config.get_encryption_spec(
             encryption_spec_key_name=training_encryption_spec_key_name
         )
@@ -2823,6 +2824,63 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             sync=sync,
         )
 
+    # TODO: Add docstrings
+    @classmethod
+    def _retrieve_gcs_source_columns(
+        cls, project_id: str, gcs_source: str
+    ) -> List[str]:
+        gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(gcs_source)
+        client = storage.Client(project=project_id)
+        bucket = client.bucket(gcs_bucket)
+        blob = bucket.blob(gcs_blob)
+
+        # Incrementally download the CSV file until the header is retrieved
+        first_new_line_index = -1
+        start_index = 0
+        increment = 1000
+        line = ""
+
+        try:
+            while first_new_line_index == -1:
+                line += blob.download_as_bytes(
+                    start=start_index, end=start_index + increment
+                ).decode("utf-8")
+                first_new_line_index = line.find("\n")
+                start_index += increment
+
+            header_line = line[:first_new_line_index]
+
+            # Split to make it an iterable
+            header_line = header_line.split("\n")
+
+            csv_reader = csv.reader(header_line, delimiter=",")
+        except:
+            raise RuntimeError(
+                "There was a problem extracting the headers from the CSV file."
+            )
+
+        return next(csv_reader)
+
+    @classmethod
+    def _retrieve_bq_source_columns(cls, bq_source: str) -> List[str]:
+        bq_source_components = bq_source.removeprefix("bq://").split(".")
+        bq_project_id = bq_source_components[0]
+        bq_dataset_name = bq_source_components[1]
+        bq_table_name = bq_source_components[2]
+
+        query = f"""
+            SELECT column_name
+            FROM {bq_project_id}.{bq_dataset_name}.INFORMATION_SCHEMA.COLUMNS
+            WHERE table_name = '{bq_table_name}'
+        """
+
+        # Construct a BigQuery client object.
+        client = bigquery.Client(project=bq_project_id)
+
+        query_job = client.query(query)  # Make an API request.
+
+        return [row.column_name for row in query_job]
+
     @base.optional_sync()
     def _run(
         self,
@@ -2918,10 +2976,40 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         training_task_definition = schema.training_job.definition.automl_tabular
 
+        if self._column_transformations is None:
+            # Retrieve all columns
+            gcs_source_files = dataset._gca_resource.metadata["inputConfig"][
+                "gcsSource"
+            ]["uri"]
+            bq_source = dataset._gca_resource.metadata["inputConfig"][
+                "bigquery_source"
+            ]["uri"]
+
+            column_transformations: List = []
+
+            if gcs_source_files and len(gcs_source_files) > 0:
+                # Lexicographically sort the files
+                gcs_source_files.sort()
+
+                # Get the first file in sorted list
+                column_names = AutoMLTabularTrainingJob._retrieve_gcs_source_columns(
+                    self.project, gcs_source_files[0]
+                )
+            elif bq_source:
+                column_names = AutoMLTabularTrainingJob._retrieve_bq_source_columns(
+                    bq_source
+                )
+
+            column_transformations = [
+                {"AUTO": {"column_name": column_name}} for column_name in column_names
+            ]
+        else:
+            column_transformations = self._column_transformations
+
         training_task_inputs_dict = {
             # required inputs
             "targetColumn": target_column,
-            "transformations": self._column_transformations,
+            "transformations": column_transformations,
             "trainBudgetMilliNodeHours": budget_milli_node_hours,
             # optional inputs
             "weightColumnName": weight_column,
