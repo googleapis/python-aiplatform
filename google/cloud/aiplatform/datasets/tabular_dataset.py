@@ -104,7 +104,7 @@ class TabularDataset(datasets._Dataset):
         gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(
             gcs_csv_file_path
         )
-        client = storage.Client(project=project_id)
+        client = storage.Client(project=project)
         bucket = client.bucket(gcs_bucket)
         blob = bucket.blob(gcs_blob)
 

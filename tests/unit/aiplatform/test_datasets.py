@@ -29,6 +29,7 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
 from google.cloud import bigquery
+from google.cloud import storage
 
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
@@ -177,6 +178,21 @@ def get_dataset_image_mock():
 
 
 @pytest.fixture
+def get_dataset_tabular_gcs_mock():
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "get_dataset"
+    ) as get_dataset_mock:
+        get_dataset_mock.return_value = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+            metadata=_TEST_METADATA_TABULAR_GCS,
+            name=_TEST_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+        yield get_dataset_mock
+
+
+@pytest.fixture
 def get_dataset_tabular_mock():
     with patch.object(
         dataset_service_client.DatasetServiceClient, "get_dataset"
@@ -275,6 +291,13 @@ def list_datasets_mock():
     ) as list_datasets_mock:
         list_datasets_mock.return_value = _TEST_DATASET_LIST
         yield list_datasets_mock
+
+
+@pytest.fixture
+def gcs_client_download_as_bytes_mock():
+    with patch.object(storage.Blob, "download_as_bytes") as bigquery_blob_mock:
+        bigquery_blob_mock.return_value = b'"column_1","column_2"\n0, 1'
+        yield bigquery_blob_mock
 
 
 @pytest.fixture
@@ -884,6 +907,14 @@ class TestTabularDataset:
             assert type(ds) == aiplatform.TabularDataset
 
     @pytest.mark.usefixtures(
+        "get_dataset_tabular_gcs_mock", "gcs_client_download_as_bytes_mock"
+    )
+    def test_tabular_dataset_column_name_gcs(self):
+        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
+
+        assert my_dataset.column_names == ["column_1", "column_2"]
+
+    @pytest.mark.usefixtures(
         "get_dataset_tabular_mock", "bigquery_client_mock", "bigquery_table_schema_mock"
     )
     def test_tabular_dataset_column_name_bigquery(self):
@@ -1069,7 +1100,6 @@ class TestVideoDataset:
         datasets.VideoDataset(dataset_name=_TEST_NAME)
         get_dataset_video_mock.assert_called_once_with(name=_TEST_NAME)
 
-    @pytest.mark.usefixtures("get_dataset_tabular_mock")
     def test_init_dataset_non_video(self):
         aiplatform.init(project=_TEST_PROJECT)
         with pytest.raises(ValueError):
