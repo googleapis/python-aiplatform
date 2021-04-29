@@ -364,6 +364,7 @@ class TestAutoMLTabularTrainingJob:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
+    # This test checks that default transformations are used if no columns transformations are provided
     def test_run_call_pipeline_service_create_if_no_column_transformations(
         self,
         mock_pipeline_service_create,
