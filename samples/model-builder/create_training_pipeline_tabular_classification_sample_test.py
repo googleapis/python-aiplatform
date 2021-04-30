@@ -20,7 +20,7 @@ import test_constants as constants
 def test_create_training_pipeline_tabular_classification_sample(
     mock_sdk_init,
     mock_tabular_dataset,
-    mock_init_automl_tabular_training_job,
+    mock_get_automl_tabular_training_job,
     mock_run_automl_tabular_training_job,
     mock_get_tabular_dataset,
 ):
@@ -42,7 +42,7 @@ def test_create_training_pipeline_tabular_classification_sample(
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
-    mock_init_automl_tabular_training_job.assert_called_once_with(
+    mock_get_automl_tabular_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
     )
     mock_run_automl_tabular_training_job.assert_called_once_with(

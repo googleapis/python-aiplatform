@@ -138,34 +138,58 @@ TrainingJob Fixtures
 
 
 @pytest.fixture
-def mock_init_automl_tabular_training_job():
-    with patch.object(
-        aiplatform.training_jobs.AutoMLTabularTrainingJob, "__init__"
-    ) as mock:
-        mock.return_value = None
+def mock_custom_training_job():
+    mock = MagicMock(aiplatform.training_jobs.CustomTrainingJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_image_training_job():
+    mock = MagicMock(aiplatform.training_jobs.AutoMLImageTrainingJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_tabular_training_job():
+    mock = MagicMock(aiplatform.training_jobs.AutoMLTabularTrainingJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_text_training_job():
+    mock = MagicMock(aiplatform.training_jobs.AutoMLTextTrainingJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_video_training_job():
+    mock = MagicMock(aiplatform.training_jobs.AutoMLVideoTrainingJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_get_automl_tabular_training_job(mock_tabular_training_job):
+    with patch.object(aiplatform, "AutoMLTabularTrainingJob") as mock:
+        mock.return_value = mock_tabular_training_job
         yield mock
 
 
 @pytest.fixture
-def mock_run_automl_tabular_training_job():
-    with patch.object(
-        aiplatform.training_jobs.AutoMLTabularTrainingJob, "run"
-    ) as mock:
+def mock_run_automl_tabular_training_job(mock_tabular_training_job):
+    with patch.object(mock_tabular_training_job, "run") as mock:
         yield mock
 
 
 @pytest.fixture
-def mock_init_automl_image_training_job():
-    with patch.object(
-        aiplatform.training_jobs.AutoMLImageTrainingJob, "__init__"
-    ) as mock:
-        mock.return_value = None
+def mock_get_automl_image_training_job(mock_image_training_job):
+    with patch.object(aiplatform, "AutoMLImageTrainingJob") as mock:
+        mock.return_value = mock_image_training_job
         yield mock
 
 
 @pytest.fixture
-def mock_run_automl_image_training_job():
-    with patch.object(aiplatform.training_jobs.AutoMLImageTrainingJob, "run") as mock:
+def mock_run_automl_image_training_job(mock_image_training_job):
+    with patch.object(mock_image_training_job, "run") as mock:
         yield mock
 
 
@@ -177,15 +201,21 @@ Model Fixtures
 
 
 @pytest.fixture
-def mock_init_model():
-    with patch.object(aiplatform.models.Model, "__init__") as mock:
-        mock.return_value = None
+def mock_model():
+    mock = MagicMock(aiplatform.models.Model)
+    yield mock
+
+
+@pytest.fixture
+def mock_get_model(mock_model):
+    with patch.object(aiplatform, "Model") as mock:
+        mock.return_value = mock_model
         yield mock
 
 
 @pytest.fixture
-def mock_batch_predict_model():
-    with patch.object(aiplatform.models.Model, "batch_predict") as mock:
+def mock_batch_predict_model(mock_model):
+    with patch.object(mock_model, "batch_predict") as mock:
         yield mock
 
 
@@ -210,15 +240,15 @@ Endpoint Fixtures
 
 
 @pytest.fixture
-def mock_create_endpoint():
-    with patch.object(aiplatform.Endpoint, "create") as mock:
-        yield mock
-             
-
-@pytest.fixture
 def mock_endpoint():
     mock = MagicMock(aiplatform.models.Endpoint)
     yield mock
+
+
+@pytest.fixture
+def mock_create_endpoint():
+    with patch.object(aiplatform.Endpoint, "create") as mock:
+        yield mock
 
 
 @pytest.fixture
