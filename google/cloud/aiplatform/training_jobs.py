@@ -2920,7 +2920,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         if self._column_transformations is None:
             column_transformations = [
                 {"auto": {"column_name": column_name}}
-                for column_name in dataset.column_names()
+                for column_name in dataset.column_names if column_name != target_column
             ]
         else:
             column_transformations = self._column_transformations

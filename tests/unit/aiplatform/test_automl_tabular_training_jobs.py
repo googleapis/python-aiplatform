@@ -175,17 +175,9 @@ def mock_dataset_tabular():
         name=_TEST_DATASET_NAME,
         metadata={},
     )
+    ds.column_names = _TEST_TRAINING_COLUMN_NAMES
 
     yield ds
-
-
-@pytest.fixture
-def mock_dataset_tabular_column_names(mock_dataset_tabular):
-    with mock.patch.object(
-        mock_dataset_tabular, "column_names", new_callable=mock.PropertyMock
-    ) as mock_dataset_tabular_column_names:
-        mock_dataset_tabular_column_names.return_value = _TEST_TRAINING_COLUMN_NAMES
-        yield mock_dataset_tabular_column_names
 
 
 @pytest.fixture
@@ -370,7 +362,6 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create,
         mock_pipeline_service_get,
         mock_dataset_tabular,
-        mock_dataset_tabular_column_names,
         mock_model_service_get,
         sync,
     ):
