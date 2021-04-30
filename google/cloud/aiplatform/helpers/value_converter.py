@@ -21,7 +21,8 @@ from proto.message import MessageMeta
 
 
 def to_value(self: Message) -> Value:
-    """Converts a message type to a :class:`~google.protobuf.struct_pb2.Value` object.
+    """Converts a message type to a :class:`~google.protobuf.struct_pb2.Value`
+    object.
 
     Args:
       message: the message to convert
@@ -34,7 +35,8 @@ def to_value(self: Message) -> Value:
 
 
 def from_value(cls: MessageMeta, value: Value) -> Message:
-    """Creates instance of class from a :class:`~google.protobuf.struct_pb2.Value` object.
+    """Creates instance of class from a
+    :class:`~google.protobuf.struct_pb2.Value` object.
 
     Args:
       value: a :class:`~google.protobuf.struct_pb2.Value` object
@@ -47,7 +49,8 @@ def from_value(cls: MessageMeta, value: Value) -> Message:
 
 
 def from_map(cls: MessageMeta, map_: MapComposite) -> Message:
-    """Creates instance of class from a :class:`~proto.marshal.collections.maps.MapComposite` object.
+    """Creates instance of class from a
+    :class:`~proto.marshal.collections.maps.MapComposite` object.
 
     Args:
       map_: a :class:`~proto.marshal.collections.maps.MapComposite` object

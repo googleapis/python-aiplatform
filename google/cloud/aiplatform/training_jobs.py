@@ -143,7 +143,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
     @classmethod
     @abc.abstractmethod
     def _supported_training_schemas(cls) -> Tuple[str]:
-        """List of supported schemas for this training job"""
+        """List of supported schemas for this training job."""
 
         pass
 
@@ -211,7 +211,10 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
     @abc.abstractmethod
     def run(self) -> Optional[models.Model]:
-        """Runs the training job. Should call _run_job internally"""
+        """Runs the training job.
+
+        Should call _run_job internally
+        """
         pass
 
     @staticmethod
@@ -530,7 +533,8 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         return model
 
     def _is_waiting_to_run(self) -> bool:
-        """Returns True if the Job is pending on upstream tasks False otherwise."""
+        """Returns True if the Job is pending on upstream tasks False
+        otherwise."""
         self._raise_future_exception()
         if self._latest_future:
             _LOGGER.info(
@@ -563,7 +567,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             model: AI Platform Model produced by this training
 
         Raises:
-            RuntimeError if training failed or if a model was not produced by this training.
+            RuntimeError: If training failed or if a model was not produced by this training.
         """
 
         self._assert_has_run()
@@ -586,7 +590,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             model: AI Platform Model produced by this training
 
         Raises:
-            RuntimeError if training failed or if a model was not produced by this training.
+            RuntimeError: If training failed or if a model was not produced by this training.
         """
         model = self._get_model()
 
@@ -603,7 +607,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 Model. None otherwise.
 
         Raises:
-            RuntimeError if Training failed.
+            RuntimeError: If Training failed.
         """
         self._block_until_complete()
 
@@ -662,19 +666,24 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         """Helper method to raise failure if TrainingPipeline fails.
 
         Raises:
-            RuntimeError: If training failed."""
+            RuntimeError: If training failed.
+        """
 
         if self._gca_resource.error.code != code_pb2.OK:
             raise RuntimeError("Training failed with:\n%s" % self._gca_resource.error)
 
     @property
     def has_failed(self) -> bool:
-        """Returns True if training has failed. False otherwise."""
+        """Returns True if training has failed.
+
+        False otherwise.
+        """
         self._assert_has_run()
         return self.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED
 
     def _dashboard_uri(self) -> str:
-        """Helper method to compose the dashboard uri where training can be viewed."""
+        """Helper method to compose the dashboard uri where training can be
+        viewed."""
         fields = utils.extract_fields_from_resource_name(self.resource_name)
         url = f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/training/{fields.id}?project={fields.project}"
         return url
@@ -762,7 +771,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         becomes a job with state set to `CANCELLED`.
 
         Raises:
-            RuntimeError if this TrainingJob has not started running.
+            RuntimeError: If this TrainingJob has not started running.
         """
         if not self._has_run:
             raise RuntimeError(
@@ -838,10 +847,10 @@ def _timestamped_copy_to_gcs(
 def _get_python_executable() -> str:
     """Returns Python executable.
 
-    Raises:
-        EnvironmentError if Python executable is not found.
     Returns:
         Python executable to use for setuptools packaging.
+    Raises:
+        EnvironmentError: If Python executable is not found.
     """
 
     python_executable = sys.executable
@@ -852,7 +861,8 @@ def _get_python_executable() -> str:
 
 
 class _TrainingScriptPythonPackager:
-    """Converts a Python script into Python package suitable for aiplatform training.
+    """Converts a Python script into Python package suitable for aiplatform
+    training.
 
     Copies the script to specified location.
 
@@ -879,7 +889,6 @@ class _TrainingScriptPythonPackager:
 
     The package after installed can be executed as:
     python -m aiplatform_custom_trainer_script.task
-
     """
 
     _TRAINER_FOLDER = "trainer"
@@ -917,14 +926,15 @@ setup(
         self.requirements = requirements or []
 
     def make_package(self, package_directory: str) -> str:
-        """Converts script into a Python package suitable for python module execution.
+        """Converts script into a Python package suitable for python module
+        execution.
 
         Args:
             package_directory (str): Directory to build package in.
         Returns:
             source_distribution_path (str): Path to built package.
         Raises:
-            RunTimeError if package creation fails.
+            RunTimeError: If package creation fails.
         """
         # The root folder to builder the package in
         package_path = pathlib.Path(package_directory)
@@ -1126,7 +1136,6 @@ class _DistributedTrainingSpec(NamedTuple):
                 accelerator_type='NVIDIA_TESLA_K80'
                 )
     )
-
     """
 
     chief_spec: _MachineSpec = _MachineSpec()
@@ -1138,7 +1147,8 @@ class _DistributedTrainingSpec(NamedTuple):
     def pool_specs(
         self,
     ) -> List[Dict[str, Union[int, str, Dict[str, Union[int, str]]]]]:
-        """Return each pools spec in correct order for AI Platform as a list of dicts.
+        """Return each pools spec in correct order for AI Platform as a list of
+        dicts.
 
         Also removes specs if they are empty but leaves specs in if there unusual
         specifications to not break the ordering in AI Platform Training.
@@ -1215,8 +1225,7 @@ class _DistributedTrainingSpec(NamedTuple):
 
 
 class _CustomTrainingJob(_TrainingJob):
-    """ABC for Custom Training Pipelines..
-    """
+    """ABC for Custom Training Pipelines.."""
 
     _supported_training_schemas = (schema.training_job.definition.custom_task,)
 
@@ -1448,7 +1457,8 @@ class _CustomTrainingJob(_TrainingJob):
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
     ) -> Tuple[_DistributedTrainingSpec, Optional[gca_model.Model]]:
-        """Create worker pool specs and managed model as well validating the run.
+        """Create worker pool specs and managed model as well validating the
+        run.
 
         Args:
             model_display_name (str):
@@ -1473,9 +1483,8 @@ class _CustomTrainingJob(_TrainingJob):
             Worker pools specs and managed model for run.
 
         Raises:
-            RuntimeError if Training job has already been run or model_display_name was
-            provided but required arguments were not provided in constructor.
-
+            RuntimeError: If Training job has already been run or model_display_name was
+                provided but required arguments were not provided in constructor.
         """
 
         if self._is_waiting_to_run():
@@ -1567,8 +1576,8 @@ class _CustomTrainingJob(_TrainingJob):
 class CustomTrainingJob(_CustomTrainingJob):
     """Class to launch a Custom Training Job in AI Platform using a script.
 
-    Takes a training implementation as a python script and executes that script
-    in Cloud AI Platform Training.
+    Takes a training implementation as a python script and executes that
+    script in Cloud AI Platform Training.
     """
 
     def __init__(
@@ -2100,7 +2109,8 @@ class CustomTrainingJob(_CustomTrainingJob):
 
 
 class CustomContainerTrainingJob(_CustomTrainingJob):
-    """Class to launch a Custom Training Job in AI Platform using a Container."""
+    """Class to launch a Custom Training Job in AI Platform using a
+    Container."""
 
     def __init__(
         self,
@@ -2351,14 +2361,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (
-                Union[
-                    datasets.ImageDataset,
-                    datasets.TabularDataset,
-                    datasets.TextDataset,
-                    datasets.VideoDataset,
-                ]
-            ):
+            dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset]):
                 AI Platform to fit this training against. Custom training script should
                 retrieve datasets through passed in environment variables uris:
 
@@ -2461,7 +2464,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 produce an AI Platform Model.
 
         Raises:
-            RuntimeError if Training job has already been run, staging_bucket has not
+            RuntimeError: If Training job has already been run, staging_bucket has not
                 been set, or model_display_name was provided but required arguments
                 were not provided in constructor.
         """
@@ -2834,7 +2837,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 produce an AI Platform Model.
 
         Raises:
-            RuntimeError if Training job has already been run or is waiting to run.
+            RuntimeError: If Training job has already been run or is waiting to run.
         """
 
         if self._is_waiting_to_run():
@@ -3364,10 +3367,11 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
 
 class CustomPythonPackageTrainingJob(_CustomTrainingJob):
-    """Class to launch a Custom Training Job in AI Platform using a Python Package.
+    """Class to launch a Custom Training Job in AI Platform using a Python
+    Package.
 
-    Takes a training implementation as a python package and executes that package
-    in Cloud AI Platform Training.
+    Takes a training implementation as a python package and executes
+    that package in Cloud AI Platform Training.
     """
 
     def __init__(
@@ -3627,14 +3631,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (
-                Union[
-                    datasets.ImageDataset,
-                    datasets.TabularDataset,
-                    datasets.TextDataset,
-                    datasets.VideoDataset,
-                ]
-            ):
+            dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset,]):
                 AI Platform to fit this training against. Custom training script should
                 retrieve datasets through passed in environement variables uris:
 
@@ -4308,7 +4305,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
             model: The trained AI Platform Model resource.
 
         Raises:
-            RuntimeError if Training job has already been run or is waiting to run.
+            RuntimeError: If Training job has already been run or is waiting to run.
         """
 
         if self._is_waiting_to_run():

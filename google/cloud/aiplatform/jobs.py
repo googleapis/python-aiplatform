@@ -64,8 +64,7 @@ _JOB_ERROR_STATES = (
 
 
 class _Job(base.AiPlatformResourceNounWithFutureManager):
-    """
-    Class that represents a general Job resource in AI Platform (Unified).
+    """Class that represents a general Job resource in AI Platform (Unified).
     Cannot be directly instantiated.
 
     Serves as base class to specific Job types, i.e. BatchPredictionJob or
@@ -89,8 +88,8 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
-        """
-        Retrives Job subclass resource by calling a subclass-specific getter method.
+        """Retrives Job subclass resource by calling a subclass-specific getter
+        method.
 
         Args:
             job_name (str):
@@ -142,7 +141,8 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
         pass
 
     def _dashboard_uri(self) -> Optional[str]:
-        """Helper method to compose the dashboard uri where job can be viewed."""
+        """Helper method to compose the dashboard uri where job can be
+        viewed."""
         fields = utils.extract_fields_from_resource_name(self.resource_name)
         url = f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/{self._job_type}/{fields.id}?project={fields.project}"
         return url
@@ -152,7 +152,6 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
 
         Raises:
             RuntimeError: If job failed or cancelled.
-
         """
 
         # Used these numbers so failures surface fast
@@ -232,8 +231,11 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
         )
 
     def cancel(self) -> None:
-        """Cancels this Job. Success of cancellation is not guaranteed. Use `Job.state`
-        property to verify if cancellation was successful."""
+        """Cancels this Job.
+
+        Success of cancellation is not guaranteed. Use `Job.state`
+        property to verify if cancellation was successful.
+        """
 
         _LOGGER.log_action_start_against_resource("Cancelling", "run", self)
         getattr(self.api_client, self._cancel_method)(name=self.resource_name)
@@ -255,8 +257,8 @@ class BatchPredictionJob(_Job):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
-        """
-        Retrieves a BatchPredictionJob resource and instantiates its representation.
+        """Retrieves a BatchPredictionJob resource and instantiates its
+        representation.
 
         Args:
             batch_prediction_job_name (str):
@@ -463,7 +465,6 @@ class BatchPredictionJob(_Job):
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
-
         """
 
         utils.validate_display_name(job_display_name)
@@ -655,7 +656,6 @@ class BatchPredictionJob(_Job):
                 If no or multiple source or destinations are provided. Also, if
                 provided instances_format or predictions_format are not supported
                 by AI Platform.
-
         """
         # select v1beta1 if explain else use default v1
         if generate_explanation:
@@ -687,9 +687,9 @@ class BatchPredictionJob(_Job):
     def iter_outputs(
         self, bq_max_results: Optional[int] = 100
     ) -> Union[Iterable[storage.Blob], Iterable[bigquery.table.RowIterator]]:
-        """Returns an Iterable object to traverse the output files, either a list
-        of GCS Blobs or a BigQuery RowIterator depending on the output config set
-        when the BatchPredictionJob was created.
+        """Returns an Iterable object to traverse the output files, either a
+        list of GCS Blobs or a BigQuery RowIterator depending on the output
+        config set when the BatchPredictionJob was created.
 
         Args:
             bq_max_results: Optional[int] = 100
