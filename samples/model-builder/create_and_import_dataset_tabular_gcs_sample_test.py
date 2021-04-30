@@ -17,21 +17,20 @@ import create_and_import_dataset_tabular_gcs_sample
 import test_constants as constants
 
 
-def test_create_and_import_dataset_tabular_gcs_sample(mock_sdk_init, mock_create_tabular_dataset):
+def test_create_and_import_dataset_tabular_gcs_sample(
+    mock_sdk_init, mock_create_tabular_dataset
+):
 
     create_and_import_dataset_tabular_gcs_sample.create_and_import_dataset_tabular_gcs_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         gcs_source=constants.GCS_SOURCES,
-        display_name=constants.DISPLAY_NAME
-
+        display_name=constants.DISPLAY_NAME,
     )
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
     mock_create_tabular_dataset.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME,
-        gcs_source=constants.GCS_SOURCES,
+        display_name=constants.DISPLAY_NAME, gcs_source=constants.GCS_SOURCES,
     )
-    

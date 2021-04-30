@@ -17,9 +17,7 @@ import create_endpoint_sample
 import test_constants as constants
 
 
-def test_create_endpoint_sample(
-    mock_sdk_init, mock_create_endpoint
-):
+def test_create_endpoint_sample(mock_sdk_init, mock_create_endpoint):
 
     create_endpoint_sample.create_endpoint_sample(
         project=constants.PROJECT,
