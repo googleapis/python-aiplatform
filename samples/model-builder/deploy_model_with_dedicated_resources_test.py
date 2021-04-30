@@ -36,7 +36,7 @@ def test_deploy_model_with_dedicated_resources_sample(
         accelerator_count=constants.ACCELERATOR_COUNT,
         explanation_metadata=constants.EXPLANATION_METADATA,
         explanation_parameters=constants.EXPLANATION_PARAMETERS,
-        metadata=constants.METADATA,
+        metadata=constants.ENDPOINT_DEPLOY_METADATA,
     )
 
     mock_sdk_init.assert_called_once_with(
@@ -57,6 +57,6 @@ def test_deploy_model_with_dedicated_resources_sample(
         accelerator_count=constants.ACCELERATOR_COUNT,
         explanation_metadata=constants.EXPLANATION_METADATA,
         explanation_parameters=constants.EXPLANATION_PARAMETERS,
-        metadata=constants.METADATA,
+        metadata=constants.ENDPOINT_DEPLOY_METADATA,
         sync=True,
     )

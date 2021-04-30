@@ -31,7 +31,7 @@ def test_deploy_model_with_automatic_resources_sample(
         traffic_split=constants.TRAFFIC_SPLIT,
         min_replica_count=constants.MIN_REPLICA_COUNT,
         max_replica_count=constants.MAX_REPLICA_COUNT,
-        metadata=constants.METADATA,
+        metadata=constants.ENDPOINT_DEPLOY_METADATA,
     )
 
     mock_sdk_init.assert_called_once_with(
@@ -47,6 +47,6 @@ def test_deploy_model_with_automatic_resources_sample(
         traffic_split=constants.TRAFFIC_SPLIT,
         min_replica_count=constants.MIN_REPLICA_COUNT,
         max_replica_count=constants.MAX_REPLICA_COUNT,
-        metadata=constants.METADATA,
+        metadata=constants.ENDPOINT_DEPLOY_METADATA,
         sync=True,
     )

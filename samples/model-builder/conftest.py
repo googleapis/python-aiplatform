@@ -218,22 +218,13 @@ def mock_model():
     mock = MagicMock(aiplatform.models.Model)
     yield mock
 
+
 @pytest.fixture
-<<<<<<< HEAD
-def mock_get_model(mock_model):
-    with patch.object(aiplatform, "Model") as mock:
-        mock.return_value = mock_model
-=======
 def mock_init_model(mock_model):
-<<<<<<< HEAD
-    with patch.object(aiplatform.models.Model, "__init__") as mock:
-        mock.return_value = None
->>>>>>> 190388a (Fixed tests)
-=======
     with patch.object(aiplatform, "Model") as mock:
         mock.return_value = mock_model
->>>>>>> 1f2700d (Fixed tests)
         yield mock
+
 
 @pytest.fixture
 def mock_batch_predict_model(mock_model):
