@@ -39,6 +39,8 @@ ENDPOINT_NAME = f"{PARENT}/endpoints/{RESOURCE_ID}"
 MODEL_NAME = f"{PARENT}/models/{RESOURCE_ID}"
 TRAINING_JOB_NAME = f"{PARENT}/trainingJobs/{RESOURCE_ID}"
 
+BIGQUERY_SOURCE = f"bq://{PROJECT}.{DATASET_NAME}.table1"
+
 GCS_SOURCES = ["gs://bucket1/source1.jsonl", "gs://bucket7/source4.jsonl"]
 BIGQUERY_SOURCE = "bq://bigquery-public-data.ml_datasets.iris"
 GCS_DESTINATION = "gs://bucket3/output-dir/"
@@ -53,6 +55,41 @@ ENCRYPTION_SPEC_KEY_NAME = f"{PARENT}/keyRings/{RESOURCE_ID}/cryptoKeys/{RESOURC
 
 PREDICTION_TEXT_INSTANCE = "This is some text for testing NLP prediction output"
 
+PREDICTION_TABULAR_CLASSIFICATION_INSTANCE = [
+    {
+        "petal_length": "1.4",
+        "petal_width": "1.3",
+        "sepal_length": "5.1",
+        "sepal_width": "2.8",
+    }
+]
+PREDICTION_TABULAR_REGRESSOIN_INSTANCE = [
+    {
+        "BOOLEAN_2unique_NULLABLE": False,
+        "DATETIME_1unique_NULLABLE": "2019-01-01 00:00:00",
+        "DATE_1unique_NULLABLE": "2019-01-01",
+        "FLOAT_5000unique_NULLABLE": 1611,
+        "FLOAT_5000unique_REPEATED": [2320, 1192],
+        "INTEGER_5000unique_NULLABLE": "8",
+        "NUMERIC_5000unique_NULLABLE": 16,
+        "STRING_5000unique_NULLABLE": "str-2",
+        "STRUCT_NULLABLE": {
+            "BOOLEAN_2unique_NULLABLE": False,
+            "DATE_1unique_NULLABLE": "2019-01-01",
+            "DATETIME_1unique_NULLABLE": "2019-01-01 00:00:00",
+            "FLOAT_5000unique_NULLABLE": 1308,
+            "FLOAT_5000unique_REPEATED": [2323, 1178],
+            "FLOAT_5000unique_REQUIRED": 3089,
+            "INTEGER_5000unique_NULLABLE": "1777",
+            "NUMERIC_5000unique_NULLABLE": 3323,
+            "TIME_1unique_NULLABLE": "23:59:59.999999",
+            "STRING_5000unique_NULLABLE": "str-49",
+            "TIMESTAMP_1unique_NULLABLE": "1546387199999999",
+        },
+        "TIMESTAMP_1unique_NULLABLE": "1546387199999999",
+        "TIME_1unique_NULLABLE": "23:59:59.999999",
+    }
+]
 SCRIPT_PATH = "task.py"
 CONTAINER_URI = "gcr.io/my_project/my_image:latest"
 ARGS = ["--tfds", "tf_flowers:3.*.*"]

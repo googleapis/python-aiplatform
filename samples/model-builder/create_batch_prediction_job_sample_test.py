@@ -18,7 +18,7 @@ import test_constants as constants
 
 
 def test_create_batch_prediction_job_sample(
-    mock_sdk_init, mock_init_model, mock_batch_predict_model
+    mock_sdk_init, mock_get_model, mock_batch_predict_model
 ):
 
     create_batch_prediction_job_sample.create_batch_prediction_job_sample(
@@ -33,7 +33,7 @@ def test_create_batch_prediction_job_sample(
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
-    mock_init_model.assert_called_once_with(constants.MODEL_NAME)
+    mock_get_model.assert_called_once_with(constants.MODEL_NAME)
     mock_batch_predict_model.assert_called_once_with(
         job_display_name=constants.DISPLAY_NAME,
         gcs_source=constants.GCS_SOURCES,
