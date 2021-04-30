@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Dict, Optional, Sequence, Tuple
 
 from google.cloud import aiplatform
-from typing import Optional, Sequence, Tuple, Dict
 from google.cloud.aiplatform import explain
+
 
 #  [START aiplatform_sdk_deploy_model_with_dedicated_resources_sample]
 def deploy_model_with_dedicated_resources_sample(
@@ -23,7 +24,7 @@ def deploy_model_with_dedicated_resources_sample(
     location,
     model_name: str,
     machine_type: str,
-    endpoint: Optional["Endpoint"] = None,
+    endpoint: Optional[aiplatform.Endpoint] = None,
     deployed_model_display_name: Optional[str] = None,
     traffic_percentage: Optional[int] = 0,
     traffic_split: Optional[Dict[str, int]] = None,

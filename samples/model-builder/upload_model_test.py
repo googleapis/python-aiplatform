@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import upload_model_sample
 import test_constants as constants
+import upload_model_sample
 
 
 def test_upload_model_sample(mock_sdk_init, mock_upload_model):
@@ -36,7 +35,7 @@ def test_upload_model_sample(mock_sdk_init, mock_upload_model):
         serving_container_environment_variables=constants.SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
         serving_container_ports=constants.SERVING_CONTAINER_PORTS,
         explanation_metadata=constants.EXPLANATION_METADATA,
-        explanation_parameters=constants.EXPLANATION_PARAMETERS
+        explanation_parameters=constants.EXPLANATION_PARAMETERS,
     )
 
     mock_sdk_init.assert_called_once_with(

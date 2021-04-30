@@ -29,6 +29,4 @@ def test_get_model_sample(mock_sdk_init, mock_init_model):
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_init_model.assert_called_once_with(
-        model_name=constants.MODEL_NAME
-    )
+    mock_init_model.assert_called_once_with(model_name=constants.MODEL_NAME)

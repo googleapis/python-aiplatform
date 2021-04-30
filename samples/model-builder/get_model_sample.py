@@ -14,15 +14,10 @@
 
 
 from google.cloud import aiplatform
-from typing import Optional, Sequence, Dict
-from google.cloud.aiplatform import explain
+
 
 #  [START aiplatform_sdk_get_model_sample]
-def get_model_sample(
-    project: str,
-    location: str,
-    model_name: str
-):
+def get_model_sample(project: str, location: str, model_name: str):
 
     aiplatform.init(project=project, location=location)
 
