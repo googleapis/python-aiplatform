@@ -120,6 +120,7 @@ _TEST_PARAMETERS_SCHEMA_URI = "gs://test/schema/parameters.yaml"
 _TEST_PREDICTION_SCHEMA_URI = "gs://test/schema/predictions.yaml"
 
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
 
 _TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
     inputs={
@@ -715,6 +716,7 @@ class TestModel:
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
             sync=sync,
         )
 
@@ -733,6 +735,7 @@ class TestModel:
             dedicated_resources=expected_dedicated_resources,
             model=test_model.resource_name,
             display_name=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
         deploy_model_mock.assert_called_once_with(
             endpoint=test_endpoint.resource_name,

@@ -193,6 +193,19 @@ def mock_run_automl_image_training_job(mock_image_training_job):
         yield mock
 
 
+@pytest.fixture
+def mock_init_custom_training_job():
+    with patch.object(aiplatform.training_jobs.CustomTrainingJob, "__init__") as mock:
+        mock.return_value = None
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_training_job():
+    with patch.object(aiplatform.training_jobs.CustomTrainingJob, "run") as mock:
+        yield mock
+
+
 """
 ----------------------------------------------------------------------------
 Model Fixtures

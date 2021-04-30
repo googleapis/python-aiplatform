@@ -12,39 +12,53 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
+from typing import List, Optional, Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_training_pipeline_image_classification_sample]
-def create_training_pipeline_image_classification_sample(
+#  [START aiplatform_sdk_create_training_pipeline_custom_job_sample]
+def create_training_pipeline_custom_training_managed_dataset_sample(
     project: str,
     location: str,
     display_name: str,
+    script_path: str,
+    container_uri: str,
+    model_serving_container_image_uri: str,
     dataset_id: int,
     model_display_name: Optional[str] = None,
+    args: Optional[List[Union[str, float, int]]] = None,
+    replica_count: int = 0,
+    machine_type: str = "n1-standard-4",
+    accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
+    accelerator_count: int = 0,
     training_fraction_split: float = 0.8,
     validation_fraction_split: float = 0.1,
     test_fraction_split: float = 0.1,
-    budget_milli_node_hours: int = 8000,
-    disable_early_stopping: bool = False,
     sync: bool = True,
 ):
     aiplatform.init(project=project, location=location)
 
-    job = aiplatform.AutoMLImageTrainingJob(display_name=display_name)
+    job = aiplatform.CustomTrainingJob(
+        display_name=display_name,
+        script_path=script_path,
+        container_uri=container_uri,
+        model_serving_container_image_uri=model_serving_container_image_uri,
+    )
 
     my_image_ds = aiplatform.ImageDataset(dataset_id)
 
     model = job.run(
         dataset=my_image_ds,
         model_display_name=model_display_name,
+        args=args,
+        replica_count=replica_count,
+        machine_type=machine_type,
+        accelerator_type=accelerator_type,
+        accelerator_count=accelerator_count,
         training_fraction_split=training_fraction_split,
         validation_fraction_split=validation_fraction_split,
         test_fraction_split=test_fraction_split,
-        budget_milli_node_hours=budget_milli_node_hours,
-        disable_early_stopping=disable_early_stopping,
         sync=sync,
     )
 
@@ -56,4 +70,4 @@ def create_training_pipeline_image_classification_sample(
     return model
 
 
-#  [END aiplatform_sdk_create_training_pipeline_image_classification_sample]
+#  [END aiplatform_sdk_create_training_pipeline_custom_job_sample]

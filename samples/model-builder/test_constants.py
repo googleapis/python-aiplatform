@@ -42,6 +42,7 @@ TRAINING_JOB_NAME = f"{PARENT}/trainingJobs/{RESOURCE_ID}"
 BIGQUERY_SOURCE = f"bq://{PROJECT}.{DATASET_NAME}.table1"
 
 GCS_SOURCES = ["gs://bucket1/source1.jsonl", "gs://bucket7/source4.jsonl"]
+BIGQUERY_SOURCE = "bq://bigquery-public-data.ml_datasets.iris"
 GCS_DESTINATION = "gs://bucket3/output-dir/"
 
 TRAINING_FRACTION_SPLIT = 0.7
@@ -89,3 +90,10 @@ PREDICTION_TABULAR_REGRESSOIN_INSTANCE = [
         "TIME_1unique_NULLABLE": "23:59:59.999999",
     }
 ]
+SCRIPT_PATH = "task.py"
+CONTAINER_URI = "gcr.io/my_project/my_image:latest"
+ARGS = ["--tfds", "tf_flowers:3.*.*"]
+REPLICA_COUNT = 0
+MACHINE_TYPE = "n1-standard-4"
+ACCELERATOR_TYPE = "ACCELERATOR_TYPE_UNSPECIFIED"
+ACCELERATOR_COUNT = 0

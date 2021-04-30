@@ -141,6 +141,11 @@ class TestInit:
             ("us-central1", None, "us-central1-aiplatform.googleapis.com"),
             ("us-central1", "europe-west4", "europe-west4-aiplatform.googleapis.com",),
             ("asia-east1", None, "asia-east1-aiplatform.googleapis.com"),
+            (
+                "asia-southeast1",
+                "australia-southeast1",
+                "australia-southeast1-aiplatform.googleapis.com",
+            ),
         ],
     )
     def test_get_client_options(

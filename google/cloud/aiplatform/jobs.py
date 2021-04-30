@@ -79,7 +79,7 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
     _delete_method (str): The name of the specific JobServiceClient delete method
     """
 
-    client_class = utils.JobpointClientWithOverride
+    client_class = utils.JobClientWithOverride
     _is_client_prediction_client = False
 
     def __init__(
@@ -724,7 +724,8 @@ class BatchPredictionJob(_Job):
 
             # Build a Storage Client using the same credentials as JobServiceClient
             storage_client = storage.Client(
-                credentials=self.api_client._transport._credentials
+                project=self.project,
+                credentials=self.api_client._transport._credentials,
             )
 
             gcs_bucket, gcs_prefix = utils.extract_bucket_and_prefix_from_gcs_path(
@@ -740,7 +741,8 @@ class BatchPredictionJob(_Job):
 
             # Build a BigQuery Client using the same credentials as JobServiceClient
             bq_client = bigquery.Client(
-                credentials=self.api_client._transport._credentials
+                project=self.project,
+                credentials=self.api_client._transport._credentials,
             )
 
             # Format from service is `bq://projectId.bqDatasetId`
