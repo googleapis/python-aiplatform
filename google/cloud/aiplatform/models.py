@@ -17,6 +17,7 @@
 import proto
 from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
+from google.api_core import operation
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
@@ -35,11 +36,11 @@ from google.cloud.aiplatform.compat.types import (
     endpoint_v1 as gca_endpoint_v1,
     endpoint_v1beta1 as gca_endpoint_v1beta1,
     explanation_v1beta1 as gca_explanation_v1beta1,
-    io_v1 as gca_io_v1,
+    io as gca_io_compat,
     machine_resources as gca_machine_resources_compat,
     machine_resources_v1beta1 as gca_machine_resources_v1beta1,
     model as gca_model_compat,
-    model_service as gca_model_service_v1,
+    model_service as gca_model_service_compat,
     model_v1beta1 as gca_model_v1beta1,
     env_var as gca_env_var_compat,
     env_var_v1beta1 as gca_env_var_v1beta1,
@@ -2060,7 +2061,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         )
 
     @base.optional_sync()
-    def _wait_on_export(self, operation_future, sync=True) -> None:
+    def _wait_on_export(self, operation_future: operation.Operation, sync=True) -> None:
         operation_future.result()
 
     def export_model(
@@ -2069,7 +2070,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         artifact_destination: Optional[str] = None,
         image_destination: Optional[str] = None,
         sync: bool = True,
-    ) -> None:
+    ) -> Dict[str, str]:
         """Exports a trained, exportable Model to a location specified by the user.
         A Model is considered to be exportable if it has at least one `supported_export_formats`.
         Either `artifact_destination` or `image_destination` must be provided.
@@ -2090,8 +2091,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         Args:
             export_format_id (str):
                 Required. The ID of the format in which the Model must be exported.
-                Each Model lists the export formats it supports, which can be
-                found using `Model.supported_export_formats`.
+                The list of export formats that this Model supports can be found
+                by calling `Model.supported_export_formats`.
             artifact_destination (str):
                 The Cloud Storage location where the Model artifact is to be
                 written to. Under the directory given as the destination a
@@ -2119,7 +2120,10 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 Whether to execute this export synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
-
+        Returns:
+            output_info (Dict[str, str]):
+                Details of the completed export with output destination paths to
+                the artifacts or container image.
         Raises:
             ValueError if model does not support exporting.
 
@@ -2164,17 +2168,17 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             )
 
         # Construct request payload
-        output_config = gca_model_service_v1.ExportModelRequest.OutputConfig(
+        output_config = gca_model_service_compat.ExportModelRequest.OutputConfig(
             export_format_id=export_format_id
         )
 
         if artifact_destination:
-            output_config.artifact_destination = gca_io_v1.GcsDestination(
+            output_config.artifact_destination = gca_io_compat.GcsDestination(
                 output_uri_prefix=artifact_destination
             )
 
         if image_destination:
-            output_config.image_destination = gca_io_v1.ContainerRegistryDestination(
+            output_config.image_destination = gca_io_compat.ContainerRegistryDestination(
                 output_uri=image_destination
             )
 
