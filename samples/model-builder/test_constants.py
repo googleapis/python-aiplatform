@@ -16,6 +16,7 @@ from random import randint
 from uuid import uuid4
 
 from google.auth import credentials
+from google.cloud import aiplatform
 
 PROJECT = "abc"
 LOCATION = "us-central1"
@@ -97,3 +98,54 @@ REPLICA_COUNT = 0
 MACHINE_TYPE = "n1-standard-4"
 ACCELERATOR_TYPE = "ACCELERATOR_TYPE_UNSPECIFIED"
 ACCELERATOR_COUNT = 0
+
+# Model constants
+MODEL_RESOURCE_NAME = f"{PARENT}/models/1234"
+MODEL_ARTIFACT_URI = "gs://bucket3/output-dir/"
+SERVING_CONTAINER_IMAGE_URI = "http://gcr.io/test/test:latest"
+SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
+SERVING_CONTAINER_PREDICT_ROUTE = "predict"
+SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
+DESCRIPTION = "test description"
+SERVING_CONTAINER_COMMAND = ["python3", "run_my_model.py"]
+SERVING_CONTAINER_ARGS = ["--test", "arg"]
+SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
+    "learning_rate": 0.01,
+    "loss_fn": "mse",
+}
+SERVING_CONTAINER_PORTS = [8888, 10000]
+INSTANCE_SCHEMA_URI = "gs://test/schema/instance.yaml"
+PARAMETERS_SCHEMA_URI = "gs://test/schema/parameters.yaml"
+PREDICTION_SCHEMA_URI = "gs://test/schema/predictions.yaml"
+
+MODEL_DESCRIPTION = "This is a model"
+SERVING_CONTAINER_COMMAND = ["python3", "run_my_model.py"]
+SERVING_CONTAINER_ARGS = ["--test", "arg"]
+SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
+    "learning_rate": 0.01,
+    "loss_fn": "mse",
+}
+
+SERVING_CONTAINER_PORTS = [8888, 10000]
+EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
+    inputs={
+        "features": {
+            "input_tensor_name": "dense_input",
+            "encoding": "BAG_OF_FEATURES",
+            "modality": "numeric",
+            "index_feature_mapping": ["abc", "def", "ghj"],
+        }
+    },
+    outputs={"medv": {"output_tensor_name": "dense_2"}},
+)
+EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
+    {"sampled_shapley_attribution": {"path_count": 10}}
+)
+
+# Endpoint constants
+DEPLOYED_MODEL_DISPLAY_NAME = "model_name"
+TRAFFIC_PERCENTAGE = 80
+TRAFFIC_SPLIT = {"a": 99, "b": 1}
+MIN_REPLICA_COUNT = 1
+MAX_REPLICA_COUNT = 1
+ENDPOINT_DEPLOY_METADATA = ()

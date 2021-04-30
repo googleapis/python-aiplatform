@@ -220,7 +220,7 @@ def mock_model():
 
 
 @pytest.fixture
-def mock_get_model(mock_model):
+def mock_init_model(mock_model):
     with patch.object(aiplatform, "Model") as mock:
         mock.return_value = mock_model
         yield mock
@@ -229,6 +229,19 @@ def mock_get_model(mock_model):
 @pytest.fixture
 def mock_batch_predict_model(mock_model):
     with patch.object(mock_model, "batch_predict") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_upload_model():
+    with patch.object(aiplatform.models.Model, "upload") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_deploy_model(mock_model, mock_endpoint):
+    with patch.object(mock_model, "deploy") as mock:
+        mock.return_value = mock_endpoint
         yield mock
 
 

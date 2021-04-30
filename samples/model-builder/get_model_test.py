@@ -13,30 +13,20 @@
 # limitations under the License.
 
 
-import create_batch_prediction_job_sample
+import get_model_sample
 import test_constants as constants
 
 
-def test_create_batch_prediction_job_sample(
-    mock_sdk_init, mock_model, mock_init_model, mock_batch_predict_model
-):
+def test_get_model_sample(mock_sdk_init, mock_init_model):
 
-    create_batch_prediction_job_sample.create_batch_prediction_job_sample(
+    get_model_sample.get_model_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        model_resource_name=constants.MODEL_NAME,
-        job_display_name=constants.DISPLAY_NAME,
-        gcs_source=constants.GCS_SOURCES,
-        gcs_destination=constants.GCS_DESTINATION,
+        model_name=constants.MODEL_NAME,
     )
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
-    mock_init_model.assert_called_once_with(constants.MODEL_NAME)
-    mock_batch_predict_model.assert_called_once_with(
-        job_display_name=constants.DISPLAY_NAME,
-        gcs_source=constants.GCS_SOURCES,
-        gcs_destination_prefix=constants.GCS_DESTINATION,
-        sync=True,
-    )
+
+    mock_init_model.assert_called_once_with(model_name=constants.MODEL_NAME)
