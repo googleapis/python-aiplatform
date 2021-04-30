@@ -320,14 +320,15 @@ class ClientWithOverride:
         ):
             """Stores parameters needed to instantiate client.
 
-            client_class (AiPlatformServiceClient):     Required. Class
-            of the client to use. client_options
-            (client_options.ClientOptions):     Required. Client options
-            to pass to client. client_info
-            (gapic_v1.client_info.ClientInfo):     Required. Client info
-            to pass to client. credentials
-            (auth_credentials.credentials):     Optional. Client
-            credentials to pass to client.
+            Args:
+                client_class (AiPlatformServiceClient):
+                    Required. Class of the client to use.
+                client_options (client_options.ClientOptions):
+                    Required. Client options to pass to client.
+                client_info (gapic_v1.client_info.ClientInfo):
+                    Required. Client info to pass to client.
+                credentials (auth_credentials.credentials):
+                    Optional. Client credentials to pass to client.
             """
 
             self._client_class = client_class
@@ -369,11 +370,13 @@ class ClientWithOverride:
     ):
         """Stores parameters needed to instantiate client.
 
-        client_options (client_options.ClientOptions):     Required.
-        Client options to pass to client. client_info
-        (gapic_v1.client_info.ClientInfo):     Required. Client info to
-        pass to client. credentials (auth_credentials.credentials):
-        Optional. Client credentials to pass to client.
+        Args:
+            client_options (client_options.ClientOptions):
+                Required. Client options to pass to client.
+            client_info (gapic_v1.client_info.ClientInfo):
+                Required. Client info to pass to client.
+            credentials (auth_credentials.credentials):
+                Optional. Client credentials to pass to client.
         """
 
         self._clients = {
