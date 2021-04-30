@@ -217,8 +217,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
         sync=True,
     ) -> "Endpoint":
-        """
-        Creates a new endpoint by calling the API client.
+        """Creates a new endpoint by calling the API client.
+
         Args:
             api_client (EndpointServiceClient):
                 Required. An instance of EndpointServiceClient with the correct
@@ -296,9 +296,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     def _allocate_traffic(
         traffic_split: Dict[str, int], traffic_percentage: int,
     ) -> Dict[str, int]:
-        """
-        Allocates desired traffic to new deployed model and scales traffic of
-        older deployed models.
+        """Allocates desired traffic to new deployed model and scales traffic
+        of older deployed models.
 
         Args:
             traffic_split (Dict[str, int]):
@@ -333,9 +332,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     def _unallocate_traffic(
         traffic_split: Dict[str, int], deployed_model_id: str,
     ) -> Dict[str, int]:
-        """
-        Sets deployed model id's traffic to 0 and scales the traffic of other
-        deployed models.
+        """Sets deployed model id's traffic to 0 and scales the traffic of
+        other deployed models.
 
         Args:
             traffic_split (Dict[str, int]):
@@ -431,11 +429,11 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
 
         Raises:
-            ValueError if Min or Max replica is negative. Traffic percentage > 100 or
-            < 0. Or if traffic_split does not sum to 100.
+            ValueError: if Min or Max replica is negative. Traffic percentage > 100 or
+                < 0. Or if traffic_split does not sum to 100.
 
-            ValueError if either explanation_metadata or explanation_parameters
-            but not both are specified.
+            ValueError: if either explanation_metadata or explanation_parameters
+                but not both are specified.
         """
         if min_replica_count < 0:
             raise ValueError("Min replica cannot be negative.")
@@ -483,8 +481,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
-        """
-        Deploys a Model to the Endpoint.
+        """Deploys a Model to the Endpoint.
 
         Args:
             model (aiplatform.Model):
@@ -602,8 +599,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
-        """
-        Deploys a Model to the Endpoint.
+        """Deploys a Model to the Endpoint.
 
         Args:
             model (aiplatform.Model):
@@ -795,9 +791,9 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Raises:
-            ValueError if there is not current traffic split and traffic percentage
+            ValueError: If there is not current traffic split and traffic percentage
                 is not 0 or 100.
-            ValueError if only `explanation_metadata` or `explanation_parameters`
+            ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
         """
 
@@ -987,7 +983,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> utils.PredictionClientWithOverride:
 
-        """Helper method to instantiates prediction client with optional overrides for this endpoint.
+        """Helper method to instantiates prediction client with optional
+        overrides for this endpoint.
 
         Args:
             location (str): The location of this endpoint.
@@ -1030,7 +1027,6 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 ``parameters_schema_uri``.
         Returns:
             prediction: Prediction with returned predictions and Model Id.
-
         """
         self.wait()
 
@@ -1282,7 +1278,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
     ) -> "Model":
-        """Uploads a model and returns a Model representing the uploaded Model resource.
+        """Uploads a model and returns a Model representing the uploaded Model
+        resource.
 
         Example usage:
 
@@ -1415,7 +1412,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
-            ValueError if only `explanation_metadata` or `explanation_parameters`
+            ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
         """
         utils.validate_display_name(display_name)
@@ -1523,8 +1520,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
     ) -> Endpoint:
-        """
-        Deploys model to endpoint. Endpoint will be created if unspecified.
+        """Deploys model to endpoint. Endpoint will be created if unspecified.
 
         Args:
             endpoint ("Endpoint"):
@@ -1608,7 +1604,6 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
-
         """
 
         Endpoint._validate_deploy_args(
@@ -1660,8 +1655,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> Endpoint:
-        """
-        Deploys model to endpoint. Endpoint will be created if unspecified.
+        """Deploys model to endpoint. Endpoint will be created if unspecified.
 
         Args:
             endpoint ("Endpoint"):
@@ -1807,9 +1801,10 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> jobs.BatchPredictionJob:
-        """Creates a batch prediction job using this Model and outputs prediction
-        results to the provided destination prefix in the specified
-        `predictions_format`. One source and one destination prefix are required.
+        """Creates a batch prediction job using this Model and outputs
+        prediction results to the provided destination prefix in the specified
+        `predictions_format`. One source and one destination prefix are
+        required.
 
         Example usage:
 
@@ -1960,7 +1955,6 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
-
         """
         self.wait()
 

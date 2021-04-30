@@ -79,7 +79,8 @@ Fields = namedtuple("Fields", ["project", "location", "resource", "id"],)
 
 
 def _match_to_fields(match: Match) -> Optional[Fields]:
-    """Normalize RegEx groups from resource name pattern Match to class Fields"""
+    """Normalize RegEx groups from resource name pattern Match to class
+    Fields."""
     if not match:
         return None
 
@@ -92,15 +93,15 @@ def _match_to_fields(match: Match) -> Optional[Fields]:
 
 
 def validate_id(resource_id: str) -> bool:
-    """Validate int64 resource ID number"""
+    """Validate int64 resource ID number."""
     return bool(RESOURCE_ID_PATTERN.match(resource_id))
 
 
 def extract_fields_from_resource_name(
     resource_name: str, resource_noun: Optional[str] = None
 ) -> Optional[Fields]:
-    """Validates and returns extracted fields from a fully-qualified resource name.
-    Returns None if name is invalid.
+    """Validates and returns extracted fields from a fully-qualified resource
+    name. Returns None if name is invalid.
 
     Args:
         resource_name (str):
@@ -133,8 +134,7 @@ def full_resource_name(
     project: Optional[str] = None,
     location: Optional[str] = None,
 ) -> str:
-    """
-    Returns fully qualified resource name.
+    """Returns fully qualified resource name.
 
     Args:
         resource_name (str):
@@ -217,7 +217,7 @@ def validate_project(project: str) -> bool:
 
 # TODO(b/172932277) verify display name only contains utf-8 chars
 def validate_display_name(display_name: str):
-    """Verify display name is at most 128 chars
+    """Verify display name is at most 128 chars.
 
     Args:
         display_name: display name to verify
@@ -253,7 +253,8 @@ def validate_region(region: str) -> bool:
 
 
 def validate_accelerator_type(accelerator_type: str) -> bool:
-    """Validates user provided accelerator_type string for training and prediction
+    """Validates user provided accelerator_type string for training and
+    prediction.
 
     Args:
         accelerator_type (str):
@@ -307,7 +308,8 @@ def extract_bucket_and_prefix_from_gcs_path(gcs_path: str) -> Tuple[str, Optiona
 
 class ClientWithOverride:
     class WrappedClient:
-        """Wrapper class for client that creates client at API invocation time."""
+        """Wrapper class for client that creates client at API invocation
+        time."""
 
         def __init__(
             self,
@@ -318,14 +320,14 @@ class ClientWithOverride:
         ):
             """Stores parameters needed to instantiate client.
 
-            client_class (AiPlatformServiceClient):
-                Required. Class of the client to use.
-            client_options (client_options.ClientOptions):
-                Required. Client options to pass to client.
-            client_info (gapic_v1.client_info.ClientInfo):
-                Required. Client info to pass to client.
-            credentials (auth_credentials.credentials):
-                Optional. Client credentials to pass to client.
+            client_class (AiPlatformServiceClient):     Required. Class
+            of the client to use. client_options
+            (client_options.ClientOptions):     Required. Client options
+            to pass to client. client_info
+            (gapic_v1.client_info.ClientInfo):     Required. Client info
+            to pass to client. credentials
+            (auth_credentials.credentials):     Optional. Client
+            credentials to pass to client.
             """
 
             self._client_class = client_class
@@ -367,12 +369,11 @@ class ClientWithOverride:
     ):
         """Stores parameters needed to instantiate client.
 
-        client_options (client_options.ClientOptions):
-            Required. Client options to pass to client.
-        client_info (gapic_v1.client_info.ClientInfo):
-            Required. Client info to pass to client.
-        credentials (auth_credentials.credentials):
-            Optional. Client credentials to pass to client.
+        client_options (client_options.ClientOptions):     Required.
+        Client options to pass to client. client_info
+        (gapic_v1.client_info.ClientInfo):     Required. Client info to
+        pass to client. credentials (auth_credentials.credentials):
+        Optional. Client credentials to pass to client.
         """
 
         self._clients = {

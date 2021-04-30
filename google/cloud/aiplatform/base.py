@@ -94,7 +94,6 @@ class Logger:
             resource (proto.Message):
                 AI Platform Resourc proto.Message
             variable_name (str): Name of variable to use for code snippet
-
         """
         self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
         self._logger.info(f"To use this {cls.__name__} in another session:")
@@ -181,7 +180,8 @@ class FutureManager(metaclass=abc.ABCMeta):
                 raise self._exception
 
     def _complete_future(self, future: futures.Future):
-        """Checks for exception of future and removes the pointer if it's still latest.
+        """Checks for exception of future and removes the pointer if it's still
+        latest.
 
         Args:
             future (futures.Future): Required. A future to complete.
@@ -215,13 +215,14 @@ class FutureManager(metaclass=abc.ABCMeta):
 
     @property
     def _latest_future(self) -> Optional[futures.Future]:
-        """Get the latest future if it exists"""
+        """Get the latest future if it exists."""
         with self.__latest_future_lock:
             return self.__latest_future
 
     @_latest_future.setter
     def _latest_future(self, future: Optional[futures.Future]):
-        """Optionally set the latest future and add a complete_future callback."""
+        """Optionally set the latest future and add a complete_future
+        callback."""
         with self.__latest_future_lock:
             self.__latest_future = future
         if future:
@@ -260,7 +261,8 @@ class FutureManager(metaclass=abc.ABCMeta):
             kwargs: Dict[str, Any],
             internal_callbacks: Iterable[Callable[[Any], Any]],
         ) -> Any:
-            """Wrapper method to wait on any dependencies before submitting method.
+            """Wrapper method to wait on any dependencies before submitting
+            method.
 
             Args:
                 deps (Sequence[futures.Future]):
@@ -272,7 +274,6 @@ class FutureManager(metaclass=abc.ABCMeta):
                     Required. The keyword arguments to call the method with.
                 internal_callbacks: (Callable[[Any], Any]):
                     Callbacks that take the result of method.
-
             """
 
             for future in set(deps):
@@ -342,12 +343,14 @@ class FutureManager(metaclass=abc.ABCMeta):
     @classmethod
     @abc.abstractmethod
     def _empty_constructor(cls) -> "FutureManager":
-        """Should construct object with all non FutureManager attributes as None"""
+        """Should construct object with all non FutureManager attributes as
+        None."""
         pass
 
     @abc.abstractmethod
     def _sync_object_with_future_result(self, result: "FutureManager"):
-        """Should sync the object from _empty_constructor with result of future."""
+        """Should sync the object from _empty_constructor with result of
+        future."""
 
     def __repr__(self) -> str:
         if self._exception:
@@ -375,7 +378,8 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     @classmethod
     @abc.abstractmethod
     def client_class(cls) -> Type[utils.AiPlatformServiceClientWithOverride]:
-        """Client class required to interact with resource with optional overrides."""
+        """Client class required to interact with resource with optional
+        overrides."""
         pass
 
     @property
@@ -388,7 +392,8 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     @property
     @abc.abstractmethod
     def _getter_method(cls) -> str:
-        """Name of getter method of client class for retrieving the resource."""
+        """Name of getter method of client class for retrieving the
+        resource."""
         pass
 
     @property
@@ -400,7 +405,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     @property
     @abc.abstractmethod
     def _resource_noun(cls) -> str:
-        """Resource noun"""
+        """Resource noun."""
         pass
 
     def __init__(
@@ -547,7 +552,8 @@ def optional_sync(
     return_input_arg: Optional[str] = None,
     bind_future_to_self: bool = True,
 ):
-    """Decorator for AiPlatformResourceNounWithFutureManager with optional sync support.
+    """Decorator for AiPlatformResourceNounWithFutureManager with optional sync
+    support.
 
     Methods with this decorator should include a "sync" argument that defaults to
     True. If called with sync=False this decorator will launch the method as a
@@ -681,7 +687,8 @@ def optional_sync(
 
 
 class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureManager):
-    """Allows optional asynchronous calls to this AI Platform Resource Nouns."""
+    """Allows optional asynchronous calls to this AI Platform Resource
+    Nouns."""
 
     def __init__(
         self,
@@ -816,7 +823,8 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List[AiPlatformResourceNoun]:
         """Private method to list all instances of this AI Platform Resource,
-        takes a `cls_filter` arg to filter to a particular SDK resource subclass.
+        takes a `cls_filter` arg to filter to a particular SDK resource
+        subclass.
 
         Args:
             cls_filter (Callable[[proto.Message], bool]):
@@ -884,8 +892,9 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List[AiPlatformResourceNoun]:
         """Private method to list all instances of this AI Platform Resource,
-        takes a `cls_filter` arg to filter to a particular SDK resource subclass.
-        Provides client-side sorting when a list API doesn't support `order_by`.
+        takes a `cls_filter` arg to filter to a particular SDK resource
+        subclass. Provides client-side sorting when a list API doesn't support
+        `order_by`.
 
         Args:
             cls_filter (Callable[[proto.Message], bool]):
@@ -986,7 +995,8 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
 
     @optional_sync()
     def delete(self, sync: bool = True) -> None:
-        """Deletes this AI Platform resource. WARNING: This deletion is permament.
+        """Deletes this AI Platform resource. WARNING: This deletion is
+        permament.
 
         Args:
             sync (bool):
