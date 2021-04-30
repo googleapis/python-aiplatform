@@ -39,7 +39,7 @@ from google.cloud.aiplatform.compat.types import (
     machine_resources as gca_machine_resources_compat,
     machine_resources_v1beta1 as gca_machine_resources_v1beta1,
     model as gca_model_compat,
-    model_service_v1 as gca_model_service_v1,
+    model_service as gca_model_service_v1,
     model_v1beta1 as gca_model_v1beta1,
     env_var as gca_env_var_compat,
     env_var_v1beta1 as gca_env_var_v1beta1,
@@ -1224,10 +1224,17 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         return self._gca_resource.description
 
     @property
-    def _supported_export_formats(
+    def supported_export_formats(
         self,
     ) -> Dict[str, List[gca_model_compat.Model.ExportFormat.ExportableContent]]:
-        """Store list of ExportFormat objects as a private dict for easy lookup"""
+        """The formats and content types in which this Model may be exported.
+        If empty, this Model is not available for export.
+
+        For example, if this model can be exported as a Tensorflow SavedModel and
+        have the artifacts written to Cloud Storage, the expected value would be:
+
+            {'tf-saved-model': [<ExportableContent.ARTIFACT: 1>]}
+        """
         return {
             export_format.id: [
                 gca_model_compat.Model.ExportFormat.ExportableContent(content)
@@ -1235,13 +1242,6 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             ]
             for export_format in self._gca_resource.supported_export_formats
         }
-
-    @property
-    def supported_export_formats(self) -> List[str]:
-        """The formats in which this Model may be exported.
-        If empty, this Model is not available for export.
-        """
-        return list(self._supported_export_formats.keys())
 
     def __init__(
         self,
@@ -2060,6 +2060,9 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         )
 
     @base.optional_sync()
+    def _wait_on_export(self, operation_future, sync=True) -> None:
+        operation_future.result()
+
     def export_model(
         self,
         export_format_id: str,
@@ -2067,7 +2070,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         image_destination: Optional[str] = None,
         sync: bool = True,
     ) -> None:
-        """Exports a trained, exportable, Model to a location specified by the user.
+        """Exports a trained, exportable Model to a location specified by the user.
         A Model is considered to be exportable if it has at least one `supported_export_formats`.
         Either `artifact_destination` or `image_destination` must be provided.
 
@@ -2089,8 +2092,6 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 Required. The ID of the format in which the Model must be exported.
                 Each Model lists the export formats it supports, which can be
                 found using `Model.supported_export_formats`.
-                If no value is provided here, then the first from the list
-                of the Model's supported formats is used by default.
             artifact_destination (str):
                 The Cloud Storage location where the Model artifact is to be
                 written to. Under the directory given as the destination a
@@ -2098,10 +2099,10 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 "``model-export-<model-display-name>-<timestamp-of-export-call>``",
                 where timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601
                 format, will be created. Inside, the Model and any of its
-                supporting files will be written. This field should only be
-                set when the ``exportableContent`` field of the
-                [Model.supported_export_formats] object contains
-                ``ARTIFACT``.
+                supporting files will be written.
+
+                This field should only be set when, in [Model.supported_export_formats],
+                the value for the key given in `export_format_id` contains ``ARTIFACT``.
             image_destination (str):
                 The Google Container Registry or Artifact Registry URI where
                 the Model container image will be copied to. Accepted forms:
@@ -2112,12 +2113,10 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 -  Artifact Registry path. For example:
                 ``us-central1-docker.pkg.dev/projectId/repoName/imageName:tag``.
 
-                This field
-                should only be set when the ``exportableContent`` field of
-                the [Model.supported_export_formats] object contains
-                ``IMAGE``.
+                This field should only be set when, in [Model.supported_export_formats],
+                the value for the key given in `export_format_id` contains ``IMAGE``.
             sync (bool):
-                Whether to execute this deletion synchronously. If False, this method
+                Whether to execute this export synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
 
@@ -2147,21 +2146,21 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             )
 
         content_types = gca_model_compat.Model.ExportFormat.ExportableContent
-        supported_content_types = self._supported_export_formats[export_format_id]
+        supported_content_types = self.supported_export_formats[export_format_id]
 
         if (
             artifact_destination
             and content_types.ARTIFACT not in supported_content_types
         ):
             raise ValueError(
-                "This model can not be exported as an artifact. Try exporting as "
-                "a container image by passing the `image_destination` argument."
+                "This model can not be exported as an artifact in '{export_format_id}' format. "
+                "Try exporting as a container image by passing the `image_destination` argument."
             )
 
         if image_destination and content_types.IMAGE not in supported_content_types:
             raise ValueError(
-                "This model can not be exported as a container image. Try exporting "
-                "the model artifacts by passing a `artifact_destination` argument."
+                "This model can not be exported as a container image in '{export_format_id}' format. "
+                "Try exporting the model artifacts by passing a `artifact_destination` argument."
             )
 
         # Construct request payload
@@ -2190,6 +2189,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         )
 
         # Block before returning
-        operation_future.result()
+        self._wait_on_export(operation_future=operation_future, sync=sync)
 
         _LOGGER.log_action_completed_against_resource("model", "exported", self)
+
+        return json_format.MessageToDict(operation_future.metadata.output_info._pb)

@@ -362,6 +362,11 @@ def export_model_mock():
         model_service_client.ModelServiceClient, "export_model"
     ) as export_model_mock:
         export_model_lro_mock = mock.Mock(ga_operation.Operation)
+        export_model_lro_mock.metadata = gca_model_service.ExportModelOperationMetadata(
+            output_info=gca_model_service.ExportModelOperationMetadata.OutputInfo(
+                artifact_output_uri=_TEST_OUTPUT_DIR
+            )
+        )
         export_model_lro_mock.result.return_value = None
         export_model_mock.return_value = export_model_lro_mock
         yield export_model_mock
