@@ -40,6 +40,7 @@ MODEL_NAME = f"{PARENT}/models/{RESOURCE_ID}"
 TRAINING_JOB_NAME = f"{PARENT}/trainingJobs/{RESOURCE_ID}"
 
 GCS_SOURCES = ["gs://bucket1/source1.jsonl", "gs://bucket7/source4.jsonl"]
+BIGQUERY_SOURCE = "bq://bigquery-public-data.ml_datasets.iris"
 GCS_DESTINATION = "gs://bucket3/output-dir/"
 
 TRAINING_FRACTION_SPLIT = 0.7
@@ -51,3 +52,11 @@ BUDGET_MILLI_NODE_HOURS_8000 = 8000
 ENCRYPTION_SPEC_KEY_NAME = f"{PARENT}/keyRings/{RESOURCE_ID}/cryptoKeys/{RESOURCE_ID_2}"
 
 PREDICTION_TEXT_INSTANCE = "This is some text for testing NLP prediction output"
+
+SCRIPT_PATH = "task.py"
+CONTAINER_URI = "gcr.io/my_project/my_image:latest"
+ARGS = ["--tfds", "tf_flowers:3.*.*"]
+REPLICA_COUNT = 0
+MACHINE_TYPE = "n1-standard-4"
+ACCELERATOR_TYPE = "ACCELERATOR_TYPE_UNSPECIFIED"
+ACCELERATOR_COUNT = 0
