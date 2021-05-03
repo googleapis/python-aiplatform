@@ -22,7 +22,7 @@ from typing import Dict, Optional
 
 
 class EnvironmentVariables:
-    """Passes on OS' environment variables"""
+    """Passes on OS' environment variables."""
 
     @property
     def training_data_uri(self) -> Optional[str]:
