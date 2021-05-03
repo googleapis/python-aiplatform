@@ -2988,6 +2988,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 "minimize-wape-mae" - Minimize the combination of weighted absolute percentage error (WAPE)
                                       and mean-absolute-error (MAE).
                 "minimize-quantile-loss" - Minimize the quantile loss at the defined quantiles.
+                                           (Set this objective to build quantile forecasts.)
             column_transformations (Optional[Union[Dict, List[Dict]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
