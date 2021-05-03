@@ -14,8 +14,9 @@
 
 
 from google.cloud import aiplatform
-from typing import Optional, Sequence, Tuple, Dict
-from google.cloud.aiplatform import explain
+
+from typing import Optional, Sequence, Dict
+
 
 #  [START aiplatform_sdk_upload_model_explain_tabular_managed_container_sample]
 def upload_model_explain_tabular_managed_container_sample(
@@ -34,8 +35,8 @@ def upload_model_explain_tabular_managed_container_sample(
     instance_schema_uri: Optional[str] = None,
     parameters_schema_uri: Optional[str] = None,
     prediction_schema_uri: Optional[str] = None,
-    explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-    explanation_parameters: Optional[explain.ExplanationParameters] = None,
+    explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
+    explanation_parameters: Optional[aiplatform.explain.ExplanationParameters] = None,
     sync: bool = True,
 ):
 

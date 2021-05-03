@@ -14,10 +14,14 @@
 
 
 from google.cloud import aiplatform
+
 from typing import Dict
 
+
 #  [START aiplatform_sdk_explain_tabular_sample]
-def explain_tabular_sample(project: str, location: str, endpoint_id: str, instance_dict: Dict):
+def explain_tabular_sample(
+    project: str, location: str, endpoint_id: str, instance_dict: Dict
+):
 
     aiplatform.init(project=project, location=location)
 

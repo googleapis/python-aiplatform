@@ -17,7 +17,9 @@ import explain_tabular_sample
 import test_constants as constants
 
 
-def test_explain_tabular_sample(mock_sdk_init, mock_endpoint, mock_get_endpoint, mock_endpoint_explain):
+def test_explain_tabular_sample(
+    mock_sdk_init, mock_endpoint, mock_get_endpoint, mock_endpoint_explain
+):
 
     explain_tabular_sample.explain_tabular_sample(
         project=constants.PROJECT,
@@ -30,11 +32,8 @@ def test_explain_tabular_sample(mock_sdk_init, mock_endpoint, mock_get_endpoint,
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_get_endpoint.assert_called_once_with(
-        constants.ENDPOINT_NAME,
-    )
+    mock_get_endpoint.assert_called_once_with(constants.ENDPOINT_NAME,)
 
     mock_endpoint_explain.assert_called_once_with(
-        instances=[constants.PREDICTION_TABULAR_INSTANCE],
-        parameters={}
+        instances=[constants.PREDICTION_TABULAR_INSTANCE], parameters={}
     )
