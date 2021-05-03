@@ -59,6 +59,7 @@ def test_create_training_pipeline_custom_package_job_sample(
         container_uri=constants.CONTAINER_URI,
         model_serving_container_image_uri=constants.CONTAINER_URI,
     )
+
     mock_run_custom_package_training_job.assert_called_once_with(
         dataset=mock_image_dataset,
         model_display_name=constants.DISPLAY_NAME_2,
