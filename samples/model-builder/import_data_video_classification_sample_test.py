@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from google.cloud.aiplatform import schema
+
 import pytest
-import test_constants as constants
+
 import import_data_video_classification_sample
 
-from google.cloud.aiplatform import schema
+import test_constants as constants
 
 
 @pytest.mark.usefixtures("mock_get_video_dataset")

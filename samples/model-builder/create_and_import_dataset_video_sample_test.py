@@ -13,10 +13,11 @@
 # limitations under the License.
 
 
-import test_constants as constants
+from google.cloud.aiplatform import schema
+
 import create_and_import_dataset_video_sample
 
-from google.cloud.aiplatform import schema
+import test_constants as constants
 
 
 def test_create_and_import_dataset_video_sample(
