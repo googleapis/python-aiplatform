@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
 
@@ -26,6 +28,7 @@ __protobuf__ = proto.module(
 
 class ImageSegmentationPredictionParams(proto.Message):
     r"""Prediction model parameters for Image Segmentation.
+
     Attributes:
         confidence_threshold (float):
             When the model predicts category of pixels of
@@ -35,10 +38,7 @@ class ImageSegmentationPredictionParams(proto.Message):
             background. Default value is 0.5.
     """
 
-    confidence_threshold = proto.Field(
-        proto.FLOAT,
-        number=1,
-    )
+    confidence_threshold = proto.Field(proto.FLOAT, number=1)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

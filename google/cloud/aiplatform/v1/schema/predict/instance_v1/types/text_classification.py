@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
 
@@ -26,6 +28,7 @@ __protobuf__ = proto.module(
 
 class TextClassificationPredictionInstance(proto.Message):
     r"""Prediction input format for Text Classification.
+
     Attributes:
         content (str):
             The text snippet to make the predictions on.
@@ -35,14 +38,9 @@ class TextClassificationPredictionInstance(proto.Message):
             - text/plain
     """
 
-    content = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    mime_type = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+    content = proto.Field(proto.STRING, number=1)
+
+    mime_type = proto.Field(proto.STRING, number=2)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

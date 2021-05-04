@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import warnings
-from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple
 
 from google.api_core import gapic_v1                   # type: ignore
 from google.api_core import grpc_helpers_async         # type: ignore
@@ -22,7 +24,6 @@ from google.api_core import operations_v1              # type: ignore
 from google import auth                                # type: ignore
 from google.auth import credentials                    # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-import packaging.version
 
 import grpc                        # type: ignore
 from grpc.experimental import aio  # type: ignore
@@ -33,6 +34,7 @@ from google.cloud.aiplatform_v1.types import model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.longrunning import operations_pb2 as operations  # type: ignore
+
 from .base import ModelServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import ModelServiceGrpcTransport
 
@@ -82,15 +84,13 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         Returns:
             aio.Channel: A gRPC AsyncIO channel object.
         """
-
-        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
-
+        scopes = scopes or cls.AUTH_SCOPES
         return grpc_helpers_async.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
+            scopes=scopes,
             quota_project_id=quota_project_id,
-            **self_signed_jwt_kwargs,
             **kwargs
         )
 
@@ -110,8 +110,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]):
-                 The hostname to connect to.
+            host (Optional[str]): The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -170,6 +169,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
+
         else:
             if api_mtls_endpoint:
                 host = api_mtls_endpoint
@@ -248,9 +248,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     def upload_model(self) -> Callable[
             [model_service.UploadModelRequest],
             Awaitable[operations.Operation]]:
-        r"""Return a callable for the
-        upload model
-          method over gRPC.
+        r"""Return a callable for the upload model method over gRPC.
 
         Uploads a Model artifact into AI Platform.
 
@@ -276,9 +274,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     def get_model(self) -> Callable[
             [model_service.GetModelRequest],
             Awaitable[model.Model]]:
-        r"""Return a callable for the
-        get model
-          method over gRPC.
+        r"""Return a callable for the get model method over gRPC.
 
         Gets a Model.
 
@@ -304,9 +300,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     def list_models(self) -> Callable[
             [model_service.ListModelsRequest],
             Awaitable[model_service.ListModelsResponse]]:
-        r"""Return a callable for the
-        list models
-          method over gRPC.
+        r"""Return a callable for the list models method over gRPC.
 
         Lists Models in a Location.
 
@@ -332,9 +326,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     def update_model(self) -> Callable[
             [model_service.UpdateModelRequest],
             Awaitable[gca_model.Model]]:
-        r"""Return a callable for the
-        update model
-          method over gRPC.
+        r"""Return a callable for the update model method over gRPC.
 
         Updates a Model.
 
@@ -360,9 +352,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     def delete_model(self) -> Callable[
             [model_service.DeleteModelRequest],
             Awaitable[operations.Operation]]:
-        r"""Return a callable for the
-        delete model
-          method over gRPC.
+        r"""Return a callable for the delete model method over gRPC.
 
         Deletes a Model.
         Note: Model can only be deleted if there are no
@@ -390,9 +380,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     def export_model(self) -> Callable[
             [model_service.ExportModelRequest],
             Awaitable[operations.Operation]]:
-        r"""Return a callable for the
-        export model
-          method over gRPC.
+        r"""Return a callable for the export model method over gRPC.
 
         Exports a trained, exportable, Model to a location specified by
         the user. A Model is considered to be exportable if it has at
@@ -421,9 +409,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     def get_model_evaluation(self) -> Callable[
             [model_service.GetModelEvaluationRequest],
             Awaitable[model_evaluation.ModelEvaluation]]:
-        r"""Return a callable for the
-        get model evaluation
-          method over gRPC.
+        r"""Return a callable for the get model evaluation method over gRPC.
 
         Gets a ModelEvaluation.
 
@@ -449,9 +435,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     def list_model_evaluations(self) -> Callable[
             [model_service.ListModelEvaluationsRequest],
             Awaitable[model_service.ListModelEvaluationsResponse]]:
-        r"""Return a callable for the
-        list model evaluations
-          method over gRPC.
+        r"""Return a callable for the list model evaluations method over gRPC.
 
         Lists ModelEvaluations in a Model.
 
@@ -477,9 +461,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     def get_model_evaluation_slice(self) -> Callable[
             [model_service.GetModelEvaluationSliceRequest],
             Awaitable[model_evaluation_slice.ModelEvaluationSlice]]:
-        r"""Return a callable for the
-        get model evaluation slice
-          method over gRPC.
+        r"""Return a callable for the get model evaluation slice method over gRPC.
 
         Gets a ModelEvaluationSlice.
 
@@ -505,9 +487,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     def list_model_evaluation_slices(self) -> Callable[
             [model_service.ListModelEvaluationSlicesRequest],
             Awaitable[model_service.ListModelEvaluationSlicesResponse]]:
-        r"""Return a callable for the
-        list model evaluation slices
-          method over gRPC.
+        r"""Return a callable for the list model evaluation slices method over gRPC.
 
         Lists ModelEvaluationSlices in a ModelEvaluation.
 

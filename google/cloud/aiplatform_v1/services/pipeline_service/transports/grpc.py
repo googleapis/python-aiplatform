@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import warnings
-from typing import Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Callable, Dict, Optional, Sequence, Tuple
 
 from google.api_core import grpc_helpers   # type: ignore
 from google.api_core import operations_v1  # type: ignore
@@ -30,6 +32,7 @@ from google.cloud.aiplatform_v1.types import training_pipeline
 from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_pipeline
 from google.longrunning import operations_pb2 as operations  # type: ignore
 from google.protobuf import empty_pb2 as empty  # type: ignore
+
 from .base import PipelineServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -63,8 +66,7 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]):
-                 The hostname to connect to.
+            host (Optional[str]): The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -204,15 +206,13 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
             google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-
-        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
-
+        scopes = scopes or cls.AUTH_SCOPES
         return grpc_helpers.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
+            scopes=scopes,
             quota_project_id=quota_project_id,
-            **self_signed_jwt_kwargs,
             **kwargs
         )
 
@@ -242,9 +242,7 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
     def create_training_pipeline(self) -> Callable[
             [pipeline_service.CreateTrainingPipelineRequest],
             gca_training_pipeline.TrainingPipeline]:
-        r"""Return a callable for the
-        create training pipeline
-          method over gRPC.
+        r"""Return a callable for the create training pipeline method over gRPC.
 
         Creates a TrainingPipeline. A created
         TrainingPipeline right away will be attempted to be run.
@@ -271,9 +269,7 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
     def get_training_pipeline(self) -> Callable[
             [pipeline_service.GetTrainingPipelineRequest],
             training_pipeline.TrainingPipeline]:
-        r"""Return a callable for the
-        get training pipeline
-          method over gRPC.
+        r"""Return a callable for the get training pipeline method over gRPC.
 
         Gets a TrainingPipeline.
 
@@ -299,9 +295,7 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
     def list_training_pipelines(self) -> Callable[
             [pipeline_service.ListTrainingPipelinesRequest],
             pipeline_service.ListTrainingPipelinesResponse]:
-        r"""Return a callable for the
-        list training pipelines
-          method over gRPC.
+        r"""Return a callable for the list training pipelines method over gRPC.
 
         Lists TrainingPipelines in a Location.
 
@@ -327,9 +321,7 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
     def delete_training_pipeline(self) -> Callable[
             [pipeline_service.DeleteTrainingPipelineRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        delete training pipeline
-          method over gRPC.
+        r"""Return a callable for the delete training pipeline method over gRPC.
 
         Deletes a TrainingPipeline.
 
@@ -355,9 +347,7 @@ class PipelineServiceGrpcTransport(PipelineServiceTransport):
     def cancel_training_pipeline(self) -> Callable[
             [pipeline_service.CancelTrainingPipelineRequest],
             empty.Empty]:
-        r"""Return a callable for the
-        cancel training pipeline
-          method over gRPC.
+        r"""Return a callable for the cancel training pipeline method over gRPC.
 
         Cancels a TrainingPipeline. Starts asynchronous cancellation on
         the TrainingPipeline. The server makes a best effort to cancel

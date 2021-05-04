@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 from distutils import util
 import os
@@ -31,6 +33,7 @@ from google.auth.exceptions import MutualTLSChannelError          # type: ignore
 from google.oauth2 import service_account                         # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import featurestore_online_service
+
 from .transports.base import FeaturestoreOnlineServingServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import FeaturestoreOnlineServingServiceGrpcTransport
 from .transports.grpc_asyncio import FeaturestoreOnlineServingServiceGrpcAsyncIOTransport
@@ -335,8 +338,7 @@ class FeaturestoreOnlineServingServiceClient(metaclass=FeaturestoreOnlineServing
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreOnlineServingService.ReadFeatureValues``.
             entity_type (str):
                 Required. The resource name of the EntityType for the
@@ -349,6 +351,7 @@ class FeaturestoreOnlineServingServiceClient(metaclass=FeaturestoreOnlineServing
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -375,8 +378,10 @@ class FeaturestoreOnlineServingServiceClient(metaclass=FeaturestoreOnlineServing
         # there are no flattened fields.
         if not isinstance(request, featurestore_online_service.ReadFeatureValuesRequest):
             request = featurestore_online_service.ReadFeatureValuesRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if entity_type is not None:
                 request.entity_type = entity_type
 
@@ -417,8 +422,7 @@ class FeaturestoreOnlineServingServiceClient(metaclass=FeaturestoreOnlineServing
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.StreamingReadFeatureValuesRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [FeaturestoreOnlineServingService.StreamingFeatureValuesRead][].
             entity_type (str):
                 Required. The resource name of the entities' type. Value
@@ -431,6 +435,7 @@ class FeaturestoreOnlineServingServiceClient(metaclass=FeaturestoreOnlineServing
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -457,8 +462,10 @@ class FeaturestoreOnlineServingServiceClient(metaclass=FeaturestoreOnlineServing
         # there are no flattened fields.
         if not isinstance(request, featurestore_online_service.StreamingReadFeatureValuesRequest):
             request = featurestore_online_service.StreamingReadFeatureValuesRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if entity_type is not None:
                 request.entity_type = entity_type
 
@@ -484,6 +491,8 @@ class FeaturestoreOnlineServingServiceClient(metaclass=FeaturestoreOnlineServing
 
         # Done; return the response.
         return response
+
+
 
 
 

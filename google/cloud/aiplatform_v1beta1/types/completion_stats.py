@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
 
@@ -46,18 +48,11 @@ class CompletionStats(proto.Message):
             number could be collected).
     """
 
-    successful_count = proto.Field(
-        proto.INT64,
-        number=1,
-    )
-    failed_count = proto.Field(
-        proto.INT64,
-        number=2,
-    )
-    incomplete_count = proto.Field(
-        proto.INT64,
-        number=3,
-    )
+    successful_count = proto.Field(proto.INT64, number=1)
+
+    failed_count = proto.Field(proto.INT64, number=2)
+
+    incomplete_count = proto.Field(proto.INT64, number=3)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

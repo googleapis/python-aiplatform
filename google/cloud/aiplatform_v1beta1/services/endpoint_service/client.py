@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 from distutils import util
 import os
@@ -41,6 +43,7 @@ from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+
 from .transports.base import EndpointServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import EndpointServiceGrpcTransport
 from .transports.grpc_asyncio import EndpointServiceGrpcAsyncIOTransport
@@ -354,8 +357,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateEndpointRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``EndpointService.CreateEndpoint``.
             parent (str):
                 Required. The resource name of the Location to create
@@ -370,6 +372,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -398,8 +401,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.CreateEndpointRequest):
             request = endpoint_service.CreateEndpointRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
             if endpoint is not None:
@@ -448,8 +453,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetEndpointRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``EndpointService.GetEndpoint``
             name (str):
                 Required. The name of the Endpoint resource. Format:
@@ -458,6 +462,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -485,8 +490,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.GetEndpointRequest):
             request = endpoint_service.GetEndpointRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -525,8 +532,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListEndpointsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``EndpointService.ListEndpoints``.
             parent (str):
                 Required. The resource name of the Location from which
@@ -536,6 +542,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -565,8 +572,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.ListEndpointsRequest):
             request = endpoint_service.ListEndpointsRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
 
@@ -615,8 +624,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateEndpointRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``EndpointService.UpdateEndpoint``.
             endpoint (google.cloud.aiplatform_v1beta1.types.Endpoint):
                 Required. The Endpoint which replaces
@@ -632,6 +640,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -659,8 +668,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.UpdateEndpointRequest):
             request = endpoint_service.UpdateEndpointRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if endpoint is not None:
                 request.endpoint = endpoint
             if update_mask is not None:
@@ -701,8 +712,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteEndpointRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``EndpointService.DeleteEndpoint``.
             name (str):
                 Required. The name of the Endpoint resource to be
@@ -712,6 +722,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -751,8 +762,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.DeleteEndpointRequest):
             request = endpoint_service.DeleteEndpointRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -802,8 +815,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeployModelRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``EndpointService.DeployModel``.
             endpoint (str):
                 Required. The name of the Endpoint resource into which
@@ -844,6 +856,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``traffic_split`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -874,8 +887,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.DeployModelRequest):
             request = endpoint_service.DeployModelRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if endpoint is not None:
                 request.endpoint = endpoint
             if deployed_model is not None:
@@ -930,8 +945,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UndeployModelRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``EndpointService.UndeployModel``.
             endpoint (str):
                 Required. The name of the Endpoint resource from which
@@ -962,6 +976,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``traffic_split`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -992,8 +1007,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.UndeployModelRequest):
             request = endpoint_service.UndeployModelRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if endpoint is not None:
                 request.endpoint = endpoint
             if deployed_model_id is not None:
@@ -1031,6 +1048,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         # Done; return the response.
         return response
+
+
 
 
 

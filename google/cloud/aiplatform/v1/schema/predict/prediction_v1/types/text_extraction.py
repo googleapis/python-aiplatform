@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
 
@@ -26,6 +28,7 @@ __protobuf__ = proto.module(
 
 class TextExtractionPredictionResult(proto.Message):
     r"""Prediction output format for Text Extraction.
+
     Attributes:
         ids (Sequence[int]):
             The resource IDs of the AnnotationSpecs that
@@ -52,26 +55,15 @@ class TextExtractionPredictionResult(proto.Message):
             confidence. Order matches the Ids.
     """
 
-    ids = proto.RepeatedField(
-        proto.INT64,
-        number=1,
-    )
-    display_names = proto.RepeatedField(
-        proto.STRING,
-        number=2,
-    )
-    text_segment_start_offsets = proto.RepeatedField(
-        proto.INT64,
-        number=3,
-    )
-    text_segment_end_offsets = proto.RepeatedField(
-        proto.INT64,
-        number=4,
-    )
-    confidences = proto.RepeatedField(
-        proto.FLOAT,
-        number=5,
-    )
+    ids = proto.RepeatedField(proto.INT64, number=1)
+
+    display_names = proto.RepeatedField(proto.STRING, number=2)
+
+    text_segment_start_offsets = proto.RepeatedField(proto.INT64, number=3)
+
+    text_segment_end_offsets = proto.RepeatedField(proto.INT64, number=4)
+
+    confidences = proto.RepeatedField(proto.FLOAT, number=5)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 import functools
 import re
@@ -50,6 +52,7 @@ from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 from google.rpc import status_pb2 as status  # type: ignore
 from google.type import money_pb2 as money  # type: ignore
+
 from .transports.base import JobServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import JobServiceGrpcAsyncIOTransport
 from .client import JobServiceClient
@@ -77,14 +80,19 @@ class JobServiceAsyncClient:
     parse_model_path = staticmethod(JobServiceClient.parse_model_path)
     trial_path = staticmethod(JobServiceClient.trial_path)
     parse_trial_path = staticmethod(JobServiceClient.parse_trial_path)
+
     common_billing_account_path = staticmethod(JobServiceClient.common_billing_account_path)
     parse_common_billing_account_path = staticmethod(JobServiceClient.parse_common_billing_account_path)
+
     common_folder_path = staticmethod(JobServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(JobServiceClient.parse_common_folder_path)
+
     common_organization_path = staticmethod(JobServiceClient.common_organization_path)
     parse_common_organization_path = staticmethod(JobServiceClient.parse_common_organization_path)
+
     common_project_path = staticmethod(JobServiceClient.common_project_path)
     parse_common_project_path = staticmethod(JobServiceClient.parse_common_project_path)
+
     common_location_path = staticmethod(JobServiceClient.common_location_path)
     parse_common_location_path = staticmethod(JobServiceClient.parse_common_location_path)
 
@@ -169,6 +177,7 @@ class JobServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
+
         self._client = JobServiceClient(
             credentials=credentials,
             transport=transport,
@@ -191,8 +200,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateCustomJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.CreateCustomJob``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
@@ -207,6 +215,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``custom_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -237,6 +246,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
         if custom_job is not None:
@@ -281,8 +291,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetCustomJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.GetCustomJob``.
             name (:class:`str`):
                 Required. The name of the CustomJob resource. Format:
@@ -291,6 +300,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -321,6 +331,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -363,8 +374,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListCustomJobsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.ListCustomJobs``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
@@ -374,6 +384,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -401,6 +412,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -452,8 +464,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteCustomJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.DeleteCustomJob``.
             name (:class:`str`):
                 Required. The name of the CustomJob resource to be
@@ -463,6 +474,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -500,6 +512,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -562,8 +575,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CancelCustomJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.CancelCustomJob``.
             name (:class:`str`):
                 Required. The name of the CustomJob to cancel. Format:
@@ -572,6 +584,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -590,6 +603,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -630,8 +644,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateDataLabelingJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DataLabelingJobService.CreateDataLabelingJob][].
             parent (:class:`str`):
                 Required. The parent of the DataLabelingJob. Format:
@@ -647,6 +660,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``data_labeling_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -672,6 +686,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
         if data_labeling_job is not None:
@@ -716,8 +731,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetDataLabelingJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DataLabelingJobService.GetDataLabelingJob][].
             name (:class:`str`):
                 Required. The name of the DataLabelingJob. Format:
@@ -727,6 +741,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -752,6 +767,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -794,8 +810,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListDataLabelingJobsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DataLabelingJobService.ListDataLabelingJobs][].
             parent (:class:`str`):
                 Required. The parent of the DataLabelingJob. Format:
@@ -804,6 +819,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -831,6 +847,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -882,8 +899,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteDataLabelingJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.DeleteDataLabelingJob``.
             name (:class:`str`):
                 Required. The name of the DataLabelingJob to be deleted.
@@ -894,6 +910,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -931,6 +948,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -982,8 +1000,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CancelDataLabelingJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DataLabelingJobService.CancelDataLabelingJob][].
             name (:class:`str`):
                 Required. The name of the DataLabelingJob. Format:
@@ -993,6 +1010,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1011,6 +1029,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -1051,8 +1070,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateHyperparameterTuningJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.CreateHyperparameterTuningJob``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
@@ -1069,6 +1087,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``hyperparameter_tuning_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1095,6 +1114,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
         if hyperparameter_tuning_job is not None:
@@ -1139,8 +1159,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetHyperparameterTuningJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.GetHyperparameterTuningJob``.
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob
@@ -1151,6 +1170,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1177,6 +1197,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -1219,8 +1240,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListHyperparameterTuningJobsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.ListHyperparameterTuningJobs``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
@@ -1230,6 +1250,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1257,6 +1278,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -1308,8 +1330,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteHyperparameterTuningJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.DeleteHyperparameterTuningJob``.
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob
@@ -1320,6 +1341,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1357,6 +1379,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -1420,8 +1443,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CancelHyperparameterTuningJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.CancelHyperparameterTuningJob``.
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob to
@@ -1432,6 +1454,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1450,6 +1473,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -1491,8 +1515,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateBatchPredictionJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.CreateBatchPredictionJob``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
@@ -1509,6 +1532,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``batch_prediction_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1537,6 +1561,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
         if batch_prediction_job is not None:
@@ -1581,8 +1606,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetBatchPredictionJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.GetBatchPredictionJob``.
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob resource.
@@ -1593,6 +1617,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1621,6 +1646,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -1663,8 +1689,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListBatchPredictionJobsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.ListBatchPredictionJobs``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
@@ -1674,6 +1699,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1701,6 +1727,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -1753,8 +1780,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteBatchPredictionJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.DeleteBatchPredictionJob``.
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob resource to
@@ -1765,6 +1791,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1802,6 +1829,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -1863,8 +1891,7 @@ class JobServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CancelBatchPredictionJobRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``JobService.CancelBatchPredictionJob``.
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob to cancel.
@@ -1875,6 +1902,7 @@ class JobServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1893,6 +1921,7 @@ class JobServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -1919,6 +1948,8 @@ class JobServiceAsyncClient:
             timeout=timeout,
             metadata=metadata,
         )
+
+
 
 
 

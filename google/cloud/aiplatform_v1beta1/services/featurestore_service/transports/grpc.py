@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import warnings
-from typing import Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Callable, Dict, Optional, Sequence, Tuple
 
 from google.api_core import grpc_helpers   # type: ignore
 from google.api_core import operations_v1  # type: ignore
@@ -32,6 +34,7 @@ from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import featurestore
 from google.cloud.aiplatform_v1beta1.types import featurestore_service
 from google.longrunning import operations_pb2 as operations  # type: ignore
+
 from .base import FeaturestoreServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -66,8 +69,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]):
-                 The hostname to connect to.
+            host (Optional[str]): The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -207,15 +209,13 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
             google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-
-        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
-
+        scopes = scopes or cls.AUTH_SCOPES
         return grpc_helpers.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
+            scopes=scopes,
             quota_project_id=quota_project_id,
-            **self_signed_jwt_kwargs,
             **kwargs
         )
 
@@ -245,9 +245,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def create_featurestore(self) -> Callable[
             [featurestore_service.CreateFeaturestoreRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        create featurestore
-          method over gRPC.
+        r"""Return a callable for the create featurestore method over gRPC.
 
         Creates a new Featurestore in a given project and
         location.
@@ -274,9 +272,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def get_featurestore(self) -> Callable[
             [featurestore_service.GetFeaturestoreRequest],
             featurestore.Featurestore]:
-        r"""Return a callable for the
-        get featurestore
-          method over gRPC.
+        r"""Return a callable for the get featurestore method over gRPC.
 
         Gets details of a single Featurestore.
 
@@ -302,9 +298,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def list_featurestores(self) -> Callable[
             [featurestore_service.ListFeaturestoresRequest],
             featurestore_service.ListFeaturestoresResponse]:
-        r"""Return a callable for the
-        list featurestores
-          method over gRPC.
+        r"""Return a callable for the list featurestores method over gRPC.
 
         Lists Featurestores in a given project and location.
 
@@ -330,9 +324,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def update_featurestore(self) -> Callable[
             [featurestore_service.UpdateFeaturestoreRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        update featurestore
-          method over gRPC.
+        r"""Return a callable for the update featurestore method over gRPC.
 
         Updates the parameters of a single Featurestore.
 
@@ -358,9 +350,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def delete_featurestore(self) -> Callable[
             [featurestore_service.DeleteFeaturestoreRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        delete featurestore
-          method over gRPC.
+        r"""Return a callable for the delete featurestore method over gRPC.
 
         Deletes a single Featurestore. The Featurestore must not contain
         any EntityTypes or ``force`` must be set to true for the request
@@ -388,9 +378,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def create_entity_type(self) -> Callable[
             [featurestore_service.CreateEntityTypeRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        create entity type
-          method over gRPC.
+        r"""Return a callable for the create entity type method over gRPC.
 
         Creates a new EntityType in a given Featurestore.
 
@@ -416,9 +404,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def get_entity_type(self) -> Callable[
             [featurestore_service.GetEntityTypeRequest],
             entity_type.EntityType]:
-        r"""Return a callable for the
-        get entity type
-          method over gRPC.
+        r"""Return a callable for the get entity type method over gRPC.
 
         Gets details of a single EntityType.
 
@@ -444,9 +430,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def list_entity_types(self) -> Callable[
             [featurestore_service.ListEntityTypesRequest],
             featurestore_service.ListEntityTypesResponse]:
-        r"""Return a callable for the
-        list entity types
-          method over gRPC.
+        r"""Return a callable for the list entity types method over gRPC.
 
         Lists EntityTypes in a given Featurestore.
 
@@ -472,9 +456,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def update_entity_type(self) -> Callable[
             [featurestore_service.UpdateEntityTypeRequest],
             gca_entity_type.EntityType]:
-        r"""Return a callable for the
-        update entity type
-          method over gRPC.
+        r"""Return a callable for the update entity type method over gRPC.
 
         Updates the parameters of a single EntityType.
 
@@ -500,9 +482,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def delete_entity_type(self) -> Callable[
             [featurestore_service.DeleteEntityTypeRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        delete entity type
-          method over gRPC.
+        r"""Return a callable for the delete entity type method over gRPC.
 
         Deletes a single EntityType. The EntityType must not have any
         Features or ``force`` must be set to true for the request to
@@ -530,9 +510,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def create_feature(self) -> Callable[
             [featurestore_service.CreateFeatureRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        create feature
-          method over gRPC.
+        r"""Return a callable for the create feature method over gRPC.
 
         Creates a new Feature in a given EntityType.
 
@@ -558,9 +536,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def batch_create_features(self) -> Callable[
             [featurestore_service.BatchCreateFeaturesRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        batch create features
-          method over gRPC.
+        r"""Return a callable for the batch create features method over gRPC.
 
         Creates a batch of Features in a given EntityType.
 
@@ -586,9 +562,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def get_feature(self) -> Callable[
             [featurestore_service.GetFeatureRequest],
             feature.Feature]:
-        r"""Return a callable for the
-        get feature
-          method over gRPC.
+        r"""Return a callable for the get feature method over gRPC.
 
         Gets details of a single Feature.
 
@@ -614,9 +588,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def list_features(self) -> Callable[
             [featurestore_service.ListFeaturesRequest],
             featurestore_service.ListFeaturesResponse]:
-        r"""Return a callable for the
-        list features
-          method over gRPC.
+        r"""Return a callable for the list features method over gRPC.
 
         Lists Features in a given EntityType.
 
@@ -642,9 +614,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def update_feature(self) -> Callable[
             [featurestore_service.UpdateFeatureRequest],
             gca_feature.Feature]:
-        r"""Return a callable for the
-        update feature
-          method over gRPC.
+        r"""Return a callable for the update feature method over gRPC.
 
         Updates the parameters of a single Feature.
 
@@ -670,9 +640,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def delete_feature(self) -> Callable[
             [featurestore_service.DeleteFeatureRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        delete feature
-          method over gRPC.
+        r"""Return a callable for the delete feature method over gRPC.
 
         Deletes a single Feature.
 
@@ -698,9 +666,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def import_feature_values(self) -> Callable[
             [featurestore_service.ImportFeatureValuesRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        import feature values
-          method over gRPC.
+        r"""Return a callable for the import feature values method over gRPC.
 
         Imports Feature values into the Featurestore from a
         source storage.
@@ -746,9 +712,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def batch_read_feature_values(self) -> Callable[
             [featurestore_service.BatchReadFeatureValuesRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        batch read feature values
-          method over gRPC.
+        r"""Return a callable for the batch read feature values method over gRPC.
 
         Batch reads Feature values from a Featurestore.
         This API enables batch reading Feature values, where
@@ -779,9 +743,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def export_feature_values(self) -> Callable[
             [featurestore_service.ExportFeatureValuesRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        export feature values
-          method over gRPC.
+        r"""Return a callable for the export feature values method over gRPC.
 
         Exports Feature values from all the entities of a
         target EntityType.
@@ -808,9 +770,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     def search_features(self) -> Callable[
             [featurestore_service.SearchFeaturesRequest],
             featurestore_service.SearchFeaturesResponse]:
-        r"""Return a callable for the
-        search features
-          method over gRPC.
+        r"""Return a callable for the search features method over gRPC.
 
         Searches Features matching a query in a given
         project.

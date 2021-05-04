@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
 
@@ -34,15 +36,14 @@ class AutoMlVideoActionRecognition(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(
-        proto.MESSAGE,
-        number=1,
+    inputs = proto.Field(proto.MESSAGE, number=1,
         message='AutoMlVideoActionRecognitionInputs',
     )
 
 
 class AutoMlVideoActionRecognitionInputs(proto.Message):
     r"""
+
     Attributes:
         model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoActionRecognitionInputs.ModelType):
 
@@ -53,9 +54,7 @@ class AutoMlVideoActionRecognitionInputs(proto.Message):
         CLOUD = 1
         MOBILE_VERSATILE_1 = 2
 
-    model_type = proto.Field(
-        proto.ENUM,
-        number=1,
+    model_type = proto.Field(proto.ENUM, number=1,
         enum=ModelType,
     )
 

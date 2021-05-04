@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +30,6 @@ from .services.prediction_service import PredictionServiceClient
 from .services.specialist_pool_service import SpecialistPoolServiceClient
 from .services.tensorboard_service import TensorboardServiceClient
 from .services.vizier_service import VizierServiceClient
-
 from .types.accelerator_type import AcceleratorType
 from .types.annotation import Annotation
 from .types.annotation_spec import AnnotationSpec
@@ -428,6 +428,7 @@ from .types.vizier_service import StopTrialRequest
 from .types.vizier_service import SuggestTrialsMetadata
 from .types.vizier_service import SuggestTrialsRequest
 from .types.vizier_service import SuggestTrialsResponse
+
 
 __all__ = (
     'AcceleratorType',

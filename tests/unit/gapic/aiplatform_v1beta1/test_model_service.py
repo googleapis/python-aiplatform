@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import os
 import mock
-import packaging.version
 
 import grpc
 from grpc.experimental import aio
 import math
 import pytest
 from proto.marshal.rules.dates import DurationRule, TimestampRule
-
 
 from google import auth
 from google.api_core import client_options
@@ -39,8 +39,6 @@ from google.cloud.aiplatform_v1beta1.services.model_service import ModelServiceA
 from google.cloud.aiplatform_v1beta1.services.model_service import ModelServiceClient
 from google.cloud.aiplatform_v1beta1.services.model_service import pagers
 from google.cloud.aiplatform_v1beta1.services.model_service import transports
-from google.cloud.aiplatform_v1beta1.services.model_service.transports.base import _API_CORE_VERSION
-from google.cloud.aiplatform_v1beta1.services.model_service.transports.base import _GOOGLE_AUTH_VERSION
 from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
@@ -59,28 +57,6 @@ from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
-
-# TODO(busunkim): Once google-api-core >= 1.26.0 is required:
-# - Delete all the api-core and auth "less than" test cases
-# - Delete these pytest markers (Make the "greater than or equal to" tests the default).
-requires_google_auth_lt_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) >= packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth < 1.25.0",
-)
-requires_google_auth_gte_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) < packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth >= 1.25.0",
-)
-
-requires_api_core_lt_1_26_0 = pytest.mark.skipif(
-    packaging.version.parse(_API_CORE_VERSION) >= packaging.version.parse("1.26.0"),
-    reason="This test requires google-api-core < 1.26.0",
-)
-
-requires_api_core_gte_1_26_0 = pytest.mark.skipif(
-    packaging.version.parse(_API_CORE_VERSION) < packaging.version.parse("1.26.0"),
-    reason="This test requires google-api-core >= 1.26.0",
-)
 
 def client_cert_source_callback():
     return b"cert bytes", b"key bytes"
@@ -248,10 +224,12 @@ def test_model_service_client_client_options(client_class, transport_class, tran
         )
 
 @pytest.mark.parametrize("client_class,transport_class,transport_name,use_client_cert_env", [
+
     (ModelServiceClient, transports.ModelServiceGrpcTransport, "grpc", "true"),
     (ModelServiceAsyncClient, transports.ModelServiceGrpcAsyncIOTransport, "grpc_asyncio", "true"),
     (ModelServiceClient, transports.ModelServiceGrpcTransport, "grpc", "false"),
     (ModelServiceAsyncClient, transports.ModelServiceGrpcAsyncIOTransport, "grpc_asyncio", "false"),
+
 ])
 @mock.patch.object(ModelServiceClient, "DEFAULT_ENDPOINT", modify_default_endpoint(ModelServiceClient))
 @mock.patch.object(ModelServiceAsyncClient, "DEFAULT_ENDPOINT", modify_default_endpoint(ModelServiceAsyncClient))
@@ -405,11 +383,13 @@ def test_upload_model(transport: str = 'grpc', request_type=model_service.Upload
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/spam')
+
         response = client.upload_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.UploadModelRequest()
 
     # Establish that the response is the type that we expect.
@@ -435,8 +415,8 @@ def test_upload_model_empty_call():
         client.upload_model()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == model_service.UploadModelRequest()
 
+        assert args[0] == model_service.UploadModelRequest()
 
 @pytest.mark.asyncio
 async def test_upload_model_async(transport: str = 'grpc_asyncio', request_type=model_service.UploadModelRequest):
@@ -457,11 +437,13 @@ async def test_upload_model_async(transport: str = 'grpc_asyncio', request_type=
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name='operations/spam')
         )
+
         response = await client.upload_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.UploadModelRequest()
 
     # Establish that the response is the type that we expect.
@@ -481,7 +463,6 @@ def test_upload_model_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.UploadModelRequest()
-
     request.parent = 'parent/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -489,6 +470,7 @@ def test_upload_model_field_headers():
             type(client.transport.upload_model),
             '__call__') as call:
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         client.upload_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -513,7 +495,6 @@ async def test_upload_model_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.UploadModelRequest()
-
     request.parent = 'parent/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -521,6 +502,7 @@ async def test_upload_model_field_headers_async():
             type(client.transport.upload_model),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
+
         await client.upload_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -547,6 +529,7 @@ def test_upload_model_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.upload_model(
@@ -558,7 +541,9 @@ def test_upload_model_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == 'parent_value'
+
         assert args[0].model == gca_model.Model(name='name_value')
 
 
@@ -604,7 +589,9 @@ async def test_upload_model_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == 'parent_value'
+
         assert args[0].model == gca_model.Model(name='name_value')
 
 
@@ -641,34 +628,57 @@ def test_get_model(transport: str = 'grpc', request_type=model_service.GetModelR
         # Designate an appropriate return value for the call.
         call.return_value = model.Model(
             name='name_value',
+
             display_name='display_name_value',
+
             description='description_value',
+
             metadata_schema_uri='metadata_schema_uri_value',
+
             training_pipeline='training_pipeline_value',
+
             artifact_uri='artifact_uri_value',
+
             supported_deployment_resources_types=[model.Model.DeploymentResourcesType.DEDICATED_RESOURCES],
+
             supported_input_storage_formats=['supported_input_storage_formats_value'],
+
             supported_output_storage_formats=['supported_output_storage_formats_value'],
+
             etag='etag_value',
+
         )
+
         response = client.get_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.GetModelRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, model.Model)
+
     assert response.name == 'name_value'
+
     assert response.display_name == 'display_name_value'
+
     assert response.description == 'description_value'
+
     assert response.metadata_schema_uri == 'metadata_schema_uri_value'
+
     assert response.training_pipeline == 'training_pipeline_value'
+
     assert response.artifact_uri == 'artifact_uri_value'
+
     assert response.supported_deployment_resources_types == [model.Model.DeploymentResourcesType.DEDICATED_RESOURCES]
+
     assert response.supported_input_storage_formats == ['supported_input_storage_formats_value']
+
     assert response.supported_output_storage_formats == ['supported_output_storage_formats_value']
+
     assert response.etag == 'etag_value'
 
 
@@ -691,8 +701,8 @@ def test_get_model_empty_call():
         client.get_model()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == model_service.GetModelRequest()
 
+        assert args[0] == model_service.GetModelRequest()
 
 @pytest.mark.asyncio
 async def test_get_model_async(transport: str = 'grpc_asyncio', request_type=model_service.GetModelRequest):
@@ -710,7 +720,7 @@ async def test_get_model_async(transport: str = 'grpc_asyncio', request_type=mod
             type(client.transport.get_model),
             '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(model.Model(
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(model.Model(
             name='name_value',
             display_name='display_name_value',
             description='description_value',
@@ -722,24 +732,36 @@ async def test_get_model_async(transport: str = 'grpc_asyncio', request_type=mod
             supported_output_storage_formats=['supported_output_storage_formats_value'],
             etag='etag_value',
         ))
+
         response = await client.get_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.GetModelRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, model.Model)
+
     assert response.name == 'name_value'
+
     assert response.display_name == 'display_name_value'
+
     assert response.description == 'description_value'
+
     assert response.metadata_schema_uri == 'metadata_schema_uri_value'
+
     assert response.training_pipeline == 'training_pipeline_value'
+
     assert response.artifact_uri == 'artifact_uri_value'
+
     assert response.supported_deployment_resources_types == [model.Model.DeploymentResourcesType.DEDICATED_RESOURCES]
+
     assert response.supported_input_storage_formats == ['supported_input_storage_formats_value']
+
     assert response.supported_output_storage_formats == ['supported_output_storage_formats_value']
+
     assert response.etag == 'etag_value'
 
 
@@ -756,7 +778,6 @@ def test_get_model_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.GetModelRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -764,6 +785,7 @@ def test_get_model_field_headers():
             type(client.transport.get_model),
             '__call__') as call:
         call.return_value = model.Model()
+
         client.get_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -788,7 +810,6 @@ async def test_get_model_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.GetModelRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -796,6 +817,7 @@ async def test_get_model_field_headers_async():
             type(client.transport.get_model),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(model.Model())
+
         await client.get_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -822,6 +844,7 @@ def test_get_model_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = model.Model()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.get_model(
@@ -832,6 +855,7 @@ def test_get_model_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
 
 
@@ -873,6 +897,7 @@ async def test_get_model_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
 
 
@@ -908,16 +933,21 @@ def test_list_models(transport: str = 'grpc', request_type=model_service.ListMod
         # Designate an appropriate return value for the call.
         call.return_value = model_service.ListModelsResponse(
             next_page_token='next_page_token_value',
+
         )
+
         response = client.list_models(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.ListModelsRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, pagers.ListModelsPager)
+
     assert response.next_page_token == 'next_page_token_value'
 
 
@@ -940,8 +970,8 @@ def test_list_models_empty_call():
         client.list_models()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == model_service.ListModelsRequest()
 
+        assert args[0] == model_service.ListModelsRequest()
 
 @pytest.mark.asyncio
 async def test_list_models_async(transport: str = 'grpc_asyncio', request_type=model_service.ListModelsRequest):
@@ -959,18 +989,21 @@ async def test_list_models_async(transport: str = 'grpc_asyncio', request_type=m
             type(client.transport.list_models),
             '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(model_service.ListModelsResponse(
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(model_service.ListModelsResponse(
             next_page_token='next_page_token_value',
         ))
+
         response = await client.list_models(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.ListModelsRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListModelsAsyncPager)
+
     assert response.next_page_token == 'next_page_token_value'
 
 
@@ -987,7 +1020,6 @@ def test_list_models_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelsRequest()
-
     request.parent = 'parent/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -995,6 +1027,7 @@ def test_list_models_field_headers():
             type(client.transport.list_models),
             '__call__') as call:
         call.return_value = model_service.ListModelsResponse()
+
         client.list_models(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1019,7 +1052,6 @@ async def test_list_models_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelsRequest()
-
     request.parent = 'parent/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1027,6 +1059,7 @@ async def test_list_models_field_headers_async():
             type(client.transport.list_models),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(model_service.ListModelsResponse())
+
         await client.list_models(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1053,6 +1086,7 @@ def test_list_models_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = model_service.ListModelsResponse()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_models(
@@ -1063,6 +1097,7 @@ def test_list_models_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == 'parent_value'
 
 
@@ -1104,6 +1139,7 @@ async def test_list_models_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == 'parent_value'
 
 
@@ -1308,6 +1344,7 @@ async def test_list_models_async_pages():
         for page_, token in zip(pages, ['abc','def','ghi', '']):
             assert page_.raw_page.next_page_token == token
 
+
 def test_update_model(transport: str = 'grpc', request_type=model_service.UpdateModelRequest):
     client = ModelServiceClient(
         credentials=credentials.AnonymousCredentials(),
@@ -1325,34 +1362,57 @@ def test_update_model(transport: str = 'grpc', request_type=model_service.Update
         # Designate an appropriate return value for the call.
         call.return_value = gca_model.Model(
             name='name_value',
+
             display_name='display_name_value',
+
             description='description_value',
+
             metadata_schema_uri='metadata_schema_uri_value',
+
             training_pipeline='training_pipeline_value',
+
             artifact_uri='artifact_uri_value',
+
             supported_deployment_resources_types=[gca_model.Model.DeploymentResourcesType.DEDICATED_RESOURCES],
+
             supported_input_storage_formats=['supported_input_storage_formats_value'],
+
             supported_output_storage_formats=['supported_output_storage_formats_value'],
+
             etag='etag_value',
+
         )
+
         response = client.update_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.UpdateModelRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, gca_model.Model)
+
     assert response.name == 'name_value'
+
     assert response.display_name == 'display_name_value'
+
     assert response.description == 'description_value'
+
     assert response.metadata_schema_uri == 'metadata_schema_uri_value'
+
     assert response.training_pipeline == 'training_pipeline_value'
+
     assert response.artifact_uri == 'artifact_uri_value'
+
     assert response.supported_deployment_resources_types == [gca_model.Model.DeploymentResourcesType.DEDICATED_RESOURCES]
+
     assert response.supported_input_storage_formats == ['supported_input_storage_formats_value']
+
     assert response.supported_output_storage_formats == ['supported_output_storage_formats_value']
+
     assert response.etag == 'etag_value'
 
 
@@ -1375,8 +1435,8 @@ def test_update_model_empty_call():
         client.update_model()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == model_service.UpdateModelRequest()
 
+        assert args[0] == model_service.UpdateModelRequest()
 
 @pytest.mark.asyncio
 async def test_update_model_async(transport: str = 'grpc_asyncio', request_type=model_service.UpdateModelRequest):
@@ -1394,7 +1454,7 @@ async def test_update_model_async(transport: str = 'grpc_asyncio', request_type=
             type(client.transport.update_model),
             '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(gca_model.Model(
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(gca_model.Model(
             name='name_value',
             display_name='display_name_value',
             description='description_value',
@@ -1406,24 +1466,36 @@ async def test_update_model_async(transport: str = 'grpc_asyncio', request_type=
             supported_output_storage_formats=['supported_output_storage_formats_value'],
             etag='etag_value',
         ))
+
         response = await client.update_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.UpdateModelRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_model.Model)
+
     assert response.name == 'name_value'
+
     assert response.display_name == 'display_name_value'
+
     assert response.description == 'description_value'
+
     assert response.metadata_schema_uri == 'metadata_schema_uri_value'
+
     assert response.training_pipeline == 'training_pipeline_value'
+
     assert response.artifact_uri == 'artifact_uri_value'
+
     assert response.supported_deployment_resources_types == [gca_model.Model.DeploymentResourcesType.DEDICATED_RESOURCES]
+
     assert response.supported_input_storage_formats == ['supported_input_storage_formats_value']
+
     assert response.supported_output_storage_formats == ['supported_output_storage_formats_value']
+
     assert response.etag == 'etag_value'
 
 
@@ -1440,7 +1512,6 @@ def test_update_model_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.UpdateModelRequest()
-
     request.model.name = 'model.name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1448,6 +1519,7 @@ def test_update_model_field_headers():
             type(client.transport.update_model),
             '__call__') as call:
         call.return_value = gca_model.Model()
+
         client.update_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1472,7 +1544,6 @@ async def test_update_model_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.UpdateModelRequest()
-
     request.model.name = 'model.name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1480,6 +1551,7 @@ async def test_update_model_field_headers_async():
             type(client.transport.update_model),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(gca_model.Model())
+
         await client.update_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1506,6 +1578,7 @@ def test_update_model_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_model.Model()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.update_model(
@@ -1517,7 +1590,9 @@ def test_update_model_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].model == gca_model.Model(name='name_value')
+
         assert args[0].update_mask == field_mask.FieldMask(paths=['paths_value'])
 
 
@@ -1561,7 +1636,9 @@ async def test_update_model_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].model == gca_model.Model(name='name_value')
+
         assert args[0].update_mask == field_mask.FieldMask(paths=['paths_value'])
 
 
@@ -1597,11 +1674,13 @@ def test_delete_model(transport: str = 'grpc', request_type=model_service.Delete
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/spam')
+
         response = client.delete_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.DeleteModelRequest()
 
     # Establish that the response is the type that we expect.
@@ -1627,8 +1706,8 @@ def test_delete_model_empty_call():
         client.delete_model()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == model_service.DeleteModelRequest()
 
+        assert args[0] == model_service.DeleteModelRequest()
 
 @pytest.mark.asyncio
 async def test_delete_model_async(transport: str = 'grpc_asyncio', request_type=model_service.DeleteModelRequest):
@@ -1649,11 +1728,13 @@ async def test_delete_model_async(transport: str = 'grpc_asyncio', request_type=
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name='operations/spam')
         )
+
         response = await client.delete_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.DeleteModelRequest()
 
     # Establish that the response is the type that we expect.
@@ -1673,7 +1754,6 @@ def test_delete_model_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.DeleteModelRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1681,6 +1761,7 @@ def test_delete_model_field_headers():
             type(client.transport.delete_model),
             '__call__') as call:
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         client.delete_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1705,7 +1786,6 @@ async def test_delete_model_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.DeleteModelRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1713,6 +1793,7 @@ async def test_delete_model_field_headers_async():
             type(client.transport.delete_model),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
+
         await client.delete_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1739,6 +1820,7 @@ def test_delete_model_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.delete_model(
@@ -1749,6 +1831,7 @@ def test_delete_model_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
 
 
@@ -1792,6 +1875,7 @@ async def test_delete_model_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
 
 
@@ -1826,11 +1910,13 @@ def test_export_model(transport: str = 'grpc', request_type=model_service.Export
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/spam')
+
         response = client.export_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.ExportModelRequest()
 
     # Establish that the response is the type that we expect.
@@ -1856,8 +1942,8 @@ def test_export_model_empty_call():
         client.export_model()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == model_service.ExportModelRequest()
 
+        assert args[0] == model_service.ExportModelRequest()
 
 @pytest.mark.asyncio
 async def test_export_model_async(transport: str = 'grpc_asyncio', request_type=model_service.ExportModelRequest):
@@ -1878,11 +1964,13 @@ async def test_export_model_async(transport: str = 'grpc_asyncio', request_type=
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name='operations/spam')
         )
+
         response = await client.export_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.ExportModelRequest()
 
     # Establish that the response is the type that we expect.
@@ -1902,7 +1990,6 @@ def test_export_model_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.ExportModelRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1910,6 +1997,7 @@ def test_export_model_field_headers():
             type(client.transport.export_model),
             '__call__') as call:
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         client.export_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1934,7 +2022,6 @@ async def test_export_model_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.ExportModelRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1942,6 +2029,7 @@ async def test_export_model_field_headers_async():
             type(client.transport.export_model),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
+
         await client.export_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1968,6 +2056,7 @@ def test_export_model_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.export_model(
@@ -1979,7 +2068,9 @@ def test_export_model_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
+
         assert args[0].output_config == model_service.ExportModelRequest.OutputConfig(export_format_id='export_format_id_value')
 
 
@@ -2025,7 +2116,9 @@ async def test_export_model_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
+
         assert args[0].output_config == model_service.ExportModelRequest.OutputConfig(export_format_id='export_format_id_value')
 
 
@@ -2062,20 +2155,29 @@ def test_get_model_evaluation(transport: str = 'grpc', request_type=model_servic
         # Designate an appropriate return value for the call.
         call.return_value = model_evaluation.ModelEvaluation(
             name='name_value',
+
             metrics_schema_uri='metrics_schema_uri_value',
+
             slice_dimensions=['slice_dimensions_value'],
+
         )
+
         response = client.get_model_evaluation(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.GetModelEvaluationRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, model_evaluation.ModelEvaluation)
+
     assert response.name == 'name_value'
+
     assert response.metrics_schema_uri == 'metrics_schema_uri_value'
+
     assert response.slice_dimensions == ['slice_dimensions_value']
 
 
@@ -2098,8 +2200,8 @@ def test_get_model_evaluation_empty_call():
         client.get_model_evaluation()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == model_service.GetModelEvaluationRequest()
 
+        assert args[0] == model_service.GetModelEvaluationRequest()
 
 @pytest.mark.asyncio
 async def test_get_model_evaluation_async(transport: str = 'grpc_asyncio', request_type=model_service.GetModelEvaluationRequest):
@@ -2117,22 +2219,27 @@ async def test_get_model_evaluation_async(transport: str = 'grpc_asyncio', reque
             type(client.transport.get_model_evaluation),
             '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(model_evaluation.ModelEvaluation(
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(model_evaluation.ModelEvaluation(
             name='name_value',
             metrics_schema_uri='metrics_schema_uri_value',
             slice_dimensions=['slice_dimensions_value'],
         ))
+
         response = await client.get_model_evaluation(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.GetModelEvaluationRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, model_evaluation.ModelEvaluation)
+
     assert response.name == 'name_value'
+
     assert response.metrics_schema_uri == 'metrics_schema_uri_value'
+
     assert response.slice_dimensions == ['slice_dimensions_value']
 
 
@@ -2149,7 +2256,6 @@ def test_get_model_evaluation_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.GetModelEvaluationRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2157,6 +2263,7 @@ def test_get_model_evaluation_field_headers():
             type(client.transport.get_model_evaluation),
             '__call__') as call:
         call.return_value = model_evaluation.ModelEvaluation()
+
         client.get_model_evaluation(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2181,7 +2288,6 @@ async def test_get_model_evaluation_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.GetModelEvaluationRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2189,6 +2295,7 @@ async def test_get_model_evaluation_field_headers_async():
             type(client.transport.get_model_evaluation),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(model_evaluation.ModelEvaluation())
+
         await client.get_model_evaluation(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2215,6 +2322,7 @@ def test_get_model_evaluation_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = model_evaluation.ModelEvaluation()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.get_model_evaluation(
@@ -2225,6 +2333,7 @@ def test_get_model_evaluation_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
 
 
@@ -2266,6 +2375,7 @@ async def test_get_model_evaluation_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
 
 
@@ -2301,16 +2411,21 @@ def test_list_model_evaluations(transport: str = 'grpc', request_type=model_serv
         # Designate an appropriate return value for the call.
         call.return_value = model_service.ListModelEvaluationsResponse(
             next_page_token='next_page_token_value',
+
         )
+
         response = client.list_model_evaluations(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.ListModelEvaluationsRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, pagers.ListModelEvaluationsPager)
+
     assert response.next_page_token == 'next_page_token_value'
 
 
@@ -2333,8 +2448,8 @@ def test_list_model_evaluations_empty_call():
         client.list_model_evaluations()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == model_service.ListModelEvaluationsRequest()
 
+        assert args[0] == model_service.ListModelEvaluationsRequest()
 
 @pytest.mark.asyncio
 async def test_list_model_evaluations_async(transport: str = 'grpc_asyncio', request_type=model_service.ListModelEvaluationsRequest):
@@ -2352,18 +2467,21 @@ async def test_list_model_evaluations_async(transport: str = 'grpc_asyncio', req
             type(client.transport.list_model_evaluations),
             '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(model_service.ListModelEvaluationsResponse(
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(model_service.ListModelEvaluationsResponse(
             next_page_token='next_page_token_value',
         ))
+
         response = await client.list_model_evaluations(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.ListModelEvaluationsRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListModelEvaluationsAsyncPager)
+
     assert response.next_page_token == 'next_page_token_value'
 
 
@@ -2380,7 +2498,6 @@ def test_list_model_evaluations_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelEvaluationsRequest()
-
     request.parent = 'parent/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2388,6 +2505,7 @@ def test_list_model_evaluations_field_headers():
             type(client.transport.list_model_evaluations),
             '__call__') as call:
         call.return_value = model_service.ListModelEvaluationsResponse()
+
         client.list_model_evaluations(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2412,7 +2530,6 @@ async def test_list_model_evaluations_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelEvaluationsRequest()
-
     request.parent = 'parent/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2420,6 +2537,7 @@ async def test_list_model_evaluations_field_headers_async():
             type(client.transport.list_model_evaluations),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(model_service.ListModelEvaluationsResponse())
+
         await client.list_model_evaluations(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2446,6 +2564,7 @@ def test_list_model_evaluations_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = model_service.ListModelEvaluationsResponse()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_model_evaluations(
@@ -2456,6 +2575,7 @@ def test_list_model_evaluations_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == 'parent_value'
 
 
@@ -2497,6 +2617,7 @@ async def test_list_model_evaluations_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == 'parent_value'
 
 
@@ -2701,6 +2822,7 @@ async def test_list_model_evaluations_async_pages():
         for page_, token in zip(pages, ['abc','def','ghi', '']):
             assert page_.raw_page.next_page_token == token
 
+
 def test_get_model_evaluation_slice(transport: str = 'grpc', request_type=model_service.GetModelEvaluationSliceRequest):
     client = ModelServiceClient(
         credentials=credentials.AnonymousCredentials(),
@@ -2718,18 +2840,25 @@ def test_get_model_evaluation_slice(transport: str = 'grpc', request_type=model_
         # Designate an appropriate return value for the call.
         call.return_value = model_evaluation_slice.ModelEvaluationSlice(
             name='name_value',
+
             metrics_schema_uri='metrics_schema_uri_value',
+
         )
+
         response = client.get_model_evaluation_slice(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.GetModelEvaluationSliceRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, model_evaluation_slice.ModelEvaluationSlice)
+
     assert response.name == 'name_value'
+
     assert response.metrics_schema_uri == 'metrics_schema_uri_value'
 
 
@@ -2752,8 +2881,8 @@ def test_get_model_evaluation_slice_empty_call():
         client.get_model_evaluation_slice()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == model_service.GetModelEvaluationSliceRequest()
 
+        assert args[0] == model_service.GetModelEvaluationSliceRequest()
 
 @pytest.mark.asyncio
 async def test_get_model_evaluation_slice_async(transport: str = 'grpc_asyncio', request_type=model_service.GetModelEvaluationSliceRequest):
@@ -2771,20 +2900,24 @@ async def test_get_model_evaluation_slice_async(transport: str = 'grpc_asyncio',
             type(client.transport.get_model_evaluation_slice),
             '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(model_evaluation_slice.ModelEvaluationSlice(
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(model_evaluation_slice.ModelEvaluationSlice(
             name='name_value',
             metrics_schema_uri='metrics_schema_uri_value',
         ))
+
         response = await client.get_model_evaluation_slice(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.GetModelEvaluationSliceRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, model_evaluation_slice.ModelEvaluationSlice)
+
     assert response.name == 'name_value'
+
     assert response.metrics_schema_uri == 'metrics_schema_uri_value'
 
 
@@ -2801,7 +2934,6 @@ def test_get_model_evaluation_slice_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.GetModelEvaluationSliceRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2809,6 +2941,7 @@ def test_get_model_evaluation_slice_field_headers():
             type(client.transport.get_model_evaluation_slice),
             '__call__') as call:
         call.return_value = model_evaluation_slice.ModelEvaluationSlice()
+
         client.get_model_evaluation_slice(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2833,7 +2966,6 @@ async def test_get_model_evaluation_slice_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.GetModelEvaluationSliceRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2841,6 +2973,7 @@ async def test_get_model_evaluation_slice_field_headers_async():
             type(client.transport.get_model_evaluation_slice),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(model_evaluation_slice.ModelEvaluationSlice())
+
         await client.get_model_evaluation_slice(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2867,6 +3000,7 @@ def test_get_model_evaluation_slice_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = model_evaluation_slice.ModelEvaluationSlice()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.get_model_evaluation_slice(
@@ -2877,6 +3011,7 @@ def test_get_model_evaluation_slice_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
 
 
@@ -2918,6 +3053,7 @@ async def test_get_model_evaluation_slice_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
 
 
@@ -2953,16 +3089,21 @@ def test_list_model_evaluation_slices(transport: str = 'grpc', request_type=mode
         # Designate an appropriate return value for the call.
         call.return_value = model_service.ListModelEvaluationSlicesResponse(
             next_page_token='next_page_token_value',
+
         )
+
         response = client.list_model_evaluation_slices(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.ListModelEvaluationSlicesRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, pagers.ListModelEvaluationSlicesPager)
+
     assert response.next_page_token == 'next_page_token_value'
 
 
@@ -2985,8 +3126,8 @@ def test_list_model_evaluation_slices_empty_call():
         client.list_model_evaluation_slices()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == model_service.ListModelEvaluationSlicesRequest()
 
+        assert args[0] == model_service.ListModelEvaluationSlicesRequest()
 
 @pytest.mark.asyncio
 async def test_list_model_evaluation_slices_async(transport: str = 'grpc_asyncio', request_type=model_service.ListModelEvaluationSlicesRequest):
@@ -3004,18 +3145,21 @@ async def test_list_model_evaluation_slices_async(transport: str = 'grpc_asyncio
             type(client.transport.list_model_evaluation_slices),
             '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(model_service.ListModelEvaluationSlicesResponse(
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(model_service.ListModelEvaluationSlicesResponse(
             next_page_token='next_page_token_value',
         ))
+
         response = await client.list_model_evaluation_slices(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == model_service.ListModelEvaluationSlicesRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListModelEvaluationSlicesAsyncPager)
+
     assert response.next_page_token == 'next_page_token_value'
 
 
@@ -3032,7 +3176,6 @@ def test_list_model_evaluation_slices_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelEvaluationSlicesRequest()
-
     request.parent = 'parent/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3040,6 +3183,7 @@ def test_list_model_evaluation_slices_field_headers():
             type(client.transport.list_model_evaluation_slices),
             '__call__') as call:
         call.return_value = model_service.ListModelEvaluationSlicesResponse()
+
         client.list_model_evaluation_slices(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3064,7 +3208,6 @@ async def test_list_model_evaluation_slices_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelEvaluationSlicesRequest()
-
     request.parent = 'parent/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3072,6 +3215,7 @@ async def test_list_model_evaluation_slices_field_headers_async():
             type(client.transport.list_model_evaluation_slices),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(model_service.ListModelEvaluationSlicesResponse())
+
         await client.list_model_evaluation_slices(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3098,6 +3242,7 @@ def test_list_model_evaluation_slices_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = model_service.ListModelEvaluationSlicesResponse()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_model_evaluation_slices(
@@ -3108,6 +3253,7 @@ def test_list_model_evaluation_slices_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == 'parent_value'
 
 
@@ -3149,6 +3295,7 @@ async def test_list_model_evaluation_slices_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == 'parent_value'
 
 
@@ -3394,6 +3541,7 @@ def test_transport_instance():
     client = ModelServiceClient(transport=transport)
     assert client.transport is transport
 
+
 def test_transport_get_channel():
     # A client may be instantiated with a custom transport instance.
     transport = transports.ModelServiceGrpcTransport(
@@ -3408,6 +3556,7 @@ def test_transport_get_channel():
     channel = transport.grpc_channel
     assert channel
 
+
 @pytest.mark.parametrize("transport_class", [
     transports.ModelServiceGrpcTransport,
     transports.ModelServiceGrpcAsyncIOTransport,
@@ -3419,6 +3568,7 @@ def test_transport_adc(transport_class):
         transport_class()
         adc.assert_called_once()
 
+
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
     client = ModelServiceClient(
@@ -3428,6 +3578,7 @@ def test_transport_grpc_default():
         client.transport,
         transports.ModelServiceGrpcTransport,
     )
+
 
 def test_model_service_base_transport_error():
     # Passing both a credentials object and credentials_file should raise an error
@@ -3459,7 +3610,7 @@ def test_model_service_base_transport():
         'list_model_evaluations',
         'get_model_evaluation_slice',
         'list_model_evaluation_slices',
-    )
+        )
     for method in methods:
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
@@ -3470,27 +3621,9 @@ def test_model_service_base_transport():
         transport.operations_client
 
 
-@requires_google_auth_gte_1_25_0
 def test_model_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
-    with mock.patch.object(auth, 'load_credentials_from_file', autospec=True) as load_creds, mock.patch('google.cloud.aiplatform_v1beta1.services.model_service.transports.ModelServiceTransport._prep_wrapped_messages') as Transport:
-        Transport.return_value = None
-        load_creds.return_value = (credentials.AnonymousCredentials(), None)
-        transport = transports.ModelServiceTransport(
-            credentials_file="credentials.json",
-            quota_project_id="octopus",
-        )
-        load_creds.assert_called_once_with("credentials.json",
-            scopes=None,
-            default_scopes=(            'https://www.googleapis.com/auth/cloud-platform',            ),
-            quota_project_id="octopus",
-        )
-
-
-@requires_google_auth_lt_1_25_0
-def test_model_service_base_transport_with_credentials_file_old_google_auth():
-    # Instantiate the base transport with a credentials file
-    with mock.patch.object(auth, 'load_credentials_from_file', autospec=True) as load_creds, mock.patch('google.cloud.aiplatform_v1beta1.services.model_service.transports.ModelServiceTransport._prep_wrapped_messages') as Transport:
+    with mock.patch.object(auth, 'load_credentials_from_file') as load_creds, mock.patch('google.cloud.aiplatform_v1beta1.services.model_service.transports.ModelServiceTransport._prep_wrapped_messages') as Transport:
         Transport.return_value = None
         load_creds.return_value = (credentials.AnonymousCredentials(), None)
         transport = transports.ModelServiceTransport(
@@ -3506,182 +3639,33 @@ def test_model_service_base_transport_with_credentials_file_old_google_auth():
 
 def test_model_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
-    with mock.patch.object(auth, 'default', autospec=True) as adc, mock.patch('google.cloud.aiplatform_v1beta1.services.model_service.transports.ModelServiceTransport._prep_wrapped_messages') as Transport:
+    with mock.patch.object(auth, 'default') as adc, mock.patch('google.cloud.aiplatform_v1beta1.services.model_service.transports.ModelServiceTransport._prep_wrapped_messages') as Transport:
         Transport.return_value = None
         adc.return_value = (credentials.AnonymousCredentials(), None)
         transport = transports.ModelServiceTransport()
         adc.assert_called_once()
 
 
-@requires_google_auth_gte_1_25_0
 def test_model_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, 'default', autospec=True) as adc:
+    with mock.patch.object(auth, 'default') as adc:
         adc.return_value = (credentials.AnonymousCredentials(), None)
         ModelServiceClient()
-        adc.assert_called_once_with(
-            scopes=None,
-            default_scopes=(
-            'https://www.googleapis.com/auth/cloud-platform',
-),
-
-            quota_project_id=None,
-        )
-
-
-@requires_google_auth_lt_1_25_0
-def test_model_service_auth_adc_old_google_auth():
-    # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, 'default', autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
-        ModelServiceClient()
-        adc.assert_called_once_with(
-            scopes=(                'https://www.googleapis.com/auth/cloud-platform',),
-            quota_project_id=None,
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.ModelServiceGrpcTransport,
-        transports.ModelServiceGrpcAsyncIOTransport,
-    ],
-)
-@requires_google_auth_gte_1_25_0
-def test_model_service_transport_auth_adc(transport_class):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, 'default', autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus", scopes=["1", "2"])
-        adc.assert_called_once_with(
-            scopes=["1", "2"],
-            default_scopes=(                'https://www.googleapis.com/auth/cloud-platform',),
-            quota_project_id="octopus",
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.ModelServiceGrpcTransport,
-        transports.ModelServiceGrpcAsyncIOTransport,
-    ],
-)
-@requires_google_auth_lt_1_25_0
-def test_model_service_transport_auth_adc_old_google_auth(transport_class):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus")
         adc.assert_called_once_with(scopes=(
-            'https://www.googleapis.com/auth/cloud-platform',
-),
-            quota_project_id="octopus",
+            'https://www.googleapis.com/auth/cloud-platform',),
+            quota_project_id=None,
         )
 
 
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.ModelServiceGrpcTransport, grpc_helpers),
-        (transports.ModelServiceGrpcAsyncIOTransport, grpc_helpers_async)
-    ],
-)
-@requires_api_core_gte_1_26_0
-def test_model_service_transport_create_channel(transport_class, grpc_helpers):
+def test_model_service_transport_auth_adc():
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-        transport_class(
+    with mock.patch.object(auth, 'default') as adc:
+        adc.return_value = (credentials.AnonymousCredentials(), None)
+        transports.ModelServiceGrpcTransport(host="squid.clam.whelk", quota_project_id="octopus")
+        adc.assert_called_once_with(scopes=(
+            'https://www.googleapis.com/auth/cloud-platform',),
             quota_project_id="octopus",
-            scopes=["1", "2"]
-        )
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            default_scopes=(                'https://www.googleapis.com/auth/cloud-platform',),
-            scopes=["1", "2"],
-            default_host="aiplatform.googleapis.com",
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.ModelServiceGrpcTransport, grpc_helpers),
-        (transports.ModelServiceGrpcAsyncIOTransport, grpc_helpers_async)
-    ],
-)
-@requires_api_core_lt_1_26_0
-def test_model_service_transport_create_channel_old_api_core(transport_class, grpc_helpers):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-        transport_class(quota_project_id="octopus")
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            scopes=(                'https://www.googleapis.com/auth/cloud-platform',),
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.ModelServiceGrpcTransport, grpc_helpers),
-        (transports.ModelServiceGrpcAsyncIOTransport, grpc_helpers_async)
-    ],
-)
-@requires_api_core_lt_1_26_0
-def test_model_service_transport_create_channel_user_scopes(transport_class, grpc_helpers):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-
-        transport_class(quota_project_id="octopus", scopes=["1", "2"])
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            scopes=["1", "2"],
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
         )
 
 
@@ -3743,6 +3727,7 @@ def test_model_service_host_with_port():
         client_options=client_options.ClientOptions(api_endpoint='aiplatform.googleapis.com:8000'),
     )
     assert client.transport._host == 'aiplatform.googleapis.com:8000'
+
 
 def test_model_service_grpc_transport_channel():
     channel = grpc.secure_channel('http://localhost/', grpc.local_channel_credentials())
@@ -3896,6 +3881,7 @@ def test_endpoint_path():
     project = "squid"
     location = "clam"
     endpoint = "whelk"
+
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(project=project, location=location, endpoint=endpoint, )
     actual = ModelServiceClient.endpoint_path(project, location, endpoint)
     assert expected == actual
@@ -3903,9 +3889,10 @@ def test_endpoint_path():
 
 def test_parse_endpoint_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "endpoint": "nudibranch",
+    "project": "octopus",
+    "location": "oyster",
+    "endpoint": "nudibranch",
+
     }
     path = ModelServiceClient.endpoint_path(**expected)
 
@@ -3917,6 +3904,7 @@ def test_model_path():
     project = "cuttlefish"
     location = "mussel"
     model = "winkle"
+
     expected = "projects/{project}/locations/{location}/models/{model}".format(project=project, location=location, model=model, )
     actual = ModelServiceClient.model_path(project, location, model)
     assert expected == actual
@@ -3924,9 +3912,10 @@ def test_model_path():
 
 def test_parse_model_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "model": "abalone",
+    "project": "nautilus",
+    "location": "scallop",
+    "model": "abalone",
+
     }
     path = ModelServiceClient.model_path(**expected)
 
@@ -3939,6 +3928,7 @@ def test_model_evaluation_path():
     location = "clam"
     model = "whelk"
     evaluation = "octopus"
+
     expected = "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}".format(project=project, location=location, model=model, evaluation=evaluation, )
     actual = ModelServiceClient.model_evaluation_path(project, location, model, evaluation)
     assert expected == actual
@@ -3946,10 +3936,11 @@ def test_model_evaluation_path():
 
 def test_parse_model_evaluation_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
-        "model": "cuttlefish",
-        "evaluation": "mussel",
+    "project": "oyster",
+    "location": "nudibranch",
+    "model": "cuttlefish",
+    "evaluation": "mussel",
+
     }
     path = ModelServiceClient.model_evaluation_path(**expected)
 
@@ -3963,6 +3954,7 @@ def test_model_evaluation_slice_path():
     model = "scallop"
     evaluation = "abalone"
     slice = "squid"
+
     expected = "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}".format(project=project, location=location, model=model, evaluation=evaluation, slice=slice, )
     actual = ModelServiceClient.model_evaluation_slice_path(project, location, model, evaluation, slice)
     assert expected == actual
@@ -3970,11 +3962,12 @@ def test_model_evaluation_slice_path():
 
 def test_parse_model_evaluation_slice_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
-        "model": "octopus",
-        "evaluation": "oyster",
-        "slice": "nudibranch",
+    "project": "clam",
+    "location": "whelk",
+    "model": "octopus",
+    "evaluation": "oyster",
+    "slice": "nudibranch",
+
     }
     path = ModelServiceClient.model_evaluation_slice_path(**expected)
 
@@ -3986,6 +3979,7 @@ def test_training_pipeline_path():
     project = "cuttlefish"
     location = "mussel"
     training_pipeline = "winkle"
+
     expected = "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(project=project, location=location, training_pipeline=training_pipeline, )
     actual = ModelServiceClient.training_pipeline_path(project, location, training_pipeline)
     assert expected == actual
@@ -3993,9 +3987,10 @@ def test_training_pipeline_path():
 
 def test_parse_training_pipeline_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "training_pipeline": "abalone",
+    "project": "nautilus",
+    "location": "scallop",
+    "training_pipeline": "abalone",
+
     }
     path = ModelServiceClient.training_pipeline_path(**expected)
 
@@ -4005,6 +4000,7 @@ def test_parse_training_pipeline_path():
 
 def test_common_billing_account_path():
     billing_account = "squid"
+
     expected = "billingAccounts/{billing_account}".format(billing_account=billing_account, )
     actual = ModelServiceClient.common_billing_account_path(billing_account)
     assert expected == actual
@@ -4012,7 +4008,8 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "clam",
+    "billing_account": "clam",
+
     }
     path = ModelServiceClient.common_billing_account_path(**expected)
 
@@ -4022,6 +4019,7 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "whelk"
+
     expected = "folders/{folder}".format(folder=folder, )
     actual = ModelServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -4029,7 +4027,8 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "octopus",
+    "folder": "octopus",
+
     }
     path = ModelServiceClient.common_folder_path(**expected)
 
@@ -4039,6 +4038,7 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "oyster"
+
     expected = "organizations/{organization}".format(organization=organization, )
     actual = ModelServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -4046,7 +4046,8 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nudibranch",
+    "organization": "nudibranch",
+
     }
     path = ModelServiceClient.common_organization_path(**expected)
 
@@ -4056,6 +4057,7 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "cuttlefish"
+
     expected = "projects/{project}".format(project=project, )
     actual = ModelServiceClient.common_project_path(project)
     assert expected == actual
@@ -4063,7 +4065,8 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "mussel",
+    "project": "mussel",
+
     }
     path = ModelServiceClient.common_project_path(**expected)
 
@@ -4074,6 +4077,7 @@ def test_parse_common_project_path():
 def test_common_location_path():
     project = "winkle"
     location = "nautilus"
+
     expected = "projects/{project}/locations/{location}".format(project=project, location=location, )
     actual = ModelServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -4081,8 +4085,9 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
+    "project": "scallop",
+    "location": "abalone",
+
     }
     path = ModelServiceClient.common_location_path(**expected)
 

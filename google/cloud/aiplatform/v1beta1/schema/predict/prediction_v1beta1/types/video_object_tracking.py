@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.protobuf import duration_pb2 as duration  # type: ignore
 from google.protobuf import wrappers_pb2 as wrappers  # type: ignore
@@ -29,6 +32,7 @@ __protobuf__ = proto.module(
 
 class VideoObjectTrackingPredictionResult(proto.Message):
     r"""Prediction output format for Video Object Tracking.
+
     Attributes:
         id (str):
             The resource ID of the AnnotationSpec that
@@ -60,7 +64,6 @@ class VideoObjectTrackingPredictionResult(proto.Message):
             bounding boxes in the frames identify the same
             object.
     """
-
     class Frame(proto.Message):
         r"""The fields ``xMin``, ``xMax``, ``yMin``, and ``yMax`` refer to a
         bounding box, i.e. the rectangle over the video frame pinpointing
@@ -85,58 +88,43 @@ class VideoObjectTrackingPredictionResult(proto.Message):
                 box.
         """
 
-        time_offset = proto.Field(
-            proto.MESSAGE,
-            number=1,
+        time_offset = proto.Field(proto.MESSAGE, number=1,
             message=duration.Duration,
         )
-        x_min = proto.Field(
-            proto.MESSAGE,
-            number=2,
-            message=wrappers.FloatValue,
-        )
-        x_max = proto.Field(
-            proto.MESSAGE,
-            number=3,
-            message=wrappers.FloatValue,
-        )
-        y_min = proto.Field(
-            proto.MESSAGE,
-            number=4,
-            message=wrappers.FloatValue,
-        )
-        y_max = proto.Field(
-            proto.MESSAGE,
-            number=5,
+
+        x_min = proto.Field(proto.MESSAGE, number=2,
             message=wrappers.FloatValue,
         )
 
-    id = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    display_name = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    time_segment_start = proto.Field(
-        proto.MESSAGE,
-        number=3,
+        x_max = proto.Field(proto.MESSAGE, number=3,
+            message=wrappers.FloatValue,
+        )
+
+        y_min = proto.Field(proto.MESSAGE, number=4,
+            message=wrappers.FloatValue,
+        )
+
+        y_max = proto.Field(proto.MESSAGE, number=5,
+            message=wrappers.FloatValue,
+        )
+
+    id = proto.Field(proto.STRING, number=1)
+
+    display_name = proto.Field(proto.STRING, number=2)
+
+    time_segment_start = proto.Field(proto.MESSAGE, number=3,
         message=duration.Duration,
     )
-    time_segment_end = proto.Field(
-        proto.MESSAGE,
-        number=4,
+
+    time_segment_end = proto.Field(proto.MESSAGE, number=4,
         message=duration.Duration,
     )
-    confidence = proto.Field(
-        proto.MESSAGE,
-        number=5,
+
+    confidence = proto.Field(proto.MESSAGE, number=5,
         message=wrappers.FloatValue,
     )
-    frames = proto.RepeatedField(
-        proto.MESSAGE,
-        number=6,
+
+    frames = proto.RepeatedField(proto.MESSAGE, number=6,
         message=Frame,
     )
 

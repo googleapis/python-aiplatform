@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
@@ -34,6 +37,7 @@ __protobuf__ = proto.module(
 
 class TimeSeriesData(proto.Message):
     r"""All the data stored in a TensorboardTimeSeries.
+
     Attributes:
         tensorboard_time_series_id (str):
             Required. The ID of the
@@ -48,24 +52,20 @@ class TimeSeriesData(proto.Message):
             Required. Data points in this time series.
     """
 
-    tensorboard_time_series_id = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    value_type = proto.Field(
-        proto.ENUM,
-        number=2,
+    tensorboard_time_series_id = proto.Field(proto.STRING, number=1)
+
+    value_type = proto.Field(proto.ENUM, number=2,
         enum=tensorboard_time_series.TensorboardTimeSeries.ValueType,
     )
-    values = proto.RepeatedField(
-        proto.MESSAGE,
-        number=3,
+
+    values = proto.RepeatedField(proto.MESSAGE, number=3,
         message='TimeSeriesDataPoint',
     )
 
 
 class TimeSeriesDataPoint(proto.Message):
     r"""A TensorboardTimeSeries data point.
+
     Attributes:
         scalar (google.cloud.aiplatform_v1beta1.types.Scalar):
             A scalar value.
@@ -80,50 +80,39 @@ class TimeSeriesDataPoint(proto.Message):
             Step index of this data point within the run.
     """
 
-    scalar = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        oneof='value',
+    scalar = proto.Field(proto.MESSAGE, number=3, oneof='value',
         message='Scalar',
     )
-    tensor = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        oneof='value',
+
+    tensor = proto.Field(proto.MESSAGE, number=4, oneof='value',
         message='TensorboardTensor',
     )
-    blobs = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        oneof='value',
+
+    blobs = proto.Field(proto.MESSAGE, number=5, oneof='value',
         message='TensorboardBlobSequence',
     )
-    wall_time = proto.Field(
-        proto.MESSAGE,
-        number=1,
+
+    wall_time = proto.Field(proto.MESSAGE, number=1,
         message=timestamp.Timestamp,
     )
-    step = proto.Field(
-        proto.INT64,
-        number=2,
-    )
+
+    step = proto.Field(proto.INT64, number=2)
 
 
 class Scalar(proto.Message):
     r"""One point viewable on a scalar metric plot.
+
     Attributes:
         value (float):
             Value of the point at this step / timestamp.
     """
 
-    value = proto.Field(
-        proto.DOUBLE,
-        number=1,
-    )
+    value = proto.Field(proto.DOUBLE, number=1)
 
 
 class TensorboardTensor(proto.Message):
     r"""One point viewable on a tensor metric plot.
+
     Attributes:
         value (bytes):
             Required. Serialized form of
@@ -133,14 +122,9 @@ class TensorboardTensor(proto.Message):
             ``value``.
     """
 
-    value = proto.Field(
-        proto.BYTES,
-        number=1,
-    )
-    version_number = proto.Field(
-        proto.INT32,
-        number=2,
-    )
+    value = proto.Field(proto.BYTES, number=1)
+
+    version_number = proto.Field(proto.INT32, number=2)
 
 
 class TensorboardBlobSequence(proto.Message):
@@ -153,15 +137,14 @@ class TensorboardBlobSequence(proto.Message):
             List of blobs contained within the sequence.
     """
 
-    values = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    values = proto.RepeatedField(proto.MESSAGE, number=1,
         message='TensorboardBlob',
     )
 
 
 class TensorboardBlob(proto.Message):
     r"""One blob (e.g, image, graph) viewable on a blob metric plot.
+
     Attributes:
         id (str):
             Output only. A URI safe key uniquely
@@ -174,14 +157,9 @@ class TensorboardBlob(proto.Message):
             ReadTensorboardBlobData endpoint.
     """
 
-    id = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    data = proto.Field(
-        proto.BYTES,
-        number=2,
-    )
+    id = proto.Field(proto.STRING, number=1)
+
+    data = proto.Field(proto.BYTES, number=2)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

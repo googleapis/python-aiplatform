@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import os
 import mock
-import packaging.version
 
 import grpc
 from grpc.experimental import aio
 import math
 import pytest
 from proto.marshal.rules.dates import DurationRule, TimestampRule
-
 
 from google import auth
 from google.api_core import client_options
@@ -39,8 +39,6 @@ from google.cloud.aiplatform_v1.services.endpoint_service import EndpointService
 from google.cloud.aiplatform_v1.services.endpoint_service import EndpointServiceClient
 from google.cloud.aiplatform_v1.services.endpoint_service import pagers
 from google.cloud.aiplatform_v1.services.endpoint_service import transports
-from google.cloud.aiplatform_v1.services.endpoint_service.transports.base import _API_CORE_VERSION
-from google.cloud.aiplatform_v1.services.endpoint_service.transports.base import _GOOGLE_AUTH_VERSION
 from google.cloud.aiplatform_v1.types import accelerator_type
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import endpoint
@@ -53,28 +51,6 @@ from google.oauth2 import service_account
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
-
-# TODO(busunkim): Once google-api-core >= 1.26.0 is required:
-# - Delete all the api-core and auth "less than" test cases
-# - Delete these pytest markers (Make the "greater than or equal to" tests the default).
-requires_google_auth_lt_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) >= packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth < 1.25.0",
-)
-requires_google_auth_gte_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) < packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth >= 1.25.0",
-)
-
-requires_api_core_lt_1_26_0 = pytest.mark.skipif(
-    packaging.version.parse(_API_CORE_VERSION) >= packaging.version.parse("1.26.0"),
-    reason="This test requires google-api-core < 1.26.0",
-)
-
-requires_api_core_gte_1_26_0 = pytest.mark.skipif(
-    packaging.version.parse(_API_CORE_VERSION) < packaging.version.parse("1.26.0"),
-    reason="This test requires google-api-core >= 1.26.0",
-)
 
 def client_cert_source_callback():
     return b"cert bytes", b"key bytes"
@@ -242,10 +218,12 @@ def test_endpoint_service_client_client_options(client_class, transport_class, t
         )
 
 @pytest.mark.parametrize("client_class,transport_class,transport_name,use_client_cert_env", [
+
     (EndpointServiceClient, transports.EndpointServiceGrpcTransport, "grpc", "true"),
     (EndpointServiceAsyncClient, transports.EndpointServiceGrpcAsyncIOTransport, "grpc_asyncio", "true"),
     (EndpointServiceClient, transports.EndpointServiceGrpcTransport, "grpc", "false"),
     (EndpointServiceAsyncClient, transports.EndpointServiceGrpcAsyncIOTransport, "grpc_asyncio", "false"),
+
 ])
 @mock.patch.object(EndpointServiceClient, "DEFAULT_ENDPOINT", modify_default_endpoint(EndpointServiceClient))
 @mock.patch.object(EndpointServiceAsyncClient, "DEFAULT_ENDPOINT", modify_default_endpoint(EndpointServiceAsyncClient))
@@ -399,11 +377,13 @@ def test_create_endpoint(transport: str = 'grpc', request_type=endpoint_service.
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/spam')
+
         response = client.create_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.CreateEndpointRequest()
 
     # Establish that the response is the type that we expect.
@@ -429,8 +409,8 @@ def test_create_endpoint_empty_call():
         client.create_endpoint()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == endpoint_service.CreateEndpointRequest()
 
+        assert args[0] == endpoint_service.CreateEndpointRequest()
 
 @pytest.mark.asyncio
 async def test_create_endpoint_async(transport: str = 'grpc_asyncio', request_type=endpoint_service.CreateEndpointRequest):
@@ -451,11 +431,13 @@ async def test_create_endpoint_async(transport: str = 'grpc_asyncio', request_ty
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name='operations/spam')
         )
+
         response = await client.create_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.CreateEndpointRequest()
 
     # Establish that the response is the type that we expect.
@@ -475,7 +457,6 @@ def test_create_endpoint_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.CreateEndpointRequest()
-
     request.parent = 'parent/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -483,6 +464,7 @@ def test_create_endpoint_field_headers():
             type(client.transport.create_endpoint),
             '__call__') as call:
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         client.create_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -507,7 +489,6 @@ async def test_create_endpoint_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.CreateEndpointRequest()
-
     request.parent = 'parent/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -515,6 +496,7 @@ async def test_create_endpoint_field_headers_async():
             type(client.transport.create_endpoint),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
+
         await client.create_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -541,6 +523,7 @@ def test_create_endpoint_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_endpoint(
@@ -552,7 +535,9 @@ def test_create_endpoint_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == 'parent_value'
+
         assert args[0].endpoint == gca_endpoint.Endpoint(name='name_value')
 
 
@@ -598,7 +583,9 @@ async def test_create_endpoint_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == 'parent_value'
+
         assert args[0].endpoint == gca_endpoint.Endpoint(name='name_value')
 
 
@@ -635,22 +622,33 @@ def test_get_endpoint(transport: str = 'grpc', request_type=endpoint_service.Get
         # Designate an appropriate return value for the call.
         call.return_value = endpoint.Endpoint(
             name='name_value',
+
             display_name='display_name_value',
+
             description='description_value',
+
             etag='etag_value',
+
         )
+
         response = client.get_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.GetEndpointRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, endpoint.Endpoint)
+
     assert response.name == 'name_value'
+
     assert response.display_name == 'display_name_value'
+
     assert response.description == 'description_value'
+
     assert response.etag == 'etag_value'
 
 
@@ -673,8 +671,8 @@ def test_get_endpoint_empty_call():
         client.get_endpoint()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == endpoint_service.GetEndpointRequest()
 
+        assert args[0] == endpoint_service.GetEndpointRequest()
 
 @pytest.mark.asyncio
 async def test_get_endpoint_async(transport: str = 'grpc_asyncio', request_type=endpoint_service.GetEndpointRequest):
@@ -692,24 +690,30 @@ async def test_get_endpoint_async(transport: str = 'grpc_asyncio', request_type=
             type(client.transport.get_endpoint),
             '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(endpoint.Endpoint(
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(endpoint.Endpoint(
             name='name_value',
             display_name='display_name_value',
             description='description_value',
             etag='etag_value',
         ))
+
         response = await client.get_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.GetEndpointRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, endpoint.Endpoint)
+
     assert response.name == 'name_value'
+
     assert response.display_name == 'display_name_value'
+
     assert response.description == 'description_value'
+
     assert response.etag == 'etag_value'
 
 
@@ -726,7 +730,6 @@ def test_get_endpoint_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.GetEndpointRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -734,6 +737,7 @@ def test_get_endpoint_field_headers():
             type(client.transport.get_endpoint),
             '__call__') as call:
         call.return_value = endpoint.Endpoint()
+
         client.get_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -758,7 +762,6 @@ async def test_get_endpoint_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.GetEndpointRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -766,6 +769,7 @@ async def test_get_endpoint_field_headers_async():
             type(client.transport.get_endpoint),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(endpoint.Endpoint())
+
         await client.get_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -792,6 +796,7 @@ def test_get_endpoint_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = endpoint.Endpoint()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.get_endpoint(
@@ -802,6 +807,7 @@ def test_get_endpoint_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
 
 
@@ -843,6 +849,7 @@ async def test_get_endpoint_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
 
 
@@ -878,16 +885,21 @@ def test_list_endpoints(transport: str = 'grpc', request_type=endpoint_service.L
         # Designate an appropriate return value for the call.
         call.return_value = endpoint_service.ListEndpointsResponse(
             next_page_token='next_page_token_value',
+
         )
+
         response = client.list_endpoints(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.ListEndpointsRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, pagers.ListEndpointsPager)
+
     assert response.next_page_token == 'next_page_token_value'
 
 
@@ -910,8 +922,8 @@ def test_list_endpoints_empty_call():
         client.list_endpoints()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == endpoint_service.ListEndpointsRequest()
 
+        assert args[0] == endpoint_service.ListEndpointsRequest()
 
 @pytest.mark.asyncio
 async def test_list_endpoints_async(transport: str = 'grpc_asyncio', request_type=endpoint_service.ListEndpointsRequest):
@@ -929,18 +941,21 @@ async def test_list_endpoints_async(transport: str = 'grpc_asyncio', request_typ
             type(client.transport.list_endpoints),
             '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(endpoint_service.ListEndpointsResponse(
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(endpoint_service.ListEndpointsResponse(
             next_page_token='next_page_token_value',
         ))
+
         response = await client.list_endpoints(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.ListEndpointsRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListEndpointsAsyncPager)
+
     assert response.next_page_token == 'next_page_token_value'
 
 
@@ -957,7 +972,6 @@ def test_list_endpoints_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.ListEndpointsRequest()
-
     request.parent = 'parent/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -965,6 +979,7 @@ def test_list_endpoints_field_headers():
             type(client.transport.list_endpoints),
             '__call__') as call:
         call.return_value = endpoint_service.ListEndpointsResponse()
+
         client.list_endpoints(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -989,7 +1004,6 @@ async def test_list_endpoints_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.ListEndpointsRequest()
-
     request.parent = 'parent/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -997,6 +1011,7 @@ async def test_list_endpoints_field_headers_async():
             type(client.transport.list_endpoints),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(endpoint_service.ListEndpointsResponse())
+
         await client.list_endpoints(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1023,6 +1038,7 @@ def test_list_endpoints_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = endpoint_service.ListEndpointsResponse()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_endpoints(
@@ -1033,6 +1049,7 @@ def test_list_endpoints_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == 'parent_value'
 
 
@@ -1074,6 +1091,7 @@ async def test_list_endpoints_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == 'parent_value'
 
 
@@ -1278,6 +1296,7 @@ async def test_list_endpoints_async_pages():
         for page_, token in zip(pages, ['abc','def','ghi', '']):
             assert page_.raw_page.next_page_token == token
 
+
 def test_update_endpoint(transport: str = 'grpc', request_type=endpoint_service.UpdateEndpointRequest):
     client = EndpointServiceClient(
         credentials=credentials.AnonymousCredentials(),
@@ -1295,22 +1314,33 @@ def test_update_endpoint(transport: str = 'grpc', request_type=endpoint_service.
         # Designate an appropriate return value for the call.
         call.return_value = gca_endpoint.Endpoint(
             name='name_value',
+
             display_name='display_name_value',
+
             description='description_value',
+
             etag='etag_value',
+
         )
+
         response = client.update_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.UpdateEndpointRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, gca_endpoint.Endpoint)
+
     assert response.name == 'name_value'
+
     assert response.display_name == 'display_name_value'
+
     assert response.description == 'description_value'
+
     assert response.etag == 'etag_value'
 
 
@@ -1333,8 +1363,8 @@ def test_update_endpoint_empty_call():
         client.update_endpoint()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == endpoint_service.UpdateEndpointRequest()
 
+        assert args[0] == endpoint_service.UpdateEndpointRequest()
 
 @pytest.mark.asyncio
 async def test_update_endpoint_async(transport: str = 'grpc_asyncio', request_type=endpoint_service.UpdateEndpointRequest):
@@ -1352,24 +1382,30 @@ async def test_update_endpoint_async(transport: str = 'grpc_asyncio', request_ty
             type(client.transport.update_endpoint),
             '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(gca_endpoint.Endpoint(
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(gca_endpoint.Endpoint(
             name='name_value',
             display_name='display_name_value',
             description='description_value',
             etag='etag_value',
         ))
+
         response = await client.update_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.UpdateEndpointRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_endpoint.Endpoint)
+
     assert response.name == 'name_value'
+
     assert response.display_name == 'display_name_value'
+
     assert response.description == 'description_value'
+
     assert response.etag == 'etag_value'
 
 
@@ -1386,7 +1422,6 @@ def test_update_endpoint_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.UpdateEndpointRequest()
-
     request.endpoint.name = 'endpoint.name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1394,6 +1429,7 @@ def test_update_endpoint_field_headers():
             type(client.transport.update_endpoint),
             '__call__') as call:
         call.return_value = gca_endpoint.Endpoint()
+
         client.update_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1418,7 +1454,6 @@ async def test_update_endpoint_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.UpdateEndpointRequest()
-
     request.endpoint.name = 'endpoint.name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1426,6 +1461,7 @@ async def test_update_endpoint_field_headers_async():
             type(client.transport.update_endpoint),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(gca_endpoint.Endpoint())
+
         await client.update_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1452,6 +1488,7 @@ def test_update_endpoint_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_endpoint.Endpoint()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.update_endpoint(
@@ -1463,7 +1500,9 @@ def test_update_endpoint_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].endpoint == gca_endpoint.Endpoint(name='name_value')
+
         assert args[0].update_mask == field_mask.FieldMask(paths=['paths_value'])
 
 
@@ -1507,7 +1546,9 @@ async def test_update_endpoint_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].endpoint == gca_endpoint.Endpoint(name='name_value')
+
         assert args[0].update_mask == field_mask.FieldMask(paths=['paths_value'])
 
 
@@ -1543,11 +1584,13 @@ def test_delete_endpoint(transport: str = 'grpc', request_type=endpoint_service.
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/spam')
+
         response = client.delete_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.DeleteEndpointRequest()
 
     # Establish that the response is the type that we expect.
@@ -1573,8 +1616,8 @@ def test_delete_endpoint_empty_call():
         client.delete_endpoint()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == endpoint_service.DeleteEndpointRequest()
 
+        assert args[0] == endpoint_service.DeleteEndpointRequest()
 
 @pytest.mark.asyncio
 async def test_delete_endpoint_async(transport: str = 'grpc_asyncio', request_type=endpoint_service.DeleteEndpointRequest):
@@ -1595,11 +1638,13 @@ async def test_delete_endpoint_async(transport: str = 'grpc_asyncio', request_ty
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name='operations/spam')
         )
+
         response = await client.delete_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.DeleteEndpointRequest()
 
     # Establish that the response is the type that we expect.
@@ -1619,7 +1664,6 @@ def test_delete_endpoint_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.DeleteEndpointRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1627,6 +1671,7 @@ def test_delete_endpoint_field_headers():
             type(client.transport.delete_endpoint),
             '__call__') as call:
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         client.delete_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1651,7 +1696,6 @@ async def test_delete_endpoint_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.DeleteEndpointRequest()
-
     request.name = 'name/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1659,6 +1703,7 @@ async def test_delete_endpoint_field_headers_async():
             type(client.transport.delete_endpoint),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
+
         await client.delete_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1685,6 +1730,7 @@ def test_delete_endpoint_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.delete_endpoint(
@@ -1695,6 +1741,7 @@ def test_delete_endpoint_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
 
 
@@ -1738,6 +1785,7 @@ async def test_delete_endpoint_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == 'name_value'
 
 
@@ -1772,11 +1820,13 @@ def test_deploy_model(transport: str = 'grpc', request_type=endpoint_service.Dep
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/spam')
+
         response = client.deploy_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.DeployModelRequest()
 
     # Establish that the response is the type that we expect.
@@ -1802,8 +1852,8 @@ def test_deploy_model_empty_call():
         client.deploy_model()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == endpoint_service.DeployModelRequest()
 
+        assert args[0] == endpoint_service.DeployModelRequest()
 
 @pytest.mark.asyncio
 async def test_deploy_model_async(transport: str = 'grpc_asyncio', request_type=endpoint_service.DeployModelRequest):
@@ -1824,11 +1874,13 @@ async def test_deploy_model_async(transport: str = 'grpc_asyncio', request_type=
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name='operations/spam')
         )
+
         response = await client.deploy_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.DeployModelRequest()
 
     # Establish that the response is the type that we expect.
@@ -1848,7 +1900,6 @@ def test_deploy_model_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.DeployModelRequest()
-
     request.endpoint = 'endpoint/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1856,6 +1907,7 @@ def test_deploy_model_field_headers():
             type(client.transport.deploy_model),
             '__call__') as call:
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         client.deploy_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1880,7 +1932,6 @@ async def test_deploy_model_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.DeployModelRequest()
-
     request.endpoint = 'endpoint/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1888,6 +1939,7 @@ async def test_deploy_model_field_headers_async():
             type(client.transport.deploy_model),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
+
         await client.deploy_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1914,6 +1966,7 @@ def test_deploy_model_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.deploy_model(
@@ -1926,8 +1979,11 @@ def test_deploy_model_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].endpoint == 'endpoint_value'
+
         assert args[0].deployed_model == gca_endpoint.DeployedModel(dedicated_resources=machine_resources.DedicatedResources(machine_spec=machine_resources.MachineSpec(machine_type='machine_type_value')))
+
         assert args[0].traffic_split == {'key_value': 541}
 
 
@@ -1975,8 +2031,11 @@ async def test_deploy_model_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].endpoint == 'endpoint_value'
+
         assert args[0].deployed_model == gca_endpoint.DeployedModel(dedicated_resources=machine_resources.DedicatedResources(machine_spec=machine_resources.MachineSpec(machine_type='machine_type_value')))
+
         assert args[0].traffic_split == {'key_value': 541}
 
 
@@ -2013,11 +2072,13 @@ def test_undeploy_model(transport: str = 'grpc', request_type=endpoint_service.U
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/spam')
+
         response = client.undeploy_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.UndeployModelRequest()
 
     # Establish that the response is the type that we expect.
@@ -2043,8 +2104,8 @@ def test_undeploy_model_empty_call():
         client.undeploy_model()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == endpoint_service.UndeployModelRequest()
 
+        assert args[0] == endpoint_service.UndeployModelRequest()
 
 @pytest.mark.asyncio
 async def test_undeploy_model_async(transport: str = 'grpc_asyncio', request_type=endpoint_service.UndeployModelRequest):
@@ -2065,11 +2126,13 @@ async def test_undeploy_model_async(transport: str = 'grpc_asyncio', request_typ
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name='operations/spam')
         )
+
         response = await client.undeploy_model(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == endpoint_service.UndeployModelRequest()
 
     # Establish that the response is the type that we expect.
@@ -2089,7 +2152,6 @@ def test_undeploy_model_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.UndeployModelRequest()
-
     request.endpoint = 'endpoint/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2097,6 +2159,7 @@ def test_undeploy_model_field_headers():
             type(client.transport.undeploy_model),
             '__call__') as call:
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         client.undeploy_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2121,7 +2184,6 @@ async def test_undeploy_model_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = endpoint_service.UndeployModelRequest()
-
     request.endpoint = 'endpoint/value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2129,6 +2191,7 @@ async def test_undeploy_model_field_headers_async():
             type(client.transport.undeploy_model),
             '__call__') as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
+
         await client.undeploy_model(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2155,6 +2218,7 @@ def test_undeploy_model_flattened():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name='operations/op')
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.undeploy_model(
@@ -2167,8 +2231,11 @@ def test_undeploy_model_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].endpoint == 'endpoint_value'
+
         assert args[0].deployed_model_id == 'deployed_model_id_value'
+
         assert args[0].traffic_split == {'key_value': 541}
 
 
@@ -2216,8 +2283,11 @@ async def test_undeploy_model_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].endpoint == 'endpoint_value'
+
         assert args[0].deployed_model_id == 'deployed_model_id_value'
+
         assert args[0].traffic_split == {'key_value': 541}
 
 
@@ -2278,6 +2348,7 @@ def test_transport_instance():
     client = EndpointServiceClient(transport=transport)
     assert client.transport is transport
 
+
 def test_transport_get_channel():
     # A client may be instantiated with a custom transport instance.
     transport = transports.EndpointServiceGrpcTransport(
@@ -2292,6 +2363,7 @@ def test_transport_get_channel():
     channel = transport.grpc_channel
     assert channel
 
+
 @pytest.mark.parametrize("transport_class", [
     transports.EndpointServiceGrpcTransport,
     transports.EndpointServiceGrpcAsyncIOTransport,
@@ -2303,6 +2375,7 @@ def test_transport_adc(transport_class):
         transport_class()
         adc.assert_called_once()
 
+
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
     client = EndpointServiceClient(
@@ -2312,6 +2385,7 @@ def test_transport_grpc_default():
         client.transport,
         transports.EndpointServiceGrpcTransport,
     )
+
 
 def test_endpoint_service_base_transport_error():
     # Passing both a credentials object and credentials_file should raise an error
@@ -2340,7 +2414,7 @@ def test_endpoint_service_base_transport():
         'delete_endpoint',
         'deploy_model',
         'undeploy_model',
-    )
+        )
     for method in methods:
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
@@ -2351,27 +2425,9 @@ def test_endpoint_service_base_transport():
         transport.operations_client
 
 
-@requires_google_auth_gte_1_25_0
 def test_endpoint_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
-    with mock.patch.object(auth, 'load_credentials_from_file', autospec=True) as load_creds, mock.patch('google.cloud.aiplatform_v1.services.endpoint_service.transports.EndpointServiceTransport._prep_wrapped_messages') as Transport:
-        Transport.return_value = None
-        load_creds.return_value = (credentials.AnonymousCredentials(), None)
-        transport = transports.EndpointServiceTransport(
-            credentials_file="credentials.json",
-            quota_project_id="octopus",
-        )
-        load_creds.assert_called_once_with("credentials.json",
-            scopes=None,
-            default_scopes=(            'https://www.googleapis.com/auth/cloud-platform',            ),
-            quota_project_id="octopus",
-        )
-
-
-@requires_google_auth_lt_1_25_0
-def test_endpoint_service_base_transport_with_credentials_file_old_google_auth():
-    # Instantiate the base transport with a credentials file
-    with mock.patch.object(auth, 'load_credentials_from_file', autospec=True) as load_creds, mock.patch('google.cloud.aiplatform_v1.services.endpoint_service.transports.EndpointServiceTransport._prep_wrapped_messages') as Transport:
+    with mock.patch.object(auth, 'load_credentials_from_file') as load_creds, mock.patch('google.cloud.aiplatform_v1.services.endpoint_service.transports.EndpointServiceTransport._prep_wrapped_messages') as Transport:
         Transport.return_value = None
         load_creds.return_value = (credentials.AnonymousCredentials(), None)
         transport = transports.EndpointServiceTransport(
@@ -2387,182 +2443,33 @@ def test_endpoint_service_base_transport_with_credentials_file_old_google_auth()
 
 def test_endpoint_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
-    with mock.patch.object(auth, 'default', autospec=True) as adc, mock.patch('google.cloud.aiplatform_v1.services.endpoint_service.transports.EndpointServiceTransport._prep_wrapped_messages') as Transport:
+    with mock.patch.object(auth, 'default') as adc, mock.patch('google.cloud.aiplatform_v1.services.endpoint_service.transports.EndpointServiceTransport._prep_wrapped_messages') as Transport:
         Transport.return_value = None
         adc.return_value = (credentials.AnonymousCredentials(), None)
         transport = transports.EndpointServiceTransport()
         adc.assert_called_once()
 
 
-@requires_google_auth_gte_1_25_0
 def test_endpoint_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, 'default', autospec=True) as adc:
+    with mock.patch.object(auth, 'default') as adc:
         adc.return_value = (credentials.AnonymousCredentials(), None)
         EndpointServiceClient()
-        adc.assert_called_once_with(
-            scopes=None,
-            default_scopes=(
-            'https://www.googleapis.com/auth/cloud-platform',
-),
-
-            quota_project_id=None,
-        )
-
-
-@requires_google_auth_lt_1_25_0
-def test_endpoint_service_auth_adc_old_google_auth():
-    # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, 'default', autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
-        EndpointServiceClient()
-        adc.assert_called_once_with(
-            scopes=(                'https://www.googleapis.com/auth/cloud-platform',),
-            quota_project_id=None,
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.EndpointServiceGrpcTransport,
-        transports.EndpointServiceGrpcAsyncIOTransport,
-    ],
-)
-@requires_google_auth_gte_1_25_0
-def test_endpoint_service_transport_auth_adc(transport_class):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, 'default', autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus", scopes=["1", "2"])
-        adc.assert_called_once_with(
-            scopes=["1", "2"],
-            default_scopes=(                'https://www.googleapis.com/auth/cloud-platform',),
-            quota_project_id="octopus",
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.EndpointServiceGrpcTransport,
-        transports.EndpointServiceGrpcAsyncIOTransport,
-    ],
-)
-@requires_google_auth_lt_1_25_0
-def test_endpoint_service_transport_auth_adc_old_google_auth(transport_class):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus")
         adc.assert_called_once_with(scopes=(
-            'https://www.googleapis.com/auth/cloud-platform',
-),
-            quota_project_id="octopus",
+            'https://www.googleapis.com/auth/cloud-platform',),
+            quota_project_id=None,
         )
 
 
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.EndpointServiceGrpcTransport, grpc_helpers),
-        (transports.EndpointServiceGrpcAsyncIOTransport, grpc_helpers_async)
-    ],
-)
-@requires_api_core_gte_1_26_0
-def test_endpoint_service_transport_create_channel(transport_class, grpc_helpers):
+def test_endpoint_service_transport_auth_adc():
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-        transport_class(
+    with mock.patch.object(auth, 'default') as adc:
+        adc.return_value = (credentials.AnonymousCredentials(), None)
+        transports.EndpointServiceGrpcTransport(host="squid.clam.whelk", quota_project_id="octopus")
+        adc.assert_called_once_with(scopes=(
+            'https://www.googleapis.com/auth/cloud-platform',),
             quota_project_id="octopus",
-            scopes=["1", "2"]
-        )
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            default_scopes=(                'https://www.googleapis.com/auth/cloud-platform',),
-            scopes=["1", "2"],
-            default_host="aiplatform.googleapis.com",
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.EndpointServiceGrpcTransport, grpc_helpers),
-        (transports.EndpointServiceGrpcAsyncIOTransport, grpc_helpers_async)
-    ],
-)
-@requires_api_core_lt_1_26_0
-def test_endpoint_service_transport_create_channel_old_api_core(transport_class, grpc_helpers):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-        transport_class(quota_project_id="octopus")
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            scopes=(                'https://www.googleapis.com/auth/cloud-platform',),
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.EndpointServiceGrpcTransport, grpc_helpers),
-        (transports.EndpointServiceGrpcAsyncIOTransport, grpc_helpers_async)
-    ],
-)
-@requires_api_core_lt_1_26_0
-def test_endpoint_service_transport_create_channel_user_scopes(transport_class, grpc_helpers):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-
-        transport_class(quota_project_id="octopus", scopes=["1", "2"])
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            scopes=["1", "2"],
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
         )
 
 
@@ -2624,6 +2531,7 @@ def test_endpoint_service_host_with_port():
         client_options=client_options.ClientOptions(api_endpoint='aiplatform.googleapis.com:8000'),
     )
     assert client.transport._host == 'aiplatform.googleapis.com:8000'
+
 
 def test_endpoint_service_grpc_transport_channel():
     channel = grpc.secure_channel('http://localhost/', grpc.local_channel_credentials())
@@ -2777,6 +2685,7 @@ def test_endpoint_path():
     project = "squid"
     location = "clam"
     endpoint = "whelk"
+
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(project=project, location=location, endpoint=endpoint, )
     actual = EndpointServiceClient.endpoint_path(project, location, endpoint)
     assert expected == actual
@@ -2784,9 +2693,10 @@ def test_endpoint_path():
 
 def test_parse_endpoint_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "endpoint": "nudibranch",
+    "project": "octopus",
+    "location": "oyster",
+    "endpoint": "nudibranch",
+
     }
     path = EndpointServiceClient.endpoint_path(**expected)
 
@@ -2798,6 +2708,7 @@ def test_model_path():
     project = "cuttlefish"
     location = "mussel"
     model = "winkle"
+
     expected = "projects/{project}/locations/{location}/models/{model}".format(project=project, location=location, model=model, )
     actual = EndpointServiceClient.model_path(project, location, model)
     assert expected == actual
@@ -2805,9 +2716,10 @@ def test_model_path():
 
 def test_parse_model_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "model": "abalone",
+    "project": "nautilus",
+    "location": "scallop",
+    "model": "abalone",
+
     }
     path = EndpointServiceClient.model_path(**expected)
 
@@ -2817,6 +2729,7 @@ def test_parse_model_path():
 
 def test_common_billing_account_path():
     billing_account = "squid"
+
     expected = "billingAccounts/{billing_account}".format(billing_account=billing_account, )
     actual = EndpointServiceClient.common_billing_account_path(billing_account)
     assert expected == actual
@@ -2824,7 +2737,8 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "clam",
+    "billing_account": "clam",
+
     }
     path = EndpointServiceClient.common_billing_account_path(**expected)
 
@@ -2834,6 +2748,7 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "whelk"
+
     expected = "folders/{folder}".format(folder=folder, )
     actual = EndpointServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -2841,7 +2756,8 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "octopus",
+    "folder": "octopus",
+
     }
     path = EndpointServiceClient.common_folder_path(**expected)
 
@@ -2851,6 +2767,7 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "oyster"
+
     expected = "organizations/{organization}".format(organization=organization, )
     actual = EndpointServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -2858,7 +2775,8 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nudibranch",
+    "organization": "nudibranch",
+
     }
     path = EndpointServiceClient.common_organization_path(**expected)
 
@@ -2868,6 +2786,7 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "cuttlefish"
+
     expected = "projects/{project}".format(project=project, )
     actual = EndpointServiceClient.common_project_path(project)
     assert expected == actual
@@ -2875,7 +2794,8 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "mussel",
+    "project": "mussel",
+
     }
     path = EndpointServiceClient.common_project_path(**expected)
 
@@ -2886,6 +2806,7 @@ def test_parse_common_project_path():
 def test_common_location_path():
     project = "winkle"
     location = "nautilus"
+
     expected = "projects/{project}/locations/{location}".format(project=project, location=location, )
     actual = EndpointServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -2893,8 +2814,9 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "scallop",
-        "location": "abalone",
+    "project": "scallop",
+    "location": "abalone",
+
     }
     path = EndpointServiceClient.common_location_path(**expected)
 

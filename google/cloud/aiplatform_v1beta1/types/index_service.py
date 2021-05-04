@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.cloud.aiplatform_v1beta1.types import index as gca_index
 from google.cloud.aiplatform_v1beta1.types import operation
@@ -49,13 +52,9 @@ class CreateIndexRequest(proto.Message):
             Required. The Index to create.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    index = proto.Field(
-        proto.MESSAGE,
-        number=2,
+    parent = proto.Field(proto.STRING, number=1)
+
+    index = proto.Field(proto.MESSAGE, number=2,
         message=gca_index.Index,
     )
 
@@ -72,14 +71,11 @@ class CreateIndexOperationMetadata(proto.Message):
             Matching Engine Index operation.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
         message=operation.GenericOperationMetadata,
     )
-    nearest_neighbor_search_operation_metadata = proto.Field(
-        proto.MESSAGE,
-        number=2,
+
+    nearest_neighbor_search_operation_metadata = proto.Field(proto.MESSAGE, number=2,
         message='NearestNeighborSearchOperationMetadata',
     )
 
@@ -94,10 +90,7 @@ class GetIndexRequest(proto.Message):
             ``projects/{project}/locations/{location}/indexes/{index}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class ListIndexesRequest(proto.Message):
@@ -123,25 +116,15 @@ class ListIndexesRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    filter = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    page_size = proto.Field(
-        proto.INT32,
-        number=3,
-    )
-    page_token = proto.Field(
-        proto.STRING,
-        number=4,
-    )
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
+    parent = proto.Field(proto.STRING, number=1)
+
+    filter = proto.Field(proto.STRING, number=2)
+
+    page_size = proto.Field(proto.INT32, number=3)
+
+    page_token = proto.Field(proto.STRING, number=4)
+
+    read_mask = proto.Field(proto.MESSAGE, number=5,
         message=field_mask.FieldMask,
     )
 
@@ -163,15 +146,11 @@ class ListIndexesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    indexes = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    indexes = proto.RepeatedField(proto.MESSAGE, number=1,
         message=gca_index.Index,
     )
-    next_page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+
+    next_page_token = proto.Field(proto.STRING, number=2)
 
 
 class UpdateIndexRequest(proto.Message):
@@ -188,14 +167,11 @@ class UpdateIndexRequest(proto.Message):
             `FieldMask <https://tinyurl.com/protobufs#google.protobuf.FieldMask>`__.
     """
 
-    index = proto.Field(
-        proto.MESSAGE,
-        number=1,
+    index = proto.Field(proto.MESSAGE, number=1,
         message=gca_index.Index,
     )
-    update_mask = proto.Field(
-        proto.MESSAGE,
-        number=2,
+
+    update_mask = proto.Field(proto.MESSAGE, number=2,
         message=field_mask.FieldMask,
     )
 
@@ -212,14 +188,11 @@ class UpdateIndexOperationMetadata(proto.Message):
             Matching Engine Index operation.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
         message=operation.GenericOperationMetadata,
     )
-    nearest_neighbor_search_operation_metadata = proto.Field(
-        proto.MESSAGE,
-        number=2,
+
+    nearest_neighbor_search_operation_metadata = proto.Field(proto.MESSAGE, number=2,
         message='NearestNeighborSearchOperationMetadata',
     )
 
@@ -235,10 +208,7 @@ class DeleteIndexRequest(proto.Message):
             ``projects/{project}/locations/{location}/indexes/{index}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class NearestNeighborSearchOperationMetadata(proto.Message):
@@ -255,9 +225,9 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             or has unsupported file format, we will not have the stats
             for those files.
     """
-
     class RecordError(proto.Message):
         r"""
+
         Attributes:
             error_type (google.cloud.aiplatform_v1beta1.types.NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType):
                 The error type of this record.
@@ -285,30 +255,21 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             EMBEDDING_SIZE_MISMATCH = 6
             NAMESPACE_MISSING = 7
 
-        error_type = proto.Field(
-            proto.ENUM,
-            number=1,
+        error_type = proto.Field(proto.ENUM, number=1,
             enum='NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType',
         )
-        error_message = proto.Field(
-            proto.STRING,
-            number=2,
-        )
-        source_gcs_uri = proto.Field(
-            proto.STRING,
-            number=3,
-        )
-        embedding_id = proto.Field(
-            proto.STRING,
-            number=4,
-        )
-        raw_record = proto.Field(
-            proto.STRING,
-            number=5,
-        )
+
+        error_message = proto.Field(proto.STRING, number=2)
+
+        source_gcs_uri = proto.Field(proto.STRING, number=3)
+
+        embedding_id = proto.Field(proto.STRING, number=4)
+
+        raw_record = proto.Field(proto.STRING, number=5)
 
     class ContentValidationStats(proto.Message):
         r"""
+
         Attributes:
             source_gcs_uri (str):
                 GCS uri pointing to the original file in
@@ -326,27 +287,17 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                 will be reported.
         """
 
-        source_gcs_uri = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-        valid_record_count = proto.Field(
-            proto.INT64,
-            number=2,
-        )
-        invalid_record_count = proto.Field(
-            proto.INT64,
-            number=3,
-        )
-        partial_errors = proto.RepeatedField(
-            proto.MESSAGE,
-            number=4,
+        source_gcs_uri = proto.Field(proto.STRING, number=1)
+
+        valid_record_count = proto.Field(proto.INT64, number=2)
+
+        invalid_record_count = proto.Field(proto.INT64, number=3)
+
+        partial_errors = proto.RepeatedField(proto.MESSAGE, number=4,
             message='NearestNeighborSearchOperationMetadata.RecordError',
         )
 
-    content_validation_stats = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    content_validation_stats = proto.RepeatedField(proto.MESSAGE, number=1,
         message=ContentValidationStats,
     )
 

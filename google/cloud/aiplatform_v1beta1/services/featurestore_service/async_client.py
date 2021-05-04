@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 import functools
 import re
@@ -42,6 +44,7 @@ from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+
 from .transports.base import FeaturestoreServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import FeaturestoreServiceGrpcAsyncIOTransport
 from .client import FeaturestoreServiceClient
@@ -63,14 +66,19 @@ class FeaturestoreServiceAsyncClient:
     parse_feature_path = staticmethod(FeaturestoreServiceClient.parse_feature_path)
     featurestore_path = staticmethod(FeaturestoreServiceClient.featurestore_path)
     parse_featurestore_path = staticmethod(FeaturestoreServiceClient.parse_featurestore_path)
+
     common_billing_account_path = staticmethod(FeaturestoreServiceClient.common_billing_account_path)
     parse_common_billing_account_path = staticmethod(FeaturestoreServiceClient.parse_common_billing_account_path)
+
     common_folder_path = staticmethod(FeaturestoreServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(FeaturestoreServiceClient.parse_common_folder_path)
+
     common_organization_path = staticmethod(FeaturestoreServiceClient.common_organization_path)
     parse_common_organization_path = staticmethod(FeaturestoreServiceClient.parse_common_organization_path)
+
     common_project_path = staticmethod(FeaturestoreServiceClient.common_project_path)
     parse_common_project_path = staticmethod(FeaturestoreServiceClient.parse_common_project_path)
+
     common_location_path = staticmethod(FeaturestoreServiceClient.common_location_path)
     parse_common_location_path = staticmethod(FeaturestoreServiceClient.parse_common_location_path)
 
@@ -155,6 +163,7 @@ class FeaturestoreServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
+
         self._client = FeaturestoreServiceClient(
             credentials=credentials,
             transport=transport,
@@ -177,8 +186,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateFeaturestoreRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.CreateFeaturestore``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
@@ -193,6 +201,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``featurestore`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -221,6 +230,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
         if featurestore is not None:
@@ -273,8 +283,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetFeaturestoreRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.GetFeaturestore``.
             name (:class:`str`):
                 Required. The name of the
@@ -283,6 +292,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -308,6 +318,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -350,8 +361,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListFeaturestoresRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.ListFeaturestores``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list
@@ -361,6 +371,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -388,6 +399,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -440,8 +452,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateFeaturestoreRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.UpdateFeaturestore``.
             featurestore (:class:`google.cloud.aiplatform_v1beta1.types.Featurestore`):
                 Required. The Featurestore's ``name`` field is used to
@@ -471,6 +482,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -499,6 +511,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if featurestore is not None:
             request.featurestore = featurestore
         if update_mask is not None:
@@ -553,8 +566,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteFeaturestoreRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.DeleteFeaturestore``.
             name (:class:`str`):
                 Required. The name of the Featurestore to be deleted.
@@ -564,6 +576,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -601,6 +614,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -652,8 +666,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateEntityTypeRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.CreateEntityType``.
             parent (:class:`str`):
                 Required. The resource name of the Featurestore to
@@ -668,6 +681,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -696,6 +710,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
         if entity_type is not None:
@@ -748,8 +763,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetEntityTypeRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.GetEntityType``.
             name (:class:`str`):
                 Required. The name of the EntityType resource. Format:
@@ -758,6 +772,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -786,6 +801,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -828,8 +844,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListEntityTypesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.ListEntityTypes``.
             parent (:class:`str`):
                 Required. The resource name of the Featurestore to list
@@ -839,6 +854,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -866,6 +882,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -918,8 +935,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateEntityTypeRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.UpdateEntityType``.
             entity_type (:class:`google.cloud.aiplatform_v1beta1.types.EntityType`):
                 Required. The EntityType's ``name`` field is used to
@@ -949,6 +965,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -977,6 +994,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if entity_type is not None:
             request.entity_type = entity_type
         if update_mask is not None:
@@ -1023,8 +1041,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteEntityTypeRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [FeaturestoreService.DeleteEntityTypes][].
             name (:class:`str`):
                 Required. The name of the EntityType to be deleted.
@@ -1034,6 +1051,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1071,6 +1089,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -1122,8 +1141,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.CreateFeature``.
             parent (:class:`str`):
                 Required. The resource name of the EntityType to create
@@ -1138,6 +1156,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``feature`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1165,6 +1184,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
         if feature is not None:
@@ -1218,8 +1238,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.BatchCreateFeaturesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.BatchCreateFeatures``.
             parent (:class:`str`):
                 Required. The resource name of the EntityType to create
@@ -1240,6 +1259,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1268,8 +1288,10 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
+
         if requests:
             request.requests.extend(requests)
 
@@ -1320,8 +1342,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetFeatureRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.GetFeature``.
             name (:class:`str`):
                 Required. The name of the Feature resource. Format:
@@ -1330,6 +1351,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1357,6 +1379,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -1399,8 +1422,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListFeaturesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.ListFeatures``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list
@@ -1410,6 +1432,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1437,6 +1460,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -1489,8 +1513,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateFeatureRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.UpdateFeature``.
             feature (:class:`google.cloud.aiplatform_v1beta1.types.Feature`):
                 Required. The Feature's ``name`` field is used to
@@ -1520,6 +1543,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1547,6 +1571,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if feature is not None:
             request.feature = feature
         if update_mask is not None:
@@ -1591,8 +1616,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteFeatureRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.DeleteFeature``.
             name (:class:`str`):
                 Required. The name of the Features to be deleted.
@@ -1602,6 +1626,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1639,6 +1664,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -1709,8 +1735,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ImportFeatureValuesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.ImportFeatureValues``.
             entity_type (:class:`str`):
                 Required. The resource name of the EntityType grouping
@@ -1721,6 +1746,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1749,6 +1775,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if entity_type is not None:
             request.entity_type = entity_type
 
@@ -1804,8 +1831,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.BatchReadFeatureValuesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.BatchReadFeatureValues``.
             featurestore (:class:`str`):
                 Required. The resource name of the Featurestore from
@@ -1815,6 +1841,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``featurestore`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1843,6 +1870,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if featurestore is not None:
             request.featurestore = featurestore
 
@@ -1894,8 +1922,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.ExportFeatureValues``.
             entity_type (:class:`str`):
                 Required. The resource name of the EntityType from which
@@ -1905,6 +1932,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1933,6 +1961,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if entity_type is not None:
             request.entity_type = entity_type
 
@@ -1984,8 +2013,7 @@ class FeaturestoreServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.SearchFeaturesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``FeaturestoreService.SearchFeatures``.
             location (:class:`str`):
                 Required. The resource name of the Location to search
@@ -1995,6 +2023,7 @@ class FeaturestoreServiceAsyncClient:
                 This corresponds to the ``location`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2022,6 +2051,7 @@ class FeaturestoreServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if location is not None:
             request.location = location
 
@@ -2060,6 +2090,8 @@ class FeaturestoreServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+
 
 
 

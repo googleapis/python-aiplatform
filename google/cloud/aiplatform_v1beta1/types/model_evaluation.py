@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.protobuf import struct_pb2 as struct  # type: ignore
@@ -71,9 +74,9 @@ class ModelEvaluation(proto.Message):
             that are used for explaining the predicted values on the
             evaluated data.
     """
-
     class ModelEvaluationExplanationSpec(proto.Message):
         r"""
+
         Attributes:
             explanation_type (str):
                 Explanation type.
@@ -86,46 +89,31 @@ class ModelEvaluation(proto.Message):
                 Explanation spec details.
         """
 
-        explanation_type = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-        explanation_spec = proto.Field(
-            proto.MESSAGE,
-            number=2,
+        explanation_type = proto.Field(proto.STRING, number=1)
+
+        explanation_spec = proto.Field(proto.MESSAGE, number=2,
             message=explanation.ExplanationSpec,
         )
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    metrics_schema_uri = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    metrics = proto.Field(
-        proto.MESSAGE,
-        number=3,
+    name = proto.Field(proto.STRING, number=1)
+
+    metrics_schema_uri = proto.Field(proto.STRING, number=2)
+
+    metrics = proto.Field(proto.MESSAGE, number=3,
         message=struct.Value,
     )
-    create_time = proto.Field(
-        proto.MESSAGE,
-        number=4,
+
+    create_time = proto.Field(proto.MESSAGE, number=4,
         message=timestamp.Timestamp,
     )
-    slice_dimensions = proto.RepeatedField(
-        proto.STRING,
-        number=5,
-    )
-    model_explanation = proto.Field(
-        proto.MESSAGE,
-        number=8,
+
+    slice_dimensions = proto.RepeatedField(proto.STRING, number=5)
+
+    model_explanation = proto.Field(proto.MESSAGE, number=8,
         message=explanation.ModelExplanation,
     )
-    explanation_specs = proto.RepeatedField(
-        proto.MESSAGE,
-        number=9,
+
+    explanation_specs = proto.RepeatedField(proto.MESSAGE, number=9,
         message=ModelEvaluationExplanationSpec,
     )
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.cloud.aiplatform_v1beta1.types import custom_job
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
@@ -102,79 +105,55 @@ class HyperparameterTuningJob(proto.Message):
             the provided encryption key.
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    display_name = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    study_spec = proto.Field(
-        proto.MESSAGE,
-        number=4,
+    name = proto.Field(proto.STRING, number=1)
+
+    display_name = proto.Field(proto.STRING, number=2)
+
+    study_spec = proto.Field(proto.MESSAGE, number=4,
         message=study.StudySpec,
     )
-    max_trial_count = proto.Field(
-        proto.INT32,
-        number=5,
-    )
-    parallel_trial_count = proto.Field(
-        proto.INT32,
-        number=6,
-    )
-    max_failed_trial_count = proto.Field(
-        proto.INT32,
-        number=7,
-    )
-    trial_job_spec = proto.Field(
-        proto.MESSAGE,
-        number=8,
+
+    max_trial_count = proto.Field(proto.INT32, number=5)
+
+    parallel_trial_count = proto.Field(proto.INT32, number=6)
+
+    max_failed_trial_count = proto.Field(proto.INT32, number=7)
+
+    trial_job_spec = proto.Field(proto.MESSAGE, number=8,
         message=custom_job.CustomJobSpec,
     )
-    trials = proto.RepeatedField(
-        proto.MESSAGE,
-        number=9,
+
+    trials = proto.RepeatedField(proto.MESSAGE, number=9,
         message=study.Trial,
     )
-    state = proto.Field(
-        proto.ENUM,
-        number=10,
+
+    state = proto.Field(proto.ENUM, number=10,
         enum=job_state.JobState,
     )
-    create_time = proto.Field(
-        proto.MESSAGE,
-        number=11,
+
+    create_time = proto.Field(proto.MESSAGE, number=11,
         message=timestamp.Timestamp,
     )
-    start_time = proto.Field(
-        proto.MESSAGE,
-        number=12,
+
+    start_time = proto.Field(proto.MESSAGE, number=12,
         message=timestamp.Timestamp,
     )
-    end_time = proto.Field(
-        proto.MESSAGE,
-        number=13,
+
+    end_time = proto.Field(proto.MESSAGE, number=13,
         message=timestamp.Timestamp,
     )
-    update_time = proto.Field(
-        proto.MESSAGE,
-        number=14,
+
+    update_time = proto.Field(proto.MESSAGE, number=14,
         message=timestamp.Timestamp,
     )
-    error = proto.Field(
-        proto.MESSAGE,
-        number=15,
+
+    error = proto.Field(proto.MESSAGE, number=15,
         message=status.Status,
     )
-    labels = proto.MapField(
-        proto.STRING,
-        proto.STRING,
-        number=16
-    )
-    encryption_spec = proto.Field(
-        proto.MESSAGE,
-        number=17,
+
+    labels = proto.MapField(proto.STRING, proto.STRING, number=16)
+
+    encryption_spec = proto.Field(proto.MESSAGE, number=17,
         message=gca_encryption_spec.EncryptionSpec,
     )
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 from distutils import util
 import os
@@ -42,6 +44,7 @@ from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+
 from .transports.base import IndexServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import IndexServiceGrpcTransport
 from .transports.grpc_asyncio import IndexServiceGrpcAsyncIOTransport
@@ -357,8 +360,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateIndexRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``IndexService.CreateIndex``.
             parent (str):
                 Required. The resource name of the Location to create
@@ -373,6 +375,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
                 This corresponds to the ``index`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -402,8 +405,10 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, index_service.CreateIndexRequest):
             request = index_service.CreateIndexRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
             if index is not None:
@@ -452,8 +457,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetIndexRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``IndexService.GetIndex``
             name (str):
                 Required. The name of the Index resource. Format:
@@ -462,6 +466,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -490,8 +495,10 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, index_service.GetIndexRequest):
             request = index_service.GetIndexRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -530,8 +537,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListIndexesRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``IndexService.ListIndexes``.
             parent (str):
                 Required. The resource name of the Location from which
@@ -541,6 +547,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -570,8 +577,10 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, index_service.ListIndexesRequest):
             request = index_service.ListIndexesRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
 
@@ -620,8 +629,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateIndexRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``IndexService.UpdateIndex``.
             index (google.cloud.aiplatform_v1beta1.types.Index):
                 Required. The Index which updates the
@@ -638,6 +646,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -667,8 +676,10 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, index_service.UpdateIndexRequest):
             request = index_service.UpdateIndexRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if index is not None:
                 request.index = index
             if update_mask is not None:
@@ -719,8 +730,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteIndexRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``IndexService.DeleteIndex``.
             name (str):
                 Required. The name of the Index resource to be deleted.
@@ -730,6 +740,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -769,8 +780,10 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, index_service.DeleteIndexRequest):
             request = index_service.DeleteIndexRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -804,6 +817,8 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
 
         # Done; return the response.
         return response
+
+
 
 
 

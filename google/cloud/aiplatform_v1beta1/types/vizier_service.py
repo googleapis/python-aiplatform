@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import study as gca_study
@@ -59,10 +62,7 @@ class GetStudyRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class CreateStudyRequest(proto.Message):
@@ -79,13 +79,9 @@ class CreateStudyRequest(proto.Message):
             create the Study.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    study = proto.Field(
-        proto.MESSAGE,
-        number=2,
+    parent = proto.Field(proto.STRING, number=1)
+
+    study = proto.Field(proto.MESSAGE, number=2,
         message=gca_study.Study,
     )
 
@@ -109,18 +105,11 @@ class ListStudiesRequest(proto.Message):
             service will pick an appropriate default.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    page_size = proto.Field(
-        proto.INT32,
-        number=3,
-    )
+    parent = proto.Field(proto.STRING, number=1)
+
+    page_token = proto.Field(proto.STRING, number=2)
+
+    page_size = proto.Field(proto.INT32, number=3)
 
 
 class ListStudiesResponse(proto.Message):
@@ -140,15 +129,11 @@ class ListStudiesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    studies = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    studies = proto.RepeatedField(proto.MESSAGE, number=1,
         message=gca_study.Study,
     )
-    next_page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+
+    next_page_token = proto.Field(proto.STRING, number=2)
 
 
 class DeleteStudyRequest(proto.Message):
@@ -162,10 +147,7 @@ class DeleteStudyRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class LookupStudyRequest(proto.Message):
@@ -181,14 +163,9 @@ class LookupStudyRequest(proto.Message):
             the Study
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    display_name = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+    parent = proto.Field(proto.STRING, number=1)
+
+    display_name = proto.Field(proto.STRING, number=2)
 
 
 class SuggestTrialsRequest(proto.Message):
@@ -213,18 +190,11 @@ class SuggestTrialsRequest(proto.Message):
             Trial if the last suggested Trial was completed.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    suggestion_count = proto.Field(
-        proto.INT32,
-        number=2,
-    )
-    client_id = proto.Field(
-        proto.STRING,
-        number=3,
-    )
+    parent = proto.Field(proto.STRING, number=1)
+
+    suggestion_count = proto.Field(proto.INT32, number=2)
+
+    client_id = proto.Field(proto.STRING, number=3)
 
 
 class SuggestTrialsResponse(proto.Message):
@@ -243,30 +213,26 @@ class SuggestTrialsResponse(proto.Message):
             completed.
     """
 
-    trials = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    trials = proto.RepeatedField(proto.MESSAGE, number=1,
         message=gca_study.Trial,
     )
-    study_state = proto.Field(
-        proto.ENUM,
-        number=2,
+
+    study_state = proto.Field(proto.ENUM, number=2,
         enum=gca_study.Study.State,
     )
-    start_time = proto.Field(
-        proto.MESSAGE,
-        number=3,
+
+    start_time = proto.Field(proto.MESSAGE, number=3,
         message=timestamp.Timestamp,
     )
-    end_time = proto.Field(
-        proto.MESSAGE,
-        number=4,
+
+    end_time = proto.Field(proto.MESSAGE, number=4,
         message=timestamp.Timestamp,
     )
 
 
 class SuggestTrialsMetadata(proto.Message):
     r"""Details of operations that perform Trials suggestion.
+
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for suggesting Trials.
@@ -280,15 +246,11 @@ class SuggestTrialsMetadata(proto.Message):
             Trial if the last suggested Trial was completed.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
         message=operation.GenericOperationMetadata,
     )
-    client_id = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+
+    client_id = proto.Field(proto.STRING, number=2)
 
 
 class CreateTrialRequest(proto.Message):
@@ -304,13 +266,9 @@ class CreateTrialRequest(proto.Message):
             Required. The Trial to create.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    trial = proto.Field(
-        proto.MESSAGE,
-        number=2,
+    parent = proto.Field(proto.STRING, number=1)
+
+    trial = proto.Field(proto.MESSAGE, number=2,
         message=gca_study.Trial,
     )
 
@@ -325,10 +283,7 @@ class GetTrialRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}/trials/{trial}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class ListTrialsRequest(proto.Message):
@@ -350,18 +305,11 @@ class ListTrialsRequest(proto.Message):
             service will pick an appropriate default.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    page_size = proto.Field(
-        proto.INT32,
-        number=3,
-    )
+    parent = proto.Field(proto.STRING, number=1)
+
+    page_token = proto.Field(proto.STRING, number=2)
+
+    page_size = proto.Field(proto.INT32, number=3)
 
 
 class ListTrialsResponse(proto.Message):
@@ -381,15 +329,11 @@ class ListTrialsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    trials = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    trials = proto.RepeatedField(proto.MESSAGE, number=1,
         message=gca_study.Trial,
     )
-    next_page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+
+    next_page_token = proto.Field(proto.STRING, number=2)
 
 
 class AddTrialMeasurementRequest(proto.Message):
@@ -405,13 +349,9 @@ class AddTrialMeasurementRequest(proto.Message):
             Trial.
     """
 
-    trial_name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    measurement = proto.Field(
-        proto.MESSAGE,
-        number=3,
+    trial_name = proto.Field(proto.STRING, number=1)
+
+    measurement = proto.Field(proto.MESSAGE, number=3,
         message=gca_study.Measurement,
     )
 
@@ -438,23 +378,15 @@ class CompleteTrialRequest(proto.Message):
             ``trial_infeasible`` is true.
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    final_measurement = proto.Field(
-        proto.MESSAGE,
-        number=2,
+    name = proto.Field(proto.STRING, number=1)
+
+    final_measurement = proto.Field(proto.MESSAGE, number=2,
         message=gca_study.Measurement,
     )
-    trial_infeasible = proto.Field(
-        proto.BOOL,
-        number=3,
-    )
-    infeasible_reason = proto.Field(
-        proto.STRING,
-        number=4,
-    )
+
+    trial_infeasible = proto.Field(proto.BOOL, number=3)
+
+    infeasible_reason = proto.Field(proto.STRING, number=4)
 
 
 class DeleteTrialRequest(proto.Message):
@@ -467,10 +399,7 @@ class DeleteTrialRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}/trials/{trial}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class CheckTrialEarlyStoppingStateRequest(proto.Message):
@@ -483,10 +412,7 @@ class CheckTrialEarlyStoppingStateRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}/trials/{trial}``
     """
 
-    trial_name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    trial_name = proto.Field(proto.STRING, number=1)
 
 
 class CheckTrialEarlyStoppingStateResponse(proto.Message):
@@ -498,10 +424,7 @@ class CheckTrialEarlyStoppingStateResponse(proto.Message):
             True if the Trial should stop.
     """
 
-    should_stop = proto.Field(
-        proto.BOOL,
-        number=1,
-    )
+    should_stop = proto.Field(proto.BOOL, number=1)
 
 
 class CheckTrialEarlyStoppingStateMetatdata(proto.Message):
@@ -519,19 +442,13 @@ class CheckTrialEarlyStoppingStateMetatdata(proto.Message):
             The Trial name.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
         message=operation.GenericOperationMetadata,
     )
-    study = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    trial = proto.Field(
-        proto.STRING,
-        number=3,
-    )
+
+    study = proto.Field(proto.STRING, number=2)
+
+    trial = proto.Field(proto.STRING, number=3)
 
 
 class StopTrialRequest(proto.Message):
@@ -544,10 +461,7 @@ class StopTrialRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}/trials/{trial}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class ListOptimalTrialsRequest(proto.Message):
@@ -560,10 +474,7 @@ class ListOptimalTrialsRequest(proto.Message):
             optimal Trial belongs to.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    parent = proto.Field(proto.STRING, number=1)
 
 
 class ListOptimalTrialsResponse(proto.Message):
@@ -578,9 +489,7 @@ class ListOptimalTrialsResponse(proto.Message):
             https://en.wikipedia.org/wiki/Pareto_efficiency
     """
 
-    optimal_trials = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    optimal_trials = proto.RepeatedField(proto.MESSAGE, number=1,
         message=gca_study.Trial,
     )
 

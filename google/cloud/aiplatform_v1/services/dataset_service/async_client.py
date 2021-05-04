@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 import functools
 import re
@@ -41,6 +43,7 @@ from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+
 from .transports.base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import DatasetServiceGrpcAsyncIOTransport
 from .client import DatasetServiceClient
@@ -62,14 +65,19 @@ class DatasetServiceAsyncClient:
     parse_data_item_path = staticmethod(DatasetServiceClient.parse_data_item_path)
     dataset_path = staticmethod(DatasetServiceClient.dataset_path)
     parse_dataset_path = staticmethod(DatasetServiceClient.parse_dataset_path)
+
     common_billing_account_path = staticmethod(DatasetServiceClient.common_billing_account_path)
     parse_common_billing_account_path = staticmethod(DatasetServiceClient.parse_common_billing_account_path)
+
     common_folder_path = staticmethod(DatasetServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(DatasetServiceClient.parse_common_folder_path)
+
     common_organization_path = staticmethod(DatasetServiceClient.common_organization_path)
     parse_common_organization_path = staticmethod(DatasetServiceClient.parse_common_organization_path)
+
     common_project_path = staticmethod(DatasetServiceClient.common_project_path)
     parse_common_project_path = staticmethod(DatasetServiceClient.parse_common_project_path)
+
     common_location_path = staticmethod(DatasetServiceClient.common_location_path)
     parse_common_location_path = staticmethod(DatasetServiceClient.parse_common_location_path)
 
@@ -154,6 +162,7 @@ class DatasetServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
+
         self._client = DatasetServiceClient(
             credentials=credentials,
             transport=transport,
@@ -175,8 +184,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateDatasetRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``DatasetService.CreateDataset``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
@@ -191,6 +199,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``dataset`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -218,6 +227,7 @@ class DatasetServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
         if dataset is not None:
@@ -270,8 +280,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetDatasetRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``DatasetService.GetDataset``.
             name (:class:`str`):
                 Required. The name of the Dataset
@@ -280,6 +289,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -304,6 +314,7 @@ class DatasetServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -347,8 +358,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateDatasetRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``DatasetService.UpdateDataset``.
             dataset (:class:`google.cloud.aiplatform_v1.types.Dataset`):
                 Required. The Dataset which replaces
@@ -370,6 +380,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -394,6 +405,7 @@ class DatasetServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if dataset is not None:
             request.dataset = dataset
         if update_mask is not None:
@@ -438,8 +450,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListDatasetsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``DatasetService.ListDatasets``.
             parent (:class:`str`):
                 Required. The name of the Dataset's parent resource.
@@ -448,6 +459,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -475,6 +487,7 @@ class DatasetServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -526,8 +539,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteDatasetRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``DatasetService.DeleteDataset``.
             name (:class:`str`):
                 Required. The resource name of the Dataset to delete.
@@ -537,6 +549,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -574,6 +587,7 @@ class DatasetServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -625,8 +639,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ImportDataRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``DatasetService.ImportData``.
             name (:class:`str`):
                 Required. The name of the Dataset resource. Format:
@@ -643,6 +656,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``import_configs`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -671,8 +685,10 @@ class DatasetServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
+
         if import_configs:
             request.import_configs.extend(import_configs)
 
@@ -724,8 +740,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ExportDataRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``DatasetService.ExportData``.
             name (:class:`str`):
                 Required. The name of the Dataset resource. Format:
@@ -741,6 +756,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``export_config`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -769,6 +785,7 @@ class DatasetServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
         if export_config is not None:
@@ -821,8 +838,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListDataItemsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``DatasetService.ListDataItems``.
             parent (:class:`str`):
                 Required. The resource name of the Dataset to list
@@ -832,6 +848,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -859,6 +876,7 @@ class DatasetServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -910,8 +928,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetAnnotationSpecRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``DatasetService.GetAnnotationSpec``.
             name (:class:`str`):
                 Required. The name of the AnnotationSpec resource.
@@ -922,6 +939,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -946,6 +964,7 @@ class DatasetServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -988,8 +1007,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListAnnotationsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``DatasetService.ListAnnotations``.
             parent (:class:`str`):
                 Required. The resource name of the DataItem to list
@@ -1000,6 +1018,7 @@ class DatasetServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1027,6 +1046,7 @@ class DatasetServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -1065,6 +1085,8 @@ class DatasetServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+
 
 
 

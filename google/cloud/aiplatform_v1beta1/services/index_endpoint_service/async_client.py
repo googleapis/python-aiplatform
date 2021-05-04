@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 import functools
 import re
@@ -36,6 +38,7 @@ from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+
 from .transports.base import IndexEndpointServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import IndexEndpointServiceGrpcAsyncIOTransport
 from .client import IndexEndpointServiceClient
@@ -53,14 +56,19 @@ class IndexEndpointServiceAsyncClient:
     parse_index_path = staticmethod(IndexEndpointServiceClient.parse_index_path)
     index_endpoint_path = staticmethod(IndexEndpointServiceClient.index_endpoint_path)
     parse_index_endpoint_path = staticmethod(IndexEndpointServiceClient.parse_index_endpoint_path)
+
     common_billing_account_path = staticmethod(IndexEndpointServiceClient.common_billing_account_path)
     parse_common_billing_account_path = staticmethod(IndexEndpointServiceClient.parse_common_billing_account_path)
+
     common_folder_path = staticmethod(IndexEndpointServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(IndexEndpointServiceClient.parse_common_folder_path)
+
     common_organization_path = staticmethod(IndexEndpointServiceClient.common_organization_path)
     parse_common_organization_path = staticmethod(IndexEndpointServiceClient.parse_common_organization_path)
+
     common_project_path = staticmethod(IndexEndpointServiceClient.common_project_path)
     parse_common_project_path = staticmethod(IndexEndpointServiceClient.parse_common_project_path)
+
     common_location_path = staticmethod(IndexEndpointServiceClient.common_location_path)
     parse_common_location_path = staticmethod(IndexEndpointServiceClient.parse_common_location_path)
 
@@ -145,6 +153,7 @@ class IndexEndpointServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
+
         self._client = IndexEndpointServiceClient(
             credentials=credentials,
             transport=transport,
@@ -166,8 +175,7 @@ class IndexEndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateIndexEndpointRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``IndexEndpointService.CreateIndexEndpoint``.
             parent (:class:`str`):
                 Required. The resource name of the Location to create
@@ -184,6 +192,7 @@ class IndexEndpointServiceAsyncClient:
                 This corresponds to the ``index_endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -210,6 +219,7 @@ class IndexEndpointServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
         if index_endpoint is not None:
@@ -262,8 +272,7 @@ class IndexEndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetIndexEndpointRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``IndexEndpointService.GetIndexEndpoint``
             name (:class:`str`):
                 Required. The name of the IndexEndpoint resource.
@@ -273,6 +282,7 @@ class IndexEndpointServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -298,6 +308,7 @@ class IndexEndpointServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -340,8 +351,7 @@ class IndexEndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListIndexEndpointsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``IndexEndpointService.ListIndexEndpoints``.
             parent (:class:`str`):
                 Required. The resource name of the Location from which
@@ -351,6 +361,7 @@ class IndexEndpointServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -378,6 +389,7 @@ class IndexEndpointServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -430,8 +442,7 @@ class IndexEndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateIndexEndpointRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``IndexEndpointService.UpdateIndexEndpoint``.
             index_endpoint (:class:`google.cloud.aiplatform_v1beta1.types.IndexEndpoint`):
                 Required. The IndexEndpoint which
@@ -447,6 +458,7 @@ class IndexEndpointServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -472,6 +484,7 @@ class IndexEndpointServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if index_endpoint is not None:
             request.index_endpoint = index_endpoint
         if update_mask is not None:
@@ -516,8 +529,7 @@ class IndexEndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteIndexEndpointRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``IndexEndpointService.DeleteIndexEndpoint``.
             name (:class:`str`):
                 Required. The name of the IndexEndpoint resource to be
@@ -527,6 +539,7 @@ class IndexEndpointServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -564,6 +577,7 @@ class IndexEndpointServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -617,8 +631,7 @@ class IndexEndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeployIndexRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``IndexEndpointService.DeployIndex``.
             index_endpoint (:class:`str`):
                 Required. The name of the IndexEndpoint resource into
@@ -635,6 +648,7 @@ class IndexEndpointServiceAsyncClient:
                 This corresponds to the ``deployed_index`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -663,6 +677,7 @@ class IndexEndpointServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if index_endpoint is not None:
             request.index_endpoint = index_endpoint
         if deployed_index is not None:
@@ -718,8 +733,7 @@ class IndexEndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UndeployIndexRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``IndexEndpointService.UndeployIndex``.
             index_endpoint (:class:`str`):
                 Required. The name of the IndexEndpoint resource from
@@ -736,6 +750,7 @@ class IndexEndpointServiceAsyncClient:
                 This corresponds to the ``deployed_index_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -764,6 +779,7 @@ class IndexEndpointServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if index_endpoint is not None:
             request.index_endpoint = index_endpoint
         if deployed_index_id is not None:
@@ -803,6 +819,8 @@ class IndexEndpointServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+
 
 
 

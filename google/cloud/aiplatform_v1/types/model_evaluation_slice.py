@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
@@ -54,9 +57,9 @@ class ModelEvaluationSlice(proto.Message):
             Output only. Timestamp when this
             ModelEvaluationSlice was created.
     """
-
     class Slice(proto.Message):
         r"""Definition of a slice.
+
         Attributes:
             dimension (str):
                 Output only. The dimension of the slice. Well-known
@@ -72,36 +75,23 @@ class ModelEvaluationSlice(proto.Message):
                 this slice.
         """
 
-        dimension = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-        value = proto.Field(
-            proto.STRING,
-            number=2,
-        )
+        dimension = proto.Field(proto.STRING, number=1)
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    slice_ = proto.Field(
-        proto.MESSAGE,
-        number=2,
+        value = proto.Field(proto.STRING, number=2)
+
+    name = proto.Field(proto.STRING, number=1)
+
+    slice_ = proto.Field(proto.MESSAGE, number=2,
         message=Slice,
     )
-    metrics_schema_uri = proto.Field(
-        proto.STRING,
-        number=3,
-    )
-    metrics = proto.Field(
-        proto.MESSAGE,
-        number=4,
+
+    metrics_schema_uri = proto.Field(proto.STRING, number=3)
+
+    metrics = proto.Field(proto.MESSAGE, number=4,
         message=struct.Value,
     )
-    create_time = proto.Field(
-        proto.MESSAGE,
-        number=5,
+
+    create_time = proto.Field(proto.MESSAGE, number=5,
         message=timestamp.Timestamp,
     )
 

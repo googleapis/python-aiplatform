@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import warnings
-from typing import Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Callable, Dict, Optional, Sequence, Tuple
 
 from google.api_core import grpc_helpers   # type: ignore
 from google.api_core import operations_v1  # type: ignore
@@ -34,6 +36,7 @@ from google.cloud.aiplatform_v1beta1.types import tensorboard_service
 from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series as gca_tensorboard_time_series
 from google.longrunning import operations_pb2 as operations  # type: ignore
+
 from .base import TensorboardServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -67,8 +70,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]):
-                 The hostname to connect to.
+            host (Optional[str]): The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -208,15 +210,13 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
             google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-
-        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
-
+        scopes = scopes or cls.AUTH_SCOPES
         return grpc_helpers.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
+            scopes=scopes,
             quota_project_id=quota_project_id,
-            **self_signed_jwt_kwargs,
             **kwargs
         )
 
@@ -246,9 +246,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def create_tensorboard(self) -> Callable[
             [tensorboard_service.CreateTensorboardRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        create tensorboard
-          method over gRPC.
+        r"""Return a callable for the create tensorboard method over gRPC.
 
         Creates a Tensorboard.
 
@@ -274,9 +272,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def get_tensorboard(self) -> Callable[
             [tensorboard_service.GetTensorboardRequest],
             tensorboard.Tensorboard]:
-        r"""Return a callable for the
-        get tensorboard
-          method over gRPC.
+        r"""Return a callable for the get tensorboard method over gRPC.
 
         Gets a Tensorboard.
 
@@ -302,9 +298,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def update_tensorboard(self) -> Callable[
             [tensorboard_service.UpdateTensorboardRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        update tensorboard
-          method over gRPC.
+        r"""Return a callable for the update tensorboard method over gRPC.
 
         Updates a Tensorboard.
 
@@ -330,9 +324,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def list_tensorboards(self) -> Callable[
             [tensorboard_service.ListTensorboardsRequest],
             tensorboard_service.ListTensorboardsResponse]:
-        r"""Return a callable for the
-        list tensorboards
-          method over gRPC.
+        r"""Return a callable for the list tensorboards method over gRPC.
 
         Lists Tensorboards in a Location.
 
@@ -358,9 +350,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def delete_tensorboard(self) -> Callable[
             [tensorboard_service.DeleteTensorboardRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        delete tensorboard
-          method over gRPC.
+        r"""Return a callable for the delete tensorboard method over gRPC.
 
         Deletes a Tensorboard.
 
@@ -386,9 +376,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def create_tensorboard_experiment(self) -> Callable[
             [tensorboard_service.CreateTensorboardExperimentRequest],
             gca_tensorboard_experiment.TensorboardExperiment]:
-        r"""Return a callable for the
-        create tensorboard experiment
-          method over gRPC.
+        r"""Return a callable for the create tensorboard experiment method over gRPC.
 
         Creates a TensorboardExperiment.
 
@@ -414,9 +402,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def get_tensorboard_experiment(self) -> Callable[
             [tensorboard_service.GetTensorboardExperimentRequest],
             tensorboard_experiment.TensorboardExperiment]:
-        r"""Return a callable for the
-        get tensorboard experiment
-          method over gRPC.
+        r"""Return a callable for the get tensorboard experiment method over gRPC.
 
         Gets a TensorboardExperiment.
 
@@ -442,9 +428,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def update_tensorboard_experiment(self) -> Callable[
             [tensorboard_service.UpdateTensorboardExperimentRequest],
             gca_tensorboard_experiment.TensorboardExperiment]:
-        r"""Return a callable for the
-        update tensorboard experiment
-          method over gRPC.
+        r"""Return a callable for the update tensorboard experiment method over gRPC.
 
         Updates a TensorboardExperiment.
 
@@ -470,9 +454,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def list_tensorboard_experiments(self) -> Callable[
             [tensorboard_service.ListTensorboardExperimentsRequest],
             tensorboard_service.ListTensorboardExperimentsResponse]:
-        r"""Return a callable for the
-        list tensorboard experiments
-          method over gRPC.
+        r"""Return a callable for the list tensorboard experiments method over gRPC.
 
         Lists TensorboardExperiments in a Location.
 
@@ -498,9 +480,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def delete_tensorboard_experiment(self) -> Callable[
             [tensorboard_service.DeleteTensorboardExperimentRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        delete tensorboard experiment
-          method over gRPC.
+        r"""Return a callable for the delete tensorboard experiment method over gRPC.
 
         Deletes a TensorboardExperiment.
 
@@ -526,9 +506,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def create_tensorboard_run(self) -> Callable[
             [tensorboard_service.CreateTensorboardRunRequest],
             gca_tensorboard_run.TensorboardRun]:
-        r"""Return a callable for the
-        create tensorboard run
-          method over gRPC.
+        r"""Return a callable for the create tensorboard run method over gRPC.
 
         Creates a TensorboardRun.
 
@@ -554,9 +532,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def get_tensorboard_run(self) -> Callable[
             [tensorboard_service.GetTensorboardRunRequest],
             tensorboard_run.TensorboardRun]:
-        r"""Return a callable for the
-        get tensorboard run
-          method over gRPC.
+        r"""Return a callable for the get tensorboard run method over gRPC.
 
         Gets a TensorboardRun.
 
@@ -582,9 +558,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def update_tensorboard_run(self) -> Callable[
             [tensorboard_service.UpdateTensorboardRunRequest],
             gca_tensorboard_run.TensorboardRun]:
-        r"""Return a callable for the
-        update tensorboard run
-          method over gRPC.
+        r"""Return a callable for the update tensorboard run method over gRPC.
 
         Updates a TensorboardRun.
 
@@ -610,9 +584,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def list_tensorboard_runs(self) -> Callable[
             [tensorboard_service.ListTensorboardRunsRequest],
             tensorboard_service.ListTensorboardRunsResponse]:
-        r"""Return a callable for the
-        list tensorboard runs
-          method over gRPC.
+        r"""Return a callable for the list tensorboard runs method over gRPC.
 
         Lists TensorboardRuns in a Location.
 
@@ -638,9 +610,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def delete_tensorboard_run(self) -> Callable[
             [tensorboard_service.DeleteTensorboardRunRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        delete tensorboard run
-          method over gRPC.
+        r"""Return a callable for the delete tensorboard run method over gRPC.
 
         Deletes a TensorboardRun.
 
@@ -666,9 +636,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def create_tensorboard_time_series(self) -> Callable[
             [tensorboard_service.CreateTensorboardTimeSeriesRequest],
             gca_tensorboard_time_series.TensorboardTimeSeries]:
-        r"""Return a callable for the
-        create tensorboard time series
-          method over gRPC.
+        r"""Return a callable for the create tensorboard time series method over gRPC.
 
         Creates a TensorboardTimeSeries.
 
@@ -694,9 +662,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def get_tensorboard_time_series(self) -> Callable[
             [tensorboard_service.GetTensorboardTimeSeriesRequest],
             tensorboard_time_series.TensorboardTimeSeries]:
-        r"""Return a callable for the
-        get tensorboard time series
-          method over gRPC.
+        r"""Return a callable for the get tensorboard time series method over gRPC.
 
         Gets a TensorboardTimeSeries.
 
@@ -722,9 +688,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def update_tensorboard_time_series(self) -> Callable[
             [tensorboard_service.UpdateTensorboardTimeSeriesRequest],
             gca_tensorboard_time_series.TensorboardTimeSeries]:
-        r"""Return a callable for the
-        update tensorboard time series
-          method over gRPC.
+        r"""Return a callable for the update tensorboard time series method over gRPC.
 
         Updates a TensorboardTimeSeries.
 
@@ -750,9 +714,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def list_tensorboard_time_series(self) -> Callable[
             [tensorboard_service.ListTensorboardTimeSeriesRequest],
             tensorboard_service.ListTensorboardTimeSeriesResponse]:
-        r"""Return a callable for the
-        list tensorboard time series
-          method over gRPC.
+        r"""Return a callable for the list tensorboard time series method over gRPC.
 
         Lists TensorboardTimeSeries in a Location.
 
@@ -778,9 +740,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def delete_tensorboard_time_series(self) -> Callable[
             [tensorboard_service.DeleteTensorboardTimeSeriesRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        delete tensorboard time series
-          method over gRPC.
+        r"""Return a callable for the delete tensorboard time series method over gRPC.
 
         Deletes a TensorboardTimeSeries.
 
@@ -806,10 +766,8 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def read_tensorboard_time_series_data(self) -> Callable[
             [tensorboard_service.ReadTensorboardTimeSeriesDataRequest],
             tensorboard_service.ReadTensorboardTimeSeriesDataResponse]:
-        r"""Return a callable for the
-        read tensorboard time series
-        data
-          method over gRPC.
+        r"""Return a callable for the read tensorboard time series
+        data method over gRPC.
 
         Reads a TensorboardTimeSeries' data. Data is returned in
         paginated responses. By default, if the number of data points
@@ -840,9 +798,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def read_tensorboard_blob_data(self) -> Callable[
             [tensorboard_service.ReadTensorboardBlobDataRequest],
             tensorboard_service.ReadTensorboardBlobDataResponse]:
-        r"""Return a callable for the
-        read tensorboard blob data
-          method over gRPC.
+        r"""Return a callable for the read tensorboard blob data method over gRPC.
 
         Gets bytes of TensorboardBlobs.
         This is to allow reading blob data stored in consumer
@@ -871,9 +827,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def write_tensorboard_run_data(self) -> Callable[
             [tensorboard_service.WriteTensorboardRunDataRequest],
             tensorboard_service.WriteTensorboardRunDataResponse]:
-        r"""Return a callable for the
-        write tensorboard run data
-          method over gRPC.
+        r"""Return a callable for the write tensorboard run data method over gRPC.
 
         Write time series data points into multiple
         TensorboardTimeSeries under a TensorboardRun. If any
@@ -901,10 +855,8 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def export_tensorboard_time_series_data(self) -> Callable[
             [tensorboard_service.ExportTensorboardTimeSeriesDataRequest],
             tensorboard_service.ExportTensorboardTimeSeriesDataResponse]:
-        r"""Return a callable for the
-        export tensorboard time series
-        data
-          method over gRPC.
+        r"""Return a callable for the export tensorboard time series
+        data method over gRPC.
 
         Exports a TensorboardTimeSeries' data. Data is
         returned in paginated responses.

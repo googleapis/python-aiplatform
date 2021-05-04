@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 from distutils import util
 import os
@@ -48,6 +50,7 @@ from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series as gca
 from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+
 from .transports.base import TensorboardServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import TensorboardServiceGrpcTransport
 from .transports.grpc_asyncio import TensorboardServiceGrpcAsyncIOTransport
@@ -383,8 +386,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateTensorboardRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.CreateTensorboard``.
             parent (str):
                 Required. The resource name of the Location to create
@@ -399,6 +401,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``tensorboard`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -429,8 +432,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.CreateTensorboardRequest):
             request = tensorboard_service.CreateTensorboardRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
             if tensorboard is not None:
@@ -479,8 +484,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetTensorboardRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.GetTensorboard``.
             name (str):
                 Required. The name of the Tensorboard resource. Format:
@@ -489,6 +493,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -519,8 +524,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.GetTensorboardRequest):
             request = tensorboard_service.GetTensorboardRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -560,8 +567,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateTensorboardRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.UpdateTensorboard``.
             tensorboard (google.cloud.aiplatform_v1beta1.types.Tensorboard):
                 Required. The Tensorboard's ``name`` field is used to
@@ -583,6 +589,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -613,8 +620,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.UpdateTensorboardRequest):
             request = tensorboard_service.UpdateTensorboardRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if tensorboard is not None:
                 request.tensorboard = tensorboard
             if update_mask is not None:
@@ -663,8 +672,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListTensorboardsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.ListTensorboards``.
             parent (str):
                 Required. The resource name of the
@@ -674,6 +682,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -703,8 +712,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.ListTensorboardsRequest):
             request = tensorboard_service.ListTensorboardsRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
 
@@ -752,8 +763,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteTensorboardRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.DeleteTensorboard``.
             name (str):
                 Required. The name of the Tensorboard to be deleted.
@@ -763,6 +773,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -802,8 +813,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.DeleteTensorboardRequest):
             request = tensorboard_service.DeleteTensorboardRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -852,8 +865,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateTensorboardExperimentRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.CreateTensorboardExperiment``.
             parent (str):
                 Required. The resource name of the Tensorboard to create
@@ -879,6 +891,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``tensorboard_experiment_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -907,8 +920,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.CreateTensorboardExperimentRequest):
             request = tensorboard_service.CreateTensorboardExperimentRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
             if tensorboard_experiment is not None:
@@ -951,8 +966,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetTensorboardExperimentRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.GetTensorboardExperiment``.
             name (str):
                 Required. The name of the TensorboardExperiment
@@ -962,6 +976,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -990,8 +1005,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.GetTensorboardExperimentRequest):
             request = tensorboard_service.GetTensorboardExperimentRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -1031,8 +1048,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateTensorboardExperimentRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.UpdateTensorboardExperiment``.
             tensorboard_experiment (google.cloud.aiplatform_v1beta1.types.TensorboardExperiment):
                 Required. The TensorboardExperiment's ``name`` field is
@@ -1055,6 +1071,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1083,8 +1100,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.UpdateTensorboardExperimentRequest):
             request = tensorboard_service.UpdateTensorboardExperimentRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if tensorboard_experiment is not None:
                 request.tensorboard_experiment = tensorboard_experiment
             if update_mask is not None:
@@ -1125,8 +1144,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListTensorboardExperimentsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.ListTensorboardExperiments``.
             parent (str):
                 Required. The resource name of the
@@ -1137,6 +1155,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1166,8 +1185,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.ListTensorboardExperimentsRequest):
             request = tensorboard_service.ListTensorboardExperimentsRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
 
@@ -1215,8 +1236,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteTensorboardExperimentRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.DeleteTensorboardExperiment``.
             name (str):
                 Required. The name of the TensorboardExperiment to be
@@ -1226,6 +1246,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1265,8 +1286,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.DeleteTensorboardExperimentRequest):
             request = tensorboard_service.DeleteTensorboardExperimentRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -1315,8 +1338,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateTensorboardRunRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.CreateTensorboardRun``.
             parent (str):
                 Required. The resource name of the Tensorboard to create
@@ -1344,6 +1366,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``tensorboard_run_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1372,8 +1395,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.CreateTensorboardRunRequest):
             request = tensorboard_service.CreateTensorboardRunRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
             if tensorboard_run is not None:
@@ -1416,8 +1441,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetTensorboardRunRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.GetTensorboardRun``.
             name (str):
                 Required. The name of the TensorboardRun resource.
@@ -1427,6 +1451,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1455,8 +1480,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.GetTensorboardRunRequest):
             request = tensorboard_service.GetTensorboardRunRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -1496,8 +1523,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateTensorboardRunRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.UpdateTensorboardRun``.
             tensorboard_run (google.cloud.aiplatform_v1beta1.types.TensorboardRun):
                 Required. The TensorboardRun's ``name`` field is used to
@@ -1519,6 +1545,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1547,8 +1574,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.UpdateTensorboardRunRequest):
             request = tensorboard_service.UpdateTensorboardRunRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if tensorboard_run is not None:
                 request.tensorboard_run = tensorboard_run
             if update_mask is not None:
@@ -1589,8 +1618,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListTensorboardRunsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.ListTensorboardRuns``.
             parent (str):
                 Required. The resource name of the
@@ -1601,6 +1629,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1630,8 +1659,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.ListTensorboardRunsRequest):
             request = tensorboard_service.ListTensorboardRunsRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
 
@@ -1679,8 +1710,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteTensorboardRunRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.DeleteTensorboardRun``.
             name (str):
                 Required. The name of the TensorboardRun to be deleted.
@@ -1690,6 +1720,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1729,8 +1760,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.DeleteTensorboardRunRequest):
             request = tensorboard_service.DeleteTensorboardRunRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -1778,8 +1811,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateTensorboardTimeSeriesRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.CreateTensorboardTimeSeries``.
             parent (str):
                 Required. The resource name of the TensorboardRun to
@@ -1796,6 +1828,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``tensorboard_time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1822,8 +1855,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.CreateTensorboardTimeSeriesRequest):
             request = tensorboard_service.CreateTensorboardTimeSeriesRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
             if tensorboard_time_series is not None:
@@ -1864,8 +1899,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetTensorboardTimeSeriesRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.GetTensorboardTimeSeries``.
             name (str):
                 Required. The name of the TensorboardTimeSeries
@@ -1875,6 +1909,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1901,8 +1936,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.GetTensorboardTimeSeriesRequest):
             request = tensorboard_service.GetTensorboardTimeSeriesRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -1942,8 +1979,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateTensorboardTimeSeriesRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.UpdateTensorboardTimeSeries``.
             tensorboard_time_series (google.cloud.aiplatform_v1beta1.types.TensorboardTimeSeries):
                 Required. The TensorboardTimeSeries' ``name`` field is
@@ -1966,6 +2002,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1992,8 +2029,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.UpdateTensorboardTimeSeriesRequest):
             request = tensorboard_service.UpdateTensorboardTimeSeriesRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if tensorboard_time_series is not None:
                 request.tensorboard_time_series = tensorboard_time_series
             if update_mask is not None:
@@ -2034,8 +2073,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListTensorboardTimeSeriesRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.ListTensorboardTimeSeries``.
             parent (str):
                 Required. The resource name of the
@@ -2046,6 +2084,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2075,8 +2114,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.ListTensorboardTimeSeriesRequest):
             request = tensorboard_service.ListTensorboardTimeSeriesRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
 
@@ -2124,8 +2165,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteTensorboardTimeSeriesRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.DeleteTensorboardTimeSeries``.
             name (str):
                 Required. The name of the TensorboardTimeSeries to be
@@ -2135,6 +2175,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2174,8 +2215,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.DeleteTensorboardTimeSeriesRequest):
             request = tensorboard_service.DeleteTensorboardTimeSeriesRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -2227,8 +2270,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ReadTensorboardTimeSeriesDataRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.ReadTensorboardTimeSeriesData``.
             tensorboard_time_series (str):
                 Required. The resource name of the TensorboardTimeSeries
@@ -2238,6 +2280,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``tensorboard_time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2264,8 +2307,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.ReadTensorboardTimeSeriesDataRequest):
             request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if tensorboard_time_series is not None:
                 request.tensorboard_time_series = tensorboard_time_series
 
@@ -2307,8 +2352,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ReadTensorboardBlobDataRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.ReadTensorboardBlobData``.
             time_series (str):
                 Required. The resource name of the TensorboardTimeSeries
@@ -2318,6 +2362,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2344,8 +2389,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.ReadTensorboardBlobDataRequest):
             request = tensorboard_service.ReadTensorboardBlobDataRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if time_series is not None:
                 request.time_series = time_series
 
@@ -2387,8 +2434,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.WriteTensorboardRunData``.
             tensorboard_run (str):
                 Required. The resource name of the TensorboardRun to
@@ -2411,6 +2457,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``time_series_data`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2437,8 +2484,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.WriteTensorboardRunDataRequest):
             request = tensorboard_service.WriteTensorboardRunDataRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if tensorboard_run is not None:
                 request.tensorboard_run = tensorboard_run
             if time_series_data is not None:
@@ -2480,8 +2529,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ExportTensorboardTimeSeriesDataRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``TensorboardService.ExportTensorboardTimeSeriesData``.
             tensorboard_time_series (str):
                 Required. The resource name of the TensorboardTimeSeries
@@ -2491,6 +2539,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``tensorboard_time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2520,8 +2569,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, tensorboard_service.ExportTensorboardTimeSeriesDataRequest):
             request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(request)
-             # If we have keyword arguments corresponding to fields on the
+
+            # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if tensorboard_time_series is not None:
                 request.tensorboard_time_series = tensorboard_time_series
 
@@ -2556,6 +2607,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Done; return the response.
         return response
+
+
 
 
 

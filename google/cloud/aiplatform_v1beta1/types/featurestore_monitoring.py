@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.protobuf import duration_pb2 as duration  # type: ignore
 
@@ -28,12 +31,12 @@ __protobuf__ = proto.module(
 
 class FeaturestoreMonitoringConfig(proto.Message):
     r"""Configuration of how features in Featurestore are monitored.
+
     Attributes:
         snapshot_analysis (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig.SnapshotAnalysis):
             The config for Snapshot Analysis Based
             Feature Monitoring.
     """
-
     class SnapshotAnalysis(proto.Message):
         r"""Configuration of the Featurestore's Snapshot Analysis Based
         Monitoring. This type of analysis generates statistics for each
@@ -59,19 +62,13 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 is rolled up to full day.
         """
 
-        disabled = proto.Field(
-            proto.BOOL,
-            number=1,
-        )
-        monitoring_interval = proto.Field(
-            proto.MESSAGE,
-            number=2,
+        disabled = proto.Field(proto.BOOL, number=1)
+
+        monitoring_interval = proto.Field(proto.MESSAGE, number=2,
             message=duration.Duration,
         )
 
-    snapshot_analysis = proto.Field(
-        proto.MESSAGE,
-        number=1,
+    snapshot_analysis = proto.Field(proto.MESSAGE, number=1,
         message=SnapshotAnalysis,
     )
 

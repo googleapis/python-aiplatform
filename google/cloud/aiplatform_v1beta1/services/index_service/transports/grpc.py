@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import warnings
-from typing import Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Callable, Dict, Optional, Sequence, Tuple
 
 from google.api_core import grpc_helpers   # type: ignore
 from google.api_core import operations_v1  # type: ignore
@@ -28,6 +30,7 @@ import grpc  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import index
 from google.cloud.aiplatform_v1beta1.types import index_service
 from google.longrunning import operations_pb2 as operations  # type: ignore
+
 from .base import IndexServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -62,8 +65,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]):
-                 The hostname to connect to.
+            host (Optional[str]): The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -203,15 +205,13 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
             google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-
-        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
-
+        scopes = scopes or cls.AUTH_SCOPES
         return grpc_helpers.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
+            scopes=scopes,
             quota_project_id=quota_project_id,
-            **self_signed_jwt_kwargs,
             **kwargs
         )
 
@@ -241,9 +241,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
     def create_index(self) -> Callable[
             [index_service.CreateIndexRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        create index
-          method over gRPC.
+        r"""Return a callable for the create index method over gRPC.
 
         Creates an Index.
 
@@ -269,9 +267,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
     def get_index(self) -> Callable[
             [index_service.GetIndexRequest],
             index.Index]:
-        r"""Return a callable for the
-        get index
-          method over gRPC.
+        r"""Return a callable for the get index method over gRPC.
 
         Gets an Index.
 
@@ -297,9 +293,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
     def list_indexes(self) -> Callable[
             [index_service.ListIndexesRequest],
             index_service.ListIndexesResponse]:
-        r"""Return a callable for the
-        list indexes
-          method over gRPC.
+        r"""Return a callable for the list indexes method over gRPC.
 
         Lists Indexes in a Location.
 
@@ -325,9 +319,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
     def update_index(self) -> Callable[
             [index_service.UpdateIndexRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        update index
-          method over gRPC.
+        r"""Return a callable for the update index method over gRPC.
 
         Updates an Index.
 
@@ -353,9 +345,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
     def delete_index(self) -> Callable[
             [index_service.DeleteIndexRequest],
             operations.Operation]:
-        r"""Return a callable for the
-        delete index
-          method over gRPC.
+        r"""Return a callable for the delete index method over gRPC.
 
         Deletes an Index. An Index can only be deleted when all its
         ``DeployedIndexes``

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.cloud.aiplatform_v1beta1.types import batch_prediction_job as gca_batch_prediction_job
 from google.cloud.aiplatform_v1beta1.types import custom_job as gca_custom_job
@@ -80,13 +83,9 @@ class CreateCustomJobRequest(proto.Message):
             Required. The CustomJob to create.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    custom_job = proto.Field(
-        proto.MESSAGE,
-        number=2,
+    parent = proto.Field(proto.STRING, number=1)
+
+    custom_job = proto.Field(proto.MESSAGE, number=2,
         message=gca_custom_job.CustomJob,
     )
 
@@ -101,10 +100,7 @@ class GetCustomJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/customJobs/{custom_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class ListCustomJobsRequest(proto.Message):
@@ -146,25 +142,15 @@ class ListCustomJobsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    filter = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    page_size = proto.Field(
-        proto.INT32,
-        number=3,
-    )
-    page_token = proto.Field(
-        proto.STRING,
-        number=4,
-    )
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
+    parent = proto.Field(proto.STRING, number=1)
+
+    filter = proto.Field(proto.STRING, number=2)
+
+    page_size = proto.Field(proto.INT32, number=3)
+
+    page_token = proto.Field(proto.STRING, number=4)
+
+    read_mask = proto.Field(proto.MESSAGE, number=5,
         message=field_mask.FieldMask,
     )
 
@@ -186,15 +172,11 @@ class ListCustomJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    custom_jobs = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    custom_jobs = proto.RepeatedField(proto.MESSAGE, number=1,
         message=gca_custom_job.CustomJob,
     )
-    next_page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+
+    next_page_token = proto.Field(proto.STRING, number=2)
 
 
 class DeleteCustomJobRequest(proto.Message):
@@ -208,10 +190,7 @@ class DeleteCustomJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/customJobs/{custom_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class CancelCustomJobRequest(proto.Message):
@@ -224,10 +203,7 @@ class CancelCustomJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/customJobs/{custom_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class CreateDataLabelingJobRequest(proto.Message):
@@ -242,13 +218,9 @@ class CreateDataLabelingJobRequest(proto.Message):
             Required. The DataLabelingJob to create.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    data_labeling_job = proto.Field(
-        proto.MESSAGE,
-        number=2,
+    parent = proto.Field(proto.STRING, number=1)
+
+    data_labeling_job = proto.Field(proto.MESSAGE, number=2,
         message=gca_data_labeling_job.DataLabelingJob,
     )
 
@@ -263,10 +235,7 @@ class GetDataLabelingJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class ListDataLabelingJobsRequest(proto.Message):
@@ -311,31 +280,19 @@ class ListDataLabelingJobsRequest(proto.Message):
             for descending.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    filter = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    page_size = proto.Field(
-        proto.INT32,
-        number=3,
-    )
-    page_token = proto.Field(
-        proto.STRING,
-        number=4,
-    )
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
+    parent = proto.Field(proto.STRING, number=1)
+
+    filter = proto.Field(proto.STRING, number=2)
+
+    page_size = proto.Field(proto.INT32, number=3)
+
+    page_token = proto.Field(proto.STRING, number=4)
+
+    read_mask = proto.Field(proto.MESSAGE, number=5,
         message=field_mask.FieldMask,
     )
-    order_by = proto.Field(
-        proto.STRING,
-        number=6,
-    )
+
+    order_by = proto.Field(proto.STRING, number=6)
 
 
 class ListDataLabelingJobsResponse(proto.Message):
@@ -354,15 +311,11 @@ class ListDataLabelingJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    data_labeling_jobs = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    data_labeling_jobs = proto.RepeatedField(proto.MESSAGE, number=1,
         message=gca_data_labeling_job.DataLabelingJob,
     )
-    next_page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+
+    next_page_token = proto.Field(proto.STRING, number=2)
 
 
 class DeleteDataLabelingJobRequest(proto.Message):
@@ -376,10 +329,7 @@ class DeleteDataLabelingJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class CancelDataLabelingJobRequest(proto.Message):
@@ -392,10 +342,7 @@ class CancelDataLabelingJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class CreateHyperparameterTuningJobRequest(proto.Message):
@@ -412,13 +359,9 @@ class CreateHyperparameterTuningJobRequest(proto.Message):
             create.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    hyperparameter_tuning_job = proto.Field(
-        proto.MESSAGE,
-        number=2,
+    parent = proto.Field(proto.STRING, number=1)
+
+    hyperparameter_tuning_job = proto.Field(proto.MESSAGE, number=2,
         message=gca_hyperparameter_tuning_job.HyperparameterTuningJob,
     )
 
@@ -434,10 +377,7 @@ class GetHyperparameterTuningJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class ListHyperparameterTuningJobsRequest(proto.Message):
@@ -479,25 +419,15 @@ class ListHyperparameterTuningJobsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    filter = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    page_size = proto.Field(
-        proto.INT32,
-        number=3,
-    )
-    page_token = proto.Field(
-        proto.STRING,
-        number=4,
-    )
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
+    parent = proto.Field(proto.STRING, number=1)
+
+    filter = proto.Field(proto.STRING, number=2)
+
+    page_size = proto.Field(proto.INT32, number=3)
+
+    page_token = proto.Field(proto.STRING, number=4)
+
+    read_mask = proto.Field(proto.MESSAGE, number=5,
         message=field_mask.FieldMask,
     )
 
@@ -521,15 +451,11 @@ class ListHyperparameterTuningJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    hyperparameter_tuning_jobs = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    hyperparameter_tuning_jobs = proto.RepeatedField(proto.MESSAGE, number=1,
         message=gca_hyperparameter_tuning_job.HyperparameterTuningJob,
     )
-    next_page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+
+    next_page_token = proto.Field(proto.STRING, number=2)
 
 
 class DeleteHyperparameterTuningJobRequest(proto.Message):
@@ -543,10 +469,7 @@ class DeleteHyperparameterTuningJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class CancelHyperparameterTuningJobRequest(proto.Message):
@@ -560,10 +483,7 @@ class CancelHyperparameterTuningJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class CreateBatchPredictionJobRequest(proto.Message):
@@ -579,13 +499,9 @@ class CreateBatchPredictionJobRequest(proto.Message):
             Required. The BatchPredictionJob to create.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    batch_prediction_job = proto.Field(
-        proto.MESSAGE,
-        number=2,
+    parent = proto.Field(proto.STRING, number=1)
+
+    batch_prediction_job = proto.Field(proto.MESSAGE, number=2,
         message=gca_batch_prediction_job.BatchPredictionJob,
     )
 
@@ -601,10 +517,7 @@ class GetBatchPredictionJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class ListBatchPredictionJobsRequest(proto.Message):
@@ -648,25 +561,15 @@ class ListBatchPredictionJobsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    filter = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    page_size = proto.Field(
-        proto.INT32,
-        number=3,
-    )
-    page_token = proto.Field(
-        proto.STRING,
-        number=4,
-    )
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
+    parent = proto.Field(proto.STRING, number=1)
+
+    filter = proto.Field(proto.STRING, number=2)
+
+    page_size = proto.Field(proto.INT32, number=3)
+
+    page_token = proto.Field(proto.STRING, number=4)
+
+    read_mask = proto.Field(proto.MESSAGE, number=5,
         message=field_mask.FieldMask,
     )
 
@@ -689,15 +592,11 @@ class ListBatchPredictionJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    batch_prediction_jobs = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    batch_prediction_jobs = proto.RepeatedField(proto.MESSAGE, number=1,
         message=gca_batch_prediction_job.BatchPredictionJob,
     )
-    next_page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+
+    next_page_token = proto.Field(proto.STRING, number=2)
 
 
 class DeleteBatchPredictionJobRequest(proto.Message):
@@ -711,10 +610,7 @@ class DeleteBatchPredictionJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class CancelBatchPredictionJobRequest(proto.Message):
@@ -728,10 +624,7 @@ class CancelBatchPredictionJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class CreateModelDeploymentMonitoringJobRequest(proto.Message):
@@ -747,13 +640,9 @@ class CreateModelDeploymentMonitoringJobRequest(proto.Message):
             create
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    model_deployment_monitoring_job = proto.Field(
-        proto.MESSAGE,
-        number=2,
+    parent = proto.Field(proto.STRING, number=1)
+
+    model_deployment_monitoring_job = proto.Field(proto.MESSAGE, number=2,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
     )
 
@@ -793,9 +682,9 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
             generated. If not set, indicates feching stats
             till the latest possible one.
     """
-
     class StatsAnomaliesObjective(proto.Message):
         r"""Stats requested for specific objective.
+
         Attributes:
             type_ (google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringObjectiveType):
 
@@ -810,49 +699,31 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
                 latest monitoring run.
         """
 
-        type_ = proto.Field(
-            proto.ENUM,
-            number=1,
+        type_ = proto.Field(proto.ENUM, number=1,
             enum=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveType,
         )
-        top_feature_count = proto.Field(
-            proto.INT32,
-            number=4,
-        )
 
-    model_deployment_monitoring_job = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    deployed_model_id = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    feature_display_name = proto.Field(
-        proto.STRING,
-        number=3,
-    )
-    objectives = proto.RepeatedField(
-        proto.MESSAGE,
-        number=4,
+        top_feature_count = proto.Field(proto.INT32, number=4)
+
+    model_deployment_monitoring_job = proto.Field(proto.STRING, number=1)
+
+    deployed_model_id = proto.Field(proto.STRING, number=2)
+
+    feature_display_name = proto.Field(proto.STRING, number=3)
+
+    objectives = proto.RepeatedField(proto.MESSAGE, number=4,
         message=StatsAnomaliesObjective,
     )
-    page_size = proto.Field(
-        proto.INT32,
-        number=5,
-    )
-    page_token = proto.Field(
-        proto.STRING,
-        number=6,
-    )
-    start_time = proto.Field(
-        proto.MESSAGE,
-        number=7,
+
+    page_size = proto.Field(proto.INT32, number=5)
+
+    page_token = proto.Field(proto.STRING, number=6)
+
+    start_time = proto.Field(proto.MESSAGE, number=7,
         message=timestamp.Timestamp,
     )
-    end_time = proto.Field(
-        proto.MESSAGE,
-        number=8,
+
+    end_time = proto.Field(proto.MESSAGE, number=8,
         message=timestamp.Timestamp,
     )
 
@@ -877,15 +748,11 @@ class SearchModelDeploymentMonitoringStatsAnomaliesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    monitoring_stats = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    monitoring_stats = proto.RepeatedField(proto.MESSAGE, number=1,
         message=gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies,
     )
-    next_page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+
+    next_page_token = proto.Field(proto.STRING, number=2)
 
 
 class GetModelDeploymentMonitoringJobRequest(proto.Message):
@@ -899,10 +766,7 @@ class GetModelDeploymentMonitoringJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class ListModelDeploymentMonitoringJobsRequest(proto.Message):
@@ -923,25 +787,15 @@ class ListModelDeploymentMonitoringJobsRequest(proto.Message):
             Mask specifying which fields to read
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    filter = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    page_size = proto.Field(
-        proto.INT32,
-        number=3,
-    )
-    page_token = proto.Field(
-        proto.STRING,
-        number=4,
-    )
-    read_mask = proto.Field(
-        proto.MESSAGE,
-        number=5,
+    parent = proto.Field(proto.STRING, number=1)
+
+    filter = proto.Field(proto.STRING, number=2)
+
+    page_size = proto.Field(proto.INT32, number=3)
+
+    page_token = proto.Field(proto.STRING, number=4)
+
+    read_mask = proto.Field(proto.MESSAGE, number=5,
         message=field_mask.FieldMask,
     )
 
@@ -962,15 +816,11 @@ class ListModelDeploymentMonitoringJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    model_deployment_monitoring_jobs = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
+    model_deployment_monitoring_jobs = proto.RepeatedField(proto.MESSAGE, number=1,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
     )
-    next_page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+
+    next_page_token = proto.Field(proto.STRING, number=2)
 
 
 class UpdateModelDeploymentMonitoringJobRequest(proto.Message):
@@ -986,14 +836,11 @@ class UpdateModelDeploymentMonitoringJobRequest(proto.Message):
             resource.
     """
 
-    model_deployment_monitoring_job = proto.Field(
-        proto.MESSAGE,
-        number=1,
+    model_deployment_monitoring_job = proto.Field(proto.MESSAGE, number=1,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
     )
-    update_mask = proto.Field(
-        proto.MESSAGE,
-        number=2,
+
+    update_mask = proto.Field(proto.MESSAGE, number=2,
         message=field_mask.FieldMask,
     )
 
@@ -1009,10 +856,7 @@ class DeleteModelDeploymentMonitoringJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class PauseModelDeploymentMonitoringJobRequest(proto.Message):
@@ -1026,10 +870,7 @@ class PauseModelDeploymentMonitoringJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class ResumeModelDeploymentMonitoringJobRequest(proto.Message):
@@ -1043,10 +884,7 @@ class ResumeModelDeploymentMonitoringJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    name = proto.Field(proto.STRING, number=1)
 
 
 class UpdateModelDeploymentMonitoringJobOperationMetadata(proto.Message):
@@ -1058,9 +896,7 @@ class UpdateModelDeploymentMonitoringJobOperationMetadata(proto.Message):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
         message=operation.GenericOperationMetadata,
     )
 

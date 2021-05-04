@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 import functools
 import re
@@ -41,6 +43,7 @@ from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+
 from .transports.base import ModelServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import ModelServiceGrpcAsyncIOTransport
 from .client import ModelServiceClient
@@ -64,14 +67,19 @@ class ModelServiceAsyncClient:
     parse_model_evaluation_slice_path = staticmethod(ModelServiceClient.parse_model_evaluation_slice_path)
     training_pipeline_path = staticmethod(ModelServiceClient.training_pipeline_path)
     parse_training_pipeline_path = staticmethod(ModelServiceClient.parse_training_pipeline_path)
+
     common_billing_account_path = staticmethod(ModelServiceClient.common_billing_account_path)
     parse_common_billing_account_path = staticmethod(ModelServiceClient.parse_common_billing_account_path)
+
     common_folder_path = staticmethod(ModelServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(ModelServiceClient.parse_common_folder_path)
+
     common_organization_path = staticmethod(ModelServiceClient.common_organization_path)
     parse_common_organization_path = staticmethod(ModelServiceClient.parse_common_organization_path)
+
     common_project_path = staticmethod(ModelServiceClient.common_project_path)
     parse_common_project_path = staticmethod(ModelServiceClient.parse_common_project_path)
+
     common_location_path = staticmethod(ModelServiceClient.common_location_path)
     parse_common_location_path = staticmethod(ModelServiceClient.parse_common_location_path)
 
@@ -156,6 +164,7 @@ class ModelServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
+
         self._client = ModelServiceClient(
             credentials=credentials,
             transport=transport,
@@ -177,8 +186,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UploadModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``ModelService.UploadModel``.
             parent (:class:`str`):
                 Required. The resource name of the Location into which
@@ -193,6 +201,7 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -222,6 +231,7 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
         if model is not None:
@@ -274,8 +284,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``ModelService.GetModel``.
             name (:class:`str`):
                 Required. The name of the Model resource. Format:
@@ -284,6 +293,7 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -306,6 +316,7 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -348,8 +359,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``ModelService.ListModels``.
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
@@ -359,6 +369,7 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -386,6 +397,7 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -438,8 +450,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``ModelService.UpdateModel``.
             model (:class:`google.cloud.aiplatform_v1.types.Model`):
                 Required. The Model which replaces
@@ -456,6 +467,7 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -478,6 +490,7 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if model is not None:
             request.model = model
         if update_mask is not None:
@@ -524,8 +537,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``ModelService.DeleteModel``.
             name (:class:`str`):
                 Required. The name of the Model resource to be deleted.
@@ -535,6 +547,7 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -572,6 +585,7 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -626,8 +640,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ExportModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``ModelService.ExportModel``.
             name (:class:`str`):
                 Required. The resource name of the Model to export.
@@ -644,6 +657,7 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``output_config`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -673,6 +687,7 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
         if output_config is not None:
@@ -725,8 +740,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelEvaluationRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``ModelService.GetModelEvaluation``.
             name (:class:`str`):
                 Required. The name of the ModelEvaluation resource.
@@ -737,6 +751,7 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -763,6 +778,7 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -805,8 +821,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelEvaluationsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``ModelService.ListModelEvaluations``.
             parent (:class:`str`):
                 Required. The resource name of the Model to list the
@@ -816,6 +831,7 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -843,6 +859,7 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -894,8 +911,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelEvaluationSliceRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``ModelService.GetModelEvaluationSlice``.
             name (:class:`str`):
                 Required. The name of the ModelEvaluationSlice resource.
@@ -906,6 +922,7 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -932,6 +949,7 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if name is not None:
             request.name = name
 
@@ -974,8 +992,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelEvaluationSlicesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 ``ModelService.ListModelEvaluationSlices``.
             parent (:class:`str`):
                 Required. The resource name of the ModelEvaluation to
@@ -986,6 +1003,7 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1013,6 +1031,7 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -1051,6 +1070,8 @@ class ModelServiceAsyncClient:
 
         # Done; return the response.
         return response
+
+
 
 
 

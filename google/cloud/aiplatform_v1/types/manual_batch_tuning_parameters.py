@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
 
@@ -26,6 +28,7 @@ __protobuf__ = proto.module(
 
 class ManualBatchTuningParameters(proto.Message):
     r"""Manual batch tuning parameters.
+
     Attributes:
         batch_size (int):
             Immutable. The number of the records (e.g.
@@ -40,10 +43,7 @@ class ManualBatchTuningParameters(proto.Message):
             The default value is 4.
     """
 
-    batch_size = proto.Field(
-        proto.INT32,
-        number=1,
-    )
+    batch_size = proto.Field(proto.INT32, number=1)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

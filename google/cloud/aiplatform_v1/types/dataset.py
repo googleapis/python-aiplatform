@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import io
@@ -33,6 +36,7 @@ __protobuf__ = proto.module(
 
 class Dataset(proto.Message):
     r"""A collection of DataItems and Annotations on them.
+
     Attributes:
         name (str):
             Output only. The resource name of the
@@ -88,45 +92,29 @@ class Dataset(proto.Message):
             this key.
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    display_name = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    metadata_schema_uri = proto.Field(
-        proto.STRING,
-        number=3,
-    )
-    metadata = proto.Field(
-        proto.MESSAGE,
-        number=8,
+    name = proto.Field(proto.STRING, number=1)
+
+    display_name = proto.Field(proto.STRING, number=2)
+
+    metadata_schema_uri = proto.Field(proto.STRING, number=3)
+
+    metadata = proto.Field(proto.MESSAGE, number=8,
         message=struct.Value,
     )
-    create_time = proto.Field(
-        proto.MESSAGE,
-        number=4,
+
+    create_time = proto.Field(proto.MESSAGE, number=4,
         message=timestamp.Timestamp,
     )
-    update_time = proto.Field(
-        proto.MESSAGE,
-        number=5,
+
+    update_time = proto.Field(proto.MESSAGE, number=5,
         message=timestamp.Timestamp,
     )
-    etag = proto.Field(
-        proto.STRING,
-        number=6,
-    )
-    labels = proto.MapField(
-        proto.STRING,
-        proto.STRING,
-        number=7
-    )
-    encryption_spec = proto.Field(
-        proto.MESSAGE,
-        number=11,
+
+    etag = proto.Field(proto.STRING, number=6)
+
+    labels = proto.MapField(proto.STRING, proto.STRING, number=7)
+
+    encryption_spec = proto.Field(proto.MESSAGE, number=11,
         message=gca_encryption_spec.EncryptionSpec,
     )
 
@@ -163,21 +151,13 @@ class ImportDataConfig(proto.Message):
             Object <https://tinyurl.com/y538mdwt>`__.
     """
 
-    gcs_source = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        oneof='source',
+    gcs_source = proto.Field(proto.MESSAGE, number=1, oneof='source',
         message=io.GcsSource,
     )
-    data_item_labels = proto.MapField(
-        proto.STRING,
-        proto.STRING,
-        number=2
-    )
-    import_schema_uri = proto.Field(
-        proto.STRING,
-        number=4,
-    )
+
+    data_item_labels = proto.MapField(proto.STRING, proto.STRING, number=2)
+
+    import_schema_uri = proto.Field(proto.STRING, number=4)
 
 
 class ExportDataConfig(proto.Message):
@@ -205,16 +185,11 @@ class ExportDataConfig(proto.Message):
             ``ListAnnotations``.
     """
 
-    gcs_destination = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        oneof='destination',
+    gcs_destination = proto.Field(proto.MESSAGE, number=1, oneof='destination',
         message=io.GcsDestination,
     )
-    annotations_filter = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+
+    annotations_filter = proto.Field(proto.STRING, number=2)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

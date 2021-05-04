@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import warnings
-from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple
 
 from google.api_core import gapic_v1                   # type: ignore
 from google.api_core import grpc_helpers_async         # type: ignore
@@ -22,7 +24,6 @@ from google.api_core import operations_v1              # type: ignore
 from google import auth                                # type: ignore
 from google.auth import credentials                    # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-import packaging.version
 
 import grpc                        # type: ignore
 from grpc.experimental import aio  # type: ignore
@@ -31,6 +32,7 @@ from google.cloud.aiplatform_v1beta1.types import index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint_service
 from google.longrunning import operations_pb2 as operations  # type: ignore
+
 from .base import IndexEndpointServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import IndexEndpointServiceGrpcTransport
 
@@ -80,15 +82,13 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
         Returns:
             aio.Channel: A gRPC AsyncIO channel object.
         """
-
-        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
-
+        scopes = scopes or cls.AUTH_SCOPES
         return grpc_helpers_async.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
+            scopes=scopes,
             quota_project_id=quota_project_id,
-            **self_signed_jwt_kwargs,
             **kwargs
         )
 
@@ -108,8 +108,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]):
-                 The hostname to connect to.
+            host (Optional[str]): The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -168,6 +167,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
+
         else:
             if api_mtls_endpoint:
                 host = api_mtls_endpoint
@@ -246,9 +246,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
     def create_index_endpoint(self) -> Callable[
             [index_endpoint_service.CreateIndexEndpointRequest],
             Awaitable[operations.Operation]]:
-        r"""Return a callable for the
-        create index endpoint
-          method over gRPC.
+        r"""Return a callable for the create index endpoint method over gRPC.
 
         Creates an IndexEndpoint.
 
@@ -274,9 +272,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
     def get_index_endpoint(self) -> Callable[
             [index_endpoint_service.GetIndexEndpointRequest],
             Awaitable[index_endpoint.IndexEndpoint]]:
-        r"""Return a callable for the
-        get index endpoint
-          method over gRPC.
+        r"""Return a callable for the get index endpoint method over gRPC.
 
         Gets an IndexEndpoint.
 
@@ -302,9 +298,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
     def list_index_endpoints(self) -> Callable[
             [index_endpoint_service.ListIndexEndpointsRequest],
             Awaitable[index_endpoint_service.ListIndexEndpointsResponse]]:
-        r"""Return a callable for the
-        list index endpoints
-          method over gRPC.
+        r"""Return a callable for the list index endpoints method over gRPC.
 
         Lists IndexEndpoints in a Location.
 
@@ -330,9 +324,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
     def update_index_endpoint(self) -> Callable[
             [index_endpoint_service.UpdateIndexEndpointRequest],
             Awaitable[gca_index_endpoint.IndexEndpoint]]:
-        r"""Return a callable for the
-        update index endpoint
-          method over gRPC.
+        r"""Return a callable for the update index endpoint method over gRPC.
 
         Updates an IndexEndpoint.
 
@@ -358,9 +350,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
     def delete_index_endpoint(self) -> Callable[
             [index_endpoint_service.DeleteIndexEndpointRequest],
             Awaitable[operations.Operation]]:
-        r"""Return a callable for the
-        delete index endpoint
-          method over gRPC.
+        r"""Return a callable for the delete index endpoint method over gRPC.
 
         Deletes an IndexEndpoint.
 
@@ -386,9 +376,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
     def deploy_index(self) -> Callable[
             [index_endpoint_service.DeployIndexRequest],
             Awaitable[operations.Operation]]:
-        r"""Return a callable for the
-        deploy index
-          method over gRPC.
+        r"""Return a callable for the deploy index method over gRPC.
 
         Deploys an Index into this IndexEndpoint, creating a
         DeployedIndex within it.
@@ -416,9 +404,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
     def undeploy_index(self) -> Callable[
             [index_endpoint_service.UndeployIndexRequest],
             Awaitable[operations.Operation]]:
-        r"""Return a callable for the
-        undeploy index
-          method over gRPC.
+        r"""Return a callable for the undeploy index method over gRPC.
 
         Undeploys an Index from an IndexEndpoint, removing a
         DeployedIndex from it, and freeing all resources it's

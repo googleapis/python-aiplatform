@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
@@ -89,34 +92,21 @@ class FeatureStatsAnomaly(proto.Message):
             we take snapshots for feature values).
     """
 
-    score = proto.Field(
-        proto.DOUBLE,
-        number=1,
-    )
-    stats_uri = proto.Field(
-        proto.STRING,
-        number=3,
-    )
-    anomaly_uri = proto.Field(
-        proto.STRING,
-        number=4,
-    )
-    distribution_deviation = proto.Field(
-        proto.DOUBLE,
-        number=5,
-    )
-    anomaly_detection_threshold = proto.Field(
-        proto.DOUBLE,
-        number=9,
-    )
-    start_time = proto.Field(
-        proto.MESSAGE,
-        number=7,
+    score = proto.Field(proto.DOUBLE, number=1)
+
+    stats_uri = proto.Field(proto.STRING, number=3)
+
+    anomaly_uri = proto.Field(proto.STRING, number=4)
+
+    distribution_deviation = proto.Field(proto.DOUBLE, number=5)
+
+    anomaly_detection_threshold = proto.Field(proto.DOUBLE, number=9)
+
+    start_time = proto.Field(proto.MESSAGE, number=7,
         message=timestamp.Timestamp,
     )
-    end_time = proto.Field(
-        proto.MESSAGE,
-        number=8,
+
+    end_time = proto.Field(proto.MESSAGE, number=8,
         message=timestamp.Timestamp,
     )
 

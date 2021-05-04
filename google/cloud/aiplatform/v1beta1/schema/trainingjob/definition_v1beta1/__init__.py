@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 
 from .types.automl_image_classification import AutoMlImageClassification
 from .types.automl_image_classification import AutoMlImageClassificationInputs
@@ -40,6 +40,7 @@ from .types.automl_video_classification import AutoMlVideoClassificationInputs
 from .types.automl_video_object_tracking import AutoMlVideoObjectTracking
 from .types.automl_video_object_tracking import AutoMlVideoObjectTrackingInputs
 from .types.export_evaluated_data_items_config import ExportEvaluatedDataItemsConfig
+
 
 __all__ = (
     'AutoMlImageClassificationInputs',
