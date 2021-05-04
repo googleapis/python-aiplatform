@@ -15,16 +15,7 @@
 # limitations under the License.
 #
 
-from typing import (
-    Any,
-    AsyncIterable,
-    Awaitable,
-    Callable,
-    Iterable,
-    Sequence,
-    Tuple,
-    Optional,
-)
+from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple
 
 from google.cloud.aiplatform_v1.types import batch_prediction_job
 from google.cloud.aiplatform_v1.types import custom_job

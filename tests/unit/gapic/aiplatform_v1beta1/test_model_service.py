@@ -101,26 +101,20 @@ def test__get_default_mtls_endpoint():
     assert ModelServiceClient._get_default_mtls_endpoint(non_googleapi) == non_googleapi
 
 
-@pytest.mark.parametrize(
-    "client_class", [ModelServiceClient, ModelServiceAsyncClient,],
-)
-def test_model_service_client_from_service_account_info(client_class):
+def test_model_service_client_from_service_account_info():
     creds = credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
     ) as factory:
         factory.return_value = creds
         info = {"valid": True}
-        client = client_class.from_service_account_info(info)
+        client = ModelServiceClient.from_service_account_info(info)
         assert client.transport._credentials == creds
-        assert isinstance(client, client_class)
 
         assert client.transport._host == "aiplatform.googleapis.com:443"
 
 
-@pytest.mark.parametrize(
-    "client_class", [ModelServiceClient, ModelServiceAsyncClient,],
-)
+@pytest.mark.parametrize("client_class", [ModelServiceClient, ModelServiceAsyncClient,])
 def test_model_service_client_from_service_account_file(client_class):
     creds = credentials.AnonymousCredentials()
     with mock.patch.object(
@@ -129,11 +123,9 @@ def test_model_service_client_from_service_account_file(client_class):
         factory.return_value = creds
         client = client_class.from_service_account_file("dummy/file/path.json")
         assert client.transport._credentials == creds
-        assert isinstance(client, client_class)
 
         client = client_class.from_service_account_json("dummy/file/path.json")
         assert client.transport._credentials == creds
-        assert isinstance(client, client_class)
 
         assert client.transport._host == "aiplatform.googleapis.com:443"
 
@@ -485,22 +477,6 @@ def test_upload_model_from_dict():
     test_upload_model(request_type=dict)
 
 
-def test_upload_model_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.upload_model), "__call__") as call:
-        client.upload_model()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-
-        assert args[0] == model_service.UploadModelRequest()
-
-
 @pytest.mark.asyncio
 async def test_upload_model_async(
     transport: str = "grpc_asyncio", request_type=model_service.UploadModelRequest
@@ -737,22 +713,6 @@ def test_get_model_from_dict():
     test_get_model(request_type=dict)
 
 
-def test_get_model_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_model), "__call__") as call:
-        client.get_model()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-
-        assert args[0] == model_service.GetModelRequest()
-
-
 @pytest.mark.asyncio
 async def test_get_model_async(
     transport: str = "grpc_asyncio", request_type=model_service.GetModelRequest
@@ -981,22 +941,6 @@ def test_list_models(
 
 def test_list_models_from_dict():
     test_list_models(request_type=dict)
-
-
-def test_list_models_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.list_models), "__call__") as call:
-        client.list_models()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-
-        assert args[0] == model_service.ListModelsRequest()
 
 
 @pytest.mark.asyncio
@@ -1341,22 +1285,6 @@ def test_update_model_from_dict():
     test_update_model(request_type=dict)
 
 
-def test_update_model_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.update_model), "__call__") as call:
-        client.update_model()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-
-        assert args[0] == model_service.UpdateModelRequest()
-
-
 @pytest.mark.asyncio
 async def test_update_model_async(
     transport: str = "grpc_asyncio", request_type=model_service.UpdateModelRequest
@@ -1596,22 +1524,6 @@ def test_delete_model_from_dict():
     test_delete_model(request_type=dict)
 
 
-def test_delete_model_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.delete_model), "__call__") as call:
-        client.delete_model()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-
-        assert args[0] == model_service.DeleteModelRequest()
-
-
 @pytest.mark.asyncio
 async def test_delete_model_async(
     transport: str = "grpc_asyncio", request_type=model_service.DeleteModelRequest
@@ -1796,22 +1708,6 @@ def test_export_model(
 
 def test_export_model_from_dict():
     test_export_model(request_type=dict)
-
-
-def test_export_model_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.export_model), "__call__") as call:
-        client.export_model()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-
-        assert args[0] == model_service.ExportModelRequest()
 
 
 @pytest.mark.asyncio
@@ -2039,24 +1935,6 @@ def test_get_model_evaluation_from_dict():
     test_get_model_evaluation(request_type=dict)
 
 
-def test_get_model_evaluation_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_model_evaluation), "__call__"
-    ) as call:
-        client.get_model_evaluation()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-
-        assert args[0] == model_service.GetModelEvaluationRequest()
-
-
 @pytest.mark.asyncio
 async def test_get_model_evaluation_async(
     transport: str = "grpc_asyncio",
@@ -2269,24 +2147,6 @@ def test_list_model_evaluations(
 
 def test_list_model_evaluations_from_dict():
     test_list_model_evaluations(request_type=dict)
-
-
-def test_list_model_evaluations_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_model_evaluations), "__call__"
-    ) as call:
-        client.list_model_evaluations()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-
-        assert args[0] == model_service.ListModelEvaluationsRequest()
 
 
 @pytest.mark.asyncio
@@ -2669,24 +2529,6 @@ def test_get_model_evaluation_slice_from_dict():
     test_get_model_evaluation_slice(request_type=dict)
 
 
-def test_get_model_evaluation_slice_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.get_model_evaluation_slice), "__call__"
-    ) as call:
-        client.get_model_evaluation_slice()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-
-        assert args[0] == model_service.GetModelEvaluationSliceRequest()
-
-
 @pytest.mark.asyncio
 async def test_get_model_evaluation_slice_async(
     transport: str = "grpc_asyncio",
@@ -2895,24 +2737,6 @@ def test_list_model_evaluation_slices(
 
 def test_list_model_evaluation_slices_from_dict():
     test_list_model_evaluation_slices(request_type=dict)
-
-
-def test_list_model_evaluation_slices_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = ModelServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_model_evaluation_slices), "__call__"
-    ) as call:
-        client.list_model_evaluation_slices()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-
-        assert args[0] == model_service.ListModelEvaluationSlicesRequest()
 
 
 @pytest.mark.asyncio

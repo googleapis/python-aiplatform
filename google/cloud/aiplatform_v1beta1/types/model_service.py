@@ -329,6 +329,7 @@ class GetModelEvaluationRequest(proto.Message):
     Attributes:
         name (str):
             Required. The name of the ModelEvaluation resource. Format:
+
             ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
     """
 
@@ -402,6 +403,7 @@ class GetModelEvaluationSliceRequest(proto.Message):
         name (str):
             Required. The name of the ModelEvaluationSlice resource.
             Format:
+
             ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}``
     """
 
@@ -416,6 +418,7 @@ class ListModelEvaluationSlicesRequest(proto.Message):
         parent (str):
             Required. The resource name of the ModelEvaluation to list
             the ModelEvaluationSlices from. Format:
+
             ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
         filter (str):
             The standard list filter.

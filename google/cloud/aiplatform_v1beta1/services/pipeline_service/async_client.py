@@ -96,36 +96,8 @@ class PipelineServiceAsyncClient:
         PipelineServiceClient.parse_common_location_path
     )
 
-    @classmethod
-    def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
-
-        Args:
-            info (dict): The service account private key info.
-            args: Additional arguments to pass to the constructor.
-            kwargs: Additional arguments to pass to the constructor.
-
-        Returns:
-            PipelineServiceAsyncClient: The constructed client.
-        """
-        return PipelineServiceClient.from_service_account_info.__func__(PipelineServiceAsyncClient, info, *args, **kwargs)  # type: ignore
-
-    @classmethod
-    def from_service_account_file(cls, filename: str, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials
-        file.
-
-        Args:
-            filename (str): The path to the service account private key json
-                file.
-            args: Additional arguments to pass to the constructor.
-            kwargs: Additional arguments to pass to the constructor.
-
-        Returns:
-            PipelineServiceAsyncClient: The constructed client.
-        """
-        return PipelineServiceClient.from_service_account_file.__func__(PipelineServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
-
+    from_service_account_info = PipelineServiceClient.from_service_account_info
+    from_service_account_file = PipelineServiceClient.from_service_account_file
     from_service_account_json = from_service_account_file
 
     @property
@@ -296,6 +268,7 @@ class PipelineServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the TrainingPipeline resource.
                 Format:
+
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
 
                 This corresponds to the ``name`` field
@@ -457,6 +430,7 @@ class PipelineServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the TrainingPipeline resource to
                 be deleted. Format:
+
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
 
                 This corresponds to the ``name`` field
@@ -564,6 +538,7 @@ class PipelineServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the TrainingPipeline to cancel.
                 Format:
+
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
 
                 This corresponds to the ``name`` field
