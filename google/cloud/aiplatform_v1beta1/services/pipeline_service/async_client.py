@@ -75,7 +75,9 @@ class PipelineServiceAsyncClient:
     network_path = staticmethod(PipelineServiceClient.network_path)
     parse_network_path = staticmethod(PipelineServiceClient.parse_network_path)
     pipeline_job_path = staticmethod(PipelineServiceClient.pipeline_job_path)
-    parse_pipeline_job_path = staticmethod(PipelineServiceClient.parse_pipeline_job_path)
+    parse_pipeline_job_path = staticmethod(
+        PipelineServiceClient.parse_pipeline_job_path
+    )
     training_pipeline_path = staticmethod(PipelineServiceClient.training_pipeline_path)
     parse_training_pipeline_path = staticmethod(
         PipelineServiceClient.parse_training_pipeline_path
@@ -627,16 +629,17 @@ class PipelineServiceAsyncClient:
             request, retry=retry, timeout=timeout, metadata=metadata,
         )
 
-    async def create_pipeline_job(self,
-            request: pipeline_service.CreatePipelineJobRequest = None,
-            *,
-            parent: str = None,
-            pipeline_job: gca_pipeline_job.PipelineJob = None,
-            pipeline_job_id: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_pipeline_job.PipelineJob:
+    async def create_pipeline_job(
+        self,
+        request: pipeline_service.CreatePipelineJobRequest = None,
+        *,
+        parent: str = None,
+        pipeline_job: gca_pipeline_job.PipelineJob = None,
+        pipeline_job_id: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_pipeline_job.PipelineJob:
         r"""Creates a PipelineJob. A PipelineJob will run
         immediately when created.
 
@@ -686,8 +689,10 @@ class PipelineServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, pipeline_job, pipeline_job_id])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.CreatePipelineJobRequest(request)
 
@@ -712,30 +717,24 @@ class PipelineServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def get_pipeline_job(self,
-            request: pipeline_service.GetPipelineJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pipeline_job.PipelineJob:
+    async def get_pipeline_job(
+        self,
+        request: pipeline_service.GetPipelineJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pipeline_job.PipelineJob:
         r"""Gets a PipelineJob.
 
         Args:
@@ -767,8 +766,10 @@ class PipelineServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.GetPipelineJobRequest(request)
 
@@ -789,30 +790,24 @@ class PipelineServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def list_pipeline_jobs(self,
-            request: pipeline_service.ListPipelineJobsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListPipelineJobsAsyncPager:
+    async def list_pipeline_jobs(
+        self,
+        request: pipeline_service.ListPipelineJobsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListPipelineJobsAsyncPager:
         r"""Lists PipelineJobs in a Location.
 
         Args:
@@ -848,8 +843,10 @@ class PipelineServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.ListPipelineJobsRequest(request)
 
@@ -870,39 +867,30 @@ class PipelineServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListPipelineJobsAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def delete_pipeline_job(self,
-            request: pipeline_service.DeletePipelineJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def delete_pipeline_job(
+        self,
+        request: pipeline_service.DeletePipelineJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Deletes a PipelineJob.
 
         Args:
@@ -948,8 +936,10 @@ class PipelineServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.DeletePipelineJobRequest(request)
 
@@ -970,18 +960,11 @@ class PipelineServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -994,14 +977,15 @@ class PipelineServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def cancel_pipeline_job(self,
-            request: pipeline_service.CancelPipelineJobRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> None:
+    async def cancel_pipeline_job(
+        self,
+        request: pipeline_service.CancelPipelineJobRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
         r"""Cancels a PipelineJob. Starts asynchronous cancellation on the
         PipelineJob. The server makes a best effort to cancel the
         pipeline, but success is not guaranteed. Clients can use
@@ -1039,8 +1023,10 @@ class PipelineServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.CancelPipelineJobRequest(request)
 
@@ -1061,17 +1047,12 @@ class PipelineServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
         await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
+            request, retry=retry, timeout=timeout, metadata=metadata,
         )
 
 

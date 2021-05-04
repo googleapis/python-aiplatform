@@ -21,49 +21,53 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import tensorboard as gca_tensorboard
 from google.cloud.aiplatform_v1beta1.types import tensorboard_data
-from google.cloud.aiplatform_v1beta1.types import tensorboard_experiment as gca_tensorboard_experiment
+from google.cloud.aiplatform_v1beta1.types import (
+    tensorboard_experiment as gca_tensorboard_experiment,
+)
 from google.cloud.aiplatform_v1beta1.types import tensorboard_run as gca_tensorboard_run
-from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series as gca_tensorboard_time_series
+from google.cloud.aiplatform_v1beta1.types import (
+    tensorboard_time_series as gca_tensorboard_time_series,
+)
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
-        'CreateTensorboardRequest',
-        'GetTensorboardRequest',
-        'ListTensorboardsRequest',
-        'ListTensorboardsResponse',
-        'UpdateTensorboardRequest',
-        'DeleteTensorboardRequest',
-        'CreateTensorboardExperimentRequest',
-        'GetTensorboardExperimentRequest',
-        'ListTensorboardExperimentsRequest',
-        'ListTensorboardExperimentsResponse',
-        'UpdateTensorboardExperimentRequest',
-        'DeleteTensorboardExperimentRequest',
-        'CreateTensorboardRunRequest',
-        'GetTensorboardRunRequest',
-        'ReadTensorboardBlobDataRequest',
-        'ReadTensorboardBlobDataResponse',
-        'ListTensorboardRunsRequest',
-        'ListTensorboardRunsResponse',
-        'UpdateTensorboardRunRequest',
-        'DeleteTensorboardRunRequest',
-        'CreateTensorboardTimeSeriesRequest',
-        'GetTensorboardTimeSeriesRequest',
-        'ListTensorboardTimeSeriesRequest',
-        'ListTensorboardTimeSeriesResponse',
-        'UpdateTensorboardTimeSeriesRequest',
-        'DeleteTensorboardTimeSeriesRequest',
-        'ReadTensorboardTimeSeriesDataRequest',
-        'ReadTensorboardTimeSeriesDataResponse',
-        'WriteTensorboardRunDataRequest',
-        'WriteTensorboardRunDataResponse',
-        'ExportTensorboardTimeSeriesDataRequest',
-        'ExportTensorboardTimeSeriesDataResponse',
-        'CreateTensorboardOperationMetadata',
-        'UpdateTensorboardOperationMetadata',
+        "CreateTensorboardRequest",
+        "GetTensorboardRequest",
+        "ListTensorboardsRequest",
+        "ListTensorboardsResponse",
+        "UpdateTensorboardRequest",
+        "DeleteTensorboardRequest",
+        "CreateTensorboardExperimentRequest",
+        "GetTensorboardExperimentRequest",
+        "ListTensorboardExperimentsRequest",
+        "ListTensorboardExperimentsResponse",
+        "UpdateTensorboardExperimentRequest",
+        "DeleteTensorboardExperimentRequest",
+        "CreateTensorboardRunRequest",
+        "GetTensorboardRunRequest",
+        "ReadTensorboardBlobDataRequest",
+        "ReadTensorboardBlobDataResponse",
+        "ListTensorboardRunsRequest",
+        "ListTensorboardRunsResponse",
+        "UpdateTensorboardRunRequest",
+        "DeleteTensorboardRunRequest",
+        "CreateTensorboardTimeSeriesRequest",
+        "GetTensorboardTimeSeriesRequest",
+        "ListTensorboardTimeSeriesRequest",
+        "ListTensorboardTimeSeriesResponse",
+        "UpdateTensorboardTimeSeriesRequest",
+        "DeleteTensorboardTimeSeriesRequest",
+        "ReadTensorboardTimeSeriesDataRequest",
+        "ReadTensorboardTimeSeriesDataResponse",
+        "WriteTensorboardRunDataRequest",
+        "WriteTensorboardRunDataResponse",
+        "ExportTensorboardTimeSeriesDataRequest",
+        "ExportTensorboardTimeSeriesDataResponse",
+        "CreateTensorboardOperationMetadata",
+        "UpdateTensorboardOperationMetadata",
     },
 )
 
@@ -83,8 +87,8 @@ class CreateTensorboardRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    tensorboard = proto.Field(proto.MESSAGE, number=2,
-        message=gca_tensorboard.Tensorboard,
+    tensorboard = proto.Field(
+        proto.MESSAGE, number=2, message=gca_tensorboard.Tensorboard,
     )
 
 
@@ -143,9 +147,7 @@ class ListTensorboardsRequest(proto.Message):
 
     order_by = proto.Field(proto.STRING, number=5)
 
-    read_mask = proto.Field(proto.MESSAGE, number=6,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=6, message=field_mask.FieldMask,)
 
 
 class ListTensorboardsResponse(proto.Message):
@@ -166,8 +168,8 @@ class ListTensorboardsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    tensorboards = proto.RepeatedField(proto.MESSAGE, number=1,
-        message=gca_tensorboard.Tensorboard,
+    tensorboards = proto.RepeatedField(
+        proto.MESSAGE, number=1, message=gca_tensorboard.Tensorboard,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -192,12 +194,10 @@ class UpdateTensorboardRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
     """
 
-    update_mask = proto.Field(proto.MESSAGE, number=1,
-        message=field_mask.FieldMask,
-    )
+    update_mask = proto.Field(proto.MESSAGE, number=1, message=field_mask.FieldMask,)
 
-    tensorboard = proto.Field(proto.MESSAGE, number=2,
-        message=gca_tensorboard.Tensorboard,
+    tensorboard = proto.Field(
+        proto.MESSAGE, number=2, message=gca_tensorboard.Tensorboard,
     )
 
 
@@ -236,7 +236,9 @@ class CreateTensorboardExperimentRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    tensorboard_experiment = proto.Field(proto.MESSAGE, number=2,
+    tensorboard_experiment = proto.Field(
+        proto.MESSAGE,
+        number=2,
         message=gca_tensorboard_experiment.TensorboardExperiment,
     )
 
@@ -301,9 +303,7 @@ class ListTensorboardExperimentsRequest(proto.Message):
 
     order_by = proto.Field(proto.STRING, number=5)
 
-    read_mask = proto.Field(proto.MESSAGE, number=6,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=6, message=field_mask.FieldMask,)
 
 
 class ListTensorboardExperimentsResponse(proto.Message):
@@ -325,7 +325,9 @@ class ListTensorboardExperimentsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    tensorboard_experiments = proto.RepeatedField(proto.MESSAGE, number=1,
+    tensorboard_experiments = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
         message=gca_tensorboard_experiment.TensorboardExperiment,
     )
 
@@ -351,11 +353,11 @@ class UpdateTensorboardExperimentRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
     """
 
-    update_mask = proto.Field(proto.MESSAGE, number=1,
-        message=field_mask.FieldMask,
-    )
+    update_mask = proto.Field(proto.MESSAGE, number=1, message=field_mask.FieldMask,)
 
-    tensorboard_experiment = proto.Field(proto.MESSAGE, number=2,
+    tensorboard_experiment = proto.Field(
+        proto.MESSAGE,
+        number=2,
         message=gca_tensorboard_experiment.TensorboardExperiment,
     )
 
@@ -396,8 +398,8 @@ class CreateTensorboardRunRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    tensorboard_run = proto.Field(proto.MESSAGE, number=2,
-        message=gca_tensorboard_run.TensorboardRun,
+    tensorboard_run = proto.Field(
+        proto.MESSAGE, number=2, message=gca_tensorboard_run.TensorboardRun,
     )
 
     tensorboard_run_id = proto.Field(proto.STRING, number=3)
@@ -443,8 +445,8 @@ class ReadTensorboardBlobDataResponse(proto.Message):
             Blob messages containing blob bytes.
     """
 
-    blobs = proto.RepeatedField(proto.MESSAGE, number=1,
-        message=tensorboard_data.TensorboardBlob,
+    blobs = proto.RepeatedField(
+        proto.MESSAGE, number=1, message=tensorboard_data.TensorboardBlob,
     )
 
 
@@ -491,9 +493,7 @@ class ListTensorboardRunsRequest(proto.Message):
 
     order_by = proto.Field(proto.STRING, number=5)
 
-    read_mask = proto.Field(proto.MESSAGE, number=6,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=6, message=field_mask.FieldMask,)
 
 
 class ListTensorboardRunsResponse(proto.Message):
@@ -514,8 +514,8 @@ class ListTensorboardRunsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    tensorboard_runs = proto.RepeatedField(proto.MESSAGE, number=1,
-        message=gca_tensorboard_run.TensorboardRun,
+    tensorboard_runs = proto.RepeatedField(
+        proto.MESSAGE, number=1, message=gca_tensorboard_run.TensorboardRun,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -540,12 +540,10 @@ class UpdateTensorboardRunRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}``
     """
 
-    update_mask = proto.Field(proto.MESSAGE, number=1,
-        message=field_mask.FieldMask,
-    )
+    update_mask = proto.Field(proto.MESSAGE, number=1, message=field_mask.FieldMask,)
 
-    tensorboard_run = proto.Field(proto.MESSAGE, number=2,
-        message=gca_tensorboard_run.TensorboardRun,
+    tensorboard_run = proto.Field(
+        proto.MESSAGE, number=2, message=gca_tensorboard_run.TensorboardRun,
     )
 
 
@@ -588,7 +586,9 @@ class CreateTensorboardTimeSeriesRequest(proto.Message):
 
     tensorboard_time_series_id = proto.Field(proto.STRING, number=3)
 
-    tensorboard_time_series = proto.Field(proto.MESSAGE, number=2,
+    tensorboard_time_series = proto.Field(
+        proto.MESSAGE,
+        number=2,
         message=gca_tensorboard_time_series.TensorboardTimeSeries,
     )
 
@@ -651,9 +651,7 @@ class ListTensorboardTimeSeriesRequest(proto.Message):
 
     order_by = proto.Field(proto.STRING, number=5)
 
-    read_mask = proto.Field(proto.MESSAGE, number=6,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=6, message=field_mask.FieldMask,)
 
 
 class ListTensorboardTimeSeriesResponse(proto.Message):
@@ -675,7 +673,9 @@ class ListTensorboardTimeSeriesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    tensorboard_time_series = proto.RepeatedField(proto.MESSAGE, number=1,
+    tensorboard_time_series = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
         message=gca_tensorboard_time_series.TensorboardTimeSeries,
     )
 
@@ -701,11 +701,11 @@ class UpdateTensorboardTimeSeriesRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}``
     """
 
-    update_mask = proto.Field(proto.MESSAGE, number=1,
-        message=field_mask.FieldMask,
-    )
+    update_mask = proto.Field(proto.MESSAGE, number=1, message=field_mask.FieldMask,)
 
-    tensorboard_time_series = proto.Field(proto.MESSAGE, number=2,
+    tensorboard_time_series = proto.Field(
+        proto.MESSAGE,
+        number=2,
         message=gca_tensorboard_time_series.TensorboardTimeSeries,
     )
 
@@ -759,8 +759,8 @@ class ReadTensorboardTimeSeriesDataResponse(proto.Message):
             The returned time series data.
     """
 
-    time_series_data = proto.Field(proto.MESSAGE, number=1,
-        message=tensorboard_data.TimeSeriesData,
+    time_series_data = proto.Field(
+        proto.MESSAGE, number=1, message=tensorboard_data.TimeSeriesData,
     )
 
 
@@ -785,8 +785,8 @@ class WriteTensorboardRunDataRequest(proto.Message):
 
     tensorboard_run = proto.Field(proto.STRING, number=1)
 
-    time_series_data = proto.RepeatedField(proto.MESSAGE, number=2,
-        message=tensorboard_data.TimeSeriesData,
+    time_series_data = proto.RepeatedField(
+        proto.MESSAGE, number=2, message=tensorboard_data.TimeSeriesData,
     )
 
 
@@ -856,8 +856,8 @@ class ExportTensorboardTimeSeriesDataResponse(proto.Message):
     def raw_page(self):
         return self
 
-    time_series_data_points = proto.RepeatedField(proto.MESSAGE, number=1,
-        message=tensorboard_data.TimeSeriesDataPoint,
+    time_series_data_points = proto.RepeatedField(
+        proto.MESSAGE, number=1, message=tensorboard_data.TimeSeriesDataPoint,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -871,8 +871,8 @@ class CreateTensorboardOperationMetadata(proto.Message):
             Operation metadata for Tensorboard.
     """
 
-    generic_metadata = proto.Field(proto.MESSAGE, number=1,
-        message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
 
 
@@ -884,8 +884,8 @@ class UpdateTensorboardOperationMetadata(proto.Message):
             Operation metadata for Tensorboard.
     """
 
-    generic_metadata = proto.Field(proto.MESSAGE, number=1,
-        message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
 
 

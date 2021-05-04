@@ -23,14 +23,14 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
-        'TimeSeriesData',
-        'TimeSeriesDataPoint',
-        'Scalar',
-        'TensorboardTensor',
-        'TensorboardBlobSequence',
-        'TensorboardBlob',
+        "TimeSeriesData",
+        "TimeSeriesDataPoint",
+        "Scalar",
+        "TensorboardTensor",
+        "TensorboardBlobSequence",
+        "TensorboardBlob",
     },
 )
 
@@ -54,12 +54,14 @@ class TimeSeriesData(proto.Message):
 
     tensorboard_time_series_id = proto.Field(proto.STRING, number=1)
 
-    value_type = proto.Field(proto.ENUM, number=2,
+    value_type = proto.Field(
+        proto.ENUM,
+        number=2,
         enum=tensorboard_time_series.TensorboardTimeSeries.ValueType,
     )
 
-    values = proto.RepeatedField(proto.MESSAGE, number=3,
-        message='TimeSeriesDataPoint',
+    values = proto.RepeatedField(
+        proto.MESSAGE, number=3, message="TimeSeriesDataPoint",
     )
 
 
@@ -80,21 +82,17 @@ class TimeSeriesDataPoint(proto.Message):
             Step index of this data point within the run.
     """
 
-    scalar = proto.Field(proto.MESSAGE, number=3, oneof='value',
-        message='Scalar',
+    scalar = proto.Field(proto.MESSAGE, number=3, oneof="value", message="Scalar",)
+
+    tensor = proto.Field(
+        proto.MESSAGE, number=4, oneof="value", message="TensorboardTensor",
     )
 
-    tensor = proto.Field(proto.MESSAGE, number=4, oneof='value',
-        message='TensorboardTensor',
+    blobs = proto.Field(
+        proto.MESSAGE, number=5, oneof="value", message="TensorboardBlobSequence",
     )
 
-    blobs = proto.Field(proto.MESSAGE, number=5, oneof='value',
-        message='TensorboardBlobSequence',
-    )
-
-    wall_time = proto.Field(proto.MESSAGE, number=1,
-        message=timestamp.Timestamp,
-    )
+    wall_time = proto.Field(proto.MESSAGE, number=1, message=timestamp.Timestamp,)
 
     step = proto.Field(proto.INT64, number=2)
 
@@ -137,9 +135,7 @@ class TensorboardBlobSequence(proto.Message):
             List of blobs contained within the sequence.
     """
 
-    values = proto.RepeatedField(proto.MESSAGE, number=1,
-        message='TensorboardBlob',
-    )
+    values = proto.RepeatedField(proto.MESSAGE, number=1, message="TensorboardBlob",)
 
 
 class TensorboardBlob(proto.Message):

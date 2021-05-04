@@ -52,6 +52,7 @@ class MetadataStore(proto.Message):
             Output only. State information of the
             MetadataStore.
     """
+
     class MetadataStoreState(proto.Message):
         r"""Represent state information for a MetadataStore.
 
@@ -75,9 +76,7 @@ class MetadataStore(proto.Message):
 
     description = proto.Field(proto.STRING, number=6)
 
-    state = proto.Field(proto.MESSAGE, number=7,
-        message=MetadataStoreState,
-    )
+    state = proto.Field(proto.MESSAGE, number=7, message=MetadataStoreState,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

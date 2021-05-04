@@ -22,10 +22,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'TensorboardExperiment',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"TensorboardExperiment",},
 )
 
 
@@ -84,13 +81,9 @@ class TensorboardExperiment(proto.Message):
 
     description = proto.Field(proto.STRING, number=3)
 
-    create_time = proto.Field(proto.MESSAGE, number=4,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
 
-    update_time = proto.Field(proto.MESSAGE, number=5,
-        message=timestamp.Timestamp,
-    )
+    update_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=6)
 

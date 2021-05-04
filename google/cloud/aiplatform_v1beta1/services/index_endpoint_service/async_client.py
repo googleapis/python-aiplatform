@@ -21,12 +21,12 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions # type: ignore
-from google.api_core import exceptions                 # type: ignore
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import retry as retries           # type: ignore
-from google.auth import credentials                    # type: ignore
-from google.oauth2 import service_account              # type: ignore
+import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core import exceptions  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -55,22 +55,38 @@ class IndexEndpointServiceAsyncClient:
     index_path = staticmethod(IndexEndpointServiceClient.index_path)
     parse_index_path = staticmethod(IndexEndpointServiceClient.parse_index_path)
     index_endpoint_path = staticmethod(IndexEndpointServiceClient.index_endpoint_path)
-    parse_index_endpoint_path = staticmethod(IndexEndpointServiceClient.parse_index_endpoint_path)
+    parse_index_endpoint_path = staticmethod(
+        IndexEndpointServiceClient.parse_index_endpoint_path
+    )
 
-    common_billing_account_path = staticmethod(IndexEndpointServiceClient.common_billing_account_path)
-    parse_common_billing_account_path = staticmethod(IndexEndpointServiceClient.parse_common_billing_account_path)
+    common_billing_account_path = staticmethod(
+        IndexEndpointServiceClient.common_billing_account_path
+    )
+    parse_common_billing_account_path = staticmethod(
+        IndexEndpointServiceClient.parse_common_billing_account_path
+    )
 
     common_folder_path = staticmethod(IndexEndpointServiceClient.common_folder_path)
-    parse_common_folder_path = staticmethod(IndexEndpointServiceClient.parse_common_folder_path)
+    parse_common_folder_path = staticmethod(
+        IndexEndpointServiceClient.parse_common_folder_path
+    )
 
-    common_organization_path = staticmethod(IndexEndpointServiceClient.common_organization_path)
-    parse_common_organization_path = staticmethod(IndexEndpointServiceClient.parse_common_organization_path)
+    common_organization_path = staticmethod(
+        IndexEndpointServiceClient.common_organization_path
+    )
+    parse_common_organization_path = staticmethod(
+        IndexEndpointServiceClient.parse_common_organization_path
+    )
 
     common_project_path = staticmethod(IndexEndpointServiceClient.common_project_path)
-    parse_common_project_path = staticmethod(IndexEndpointServiceClient.parse_common_project_path)
+    parse_common_project_path = staticmethod(
+        IndexEndpointServiceClient.parse_common_project_path
+    )
 
     common_location_path = staticmethod(IndexEndpointServiceClient.common_location_path)
-    parse_common_location_path = staticmethod(IndexEndpointServiceClient.parse_common_location_path)
+    parse_common_location_path = staticmethod(
+        IndexEndpointServiceClient.parse_common_location_path
+    )
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -113,14 +129,19 @@ class IndexEndpointServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(type(IndexEndpointServiceClient).get_transport_class, type(IndexEndpointServiceClient))
+    get_transport_class = functools.partial(
+        type(IndexEndpointServiceClient).get_transport_class,
+        type(IndexEndpointServiceClient),
+    )
 
-    def __init__(self, *,
-            credentials: credentials.Credentials = None,
-            transport: Union[str, IndexEndpointServiceTransport] = 'grpc_asyncio',
-            client_options: ClientOptions = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: credentials.Credentials = None,
+        transport: Union[str, IndexEndpointServiceTransport] = "grpc_asyncio",
+        client_options: ClientOptions = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the index endpoint service client.
 
         Args:
@@ -159,18 +180,18 @@ class IndexEndpointServiceAsyncClient:
             transport=transport,
             client_options=client_options,
             client_info=client_info,
-
         )
 
-    async def create_index_endpoint(self,
-            request: index_endpoint_service.CreateIndexEndpointRequest = None,
-            *,
-            parent: str = None,
-            index_endpoint: gca_index_endpoint.IndexEndpoint = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def create_index_endpoint(
+        self,
+        request: index_endpoint_service.CreateIndexEndpointRequest = None,
+        *,
+        parent: str = None,
+        index_endpoint: gca_index_endpoint.IndexEndpoint = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Creates an IndexEndpoint.
 
         Args:
@@ -212,8 +233,10 @@ class IndexEndpointServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, index_endpoint])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = index_endpoint_service.CreateIndexEndpointRequest(request)
 
@@ -236,18 +259,11 @@ class IndexEndpointServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -260,14 +276,15 @@ class IndexEndpointServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def get_index_endpoint(self,
-            request: index_endpoint_service.GetIndexEndpointRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> index_endpoint.IndexEndpoint:
+    async def get_index_endpoint(
+        self,
+        request: index_endpoint_service.GetIndexEndpointRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> index_endpoint.IndexEndpoint:
         r"""Gets an IndexEndpoint.
 
         Args:
@@ -301,8 +318,10 @@ class IndexEndpointServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = index_endpoint_service.GetIndexEndpointRequest(request)
 
@@ -323,30 +342,24 @@ class IndexEndpointServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def list_index_endpoints(self,
-            request: index_endpoint_service.ListIndexEndpointsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListIndexEndpointsAsyncPager:
+    async def list_index_endpoints(
+        self,
+        request: index_endpoint_service.ListIndexEndpointsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListIndexEndpointsAsyncPager:
         r"""Lists IndexEndpoints in a Location.
 
         Args:
@@ -382,8 +395,10 @@ class IndexEndpointServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = index_endpoint_service.ListIndexEndpointsRequest(request)
 
@@ -404,40 +419,31 @@ class IndexEndpointServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListIndexEndpointsAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def update_index_endpoint(self,
-            request: index_endpoint_service.UpdateIndexEndpointRequest = None,
-            *,
-            index_endpoint: gca_index_endpoint.IndexEndpoint = None,
-            update_mask: field_mask.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_index_endpoint.IndexEndpoint:
+    async def update_index_endpoint(
+        self,
+        request: index_endpoint_service.UpdateIndexEndpointRequest = None,
+        *,
+        index_endpoint: gca_index_endpoint.IndexEndpoint = None,
+        update_mask: field_mask.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_index_endpoint.IndexEndpoint:
         r"""Updates an IndexEndpoint.
 
         Args:
@@ -477,8 +483,10 @@ class IndexEndpointServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([index_endpoint, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = index_endpoint_service.UpdateIndexEndpointRequest(request)
 
@@ -501,30 +509,26 @@ class IndexEndpointServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('index_endpoint.name', request.index_endpoint.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("index_endpoint.name", request.index_endpoint.name),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def delete_index_endpoint(self,
-            request: index_endpoint_service.DeleteIndexEndpointRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def delete_index_endpoint(
+        self,
+        request: index_endpoint_service.DeleteIndexEndpointRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Deletes an IndexEndpoint.
 
         Args:
@@ -570,8 +574,10 @@ class IndexEndpointServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = index_endpoint_service.DeleteIndexEndpointRequest(request)
 
@@ -592,18 +598,11 @@ class IndexEndpointServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -616,15 +615,16 @@ class IndexEndpointServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def deploy_index(self,
-            request: index_endpoint_service.DeployIndexRequest = None,
-            *,
-            index_endpoint: str = None,
-            deployed_index: gca_index_endpoint.DeployedIndex = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def deploy_index(
+        self,
+        request: index_endpoint_service.DeployIndexRequest = None,
+        *,
+        index_endpoint: str = None,
+        deployed_index: gca_index_endpoint.DeployedIndex = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Deploys an Index into this IndexEndpoint, creating a
         DeployedIndex within it.
         Only non-empty Indexes can be deployed.
@@ -670,8 +670,10 @@ class IndexEndpointServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([index_endpoint, deployed_index])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = index_endpoint_service.DeployIndexRequest(request)
 
@@ -694,18 +696,13 @@ class IndexEndpointServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('index_endpoint', request.index_endpoint),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("index_endpoint", request.index_endpoint),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -718,15 +715,16 @@ class IndexEndpointServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def undeploy_index(self,
-            request: index_endpoint_service.UndeployIndexRequest = None,
-            *,
-            index_endpoint: str = None,
-            deployed_index_id: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def undeploy_index(
+        self,
+        request: index_endpoint_service.UndeployIndexRequest = None,
+        *,
+        index_endpoint: str = None,
+        deployed_index_id: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Undeploys an Index from an IndexEndpoint, removing a
         DeployedIndex from it, and freeing all resources it's
         using.
@@ -772,8 +770,10 @@ class IndexEndpointServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([index_endpoint, deployed_index_id])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = index_endpoint_service.UndeployIndexRequest(request)
 
@@ -796,18 +796,13 @@ class IndexEndpointServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('index_endpoint', request.index_endpoint),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("index_endpoint", request.index_endpoint),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -821,21 +816,14 @@ class IndexEndpointServiceAsyncClient:
         return response
 
 
-
-
-
-
-
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'IndexEndpointServiceAsyncClient',
-)
+__all__ = ("IndexEndpointServiceAsyncClient",)
