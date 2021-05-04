@@ -184,7 +184,7 @@ class _Config:
     def encryption_spec_key_name(self) -> Optional[str]:
         """Default encryption spec key name, if provided."""
         return self._encryption_spec_key_name
-        
+
     def get_client_options(
         self, location_override: Optional[str] = None
     ) -> client_options.ClientOptions:
