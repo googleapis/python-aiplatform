@@ -68,7 +68,7 @@ class _Config:
             location (str): The default location to use when making API calls. If not
                 set defaults to us-central-1.
             experiment (str): The experiment name.
-            experiment_description (str): description of an experiment.
+            experiment_description (str): The description of the experiment.
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
             credentials (google.auth.credentials.Credentials): The default custom
