@@ -173,6 +173,11 @@ class FeaturestoreServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.export_feature_values: gapic_v1.method.wrap_method(
+                self.export_feature_values,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.search_features: gapic_v1.method.wrap_method(
                 self.search_features, default_timeout=None, client_info=client_info,
             ),
@@ -354,6 +359,15 @@ class FeaturestoreServiceTransport(abc.ABC):
         self,
     ) -> typing.Callable[
         [featurestore_service.BatchReadFeatureValuesRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def export_feature_values(
+        self,
+    ) -> typing.Callable[
+        [featurestore_service.ExportFeatureValuesRequest],
         typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
     ]:
         raise NotImplementedError()

@@ -44,7 +44,6 @@ from google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_servic
 from google.cloud.aiplatform_v1beta1.types import feature_selector
 from google.cloud.aiplatform_v1beta1.types import featurestore_online_service
 from google.oauth2 import service_account
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 def client_cert_source_callback():

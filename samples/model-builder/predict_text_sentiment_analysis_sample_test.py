@@ -30,6 +30,4 @@ def test_predict_text_sentiment_analysis_sample(mock_sdk_init, mock_get_endpoint
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_get_endpoint.assert_called_once_with(
-        constants.ENDPOINT_NAME,
-    )
+    mock_get_endpoint.assert_called_once_with(constants.ENDPOINT_NAME,)

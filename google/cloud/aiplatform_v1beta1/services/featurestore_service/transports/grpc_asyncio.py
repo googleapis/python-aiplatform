@@ -794,6 +794,36 @@ class FeaturestoreServiceGrpcAsyncIOTransport(FeaturestoreServiceTransport):
         return self._stubs["batch_read_feature_values"]
 
     @property
+    def export_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_service.ExportFeatureValuesRequest],
+        Awaitable[operations.Operation],
+    ]:
+        r"""Return a callable for the export feature values method over gRPC.
+
+        Exports Feature values from all the entities of a
+        target EntityType.
+
+        Returns:
+            Callable[[~.ExportFeatureValuesRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "export_feature_values" not in self._stubs:
+            self._stubs["export_feature_values"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/ExportFeatureValues",
+                request_serializer=featurestore_service.ExportFeatureValuesRequest.serialize,
+                response_deserializer=operations.Operation.FromString,
+            )
+        return self._stubs["export_feature_values"]
+
+    @property
     def search_features(
         self,
     ) -> Callable[

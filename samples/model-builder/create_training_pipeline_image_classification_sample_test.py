@@ -20,13 +20,14 @@ import test_constants as constants
 def test_create_training_pipeline_image_classification_sample(
     mock_sdk_init,
     mock_image_dataset,
-    mock_init_automl_image_training_job,
+    mock_get_automl_image_training_job,
     mock_run_automl_image_training_job,
     mock_get_image_dataset,
 ):
 
     create_training_pipeline_image_classification_sample.create_training_pipeline_image_classification_sample(
         project=constants.PROJECT,
+        location=constants.LOCATION,
         display_name=constants.DISPLAY_NAME,
         dataset_id=constants.RESOURCE_ID,
         model_display_name=constants.DISPLAY_NAME_2,
@@ -42,7 +43,7 @@ def test_create_training_pipeline_image_classification_sample(
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
-    mock_init_automl_image_training_job.assert_called_once_with(
+    mock_get_automl_image_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME
     )
     mock_run_automl_image_training_job.assert_called_once_with(

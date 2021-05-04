@@ -736,7 +736,9 @@ def test_get_metadata_store(
         type(client.transport.get_metadata_store), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = metadata_store.MetadataStore(name="name_value",)
+        call.return_value = metadata_store.MetadataStore(
+            name="name_value", description="description_value",
+        )
 
         response = client.get_metadata_store(request)
 
@@ -751,6 +753,8 @@ def test_get_metadata_store(
     assert isinstance(response, metadata_store.MetadataStore)
 
     assert response.name == "name_value"
+
+    assert response.description == "description_value"
 
 
 def test_get_metadata_store_from_dict():
@@ -794,7 +798,9 @@ async def test_get_metadata_store_async(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            metadata_store.MetadataStore(name="name_value",)
+            metadata_store.MetadataStore(
+                name="name_value", description="description_value",
+            )
         )
 
         response = await client.get_metadata_store(request)
@@ -809,6 +815,8 @@ async def test_get_metadata_store_async(
     assert isinstance(response, metadata_store.MetadataStore)
 
     assert response.name == "name_value"
+
+    assert response.description == "description_value"
 
 
 @pytest.mark.asyncio

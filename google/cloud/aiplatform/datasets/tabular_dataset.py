@@ -27,7 +27,7 @@ from google.cloud.aiplatform import utils
 
 
 class TabularDataset(datasets._Dataset):
-    """Managed tabular dataset resource for AI Platform"""
+    """Managed tabular dataset resource for AI Platform."""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
         schema.dataset.metadata.tabular,
@@ -95,7 +95,6 @@ class TabularDataset(datasets._Dataset):
         Returns:
             tabular_dataset (TabularDataset):
                 Instantiated representation of the managed tabular dataset resource.
-
         """
 
         utils.validate_display_name(display_name)

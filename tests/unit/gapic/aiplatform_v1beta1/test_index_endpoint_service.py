@@ -2782,35 +2782,8 @@ def test_parse_index_endpoint_path():
     assert expected == actual
 
 
-def test_index_endpoint_path():
-    project = "squid"
-    location = "clam"
-    index_endpoint = "whelk"
-
-    expected = "projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}".format(
-        project=project, location=location, index_endpoint=index_endpoint,
-    )
-    actual = IndexEndpointServiceClient.index_endpoint_path(
-        project, location, index_endpoint
-    )
-    assert expected == actual
-
-
-def test_parse_index_endpoint_path():
-    expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "index_endpoint": "nudibranch",
-    }
-    path = IndexEndpointServiceClient.index_endpoint_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = IndexEndpointServiceClient.parse_index_endpoint_path(path)
-    assert expected == actual
-
-
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "squid"
 
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
@@ -2821,7 +2794,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "clam",
     }
     path = IndexEndpointServiceClient.common_billing_account_path(**expected)
 
@@ -2831,7 +2804,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "whelk"
 
     expected = "folders/{folder}".format(folder=folder,)
     actual = IndexEndpointServiceClient.common_folder_path(folder)
@@ -2840,7 +2813,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "octopus",
     }
     path = IndexEndpointServiceClient.common_folder_path(**expected)
 
@@ -2850,7 +2823,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "oyster"
 
     expected = "organizations/{organization}".format(organization=organization,)
     actual = IndexEndpointServiceClient.common_organization_path(organization)
@@ -2859,7 +2832,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "nudibranch",
     }
     path = IndexEndpointServiceClient.common_organization_path(**expected)
 
@@ -2869,7 +2842,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "cuttlefish"
 
     expected = "projects/{project}".format(project=project,)
     actual = IndexEndpointServiceClient.common_project_path(project)
@@ -2878,7 +2851,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "mussel",
     }
     path = IndexEndpointServiceClient.common_project_path(**expected)
 
@@ -2888,8 +2861,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "winkle"
+    location = "nautilus"
 
     expected = "projects/{project}/locations/{location}".format(
         project=project, location=location,
@@ -2900,8 +2873,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "scallop",
+        "location": "abalone",
     }
     path = IndexEndpointServiceClient.common_location_path(**expected)
 

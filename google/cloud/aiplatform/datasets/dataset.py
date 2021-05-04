@@ -36,7 +36,7 @@ _LOGGER = base.Logger(__name__)
 
 
 class _Dataset(base.AiPlatformResourceNounWithFutureManager):
-    """Managed dataset resource for AI Platform"""
+    """Managed dataset resource for AI Platform."""
 
     client_class = utils.DatasetClientWithOverride
     _is_client_prediction_client = False
@@ -70,7 +70,6 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-
         """
 
         super().__init__(
@@ -195,7 +194,6 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
         Returns:
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
-
         """
 
         utils.validate_display_name(display_name)

@@ -25,7 +25,7 @@ __protobuf__ = proto.module(
 
 
 class BoolArray(proto.Message):
-    r"""Bool list type feature value.
+    r"""A list of boolean values.
 
     Attributes:
         values (Sequence[bool]):
@@ -36,7 +36,7 @@ class BoolArray(proto.Message):
 
 
 class DoubleArray(proto.Message):
-    r"""Double list type feature value.
+    r"""A list of double values.
 
     Attributes:
         values (Sequence[float]):
@@ -47,7 +47,7 @@ class DoubleArray(proto.Message):
 
 
 class Int64Array(proto.Message):
-    r"""Int64 list type feature value.
+    r"""A list of int64 values.
 
     Attributes:
         values (Sequence[int]):

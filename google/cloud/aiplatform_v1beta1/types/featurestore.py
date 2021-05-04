@@ -88,22 +88,9 @@ class Featurestore(proto.Message):
                 cluster. The number of nodes will not scale
                 automatically but can be scaled manually by
                 providing different values when updating.
-            max_online_serving_size (int):
-                Maximum number of feature values per entity
-                that will be stored in online serving storage.
-                The Featurestore will retain the latest feature
-                values per entity and periodically remove any
-                older feature values. It can take up to a day
-                before the older feature values are deleted.
-                Storage infrastructure cost is propotional to
-                this value. Recommend to set to the largest
-                number of versions (i.e last-k) needed at online
-                serving time. If not set, default to 1.
         """
 
         fixed_node_count = proto.Field(proto.INT32, number=2)
-
-        max_online_serving_size = proto.Field(proto.INT32, number=3)
 
     name = proto.Field(proto.STRING, number=1)
 

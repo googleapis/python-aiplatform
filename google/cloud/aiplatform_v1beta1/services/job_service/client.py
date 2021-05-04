@@ -333,6 +333,37 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def network_path(project: str, network: str,) -> str:
+        """Return a fully-qualified network string."""
+        return "projects/{project}/global/networks/{network}".format(
+            project=project, network=network,
+        )
+
+    @staticmethod
+    def parse_network_path(path: str) -> Dict[str, str]:
+        """Parse a network path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def tensorboard_path(project: str, location: str, tensorboard: str,) -> str:
+        """Return a fully-qualified tensorboard string."""
+        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
+            project=project, location=location, tensorboard=tensorboard,
+        )
+
+    @staticmethod
+    def parse_tensorboard_path(path: str) -> Dict[str, str]:
+        """Parse a tensorboard path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/tensorboards/(?P<tensorboard>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def trial_path(project: str, location: str, study: str, trial: str,) -> str:
         """Return a fully-qualified trial string."""
         return "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
@@ -964,7 +995,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateDataLabelingJobRequest):
                 The request object. Request message for
-                [DataLabelingJobService.CreateDataLabelingJob][].
+                ``JobService.CreateDataLabelingJob``.
             parent (str):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
@@ -1048,7 +1079,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetDataLabelingJobRequest):
                 The request object. Request message for
-                [DataLabelingJobService.GetDataLabelingJob][].
+                ``JobService.GetDataLabelingJob``.
             name (str):
                 Required. The name of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
@@ -1123,7 +1154,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsRequest):
                 The request object. Request message for
-                [DataLabelingJobService.ListDataLabelingJobs][].
+                ``JobService.ListDataLabelingJobs``.
             parent (str):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
@@ -1303,7 +1334,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CancelDataLabelingJobRequest):
                 The request object. Request message for
-                [DataLabelingJobService.CancelDataLabelingJob][].
+                ``JobService.CancelDataLabelingJob``.
             name (str):
                 Required. The name of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
@@ -2244,7 +2275,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateModelDeploymentMonitoringJobRequest):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.CreateModelDeploymentMonitoringJob][].
+                ``JobService.CreateModelDeploymentMonitoringJob``.
             parent (str):
                 Required. The parent of the
                 ModelDeploymentMonitoringJob. Format:
@@ -2339,7 +2370,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.SearchModelDeploymentMonitoringStatsAnomalies][].
+                ``JobService.SearchModelDeploymentMonitoringStatsAnomalies``.
             model_deployment_monitoring_job (str):
                 Required. ModelDeploymentMonitoring Job resource name.
                 Format:
@@ -2365,7 +2396,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.job_service.pagers.SearchModelDeploymentMonitoringStatsAnomaliesPager:
                 Response message for
-                   [ModelDeploymentMonitoringJobService.SearchModelDeploymentMonitoringStatsAnomalies][].
+                   ``JobService.SearchModelDeploymentMonitoringStatsAnomalies``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2447,7 +2478,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetModelDeploymentMonitoringJobRequest):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.GetModelDeploymentMonitoringJob][].
+                ``JobService.GetModelDeploymentMonitoringJob``.
             name (str):
                 Required. The resource name of the
                 ModelDeploymentMonitoringJob. Format:
@@ -2527,7 +2558,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListModelDeploymentMonitoringJobsRequest):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.ListModelDeploymentMonitoringJobs][].
+                ``JobService.ListModelDeploymentMonitoringJobs``.
             parent (str):
                 Required. The parent of the
                 ModelDeploymentMonitoringJob. Format:
@@ -2546,7 +2577,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListModelDeploymentMonitoringJobsPager:
                 Response message for
-                   [ModelDeploymentMonitoringJobService.ListModelDeploymentMonitoringJobs][].
+                   ``JobService.ListModelDeploymentMonitoringJobs``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2616,7 +2647,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateModelDeploymentMonitoringJobRequest):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.UpdateModelDeploymentMonitoringJob][].
+                ``JobService.UpdateModelDeploymentMonitoringJob``.
             model_deployment_monitoring_job (google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringJob):
                 Required. The model monitoring
                 configuration which replaces the
@@ -2724,7 +2755,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteModelDeploymentMonitoringJobRequest):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.DeleteModelDeploymentMonitoringJob][].
+                ``JobService.DeleteModelDeploymentMonitoringJob``.
             name (str):
                 Required. The resource name of the model monitoring job
                 to delete. Format:
@@ -2827,7 +2858,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.PauseModelDeploymentMonitoringJobRequest):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.PauseModelDeploymentMonitoringJob][].
+                ``JobService.PauseModelDeploymentMonitoringJob``.
             name (str):
                 Required. The resource name of the
                 ModelDeploymentMonitoringJob to pause. Format:
@@ -2901,7 +2932,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ResumeModelDeploymentMonitoringJobRequest):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.ResumeModelDeploymentMonitoringJob][].
+                ``JobService.ResumeModelDeploymentMonitoringJob``.
             name (str):
                 Required. The resource name of the
                 ModelDeploymentMonitoringJob to resume. Format:
