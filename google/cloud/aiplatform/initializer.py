@@ -42,6 +42,10 @@ from google.cloud.aiplatform.compat.types import (
 class _Config:
     """Stores common parameters and options for API calls."""
 
+    # Class attribute to set user_agent header used for metrics reporting.  
+    user_agent_product="model-builder"
+    user_agent_comments=""
+
     def __init__(self):
         self._project = None
         self._experiment = None
@@ -180,7 +184,7 @@ class _Config:
     def encryption_spec_key_name(self) -> Optional[str]:
         """Default encryption spec key name, if provided."""
         return self._encryption_spec_key_name
-
+        
     def get_client_options(
         self, location_override: Optional[str] = None
     ) -> client_options.ClientOptions:
@@ -259,7 +263,7 @@ class _Config:
             "google-cloud-aiplatform",
         ).version
         client_info = gapic_v1.client_info.ClientInfo(
-            gapic_version=gapic_version, user_agent=f"model-builder/{gapic_version}"
+            gapic_version=gapic_version, user_agent=f"{self.user_agent_product}/{gapic_version} ({self.user_agent_comments})"
         )
 
         kwargs = {
