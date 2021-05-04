@@ -80,7 +80,9 @@ class TestInit:
         )
 
     @patch.object(metadata_service, "set_experiment")
-    def test_init_experiment_sets_experiment_with_description(self, set_experiment_mock):
+    def test_init_experiment_sets_experiment_with_description(
+        self, set_experiment_mock
+    ):
         initializer.global_config.init(
             experiment=_TEST_EXPERIMENT, experiment_description=_TEST_DESCRIPTION
         )
