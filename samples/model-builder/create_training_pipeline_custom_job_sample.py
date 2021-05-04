@@ -21,6 +21,7 @@ from google.cloud import aiplatform
 def create_training_pipeline_custom_job_sample(
     project: str,
     location: str,
+    staging_bucket: str,
     display_name: str,
     script_path: str,
     container_uri: str,
@@ -37,7 +38,7 @@ def create_training_pipeline_custom_job_sample(
     test_fraction_split: float = 0.1,
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location)
+    aiplatform.init(project=project, location=location, staging_bucket=staging_bucket)
 
     job = aiplatform.CustomTrainingJob(
         display_name=display_name,

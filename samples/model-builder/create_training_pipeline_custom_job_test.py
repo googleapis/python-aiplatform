@@ -21,13 +21,14 @@ def test_create_training_pipeline_custom_job_sample(
     mock_sdk_init,
     mock_image_dataset,
     mock_get_image_dataset,
-    mock_init_custom_training_job,
+    mock_get_custom_training_job,
     mock_run_custom_training_job,
 ):
 
     create_training_pipeline_custom_job_sample.create_training_pipeline_custom_job_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
+        staging_bucket=constants.STAGING_BUCKET,
         display_name=constants.DISPLAY_NAME,
         args=constants.ARGS,
         script_path=constants.SCRIPT_PATH,
@@ -45,9 +46,11 @@ def test_create_training_pipeline_custom_job_sample(
     )
 
     mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
+        project=constants.PROJECT,
+        location=constants.LOCATION,
+        staging_bucket=constants.STAGING_BUCKET,
     )
-    mock_init_custom_training_job.assert_called_once_with(
+    mock_get_custom_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
         script_path=constants.SCRIPT_PATH,
         container_uri=constants.CONTAINER_URI,

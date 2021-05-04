@@ -21,7 +21,7 @@ def test_create_training_pipeline_custom_container_job_sample(
     mock_sdk_init,
     mock_image_dataset,
     mock_get_image_dataset,
-    mock_init_custom_container_training_job,
+    mock_get_custom_container_training_job,
     mock_run_custom_container_training_job,
 ):
 
@@ -50,7 +50,7 @@ def test_create_training_pipeline_custom_container_job_sample(
         staging_bucket=constants.STAGING_BUCKET,
     )
 
-    mock_init_custom_container_training_job.assert_called_once_with(
+    mock_get_custom_container_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
         container_uri=constants.CONTAINER_URI,
         model_serving_container_image_uri=constants.CONTAINER_URI,

@@ -21,7 +21,7 @@ def test_create_training_pipeline_custom_package_job_sample(
     mock_sdk_init,
     mock_image_dataset,
     mock_get_image_dataset,
-    mock_init_custom_package_training_job,
+    mock_get_custom_package_training_job,
     mock_run_custom_package_training_job,
 ):
 
@@ -52,7 +52,7 @@ def test_create_training_pipeline_custom_package_job_sample(
         staging_bucket=constants.STAGING_BUCKET,
     )
 
-    mock_init_custom_package_training_job.assert_called_once_with(
+    mock_get_custom_package_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
         python_package_gcs_uri=constants.PYTHON_PACKAGE_GCS_URI,
         python_module_name=constants.PYTHON_MODULE_NAME,
