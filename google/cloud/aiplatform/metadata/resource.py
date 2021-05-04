@@ -104,6 +104,10 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
     def schema_title(self) -> str:
         return self._gca_resource.schema_title
 
+    @property
+    def description(self) -> str:
+        return self._gca_resource.description
+
     @classmethod
     def get_or_create(
         cls,
@@ -182,6 +186,7 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
     def update(
         self,
         metadata: Dict,
+        description: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
         """Updates an existing Metadata resource with new metadata.
@@ -189,6 +194,8 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
         Args:
             metadata (Dict):
                 Required. metadata contains the updated metadata information.
+            description (str):
+                Optional. Description describes the resource to be updated.
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to update this resource. Overrides
                 credentials set in aiplatform.init.
@@ -200,6 +207,9 @@ class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
             gca_resource.metadata.update(metadata)
         else:
             gca_resource.metadata = metadata
+        if description:
+            gca_resource.description = description
+
         api_client = self._instantiate_client(credentials=credentials)
 
         update_gca_resource = self._update_resource(
