@@ -280,7 +280,7 @@ class _MetadataService:
             if isinstance(value, int) or isinstance(value, float):
                 continue
             raise TypeError(
-                f"metrics contains unsupported value types. key: {key}; value: {value}"
+                f"metrics contain unsupported value types. key: {key}; value: {value}; type: {type(value)}"
             )
 
     @staticmethod
