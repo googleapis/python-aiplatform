@@ -219,7 +219,7 @@ Model Fixtures
 
 @pytest.fixture
 def mock_model():
-    mock = MagicMock(aiplatform.Model)
+    mock = MagicMock(aiplatform.models.Model)
     yield mock
 
 
@@ -237,8 +237,9 @@ def mock_batch_predict_model(mock_model):
 
 
 @pytest.fixture
-def mock_upload_model():
+def mock_upload_model(mock_model):
     with patch.object(aiplatform.Model, "upload") as mock:
+        mock.return_value = mock_model
         yield mock
 
 

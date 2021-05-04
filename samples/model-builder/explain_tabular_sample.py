@@ -29,8 +29,11 @@ def explain_tabular_sample(
 
     response = endpoint.explain(instances=[instance_dict], parameters={})
 
-    for prediction_ in response.predictions:
-        print(prediction_)
+    for prediction in response.predictions:
+        print(prediction)
+
+    for explanation in response.explanations:
+        print(explanation)
 
 
 #  [END aiplatform_sdk_explain_tabular_sample]
