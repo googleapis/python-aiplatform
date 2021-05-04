@@ -223,6 +223,36 @@ def get_dataset_tabular_missing_metadata_mock():
 
 
 @pytest.fixture
+def get_dataset_tabular_missing_input_config_mock():
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "get_dataset"
+    ) as get_dataset_mock:
+        get_dataset_mock.return_value = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+            metadata={},
+            name=_TEST_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+        yield get_dataset_mock
+
+
+@pytest.fixture
+def get_dataset_tabular_missing_datasource_mock():
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "get_dataset"
+    ) as get_dataset_mock:
+        get_dataset_mock.return_value = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+            metadata={"inputConfig": {}},
+            name=_TEST_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+        yield get_dataset_mock
+
+
+@pytest.fixture
 def get_dataset_text_mock():
     with patch.object(
         dataset_service_client.DatasetServiceClient, "get_dataset"
@@ -923,6 +953,20 @@ class TestTabularDataset:
 
     @pytest.mark.usefixtures("get_dataset_tabular_missing_metadata_mock")
     def test_tabular_dataset_column_name_missing_metadata(self):
+        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
+
+        with pytest.raises(RuntimeError):
+            my_dataset.column_names
+
+    @pytest.mark.usefixtures("get_dataset_tabular_missing_input_config_mock")
+    def test_tabular_dataset_column_name_missing_input_config(self):
+        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
+
+        with pytest.raises(RuntimeError):
+            my_dataset.column_names
+
+    @pytest.mark.usefixtures("get_dataset_tabular_missing_datasource_mock")
+    def test_tabular_dataset_column_name_missing_datasource(self):
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
 
         with pytest.raises(RuntimeError):
