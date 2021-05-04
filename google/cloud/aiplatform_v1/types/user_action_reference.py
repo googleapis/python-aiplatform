@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -47,11 +45,20 @@ class UserActionReference(proto.Message):
             "/google.cloud.aiplatform.v1alpha1.DatasetService.CreateDataset".
     """
 
-    operation = proto.Field(proto.STRING, number=1, oneof='reference')
-
-    data_labeling_job = proto.Field(proto.STRING, number=2, oneof='reference')
-
-    method = proto.Field(proto.STRING, number=3)
+    operation = proto.Field(
+        proto.STRING,
+        number=1,
+        oneof='reference',
+    )
+    data_labeling_job = proto.Field(
+        proto.STRING,
+        number=2,
+        oneof='reference',
+    )
+    method = proto.Field(
+        proto.STRING,
+        number=3,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

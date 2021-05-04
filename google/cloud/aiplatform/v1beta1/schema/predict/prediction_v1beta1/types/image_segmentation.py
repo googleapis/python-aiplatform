@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -28,7 +26,6 @@ __protobuf__ = proto.module(
 
 class ImageSegmentationPredictionResult(proto.Message):
     r"""Prediction output format for Image Segmentation.
-
     Attributes:
         category_mask (str):
             A PNG image where each pixel in the mask
@@ -51,9 +48,14 @@ class ImageSegmentationPredictionResult(proto.Message):
             confidence and white means complete confidence.
     """
 
-    category_mask = proto.Field(proto.STRING, number=1)
-
-    confidence_mask = proto.Field(proto.STRING, number=2)
+    category_mask = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    confidence_mask = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

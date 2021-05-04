@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import warnings
-from typing import Callable, Dict, Optional, Sequence, Tuple
+from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import grpc_helpers   # type: ignore
 from google.api_core import operations_v1  # type: ignore
@@ -31,7 +29,6 @@ from google.cloud.aiplatform_v1beta1.types import index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint_service
 from google.longrunning import operations_pb2 as operations  # type: ignore
-
 from .base import IndexEndpointServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -65,7 +62,8 @@ class IndexEndpointServiceGrpcTransport(IndexEndpointServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]): The hostname to connect to.
+            host (Optional[str]):
+                 The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -205,13 +203,15 @@ class IndexEndpointServiceGrpcTransport(IndexEndpointServiceTransport):
             google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-        scopes = scopes or cls.AUTH_SCOPES
+
+        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
+
         return grpc_helpers.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
-            scopes=scopes,
             quota_project_id=quota_project_id,
+            **self_signed_jwt_kwargs,
             **kwargs
         )
 
@@ -241,7 +241,9 @@ class IndexEndpointServiceGrpcTransport(IndexEndpointServiceTransport):
     def create_index_endpoint(self) -> Callable[
             [index_endpoint_service.CreateIndexEndpointRequest],
             operations.Operation]:
-        r"""Return a callable for the create index endpoint method over gRPC.
+        r"""Return a callable for the
+        create index endpoint
+          method over gRPC.
 
         Creates an IndexEndpoint.
 
@@ -267,7 +269,9 @@ class IndexEndpointServiceGrpcTransport(IndexEndpointServiceTransport):
     def get_index_endpoint(self) -> Callable[
             [index_endpoint_service.GetIndexEndpointRequest],
             index_endpoint.IndexEndpoint]:
-        r"""Return a callable for the get index endpoint method over gRPC.
+        r"""Return a callable for the
+        get index endpoint
+          method over gRPC.
 
         Gets an IndexEndpoint.
 
@@ -293,7 +297,9 @@ class IndexEndpointServiceGrpcTransport(IndexEndpointServiceTransport):
     def list_index_endpoints(self) -> Callable[
             [index_endpoint_service.ListIndexEndpointsRequest],
             index_endpoint_service.ListIndexEndpointsResponse]:
-        r"""Return a callable for the list index endpoints method over gRPC.
+        r"""Return a callable for the
+        list index endpoints
+          method over gRPC.
 
         Lists IndexEndpoints in a Location.
 
@@ -319,7 +325,9 @@ class IndexEndpointServiceGrpcTransport(IndexEndpointServiceTransport):
     def update_index_endpoint(self) -> Callable[
             [index_endpoint_service.UpdateIndexEndpointRequest],
             gca_index_endpoint.IndexEndpoint]:
-        r"""Return a callable for the update index endpoint method over gRPC.
+        r"""Return a callable for the
+        update index endpoint
+          method over gRPC.
 
         Updates an IndexEndpoint.
 
@@ -345,7 +353,9 @@ class IndexEndpointServiceGrpcTransport(IndexEndpointServiceTransport):
     def delete_index_endpoint(self) -> Callable[
             [index_endpoint_service.DeleteIndexEndpointRequest],
             operations.Operation]:
-        r"""Return a callable for the delete index endpoint method over gRPC.
+        r"""Return a callable for the
+        delete index endpoint
+          method over gRPC.
 
         Deletes an IndexEndpoint.
 
@@ -371,7 +381,9 @@ class IndexEndpointServiceGrpcTransport(IndexEndpointServiceTransport):
     def deploy_index(self) -> Callable[
             [index_endpoint_service.DeployIndexRequest],
             operations.Operation]:
-        r"""Return a callable for the deploy index method over gRPC.
+        r"""Return a callable for the
+        deploy index
+          method over gRPC.
 
         Deploys an Index into this IndexEndpoint, creating a
         DeployedIndex within it.
@@ -399,7 +411,9 @@ class IndexEndpointServiceGrpcTransport(IndexEndpointServiceTransport):
     def undeploy_index(self) -> Callable[
             [index_endpoint_service.UndeployIndexRequest],
             operations.Operation]:
-        r"""Return a callable for the undeploy index method over gRPC.
+        r"""Return a callable for the
+        undeploy index
+          method over gRPC.
 
         Undeploys an Index from an IndexEndpoint, removing a
         DeployedIndex from it, and freeing all resources it's

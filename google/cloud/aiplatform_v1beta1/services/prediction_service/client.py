@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -35,7 +33,6 @@ from google.oauth2 import service_account                         # type: ignore
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import prediction_service
 from google.protobuf import struct_pb2 as struct  # type: ignore
-
 from .transports.base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import PredictionServiceGrpcTransport
 from .transports.grpc_asyncio import PredictionServiceGrpcAsyncIOTransport
@@ -339,7 +336,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.PredictRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``PredictionService.Predict``.
             endpoint (str):
                 Required. The name of the Endpoint requested to serve
@@ -376,7 +374,6 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -403,10 +400,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, prediction_service.PredictRequest):
             request = prediction_service.PredictRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if endpoint is not None:
                 request.endpoint = endpoint
             if instances is not None:
@@ -463,7 +458,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ExplainRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``PredictionService.Explain``.
             endpoint (str):
                 Required. The name of the Endpoint requested to serve
@@ -508,7 +504,6 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -535,10 +530,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, prediction_service.ExplainRequest):
             request = prediction_service.ExplainRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if endpoint is not None:
                 request.endpoint = endpoint
             if instances is not None:
@@ -570,8 +563,6 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         # Done; return the response.
         return response
-
-
 
 
 

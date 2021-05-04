@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,7 @@
 # limitations under the License.
 #
 
+
 from .types.classification import ClassificationPredictionResult
 from .types.image_object_detection import ImageObjectDetectionPredictionResult
 from .types.image_segmentation import ImageSegmentationPredictionResult
@@ -25,7 +25,6 @@ from .types.text_sentiment import TextSentimentPredictionResult
 from .types.video_action_recognition import VideoActionRecognitionPredictionResult
 from .types.video_classification import VideoClassificationPredictionResult
 from .types.video_object_tracking import VideoObjectTrackingPredictionResult
-
 
 __all__ = (
     'ImageObjectDetectionPredictionResult',

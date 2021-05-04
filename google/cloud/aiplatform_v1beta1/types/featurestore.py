@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
@@ -90,44 +87,48 @@ class Featurestore(proto.Message):
                 cluster. The number of nodes will not scale
                 automatically but can be scaled manually by
                 providing different values when updating.
-            max_online_serving_size (int):
-                Maximum number of feature values per entity
-                that will be stored in online serving storage.
-                The Featurestore will retain the latest feature
-                values per entity and periodically remove any
-                older feature values. It can take up to a day
-                before the older feature values are deleted.
-                Storage infrastructure cost is propotional to
-                this value. Recommend to set to the largest
-                number of versions (i.e last-k) needed at online
-                serving time. If not set, default to 1.
         """
 
-        fixed_node_count = proto.Field(proto.INT32, number=2)
+        fixed_node_count = proto.Field(
+            proto.INT32,
+            number=2,
+        )
 
-        max_online_serving_size = proto.Field(proto.INT32, number=3)
-
-    name = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
-    create_time = proto.Field(proto.MESSAGE, number=3,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=3,
         message=timestamp.Timestamp,
     )
-
-    update_time = proto.Field(proto.MESSAGE, number=4,
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
         message=timestamp.Timestamp,
     )
-
-    etag = proto.Field(proto.STRING, number=5)
-
-    labels = proto.MapField(proto.STRING, proto.STRING, number=6)
-
-    online_serving_config = proto.Field(proto.MESSAGE, number=7,
+    etag = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=6
+    )
+    online_serving_config = proto.Field(
+        proto.MESSAGE,
+        number=7,
         message=OnlineServingConfig,
     )
-
-    state = proto.Field(proto.ENUM, number=8,
+    state = proto.Field(
+        proto.ENUM,
+        number=8,
         enum=State,
     )
 

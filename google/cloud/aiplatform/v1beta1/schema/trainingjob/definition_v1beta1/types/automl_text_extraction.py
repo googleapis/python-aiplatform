@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -36,13 +34,15 @@ class AutoMlTextExtraction(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(proto.MESSAGE, number=1,
+    inputs = proto.Field(
+        proto.MESSAGE,
+        number=1,
         message='AutoMlTextExtractionInputs',
     )
 
 
 class AutoMlTextExtractionInputs(proto.Message):
-    r""""""
+    r"""    """
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

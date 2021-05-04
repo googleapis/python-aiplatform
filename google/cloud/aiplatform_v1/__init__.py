@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +22,7 @@ from .services.model_service import ModelServiceClient
 from .services.pipeline_service import PipelineServiceClient
 from .services.prediction_service import PredictionServiceClient
 from .services.specialist_pool_service import SpecialistPoolServiceClient
+
 from .types.accelerator_type import AcceleratorType
 from .types.annotation import Annotation
 from .types.annotation_spec import AnnotationSpec
@@ -177,7 +177,6 @@ from .types.training_pipeline import PredefinedSplit
 from .types.training_pipeline import TimestampSplit
 from .types.training_pipeline import TrainingPipeline
 from .types.user_action_reference import UserActionReference
-
 
 __all__ = (
     'AcceleratorType',

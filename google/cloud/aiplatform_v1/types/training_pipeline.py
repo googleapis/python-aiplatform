@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import io
@@ -150,55 +147,76 @@ class TrainingPipeline(proto.Message):
             is not set separately.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
-    input_data_config = proto.Field(proto.MESSAGE, number=3,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    input_data_config = proto.Field(
+        proto.MESSAGE,
+        number=3,
         message='InputDataConfig',
     )
-
-    training_task_definition = proto.Field(proto.STRING, number=4)
-
-    training_task_inputs = proto.Field(proto.MESSAGE, number=5,
+    training_task_definition = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    training_task_inputs = proto.Field(
+        proto.MESSAGE,
+        number=5,
         message=struct.Value,
     )
-
-    training_task_metadata = proto.Field(proto.MESSAGE, number=6,
+    training_task_metadata = proto.Field(
+        proto.MESSAGE,
+        number=6,
         message=struct.Value,
     )
-
-    model_to_upload = proto.Field(proto.MESSAGE, number=7,
+    model_to_upload = proto.Field(
+        proto.MESSAGE,
+        number=7,
         message=model.Model,
     )
-
-    state = proto.Field(proto.ENUM, number=9,
+    state = proto.Field(
+        proto.ENUM,
+        number=9,
         enum=pipeline_state.PipelineState,
     )
-
-    error = proto.Field(proto.MESSAGE, number=10,
+    error = proto.Field(
+        proto.MESSAGE,
+        number=10,
         message=status.Status,
     )
-
-    create_time = proto.Field(proto.MESSAGE, number=11,
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=11,
         message=timestamp.Timestamp,
     )
-
-    start_time = proto.Field(proto.MESSAGE, number=12,
+    start_time = proto.Field(
+        proto.MESSAGE,
+        number=12,
         message=timestamp.Timestamp,
     )
-
-    end_time = proto.Field(proto.MESSAGE, number=13,
+    end_time = proto.Field(
+        proto.MESSAGE,
+        number=13,
         message=timestamp.Timestamp,
     )
-
-    update_time = proto.Field(proto.MESSAGE, number=14,
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=14,
         message=timestamp.Timestamp,
     )
-
-    labels = proto.MapField(proto.STRING, proto.STRING, number=15)
-
-    encryption_spec = proto.Field(proto.MESSAGE, number=18,
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=15
+    )
+    encryption_spec = proto.Field(
+        proto.MESSAGE,
+        number=18,
         message=gca_encryption_spec.EncryptionSpec,
     )
 
@@ -323,35 +341,54 @@ class InputDataConfig(proto.Message):
             ``annotation_schema_uri``.
     """
 
-    fraction_split = proto.Field(proto.MESSAGE, number=2, oneof='split',
+    fraction_split = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof='split',
         message='FractionSplit',
     )
-
-    filter_split = proto.Field(proto.MESSAGE, number=3, oneof='split',
+    filter_split = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof='split',
         message='FilterSplit',
     )
-
-    predefined_split = proto.Field(proto.MESSAGE, number=4, oneof='split',
+    predefined_split = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof='split',
         message='PredefinedSplit',
     )
-
-    timestamp_split = proto.Field(proto.MESSAGE, number=5, oneof='split',
+    timestamp_split = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof='split',
         message='TimestampSplit',
     )
-
-    gcs_destination = proto.Field(proto.MESSAGE, number=8, oneof='destination',
+    gcs_destination = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        oneof='destination',
         message=io.GcsDestination,
     )
-
-    bigquery_destination = proto.Field(proto.MESSAGE, number=10, oneof='destination',
+    bigquery_destination = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        oneof='destination',
         message=io.BigQueryDestination,
     )
-
-    dataset_id = proto.Field(proto.STRING, number=1)
-
-    annotations_filter = proto.Field(proto.STRING, number=6)
-
-    annotation_schema_uri = proto.Field(proto.STRING, number=9)
+    dataset_id = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    annotations_filter = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    annotation_schema_uri = proto.Field(
+        proto.STRING,
+        number=9,
+    )
 
 
 class FractionSplit(proto.Message):
@@ -375,11 +412,18 @@ class FractionSplit(proto.Message):
             used to evaluate the Model.
     """
 
-    training_fraction = proto.Field(proto.DOUBLE, number=1)
-
-    validation_fraction = proto.Field(proto.DOUBLE, number=2)
-
-    test_fraction = proto.Field(proto.DOUBLE, number=3)
+    training_fraction = proto.Field(
+        proto.DOUBLE,
+        number=1,
+    )
+    validation_fraction = proto.Field(
+        proto.DOUBLE,
+        number=2,
+    )
+    test_fraction = proto.Field(
+        proto.DOUBLE,
+        number=3,
+    )
 
 
 class FilterSplit(proto.Message):
@@ -422,11 +466,18 @@ class FilterSplit(proto.Message):
             test order.
     """
 
-    training_filter = proto.Field(proto.STRING, number=1)
-
-    validation_filter = proto.Field(proto.STRING, number=2)
-
-    test_filter = proto.Field(proto.STRING, number=3)
+    training_filter = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    validation_filter = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    test_filter = proto.Field(
+        proto.STRING,
+        number=3,
+    )
 
 
 class PredefinedSplit(proto.Message):
@@ -446,7 +497,10 @@ class PredefinedSplit(proto.Message):
             ignored by the pipeline.
     """
 
-    key = proto.Field(proto.STRING, number=1)
+    key = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class TimestampSplit(proto.Message):
@@ -475,13 +529,22 @@ class TimestampSplit(proto.Message):
             value, that piece is ignored by the pipeline.
     """
 
-    training_fraction = proto.Field(proto.DOUBLE, number=1)
-
-    validation_fraction = proto.Field(proto.DOUBLE, number=2)
-
-    test_fraction = proto.Field(proto.DOUBLE, number=3)
-
-    key = proto.Field(proto.STRING, number=4)
+    training_fraction = proto.Field(
+        proto.DOUBLE,
+        number=1,
+    )
+    validation_fraction = proto.Field(
+        proto.DOUBLE,
+        number=2,
+    )
+    test_fraction = proto.Field(
+        proto.DOUBLE,
+        number=3,
+    )
+    key = proto.Field(
+        proto.STRING,
+        number=4,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

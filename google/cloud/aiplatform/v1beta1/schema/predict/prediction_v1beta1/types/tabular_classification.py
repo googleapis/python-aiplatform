@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -28,7 +26,6 @@ __protobuf__ = proto.module(
 
 class TabularClassificationPredictionResult(proto.Message):
     r"""Prediction output format for Tabular Classification.
-
     Attributes:
         classes (Sequence[str]):
             The name of the classes being classified,
@@ -41,9 +38,14 @@ class TabularClassificationPredictionResult(proto.Message):
             classes.
     """
 
-    classes = proto.RepeatedField(proto.STRING, number=1)
-
-    scores = proto.RepeatedField(proto.FLOAT, number=2)
+    classes = proto.RepeatedField(
+        proto.STRING,
+        number=1,
+    )
+    scores = proto.RepeatedField(
+        proto.FLOAT,
+        number=2,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

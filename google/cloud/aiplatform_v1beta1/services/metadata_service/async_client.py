@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 import functools
 import re
@@ -50,7 +48,6 @@ from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-
 from .transports.base import MetadataServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import MetadataServiceGrpcAsyncIOTransport
 from .client import MetadataServiceClient
@@ -74,19 +71,14 @@ class MetadataServiceAsyncClient:
     parse_metadata_schema_path = staticmethod(MetadataServiceClient.parse_metadata_schema_path)
     metadata_store_path = staticmethod(MetadataServiceClient.metadata_store_path)
     parse_metadata_store_path = staticmethod(MetadataServiceClient.parse_metadata_store_path)
-
     common_billing_account_path = staticmethod(MetadataServiceClient.common_billing_account_path)
     parse_common_billing_account_path = staticmethod(MetadataServiceClient.parse_common_billing_account_path)
-
     common_folder_path = staticmethod(MetadataServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(MetadataServiceClient.parse_common_folder_path)
-
     common_organization_path = staticmethod(MetadataServiceClient.common_organization_path)
     parse_common_organization_path = staticmethod(MetadataServiceClient.parse_common_organization_path)
-
     common_project_path = staticmethod(MetadataServiceClient.common_project_path)
     parse_common_project_path = staticmethod(MetadataServiceClient.parse_common_project_path)
-
     common_location_path = staticmethod(MetadataServiceClient.common_location_path)
     parse_common_location_path = staticmethod(MetadataServiceClient.parse_common_location_path)
 
@@ -171,7 +163,6 @@ class MetadataServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
-
         self._client = MetadataServiceClient(
             credentials=credentials,
             transport=transport,
@@ -195,7 +186,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateMetadataStoreRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.CreateMetadataStore``.
             parent (:class:`str`):
                 Required. The resource name of the
@@ -228,7 +220,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``metadata_store_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -255,7 +246,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if metadata_store is not None:
@@ -310,7 +300,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetMetadataStoreRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.GetMetadataStore``.
             name (:class:`str`):
                 Required. The resource name of the
@@ -320,7 +311,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -346,7 +336,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -389,7 +378,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListMetadataStoresRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.ListMetadataStores``.
             parent (:class:`str`):
                 Required. The Location whose
@@ -399,7 +389,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -427,7 +416,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -479,7 +467,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteMetadataStoreRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.DeleteMetadataStore``.
             name (:class:`str`):
                 Required. The resource name of the
@@ -489,7 +478,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -527,7 +515,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -580,7 +567,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateArtifactRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.CreateArtifact``.
             parent (:class:`str`):
                 Required. The resource name of the
@@ -611,7 +599,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``artifact_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -634,7 +621,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if artifact is not None:
@@ -681,7 +667,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetArtifactRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.GetArtifact``.
             name (:class:`str`):
                 Required. The resource name of the
@@ -691,7 +678,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -714,7 +700,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -757,7 +742,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListArtifactsRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.ListArtifacts``.
             parent (:class:`str`):
                 Required. The MetadataStore whose
@@ -767,7 +753,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -795,7 +780,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -848,7 +832,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateArtifactRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.UpdateArtifact``.
             artifact (:class:`google.cloud.aiplatform_v1beta1.types.Artifact`):
                 Required. The Artifact containing updates. The
@@ -868,7 +853,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -891,7 +875,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if artifact is not None:
             request.artifact = artifact
         if update_mask is not None:
@@ -938,7 +921,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateContextRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.CreateContext``.
             parent (:class:`str`):
                 Required. The resource name of the
@@ -969,7 +953,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``context_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -992,7 +975,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if context is not None:
@@ -1039,7 +1021,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetContextRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.GetContext``.
             name (:class:`str`):
                 Required. The resource name of the
@@ -1049,7 +1032,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1072,7 +1054,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -1115,7 +1096,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListContextsRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.ListContexts``
             parent (:class:`str`):
                 Required. The MetadataStore whose
@@ -1125,7 +1107,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1153,7 +1134,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -1206,7 +1186,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateContextRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.UpdateContext``.
             context (:class:`google.cloud.aiplatform_v1beta1.types.Context`):
                 Required. The Context containing updates. The Context's
@@ -1225,7 +1206,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1248,7 +1228,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if context is not None:
             request.context = context
         if update_mask is not None:
@@ -1293,7 +1272,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteContextRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.DeleteContext``.
             name (:class:`str`):
                 Required. The resource name of the
@@ -1303,7 +1283,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1341,7 +1320,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -1396,7 +1374,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.AddContextArtifactsAndExecutionsRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.AddContextArtifactsAndExecutions``.
             context (:class:`str`):
                 Required. The resource name of the
@@ -1421,7 +1400,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``executions`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1446,10 +1424,8 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if context is not None:
             request.context = context
-
         if artifacts:
             request.artifacts.extend(artifacts)
         if executions:
@@ -1499,7 +1475,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.AddContextChildrenRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.AddContextChildren``.
             context (:class:`str`):
                 Required. The resource name of the
@@ -1516,7 +1493,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``child_contexts`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1541,10 +1517,8 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if context is not None:
             request.context = context
-
         if child_contexts:
             request.child_contexts.extend(child_contexts)
 
@@ -1589,7 +1563,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.QueryContextLineageSubgraphRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.QueryContextLineageSubgraph``.
             context (:class:`str`):
                 Required. The resource name of the Context whose
@@ -1605,7 +1580,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``context`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1631,7 +1605,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if context is not None:
             request.context = context
 
@@ -1676,7 +1649,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateExecutionRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.CreateExecution``.
             parent (:class:`str`):
                 Required. The resource name of the
@@ -1707,7 +1681,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``execution_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1730,7 +1703,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if execution is not None:
@@ -1777,7 +1749,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetExecutionRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.GetExecution``.
             name (:class:`str`):
                 Required. The resource name of the
@@ -1787,7 +1760,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1810,7 +1782,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -1853,7 +1824,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListExecutionsRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.ListExecutions``.
             parent (:class:`str`):
                 Required. The MetadataStore whose
@@ -1863,7 +1835,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1891,7 +1862,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -1944,7 +1914,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateExecutionRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.UpdateExecution``.
             execution (:class:`google.cloud.aiplatform_v1beta1.types.Execution`):
                 Required. The Execution containing updates. The
@@ -1964,7 +1935,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1987,7 +1957,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if execution is not None:
             request.execution = execution
         if update_mask is not None:
@@ -2036,7 +2005,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.AddExecutionEventsRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.AddExecutionEvents``.
             execution (:class:`str`):
                 Required. The resource name of the
@@ -2052,7 +2022,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``events`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2077,10 +2046,8 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if execution is not None:
             request.execution = execution
-
         if events:
             request.events.extend(events)
 
@@ -2125,7 +2092,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.QueryExecutionInputsAndOutputsRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.QueryExecutionInputsAndOutputs``.
             execution (:class:`str`):
                 Required. The resource name of the
@@ -2137,7 +2105,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``execution`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2163,7 +2130,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if execution is not None:
             request.execution = execution
 
@@ -2208,7 +2174,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateMetadataSchemaRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.CreateMetadataSchema``.
             parent (:class:`str`):
                 Required. The resource name of the
@@ -2241,7 +2208,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``metadata_schema_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2264,7 +2230,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if metadata_schema is not None:
@@ -2311,7 +2276,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetMetadataSchemaRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.GetMetadataSchema``.
             name (:class:`str`):
                 Required. The resource name of the
@@ -2321,7 +2287,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2344,7 +2309,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -2387,7 +2351,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListMetadataSchemasRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.ListMetadataSchemas``.
             parent (:class:`str`):
                 Required. The MetadataStore whose
@@ -2398,7 +2363,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2426,7 +2390,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -2480,7 +2443,8 @@ class MetadataServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.QueryArtifactLineageSubgraphRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``MetadataService.QueryArtifactLineageSubgraph``.
             artifact (:class:`str`):
                 Required. The resource name of the Artifact whose
@@ -2496,7 +2460,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``artifact`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2522,7 +2485,6 @@ class MetadataServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if artifact is not None:
             request.artifact = artifact
 
@@ -2552,8 +2514,6 @@ class MetadataServiceAsyncClient:
 
         # Done; return the response.
         return response
-
-
 
 
 

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import warnings
-from typing import Callable, Dict, Optional, Sequence, Tuple
+from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import grpc_helpers   # type: ignore
 from google.api_core import operations_v1  # type: ignore
@@ -32,7 +30,6 @@ from google.cloud.aiplatform_v1beta1.types import study as gca_study
 from google.cloud.aiplatform_v1beta1.types import vizier_service
 from google.longrunning import operations_pb2 as operations  # type: ignore
 from google.protobuf import empty_pb2 as empty  # type: ignore
-
 from .base import VizierServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -69,7 +66,8 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]): The hostname to connect to.
+            host (Optional[str]):
+                 The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -209,13 +207,15 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
             google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-        scopes = scopes or cls.AUTH_SCOPES
+
+        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
+
         return grpc_helpers.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
-            scopes=scopes,
             quota_project_id=quota_project_id,
+            **self_signed_jwt_kwargs,
             **kwargs
         )
 
@@ -245,7 +245,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def create_study(self) -> Callable[
             [vizier_service.CreateStudyRequest],
             gca_study.Study]:
-        r"""Return a callable for the create study method over gRPC.
+        r"""Return a callable for the
+        create study
+          method over gRPC.
 
         Creates a Study. A resource name will be generated
         after creation of the Study.
@@ -272,7 +274,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def get_study(self) -> Callable[
             [vizier_service.GetStudyRequest],
             study.Study]:
-        r"""Return a callable for the get study method over gRPC.
+        r"""Return a callable for the
+        get study
+          method over gRPC.
 
         Gets a Study by name.
 
@@ -298,7 +302,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def list_studies(self) -> Callable[
             [vizier_service.ListStudiesRequest],
             vizier_service.ListStudiesResponse]:
-        r"""Return a callable for the list studies method over gRPC.
+        r"""Return a callable for the
+        list studies
+          method over gRPC.
 
         Lists all the studies in a region for an associated
         project.
@@ -325,7 +331,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def delete_study(self) -> Callable[
             [vizier_service.DeleteStudyRequest],
             empty.Empty]:
-        r"""Return a callable for the delete study method over gRPC.
+        r"""Return a callable for the
+        delete study
+          method over gRPC.
 
         Deletes a Study.
 
@@ -351,7 +359,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def lookup_study(self) -> Callable[
             [vizier_service.LookupStudyRequest],
             study.Study]:
-        r"""Return a callable for the lookup study method over gRPC.
+        r"""Return a callable for the
+        lookup study
+          method over gRPC.
 
         Looks a study up using the user-defined display_name field
         instead of the fully qualified resource name.
@@ -378,7 +388,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def suggest_trials(self) -> Callable[
             [vizier_service.SuggestTrialsRequest],
             operations.Operation]:
-        r"""Return a callable for the suggest trials method over gRPC.
+        r"""Return a callable for the
+        suggest trials
+          method over gRPC.
 
         Adds one or more Trials to a Study, with parameter values
         suggested by AI Platform Vizier. Returns a long-running
@@ -408,7 +420,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def create_trial(self) -> Callable[
             [vizier_service.CreateTrialRequest],
             study.Trial]:
-        r"""Return a callable for the create trial method over gRPC.
+        r"""Return a callable for the
+        create trial
+          method over gRPC.
 
         Adds a user provided Trial to a Study.
 
@@ -434,7 +448,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def get_trial(self) -> Callable[
             [vizier_service.GetTrialRequest],
             study.Trial]:
-        r"""Return a callable for the get trial method over gRPC.
+        r"""Return a callable for the
+        get trial
+          method over gRPC.
 
         Gets a Trial.
 
@@ -460,7 +476,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def list_trials(self) -> Callable[
             [vizier_service.ListTrialsRequest],
             vizier_service.ListTrialsResponse]:
-        r"""Return a callable for the list trials method over gRPC.
+        r"""Return a callable for the
+        list trials
+          method over gRPC.
 
         Lists the Trials associated with a Study.
 
@@ -486,7 +504,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def add_trial_measurement(self) -> Callable[
             [vizier_service.AddTrialMeasurementRequest],
             study.Trial]:
-        r"""Return a callable for the add trial measurement method over gRPC.
+        r"""Return a callable for the
+        add trial measurement
+          method over gRPC.
 
         Adds a measurement of the objective metrics to a
         Trial. This measurement is assumed to have been taken
@@ -514,7 +534,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def complete_trial(self) -> Callable[
             [vizier_service.CompleteTrialRequest],
             study.Trial]:
-        r"""Return a callable for the complete trial method over gRPC.
+        r"""Return a callable for the
+        complete trial
+          method over gRPC.
 
         Marks a Trial as complete.
 
@@ -540,7 +562,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def delete_trial(self) -> Callable[
             [vizier_service.DeleteTrialRequest],
             empty.Empty]:
-        r"""Return a callable for the delete trial method over gRPC.
+        r"""Return a callable for the
+        delete trial
+          method over gRPC.
 
         Deletes a Trial.
 
@@ -566,8 +590,10 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def check_trial_early_stopping_state(self) -> Callable[
             [vizier_service.CheckTrialEarlyStoppingStateRequest],
             operations.Operation]:
-        r"""Return a callable for the check trial early stopping
-        state method over gRPC.
+        r"""Return a callable for the
+        check trial early stopping
+        state
+          method over gRPC.
 
         Checks whether a Trial should stop or not. Returns a
         long-running operation. When the operation is successful, it
@@ -596,7 +622,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def stop_trial(self) -> Callable[
             [vizier_service.StopTrialRequest],
             study.Trial]:
-        r"""Return a callable for the stop trial method over gRPC.
+        r"""Return a callable for the
+        stop trial
+          method over gRPC.
 
         Stops a Trial.
 
@@ -622,7 +650,9 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
     def list_optimal_trials(self) -> Callable[
             [vizier_service.ListOptimalTrialsRequest],
             vizier_service.ListOptimalTrialsResponse]:
-        r"""Return a callable for the list optimal trials method over gRPC.
+        r"""Return a callable for the
+        list optimal trials
+          method over gRPC.
 
         Lists the pareto-optimal Trials for multi-objective Study or the
         optimal Trials for single-objective Study. The definition of

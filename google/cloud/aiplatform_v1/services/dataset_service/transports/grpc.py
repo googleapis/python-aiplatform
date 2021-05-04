@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import warnings
-from typing import Callable, Dict, Optional, Sequence, Tuple
+from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import grpc_helpers   # type: ignore
 from google.api_core import operations_v1  # type: ignore
@@ -32,7 +30,6 @@ from google.cloud.aiplatform_v1.types import dataset
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1.types import dataset_service
 from google.longrunning import operations_pb2 as operations  # type: ignore
-
 from .base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -64,7 +61,8 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]): The hostname to connect to.
+            host (Optional[str]):
+                 The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -204,13 +202,15 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
             google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-        scopes = scopes or cls.AUTH_SCOPES
+
+        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
+
         return grpc_helpers.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
-            scopes=scopes,
             quota_project_id=quota_project_id,
+            **self_signed_jwt_kwargs,
             **kwargs
         )
 
@@ -240,7 +240,9 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def create_dataset(self) -> Callable[
             [dataset_service.CreateDatasetRequest],
             operations.Operation]:
-        r"""Return a callable for the create dataset method over gRPC.
+        r"""Return a callable for the
+        create dataset
+          method over gRPC.
 
         Creates a Dataset.
 
@@ -266,7 +268,9 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def get_dataset(self) -> Callable[
             [dataset_service.GetDatasetRequest],
             dataset.Dataset]:
-        r"""Return a callable for the get dataset method over gRPC.
+        r"""Return a callable for the
+        get dataset
+          method over gRPC.
 
         Gets a Dataset.
 
@@ -292,7 +296,9 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def update_dataset(self) -> Callable[
             [dataset_service.UpdateDatasetRequest],
             gca_dataset.Dataset]:
-        r"""Return a callable for the update dataset method over gRPC.
+        r"""Return a callable for the
+        update dataset
+          method over gRPC.
 
         Updates a Dataset.
 
@@ -318,7 +324,9 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def list_datasets(self) -> Callable[
             [dataset_service.ListDatasetsRequest],
             dataset_service.ListDatasetsResponse]:
-        r"""Return a callable for the list datasets method over gRPC.
+        r"""Return a callable for the
+        list datasets
+          method over gRPC.
 
         Lists Datasets in a Location.
 
@@ -344,7 +352,9 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def delete_dataset(self) -> Callable[
             [dataset_service.DeleteDatasetRequest],
             operations.Operation]:
-        r"""Return a callable for the delete dataset method over gRPC.
+        r"""Return a callable for the
+        delete dataset
+          method over gRPC.
 
         Deletes a Dataset.
 
@@ -370,7 +380,9 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def import_data(self) -> Callable[
             [dataset_service.ImportDataRequest],
             operations.Operation]:
-        r"""Return a callable for the import data method over gRPC.
+        r"""Return a callable for the
+        import data
+          method over gRPC.
 
         Imports data into a Dataset.
 
@@ -396,7 +408,9 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def export_data(self) -> Callable[
             [dataset_service.ExportDataRequest],
             operations.Operation]:
-        r"""Return a callable for the export data method over gRPC.
+        r"""Return a callable for the
+        export data
+          method over gRPC.
 
         Exports data from a Dataset.
 
@@ -422,7 +436,9 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def list_data_items(self) -> Callable[
             [dataset_service.ListDataItemsRequest],
             dataset_service.ListDataItemsResponse]:
-        r"""Return a callable for the list data items method over gRPC.
+        r"""Return a callable for the
+        list data items
+          method over gRPC.
 
         Lists DataItems in a Dataset.
 
@@ -448,7 +464,9 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def get_annotation_spec(self) -> Callable[
             [dataset_service.GetAnnotationSpecRequest],
             annotation_spec.AnnotationSpec]:
-        r"""Return a callable for the get annotation spec method over gRPC.
+        r"""Return a callable for the
+        get annotation spec
+          method over gRPC.
 
         Gets an AnnotationSpec.
 
@@ -474,7 +492,9 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def list_annotations(self) -> Callable[
             [dataset_service.ListAnnotationsRequest],
             dataset_service.ListAnnotationsResponse]:
-        r"""Return a callable for the list annotations method over gRPC.
+        r"""Return a callable for the
+        list annotations
+          method over gRPC.
 
         Lists Annotations belongs to a dataitem
 

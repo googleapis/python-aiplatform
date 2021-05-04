@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 import functools
 import re
@@ -37,7 +35,6 @@ from google.cloud.aiplatform_v1.types import specialist_pool as gca_specialist_p
 from google.cloud.aiplatform_v1.types import specialist_pool_service
 from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-
 from .transports.base import SpecialistPoolServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import SpecialistPoolServiceGrpcAsyncIOTransport
 from .client import SpecialistPoolServiceClient
@@ -59,19 +56,14 @@ class SpecialistPoolServiceAsyncClient:
 
     specialist_pool_path = staticmethod(SpecialistPoolServiceClient.specialist_pool_path)
     parse_specialist_pool_path = staticmethod(SpecialistPoolServiceClient.parse_specialist_pool_path)
-
     common_billing_account_path = staticmethod(SpecialistPoolServiceClient.common_billing_account_path)
     parse_common_billing_account_path = staticmethod(SpecialistPoolServiceClient.parse_common_billing_account_path)
-
     common_folder_path = staticmethod(SpecialistPoolServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(SpecialistPoolServiceClient.parse_common_folder_path)
-
     common_organization_path = staticmethod(SpecialistPoolServiceClient.common_organization_path)
     parse_common_organization_path = staticmethod(SpecialistPoolServiceClient.parse_common_organization_path)
-
     common_project_path = staticmethod(SpecialistPoolServiceClient.common_project_path)
     parse_common_project_path = staticmethod(SpecialistPoolServiceClient.parse_common_project_path)
-
     common_location_path = staticmethod(SpecialistPoolServiceClient.common_location_path)
     parse_common_location_path = staticmethod(SpecialistPoolServiceClient.parse_common_location_path)
 
@@ -156,7 +148,6 @@ class SpecialistPoolServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
-
         self._client = SpecialistPoolServiceClient(
             credentials=credentials,
             transport=transport,
@@ -178,7 +169,8 @@ class SpecialistPoolServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateSpecialistPoolRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``SpecialistPoolService.CreateSpecialistPool``.
             parent (:class:`str`):
                 Required. The parent Project name for the new
@@ -195,7 +187,6 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``specialist_pool`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -228,7 +219,6 @@ class SpecialistPoolServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if specialist_pool is not None:
@@ -281,7 +271,8 @@ class SpecialistPoolServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetSpecialistPoolRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``SpecialistPoolService.GetSpecialistPool``.
             name (:class:`str`):
                 Required. The name of the SpecialistPool resource. The
@@ -292,7 +283,6 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -326,7 +316,6 @@ class SpecialistPoolServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -369,7 +358,8 @@ class SpecialistPoolServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListSpecialistPoolsRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``SpecialistPoolService.ListSpecialistPools``.
             parent (:class:`str`):
                 Required. The name of the SpecialistPool's parent
@@ -379,7 +369,6 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -407,7 +396,6 @@ class SpecialistPoolServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -460,7 +448,8 @@ class SpecialistPoolServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteSpecialistPoolRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``SpecialistPoolService.DeleteSpecialistPool``.
             name (:class:`str`):
                 Required. The resource name of the SpecialistPool to
@@ -470,7 +459,6 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -508,7 +496,6 @@ class SpecialistPoolServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -560,7 +547,8 @@ class SpecialistPoolServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateSpecialistPoolRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``SpecialistPoolService.UpdateSpecialistPool``.
             specialist_pool (:class:`google.cloud.aiplatform_v1.types.SpecialistPool`):
                 Required. The SpecialistPool which
@@ -576,7 +564,6 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -609,7 +596,6 @@ class SpecialistPoolServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if specialist_pool is not None:
             request.specialist_pool = specialist_pool
         if update_mask is not None:
@@ -649,8 +635,6 @@ class SpecialistPoolServiceAsyncClient:
 
         # Done; return the response.
         return response
-
-
 
 
 

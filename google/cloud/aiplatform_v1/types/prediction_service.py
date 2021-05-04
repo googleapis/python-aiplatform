@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.protobuf import struct_pb2 as struct  # type: ignore
 
@@ -59,13 +56,18 @@ class PredictRequest(proto.Message):
             ``parameters_schema_uri``.
     """
 
-    endpoint = proto.Field(proto.STRING, number=1)
-
-    instances = proto.RepeatedField(proto.MESSAGE, number=2,
+    endpoint = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    instances = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
         message=struct.Value,
     )
-
-    parameters = proto.Field(proto.MESSAGE, number=3,
+    parameters = proto.Field(
+        proto.MESSAGE,
+        number=3,
         message=struct.Value,
     )
 
@@ -87,11 +89,15 @@ class PredictResponse(proto.Message):
             served this prediction.
     """
 
-    predictions = proto.RepeatedField(proto.MESSAGE, number=1,
+    predictions = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
         message=struct.Value,
     )
-
-    deployed_model_id = proto.Field(proto.STRING, number=2)
+    deployed_model_id = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

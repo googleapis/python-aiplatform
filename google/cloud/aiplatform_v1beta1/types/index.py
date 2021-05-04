@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import deployed_index_ref
 from google.protobuf import struct_pb2 as struct  # type: ignore
@@ -95,31 +92,49 @@ class Index(proto.Message):
             Index is reflected in it.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
-    description = proto.Field(proto.STRING, number=3)
-
-    metadata_schema_uri = proto.Field(proto.STRING, number=4)
-
-    metadata = proto.Field(proto.MESSAGE, number=6,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    metadata_schema_uri = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    metadata = proto.Field(
+        proto.MESSAGE,
+        number=6,
         message=struct.Value,
     )
-
-    deployed_indexes = proto.RepeatedField(proto.MESSAGE, number=7,
+    deployed_indexes = proto.RepeatedField(
+        proto.MESSAGE,
+        number=7,
         message=deployed_index_ref.DeployedIndexRef,
     )
-
-    etag = proto.Field(proto.STRING, number=8)
-
-    labels = proto.MapField(proto.STRING, proto.STRING, number=9)
-
-    create_time = proto.Field(proto.MESSAGE, number=10,
+    etag = proto.Field(
+        proto.STRING,
+        number=8,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=9
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=10,
         message=timestamp.Timestamp,
     )
-
-    update_time = proto.Field(proto.MESSAGE, number=11,
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=11,
         message=timestamp.Timestamp,
     )
 

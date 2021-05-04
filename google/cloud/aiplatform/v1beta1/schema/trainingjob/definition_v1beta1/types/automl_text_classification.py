@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -36,20 +34,24 @@ class AutoMlTextClassification(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(proto.MESSAGE, number=1,
+    inputs = proto.Field(
+        proto.MESSAGE,
+        number=1,
         message='AutoMlTextClassificationInputs',
     )
 
 
 class AutoMlTextClassificationInputs(proto.Message):
     r"""
-
     Attributes:
         multi_label (bool):
 
     """
 
-    multi_label = proto.Field(proto.BOOL, number=1)
+    multi_label = proto.Field(
+        proto.BOOL,
+        number=1,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import warnings
-from typing import Callable, Dict, Optional, Sequence, Tuple
+from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import grpc_helpers   # type: ignore
 from google.api_core import operations_v1  # type: ignore
@@ -40,7 +38,6 @@ from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_jo
 from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job as gca_model_deployment_monitoring_job
 from google.longrunning import operations_pb2 as operations  # type: ignore
 from google.protobuf import empty_pb2 as empty  # type: ignore
-
 from .base import JobServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -74,7 +71,8 @@ class JobServiceGrpcTransport(JobServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]): The hostname to connect to.
+            host (Optional[str]):
+                 The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -214,13 +212,15 @@ class JobServiceGrpcTransport(JobServiceTransport):
             google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-        scopes = scopes or cls.AUTH_SCOPES
+
+        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
+
         return grpc_helpers.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
-            scopes=scopes,
             quota_project_id=quota_project_id,
+            **self_signed_jwt_kwargs,
             **kwargs
         )
 
@@ -250,7 +250,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def create_custom_job(self) -> Callable[
             [job_service.CreateCustomJobRequest],
             gca_custom_job.CustomJob]:
-        r"""Return a callable for the create custom job method over gRPC.
+        r"""Return a callable for the
+        create custom job
+          method over gRPC.
 
         Creates a CustomJob. A created CustomJob right away
         will be attempted to be run.
@@ -277,7 +279,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def get_custom_job(self) -> Callable[
             [job_service.GetCustomJobRequest],
             custom_job.CustomJob]:
-        r"""Return a callable for the get custom job method over gRPC.
+        r"""Return a callable for the
+        get custom job
+          method over gRPC.
 
         Gets a CustomJob.
 
@@ -303,7 +307,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def list_custom_jobs(self) -> Callable[
             [job_service.ListCustomJobsRequest],
             job_service.ListCustomJobsResponse]:
-        r"""Return a callable for the list custom jobs method over gRPC.
+        r"""Return a callable for the
+        list custom jobs
+          method over gRPC.
 
         Lists CustomJobs in a Location.
 
@@ -329,7 +335,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def delete_custom_job(self) -> Callable[
             [job_service.DeleteCustomJobRequest],
             operations.Operation]:
-        r"""Return a callable for the delete custom job method over gRPC.
+        r"""Return a callable for the
+        delete custom job
+          method over gRPC.
 
         Deletes a CustomJob.
 
@@ -355,7 +363,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def cancel_custom_job(self) -> Callable[
             [job_service.CancelCustomJobRequest],
             empty.Empty]:
-        r"""Return a callable for the cancel custom job method over gRPC.
+        r"""Return a callable for the
+        cancel custom job
+          method over gRPC.
 
         Cancels a CustomJob. Starts asynchronous cancellation on the
         CustomJob. The server makes a best effort to cancel the job, but
@@ -393,7 +403,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def create_data_labeling_job(self) -> Callable[
             [job_service.CreateDataLabelingJobRequest],
             gca_data_labeling_job.DataLabelingJob]:
-        r"""Return a callable for the create data labeling job method over gRPC.
+        r"""Return a callable for the
+        create data labeling job
+          method over gRPC.
 
         Creates a DataLabelingJob.
 
@@ -419,7 +431,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def get_data_labeling_job(self) -> Callable[
             [job_service.GetDataLabelingJobRequest],
             data_labeling_job.DataLabelingJob]:
-        r"""Return a callable for the get data labeling job method over gRPC.
+        r"""Return a callable for the
+        get data labeling job
+          method over gRPC.
 
         Gets a DataLabelingJob.
 
@@ -445,7 +459,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def list_data_labeling_jobs(self) -> Callable[
             [job_service.ListDataLabelingJobsRequest],
             job_service.ListDataLabelingJobsResponse]:
-        r"""Return a callable for the list data labeling jobs method over gRPC.
+        r"""Return a callable for the
+        list data labeling jobs
+          method over gRPC.
 
         Lists DataLabelingJobs in a Location.
 
@@ -471,7 +487,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def delete_data_labeling_job(self) -> Callable[
             [job_service.DeleteDataLabelingJobRequest],
             operations.Operation]:
-        r"""Return a callable for the delete data labeling job method over gRPC.
+        r"""Return a callable for the
+        delete data labeling job
+          method over gRPC.
 
         Deletes a DataLabelingJob.
 
@@ -497,7 +515,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def cancel_data_labeling_job(self) -> Callable[
             [job_service.CancelDataLabelingJobRequest],
             empty.Empty]:
-        r"""Return a callable for the cancel data labeling job method over gRPC.
+        r"""Return a callable for the
+        cancel data labeling job
+          method over gRPC.
 
         Cancels a DataLabelingJob. Success of cancellation is
         not guaranteed.
@@ -524,8 +544,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def create_hyperparameter_tuning_job(self) -> Callable[
             [job_service.CreateHyperparameterTuningJobRequest],
             gca_hyperparameter_tuning_job.HyperparameterTuningJob]:
-        r"""Return a callable for the create hyperparameter tuning
-        job method over gRPC.
+        r"""Return a callable for the
+        create hyperparameter tuning
+        job
+          method over gRPC.
 
         Creates a HyperparameterTuningJob
 
@@ -551,7 +573,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def get_hyperparameter_tuning_job(self) -> Callable[
             [job_service.GetHyperparameterTuningJobRequest],
             hyperparameter_tuning_job.HyperparameterTuningJob]:
-        r"""Return a callable for the get hyperparameter tuning job method over gRPC.
+        r"""Return a callable for the
+        get hyperparameter tuning job
+          method over gRPC.
 
         Gets a HyperparameterTuningJob
 
@@ -577,8 +601,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def list_hyperparameter_tuning_jobs(self) -> Callable[
             [job_service.ListHyperparameterTuningJobsRequest],
             job_service.ListHyperparameterTuningJobsResponse]:
-        r"""Return a callable for the list hyperparameter tuning
-        jobs method over gRPC.
+        r"""Return a callable for the
+        list hyperparameter tuning
+        jobs
+          method over gRPC.
 
         Lists HyperparameterTuningJobs in a Location.
 
@@ -604,8 +630,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def delete_hyperparameter_tuning_job(self) -> Callable[
             [job_service.DeleteHyperparameterTuningJobRequest],
             operations.Operation]:
-        r"""Return a callable for the delete hyperparameter tuning
-        job method over gRPC.
+        r"""Return a callable for the
+        delete hyperparameter tuning
+        job
+          method over gRPC.
 
         Deletes a HyperparameterTuningJob.
 
@@ -631,8 +659,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def cancel_hyperparameter_tuning_job(self) -> Callable[
             [job_service.CancelHyperparameterTuningJobRequest],
             empty.Empty]:
-        r"""Return a callable for the cancel hyperparameter tuning
-        job method over gRPC.
+        r"""Return a callable for the
+        cancel hyperparameter tuning
+        job
+          method over gRPC.
 
         Cancels a HyperparameterTuningJob. Starts asynchronous
         cancellation on the HyperparameterTuningJob. The server makes a
@@ -671,7 +701,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def create_batch_prediction_job(self) -> Callable[
             [job_service.CreateBatchPredictionJobRequest],
             gca_batch_prediction_job.BatchPredictionJob]:
-        r"""Return a callable for the create batch prediction job method over gRPC.
+        r"""Return a callable for the
+        create batch prediction job
+          method over gRPC.
 
         Creates a BatchPredictionJob. A BatchPredictionJob
         once created will right away be attempted to start.
@@ -698,7 +730,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def get_batch_prediction_job(self) -> Callable[
             [job_service.GetBatchPredictionJobRequest],
             batch_prediction_job.BatchPredictionJob]:
-        r"""Return a callable for the get batch prediction job method over gRPC.
+        r"""Return a callable for the
+        get batch prediction job
+          method over gRPC.
 
         Gets a BatchPredictionJob
 
@@ -724,7 +758,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def list_batch_prediction_jobs(self) -> Callable[
             [job_service.ListBatchPredictionJobsRequest],
             job_service.ListBatchPredictionJobsResponse]:
-        r"""Return a callable for the list batch prediction jobs method over gRPC.
+        r"""Return a callable for the
+        list batch prediction jobs
+          method over gRPC.
 
         Lists BatchPredictionJobs in a Location.
 
@@ -750,7 +786,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def delete_batch_prediction_job(self) -> Callable[
             [job_service.DeleteBatchPredictionJobRequest],
             operations.Operation]:
-        r"""Return a callable for the delete batch prediction job method over gRPC.
+        r"""Return a callable for the
+        delete batch prediction job
+          method over gRPC.
 
         Deletes a BatchPredictionJob. Can only be called on
         jobs that already finished.
@@ -777,7 +815,9 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def cancel_batch_prediction_job(self) -> Callable[
             [job_service.CancelBatchPredictionJobRequest],
             empty.Empty]:
-        r"""Return a callable for the cancel batch prediction job method over gRPC.
+        r"""Return a callable for the
+        cancel batch prediction job
+          method over gRPC.
 
         Cancels a BatchPredictionJob.
 
@@ -814,8 +854,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def create_model_deployment_monitoring_job(self) -> Callable[
             [job_service.CreateModelDeploymentMonitoringJobRequest],
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob]:
-        r"""Return a callable for the create model deployment
-        monitoring job method over gRPC.
+        r"""Return a callable for the
+        create model deployment
+        monitoring job
+          method over gRPC.
 
         Creates a ModelDeploymentMonitoringJob. It will run
         periodically on a configured interval.
@@ -842,8 +884,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def search_model_deployment_monitoring_stats_anomalies(self) -> Callable[
             [job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest],
             job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse]:
-        r"""Return a callable for the search model deployment
-        monitoring stats anomalies method over gRPC.
+        r"""Return a callable for the
+        search model deployment
+        monitoring stats anomalies
+          method over gRPC.
 
         Searches Model Monitoring Statistics generated within
         a given time window.
@@ -870,8 +914,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def get_model_deployment_monitoring_job(self) -> Callable[
             [job_service.GetModelDeploymentMonitoringJobRequest],
             model_deployment_monitoring_job.ModelDeploymentMonitoringJob]:
-        r"""Return a callable for the get model deployment
-        monitoring job method over gRPC.
+        r"""Return a callable for the
+        get model deployment
+        monitoring job
+          method over gRPC.
 
         Gets a ModelDeploymentMonitoringJob.
 
@@ -897,8 +943,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def list_model_deployment_monitoring_jobs(self) -> Callable[
             [job_service.ListModelDeploymentMonitoringJobsRequest],
             job_service.ListModelDeploymentMonitoringJobsResponse]:
-        r"""Return a callable for the list model deployment
-        monitoring jobs method over gRPC.
+        r"""Return a callable for the
+        list model deployment
+        monitoring jobs
+          method over gRPC.
 
         Lists ModelDeploymentMonitoringJobs in a Location.
 
@@ -924,8 +972,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def update_model_deployment_monitoring_job(self) -> Callable[
             [job_service.UpdateModelDeploymentMonitoringJobRequest],
             operations.Operation]:
-        r"""Return a callable for the update model deployment
-        monitoring job method over gRPC.
+        r"""Return a callable for the
+        update model deployment
+        monitoring job
+          method over gRPC.
 
         Updates a ModelDeploymentMonitoringJob.
 
@@ -951,8 +1001,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def delete_model_deployment_monitoring_job(self) -> Callable[
             [job_service.DeleteModelDeploymentMonitoringJobRequest],
             operations.Operation]:
-        r"""Return a callable for the delete model deployment
-        monitoring job method over gRPC.
+        r"""Return a callable for the
+        delete model deployment
+        monitoring job
+          method over gRPC.
 
         Deletes a ModelDeploymentMonitoringJob.
 
@@ -978,8 +1030,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def pause_model_deployment_monitoring_job(self) -> Callable[
             [job_service.PauseModelDeploymentMonitoringJobRequest],
             empty.Empty]:
-        r"""Return a callable for the pause model deployment
-        monitoring job method over gRPC.
+        r"""Return a callable for the
+        pause model deployment
+        monitoring job
+          method over gRPC.
 
         Pauses a ModelDeploymentMonitoringJob. If the job is running,
         the server makes a best effort to cancel the job. Will mark
@@ -1008,8 +1062,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def resume_model_deployment_monitoring_job(self) -> Callable[
             [job_service.ResumeModelDeploymentMonitoringJobRequest],
             empty.Empty]:
-        r"""Return a callable for the resume model deployment
-        monitoring job method over gRPC.
+        r"""Return a callable for the
+        resume model deployment
+        monitoring job
+          method over gRPC.
 
         Resumes a paused ModelDeploymentMonitoringJob. It
         will start to run from next scheduled time. A deleted

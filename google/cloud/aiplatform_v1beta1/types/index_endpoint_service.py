@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1beta1.types import operation
@@ -56,9 +53,13 @@ class CreateIndexEndpointRequest(proto.Message):
             Required. The IndexEndpoint to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    index_endpoint = proto.Field(proto.MESSAGE, number=2,
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    index_endpoint = proto.Field(
+        proto.MESSAGE,
+        number=2,
         message=gca_index_endpoint.IndexEndpoint,
     )
 
@@ -72,7 +73,9 @@ class CreateIndexEndpointOperationMetadata(proto.Message):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+    generic_metadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
         message=operation.GenericOperationMetadata,
     )
 
@@ -87,7 +90,10 @@ class GetIndexEndpointRequest(proto.Message):
             ``projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class ListIndexEndpointsRequest(proto.Message):
@@ -137,15 +143,25 @@ class ListIndexEndpointsRequest(proto.Message):
             read.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5,
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    read_mask = proto.Field(
+        proto.MESSAGE,
+        number=5,
         message=field_mask.FieldMask,
     )
 
@@ -167,11 +183,15 @@ class ListIndexEndpointsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    index_endpoints = proto.RepeatedField(proto.MESSAGE, number=1,
+    index_endpoints = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
         message=gca_index_endpoint.IndexEndpoint,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 class UpdateIndexEndpointRequest(proto.Message):
@@ -187,11 +207,14 @@ class UpdateIndexEndpointRequest(proto.Message):
             `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
     """
 
-    index_endpoint = proto.Field(proto.MESSAGE, number=1,
+    index_endpoint = proto.Field(
+        proto.MESSAGE,
+        number=1,
         message=gca_index_endpoint.IndexEndpoint,
     )
-
-    update_mask = proto.Field(proto.MESSAGE, number=2,
+    update_mask = proto.Field(
+        proto.MESSAGE,
+        number=2,
         message=field_mask.FieldMask,
     )
 
@@ -207,7 +230,10 @@ class DeleteIndexEndpointRequest(proto.Message):
             ``projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class DeployIndexRequest(proto.Message):
@@ -224,9 +250,13 @@ class DeployIndexRequest(proto.Message):
             within the IndexEndpoint.
     """
 
-    index_endpoint = proto.Field(proto.STRING, number=1)
-
-    deployed_index = proto.Field(proto.MESSAGE, number=2,
+    index_endpoint = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    deployed_index = proto.Field(
+        proto.MESSAGE,
+        number=2,
         message=gca_index_endpoint.DeployedIndex,
     )
 
@@ -241,7 +271,9 @@ class DeployIndexResponse(proto.Message):
             the IndexEndpoint.
     """
 
-    deployed_index = proto.Field(proto.MESSAGE, number=1,
+    deployed_index = proto.Field(
+        proto.MESSAGE,
+        number=1,
         message=gca_index_endpoint.DeployedIndex,
     )
 
@@ -255,7 +287,9 @@ class DeployIndexOperationMetadata(proto.Message):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+    generic_metadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
         message=operation.GenericOperationMetadata,
     )
 
@@ -274,15 +308,20 @@ class UndeployIndexRequest(proto.Message):
             undeployed from the IndexEndpoint.
     """
 
-    index_endpoint = proto.Field(proto.STRING, number=1)
-
-    deployed_index_id = proto.Field(proto.STRING, number=2)
+    index_endpoint = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    deployed_index_id = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 class UndeployIndexResponse(proto.Message):
     r"""Response message for
     ``IndexEndpointService.UndeployIndex``.
-    """
+        """
 
 
 class UndeployIndexOperationMetadata(proto.Message):
@@ -294,7 +333,9 @@ class UndeployIndexOperationMetadata(proto.Message):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+    generic_metadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
         message=operation.GenericOperationMetadata,
     )
 

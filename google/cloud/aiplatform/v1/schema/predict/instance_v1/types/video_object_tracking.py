@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -28,7 +26,6 @@ __protobuf__ = proto.module(
 
 class VideoObjectTrackingPredictionInstance(proto.Message):
     r"""Prediction input format for Video Object Tracking.
-
     Attributes:
         content (str):
             The Google Cloud Storage location of the
@@ -54,13 +51,22 @@ class VideoObjectTrackingPredictionInstance(proto.Message):
             is allowed, which means the end of the video.
     """
 
-    content = proto.Field(proto.STRING, number=1)
-
-    mime_type = proto.Field(proto.STRING, number=2)
-
-    time_segment_start = proto.Field(proto.STRING, number=3)
-
-    time_segment_end = proto.Field(proto.STRING, number=4)
+    content = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    mime_type = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    time_segment_start = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    time_segment_end = proto.Field(
+        proto.STRING,
+        number=4,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

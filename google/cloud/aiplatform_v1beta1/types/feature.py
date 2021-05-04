@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import feature_monitoring_stats
 from google.cloud.aiplatform_v1beta1.types import featurestore_monitoring
@@ -75,6 +72,10 @@ class Feature(proto.Message):
             rite updates. If not set, a blind "overwrite"
             update happens.
         monitoring_config (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig):
+            Optional. The custom monitoring configuration for this
+            Feature, if not set, use the monitoring_config defined for
+            the EntityType this Feature belongs to.
+
             If this is populated with
             [FeaturestoreMonitoringConfig.disabled][] = true, snapshot
             analysis monitoring is disabled; if
@@ -102,31 +103,46 @@ class Feature(proto.Message):
         STRING_ARRAY = 12
         BYTES = 13
 
-    name = proto.Field(proto.STRING, number=1)
-
-    description = proto.Field(proto.STRING, number=2)
-
-    value_type = proto.Field(proto.ENUM, number=3,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    value_type = proto.Field(
+        proto.ENUM,
+        number=3,
         enum=ValueType,
     )
-
-    create_time = proto.Field(proto.MESSAGE, number=4,
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
         message=timestamp.Timestamp,
     )
-
-    update_time = proto.Field(proto.MESSAGE, number=5,
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=5,
         message=timestamp.Timestamp,
     )
-
-    labels = proto.MapField(proto.STRING, proto.STRING, number=6)
-
-    etag = proto.Field(proto.STRING, number=7)
-
-    monitoring_config = proto.Field(proto.MESSAGE, number=9,
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=6
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=7,
+    )
+    monitoring_config = proto.Field(
+        proto.MESSAGE,
+        number=9,
         message=featurestore_monitoring.FeaturestoreMonitoringConfig,
     )
-
-    monitoring_stats = proto.RepeatedField(proto.MESSAGE, number=10,
+    monitoring_stats = proto.RepeatedField(
+        proto.MESSAGE,
+        number=10,
         message=feature_monitoring_stats.FeatureStatsAnomaly,
     )
 

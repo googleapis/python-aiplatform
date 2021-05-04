@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
@@ -91,29 +88,46 @@ class IndexEndpoint(proto.Message):
             is network name.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
-    description = proto.Field(proto.STRING, number=3)
-
-    deployed_indexes = proto.RepeatedField(proto.MESSAGE, number=4,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    deployed_indexes = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
         message='DeployedIndex',
     )
-
-    etag = proto.Field(proto.STRING, number=5)
-
-    labels = proto.MapField(proto.STRING, proto.STRING, number=6)
-
-    create_time = proto.Field(proto.MESSAGE, number=7,
+    etag = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=6
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=7,
         message=timestamp.Timestamp,
     )
-
-    update_time = proto.Field(proto.MESSAGE, number=8,
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=8,
         message=timestamp.Timestamp,
     )
-
-    network = proto.Field(proto.STRING, number=9)
+    network = proto.Field(
+        proto.STRING,
+        number=9,
+    )
 
 
 class DeployedIndex(proto.Message):
@@ -188,31 +202,45 @@ class DeployedIndex(proto.Message):
             enabled for the private endpoint.
     """
 
-    id = proto.Field(proto.STRING, number=1)
-
-    index = proto.Field(proto.STRING, number=2)
-
-    display_name = proto.Field(proto.STRING, number=3)
-
-    create_time = proto.Field(proto.MESSAGE, number=4,
+    id = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    index = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
         message=timestamp.Timestamp,
     )
-
-    private_endpoints = proto.Field(proto.MESSAGE, number=5,
+    private_endpoints = proto.Field(
+        proto.MESSAGE,
+        number=5,
         message='IndexPrivateEndpoints',
     )
-
-    index_sync_time = proto.Field(proto.MESSAGE, number=6,
+    index_sync_time = proto.Field(
+        proto.MESSAGE,
+        number=6,
         message=timestamp.Timestamp,
     )
-
-    automatic_resources = proto.Field(proto.MESSAGE, number=7,
+    automatic_resources = proto.Field(
+        proto.MESSAGE,
+        number=7,
         message=machine_resources.AutomaticResources,
     )
-
-    enable_access_logging = proto.Field(proto.BOOL, number=8)
-
-    deployed_index_auth_config = proto.Field(proto.MESSAGE, number=9,
+    enable_access_logging = proto.Field(
+        proto.BOOL,
+        number=8,
+    )
+    deployed_index_auth_config = proto.Field(
+        proto.MESSAGE,
+        number=9,
         message='DeployedIndexAuthConfig',
     )
 
@@ -226,6 +254,7 @@ class DeployedIndexAuthConfig(proto.Message):
             Defines the authentication provider that the
             DeployedIndex uses.
     """
+
     class AuthProvider(proto.Message):
         r"""Configuration for an authentication provider, including support for
         `JSON Web Token
@@ -237,11 +266,25 @@ class DeployedIndexAuthConfig(proto.Message):
                 `audiences <https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.3>`__.
                 that are allowed to access. A JWT containing any of these
                 audiences will be accepted.
+            allowed_issuers (Sequence[str]):
+                A list of allowed JWT issuers. Each entry must be a valid
+                Google service account, in the following format:
+
+                ``service-account-name@project-id.iam.gserviceaccount.com``
         """
 
-        audiences = proto.RepeatedField(proto.STRING, number=1)
+        audiences = proto.RepeatedField(
+            proto.STRING,
+            number=1,
+        )
+        allowed_issuers = proto.RepeatedField(
+            proto.STRING,
+            number=2,
+        )
 
-    auth_provider = proto.Field(proto.MESSAGE, number=1,
+    auth_provider = proto.Field(
+        proto.MESSAGE,
+        number=1,
         message=AuthProvider,
     )
 
@@ -256,7 +299,10 @@ class IndexPrivateEndpoints(proto.Message):
             match gRPC requests.
     """
 
-    match_grpc_address = proto.Field(proto.STRING, number=1)
+    match_grpc_address = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
@@ -62,19 +59,28 @@ class ModelEvaluation(proto.Message):
             request, in the form of ``slice.dimension = <dimension>``.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    metrics_schema_uri = proto.Field(proto.STRING, number=2)
-
-    metrics = proto.Field(proto.MESSAGE, number=3,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    metrics_schema_uri = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    metrics = proto.Field(
+        proto.MESSAGE,
+        number=3,
         message=struct.Value,
     )
-
-    create_time = proto.Field(proto.MESSAGE, number=4,
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
         message=timestamp.Timestamp,
     )
-
-    slice_dimensions = proto.RepeatedField(proto.STRING, number=5)
+    slice_dimensions = proto.RepeatedField(
+        proto.STRING,
+        number=5,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from .annotation import (
     Annotation,
 )
@@ -153,7 +151,6 @@ from .featurestore_online_service import (
     FeatureValueList,
     ReadFeatureValuesRequest,
     ReadFeatureValuesResponse,
-    ReadSetting,
     StreamingReadFeatureValuesRequest,
 )
 from .featurestore_service import (
@@ -173,6 +170,9 @@ from .featurestore_service import (
     DeleteFeatureRequest,
     DeleteFeaturestoreRequest,
     DestinationFeatureSetting,
+    ExportFeatureValuesOperationMetadata,
+    ExportFeatureValuesRequest,
+    ExportFeatureValuesResponse,
     FeatureValueDestination,
     GetEntityTypeRequest,
     GetFeatureRequest,
@@ -399,11 +399,23 @@ from .operation import (
     DeleteOperationMetadata,
     GenericOperationMetadata,
 )
+from .pipeline_job import (
+    PipelineJob,
+    PipelineJobDetail,
+    PipelineTaskDetail,
+    PipelineTaskExecutorDetail,
+)
 from .pipeline_service import (
+    CancelPipelineJobRequest,
     CancelTrainingPipelineRequest,
+    CreatePipelineJobRequest,
     CreateTrainingPipelineRequest,
+    DeletePipelineJobRequest,
     DeleteTrainingPipelineRequest,
+    GetPipelineJobRequest,
     GetTrainingPipelineRequest,
+    ListPipelineJobsRequest,
+    ListPipelineJobsResponse,
     ListTrainingPipelinesRequest,
     ListTrainingPipelinesResponse,
 )
@@ -432,6 +444,62 @@ from .study import (
     StudySpec,
     Trial,
 )
+from .tensorboard import (
+    Tensorboard,
+)
+from .tensorboard_data import (
+    Scalar,
+    TensorboardBlob,
+    TensorboardBlobSequence,
+    TensorboardTensor,
+    TimeSeriesData,
+    TimeSeriesDataPoint,
+)
+from .tensorboard_experiment import (
+    TensorboardExperiment,
+)
+from .tensorboard_run import (
+    TensorboardRun,
+)
+from .tensorboard_service import (
+    CreateTensorboardExperimentRequest,
+    CreateTensorboardOperationMetadata,
+    CreateTensorboardRequest,
+    CreateTensorboardRunRequest,
+    CreateTensorboardTimeSeriesRequest,
+    DeleteTensorboardExperimentRequest,
+    DeleteTensorboardRequest,
+    DeleteTensorboardRunRequest,
+    DeleteTensorboardTimeSeriesRequest,
+    ExportTensorboardTimeSeriesDataRequest,
+    ExportTensorboardTimeSeriesDataResponse,
+    GetTensorboardExperimentRequest,
+    GetTensorboardRequest,
+    GetTensorboardRunRequest,
+    GetTensorboardTimeSeriesRequest,
+    ListTensorboardExperimentsRequest,
+    ListTensorboardExperimentsResponse,
+    ListTensorboardRunsRequest,
+    ListTensorboardRunsResponse,
+    ListTensorboardsRequest,
+    ListTensorboardsResponse,
+    ListTensorboardTimeSeriesRequest,
+    ListTensorboardTimeSeriesResponse,
+    ReadTensorboardBlobDataRequest,
+    ReadTensorboardBlobDataResponse,
+    ReadTensorboardTimeSeriesDataRequest,
+    ReadTensorboardTimeSeriesDataResponse,
+    UpdateTensorboardExperimentRequest,
+    UpdateTensorboardOperationMetadata,
+    UpdateTensorboardRequest,
+    UpdateTensorboardRunRequest,
+    UpdateTensorboardTimeSeriesRequest,
+    WriteTensorboardRunDataRequest,
+    WriteTensorboardRunDataResponse,
+)
+from .tensorboard_time_series import (
+    TensorboardTimeSeries,
+)
 from .training_pipeline import (
     FilterSplit,
     FractionSplit,
@@ -448,6 +516,9 @@ from .types import (
 )
 from .user_action_reference import (
     UserActionReference,
+)
+from .value import (
+    Value,
 )
 from .vizier_service import (
     AddTrialMeasurementRequest,
@@ -559,7 +630,6 @@ __all__ = (
     'FeatureValueList',
     'ReadFeatureValuesRequest',
     'ReadFeatureValuesResponse',
-    'ReadSetting',
     'StreamingReadFeatureValuesRequest',
     'BatchCreateFeaturesOperationMetadata',
     'BatchCreateFeaturesRequest',
@@ -577,6 +647,9 @@ __all__ = (
     'DeleteFeatureRequest',
     'DeleteFeaturestoreRequest',
     'DestinationFeatureSetting',
+    'ExportFeatureValuesOperationMetadata',
+    'ExportFeatureValuesRequest',
+    'ExportFeatureValuesResponse',
     'FeatureValueDestination',
     'GetEntityTypeRequest',
     'GetFeatureRequest',
@@ -759,10 +832,20 @@ __all__ = (
     'UploadModelResponse',
     'DeleteOperationMetadata',
     'GenericOperationMetadata',
+    'PipelineJob',
+    'PipelineJobDetail',
+    'PipelineTaskDetail',
+    'PipelineTaskExecutorDetail',
+    'CancelPipelineJobRequest',
     'CancelTrainingPipelineRequest',
+    'CreatePipelineJobRequest',
     'CreateTrainingPipelineRequest',
+    'DeletePipelineJobRequest',
     'DeleteTrainingPipelineRequest',
+    'GetPipelineJobRequest',
     'GetTrainingPipelineRequest',
+    'ListPipelineJobsRequest',
+    'ListPipelineJobsResponse',
     'ListTrainingPipelinesRequest',
     'ListTrainingPipelinesResponse',
     'PipelineState',
@@ -783,6 +866,50 @@ __all__ = (
     'Study',
     'StudySpec',
     'Trial',
+    'Tensorboard',
+    'Scalar',
+    'TensorboardBlob',
+    'TensorboardBlobSequence',
+    'TensorboardTensor',
+    'TimeSeriesData',
+    'TimeSeriesDataPoint',
+    'TensorboardExperiment',
+    'TensorboardRun',
+    'CreateTensorboardExperimentRequest',
+    'CreateTensorboardOperationMetadata',
+    'CreateTensorboardRequest',
+    'CreateTensorboardRunRequest',
+    'CreateTensorboardTimeSeriesRequest',
+    'DeleteTensorboardExperimentRequest',
+    'DeleteTensorboardRequest',
+    'DeleteTensorboardRunRequest',
+    'DeleteTensorboardTimeSeriesRequest',
+    'ExportTensorboardTimeSeriesDataRequest',
+    'ExportTensorboardTimeSeriesDataResponse',
+    'GetTensorboardExperimentRequest',
+    'GetTensorboardRequest',
+    'GetTensorboardRunRequest',
+    'GetTensorboardTimeSeriesRequest',
+    'ListTensorboardExperimentsRequest',
+    'ListTensorboardExperimentsResponse',
+    'ListTensorboardRunsRequest',
+    'ListTensorboardRunsResponse',
+    'ListTensorboardsRequest',
+    'ListTensorboardsResponse',
+    'ListTensorboardTimeSeriesRequest',
+    'ListTensorboardTimeSeriesResponse',
+    'ReadTensorboardBlobDataRequest',
+    'ReadTensorboardBlobDataResponse',
+    'ReadTensorboardTimeSeriesDataRequest',
+    'ReadTensorboardTimeSeriesDataResponse',
+    'UpdateTensorboardExperimentRequest',
+    'UpdateTensorboardOperationMetadata',
+    'UpdateTensorboardRequest',
+    'UpdateTensorboardRunRequest',
+    'UpdateTensorboardTimeSeriesRequest',
+    'WriteTensorboardRunDataRequest',
+    'WriteTensorboardRunDataResponse',
+    'TensorboardTimeSeries',
     'FilterSplit',
     'FractionSplit',
     'InputDataConfig',
@@ -794,6 +921,7 @@ __all__ = (
     'Int64Array',
     'StringArray',
     'UserActionReference',
+    'Value',
     'AddTrialMeasurementRequest',
     'CheckTrialEarlyStoppingStateMetatdata',
     'CheckTrialEarlyStoppingStateRequest',

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
@@ -79,28 +76,47 @@ class FeatureStatsAnomaly(proto.Message):
             different from
             ``ThresholdConfig.value``.
         start_time (google.protobuf.timestamp_pb2.Timestamp):
-            The start timestamp of window where stats
-            were generated.
+            The start timestamp of window where stats were generated.
+            For objectives where time window doesn't make sense (e.g.
+            Featurestore Snapshot Monitoring), start_time is only used
+            to indicate the monitoring intervals, so it always equals to
+            (end_time - monitoring_interval).
         end_time (google.protobuf.timestamp_pb2.Timestamp):
-            The end timestamp of window where stats were
-            generated.
+            The end timestamp of window where stats were generated. For
+            objectives where time window doesn't make sense (e.g.
+            Featurestore Snapshot Monitoring), end_time indicates the
+            timestamp of the data used to generate stats (e.g. timestamp
+            we take snapshots for feature values).
     """
 
-    score = proto.Field(proto.DOUBLE, number=1)
-
-    stats_uri = proto.Field(proto.STRING, number=3)
-
-    anomaly_uri = proto.Field(proto.STRING, number=4)
-
-    distribution_deviation = proto.Field(proto.DOUBLE, number=5)
-
-    anomaly_detection_threshold = proto.Field(proto.DOUBLE, number=9)
-
-    start_time = proto.Field(proto.MESSAGE, number=7,
+    score = proto.Field(
+        proto.DOUBLE,
+        number=1,
+    )
+    stats_uri = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    anomaly_uri = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    distribution_deviation = proto.Field(
+        proto.DOUBLE,
+        number=5,
+    )
+    anomaly_detection_threshold = proto.Field(
+        proto.DOUBLE,
+        number=9,
+    )
+    start_time = proto.Field(
+        proto.MESSAGE,
+        number=7,
         message=timestamp.Timestamp,
     )
-
-    end_time = proto.Field(proto.MESSAGE, number=8,
+    end_time = proto.Field(
+        proto.MESSAGE,
+        number=8,
         message=timestamp.Timestamp,
     )
 

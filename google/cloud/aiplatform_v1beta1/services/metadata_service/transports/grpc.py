@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import warnings
-from typing import Callable, Dict, Optional, Sequence, Tuple
+from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import grpc_helpers   # type: ignore
 from google.api_core import operations_v1  # type: ignore
@@ -39,7 +37,6 @@ from google.cloud.aiplatform_v1beta1.types import metadata_schema as gca_metadat
 from google.cloud.aiplatform_v1beta1.types import metadata_service
 from google.cloud.aiplatform_v1beta1.types import metadata_store
 from google.longrunning import operations_pb2 as operations  # type: ignore
-
 from .base import MetadataServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -73,7 +70,8 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]): The hostname to connect to.
+            host (Optional[str]):
+                 The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -213,13 +211,15 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
             google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-        scopes = scopes or cls.AUTH_SCOPES
+
+        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
+
         return grpc_helpers.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
-            scopes=scopes,
             quota_project_id=quota_project_id,
+            **self_signed_jwt_kwargs,
             **kwargs
         )
 
@@ -249,7 +249,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def create_metadata_store(self) -> Callable[
             [metadata_service.CreateMetadataStoreRequest],
             operations.Operation]:
-        r"""Return a callable for the create metadata store method over gRPC.
+        r"""Return a callable for the
+        create metadata store
+          method over gRPC.
 
         Initializes a MetadataStore, including allocation of
         resources.
@@ -276,7 +278,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def get_metadata_store(self) -> Callable[
             [metadata_service.GetMetadataStoreRequest],
             metadata_store.MetadataStore]:
-        r"""Return a callable for the get metadata store method over gRPC.
+        r"""Return a callable for the
+        get metadata store
+          method over gRPC.
 
         Retrieves a specific MetadataStore.
 
@@ -302,7 +306,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def list_metadata_stores(self) -> Callable[
             [metadata_service.ListMetadataStoresRequest],
             metadata_service.ListMetadataStoresResponse]:
-        r"""Return a callable for the list metadata stores method over gRPC.
+        r"""Return a callable for the
+        list metadata stores
+          method over gRPC.
 
         Lists MetadataStores for a Location.
 
@@ -328,7 +334,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def delete_metadata_store(self) -> Callable[
             [metadata_service.DeleteMetadataStoreRequest],
             operations.Operation]:
-        r"""Return a callable for the delete metadata store method over gRPC.
+        r"""Return a callable for the
+        delete metadata store
+          method over gRPC.
 
         Deletes a single MetadataStore.
 
@@ -354,7 +362,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def create_artifact(self) -> Callable[
             [metadata_service.CreateArtifactRequest],
             gca_artifact.Artifact]:
-        r"""Return a callable for the create artifact method over gRPC.
+        r"""Return a callable for the
+        create artifact
+          method over gRPC.
 
         Creates an Artifact associated with a MetadataStore.
 
@@ -380,7 +390,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def get_artifact(self) -> Callable[
             [metadata_service.GetArtifactRequest],
             artifact.Artifact]:
-        r"""Return a callable for the get artifact method over gRPC.
+        r"""Return a callable for the
+        get artifact
+          method over gRPC.
 
         Retrieves a specific Artifact.
 
@@ -406,7 +418,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def list_artifacts(self) -> Callable[
             [metadata_service.ListArtifactsRequest],
             metadata_service.ListArtifactsResponse]:
-        r"""Return a callable for the list artifacts method over gRPC.
+        r"""Return a callable for the
+        list artifacts
+          method over gRPC.
 
         Lists Artifacts in the MetadataStore.
 
@@ -432,7 +446,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def update_artifact(self) -> Callable[
             [metadata_service.UpdateArtifactRequest],
             gca_artifact.Artifact]:
-        r"""Return a callable for the update artifact method over gRPC.
+        r"""Return a callable for the
+        update artifact
+          method over gRPC.
 
         Updates a stored Artifact.
 
@@ -458,7 +474,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def create_context(self) -> Callable[
             [metadata_service.CreateContextRequest],
             gca_context.Context]:
-        r"""Return a callable for the create context method over gRPC.
+        r"""Return a callable for the
+        create context
+          method over gRPC.
 
         Creates a Context associated with a MetadataStore.
 
@@ -484,7 +502,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def get_context(self) -> Callable[
             [metadata_service.GetContextRequest],
             context.Context]:
-        r"""Return a callable for the get context method over gRPC.
+        r"""Return a callable for the
+        get context
+          method over gRPC.
 
         Retrieves a specific Context.
 
@@ -510,7 +530,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def list_contexts(self) -> Callable[
             [metadata_service.ListContextsRequest],
             metadata_service.ListContextsResponse]:
-        r"""Return a callable for the list contexts method over gRPC.
+        r"""Return a callable for the
+        list contexts
+          method over gRPC.
 
         Lists Contexts on the MetadataStore.
 
@@ -536,7 +558,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def update_context(self) -> Callable[
             [metadata_service.UpdateContextRequest],
             gca_context.Context]:
-        r"""Return a callable for the update context method over gRPC.
+        r"""Return a callable for the
+        update context
+          method over gRPC.
 
         Updates a stored Context.
 
@@ -562,7 +586,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def delete_context(self) -> Callable[
             [metadata_service.DeleteContextRequest],
             operations.Operation]:
-        r"""Return a callable for the delete context method over gRPC.
+        r"""Return a callable for the
+        delete context
+          method over gRPC.
 
         Deletes a stored Context.
 
@@ -588,8 +614,10 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def add_context_artifacts_and_executions(self) -> Callable[
             [metadata_service.AddContextArtifactsAndExecutionsRequest],
             metadata_service.AddContextArtifactsAndExecutionsResponse]:
-        r"""Return a callable for the add context artifacts and
-        executions method over gRPC.
+        r"""Return a callable for the
+        add context artifacts and
+        executions
+          method over gRPC.
 
         Adds a set of Artifacts and Executions to a Context.
         If any of the Artifacts or Executions have already been
@@ -617,7 +645,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def add_context_children(self) -> Callable[
             [metadata_service.AddContextChildrenRequest],
             metadata_service.AddContextChildrenResponse]:
-        r"""Return a callable for the add context children method over gRPC.
+        r"""Return a callable for the
+        add context children
+          method over gRPC.
 
         Adds a set of Contexts as children to a parent Context. If any
         of the child Contexts have already been added to the parent
@@ -647,7 +677,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def query_context_lineage_subgraph(self) -> Callable[
             [metadata_service.QueryContextLineageSubgraphRequest],
             lineage_subgraph.LineageSubgraph]:
-        r"""Return a callable for the query context lineage subgraph method over gRPC.
+        r"""Return a callable for the
+        query context lineage subgraph
+          method over gRPC.
 
         Retrieves Artifacts and Executions within the
         specified Context, connected by Event edges and returned
@@ -675,7 +707,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def create_execution(self) -> Callable[
             [metadata_service.CreateExecutionRequest],
             gca_execution.Execution]:
-        r"""Return a callable for the create execution method over gRPC.
+        r"""Return a callable for the
+        create execution
+          method over gRPC.
 
         Creates an Execution associated with a MetadataStore.
 
@@ -701,7 +735,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def get_execution(self) -> Callable[
             [metadata_service.GetExecutionRequest],
             execution.Execution]:
-        r"""Return a callable for the get execution method over gRPC.
+        r"""Return a callable for the
+        get execution
+          method over gRPC.
 
         Retrieves a specific Execution.
 
@@ -727,7 +763,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def list_executions(self) -> Callable[
             [metadata_service.ListExecutionsRequest],
             metadata_service.ListExecutionsResponse]:
-        r"""Return a callable for the list executions method over gRPC.
+        r"""Return a callable for the
+        list executions
+          method over gRPC.
 
         Lists Executions in the MetadataStore.
 
@@ -753,7 +791,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def update_execution(self) -> Callable[
             [metadata_service.UpdateExecutionRequest],
             gca_execution.Execution]:
-        r"""Return a callable for the update execution method over gRPC.
+        r"""Return a callable for the
+        update execution
+          method over gRPC.
 
         Updates a stored Execution.
 
@@ -779,7 +819,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def add_execution_events(self) -> Callable[
             [metadata_service.AddExecutionEventsRequest],
             metadata_service.AddExecutionEventsResponse]:
-        r"""Return a callable for the add execution events method over gRPC.
+        r"""Return a callable for the
+        add execution events
+          method over gRPC.
 
         Adds Events for denoting whether each Artifact was an
         input or output for a given Execution. If any Events
@@ -808,8 +850,10 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def query_execution_inputs_and_outputs(self) -> Callable[
             [metadata_service.QueryExecutionInputsAndOutputsRequest],
             lineage_subgraph.LineageSubgraph]:
-        r"""Return a callable for the query execution inputs and
-        outputs method over gRPC.
+        r"""Return a callable for the
+        query execution inputs and
+        outputs
+          method over gRPC.
 
         Obtains the set of input and output Artifacts for
         this Execution, in the form of LineageSubgraph that also
@@ -837,7 +881,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def create_metadata_schema(self) -> Callable[
             [metadata_service.CreateMetadataSchemaRequest],
             gca_metadata_schema.MetadataSchema]:
-        r"""Return a callable for the create metadata schema method over gRPC.
+        r"""Return a callable for the
+        create metadata schema
+          method over gRPC.
 
         Creates an MetadataSchema.
 
@@ -863,7 +909,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def get_metadata_schema(self) -> Callable[
             [metadata_service.GetMetadataSchemaRequest],
             metadata_schema.MetadataSchema]:
-        r"""Return a callable for the get metadata schema method over gRPC.
+        r"""Return a callable for the
+        get metadata schema
+          method over gRPC.
 
         Retrieves a specific MetadataSchema.
 
@@ -889,7 +937,9 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def list_metadata_schemas(self) -> Callable[
             [metadata_service.ListMetadataSchemasRequest],
             metadata_service.ListMetadataSchemasResponse]:
-        r"""Return a callable for the list metadata schemas method over gRPC.
+        r"""Return a callable for the
+        list metadata schemas
+          method over gRPC.
 
         Lists MetadataSchemas.
 
@@ -915,8 +965,10 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def query_artifact_lineage_subgraph(self) -> Callable[
             [metadata_service.QueryArtifactLineageSubgraphRequest],
             lineage_subgraph.LineageSubgraph]:
-        r"""Return a callable for the query artifact lineage
-        subgraph method over gRPC.
+        r"""Return a callable for the
+        query artifact lineage
+        subgraph
+          method over gRPC.
 
         Retrieves lineage of an Artifact represented through
         Artifacts and Executions connected by Event edges and

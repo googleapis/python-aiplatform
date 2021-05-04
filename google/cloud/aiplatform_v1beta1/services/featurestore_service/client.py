@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -48,7 +46,6 @@ from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-
 from .transports.base import FeaturestoreServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import FeaturestoreServiceGrpcTransport
 from .transports.grpc_asyncio import FeaturestoreServiceGrpcAsyncIOTransport
@@ -376,7 +373,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateFeaturestoreRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.CreateFeaturestore``.
             parent (str):
                 Required. The resource name of the Location to create
@@ -391,7 +389,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``featurestore`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -422,10 +419,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.CreateFeaturestoreRequest):
             request = featurestore_service.CreateFeaturestoreRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if featurestore is not None:
@@ -474,7 +469,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetFeaturestoreRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.GetFeaturestore``.
             name (str):
                 Required. The name of the
@@ -483,7 +479,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -511,10 +506,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.GetFeaturestoreRequest):
             request = featurestore_service.GetFeaturestoreRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -553,7 +546,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListFeaturestoresRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.ListFeaturestores``.
             parent (str):
                 Required. The resource name of the Location to list
@@ -563,7 +557,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -593,10 +586,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.ListFeaturestoresRequest):
             request = featurestore_service.ListFeaturestoresRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -645,7 +636,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateFeaturestoreRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.UpdateFeaturestore``.
             featurestore (google.cloud.aiplatform_v1beta1.types.Featurestore):
                 Required. The Featurestore's ``name`` field is used to
@@ -675,7 +667,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -706,10 +697,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.UpdateFeaturestoreRequest):
             request = featurestore_service.UpdateFeaturestoreRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if featurestore is not None:
                 request.featurestore = featurestore
             if update_mask is not None:
@@ -760,7 +749,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteFeaturestoreRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.DeleteFeaturestore``.
             name (str):
                 Required. The name of the Featurestore to be deleted.
@@ -770,7 +760,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -810,10 +799,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.DeleteFeaturestoreRequest):
             request = featurestore_service.DeleteFeaturestoreRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -861,7 +848,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateEntityTypeRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.CreateEntityType``.
             parent (str):
                 Required. The resource name of the Featurestore to
@@ -876,7 +864,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -907,10 +894,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.CreateEntityTypeRequest):
             request = featurestore_service.CreateEntityTypeRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if entity_type is not None:
@@ -959,7 +944,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetEntityTypeRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.GetEntityType``.
             name (str):
                 Required. The name of the EntityType resource. Format:
@@ -968,7 +954,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -999,10 +984,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.GetEntityTypeRequest):
             request = featurestore_service.GetEntityTypeRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1041,7 +1024,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListEntityTypesRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.ListEntityTypes``.
             parent (str):
                 Required. The resource name of the Featurestore to list
@@ -1051,7 +1035,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1081,10 +1064,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.ListEntityTypesRequest):
             request = featurestore_service.ListEntityTypesRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -1133,7 +1114,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateEntityTypeRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.UpdateEntityType``.
             entity_type (google.cloud.aiplatform_v1beta1.types.EntityType):
                 Required. The EntityType's ``name`` field is used to
@@ -1163,7 +1145,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1194,10 +1175,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.UpdateEntityTypeRequest):
             request = featurestore_service.UpdateEntityTypeRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if entity_type is not None:
                 request.entity_type = entity_type
             if update_mask is not None:
@@ -1240,7 +1219,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteEntityTypeRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [FeaturestoreService.DeleteEntityTypes][].
             name (str):
                 Required. The name of the EntityType to be deleted.
@@ -1250,7 +1230,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1290,10 +1269,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.DeleteEntityTypeRequest):
             request = featurestore_service.DeleteEntityTypeRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1341,7 +1318,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.CreateFeature``.
             parent (str):
                 Required. The resource name of the EntityType to create
@@ -1356,7 +1334,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``feature`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1386,10 +1363,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.CreateFeatureRequest):
             request = featurestore_service.CreateFeatureRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if feature is not None:
@@ -1439,7 +1414,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.BatchCreateFeaturesRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.BatchCreateFeatures``.
             parent (str):
                 Required. The resource name of the EntityType to create
@@ -1460,7 +1436,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1491,10 +1466,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.BatchCreateFeaturesRequest):
             request = featurestore_service.BatchCreateFeaturesRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if requests is not None:
@@ -1543,7 +1516,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetFeatureRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.GetFeature``.
             name (str):
                 Required. The name of the Feature resource. Format:
@@ -1552,7 +1526,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1582,10 +1555,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.GetFeatureRequest):
             request = featurestore_service.GetFeatureRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1624,7 +1595,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListFeaturesRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.ListFeatures``.
             parent (str):
                 Required. The resource name of the Location to list
@@ -1634,7 +1606,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1664,10 +1635,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.ListFeaturesRequest):
             request = featurestore_service.ListFeaturesRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -1716,7 +1685,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateFeatureRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.UpdateFeature``.
             feature (google.cloud.aiplatform_v1beta1.types.Feature):
                 Required. The Feature's ``name`` field is used to
@@ -1746,7 +1716,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1776,10 +1745,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.UpdateFeatureRequest):
             request = featurestore_service.UpdateFeatureRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if feature is not None:
                 request.feature = feature
             if update_mask is not None:
@@ -1820,7 +1787,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteFeatureRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.DeleteFeature``.
             name (str):
                 Required. The name of the Features to be deleted.
@@ -1830,7 +1798,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1870,10 +1837,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.DeleteFeatureRequest):
             request = featurestore_service.DeleteFeatureRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1940,7 +1905,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ImportFeatureValuesRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.ImportFeatureValues``.
             entity_type (str):
                 Required. The resource name of the EntityType grouping
@@ -1951,7 +1917,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1982,10 +1947,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.ImportFeatureValuesRequest):
             request = featurestore_service.ImportFeatureValuesRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if entity_type is not None:
                 request.entity_type = entity_type
 
@@ -2037,7 +2000,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.BatchReadFeatureValuesRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.BatchReadFeatureValues``.
             featurestore (str):
                 Required. The resource name of the Featurestore from
@@ -2047,7 +2011,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``featurestore`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2078,10 +2041,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.BatchReadFeatureValuesRequest):
             request = featurestore_service.BatchReadFeatureValuesRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if featurestore is not None:
                 request.featurestore = featurestore
 
@@ -2116,6 +2077,96 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Done; return the response.
         return response
 
+    def export_feature_values(self,
+            request: featurestore_service.ExportFeatureValuesRequest = None,
+            *,
+            entity_type: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gac_operation.Operation:
+        r"""Exports Feature values from all the entities of a
+        target EntityType.
+
+        Args:
+            request (google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesRequest):
+                The request object.
+                Request message for
+                ``FeaturestoreService.ExportFeatureValues``.
+            entity_type (str):
+                Required. The resource name of the EntityType from which
+                to export Feature values. Format:
+                ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+
+                This corresponds to the ``entity_type`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be
+                :class:`google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesResponse`
+                Response message for
+                ``FeaturestoreService.ExportFeatureValues``.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Sanity check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([entity_type])
+        if request is not None and has_flattened_params:
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a featurestore_service.ExportFeatureValuesRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, featurestore_service.ExportFeatureValuesRequest):
+            request = featurestore_service.ExportFeatureValuesRequest(request)
+             # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if entity_type is not None:
+                request.entity_type = entity_type
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.export_feature_values]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('entity_type', request.entity_type),
+            )),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            featurestore_service.ExportFeatureValuesResponse,
+            metadata_type=featurestore_service.ExportFeatureValuesOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
     def search_features(self,
             request: featurestore_service.SearchFeaturesRequest = None,
             *,
@@ -2129,7 +2180,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.SearchFeaturesRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``FeaturestoreService.SearchFeatures``.
             location (str):
                 Required. The resource name of the Location to search
@@ -2139,7 +2191,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``location`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2169,10 +2220,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.SearchFeaturesRequest):
             request = featurestore_service.SearchFeaturesRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if location is not None:
                 request.location = location
 
@@ -2207,8 +2256,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         # Done; return the response.
         return response
-
-
 
 
 

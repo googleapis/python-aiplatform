@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,21 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import warnings
-from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple
+from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import gapic_v1                   # type: ignore
 from google.api_core import grpc_helpers_async         # type: ignore
 from google import auth                                # type: ignore
 from google.auth import credentials                    # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
+import packaging.version
 
 import grpc                        # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import featurestore_online_service
-
 from .base import FeaturestoreOnlineServingServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import FeaturestoreOnlineServingServiceGrpcTransport
 
@@ -78,13 +76,15 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(FeaturestoreOnlineSer
         Returns:
             aio.Channel: A gRPC AsyncIO channel object.
         """
-        scopes = scopes or cls.AUTH_SCOPES
+
+        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
+
         return grpc_helpers_async.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
-            scopes=scopes,
             quota_project_id=quota_project_id,
+            **self_signed_jwt_kwargs,
             **kwargs
         )
 
@@ -104,7 +104,8 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(FeaturestoreOnlineSer
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]): The hostname to connect to.
+            host (Optional[str]):
+                 The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -162,7 +163,6 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(FeaturestoreOnlineSer
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
-
         else:
             if api_mtls_endpoint:
                 host = api_mtls_endpoint
@@ -225,7 +225,9 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(FeaturestoreOnlineSer
     def read_feature_values(self) -> Callable[
             [featurestore_online_service.ReadFeatureValuesRequest],
             Awaitable[featurestore_online_service.ReadFeatureValuesResponse]]:
-        r"""Return a callable for the read feature values method over gRPC.
+        r"""Return a callable for the
+        read feature values
+          method over gRPC.
 
         Reads Feature values of a specific entity of an
         EntityType. For reading feature values of multiple
@@ -254,7 +256,9 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(FeaturestoreOnlineSer
     def streaming_read_feature_values(self) -> Callable[
             [featurestore_online_service.StreamingReadFeatureValuesRequest],
             Awaitable[featurestore_online_service.ReadFeatureValuesResponse]]:
-        r"""Return a callable for the streaming read feature values method over gRPC.
+        r"""Return a callable for the
+        streaming read feature values
+          method over gRPC.
 
         Reads Feature values for multiple entities. Depending
         on their size, data for different entities may be broken

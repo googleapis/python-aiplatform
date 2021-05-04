@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,8 +24,7 @@ from google.cloud.aiplatform.v1.schema.predict.instance_v1.types.video_action_re
 from google.cloud.aiplatform.v1.schema.predict.instance_v1.types.video_classification import VideoClassificationPredictionInstance
 from google.cloud.aiplatform.v1.schema.predict.instance_v1.types.video_object_tracking import VideoObjectTrackingPredictionInstance
 
-__all__ = (
-    'ImageClassificationPredictionInstance',
+__all__ = ('ImageClassificationPredictionInstance',
     'ImageObjectDetectionPredictionInstance',
     'ImageSegmentationPredictionInstance',
     'TextClassificationPredictionInstance',

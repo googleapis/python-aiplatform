@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import event
@@ -45,15 +42,19 @@ class LineageSubgraph(proto.Message):
             Executions in the subgraph.
     """
 
-    artifacts = proto.RepeatedField(proto.MESSAGE, number=1,
+    artifacts = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
         message=artifact.Artifact,
     )
-
-    executions = proto.RepeatedField(proto.MESSAGE, number=2,
+    executions = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
         message=execution.Execution,
     )
-
-    events = proto.RepeatedField(proto.MESSAGE, number=3,
+    events = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
         message=event.Event,
     )
 

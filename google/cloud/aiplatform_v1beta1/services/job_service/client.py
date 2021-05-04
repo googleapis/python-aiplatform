@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -63,7 +61,6 @@ from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 from google.rpc import status_pb2 as status  # type: ignore
 from google.type import money_pb2 as money  # type: ignore
-
 from .transports.base import JobServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import JobServiceGrpcTransport
 from .transports.grpc_asyncio import JobServiceGrpcAsyncIOTransport
@@ -273,6 +270,28 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def network_path(project: str,network: str,) -> str:
+        """Return a fully-qualified network string."""
+        return "projects/{project}/global/networks/{network}".format(project=project, network=network, )
+
+    @staticmethod
+    def parse_network_path(path: str) -> Dict[str,str]:
+        """Parse a network path into its component segments."""
+        m = re.match(r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path)
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def tensorboard_path(project: str,location: str,tensorboard: str,) -> str:
+        """Return a fully-qualified tensorboard string."""
+        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(project=project, location=location, tensorboard=tensorboard, )
+
+    @staticmethod
+    def parse_tensorboard_path(path: str) -> Dict[str,str]:
+        """Parse a tensorboard path into its component segments."""
+        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/tensorboards/(?P<tensorboard>.+?)$", path)
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def trial_path(project: str,location: str,study: str,trial: str,) -> str:
         """Return a fully-qualified trial string."""
         return "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(project=project, location=location, study=study, trial=trial, )
@@ -455,7 +474,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateCustomJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.CreateCustomJob``.
             parent (str):
                 Required. The resource name of the Location to create
@@ -470,7 +490,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``custom_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -503,10 +522,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CreateCustomJobRequest):
             request = job_service.CreateCustomJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if custom_job is not None:
@@ -547,7 +564,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetCustomJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.GetCustomJob``.
             name (str):
                 Required. The name of the CustomJob resource. Format:
@@ -556,7 +574,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -589,10 +606,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.GetCustomJobRequest):
             request = job_service.GetCustomJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -631,7 +646,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListCustomJobsRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.ListCustomJobs``.
             parent (str):
                 Required. The resource name of the Location to list the
@@ -641,7 +657,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -671,10 +686,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.ListCustomJobsRequest):
             request = job_service.ListCustomJobsRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -722,7 +735,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteCustomJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.DeleteCustomJob``.
             name (str):
                 Required. The name of the CustomJob resource to be
@@ -732,7 +746,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -772,10 +785,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.DeleteCustomJobRequest):
             request = job_service.DeleteCustomJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -834,7 +845,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CancelCustomJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.CancelCustomJob``.
             name (str):
                 Required. The name of the CustomJob to cancel. Format:
@@ -843,7 +855,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -864,10 +875,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CancelCustomJobRequest):
             request = job_service.CancelCustomJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -904,8 +913,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateDataLabelingJobRequest):
-                The request object. Request message for
-                [DataLabelingJobService.CreateDataLabelingJob][].
+                The request object.
+                Request message for
+                ``JobService.CreateDataLabelingJob``.
             parent (str):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
@@ -920,7 +930,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``data_labeling_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -948,10 +957,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CreateDataLabelingJobRequest):
             request = job_service.CreateDataLabelingJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if data_labeling_job is not None:
@@ -992,8 +999,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetDataLabelingJobRequest):
-                The request object. Request message for
-                [DataLabelingJobService.GetDataLabelingJob][].
+                The request object.
+                Request message for
+                ``JobService.GetDataLabelingJob``.
             name (str):
                 Required. The name of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
@@ -1001,7 +1009,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1029,10 +1036,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.GetDataLabelingJobRequest):
             request = job_service.GetDataLabelingJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1071,8 +1076,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsRequest):
-                The request object. Request message for
-                [DataLabelingJobService.ListDataLabelingJobs][].
+                The request object.
+                Request message for
+                ``JobService.ListDataLabelingJobs``.
             parent (str):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
@@ -1080,7 +1086,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1110,10 +1115,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.ListDataLabelingJobsRequest):
             request = job_service.ListDataLabelingJobsRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -1161,7 +1164,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteDataLabelingJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.DeleteDataLabelingJob``.
             name (str):
                 Required. The name of the DataLabelingJob to be deleted.
@@ -1171,7 +1175,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1211,10 +1214,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.DeleteDataLabelingJobRequest):
             request = job_service.DeleteDataLabelingJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1262,8 +1263,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CancelDataLabelingJobRequest):
-                The request object. Request message for
-                [DataLabelingJobService.CancelDataLabelingJob][].
+                The request object.
+                Request message for
+                ``JobService.CancelDataLabelingJob``.
             name (str):
                 Required. The name of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
@@ -1271,7 +1273,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1292,10 +1293,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CancelDataLabelingJobRequest):
             request = job_service.CancelDataLabelingJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1332,7 +1331,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateHyperparameterTuningJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.CreateHyperparameterTuningJob``.
             parent (str):
                 Required. The resource name of the Location to create
@@ -1349,7 +1349,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``hyperparameter_tuning_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1378,10 +1377,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CreateHyperparameterTuningJobRequest):
             request = job_service.CreateHyperparameterTuningJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if hyperparameter_tuning_job is not None:
@@ -1422,7 +1419,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetHyperparameterTuningJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.GetHyperparameterTuningJob``.
             name (str):
                 Required. The name of the HyperparameterTuningJob
@@ -1432,7 +1430,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1461,10 +1458,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.GetHyperparameterTuningJobRequest):
             request = job_service.GetHyperparameterTuningJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1503,7 +1498,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListHyperparameterTuningJobsRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.ListHyperparameterTuningJobs``.
             parent (str):
                 Required. The resource name of the Location to list the
@@ -1513,7 +1509,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1543,10 +1538,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.ListHyperparameterTuningJobsRequest):
             request = job_service.ListHyperparameterTuningJobsRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -1594,7 +1587,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteHyperparameterTuningJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.DeleteHyperparameterTuningJob``.
             name (str):
                 Required. The name of the HyperparameterTuningJob
@@ -1604,7 +1598,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1644,10 +1637,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.DeleteHyperparameterTuningJobRequest):
             request = job_service.DeleteHyperparameterTuningJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1707,7 +1698,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CancelHyperparameterTuningJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.CancelHyperparameterTuningJob``.
             name (str):
                 Required. The name of the HyperparameterTuningJob to
@@ -1717,7 +1709,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1738,10 +1729,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CancelHyperparameterTuningJobRequest):
             request = job_service.CancelHyperparameterTuningJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1779,7 +1768,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateBatchPredictionJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.CreateBatchPredictionJob``.
             parent (str):
                 Required. The resource name of the Location to create
@@ -1796,7 +1786,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``batch_prediction_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1827,10 +1816,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CreateBatchPredictionJobRequest):
             request = job_service.CreateBatchPredictionJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if batch_prediction_job is not None:
@@ -1871,7 +1858,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetBatchPredictionJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.GetBatchPredictionJob``.
             name (str):
                 Required. The name of the BatchPredictionJob resource.
@@ -1881,7 +1869,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1912,10 +1899,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.GetBatchPredictionJobRequest):
             request = job_service.GetBatchPredictionJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1954,7 +1939,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListBatchPredictionJobsRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.ListBatchPredictionJobs``.
             parent (str):
                 Required. The resource name of the Location to list the
@@ -1964,7 +1950,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1994,10 +1979,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.ListBatchPredictionJobsRequest):
             request = job_service.ListBatchPredictionJobsRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -2046,7 +2029,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteBatchPredictionJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.DeleteBatchPredictionJob``.
             name (str):
                 Required. The name of the BatchPredictionJob resource to
@@ -2056,7 +2040,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2096,10 +2079,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.DeleteBatchPredictionJobRequest):
             request = job_service.DeleteBatchPredictionJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -2157,7 +2138,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CancelBatchPredictionJobRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 ``JobService.CancelBatchPredictionJob``.
             name (str):
                 Required. The name of the BatchPredictionJob to cancel.
@@ -2167,7 +2149,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2188,10 +2169,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CancelBatchPredictionJobRequest):
             request = job_service.CancelBatchPredictionJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -2229,8 +2208,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateModelDeploymentMonitoringJobRequest):
-                The request object. Request message for
-                [ModelDeploymentMonitoringJobService.CreateModelDeploymentMonitoringJob][].
+                The request object.
+                Request message for
+                ``JobService.CreateModelDeploymentMonitoringJob``.
             parent (str):
                 Required. The parent of the
                 ModelDeploymentMonitoringJob. Format:
@@ -2246,7 +2226,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``model_deployment_monitoring_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2276,10 +2255,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CreateModelDeploymentMonitoringJobRequest):
             request = job_service.CreateModelDeploymentMonitoringJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if model_deployment_monitoring_job is not None:
@@ -2322,8 +2299,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest):
-                The request object. Request message for
-                [ModelDeploymentMonitoringJobService.SearchModelDeploymentMonitoringStatsAnomalies][].
+                The request object.
+                Request message for
+                ``JobService.SearchModelDeploymentMonitoringStatsAnomalies``.
             model_deployment_monitoring_job (str):
                 Required. ModelDeploymentMonitoring Job resource name.
                 Format:
@@ -2339,7 +2317,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2349,7 +2326,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.job_service.pagers.SearchModelDeploymentMonitoringStatsAnomaliesPager:
                 Response message for
-                   [ModelDeploymentMonitoringJobService.SearchModelDeploymentMonitoringStatsAnomalies][].
+                   ``JobService.SearchModelDeploymentMonitoringStatsAnomalies``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2369,10 +2346,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest):
             request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if model_deployment_monitoring_job is not None:
                 request.model_deployment_monitoring_job = model_deployment_monitoring_job
             if deployed_model_id is not None:
@@ -2422,8 +2397,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetModelDeploymentMonitoringJobRequest):
-                The request object. Request message for
-                [ModelDeploymentMonitoringJobService.GetModelDeploymentMonitoringJob][].
+                The request object.
+                Request message for
+                ``JobService.GetModelDeploymentMonitoringJob``.
             name (str):
                 Required. The resource name of the
                 ModelDeploymentMonitoringJob. Format:
@@ -2432,7 +2408,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2462,10 +2437,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.GetModelDeploymentMonitoringJobRequest):
             request = job_service.GetModelDeploymentMonitoringJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -2504,8 +2477,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListModelDeploymentMonitoringJobsRequest):
-                The request object. Request message for
-                [ModelDeploymentMonitoringJobService.ListModelDeploymentMonitoringJobs][].
+                The request object.
+                Request message for
+                ``JobService.ListModelDeploymentMonitoringJobs``.
             parent (str):
                 Required. The parent of the
                 ModelDeploymentMonitoringJob. Format:
@@ -2514,7 +2488,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2524,7 +2497,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListModelDeploymentMonitoringJobsPager:
                 Response message for
-                   [ModelDeploymentMonitoringJobService.ListModelDeploymentMonitoringJobs][].
+                   ``JobService.ListModelDeploymentMonitoringJobs``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2544,10 +2517,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.ListModelDeploymentMonitoringJobsRequest):
             request = job_service.ListModelDeploymentMonitoringJobsRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -2596,8 +2567,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateModelDeploymentMonitoringJobRequest):
-                The request object. Request message for
-                [ModelDeploymentMonitoringJobService.UpdateModelDeploymentMonitoringJob][].
+                The request object.
+                Request message for
+                ``JobService.UpdateModelDeploymentMonitoringJob``.
             model_deployment_monitoring_job (google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringJob):
                 Required. The model monitoring
                 configuration which replaces the
@@ -2613,7 +2585,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2643,10 +2614,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.UpdateModelDeploymentMonitoringJobRequest):
             request = job_service.UpdateModelDeploymentMonitoringJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if model_deployment_monitoring_job is not None:
                 request.model_deployment_monitoring_job = model_deployment_monitoring_job
             if update_mask is not None:
@@ -2695,8 +2664,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteModelDeploymentMonitoringJobRequest):
-                The request object. Request message for
-                [ModelDeploymentMonitoringJobService.DeleteModelDeploymentMonitoringJob][].
+                The request object.
+                Request message for
+                ``JobService.DeleteModelDeploymentMonitoringJob``.
             name (str):
                 Required. The resource name of the model monitoring job
                 to delete. Format:
@@ -2705,7 +2675,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2745,10 +2714,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.DeleteModelDeploymentMonitoringJobRequest):
             request = job_service.DeleteModelDeploymentMonitoringJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -2798,8 +2765,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.PauseModelDeploymentMonitoringJobRequest):
-                The request object. Request message for
-                [ModelDeploymentMonitoringJobService.PauseModelDeploymentMonitoringJob][].
+                The request object.
+                Request message for
+                ``JobService.PauseModelDeploymentMonitoringJob``.
             name (str):
                 Required. The resource name of the
                 ModelDeploymentMonitoringJob to pause. Format:
@@ -2808,7 +2776,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2829,10 +2796,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.PauseModelDeploymentMonitoringJobRequest):
             request = job_service.PauseModelDeploymentMonitoringJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -2870,8 +2835,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ResumeModelDeploymentMonitoringJobRequest):
-                The request object. Request message for
-                [ModelDeploymentMonitoringJobService.ResumeModelDeploymentMonitoringJob][].
+                The request object.
+                Request message for
+                ``JobService.ResumeModelDeploymentMonitoringJob``.
             name (str):
                 Required. The resource name of the
                 ModelDeploymentMonitoringJob to resume. Format:
@@ -2880,7 +2846,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2901,10 +2866,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.ResumeModelDeploymentMonitoringJobRequest):
             request = job_service.ResumeModelDeploymentMonitoringJobRequest(request)
-
-            # If we have keyword arguments corresponding to fields on the
+             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -2927,8 +2890,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             timeout=timeout,
             metadata=metadata,
         )
-
-
 
 
 
