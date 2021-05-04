@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import upload_model_explain_tabular_managed_container_sample
 import test_constants as constants
 
+import upload_model_explain_tabular_managed_container_sample
 
-def test_upload_model_explain_tabular_managed_container_sample(mock_sdk_init, mock_model, mock_init_model, mock_upload_model):
+
+def test_upload_model_explain_tabular_managed_container_sample(
+    mock_sdk_init, mock_model, mock_init_model, mock_upload_model
+):
 
     upload_model_explain_tabular_managed_container_sample.upload_model_explain_tabular_managed_container_sample(
         project=constants.PROJECT,

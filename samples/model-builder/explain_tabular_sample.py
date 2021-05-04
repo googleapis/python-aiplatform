@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Dict
 
 from google.cloud import aiplatform
-
-from typing import Dict
 
 
 #  [START aiplatform_sdk_explain_tabular_sample]
