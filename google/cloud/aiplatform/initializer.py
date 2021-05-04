@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-
 from concurrent import futures
 import logging
 import pkg_resources
@@ -42,9 +41,9 @@ from google.cloud.aiplatform.compat.types import (
 class _Config:
     """Stores common parameters and options for API calls."""
 
-    # Class attribute to set user_agent header used for metrics reporting.  
-    user_agent_product="model-builder"
-    user_agent_comments=""
+    # Class attribute to set user_agent header used for metrics reporting.
+    user_agent_product = "model-builder"
+    user_agent_comments = ""
 
     def __init__(self):
         self._project = None
@@ -105,12 +104,8 @@ class _Config:
         self,
         encryption_spec_key_name: Optional[str],
         select_version: Optional[str] = compat.DEFAULT_VERSION,
-    ) -> Optional[
-        Union[
-            gca_encryption_spec_v1.EncryptionSpec,
-            gca_encryption_spec_v1beta1.EncryptionSpec,
-        ]
-    ]:
+    ) -> Optional[Union[gca_encryption_spec_v1.EncryptionSpec,
+                        gca_encryption_spec_v1beta1.EncryptionSpec,]]:
         """Creates a gca_encryption_spec.EncryptionSpec instance from the given
         key name. If the provided key name is None, it uses the default key
         name if provided.
@@ -186,7 +181,8 @@ class _Config:
         return self._encryption_spec_key_name
 
     def get_client_options(
-        self, location_override: Optional[str] = None
+        self,
+        location_override: Optional[str] = None
     ) -> client_options.ClientOptions:
         """Creates GAPIC client_options using location and type.
 
@@ -217,7 +213,9 @@ class _Config:
         )
 
     def common_location_path(
-        self, project: Optional[str] = None, location: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        location: Optional[str] = None
     ) -> str:
         """Get parent resource with optional project and location override.
 
@@ -230,14 +228,12 @@ class _Config:
         if location:
             utils.validate_region(location)
 
-        return "/".join(
-            [
-                "projects",
-                project or self.project,
-                "locations",
-                location or self.location,
-            ]
-        )
+        return "/".join([
+            "projects",
+            project or self.project,
+            "locations",
+            location or self.location,
+        ])
 
     def create_client(
         self,
@@ -263,15 +259,18 @@ class _Config:
             "google-cloud-aiplatform",
         ).version
         client_info = gapic_v1.client_info.ClientInfo(
-            gapic_version=gapic_version, user_agent=f"{self.user_agent_product}/{gapic_version} ({self.user_agent_comments})"
+            gapic_version=gapic_version,
+            user_agent=
+            f"{self.user_agent_product}/{gapic_version} ({self.user_agent_comments})"
         )
 
         kwargs = {
-            "credentials": credentials or self.credentials,
-            "client_options": self.get_client_options(
-                location_override=location_override
-            ),
-            "client_info": client_info,
+            "credentials":
+                credentials or self.credentials,
+            "client_options":
+                self.get_client_options(location_override=location_override),
+            "client_info":
+                client_info,
         }
 
         return client_class(**kwargs)
