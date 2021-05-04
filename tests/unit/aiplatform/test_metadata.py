@@ -431,38 +431,6 @@ class TestMetadata:
         assert metadata.metadata_service.run_name is None
 
     @pytest.mark.usefixtures("get_metadata_store_mock")
-    @pytest.mark.usefixtures("get_context_wrong_schema_mock")
-    def test_init_experiment_wrong_schema(self):
-        with pytest.raises(ValueError):
-            aiplatform.init(
-                project=_TEST_PROJECT,
-                location=_TEST_LOCATION,
-                experiment=_TEST_EXPERIMENT,
-            )
-
-    @pytest.mark.usefixtures("get_metadata_store_mock")
-    @pytest.mark.usefixtures("get_context_mock")
-    @pytest.mark.usefixtures("get_execution_mock")
-    @pytest.mark.usefixtures("add_context_artifacts_and_executions_mock")
-    @pytest.mark.usefixtures("get_artifact_mock")
-    @pytest.mark.usefixtures("add_execution_events_mock")
-    def test_init_experiment_reset(self):
-        aiplatform.init(
-            project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
-        )
-        aiplatform.start_run(_TEST_RUN)
-
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-
-        assert metadata.metadata_service.experiment_name == _TEST_EXPERIMENT
-        assert metadata.metadata_service.run_name == _TEST_RUN
-
-        aiplatform.init(project=_TEST_OTHER_PROJECT, location=_TEST_LOCATION)
-
-        assert metadata.metadata_service.experiment_name is None
-        assert metadata.metadata_service.run_name is None
-
-    @pytest.mark.usefixtures("get_metadata_store_mock")
     @pytest.mark.usefixtures("get_context_mock")
     def test_start_run_with_existing_execution_and_artifact(
         self,
