@@ -31,4 +31,4 @@ SCHEMA_VERSIONS = {
 
 # The EXPERIMENT_METADATA is needed until we support context deletion in backend service.
 # TODO: delete EXPERIMENT_METADATA once backend supports context deletion.
-EXPERIMENT_METADATA = {"experiment_deleted": False, "experiment_type": "MB"}
+EXPERIMENT_METADATA = {"experiment_deleted": False}

@@ -49,6 +49,8 @@ _TEST_PARENT = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/default"
 )
 _TEST_EXPERIMENT = "test-experiment"
+_TEST_EXPERIMENT_DESCRIPTION = "test-experiment-description"
+_TEST_OTHER_EXPERIMENT_DESCRIPTION = "test-other-experiment-description"
 _TEST_PIPELINE = _TEST_EXPERIMENT
 _TEST_RUN = "run-1"
 _TEST_OTHER_RUN = "run-2"
@@ -110,6 +112,7 @@ def get_context_mock():
         get_context_mock.return_value = GapicContext(
             name=_TEST_CONTEXT_NAME,
             display_name=_TEST_EXPERIMENT,
+            description=_TEST_EXPERIMENT_DESCRIPTION,
             schema_title=constants.SYSTEM_EXPERIMENT,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
             metadata=constants.EXPERIMENT_METADATA,
@@ -154,6 +157,20 @@ def get_context_not_found_mock():
     ) as get_context_not_found_mock:
         get_context_not_found_mock.side_effect = exceptions.NotFound("test: not found")
         yield get_context_not_found_mock
+
+
+@pytest.fixture
+def update_context_mock():
+    with patch.object(MetadataServiceClient, "update_context") as update_context_mock:
+        update_context_mock.return_value = GapicContext(
+            name=_TEST_CONTEXT_NAME,
+            display_name=_TEST_EXPERIMENT,
+            description=_TEST_OTHER_EXPERIMENT_DESCRIPTION,
+            schema_title=constants.SYSTEM_EXPERIMENT,
+            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
+            metadata=constants.EXPERIMENT_METADATA,
+        )
+        yield update_context_mock
 
 
 @pytest.fixture
@@ -347,6 +364,40 @@ class TestMetadata:
         get_metadata_store_mock.assert_called_once_with(name=_TEST_METADATASTORE)
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
 
+    def test_init_experiment_with_existing_description(
+        self, get_metadata_store_mock, get_context_mock
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            experiment_description=_TEST_EXPERIMENT_DESCRIPTION,
+        )
+
+        get_metadata_store_mock.assert_called_once_with(name=_TEST_METADATASTORE)
+        get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_mock")
+    def test_init_experiment_without_existing_description(self, update_context_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            experiment_description=_TEST_OTHER_EXPERIMENT_DESCRIPTION,
+        )
+
+        experiment_context = GapicContext(
+            name=_TEST_CONTEXT_NAME,
+            display_name=_TEST_EXPERIMENT,
+            description=_TEST_OTHER_EXPERIMENT_DESCRIPTION,
+            schema_title=constants.SYSTEM_EXPERIMENT,
+            schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
+            metadata=constants.EXPERIMENT_METADATA,
+        )
+
+        update_context_mock.assert_called_once_with(context=experiment_context)
+
     @pytest.mark.usefixtures("get_metadata_store_mock")
     @pytest.mark.usefixtures("get_context_wrong_schema_mock")
     def test_init_experiment_wrong_schema(self):
@@ -476,6 +527,20 @@ class TestMetadata:
         )
 
         update_artifact_mock.assert_called_once_with(artifact=updated_artifact)
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    @pytest.mark.usefixtures("get_context_mock")
+    @pytest.mark.usefixtures("get_execution_mock")
+    @pytest.mark.usefixtures("add_context_artifacts_and_executions_mock")
+    @pytest.mark.usefixtures("get_artifact_mock")
+    @pytest.mark.usefixtures("add_execution_events_mock")
+    def test_log_metrics_string_value_raise_error(self):
+        aiplatform.init(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
+        )
+        aiplatform.start_run(_TEST_RUN)
+        with pytest.raises(TypeError):
+            aiplatform.log_metrics({"test": "string"})
 
     # TODO: remove skip once koroko test would install extra required packages.
     @pytest.mark.skip(

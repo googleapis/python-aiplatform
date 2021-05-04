@@ -52,20 +52,21 @@ class _MetadataService:
             return self._run.display_name
         return None
 
-    def set_experiment(self, experiment: str):
+    def set_experiment(self, experiment: str, description: Optional[str] = None):
         """Setup a experiment to current session.
 
         Args:
             experiment (str):
                 Required. Name of the experiment to assign current session with.
-        Raises:
-            ValueError if a context with the same name as the experiment is create but with a different schema.
+            description (str):
+                Optional. Description of an experiment.
         """
 
         _MetadataStore.get_or_create()
         context = _Context.get_or_create(
             resource_id=experiment,
             display_name=experiment,
+            description=description,
             schema_title=constants.SYSTEM_EXPERIMENT,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
             metadata=constants.EXPERIMENT_METADATA,
@@ -75,6 +76,10 @@ class _MetadataService:
                 f"Experiment name {experiment} has been used to create other type of resources "
                 f"({context.schema_title}) in this MetadataStore, please choose a different experiment name."
             )
+
+        if description and context.description != description:
+            context.update(metadata=context.metadata, description=description)
+
         self._experiment = context
 
     def start_run(self, run: str):
@@ -145,15 +150,19 @@ class _MetadataService:
         )
         execution.update(metadata=params)
 
-    def log_metrics(self, metrics: Dict[str, Union[str, float, int]]):
+    def log_metrics(self, metrics: Dict[str, Union[float, int]]):
         """Log single or multiple Metrics with specified key and value pairs.
 
         Args:
             metrics (Dict):
-                Required. Metrics key/value pairs.
+                Required. Metrics key/value pairs. Only flot and int are supported format for value.
+        Raises:
+            TypeError if value contains unsupported types.
+            ValueError if Experiment or Run is not set.
         """
 
         self._validate_experiment_and_run(method_name="log_metrics")
+        self._validate_metrics_value_type(metrics)
         # query the latest metrics artifact resource before logging.
         artifact = _Artifact.get_or_create(
             resource_id=self._metrics.name,
@@ -246,6 +255,24 @@ class _MetadataService:
         if not self._run:
             raise ValueError(
                 f"No run set. Make sure to call aiplatform.start_run('my-run') before trying to {method_name}. "
+            )
+
+    @staticmethod
+    def _validate_metrics_value_type(metrics: Dict[str, Union[float, int]]):
+        """Verify that metrics value are with supported types.
+
+        Args:
+            metrics (Dict):
+                Required. Metrics key/value pairs. Only flot and int are supported format for value.
+        Raises:
+            TypeError if value contains unsupported types.
+        """
+
+        for key, value in metrics.items():
+            if isinstance(value, int) or isinstance(value, float):
+                continue
+            raise TypeError(
+                f"metrics contain unsupported value types. key: {key}; value: {value}; type: {type(value)}"
             )
 
     @staticmethod

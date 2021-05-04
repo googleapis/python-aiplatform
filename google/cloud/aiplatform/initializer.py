@@ -56,6 +56,7 @@ class _Config:
         project: Optional[str] = None,
         location: Optional[str] = None,
         experiment: Optional[str] = None,
+        experiment_description: Optional[str] = None,
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
@@ -65,8 +66,9 @@ class _Config:
         Args:
             project (str): The default project to use when making API calls.
             location (str): The default location to use when making API calls. If not
-                set defaults to us-central-1
-            experiment (str): The experiment name
+                set defaults to us-central-1.
+            experiment (str): The experiment name.
+            experiment_description (str): The description of the experiment.
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
             credentials (google.auth.credentials.Credentials): The default custom
@@ -96,7 +98,13 @@ class _Config:
             utils.validate_region(location)
             self._location = location
         if experiment:
-            metadata.metadata_service.set_experiment(experiment)
+            metadata.metadata_service.set_experiment(
+                experiment=experiment, description=experiment_description
+            )
+        if experiment_description and experiment is None:
+            raise ValueError(
+                "Experiment name needs to be set in `init` in order to add experiment descriptions."
+            )
         if staging_bucket:
             self._staging_bucket = staging_bucket
         if credentials:
