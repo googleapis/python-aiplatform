@@ -30,6 +30,7 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
 from typing import List
+import logging
 
 
 class TabularDataset(datasets._Dataset):
@@ -127,6 +128,7 @@ class TabularDataset(datasets._Dataset):
         line = ""
 
         try:
+            logging.disable(logging.CRITICAL)
             while first_new_line_index == -1:
                 line += blob.download_as_bytes(
                     start=start_index, end=start_index + increment
@@ -144,6 +146,8 @@ class TabularDataset(datasets._Dataset):
             raise RuntimeError(
                 f"There was a problem extracting the headers from the CSV file at: { gcs_csv_file_path }"
             )
+        finally:
+            logging.disable(logging.NOTSET)
 
         return next(csv_reader)
 
