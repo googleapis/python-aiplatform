@@ -12,22 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from google.cloud.aiplatform import schema
 
-import predict_text_entity_extraction_sample
+import pytest
+
+import import_data_video_classification_sample
 import test_constants as constants
 
 
-def test_predict_text_entity_extraction_sample(mock_sdk_init, mock_get_endpoint):
+@pytest.mark.usefixtures("mock_get_video_dataset")
+def test_import_data_video_classification_sample(mock_sdk_init, mock_import_video_data):
 
-    predict_text_entity_extraction_sample.predict_text_entity_extraction_sample(
+    import_data_video_classification_sample.import_data_video_classification_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        endpoint_id=constants.ENDPOINT_NAME,
-        content=constants.PREDICTION_TEXT_INSTANCE,
+        dataset_name=constants.DATASET_NAME,
+        src_uris=constants.GCS_SOURCES,
     )
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_get_endpoint.assert_called_once_with(constants.ENDPOINT_NAME,)
+    mock_import_video_data.assert_called_once_with(
+        gcs_source=constants.GCS_SOURCES,
+        import_schema_uri=schema.dataset.ioformat.video.classification,
+        sync=True,
+    )

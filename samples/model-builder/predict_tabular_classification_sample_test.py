@@ -13,17 +13,17 @@
 # limitations under the License.
 
 
-import predict_text_entity_extraction_sample
+import predict_tabular_classification_sample
 import test_constants as constants
 
 
-def test_predict_text_entity_extraction_sample(mock_sdk_init, mock_get_endpoint):
+def test_predict_tabular_classification_sample(mock_sdk_init, mock_get_endpoint):
 
-    predict_text_entity_extraction_sample.predict_text_entity_extraction_sample(
+    predict_tabular_classification_sample.predict_tabular_classification_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        endpoint_id=constants.ENDPOINT_NAME,
-        content=constants.PREDICTION_TEXT_INSTANCE,
+        endpoint=constants.ENDPOINT_NAME,
+        instances=constants.PREDICTION_TABULAR_CLASSIFICATION_INSTANCE,
     )
 
     mock_sdk_init.assert_called_once_with(
