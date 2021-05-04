@@ -65,8 +65,8 @@ class CreateIndexOperationMetadata(proto.Message):
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
         nearest_neighbor_search_operation_metadata (google.cloud.aiplatform_v1beta1.types.NearestNeighborSearchOperationMetadata):
-            The operation metadata with regard to ScaNN
-            Index operation.
+            The operation metadata with regard to
+            Matching Engine Index operation.
     """
 
     generic_metadata = proto.Field(
@@ -148,7 +148,8 @@ class ListIndexesResponse(proto.Message):
 
 
 class UpdateIndexRequest(proto.Message):
-    r"""Request message for [IndexService.UpdateModel][].
+    r"""Request message for
+    ``IndexService.UpdateIndex``.
 
     Attributes:
         index (google.cloud.aiplatform_v1beta1.types.Index):
@@ -173,8 +174,8 @@ class UpdateIndexOperationMetadata(proto.Message):
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
         nearest_neighbor_search_operation_metadata (google.cloud.aiplatform_v1beta1.types.NearestNeighborSearchOperationMetadata):
-            The operation metadata with regard to ScaNN
-            Index operation.
+            The operation metadata with regard to
+            Matching Engine Index operation.
     """
 
     generic_metadata = proto.Field(
@@ -201,13 +202,14 @@ class DeleteIndexRequest(proto.Message):
 
 
 class NearestNeighborSearchOperationMetadata(proto.Message):
-    r"""Runtime operation metadata with regard to ScaNN Index.
+    r"""Runtime operation metadata with regard to Matching Engine
+    Index.
 
     Attributes:
         content_validation_stats (Sequence[google.cloud.aiplatform_v1beta1.types.NearestNeighborSearchOperationMetadata.ContentValidationStats]):
             The validation stats of the content (per file) to be
-            inserted or updated on the ScaNN Index resource. Populated
-            if contentsDeltaUri is provided as part of
+            inserted or updated on the Matching Engine Index resource.
+            Populated if contentsDeltaUri is provided as part of
             ``Index.metadata``.
             Please note that, currently for those files that are broken
             or has unsupported file format, we will not have the stats

@@ -23,12 +23,12 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "IndexEndpoint",
-        "DeployedIndex",
-        "DeployedIndexAuthConfig",
-        "IndexPrivateEndpoints",
+        'IndexEndpoint',
+        'DeployedIndex',
+        'DeployedIndexAuthConfig',
+        'IndexPrivateEndpoints',
     },
 )
 
@@ -97,17 +97,21 @@ class IndexEndpoint(proto.Message):
 
     description = proto.Field(proto.STRING, number=3)
 
-    deployed_indexes = proto.RepeatedField(
-        proto.MESSAGE, number=4, message="DeployedIndex",
+    deployed_indexes = proto.RepeatedField(proto.MESSAGE, number=4,
+        message='DeployedIndex',
     )
 
     etag = proto.Field(proto.STRING, number=5)
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=6)
 
-    create_time = proto.Field(proto.MESSAGE, number=7, message=timestamp.Timestamp,)
+    create_time = proto.Field(proto.MESSAGE, number=7,
+        message=timestamp.Timestamp,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=8,
+        message=timestamp.Timestamp,
+    )
 
     network = proto.Field(proto.STRING, number=9)
 
@@ -190,22 +194,26 @@ class DeployedIndex(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=3)
 
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
-
-    private_endpoints = proto.Field(
-        proto.MESSAGE, number=5, message="IndexPrivateEndpoints",
+    create_time = proto.Field(proto.MESSAGE, number=4,
+        message=timestamp.Timestamp,
     )
 
-    index_sync_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
+    private_endpoints = proto.Field(proto.MESSAGE, number=5,
+        message='IndexPrivateEndpoints',
+    )
 
-    automatic_resources = proto.Field(
-        proto.MESSAGE, number=7, message=machine_resources.AutomaticResources,
+    index_sync_time = proto.Field(proto.MESSAGE, number=6,
+        message=timestamp.Timestamp,
+    )
+
+    automatic_resources = proto.Field(proto.MESSAGE, number=7,
+        message=machine_resources.AutomaticResources,
     )
 
     enable_access_logging = proto.Field(proto.BOOL, number=8)
 
-    deployed_index_auth_config = proto.Field(
-        proto.MESSAGE, number=9, message="DeployedIndexAuthConfig",
+    deployed_index_auth_config = proto.Field(proto.MESSAGE, number=9,
+        message='DeployedIndexAuthConfig',
     )
 
 
@@ -218,7 +226,6 @@ class DeployedIndexAuthConfig(proto.Message):
             Defines the authentication provider that the
             DeployedIndex uses.
     """
-
     class AuthProvider(proto.Message):
         r"""Configuration for an authentication provider, including support for
         `JSON Web Token
@@ -230,11 +237,20 @@ class DeployedIndexAuthConfig(proto.Message):
                 `audiences <https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.3>`__.
                 that are allowed to access. A JWT containing any of these
                 audiences will be accepted.
+            allowed_issuers (Sequence[str]):
+                A list of allowed JWT issuers. Each entry must be a valid
+                Google service account, in the following format:
+
+                ``service-account-name@project-id.iam.gserviceaccount.com``
         """
 
         audiences = proto.RepeatedField(proto.STRING, number=1)
 
-    auth_provider = proto.Field(proto.MESSAGE, number=1, message=AuthProvider,)
+        allowed_issuers = proto.RepeatedField(proto.STRING, number=2)
+
+    auth_provider = proto.Field(proto.MESSAGE, number=1,
+        message=AuthProvider,
+    )
 
 
 class IndexPrivateEndpoints(proto.Message):

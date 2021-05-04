@@ -56,21 +56,25 @@ class SearchMigratableResourcesRequest(proto.Message):
         page_token (str):
             The standard page token.
         filter (str):
-            Supported filters are:
+            A filter for your search. You can use the following types of
+            filters:
 
-            -  Resource type: For a specific type of MigratableResource.
+            -  Resource type filters. The following strings filter for a
+               specific type of
+               ``MigratableResource``:
 
                -  ``ml_engine_model_version:*``
-               -  ``automl_model:*``,
+               -  ``automl_model:*``
                -  ``automl_dataset:*``
-               -  ``data_labeling_dataset:*``.
+               -  ``data_labeling_dataset:*``
 
-            -  Migrated or not: Filter migrated resource or not by
-               last_migrate_time.
+            -  "Migrated or not" filters. The following strings filter
+               for resources that either have or have not already been
+               migrated:
 
-               -  ``last_migrate_time:*`` will filter migrated
+               -  ``last_migrate_time:*`` filters for migrated
                   resources.
-               -  ``NOT last_migrate_time:*`` will filter not yet
+               -  ``NOT last_migrate_time:*`` filters for not yet
                   migrated resources.
     """
 

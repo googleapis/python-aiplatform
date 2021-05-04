@@ -46,7 +46,22 @@ class MetadataStore(proto.Message):
             Metadata Store. If set, this Metadata Store and
             all sub-resources of this Metadata Store will be
             secured by this key.
+        description (str):
+            Description of the MetadataStore.
+        state (google.cloud.aiplatform_v1beta1.types.MetadataStore.MetadataStoreState):
+            Output only. State information of the
+            MetadataStore.
     """
+    class MetadataStoreState(proto.Message):
+        r"""Represent state information for a MetadataStore.
+
+        Attributes:
+            disk_utilization_bytes (int):
+                The disk utilization of the MetadataStore in
+                bytes.
+        """
+
+        disk_utilization_bytes = proto.Field(proto.INT64, number=1)
 
     name = proto.Field(proto.STRING, number=1)
 
@@ -56,6 +71,12 @@ class MetadataStore(proto.Message):
 
     encryption_spec = proto.Field(
         proto.MESSAGE, number=5, message=gca_encryption_spec.EncryptionSpec,
+    )
+
+    description = proto.Field(proto.STRING, number=6)
+
+    state = proto.Field(proto.MESSAGE, number=7,
+        message=MetadataStoreState,
     )
 
 

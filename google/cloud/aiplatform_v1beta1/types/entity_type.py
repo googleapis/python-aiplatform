@@ -70,6 +70,9 @@ class EntityType(proto.Message):
             odify-write updates. If not set, a blind
             "overwrite" update happens.
         monitoring_config (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig):
+            Optional. The default monitoring configuration for all
+            Features under this EntityType.
+
             If this is populated with
             [FeaturestoreMonitoringConfig.monitoring_interval]
             specified, snapshot analysis monitoring is enabled.

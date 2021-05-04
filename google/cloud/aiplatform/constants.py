@@ -16,7 +16,22 @@
 #
 
 DEFAULT_REGION = "us-central1"
-SUPPORTED_REGIONS = ("us-central1", "europe-west4", "asia-east1")
+SUPPORTED_REGIONS = {
+    "asia-east1",
+    "asia-northeast1",
+    "asia-northeast3",
+    "asia-southeast1",
+    "australia-southeast1",
+    "europe-west1",
+    "europe-west2",
+    "europe-west4",
+    "northamerica-northeast1",
+    "us-central1",
+    "us-east1",
+    "us-east4",
+    "us-west1",
+}
+
 API_BASE_PATH = "aiplatform.googleapis.com"
 
 # Batch Prediction
