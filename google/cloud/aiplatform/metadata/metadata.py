@@ -60,15 +60,7 @@ class _MetadataService:
                 Required. Name of the experiment to assign current session with.
             description (str):
                 Optional. Description of an experiment.
-        Raises:
-            ValueError if a context with the same name as the experiment is create but with a different schema.
-            Or if exp_description is set but experiment is not.
         """
-
-        if experiment is None:
-            raise ValueError(
-                "Experiment name needs to be set in order to add experiment descriptions."
-            )
 
         _MetadataStore.get_or_create()
         context = _Context.get_or_create(

@@ -97,9 +97,13 @@ class _Config:
         if location:
             utils.validate_region(location)
             self._location = location
-        if experiment or experiment_description:
+        if experiment:
             metadata.metadata_service.set_experiment(
                 experiment=experiment, description=experiment_description
+            )
+        if experiment_description and experiment is None:
+            raise ValueError(
+                "Experiment name needs to be set in `init` in order to add experiment descriptions."
             )
         if staging_bucket:
             self._staging_bucket = staging_bucket
