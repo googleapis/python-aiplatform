@@ -65,5 +65,6 @@ __all__ = (
     "Model",
     "TabularDataset",
     "TextDataset",
+    "TimeSeriesDataset",
     "VideoDataset",
 )
