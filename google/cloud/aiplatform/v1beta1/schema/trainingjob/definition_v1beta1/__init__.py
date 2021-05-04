@@ -15,6 +15,9 @@
 # limitations under the License.
 #
 
+from .types.automl_forecasting import AutoMlForecasting
+from .types.automl_forecasting import AutoMlForecastingInputs
+from .types.automl_forecasting import AutoMlForecastingMetadata
 from .types.automl_image_classification import AutoMlImageClassification
 from .types.automl_image_classification import AutoMlImageClassificationInputs
 from .types.automl_image_classification import AutoMlImageClassificationMetadata
@@ -43,6 +46,10 @@ from .types.export_evaluated_data_items_config import ExportEvaluatedDataItemsCo
 
 
 __all__ = (
+    "AutoMlForecasting",
+    "AutoMlForecastingInputs",
+    "AutoMlForecastingMetadata",
+    "AutoMlImageClassification",
     "AutoMlImageClassificationInputs",
     "AutoMlImageClassificationMetadata",
     "AutoMlImageObjectDetection",
@@ -67,5 +74,4 @@ __all__ = (
     "AutoMlVideoObjectTracking",
     "AutoMlVideoObjectTrackingInputs",
     "ExportEvaluatedDataItemsConfig",
-    "AutoMlImageClassification",
 )

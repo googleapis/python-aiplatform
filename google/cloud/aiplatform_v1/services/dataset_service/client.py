@@ -926,8 +926,9 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
             if name is not None:
                 request.name = name
-            if import_configs is not None:
-                request.import_configs = import_configs
+
+            if import_configs:
+                request.import_configs.extend(import_configs)
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
