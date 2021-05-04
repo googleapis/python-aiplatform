@@ -29,11 +29,23 @@ def explain_tabular_sample(
 
     response = endpoint.explain(instances=[instance_dict], parameters={})
 
+    for explanation in response.explanations:
+        print(" explanation")
+        # Feature attributions.
+        attributions = explanation.attributions
+        for attribution in attributions:
+            print("  attribution")
+            print("   baseline_output_value:", attribution.baseline_output_value)
+            print("   instance_output_value:", attribution.instance_output_value)
+            print("   output_display_name:", attribution.output_display_name)
+            print("   approximation_error:", attribution.approximation_error)
+            print("   output_name:", attribution.output_name)
+            output_index = attribution.output_index
+            for output_index in output_index:
+                print("   output_index:", output_index)
+
     for prediction in response.predictions:
         print(prediction)
-
-    for explanation in response.explanations:
-        print(explanation)
 
 
 #  [END aiplatform_sdk_explain_tabular_sample]
