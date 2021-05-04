@@ -85,10 +85,8 @@ class TabularDataset(datasets._Dataset):
 
         raise RuntimeError("No valid CSV or BigQuery datasource found.")
 
-    @classmethod
-    def _retrieve_gcs_source_columns(
-        cls, project: str, gcs_csv_file_path: str
-    ) -> List[str]:
+    @staticmethod
+    def _retrieve_gcs_source_columns(project: str, gcs_csv_file_path: str) -> List[str]:
         """Retrieve the columns from a comma-delimited CSV file stored on Google Cloud Storage
 
         Example Usage:
@@ -139,7 +137,7 @@ class TabularDataset(datasets._Dataset):
             header_line = line[:first_new_line_index]
 
             # Split to make it an iterable
-            header_line = header_line.split("\n")
+            header_line = header_line.split("\n")[:1]
 
             csv_reader = csv.reader(header_line, delimiter=",")
         except:
@@ -149,8 +147,8 @@ class TabularDataset(datasets._Dataset):
 
         return next(csv_reader)
 
-    @classmethod
-    def _retrieve_bq_source_columns(cls, project: str, bq_table_uri: str) -> List[str]:
+    @staticmethod
+    def _retrieve_bq_source_columns(project: str, bq_table_uri: str) -> List[str]:
         """Retrieve the columns from a table on Google BigQuery
 
         Example Usage:
