@@ -95,7 +95,7 @@ def test__get_default_mtls_endpoint():
 
 
 @pytest.mark.parametrize(
-    "client_class", [MigrationServiceClient, MigrationServiceAsyncClient,],
+    "client_class", [MigrationServiceClient, MigrationServiceAsyncClient,]
 )
 def test_migration_service_client_from_service_account_info(client_class):
     creds = credentials.AnonymousCredentials()
@@ -112,7 +112,7 @@ def test_migration_service_client_from_service_account_info(client_class):
 
 
 @pytest.mark.parametrize(
-    "client_class", [MigrationServiceClient, MigrationServiceAsyncClient,],
+    "client_class", [MigrationServiceClient, MigrationServiceAsyncClient,]
 )
 def test_migration_service_client_from_service_account_file(client_class):
     creds = credentials.AnonymousCredentials()
@@ -1551,31 +1551,8 @@ def test_parse_annotated_dataset_path():
 
 def test_dataset_path():
     project = "cuttlefish"
-    dataset = "mussel"
-
-    expected = "projects/{project}/datasets/{dataset}".format(
-        project=project, dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "winkle",
-        "dataset": "nautilus",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "scallop"
-    location = "abalone"
-    dataset = "squid"
+    location = "mussel"
+    dataset = "winkle"
 
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project, location=location, dataset=dataset,
@@ -1586,8 +1563,31 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
+        "project": "nautilus",
+        "location": "scallop",
+        "dataset": "abalone",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "squid"
+    dataset = "clam"
+
+    expected = "projects/{project}/datasets/{dataset}".format(
+        project=project, dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "whelk",
         "dataset": "octopus",
     }
     path = MigrationServiceClient.dataset_path(**expected)

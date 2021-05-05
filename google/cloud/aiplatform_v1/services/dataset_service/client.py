@@ -32,7 +32,7 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.dataset_service import pagers
 from google.cloud.aiplatform_v1.types import annotation
@@ -426,13 +426,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Creates a Dataset.
 
         Args:
             request (google.cloud.aiplatform_v1.types.CreateDatasetRequest):
                 The request object. Request message for
-                ``DatasetService.CreateDataset``.
+                [DatasetService.CreateDataset][google.cloud.aiplatform.v1.DatasetService.CreateDataset].
             parent (str):
                 Required. The resource name of the Location to create
                 the Dataset in. Format:
@@ -501,7 +501,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             gca_dataset.Dataset,
@@ -525,7 +525,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.GetDatasetRequest):
                 The request object. Request message for
-                ``DatasetService.GetDataset``.
+                [DatasetService.GetDataset][google.cloud.aiplatform.v1.DatasetService.GetDataset].
             name (str):
                 Required. The name of the Dataset
                 resource.
@@ -600,7 +600,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.UpdateDatasetRequest):
                 The request object. Request message for
-                ``DatasetService.UpdateDataset``.
+                [DatasetService.UpdateDataset][google.cloud.aiplatform.v1.DatasetService.UpdateDataset].
             dataset (google.cloud.aiplatform_v1.types.Dataset):
                 Required. The Dataset which replaces
                 the resource on the server.
@@ -691,7 +691,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.ListDatasetsRequest):
                 The request object. Request message for
-                ``DatasetService.ListDatasets``.
+                [DatasetService.ListDatasets][google.cloud.aiplatform.v1.DatasetService.ListDatasets].
             parent (str):
                 Required. The name of the Dataset's parent resource.
                 Format: ``projects/{project}/locations/{location}``
@@ -709,7 +709,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListDatasetsPager:
                 Response message for
-                ``DatasetService.ListDatasets``.
+                [DatasetService.ListDatasets][google.cloud.aiplatform.v1.DatasetService.ListDatasets].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -768,13 +768,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deletes a Dataset.
 
         Args:
             request (google.cloud.aiplatform_v1.types.DeleteDatasetRequest):
                 The request object. Request message for
-                ``DatasetService.DeleteDataset``.
+                [DatasetService.DeleteDataset][google.cloud.aiplatform.v1.DatasetService.DeleteDataset].
             name (str):
                 Required. The resource name of the Dataset to delete.
                 Format:
@@ -846,7 +846,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             empty.Empty,
@@ -865,13 +865,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Imports data into a Dataset.
 
         Args:
             request (google.cloud.aiplatform_v1.types.ImportDataRequest):
                 The request object. Request message for
-                ``DatasetService.ImportData``.
+                [DatasetService.ImportData][google.cloud.aiplatform.v1.DatasetService.ImportData].
             name (str):
                 Required. The name of the Dataset resource. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
@@ -901,7 +901,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.ImportDataResponse`
                 Response message for
-                ``DatasetService.ImportData``.
+                [DatasetService.ImportData][google.cloud.aiplatform.v1.DatasetService.ImportData].
 
         """
         # Create or coerce a protobuf request object.
@@ -943,7 +943,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             dataset_service.ImportDataResponse,
@@ -962,13 +962,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Exports data from a Dataset.
 
         Args:
             request (google.cloud.aiplatform_v1.types.ExportDataRequest):
                 The request object. Request message for
-                ``DatasetService.ExportData``.
+                [DatasetService.ExportData][google.cloud.aiplatform.v1.DatasetService.ExportData].
             name (str):
                 Required. The name of the Dataset resource. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
@@ -997,7 +997,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.ExportDataResponse`
                 Response message for
-                ``DatasetService.ExportData``.
+                [DatasetService.ExportData][google.cloud.aiplatform.v1.DatasetService.ExportData].
 
         """
         # Create or coerce a protobuf request object.
@@ -1039,7 +1039,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             dataset_service.ExportDataResponse,
@@ -1063,7 +1063,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.ListDataItemsRequest):
                 The request object. Request message for
-                ``DatasetService.ListDataItems``.
+                [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems].
             parent (str):
                 Required. The resource name of the Dataset to list
                 DataItems from. Format:
@@ -1082,7 +1082,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListDataItemsPager:
                 Response message for
-                ``DatasetService.ListDataItems``.
+                [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1147,7 +1147,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.GetAnnotationSpecRequest):
                 The request object. Request message for
-                ``DatasetService.GetAnnotationSpec``.
+                [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1.DatasetService.GetAnnotationSpec].
             name (str):
                 Required. The name of the AnnotationSpec resource.
                 Format:
@@ -1223,7 +1223,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.ListAnnotationsRequest):
                 The request object. Request message for
-                ``DatasetService.ListAnnotations``.
+                [DatasetService.ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
             parent (str):
                 Required. The resource name of the DataItem to list
                 Annotations from. Format:
@@ -1243,7 +1243,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListAnnotationsPager:
                 Response message for
-                ``DatasetService.ListAnnotations``.
+                [DatasetService.ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

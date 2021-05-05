@@ -32,7 +32,7 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import pagers
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -367,13 +367,13 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Creates a SpecialistPool.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateSpecialistPoolRequest):
                 The request object. Request message for
-                ``SpecialistPoolService.CreateSpecialistPool``.
+                [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.CreateSpecialistPool].
             parent (str):
                 Required. The parent Project name for the new
                 SpecialistPool. The form is
@@ -449,7 +449,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             gca_specialist_pool.SpecialistPool,
@@ -473,7 +473,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetSpecialistPoolRequest):
                 The request object. Request message for
-                ``SpecialistPoolService.GetSpecialistPool``.
+                [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.GetSpecialistPool].
             name (str):
                 Required. The name of the SpecialistPool resource. The
                 form is
@@ -557,7 +557,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsRequest):
                 The request object. Request message for
-                ``SpecialistPoolService.ListSpecialistPools``.
+                [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
             parent (str):
                 Required. The name of the SpecialistPool's parent
                 resource. Format:
@@ -576,7 +576,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.specialist_pool_service.pagers.ListSpecialistPoolsPager:
                 Response message for
-                ``SpecialistPoolService.ListSpecialistPools``.
+                [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -635,14 +635,14 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deletes a SpecialistPool as well as all Specialists
         in the pool.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteSpecialistPoolRequest):
                 The request object. Request message for
-                ``SpecialistPoolService.DeleteSpecialistPool``.
+                [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.DeleteSpecialistPool].
             name (str):
                 Required. The resource name of the SpecialistPool to
                 delete. Format:
@@ -714,7 +714,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             empty.Empty,
@@ -733,13 +733,13 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Updates a SpecialistPool.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateSpecialistPoolRequest):
                 The request object. Request message for
-                ``SpecialistPoolService.UpdateSpecialistPool``.
+                [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.UpdateSpecialistPool].
             specialist_pool (google.cloud.aiplatform_v1beta1.types.SpecialistPool):
                 Required. The SpecialistPool which
                 replaces the resource on the server.
@@ -816,7 +816,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             gca_specialist_pool.SpecialistPool,

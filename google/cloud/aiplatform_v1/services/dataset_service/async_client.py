@@ -28,7 +28,7 @@ from google.api_core import retry as retries  # type: ignore
 from google.auth import credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.dataset_service import pagers
 from google.cloud.aiplatform_v1.types import annotation
@@ -205,7 +205,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateDatasetRequest`):
                 The request object. Request message for
-                ``DatasetService.CreateDataset``.
+                [DatasetService.CreateDataset][google.cloud.aiplatform.v1.DatasetService.CreateDataset].
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the Dataset in. Format:
@@ -259,7 +259,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.create_dataset,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -297,7 +297,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetDatasetRequest`):
                 The request object. Request message for
-                ``DatasetService.GetDataset``.
+                [DatasetService.GetDataset][google.cloud.aiplatform.v1.DatasetService.GetDataset].
             name (:class:`str`):
                 Required. The name of the Dataset
                 resource.
@@ -340,7 +340,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_dataset,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -371,7 +371,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateDatasetRequest`):
                 The request object. Request message for
-                ``DatasetService.UpdateDataset``.
+                [DatasetService.UpdateDataset][google.cloud.aiplatform.v1.DatasetService.UpdateDataset].
             dataset (:class:`google.cloud.aiplatform_v1.types.Dataset`):
                 Required. The Dataset which replaces
                 the resource on the server.
@@ -429,7 +429,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.update_dataset,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -461,7 +461,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListDatasetsRequest`):
                 The request object. Request message for
-                ``DatasetService.ListDatasets``.
+                [DatasetService.ListDatasets][google.cloud.aiplatform.v1.DatasetService.ListDatasets].
             parent (:class:`str`):
                 Required. The name of the Dataset's parent resource.
                 Format: ``projects/{project}/locations/{location}``
@@ -479,7 +479,7 @@ class DatasetServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListDatasetsAsyncPager:
                 Response message for
-                ``DatasetService.ListDatasets``.
+                [DatasetService.ListDatasets][google.cloud.aiplatform.v1.DatasetService.ListDatasets].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -507,7 +507,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_datasets,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -543,7 +543,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteDatasetRequest`):
                 The request object. Request message for
-                ``DatasetService.DeleteDataset``.
+                [DatasetService.DeleteDataset][google.cloud.aiplatform.v1.DatasetService.DeleteDataset].
             name (:class:`str`):
                 Required. The resource name of the Dataset to delete.
                 Format:
@@ -600,7 +600,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_dataset,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -639,7 +639,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ImportDataRequest`):
                 The request object. Request message for
-                ``DatasetService.ImportData``.
+                [DatasetService.ImportData][google.cloud.aiplatform.v1.DatasetService.ImportData].
             name (:class:`str`):
                 Required. The name of the Dataset resource. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
@@ -669,7 +669,7 @@ class DatasetServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.ImportDataResponse`
                 Response message for
-                ``DatasetService.ImportData``.
+                [DatasetService.ImportData][google.cloud.aiplatform.v1.DatasetService.ImportData].
 
         """
         # Create or coerce a protobuf request object.
@@ -697,7 +697,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.import_data,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -736,7 +736,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ExportDataRequest`):
                 The request object. Request message for
-                ``DatasetService.ExportData``.
+                [DatasetService.ExportData][google.cloud.aiplatform.v1.DatasetService.ExportData].
             name (:class:`str`):
                 Required. The name of the Dataset resource. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
@@ -765,7 +765,7 @@ class DatasetServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.ExportDataResponse`
                 Response message for
-                ``DatasetService.ExportData``.
+                [DatasetService.ExportData][google.cloud.aiplatform.v1.DatasetService.ExportData].
 
         """
         # Create or coerce a protobuf request object.
@@ -792,7 +792,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.export_data,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -830,7 +830,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListDataItemsRequest`):
                 The request object. Request message for
-                ``DatasetService.ListDataItems``.
+                [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems].
             parent (:class:`str`):
                 Required. The resource name of the Dataset to list
                 DataItems from. Format:
@@ -849,7 +849,7 @@ class DatasetServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListDataItemsAsyncPager:
                 Response message for
-                ``DatasetService.ListDataItems``.
+                [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -877,7 +877,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_data_items,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -913,7 +913,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetAnnotationSpecRequest`):
                 The request object. Request message for
-                ``DatasetService.GetAnnotationSpec``.
+                [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1.DatasetService.GetAnnotationSpec].
             name (:class:`str`):
                 Required. The name of the AnnotationSpec resource.
                 Format:
@@ -958,7 +958,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_annotation_spec,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -988,7 +988,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListAnnotationsRequest`):
                 The request object. Request message for
-                ``DatasetService.ListAnnotations``.
+                [DatasetService.ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
             parent (:class:`str`):
                 Required. The resource name of the DataItem to list
                 Annotations from. Format:
@@ -1008,7 +1008,7 @@ class DatasetServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListAnnotationsAsyncPager:
                 Response message for
-                ``DatasetService.ListAnnotations``.
+                [DatasetService.ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1036,7 +1036,7 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_annotations,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 

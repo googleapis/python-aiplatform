@@ -37,7 +37,7 @@ __protobuf__ = proto.module(
 
 class CreateTrainingPipelineRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.CreateTrainingPipeline``.
+    [PipelineService.CreateTrainingPipeline][google.cloud.aiplatform.v1.PipelineService.CreateTrainingPipeline].
 
     Attributes:
         parent (str):
@@ -57,7 +57,7 @@ class CreateTrainingPipelineRequest(proto.Message):
 
 class GetTrainingPipelineRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.GetTrainingPipeline``.
+    [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1.PipelineService.GetTrainingPipeline].
 
     Attributes:
         name (str):
@@ -71,7 +71,7 @@ class GetTrainingPipelineRequest(proto.Message):
 
 class ListTrainingPipelinesRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.ListTrainingPipelines``.
+    [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1.PipelineService.ListTrainingPipelines].
 
     Attributes:
         parent (str):
@@ -98,9 +98,9 @@ class ListTrainingPipelinesRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            ``ListTrainingPipelinesResponse.next_page_token``
+            [ListTrainingPipelinesResponse.next_page_token][google.cloud.aiplatform.v1.ListTrainingPipelinesResponse.next_page_token]
             of the previous
-            ``PipelineService.ListTrainingPipelines``
+            [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1.PipelineService.ListTrainingPipelines]
             call.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
@@ -119,7 +119,7 @@ class ListTrainingPipelinesRequest(proto.Message):
 
 class ListTrainingPipelinesResponse(proto.Message):
     r"""Response message for
-    ``PipelineService.ListTrainingPipelines``
+    [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1.PipelineService.ListTrainingPipelines]
 
     Attributes:
         training_pipelines (Sequence[google.cloud.aiplatform_v1.types.TrainingPipeline]):
@@ -127,7 +127,7 @@ class ListTrainingPipelinesResponse(proto.Message):
             page.
         next_page_token (str):
             A token to retrieve the next page of results. Pass to
-            ``ListTrainingPipelinesRequest.page_token``
+            [ListTrainingPipelinesRequest.page_token][google.cloud.aiplatform.v1.ListTrainingPipelinesRequest.page_token]
             to obtain that page.
     """
 
@@ -144,7 +144,7 @@ class ListTrainingPipelinesResponse(proto.Message):
 
 class DeleteTrainingPipelineRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.DeleteTrainingPipeline``.
+    [PipelineService.DeleteTrainingPipeline][google.cloud.aiplatform.v1.PipelineService.DeleteTrainingPipeline].
 
     Attributes:
         name (str):
@@ -159,7 +159,7 @@ class DeleteTrainingPipelineRequest(proto.Message):
 
 class CancelTrainingPipelineRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.CancelTrainingPipeline``.
+    [PipelineService.CancelTrainingPipeline][google.cloud.aiplatform.v1.PipelineService.CancelTrainingPipeline].
 
     Attributes:
         name (str):

@@ -101,9 +101,7 @@ def test__get_default_mtls_endpoint():
     assert ModelServiceClient._get_default_mtls_endpoint(non_googleapi) == non_googleapi
 
 
-@pytest.mark.parametrize(
-    "client_class", [ModelServiceClient, ModelServiceAsyncClient,],
-)
+@pytest.mark.parametrize("client_class", [ModelServiceClient, ModelServiceAsyncClient,])
 def test_model_service_client_from_service_account_info(client_class):
     creds = credentials.AnonymousCredentials()
     with mock.patch.object(
@@ -118,9 +116,7 @@ def test_model_service_client_from_service_account_info(client_class):
         assert client.transport._host == "aiplatform.googleapis.com:443"
 
 
-@pytest.mark.parametrize(
-    "client_class", [ModelServiceClient, ModelServiceAsyncClient,],
-)
+@pytest.mark.parametrize("client_class", [ModelServiceClient, ModelServiceAsyncClient,])
 def test_model_service_client_from_service_account_file(client_class):
     creds = credentials.AnonymousCredentials()
     with mock.patch.object(

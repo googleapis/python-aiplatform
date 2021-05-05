@@ -45,9 +45,9 @@ class Endpoint(proto.Message):
         deployed_models (Sequence[google.cloud.aiplatform_v1.types.DeployedModel]):
             Output only. The models deployed in this Endpoint. To add or
             remove DeployedModels use
-            ``EndpointService.DeployModel``
+            [EndpointService.DeployModel][google.cloud.aiplatform.v1.EndpointService.DeployModel]
             and
-            ``EndpointService.UndeployModel``
+            [EndpointService.UndeployModel][google.cloud.aiplatform.v1.EndpointService.UndeployModel]
             respectively.
         traffic_split (Sequence[google.cloud.aiplatform_v1.types.Endpoint.TrafficSplitEntry]):
             A map from a DeployedModel's ID to the

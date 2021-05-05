@@ -32,7 +32,7 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.job_service import pagers
 from google.cloud.aiplatform_v1.types import batch_prediction_job
@@ -489,7 +489,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.CreateCustomJobRequest):
                 The request object. Request message for
-                ``JobService.CreateCustomJob``.
+                [JobService.CreateCustomJob][google.cloud.aiplatform.v1.JobService.CreateCustomJob].
             parent (str):
                 Required. The resource name of the Location to create
                 the CustomJob in. Format:
@@ -577,7 +577,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.GetCustomJobRequest):
                 The request object. Request message for
-                ``JobService.GetCustomJob``.
+                [JobService.GetCustomJob][google.cloud.aiplatform.v1.JobService.GetCustomJob].
             name (str):
                 Required. The name of the CustomJob resource. Format:
                 ``projects/{project}/locations/{location}/customJobs/{custom_job}``
@@ -657,7 +657,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.ListCustomJobsRequest):
                 The request object. Request message for
-                ``JobService.ListCustomJobs``.
+                [JobService.ListCustomJobs][google.cloud.aiplatform.v1.JobService.ListCustomJobs].
             parent (str):
                 Required. The resource name of the Location to list the
                 CustomJobs from. Format:
@@ -676,7 +676,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.job_service.pagers.ListCustomJobsPager:
                 Response message for
-                ``JobService.ListCustomJobs``
+                [JobService.ListCustomJobs][google.cloud.aiplatform.v1.JobService.ListCustomJobs]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -735,13 +735,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deletes a CustomJob.
 
         Args:
             request (google.cloud.aiplatform_v1.types.DeleteCustomJobRequest):
                 The request object. Request message for
-                ``JobService.DeleteCustomJob``.
+                [JobService.DeleteCustomJob][google.cloud.aiplatform.v1.JobService.DeleteCustomJob].
             name (str):
                 Required. The name of the CustomJob resource to be
                 deleted. Format:
@@ -813,7 +813,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             empty.Empty,
@@ -835,21 +835,21 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         r"""Cancels a CustomJob. Starts asynchronous cancellation on the
         CustomJob. The server makes a best effort to cancel the job, but
         success is not guaranteed. Clients can use
-        ``JobService.GetCustomJob``
+        [JobService.GetCustomJob][google.cloud.aiplatform.v1.JobService.GetCustomJob]
         or other methods to check whether the cancellation succeeded or
         whether the job completed despite cancellation. On successful
         cancellation, the CustomJob is not deleted; instead it becomes a
         job with a
-        ``CustomJob.error``
-        value with a ``google.rpc.Status.code`` of
+        [CustomJob.error][google.cloud.aiplatform.v1.CustomJob.error]
+        value with a [google.rpc.Status.code][google.rpc.Status.code] of
         1, corresponding to ``Code.CANCELLED``, and
-        ``CustomJob.state`` is
+        [CustomJob.state][google.cloud.aiplatform.v1.CustomJob.state] is
         set to ``CANCELLED``.
 
         Args:
             request (google.cloud.aiplatform_v1.types.CancelCustomJobRequest):
                 The request object. Request message for
-                ``JobService.CancelCustomJob``.
+                [JobService.CancelCustomJob][google.cloud.aiplatform.v1.JobService.CancelCustomJob].
             name (str):
                 Required. The name of the CustomJob to cancel. Format:
                 ``projects/{project}/locations/{location}/customJobs/{custom_job}``
@@ -1095,7 +1095,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.job_service.pagers.ListDataLabelingJobsPager:
                 Response message for
-                ``JobService.ListDataLabelingJobs``.
+                [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1.JobService.ListDataLabelingJobs].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1154,13 +1154,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deletes a DataLabelingJob.
 
         Args:
             request (google.cloud.aiplatform_v1.types.DeleteDataLabelingJobRequest):
                 The request object. Request message for
-                ``JobService.DeleteDataLabelingJob``.
+                [JobService.DeleteDataLabelingJob][google.cloud.aiplatform.v1.JobService.DeleteDataLabelingJob].
             name (str):
                 Required. The name of the DataLabelingJob to be deleted.
                 Format:
@@ -1233,7 +1233,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             empty.Empty,
@@ -1327,7 +1327,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.CreateHyperparameterTuningJobRequest):
                 The request object. Request message for
-                ``JobService.CreateHyperparameterTuningJob``.
+                [JobService.CreateHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.CreateHyperparameterTuningJob].
             parent (str):
                 Required. The resource name of the Location to create
                 the HyperparameterTuningJob in. Format:
@@ -1415,7 +1415,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.GetHyperparameterTuningJobRequest):
                 The request object. Request message for
-                ``JobService.GetHyperparameterTuningJob``.
+                [JobService.GetHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.GetHyperparameterTuningJob].
             name (str):
                 Required. The name of the HyperparameterTuningJob
                 resource. Format:
@@ -1495,7 +1495,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.ListHyperparameterTuningJobsRequest):
                 The request object. Request message for
-                ``JobService.ListHyperparameterTuningJobs``.
+                [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1.JobService.ListHyperparameterTuningJobs].
             parent (str):
                 Required. The resource name of the Location to list the
                 HyperparameterTuningJobs from. Format:
@@ -1514,7 +1514,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.job_service.pagers.ListHyperparameterTuningJobsPager:
                 Response message for
-                ``JobService.ListHyperparameterTuningJobs``
+                [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1.JobService.ListHyperparameterTuningJobs]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1575,13 +1575,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deletes a HyperparameterTuningJob.
 
         Args:
             request (google.cloud.aiplatform_v1.types.DeleteHyperparameterTuningJobRequest):
                 The request object. Request message for
-                ``JobService.DeleteHyperparameterTuningJob``.
+                [JobService.DeleteHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.DeleteHyperparameterTuningJob].
             name (str):
                 Required. The name of the HyperparameterTuningJob
                 resource to be deleted. Format:
@@ -1656,7 +1656,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             empty.Empty,
@@ -1679,21 +1679,21 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         cancellation on the HyperparameterTuningJob. The server makes a
         best effort to cancel the job, but success is not guaranteed.
         Clients can use
-        ``JobService.GetHyperparameterTuningJob``
+        [JobService.GetHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.GetHyperparameterTuningJob]
         or other methods to check whether the cancellation succeeded or
         whether the job completed despite cancellation. On successful
         cancellation, the HyperparameterTuningJob is not deleted;
         instead it becomes a job with a
-        ``HyperparameterTuningJob.error``
-        value with a ``google.rpc.Status.code`` of
+        [HyperparameterTuningJob.error][google.cloud.aiplatform.v1.HyperparameterTuningJob.error]
+        value with a [google.rpc.Status.code][google.rpc.Status.code] of
         1, corresponding to ``Code.CANCELLED``, and
-        ``HyperparameterTuningJob.state``
+        [HyperparameterTuningJob.state][google.cloud.aiplatform.v1.HyperparameterTuningJob.state]
         is set to ``CANCELLED``.
 
         Args:
             request (google.cloud.aiplatform_v1.types.CancelHyperparameterTuningJobRequest):
                 The request object. Request message for
-                ``JobService.CancelHyperparameterTuningJob``.
+                [JobService.CancelHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.CancelHyperparameterTuningJob].
             name (str):
                 Required. The name of the HyperparameterTuningJob to
                 cancel. Format:
@@ -1766,7 +1766,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.CreateBatchPredictionJobRequest):
                 The request object. Request message for
-                ``JobService.CreateBatchPredictionJob``.
+                [JobService.CreateBatchPredictionJob][google.cloud.aiplatform.v1.JobService.CreateBatchPredictionJob].
             parent (str):
                 Required. The resource name of the Location to create
                 the BatchPredictionJob in. Format:
@@ -1791,7 +1791,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Returns:
             google.cloud.aiplatform_v1.types.BatchPredictionJob:
-                A job that uses a ``Model`` to produce predictions
+                A job that uses a [Model][google.cloud.aiplatform.v1.BatchPredictionJob.model] to produce predictions
                    on multiple [input
                    instances][google.cloud.aiplatform.v1.BatchPredictionJob.input_config].
                    If predictions for significant portion of the
@@ -1856,7 +1856,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.GetBatchPredictionJobRequest):
                 The request object. Request message for
-                ``JobService.GetBatchPredictionJob``.
+                [JobService.GetBatchPredictionJob][google.cloud.aiplatform.v1.JobService.GetBatchPredictionJob].
             name (str):
                 Required. The name of the BatchPredictionJob resource.
                 Format:
@@ -1875,7 +1875,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Returns:
             google.cloud.aiplatform_v1.types.BatchPredictionJob:
-                A job that uses a ``Model`` to produce predictions
+                A job that uses a [Model][google.cloud.aiplatform.v1.BatchPredictionJob.model] to produce predictions
                    on multiple [input
                    instances][google.cloud.aiplatform.v1.BatchPredictionJob.input_config].
                    If predictions for significant portion of the
@@ -1936,7 +1936,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.ListBatchPredictionJobsRequest):
                 The request object. Request message for
-                ``JobService.ListBatchPredictionJobs``.
+                [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1.JobService.ListBatchPredictionJobs].
             parent (str):
                 Required. The resource name of the Location to list the
                 BatchPredictionJobs from. Format:
@@ -1955,7 +1955,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.job_service.pagers.ListBatchPredictionJobsPager:
                 Response message for
-                ``JobService.ListBatchPredictionJobs``
+                [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1.JobService.ListBatchPredictionJobs]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2016,14 +2016,14 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deletes a BatchPredictionJob. Can only be called on
         jobs that already finished.
 
         Args:
             request (google.cloud.aiplatform_v1.types.DeleteBatchPredictionJobRequest):
                 The request object. Request message for
-                ``JobService.DeleteBatchPredictionJob``.
+                [JobService.DeleteBatchPredictionJob][google.cloud.aiplatform.v1.JobService.DeleteBatchPredictionJob].
             name (str):
                 Required. The name of the BatchPredictionJob resource to
                 be deleted. Format:
@@ -2098,7 +2098,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             empty.Empty,
@@ -2122,18 +2122,18 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Starts asynchronous cancellation on the BatchPredictionJob. The
         server makes the best effort to cancel the job, but success is
         not guaranteed. Clients can use
-        ``JobService.GetBatchPredictionJob``
+        [JobService.GetBatchPredictionJob][google.cloud.aiplatform.v1.JobService.GetBatchPredictionJob]
         or other methods to check whether the cancellation succeeded or
         whether the job completed despite cancellation. On a successful
         cancellation, the BatchPredictionJob is not deleted;instead its
-        ``BatchPredictionJob.state``
+        [BatchPredictionJob.state][google.cloud.aiplatform.v1.BatchPredictionJob.state]
         is set to ``CANCELLED``. Any files already outputted by the job
         are not deleted.
 
         Args:
             request (google.cloud.aiplatform_v1.types.CancelBatchPredictionJobRequest):
                 The request object. Request message for
-                ``JobService.CancelBatchPredictionJob``.
+                [JobService.CancelBatchPredictionJob][google.cloud.aiplatform.v1.JobService.CancelBatchPredictionJob].
             name (str):
                 Required. The name of the BatchPredictionJob to cancel.
                 Format:

@@ -32,7 +32,7 @@ from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.model_service import pagers
 from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
@@ -438,13 +438,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Uploads a Model artifact into AI Platform.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UploadModelRequest):
                 The request object. Request message for
-                ``ModelService.UploadModel``.
+                [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel].
             parent (str):
                 Required. The resource name of the Location into which
                 to upload the Model. Format:
@@ -472,7 +472,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.UploadModelResponse`
                 Response message of
-                ``ModelService.UploadModel``
+                [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
                 operation.
 
         """
@@ -515,7 +515,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             model_service.UploadModelResponse,
@@ -539,7 +539,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetModelRequest):
                 The request object. Request message for
-                ``ModelService.GetModel``.
+                [ModelService.GetModel][google.cloud.aiplatform.v1beta1.ModelService.GetModel].
             name (str):
                 Required. The name of the Model resource. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
@@ -611,7 +611,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListModelsRequest):
                 The request object. Request message for
-                ``ModelService.ListModels``.
+                [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels].
             parent (str):
                 Required. The resource name of the Location to list the
                 Models from. Format:
@@ -630,7 +630,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelsPager:
                 Response message for
-                ``ModelService.ListModels``
+                [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -696,7 +696,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateModelRequest):
                 The request object. Request message for
-                ``ModelService.UpdateModel``.
+                [ModelService.UpdateModel][google.cloud.aiplatform.v1beta1.ModelService.UpdateModel].
             model (google.cloud.aiplatform_v1beta1.types.Model):
                 Required. The Model which replaces
                 the resource on the server.
@@ -774,7 +774,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deletes a Model.
         Note: Model can only be deleted if there are no
         DeployedModels created from it.
@@ -782,7 +782,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteModelRequest):
                 The request object. Request message for
-                ``ModelService.DeleteModel``.
+                [ModelService.DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel].
             name (str):
                 Required. The name of the Model resource to be deleted.
                 Format:
@@ -854,7 +854,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             empty.Empty,
@@ -873,7 +873,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Exports a trained, exportable, Model to a location specified by
         the user. A Model is considered to be exportable if it has at
         least one [supported export
@@ -882,7 +882,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ExportModelRequest):
                 The request object. Request message for
-                ``ModelService.ExportModel``.
+                [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel].
             name (str):
                 Required. The resource name of the Model to export.
                 Format:
@@ -912,7 +912,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.ExportModelResponse`
                 Response message of
-                ``ModelService.ExportModel``
+                [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel]
                 operation.
 
         """
@@ -955,7 +955,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             model_service.ExportModelResponse,
@@ -979,7 +979,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetModelEvaluationRequest):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluation``.
+                [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluation].
             name (str):
                 Required. The name of the ModelEvaluation resource.
                 Format:
@@ -1056,7 +1056,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsRequest):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
             parent (str):
                 Required. The resource name of the Model to list the
                 ModelEvaluations from. Format:
@@ -1075,7 +1075,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelEvaluationsPager:
                 Response message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1140,7 +1140,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetModelEvaluationSliceRequest):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluationSlice``.
+                [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluationSlice].
             name (str):
                 Required. The name of the ModelEvaluationSlice resource.
                 Format:
@@ -1219,7 +1219,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesRequest):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
             parent (str):
                 Required. The resource name of the ModelEvaluation to
                 list the ModelEvaluationSlices from. Format:
@@ -1238,7 +1238,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelEvaluationSlicesPager:
                 Response message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

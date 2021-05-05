@@ -104,7 +104,7 @@ def test__get_default_mtls_endpoint():
 
 
 @pytest.mark.parametrize(
-    "client_class", [DatasetServiceClient, DatasetServiceAsyncClient,],
+    "client_class", [DatasetServiceClient, DatasetServiceAsyncClient,]
 )
 def test_dataset_service_client_from_service_account_info(client_class):
     creds = credentials.AnonymousCredentials()
@@ -121,7 +121,7 @@ def test_dataset_service_client_from_service_account_info(client_class):
 
 
 @pytest.mark.parametrize(
-    "client_class", [DatasetServiceClient, DatasetServiceAsyncClient,],
+    "client_class", [DatasetServiceClient, DatasetServiceAsyncClient,]
 )
 def test_dataset_service_client_from_service_account_file(client_class):
     creds = credentials.AnonymousCredentials()

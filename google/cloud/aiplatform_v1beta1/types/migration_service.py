@@ -41,7 +41,7 @@ __protobuf__ = proto.module(
 
 class SearchMigratableResourcesRequest(proto.Message):
     r"""Request message for
-    ``MigrationService.SearchMigratableResources``.
+    [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
 
     Attributes:
         parent (str):
@@ -56,21 +56,25 @@ class SearchMigratableResourcesRequest(proto.Message):
         page_token (str):
             The standard page token.
         filter (str):
-            Supported filters are:
+            A filter for your search. You can use the following types of
+            filters:
 
-            -  Resource type: For a specific type of MigratableResource.
+            -  Resource type filters. The following strings filter for a
+               specific type of
+               [MigratableResource][google.cloud.aiplatform.v1beta1.MigratableResource]:
 
                -  ``ml_engine_model_version:*``
-               -  ``automl_model:*``,
+               -  ``automl_model:*``
                -  ``automl_dataset:*``
-               -  ``data_labeling_dataset:*``.
+               -  ``data_labeling_dataset:*``
 
-            -  Migrated or not: Filter migrated resource or not by
-               last_migrate_time.
+            -  "Migrated or not" filters. The following strings filter
+               for resources that either have or have not already been
+               migrated:
 
-               -  ``last_migrate_time:*`` will filter migrated
+               -  ``last_migrate_time:*`` filters for migrated
                   resources.
-               -  ``NOT last_migrate_time:*`` will filter not yet
+               -  ``NOT last_migrate_time:*`` filters for not yet
                   migrated resources.
     """
 
@@ -85,7 +89,7 @@ class SearchMigratableResourcesRequest(proto.Message):
 
 class SearchMigratableResourcesResponse(proto.Message):
     r"""Response message for
-    ``MigrationService.SearchMigratableResources``.
+    [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
 
     Attributes:
         migratable_resources (Sequence[google.cloud.aiplatform_v1beta1.types.MigratableResource]):
@@ -110,7 +114,7 @@ class SearchMigratableResourcesResponse(proto.Message):
 
 class BatchMigrateResourcesRequest(proto.Message):
     r"""Request message for
-    ``MigrationService.BatchMigrateResources``.
+    [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
 
     Attributes:
         parent (str):
@@ -287,7 +291,7 @@ class MigrateResourceRequest(proto.Message):
 
 class BatchMigrateResourcesResponse(proto.Message):
     r"""Response message for
-    ``MigrationService.BatchMigrateResources``.
+    [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
 
     Attributes:
         migrate_resource_responses (Sequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceResponse]):
@@ -324,7 +328,7 @@ class MigrateResourceResponse(proto.Message):
 
 class BatchMigrateResourcesOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``MigrationService.BatchMigrateResources``.
+    [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
@@ -336,7 +340,7 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
 
     class PartialResult(proto.Message):
         r"""Represents a partial result in batch migration operation for one
-        ``MigrateResourceRequest``.
+        [MigrateResourceRequest][google.cloud.aiplatform.v1beta1.MigrateResourceRequest].
 
         Attributes:
             error (google.rpc.status_pb2.Status):

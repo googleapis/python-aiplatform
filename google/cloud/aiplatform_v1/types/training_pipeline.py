@@ -44,7 +44,7 @@ class TrainingPipeline(proto.Message):
     r"""The TrainingPipeline orchestrates tasks associated with training a
     Model. It always executes the training task, and optionally may also
     export data from AI Platform's Dataset which becomes the training
-    input, ``upload``
+    input, [upload][google.cloud.aiplatform.v1.ModelService.UploadModel]
     the Model to AI Platform, and evaluate the Model.
 
     Attributes:
@@ -57,11 +57,11 @@ class TrainingPipeline(proto.Message):
         input_data_config (google.cloud.aiplatform_v1.types.InputDataConfig):
             Specifies AI Platform owned input data that may be used for
             training the Model. The TrainingPipeline's
-            ``training_task_definition``
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition]
             should make clear whether this config is used and if there
             are any special requirements on how it should be filled. If
             nothing about this config is mentioned in the
-            ``training_task_definition``,
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition],
             then it should be assumed that the TrainingPipeline does not
             depend on this configuration.
         training_task_definition (str):
@@ -80,27 +80,27 @@ class TrainingPipeline(proto.Message):
         training_task_inputs (google.protobuf.struct_pb2.Value):
             Required. The training task's parameter(s), as specified in
             the
-            ``training_task_definition``'s
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition]'s
             ``inputs``.
         training_task_metadata (google.protobuf.struct_pb2.Value):
             Output only. The metadata information as specified in the
-            ``training_task_definition``'s
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition]'s
             ``metadata``. This metadata is an auxiliary runtime and
             final information about the training task. While the
             pipeline is running this information is populated only at a
             best effort basis. Only present if the pipeline's
-            ``training_task_definition``
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition]
             contains ``metadata`` object.
         model_to_upload (google.cloud.aiplatform_v1.types.Model):
             Describes the Model that may be uploaded (via
-            ``ModelService.UploadModel``)
+            [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel])
             by this TrainingPipeline. The TrainingPipeline's
-            ``training_task_definition``
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition]
             should make clear whether this Model description should be
             populated, and if there are any special requirements
             regarding how it should be filled. If nothing is mentioned
             in the
-            ``training_task_definition``,
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition],
             then it should be assumed that this field should not be
             filled and the training task either uploads the Model
             without a need of this information, or that training task
@@ -108,7 +108,7 @@ class TrainingPipeline(proto.Message):
             When the Pipeline's state becomes
             ``PIPELINE_STATE_SUCCEEDED`` and the trained Model had been
             uploaded into AI Platform, then the model_to_upload's
-            resource ``name`` is
+            resource [name][google.cloud.aiplatform.v1.Model.name] is
             populated. The Model is always uploaded into the Project and
             Location in which this pipeline is.
         state (google.cloud.aiplatform_v1.types.PipelineState):
@@ -146,7 +146,7 @@ class TrainingPipeline(proto.Message):
 
             Note: Model trained by this TrainingPipeline is also secured
             by this key if
-            ``model_to_upload``
+            [model_to_upload][google.cloud.aiplatform.v1.TrainingPipeline.encryption_spec]
             is not set separately.
     """
 
@@ -272,7 +272,7 @@ class InputDataConfig(proto.Message):
             the DataItem they are on (for the auto-assigned that role is
             decided by AI Platform). A filter with same syntax as the
             one used in
-            ``ListAnnotations``
+            [ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations]
             may be used, but note here it filters across all Annotations
             of the Dataset, and not just within a single DataItem.
         annotation_schema_uri (str):
@@ -286,9 +286,9 @@ class InputDataConfig(proto.Message):
             schema files that can be used here are found in
             gs://google-cloud-aiplatform/schema/dataset/annotation/ ,
             note that the chosen schema must be consistent with
-            ``metadata``
+            [metadata][google.cloud.aiplatform.v1.Dataset.metadata_schema_uri]
             of the Dataset specified by
-            ``dataset_id``.
+            [dataset_id][google.cloud.aiplatform.v1.InputDataConfig.dataset_id].
 
             Only Annotations that both match this schema and belong to
             DataItems not ignored by the split method are used in
@@ -296,11 +296,11 @@ class InputDataConfig(proto.Message):
             the role of the DataItem they are on.
 
             When used in conjunction with
-            ``annotations_filter``,
+            [annotations_filter][google.cloud.aiplatform.v1.InputDataConfig.annotations_filter],
             the Annotations used for training are filtered by both
-            ``annotations_filter``
+            [annotations_filter][google.cloud.aiplatform.v1.InputDataConfig.annotations_filter]
             and
-            ``annotation_schema_uri``.
+            [annotation_schema_uri][google.cloud.aiplatform.v1.InputDataConfig.annotation_schema_uri].
     """
 
     fraction_split = proto.Field(
@@ -377,7 +377,7 @@ class FilterSplit(proto.Message):
             Required. A filter on DataItems of the Dataset. DataItems
             that match this filter are used to train the Model. A filter
             with same syntax as the one used in
-            ``DatasetService.ListDataItems``
+            [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems]
             may be used. If a single DataItem is matched by more than
             one of the FilterSplit filters, then it is assigned to the
             first set that applies to it in the training, validation,
@@ -386,7 +386,7 @@ class FilterSplit(proto.Message):
             Required. A filter on DataItems of the Dataset. DataItems
             that match this filter are used to validate the Model. A
             filter with same syntax as the one used in
-            ``DatasetService.ListDataItems``
+            [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems]
             may be used. If a single DataItem is matched by more than
             one of the FilterSplit filters, then it is assigned to the
             first set that applies to it in the training, validation,
@@ -395,7 +395,7 @@ class FilterSplit(proto.Message):
             Required. A filter on DataItems of the Dataset. DataItems
             that match this filter are used to test the Model. A filter
             with same syntax as the one used in
-            ``DatasetService.ListDataItems``
+            [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems]
             may be used. If a single DataItem is matched by more than
             one of the FilterSplit filters, then it is assigned to the
             first set that applies to it in the training, validation,

@@ -185,7 +185,7 @@ class PredictionServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.PredictRequest`):
                 The request object. Request message for
-                ``PredictionService.Predict``.
+                [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
             endpoint (:class:`str`):
                 Required. The name of the Endpoint requested to serve
                 the prediction. Format:
@@ -205,7 +205,7 @@ class PredictionServiceAsyncClient:
                 Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-                ``instance_schema_uri``.
+                [instance_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri].
 
                 This corresponds to the ``instances`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -216,7 +216,7 @@ class PredictionServiceAsyncClient:
                 DeployedModels' [Model's
                 ][google.cloud.aiplatform.v1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-                ``parameters_schema_uri``.
+                [parameters_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri].
 
                 This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -231,7 +231,7 @@ class PredictionServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.types.PredictResponse:
                 Response message for
-                ``PredictionService.Predict``.
+                [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
 
         """
         # Create or coerce a protobuf request object.
@@ -261,7 +261,7 @@ class PredictionServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.predict,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 

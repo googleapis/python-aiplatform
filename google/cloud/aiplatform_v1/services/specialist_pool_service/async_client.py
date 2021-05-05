@@ -28,7 +28,7 @@ from google.api_core import retry as retries  # type: ignore
 from google.auth import credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.specialist_pool_service import pagers
 from google.cloud.aiplatform_v1.types import operation as gca_operation
@@ -204,7 +204,7 @@ class SpecialistPoolServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateSpecialistPoolRequest`):
                 The request object. Request message for
-                ``SpecialistPoolService.CreateSpecialistPool``.
+                [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.CreateSpecialistPool].
             parent (:class:`str`):
                 Required. The parent Project name for the new
                 SpecialistPool. The form is
@@ -265,7 +265,7 @@ class SpecialistPoolServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.create_specialist_pool,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -303,7 +303,7 @@ class SpecialistPoolServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetSpecialistPoolRequest`):
                 The request object. Request message for
-                ``SpecialistPoolService.GetSpecialistPool``.
+                [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.GetSpecialistPool].
             name (:class:`str`):
                 Required. The name of the SpecialistPool resource. The
                 form is
@@ -357,7 +357,7 @@ class SpecialistPoolServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_specialist_pool,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -387,7 +387,7 @@ class SpecialistPoolServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListSpecialistPoolsRequest`):
                 The request object. Request message for
-                ``SpecialistPoolService.ListSpecialistPools``.
+                [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1.SpecialistPoolService.ListSpecialistPools].
             parent (:class:`str`):
                 Required. The name of the SpecialistPool's parent
                 resource. Format:
@@ -406,7 +406,7 @@ class SpecialistPoolServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.specialist_pool_service.pagers.ListSpecialistPoolsAsyncPager:
                 Response message for
-                ``SpecialistPoolService.ListSpecialistPools``.
+                [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1.SpecialistPoolService.ListSpecialistPools].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -434,7 +434,7 @@ class SpecialistPoolServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_specialist_pools,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -471,7 +471,7 @@ class SpecialistPoolServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteSpecialistPoolRequest`):
                 The request object. Request message for
-                ``SpecialistPoolService.DeleteSpecialistPool``.
+                [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.DeleteSpecialistPool].
             name (:class:`str`):
                 Required. The resource name of the SpecialistPool to
                 delete. Format:
@@ -528,7 +528,7 @@ class SpecialistPoolServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_specialist_pool,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -567,7 +567,7 @@ class SpecialistPoolServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateSpecialistPoolRequest`):
                 The request object. Request message for
-                ``SpecialistPoolService.UpdateSpecialistPool``.
+                [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.UpdateSpecialistPool].
             specialist_pool (:class:`google.cloud.aiplatform_v1.types.SpecialistPool`):
                 Required. The SpecialistPool which
                 replaces the resource on the server.
@@ -627,7 +627,7 @@ class SpecialistPoolServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.update_specialist_pool,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 

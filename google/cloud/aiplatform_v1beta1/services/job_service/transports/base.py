@@ -41,6 +41,10 @@ from google.cloud.aiplatform_v1beta1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
 )
 from google.cloud.aiplatform_v1beta1.types import job_service
+from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
+from google.cloud.aiplatform_v1beta1.types import (
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
+)
 from google.longrunning import operations_pb2 as operations  # type: ignore
 from google.protobuf import empty_pb2 as empty  # type: ignore
 
@@ -86,16 +90,19 @@ class JobServiceTransport(abc.ABC):
             scope (Optional[Sequence[str]]): A list of scopes.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
-            client_info (google.api_core.gapic_v1.client_info.ClientInfo):	
-                The client info used to send a user-agent string along with	
-                API requests. If ``None``, then default info will be used.	
-                Generally, you only need to set this if you're developing	
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
+                The client info used to send a user-agent string along with
+                API requests. If ``None``, then default info will be used.
+                Generally, you only need to set this if you're developing
                 your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
             host += ":443"
         self._host = host
+
+        # Save the scopes.
+        self._scopes = scopes or self.AUTH_SCOPES
 
         # If no credentials are provided, then determine the appropriate
         # defaults.
@@ -106,19 +113,16 @@ class JobServiceTransport(abc.ABC):
 
         if credentials_file is not None:
             credentials, _ = auth.load_credentials_from_file(
-                credentials_file, scopes=scopes, quota_project_id=quota_project_id
+                credentials_file, scopes=self._scopes, quota_project_id=quota_project_id
             )
 
         elif credentials is None:
             credentials, _ = auth.default(
-                scopes=scopes, quota_project_id=quota_project_id
+                scopes=self._scopes, quota_project_id=quota_project_id
             )
 
         # Save the credentials.
         self._credentials = credentials
-
-        # Lifted into its own function so it can be stubbed out during tests.
-        self._prep_wrapped_messages(client_info)
 
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
@@ -210,6 +214,46 @@ class JobServiceTransport(abc.ABC):
             ),
             self.cancel_batch_prediction_job: gapic_v1.method.wrap_method(
                 self.cancel_batch_prediction_job,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.create_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.create_model_deployment_monitoring_job,
+                default_timeout=60.0,
+                client_info=client_info,
+            ),
+            self.search_model_deployment_monitoring_stats_anomalies: gapic_v1.method.wrap_method(
+                self.search_model_deployment_monitoring_stats_anomalies,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.get_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.get_model_deployment_monitoring_job,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.list_model_deployment_monitoring_jobs: gapic_v1.method.wrap_method(
+                self.list_model_deployment_monitoring_jobs,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.update_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.update_model_deployment_monitoring_job,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.delete_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.delete_model_deployment_monitoring_job,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.pause_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.pause_model_deployment_monitoring_job,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.resume_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.resume_model_deployment_monitoring_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
@@ -428,6 +472,96 @@ class JobServiceTransport(abc.ABC):
         self,
     ) -> typing.Callable[
         [job_service.CancelBatchPredictionJobRequest],
+        typing.Union[empty.Empty, typing.Awaitable[empty.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def create_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.CreateModelDeploymentMonitoringJobRequest],
+        typing.Union[
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+            typing.Awaitable[
+                gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+            ],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def search_model_deployment_monitoring_stats_anomalies(
+        self,
+    ) -> typing.Callable[
+        [job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest],
+        typing.Union[
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse,
+            typing.Awaitable[
+                job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse
+            ],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.GetModelDeploymentMonitoringJobRequest],
+        typing.Union[
+            model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+            typing.Awaitable[
+                model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+            ],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_model_deployment_monitoring_jobs(
+        self,
+    ) -> typing.Callable[
+        [job_service.ListModelDeploymentMonitoringJobsRequest],
+        typing.Union[
+            job_service.ListModelDeploymentMonitoringJobsResponse,
+            typing.Awaitable[job_service.ListModelDeploymentMonitoringJobsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.UpdateModelDeploymentMonitoringJobRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.DeleteModelDeploymentMonitoringJobRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def pause_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.PauseModelDeploymentMonitoringJobRequest],
+        typing.Union[empty.Empty, typing.Awaitable[empty.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def resume_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.ResumeModelDeploymentMonitoringJobRequest],
         typing.Union[empty.Empty, typing.Awaitable[empty.Empty]],
     ]:
         raise NotImplementedError()

@@ -151,7 +151,7 @@ class CustomJobSpec(proto.Message):
             CustomJob or HyperparameterTuningJob. For
             HyperparameterTuningJob, the baseOutputDirectory of each
             child CustomJob backing a Trial is set to a subdirectory of
-            name ``id`` under its
+            name [id][google.cloud.aiplatform.v1.Trial.id] under its
             parent HyperparameterTuningJob's baseOutputDirectory.
 
             The following AI Platform environment variables will be

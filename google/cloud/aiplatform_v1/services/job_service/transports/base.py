@@ -84,16 +84,19 @@ class JobServiceTransport(abc.ABC):
             scope (Optional[Sequence[str]]): A list of scopes.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
-            client_info (google.api_core.gapic_v1.client_info.ClientInfo):	
-                The client info used to send a user-agent string along with	
-                API requests. If ``None``, then default info will be used.	
-                Generally, you only need to set this if you're developing	
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
+                The client info used to send a user-agent string along with
+                API requests. If ``None``, then default info will be used.
+                Generally, you only need to set this if you're developing
                 your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
             host += ":443"
         self._host = host
+
+        # Save the scopes.
+        self._scopes = scopes or self.AUTH_SCOPES
 
         # If no credentials are provided, then determine the appropriate
         # defaults.
@@ -104,111 +107,108 @@ class JobServiceTransport(abc.ABC):
 
         if credentials_file is not None:
             credentials, _ = auth.load_credentials_from_file(
-                credentials_file, scopes=scopes, quota_project_id=quota_project_id
+                credentials_file, scopes=self._scopes, quota_project_id=quota_project_id
             )
 
         elif credentials is None:
             credentials, _ = auth.default(
-                scopes=scopes, quota_project_id=quota_project_id
+                scopes=self._scopes, quota_project_id=quota_project_id
             )
 
         # Save the credentials.
         self._credentials = credentials
 
-        # Lifted into its own function so it can be stubbed out during tests.
-        self._prep_wrapped_messages(client_info)
-
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_custom_job: gapic_v1.method.wrap_method(
-                self.create_custom_job, default_timeout=None, client_info=client_info,
+                self.create_custom_job, default_timeout=5.0, client_info=client_info,
             ),
             self.get_custom_job: gapic_v1.method.wrap_method(
-                self.get_custom_job, default_timeout=None, client_info=client_info,
+                self.get_custom_job, default_timeout=5.0, client_info=client_info,
             ),
             self.list_custom_jobs: gapic_v1.method.wrap_method(
-                self.list_custom_jobs, default_timeout=None, client_info=client_info,
+                self.list_custom_jobs, default_timeout=5.0, client_info=client_info,
             ),
             self.delete_custom_job: gapic_v1.method.wrap_method(
-                self.delete_custom_job, default_timeout=None, client_info=client_info,
+                self.delete_custom_job, default_timeout=5.0, client_info=client_info,
             ),
             self.cancel_custom_job: gapic_v1.method.wrap_method(
-                self.cancel_custom_job, default_timeout=None, client_info=client_info,
+                self.cancel_custom_job, default_timeout=5.0, client_info=client_info,
             ),
             self.create_data_labeling_job: gapic_v1.method.wrap_method(
                 self.create_data_labeling_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.get_data_labeling_job: gapic_v1.method.wrap_method(
                 self.get_data_labeling_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.list_data_labeling_jobs: gapic_v1.method.wrap_method(
                 self.list_data_labeling_jobs,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.delete_data_labeling_job: gapic_v1.method.wrap_method(
                 self.delete_data_labeling_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.cancel_data_labeling_job: gapic_v1.method.wrap_method(
                 self.cancel_data_labeling_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.create_hyperparameter_tuning_job: gapic_v1.method.wrap_method(
                 self.create_hyperparameter_tuning_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.get_hyperparameter_tuning_job: gapic_v1.method.wrap_method(
                 self.get_hyperparameter_tuning_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.list_hyperparameter_tuning_jobs: gapic_v1.method.wrap_method(
                 self.list_hyperparameter_tuning_jobs,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.delete_hyperparameter_tuning_job: gapic_v1.method.wrap_method(
                 self.delete_hyperparameter_tuning_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.cancel_hyperparameter_tuning_job: gapic_v1.method.wrap_method(
                 self.cancel_hyperparameter_tuning_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.create_batch_prediction_job: gapic_v1.method.wrap_method(
                 self.create_batch_prediction_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.get_batch_prediction_job: gapic_v1.method.wrap_method(
                 self.get_batch_prediction_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.list_batch_prediction_jobs: gapic_v1.method.wrap_method(
                 self.list_batch_prediction_jobs,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.delete_batch_prediction_job: gapic_v1.method.wrap_method(
                 self.delete_batch_prediction_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.cancel_batch_prediction_job: gapic_v1.method.wrap_method(
                 self.cancel_batch_prediction_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
         }
