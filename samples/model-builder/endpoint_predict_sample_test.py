@@ -26,7 +26,7 @@ def test_endpoint_predict_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         instances=[],
-        endpoint_id=constants.ENDPOINT_NAME,
+        endpoint=constants.ENDPOINT_NAME,
     )
 
     mock_sdk_init.assert_called_once_with(

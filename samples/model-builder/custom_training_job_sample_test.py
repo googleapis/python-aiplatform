@@ -28,8 +28,8 @@ def test_custom_training_job_sample(
         display_name=constants.DISPLAY_NAME,
         script_path=constants.PYTHON_PACKAGE,
         script_args=constants.PYTHON_PACKAGE_CMDARGS,
-        train_image=constants.TRAIN_IMAGE,
-        deploy_image=constants.DEPLOY_IMAGE,
+        container_uri=constants.TRAIN_IMAGE,
+        model_serving_container_image_uri=constants.DEPLOY_IMAGE,
         requirements=[],
         replica_count=1,
     )
@@ -44,7 +44,7 @@ def test_custom_training_job_sample(
         display_name=constants.DISPLAY_NAME,
         container_uri=constants.TRAIN_IMAGE,
         model_serving_container_image_uri=constants.DEPLOY_IMAGE,
-        requirements="",
+        requirements=[],
         script_path=constants.PYTHON_PACKAGE,
     )
 

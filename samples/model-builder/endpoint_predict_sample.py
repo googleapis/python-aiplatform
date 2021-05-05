@@ -23,7 +23,7 @@ def endpoint_predict_sample(project : str,
                            ):
     aiplatform.init(project=project, location=location)
 
-    endpoint = aiplatform.Endpoint(endpoint_id)
+    endpoint = aiplatform.Endpoint(endpoint)
 
     prediction = endpoint.predict(instances=instances)
     print(prediction)
