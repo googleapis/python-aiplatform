@@ -19,10 +19,7 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'DeployedModelRef',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"DeployedModelRef",},
 )
 
 

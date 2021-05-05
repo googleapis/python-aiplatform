@@ -15,26 +15,46 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.classification import ClassificationPredictionResult
-from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.image_object_detection import ImageObjectDetectionPredictionResult
-from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.image_segmentation import ImageSegmentationPredictionResult
-from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.tabular_classification import TabularClassificationPredictionResult
-from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.tabular_regression import TabularRegressionPredictionResult
-from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.text_extraction import TextExtractionPredictionResult
-from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.text_sentiment import TextSentimentPredictionResult
-from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.video_action_recognition import VideoActionRecognitionPredictionResult
-from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.video_classification import VideoClassificationPredictionResult
-from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.video_object_tracking import VideoObjectTrackingPredictionResult
+from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.classification import (
+    ClassificationPredictionResult,
+)
+from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.image_object_detection import (
+    ImageObjectDetectionPredictionResult,
+)
+from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.image_segmentation import (
+    ImageSegmentationPredictionResult,
+)
+from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.tabular_classification import (
+    TabularClassificationPredictionResult,
+)
+from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.tabular_regression import (
+    TabularRegressionPredictionResult,
+)
+from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.text_extraction import (
+    TextExtractionPredictionResult,
+)
+from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.text_sentiment import (
+    TextSentimentPredictionResult,
+)
+from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.video_action_recognition import (
+    VideoActionRecognitionPredictionResult,
+)
+from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.video_classification import (
+    VideoClassificationPredictionResult,
+)
+from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.video_object_tracking import (
+    VideoObjectTrackingPredictionResult,
+)
 
 __all__ = (
-    'ClassificationPredictionResult',
-    'ImageObjectDetectionPredictionResult',
-    'ImageSegmentationPredictionResult',
-    'TabularClassificationPredictionResult',
-    'TabularRegressionPredictionResult',
-    'TextExtractionPredictionResult',
-    'TextSentimentPredictionResult',
-    'VideoActionRecognitionPredictionResult',
-    'VideoClassificationPredictionResult',
-    'VideoObjectTrackingPredictionResult',
+    "ClassificationPredictionResult",
+    "ImageObjectDetectionPredictionResult",
+    "ImageSegmentationPredictionResult",
+    "TabularClassificationPredictionResult",
+    "TabularRegressionPredictionResult",
+    "TextExtractionPredictionResult",
+    "TextSentimentPredictionResult",
+    "VideoActionRecognitionPredictionResult",
+    "VideoClassificationPredictionResult",
+    "VideoObjectTrackingPredictionResult",
 )

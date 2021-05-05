@@ -22,10 +22,8 @@ from google.protobuf import duration_pb2 as duration  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'FeaturestoreMonitoringConfig',
-    },
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={"FeaturestoreMonitoringConfig",},
 )
 
 
@@ -37,6 +35,7 @@ class FeaturestoreMonitoringConfig(proto.Message):
             The config for Snapshot Analysis Based
             Feature Monitoring.
     """
+
     class SnapshotAnalysis(proto.Message):
         r"""Configuration of the Featurestore's Snapshot Analysis Based
         Monitoring. This type of analysis generates statistics for each
@@ -64,13 +63,11 @@ class FeaturestoreMonitoringConfig(proto.Message):
 
         disabled = proto.Field(proto.BOOL, number=1)
 
-        monitoring_interval = proto.Field(proto.MESSAGE, number=2,
-            message=duration.Duration,
+        monitoring_interval = proto.Field(
+            proto.MESSAGE, number=2, message=duration.Duration,
         )
 
-    snapshot_analysis = proto.Field(proto.MESSAGE, number=1,
-        message=SnapshotAnalysis,
-    )
+    snapshot_analysis = proto.Field(proto.MESSAGE, number=1, message=SnapshotAnalysis,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

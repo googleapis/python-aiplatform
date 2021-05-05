@@ -23,10 +23,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'Artifact',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"Artifact",},
 )
 
 
@@ -91,6 +88,7 @@ class Artifact(proto.Message):
         description (str):
             Description of the Artifact
     """
+
     class State(proto.Enum):
         r"""Describes the state of the Artifact."""
         STATE_UNSPECIFIED = 0
@@ -107,25 +105,17 @@ class Artifact(proto.Message):
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=10)
 
-    create_time = proto.Field(proto.MESSAGE, number=11,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
 
-    update_time = proto.Field(proto.MESSAGE, number=12,
-        message=timestamp.Timestamp,
-    )
+    update_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
 
-    state = proto.Field(proto.ENUM, number=13,
-        enum=State,
-    )
+    state = proto.Field(proto.ENUM, number=13, enum=State,)
 
     schema_title = proto.Field(proto.STRING, number=14)
 
     schema_version = proto.Field(proto.STRING, number=15)
 
-    metadata = proto.Field(proto.MESSAGE, number=16,
-        message=struct.Struct,
-    )
+    metadata = proto.Field(proto.MESSAGE, number=16, message=struct.Struct,)
 
     description = proto.Field(proto.STRING, number=17)
 

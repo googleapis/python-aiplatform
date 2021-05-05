@@ -24,30 +24,30 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
-        'GetStudyRequest',
-        'CreateStudyRequest',
-        'ListStudiesRequest',
-        'ListStudiesResponse',
-        'DeleteStudyRequest',
-        'LookupStudyRequest',
-        'SuggestTrialsRequest',
-        'SuggestTrialsResponse',
-        'SuggestTrialsMetadata',
-        'CreateTrialRequest',
-        'GetTrialRequest',
-        'ListTrialsRequest',
-        'ListTrialsResponse',
-        'AddTrialMeasurementRequest',
-        'CompleteTrialRequest',
-        'DeleteTrialRequest',
-        'CheckTrialEarlyStoppingStateRequest',
-        'CheckTrialEarlyStoppingStateResponse',
-        'CheckTrialEarlyStoppingStateMetatdata',
-        'StopTrialRequest',
-        'ListOptimalTrialsRequest',
-        'ListOptimalTrialsResponse',
+        "GetStudyRequest",
+        "CreateStudyRequest",
+        "ListStudiesRequest",
+        "ListStudiesResponse",
+        "DeleteStudyRequest",
+        "LookupStudyRequest",
+        "SuggestTrialsRequest",
+        "SuggestTrialsResponse",
+        "SuggestTrialsMetadata",
+        "CreateTrialRequest",
+        "GetTrialRequest",
+        "ListTrialsRequest",
+        "ListTrialsResponse",
+        "AddTrialMeasurementRequest",
+        "CompleteTrialRequest",
+        "DeleteTrialRequest",
+        "CheckTrialEarlyStoppingStateRequest",
+        "CheckTrialEarlyStoppingStateResponse",
+        "CheckTrialEarlyStoppingStateMetatdata",
+        "StopTrialRequest",
+        "ListOptimalTrialsRequest",
+        "ListOptimalTrialsResponse",
     },
 )
 
@@ -81,9 +81,7 @@ class CreateStudyRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    study = proto.Field(proto.MESSAGE, number=2,
-        message=gca_study.Study,
-    )
+    study = proto.Field(proto.MESSAGE, number=2, message=gca_study.Study,)
 
 
 class ListStudiesRequest(proto.Message):
@@ -129,9 +127,7 @@ class ListStudiesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    studies = proto.RepeatedField(proto.MESSAGE, number=1,
-        message=gca_study.Study,
-    )
+    studies = proto.RepeatedField(proto.MESSAGE, number=1, message=gca_study.Study,)
 
     next_page_token = proto.Field(proto.STRING, number=2)
 
@@ -213,21 +209,13 @@ class SuggestTrialsResponse(proto.Message):
             completed.
     """
 
-    trials = proto.RepeatedField(proto.MESSAGE, number=1,
-        message=gca_study.Trial,
-    )
+    trials = proto.RepeatedField(proto.MESSAGE, number=1, message=gca_study.Trial,)
 
-    study_state = proto.Field(proto.ENUM, number=2,
-        enum=gca_study.Study.State,
-    )
+    study_state = proto.Field(proto.ENUM, number=2, enum=gca_study.Study.State,)
 
-    start_time = proto.Field(proto.MESSAGE, number=3,
-        message=timestamp.Timestamp,
-    )
+    start_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
 
-    end_time = proto.Field(proto.MESSAGE, number=4,
-        message=timestamp.Timestamp,
-    )
+    end_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
 
 
 class SuggestTrialsMetadata(proto.Message):
@@ -246,8 +234,8 @@ class SuggestTrialsMetadata(proto.Message):
             Trial if the last suggested Trial was completed.
     """
 
-    generic_metadata = proto.Field(proto.MESSAGE, number=1,
-        message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
 
     client_id = proto.Field(proto.STRING, number=2)
@@ -268,9 +256,7 @@ class CreateTrialRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    trial = proto.Field(proto.MESSAGE, number=2,
-        message=gca_study.Trial,
-    )
+    trial = proto.Field(proto.MESSAGE, number=2, message=gca_study.Trial,)
 
 
 class GetTrialRequest(proto.Message):
@@ -329,9 +315,7 @@ class ListTrialsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    trials = proto.RepeatedField(proto.MESSAGE, number=1,
-        message=gca_study.Trial,
-    )
+    trials = proto.RepeatedField(proto.MESSAGE, number=1, message=gca_study.Trial,)
 
     next_page_token = proto.Field(proto.STRING, number=2)
 
@@ -351,9 +335,7 @@ class AddTrialMeasurementRequest(proto.Message):
 
     trial_name = proto.Field(proto.STRING, number=1)
 
-    measurement = proto.Field(proto.MESSAGE, number=3,
-        message=gca_study.Measurement,
-    )
+    measurement = proto.Field(proto.MESSAGE, number=3, message=gca_study.Measurement,)
 
 
 class CompleteTrialRequest(proto.Message):
@@ -380,8 +362,8 @@ class CompleteTrialRequest(proto.Message):
 
     name = proto.Field(proto.STRING, number=1)
 
-    final_measurement = proto.Field(proto.MESSAGE, number=2,
-        message=gca_study.Measurement,
+    final_measurement = proto.Field(
+        proto.MESSAGE, number=2, message=gca_study.Measurement,
     )
 
     trial_infeasible = proto.Field(proto.BOOL, number=3)
@@ -442,8 +424,8 @@ class CheckTrialEarlyStoppingStateMetatdata(proto.Message):
             The Trial name.
     """
 
-    generic_metadata = proto.Field(proto.MESSAGE, number=1,
-        message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
 
     study = proto.Field(proto.STRING, number=2)
@@ -489,8 +471,8 @@ class ListOptimalTrialsResponse(proto.Message):
             https://en.wikipedia.org/wiki/Pareto_efficiency
     """
 
-    optimal_trials = proto.RepeatedField(proto.MESSAGE, number=1,
-        message=gca_study.Trial,
+    optimal_trials = proto.RepeatedField(
+        proto.MESSAGE, number=1, message=gca_study.Trial,
     )
 
 

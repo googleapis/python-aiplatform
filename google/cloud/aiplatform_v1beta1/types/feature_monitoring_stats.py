@@ -22,10 +22,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'FeatureStatsAnomaly',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"FeatureStatsAnomaly",},
 )
 
 
@@ -102,13 +99,9 @@ class FeatureStatsAnomaly(proto.Message):
 
     anomaly_detection_threshold = proto.Field(proto.DOUBLE, number=9)
 
-    start_time = proto.Field(proto.MESSAGE, number=7,
-        message=timestamp.Timestamp,
-    )
+    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp.Timestamp,)
 
-    end_time = proto.Field(proto.MESSAGE, number=8,
-        message=timestamp.Timestamp,
-    )
+    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

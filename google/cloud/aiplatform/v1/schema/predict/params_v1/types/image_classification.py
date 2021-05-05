@@ -19,10 +19,8 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1.schema.predict.params',
-    manifest={
-        'ImageClassificationPredictionParams',
-    },
+    package="google.cloud.aiplatform.v1.schema.predict.params",
+    manifest={"ImageClassificationPredictionParams",},
 )
 
 

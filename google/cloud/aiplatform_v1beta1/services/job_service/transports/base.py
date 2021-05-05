@@ -21,22 +21,30 @@ import pkg_resources
 
 from google import auth  # type: ignore
 from google.api_core import exceptions  # type: ignore
-from google.api_core import gapic_v1    # type: ignore
+from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.auth import credentials  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import batch_prediction_job
-from google.cloud.aiplatform_v1beta1.types import batch_prediction_job as gca_batch_prediction_job
+from google.cloud.aiplatform_v1beta1.types import (
+    batch_prediction_job as gca_batch_prediction_job,
+)
 from google.cloud.aiplatform_v1beta1.types import custom_job
 from google.cloud.aiplatform_v1beta1.types import custom_job as gca_custom_job
 from google.cloud.aiplatform_v1beta1.types import data_labeling_job
-from google.cloud.aiplatform_v1beta1.types import data_labeling_job as gca_data_labeling_job
+from google.cloud.aiplatform_v1beta1.types import (
+    data_labeling_job as gca_data_labeling_job,
+)
 from google.cloud.aiplatform_v1beta1.types import hyperparameter_tuning_job
-from google.cloud.aiplatform_v1beta1.types import hyperparameter_tuning_job as gca_hyperparameter_tuning_job
+from google.cloud.aiplatform_v1beta1.types import (
+    hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
+)
 from google.cloud.aiplatform_v1beta1.types import job_service
 from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
-from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job as gca_model_deployment_monitoring_job
+from google.cloud.aiplatform_v1beta1.types import (
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
+)
 from google.longrunning import operations_pb2 as operations  # type: ignore
 from google.protobuf import empty_pb2 as empty  # type: ignore
 
@@ -44,29 +52,29 @@ from google.protobuf import empty_pb2 as empty  # type: ignore
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
+
 class JobServiceTransport(abc.ABC):
     """Abstract transport class for JobService."""
 
-    AUTH_SCOPES = (
-        'https://www.googleapis.com/auth/cloud-platform',
-    )
+    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
     def __init__(
-            self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            credentials_file: typing.Optional[str] = None,
-            scopes: typing.Optional[typing.Sequence[str]] = AUTH_SCOPES,
-            quota_project_id: typing.Optional[str] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            **kwargs,
-            ) -> None:
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: typing.Optional[str] = None,
+        scopes: typing.Optional[typing.Sequence[str]] = AUTH_SCOPES,
+        quota_project_id: typing.Optional[str] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+        **kwargs,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -89,8 +97,8 @@ class JobServiceTransport(abc.ABC):
                 your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ':' not in host:
-            host += ':443'
+        if ":" not in host:
+            host += ":443"
         self._host = host
 
         # Save the scopes.
@@ -99,17 +107,19 @@ class JobServiceTransport(abc.ABC):
         # If no credentials are provided, then determine the appropriate
         # defaults.
         if credentials and credentials_file:
-            raise exceptions.DuplicateCredentialArgs("'credentials_file' and 'credentials' are mutually exclusive")
+            raise exceptions.DuplicateCredentialArgs(
+                "'credentials_file' and 'credentials' are mutually exclusive"
+            )
 
         if credentials_file is not None:
             credentials, _ = auth.load_credentials_from_file(
-                                credentials_file,
-                                scopes=self._scopes,
-                                quota_project_id=quota_project_id
-                            )
+                credentials_file, scopes=self._scopes, quota_project_id=quota_project_id
+            )
 
         elif credentials is None:
-            credentials, _ = auth.default(scopes=self._scopes, quota_project_id=quota_project_id)
+            credentials, _ = auth.default(
+                scopes=self._scopes, quota_project_id=quota_project_id
+            )
 
         # Save the credentials.
         self._credentials = credentials
@@ -118,29 +128,19 @@ class JobServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_custom_job: gapic_v1.method.wrap_method(
-                self.create_custom_job,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.create_custom_job, default_timeout=5.0, client_info=client_info,
             ),
             self.get_custom_job: gapic_v1.method.wrap_method(
-                self.get_custom_job,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.get_custom_job, default_timeout=5.0, client_info=client_info,
             ),
             self.list_custom_jobs: gapic_v1.method.wrap_method(
-                self.list_custom_jobs,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.list_custom_jobs, default_timeout=5.0, client_info=client_info,
             ),
             self.delete_custom_job: gapic_v1.method.wrap_method(
-                self.delete_custom_job,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.delete_custom_job, default_timeout=5.0, client_info=client_info,
             ),
             self.cancel_custom_job: gapic_v1.method.wrap_method(
-                self.cancel_custom_job,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.cancel_custom_job, default_timeout=5.0, client_info=client_info,
             ),
             self.create_data_labeling_job: gapic_v1.method.wrap_method(
                 self.create_data_labeling_job,
@@ -257,7 +257,6 @@ class JobServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-
         }
 
     @property
@@ -266,258 +265,306 @@ class JobServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
-    def create_custom_job(self) -> typing.Callable[
-            [job_service.CreateCustomJobRequest],
-            typing.Union[
-                gca_custom_job.CustomJob,
-                typing.Awaitable[gca_custom_job.CustomJob]
-            ]]:
+    def create_custom_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.CreateCustomJobRequest],
+        typing.Union[
+            gca_custom_job.CustomJob, typing.Awaitable[gca_custom_job.CustomJob]
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def get_custom_job(self) -> typing.Callable[
-            [job_service.GetCustomJobRequest],
-            typing.Union[
-                custom_job.CustomJob,
-                typing.Awaitable[custom_job.CustomJob]
-            ]]:
+    def get_custom_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.GetCustomJobRequest],
+        typing.Union[custom_job.CustomJob, typing.Awaitable[custom_job.CustomJob]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def list_custom_jobs(self) -> typing.Callable[
-            [job_service.ListCustomJobsRequest],
-            typing.Union[
-                job_service.ListCustomJobsResponse,
-                typing.Awaitable[job_service.ListCustomJobsResponse]
-            ]]:
+    def list_custom_jobs(
+        self,
+    ) -> typing.Callable[
+        [job_service.ListCustomJobsRequest],
+        typing.Union[
+            job_service.ListCustomJobsResponse,
+            typing.Awaitable[job_service.ListCustomJobsResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def delete_custom_job(self) -> typing.Callable[
-            [job_service.DeleteCustomJobRequest],
-            typing.Union[
-                operations.Operation,
-                typing.Awaitable[operations.Operation]
-            ]]:
+    def delete_custom_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.DeleteCustomJobRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def cancel_custom_job(self) -> typing.Callable[
-            [job_service.CancelCustomJobRequest],
-            typing.Union[
-                empty.Empty,
-                typing.Awaitable[empty.Empty]
-            ]]:
+    def cancel_custom_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.CancelCustomJobRequest],
+        typing.Union[empty.Empty, typing.Awaitable[empty.Empty]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def create_data_labeling_job(self) -> typing.Callable[
-            [job_service.CreateDataLabelingJobRequest],
-            typing.Union[
-                gca_data_labeling_job.DataLabelingJob,
-                typing.Awaitable[gca_data_labeling_job.DataLabelingJob]
-            ]]:
+    def create_data_labeling_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.CreateDataLabelingJobRequest],
+        typing.Union[
+            gca_data_labeling_job.DataLabelingJob,
+            typing.Awaitable[gca_data_labeling_job.DataLabelingJob],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def get_data_labeling_job(self) -> typing.Callable[
-            [job_service.GetDataLabelingJobRequest],
-            typing.Union[
-                data_labeling_job.DataLabelingJob,
-                typing.Awaitable[data_labeling_job.DataLabelingJob]
-            ]]:
+    def get_data_labeling_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.GetDataLabelingJobRequest],
+        typing.Union[
+            data_labeling_job.DataLabelingJob,
+            typing.Awaitable[data_labeling_job.DataLabelingJob],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def list_data_labeling_jobs(self) -> typing.Callable[
-            [job_service.ListDataLabelingJobsRequest],
-            typing.Union[
-                job_service.ListDataLabelingJobsResponse,
-                typing.Awaitable[job_service.ListDataLabelingJobsResponse]
-            ]]:
+    def list_data_labeling_jobs(
+        self,
+    ) -> typing.Callable[
+        [job_service.ListDataLabelingJobsRequest],
+        typing.Union[
+            job_service.ListDataLabelingJobsResponse,
+            typing.Awaitable[job_service.ListDataLabelingJobsResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def delete_data_labeling_job(self) -> typing.Callable[
-            [job_service.DeleteDataLabelingJobRequest],
-            typing.Union[
-                operations.Operation,
-                typing.Awaitable[operations.Operation]
-            ]]:
+    def delete_data_labeling_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.DeleteDataLabelingJobRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def cancel_data_labeling_job(self) -> typing.Callable[
-            [job_service.CancelDataLabelingJobRequest],
-            typing.Union[
-                empty.Empty,
-                typing.Awaitable[empty.Empty]
-            ]]:
+    def cancel_data_labeling_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.CancelDataLabelingJobRequest],
+        typing.Union[empty.Empty, typing.Awaitable[empty.Empty]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def create_hyperparameter_tuning_job(self) -> typing.Callable[
-            [job_service.CreateHyperparameterTuningJobRequest],
-            typing.Union[
-                gca_hyperparameter_tuning_job.HyperparameterTuningJob,
-                typing.Awaitable[gca_hyperparameter_tuning_job.HyperparameterTuningJob]
-            ]]:
+    def create_hyperparameter_tuning_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.CreateHyperparameterTuningJobRequest],
+        typing.Union[
+            gca_hyperparameter_tuning_job.HyperparameterTuningJob,
+            typing.Awaitable[gca_hyperparameter_tuning_job.HyperparameterTuningJob],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def get_hyperparameter_tuning_job(self) -> typing.Callable[
-            [job_service.GetHyperparameterTuningJobRequest],
-            typing.Union[
-                hyperparameter_tuning_job.HyperparameterTuningJob,
-                typing.Awaitable[hyperparameter_tuning_job.HyperparameterTuningJob]
-            ]]:
+    def get_hyperparameter_tuning_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.GetHyperparameterTuningJobRequest],
+        typing.Union[
+            hyperparameter_tuning_job.HyperparameterTuningJob,
+            typing.Awaitable[hyperparameter_tuning_job.HyperparameterTuningJob],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def list_hyperparameter_tuning_jobs(self) -> typing.Callable[
-            [job_service.ListHyperparameterTuningJobsRequest],
-            typing.Union[
-                job_service.ListHyperparameterTuningJobsResponse,
-                typing.Awaitable[job_service.ListHyperparameterTuningJobsResponse]
-            ]]:
+    def list_hyperparameter_tuning_jobs(
+        self,
+    ) -> typing.Callable[
+        [job_service.ListHyperparameterTuningJobsRequest],
+        typing.Union[
+            job_service.ListHyperparameterTuningJobsResponse,
+            typing.Awaitable[job_service.ListHyperparameterTuningJobsResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def delete_hyperparameter_tuning_job(self) -> typing.Callable[
-            [job_service.DeleteHyperparameterTuningJobRequest],
-            typing.Union[
-                operations.Operation,
-                typing.Awaitable[operations.Operation]
-            ]]:
+    def delete_hyperparameter_tuning_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.DeleteHyperparameterTuningJobRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def cancel_hyperparameter_tuning_job(self) -> typing.Callable[
-            [job_service.CancelHyperparameterTuningJobRequest],
-            typing.Union[
-                empty.Empty,
-                typing.Awaitable[empty.Empty]
-            ]]:
+    def cancel_hyperparameter_tuning_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.CancelHyperparameterTuningJobRequest],
+        typing.Union[empty.Empty, typing.Awaitable[empty.Empty]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def create_batch_prediction_job(self) -> typing.Callable[
-            [job_service.CreateBatchPredictionJobRequest],
-            typing.Union[
-                gca_batch_prediction_job.BatchPredictionJob,
-                typing.Awaitable[gca_batch_prediction_job.BatchPredictionJob]
-            ]]:
+    def create_batch_prediction_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.CreateBatchPredictionJobRequest],
+        typing.Union[
+            gca_batch_prediction_job.BatchPredictionJob,
+            typing.Awaitable[gca_batch_prediction_job.BatchPredictionJob],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def get_batch_prediction_job(self) -> typing.Callable[
-            [job_service.GetBatchPredictionJobRequest],
-            typing.Union[
-                batch_prediction_job.BatchPredictionJob,
-                typing.Awaitable[batch_prediction_job.BatchPredictionJob]
-            ]]:
+    def get_batch_prediction_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.GetBatchPredictionJobRequest],
+        typing.Union[
+            batch_prediction_job.BatchPredictionJob,
+            typing.Awaitable[batch_prediction_job.BatchPredictionJob],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def list_batch_prediction_jobs(self) -> typing.Callable[
-            [job_service.ListBatchPredictionJobsRequest],
-            typing.Union[
-                job_service.ListBatchPredictionJobsResponse,
-                typing.Awaitable[job_service.ListBatchPredictionJobsResponse]
-            ]]:
+    def list_batch_prediction_jobs(
+        self,
+    ) -> typing.Callable[
+        [job_service.ListBatchPredictionJobsRequest],
+        typing.Union[
+            job_service.ListBatchPredictionJobsResponse,
+            typing.Awaitable[job_service.ListBatchPredictionJobsResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def delete_batch_prediction_job(self) -> typing.Callable[
-            [job_service.DeleteBatchPredictionJobRequest],
-            typing.Union[
-                operations.Operation,
-                typing.Awaitable[operations.Operation]
-            ]]:
+    def delete_batch_prediction_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.DeleteBatchPredictionJobRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def cancel_batch_prediction_job(self) -> typing.Callable[
-            [job_service.CancelBatchPredictionJobRequest],
-            typing.Union[
-                empty.Empty,
-                typing.Awaitable[empty.Empty]
-            ]]:
+    def cancel_batch_prediction_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.CancelBatchPredictionJobRequest],
+        typing.Union[empty.Empty, typing.Awaitable[empty.Empty]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def create_model_deployment_monitoring_job(self) -> typing.Callable[
-            [job_service.CreateModelDeploymentMonitoringJobRequest],
-            typing.Union[
-                gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
-                typing.Awaitable[gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob]
-            ]]:
+    def create_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.CreateModelDeploymentMonitoringJobRequest],
+        typing.Union[
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+            typing.Awaitable[
+                gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+            ],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def search_model_deployment_monitoring_stats_anomalies(self) -> typing.Callable[
-            [job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest],
-            typing.Union[
-                job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse,
-                typing.Awaitable[job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse]
-            ]]:
+    def search_model_deployment_monitoring_stats_anomalies(
+        self,
+    ) -> typing.Callable[
+        [job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest],
+        typing.Union[
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse,
+            typing.Awaitable[
+                job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse
+            ],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def get_model_deployment_monitoring_job(self) -> typing.Callable[
-            [job_service.GetModelDeploymentMonitoringJobRequest],
-            typing.Union[
-                model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
-                typing.Awaitable[model_deployment_monitoring_job.ModelDeploymentMonitoringJob]
-            ]]:
+    def get_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.GetModelDeploymentMonitoringJobRequest],
+        typing.Union[
+            model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+            typing.Awaitable[
+                model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+            ],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def list_model_deployment_monitoring_jobs(self) -> typing.Callable[
-            [job_service.ListModelDeploymentMonitoringJobsRequest],
-            typing.Union[
-                job_service.ListModelDeploymentMonitoringJobsResponse,
-                typing.Awaitable[job_service.ListModelDeploymentMonitoringJobsResponse]
-            ]]:
+    def list_model_deployment_monitoring_jobs(
+        self,
+    ) -> typing.Callable[
+        [job_service.ListModelDeploymentMonitoringJobsRequest],
+        typing.Union[
+            job_service.ListModelDeploymentMonitoringJobsResponse,
+            typing.Awaitable[job_service.ListModelDeploymentMonitoringJobsResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def update_model_deployment_monitoring_job(self) -> typing.Callable[
-            [job_service.UpdateModelDeploymentMonitoringJobRequest],
-            typing.Union[
-                operations.Operation,
-                typing.Awaitable[operations.Operation]
-            ]]:
+    def update_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.UpdateModelDeploymentMonitoringJobRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def delete_model_deployment_monitoring_job(self) -> typing.Callable[
-            [job_service.DeleteModelDeploymentMonitoringJobRequest],
-            typing.Union[
-                operations.Operation,
-                typing.Awaitable[operations.Operation]
-            ]]:
+    def delete_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.DeleteModelDeploymentMonitoringJobRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def pause_model_deployment_monitoring_job(self) -> typing.Callable[
-            [job_service.PauseModelDeploymentMonitoringJobRequest],
-            typing.Union[
-                empty.Empty,
-                typing.Awaitable[empty.Empty]
-            ]]:
+    def pause_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.PauseModelDeploymentMonitoringJobRequest],
+        typing.Union[empty.Empty, typing.Awaitable[empty.Empty]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def resume_model_deployment_monitoring_job(self) -> typing.Callable[
-            [job_service.ResumeModelDeploymentMonitoringJobRequest],
-            typing.Union[
-                empty.Empty,
-                typing.Awaitable[empty.Empty]
-            ]]:
+    def resume_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.ResumeModelDeploymentMonitoringJobRequest],
+        typing.Union[empty.Empty, typing.Awaitable[empty.Empty]],
+    ]:
         raise NotImplementedError()
 
 
-__all__ = (
-    'JobServiceTransport',
-)
+__all__ = ("JobServiceTransport",)

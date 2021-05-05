@@ -19,6 +19,6 @@ from .client import IndexServiceClient
 from .async_client import IndexServiceAsyncClient
 
 __all__ = (
-    'IndexServiceClient',
-    'IndexServiceAsyncClient',
+    "IndexServiceClient",
+    "IndexServiceAsyncClient",
 )

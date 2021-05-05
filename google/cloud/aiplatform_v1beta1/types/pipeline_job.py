@@ -30,12 +30,12 @@ from google.rpc import status_pb2 as status  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
-        'PipelineJob',
-        'PipelineJobDetail',
-        'PipelineTaskDetail',
-        'PipelineTaskExecutorDetail',
+        "PipelineJob",
+        "PipelineJobDetail",
+        "PipelineTaskDetail",
+        "PipelineTaskExecutorDetail",
     },
 )
 
@@ -115,6 +115,7 @@ class PipelineJob(proto.Message):
             Cloud AI Platform Training or Dataflow job. If left
             unspecified, the workload is not peered with any network.
     """
+
     class RuntimeConfig(proto.Message):
         r"""The runtime config of a PipelineJob.
 
@@ -135,8 +136,8 @@ class PipelineJob(proto.Message):
                 ``storage.objects.create`` permissions for this bucket.
         """
 
-        parameters = proto.MapField(proto.STRING, proto.MESSAGE, number=1,
-            message=gca_value.Value,
+        parameters = proto.MapField(
+            proto.STRING, proto.MESSAGE, number=1, message=gca_value.Value,
         )
 
         gcs_output_directory = proto.Field(proto.STRING, number=2)
@@ -145,46 +146,28 @@ class PipelineJob(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=2)
 
-    create_time = proto.Field(proto.MESSAGE, number=3,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
 
-    start_time = proto.Field(proto.MESSAGE, number=4,
-        message=timestamp.Timestamp,
-    )
+    start_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
 
-    end_time = proto.Field(proto.MESSAGE, number=5,
-        message=timestamp.Timestamp,
-    )
+    end_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
 
-    update_time = proto.Field(proto.MESSAGE, number=6,
-        message=timestamp.Timestamp,
-    )
+    update_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
 
-    pipeline_spec = proto.Field(proto.MESSAGE, number=7,
-        message=struct.Struct,
-    )
+    pipeline_spec = proto.Field(proto.MESSAGE, number=7, message=struct.Struct,)
 
-    state = proto.Field(proto.ENUM, number=8,
-        enum=pipeline_state.PipelineState,
-    )
+    state = proto.Field(proto.ENUM, number=8, enum=pipeline_state.PipelineState,)
 
-    job_detail = proto.Field(proto.MESSAGE, number=9,
-        message='PipelineJobDetail',
-    )
+    job_detail = proto.Field(proto.MESSAGE, number=9, message="PipelineJobDetail",)
 
-    error = proto.Field(proto.MESSAGE, number=10,
-        message=status.Status,
-    )
+    error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=11)
 
-    runtime_config = proto.Field(proto.MESSAGE, number=12,
-        message=RuntimeConfig,
-    )
+    runtime_config = proto.Field(proto.MESSAGE, number=12, message=RuntimeConfig,)
 
-    encryption_spec = proto.Field(proto.MESSAGE, number=16,
-        message=gca_encryption_spec.EncryptionSpec,
+    encryption_spec = proto.Field(
+        proto.MESSAGE, number=16, message=gca_encryption_spec.EncryptionSpec,
     )
 
     service_account = proto.Field(proto.STRING, number=17)
@@ -206,16 +189,14 @@ class PipelineJobDetail(proto.Message):
             under the pipeline.
     """
 
-    pipeline_context = proto.Field(proto.MESSAGE, number=1,
-        message=context.Context,
+    pipeline_context = proto.Field(proto.MESSAGE, number=1, message=context.Context,)
+
+    pipeline_run_context = proto.Field(
+        proto.MESSAGE, number=2, message=context.Context,
     )
 
-    pipeline_run_context = proto.Field(proto.MESSAGE, number=2,
-        message=context.Context,
-    )
-
-    task_details = proto.RepeatedField(proto.MESSAGE, number=3,
-        message='PipelineTaskDetail',
+    task_details = proto.RepeatedField(
+        proto.MESSAGE, number=3, message="PipelineTaskDetail",
     )
 
 
@@ -257,6 +238,7 @@ class PipelineTaskDetail(proto.Message):
             Output only. The runtime output artifacts of
             the task.
     """
+
     class State(proto.Enum):
         r"""Specifies state of TaskExecution"""
         STATE_UNSPECIFIED = 0
@@ -278,8 +260,8 @@ class PipelineTaskDetail(proto.Message):
                 Output only. A list of artifact metadata.
         """
 
-        artifacts = proto.RepeatedField(proto.MESSAGE, number=1,
-            message=artifact.Artifact,
+        artifacts = proto.RepeatedField(
+            proto.MESSAGE, number=1, message=artifact.Artifact,
         )
 
     task_id = proto.Field(proto.INT64, number=1)
@@ -288,40 +270,28 @@ class PipelineTaskDetail(proto.Message):
 
     task_name = proto.Field(proto.STRING, number=2)
 
-    create_time = proto.Field(proto.MESSAGE, number=3,
-        message=timestamp.Timestamp,
+    create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
+
+    start_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
+
+    end_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
+
+    executor_detail = proto.Field(
+        proto.MESSAGE, number=6, message="PipelineTaskExecutorDetail",
     )
 
-    start_time = proto.Field(proto.MESSAGE, number=4,
-        message=timestamp.Timestamp,
+    state = proto.Field(proto.ENUM, number=7, enum=State,)
+
+    execution = proto.Field(proto.MESSAGE, number=8, message=gca_execution.Execution,)
+
+    error = proto.Field(proto.MESSAGE, number=9, message=status.Status,)
+
+    inputs = proto.MapField(
+        proto.STRING, proto.MESSAGE, number=10, message=ArtifactList,
     )
 
-    end_time = proto.Field(proto.MESSAGE, number=5,
-        message=timestamp.Timestamp,
-    )
-
-    executor_detail = proto.Field(proto.MESSAGE, number=6,
-        message='PipelineTaskExecutorDetail',
-    )
-
-    state = proto.Field(proto.ENUM, number=7,
-        enum=State,
-    )
-
-    execution = proto.Field(proto.MESSAGE, number=8,
-        message=gca_execution.Execution,
-    )
-
-    error = proto.Field(proto.MESSAGE, number=9,
-        message=status.Status,
-    )
-
-    inputs = proto.MapField(proto.STRING, proto.MESSAGE, number=10,
-        message=ArtifactList,
-    )
-
-    outputs = proto.MapField(proto.STRING, proto.MESSAGE, number=11,
-        message=ArtifactList,
+    outputs = proto.MapField(
+        proto.STRING, proto.MESSAGE, number=11, message=ArtifactList,
     )
 
 
@@ -336,6 +306,7 @@ class PipelineTaskExecutorDetail(proto.Message):
             Output only. The detailed info for a custom
             job executor.
     """
+
     class ContainerDetail(proto.Message):
         r"""The detail of a container execution. It contains the job
         names of the lifecycle of a container execution.
@@ -370,12 +341,12 @@ class PipelineTaskExecutorDetail(proto.Message):
 
         job = proto.Field(proto.STRING, number=1)
 
-    container_detail = proto.Field(proto.MESSAGE, number=1, oneof='details',
-        message=ContainerDetail,
+    container_detail = proto.Field(
+        proto.MESSAGE, number=1, oneof="details", message=ContainerDetail,
     )
 
-    custom_job_detail = proto.Field(proto.MESSAGE, number=2, oneof='details',
-        message=CustomJobDetail,
+    custom_job_detail = proto.Field(
+        proto.MESSAGE, number=2, oneof="details", message=CustomJobDetail,
     )
 
 

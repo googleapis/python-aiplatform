@@ -19,13 +19,8 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'BoolArray',
-        'DoubleArray',
-        'Int64Array',
-        'StringArray',
-    },
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={"BoolArray", "DoubleArray", "Int64Array", "StringArray",},
 )
 
 

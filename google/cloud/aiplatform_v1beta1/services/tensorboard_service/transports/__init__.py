@@ -24,12 +24,14 @@ from .grpc_asyncio import TensorboardServiceGrpcAsyncIOTransport
 
 
 # Compile a registry of transports.
-_transport_registry = OrderedDict()  # type: Dict[str, Type[TensorboardServiceTransport]]
-_transport_registry['grpc'] = TensorboardServiceGrpcTransport
-_transport_registry['grpc_asyncio'] = TensorboardServiceGrpcAsyncIOTransport
+_transport_registry = (
+    OrderedDict()
+)  # type: Dict[str, Type[TensorboardServiceTransport]]
+_transport_registry["grpc"] = TensorboardServiceGrpcTransport
+_transport_registry["grpc_asyncio"] = TensorboardServiceGrpcAsyncIOTransport
 
 __all__ = (
-    'TensorboardServiceTransport',
-    'TensorboardServiceGrpcTransport',
-    'TensorboardServiceGrpcAsyncIOTransport',
+    "TensorboardServiceTransport",
+    "TensorboardServiceGrpcTransport",
+    "TensorboardServiceGrpcAsyncIOTransport",
 )

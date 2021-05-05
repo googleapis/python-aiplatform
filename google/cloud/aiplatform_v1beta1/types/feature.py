@@ -24,10 +24,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'Feature',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"Feature",},
 )
 
 
@@ -93,6 +90,7 @@ class Feature(proto.Message):
             [FeatureStatsAnomaly.start_time][google.cloud.aiplatform.v1beta1.FeatureStatsAnomaly.start_time]
             descending.
     """
+
     class ValueType(proto.Enum):
         r"""An enum representing the value type of a feature."""
         VALUE_TYPE_UNSPECIFIED = 0
@@ -110,28 +108,24 @@ class Feature(proto.Message):
 
     description = proto.Field(proto.STRING, number=2)
 
-    value_type = proto.Field(proto.ENUM, number=3,
-        enum=ValueType,
-    )
+    value_type = proto.Field(proto.ENUM, number=3, enum=ValueType,)
 
-    create_time = proto.Field(proto.MESSAGE, number=4,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
 
-    update_time = proto.Field(proto.MESSAGE, number=5,
-        message=timestamp.Timestamp,
-    )
+    update_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=6)
 
     etag = proto.Field(proto.STRING, number=7)
 
-    monitoring_config = proto.Field(proto.MESSAGE, number=9,
+    monitoring_config = proto.Field(
+        proto.MESSAGE,
+        number=9,
         message=featurestore_monitoring.FeaturestoreMonitoringConfig,
     )
 
-    monitoring_stats = proto.RepeatedField(proto.MESSAGE, number=10,
-        message=feature_monitoring_stats.FeatureStatsAnomaly,
+    monitoring_stats = proto.RepeatedField(
+        proto.MESSAGE, number=10, message=feature_monitoring_stats.FeatureStatsAnomaly,
     )
 
 

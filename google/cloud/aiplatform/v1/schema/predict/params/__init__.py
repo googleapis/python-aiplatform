@@ -15,18 +15,30 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.v1.schema.predict.params_v1.types.image_classification import ImageClassificationPredictionParams
-from google.cloud.aiplatform.v1.schema.predict.params_v1.types.image_object_detection import ImageObjectDetectionPredictionParams
-from google.cloud.aiplatform.v1.schema.predict.params_v1.types.image_segmentation import ImageSegmentationPredictionParams
-from google.cloud.aiplatform.v1.schema.predict.params_v1.types.video_action_recognition import VideoActionRecognitionPredictionParams
-from google.cloud.aiplatform.v1.schema.predict.params_v1.types.video_classification import VideoClassificationPredictionParams
-from google.cloud.aiplatform.v1.schema.predict.params_v1.types.video_object_tracking import VideoObjectTrackingPredictionParams
+from google.cloud.aiplatform.v1.schema.predict.params_v1.types.image_classification import (
+    ImageClassificationPredictionParams,
+)
+from google.cloud.aiplatform.v1.schema.predict.params_v1.types.image_object_detection import (
+    ImageObjectDetectionPredictionParams,
+)
+from google.cloud.aiplatform.v1.schema.predict.params_v1.types.image_segmentation import (
+    ImageSegmentationPredictionParams,
+)
+from google.cloud.aiplatform.v1.schema.predict.params_v1.types.video_action_recognition import (
+    VideoActionRecognitionPredictionParams,
+)
+from google.cloud.aiplatform.v1.schema.predict.params_v1.types.video_classification import (
+    VideoClassificationPredictionParams,
+)
+from google.cloud.aiplatform.v1.schema.predict.params_v1.types.video_object_tracking import (
+    VideoObjectTrackingPredictionParams,
+)
 
 __all__ = (
-    'ImageClassificationPredictionParams',
-    'ImageObjectDetectionPredictionParams',
-    'ImageSegmentationPredictionParams',
-    'VideoActionRecognitionPredictionParams',
-    'VideoClassificationPredictionParams',
-    'VideoObjectTrackingPredictionParams',
+    "ImageClassificationPredictionParams",
+    "ImageObjectDetectionPredictionParams",
+    "ImageSegmentationPredictionParams",
+    "VideoActionRecognitionPredictionParams",
+    "VideoClassificationPredictionParams",
+    "VideoObjectTrackingPredictionParams",
 )

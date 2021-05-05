@@ -15,30 +15,18 @@
 # limitations under the License.
 #
 
-from .image_classification import (
-    ImageClassificationPredictionParams,
-)
-from .image_object_detection import (
-    ImageObjectDetectionPredictionParams,
-)
-from .image_segmentation import (
-    ImageSegmentationPredictionParams,
-)
-from .video_action_recognition import (
-    VideoActionRecognitionPredictionParams,
-)
-from .video_classification import (
-    VideoClassificationPredictionParams,
-)
-from .video_object_tracking import (
-    VideoObjectTrackingPredictionParams,
-)
+from .image_classification import ImageClassificationPredictionParams
+from .image_object_detection import ImageObjectDetectionPredictionParams
+from .image_segmentation import ImageSegmentationPredictionParams
+from .video_action_recognition import VideoActionRecognitionPredictionParams
+from .video_classification import VideoClassificationPredictionParams
+from .video_object_tracking import VideoObjectTrackingPredictionParams
 
 __all__ = (
-    'ImageClassificationPredictionParams',
-    'ImageObjectDetectionPredictionParams',
-    'ImageSegmentationPredictionParams',
-    'VideoActionRecognitionPredictionParams',
-    'VideoClassificationPredictionParams',
-    'VideoObjectTrackingPredictionParams',
+    "ImageClassificationPredictionParams",
+    "ImageObjectDetectionPredictionParams",
+    "ImageSegmentationPredictionParams",
+    "VideoActionRecognitionPredictionParams",
+    "VideoClassificationPredictionParams",
+    "VideoObjectTrackingPredictionParams",
 )

@@ -18,19 +18,21 @@
 import proto  # type: ignore
 
 
-from google.cloud.aiplatform_v1beta1.types import feature_selector as gca_feature_selector
+from google.cloud.aiplatform_v1beta1.types import (
+    feature_selector as gca_feature_selector,
+)
 from google.cloud.aiplatform_v1beta1.types import types
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
-        'ReadFeatureValuesRequest',
-        'ReadFeatureValuesResponse',
-        'StreamingReadFeatureValuesRequest',
-        'FeatureValue',
-        'FeatureValueList',
+        "ReadFeatureValuesRequest",
+        "ReadFeatureValuesResponse",
+        "StreamingReadFeatureValuesRequest",
+        "FeatureValue",
+        "FeatureValueList",
     },
 )
 
@@ -59,8 +61,8 @@ class ReadFeatureValuesRequest(proto.Message):
 
     entity_id = proto.Field(proto.STRING, number=2)
 
-    feature_selector = proto.Field(proto.MESSAGE, number=3,
-        message=gca_feature_selector.FeatureSelector,
+    feature_selector = proto.Field(
+        proto.MESSAGE, number=3, message=gca_feature_selector.FeatureSelector,
     )
 
 
@@ -78,6 +80,7 @@ class ReadFeatureValuesResponse(proto.Message):
             entity in the Featurestore if values for only
             some Features were requested.
     """
+
     class FeatureDescriptor(proto.Message):
         r"""Metadata for requested Features.
 
@@ -106,8 +109,10 @@ class ReadFeatureValuesResponse(proto.Message):
 
         entity_type = proto.Field(proto.STRING, number=1)
 
-        feature_descriptors = proto.RepeatedField(proto.MESSAGE, number=2,
-            message='ReadFeatureValuesResponse.FeatureDescriptor',
+        feature_descriptors = proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message="ReadFeatureValuesResponse.FeatureDescriptor",
         )
 
     class EntityView(proto.Message):
@@ -124,6 +129,7 @@ class ReadFeatureValuesResponse(proto.Message):
                 header
                 [ReadFeatureValuesResponse.header][google.cloud.aiplatform.v1beta1.ReadFeatureValuesResponse.header].
         """
+
         class Data(proto.Message):
             r"""Container to hold value(s), successive in time, for one
             Feature from the request.
@@ -139,27 +145,25 @@ class ReadFeatureValuesResponse(proto.Message):
                     instead of being returned as empty.
             """
 
-            value = proto.Field(proto.MESSAGE, number=1, oneof='data',
-                message='FeatureValue',
+            value = proto.Field(
+                proto.MESSAGE, number=1, oneof="data", message="FeatureValue",
             )
 
-            values = proto.Field(proto.MESSAGE, number=2, oneof='data',
-                message='FeatureValueList',
+            values = proto.Field(
+                proto.MESSAGE, number=2, oneof="data", message="FeatureValueList",
             )
 
         entity_id = proto.Field(proto.STRING, number=1)
 
-        data = proto.RepeatedField(proto.MESSAGE, number=2,
-            message='ReadFeatureValuesResponse.EntityView.Data',
+        data = proto.RepeatedField(
+            proto.MESSAGE,
+            number=2,
+            message="ReadFeatureValuesResponse.EntityView.Data",
         )
 
-    header = proto.Field(proto.MESSAGE, number=1,
-        message=Header,
-    )
+    header = proto.Field(proto.MESSAGE, number=1, message=Header,)
 
-    entity_view = proto.Field(proto.MESSAGE, number=2,
-        message=EntityView,
-    )
+    entity_view = proto.Field(proto.MESSAGE, number=2, message=EntityView,)
 
 
 class StreamingReadFeatureValuesRequest(proto.Message):
@@ -186,8 +190,8 @@ class StreamingReadFeatureValuesRequest(proto.Message):
 
     entity_ids = proto.RepeatedField(proto.STRING, number=2)
 
-    feature_selector = proto.Field(proto.MESSAGE, number=3,
-        message=gca_feature_selector.FeatureSelector,
+    feature_selector = proto.Field(
+        proto.MESSAGE, number=3, message=gca_feature_selector.FeatureSelector,
     )
 
 
@@ -217,6 +221,7 @@ class FeatureValue(proto.Message):
         metadata (google.cloud.aiplatform_v1beta1.types.FeatureValue.Metadata):
             Output only. Metadata of feature value.
     """
+
     class Metadata(proto.Message):
         r"""Metadata of feature value.
 
@@ -229,39 +234,37 @@ class FeatureValue(proto.Message):
                 store.
         """
 
-        generate_time = proto.Field(proto.MESSAGE, number=1,
-            message=timestamp.Timestamp,
+        generate_time = proto.Field(
+            proto.MESSAGE, number=1, message=timestamp.Timestamp,
         )
 
-    bool_value = proto.Field(proto.BOOL, number=1, oneof='value')
+    bool_value = proto.Field(proto.BOOL, number=1, oneof="value")
 
-    double_value = proto.Field(proto.DOUBLE, number=2, oneof='value')
+    double_value = proto.Field(proto.DOUBLE, number=2, oneof="value")
 
-    int64_value = proto.Field(proto.INT64, number=5, oneof='value')
+    int64_value = proto.Field(proto.INT64, number=5, oneof="value")
 
-    string_value = proto.Field(proto.STRING, number=6, oneof='value')
+    string_value = proto.Field(proto.STRING, number=6, oneof="value")
 
-    bool_array_value = proto.Field(proto.MESSAGE, number=7, oneof='value',
-        message=types.BoolArray,
+    bool_array_value = proto.Field(
+        proto.MESSAGE, number=7, oneof="value", message=types.BoolArray,
     )
 
-    double_array_value = proto.Field(proto.MESSAGE, number=8, oneof='value',
-        message=types.DoubleArray,
+    double_array_value = proto.Field(
+        proto.MESSAGE, number=8, oneof="value", message=types.DoubleArray,
     )
 
-    int64_array_value = proto.Field(proto.MESSAGE, number=11, oneof='value',
-        message=types.Int64Array,
+    int64_array_value = proto.Field(
+        proto.MESSAGE, number=11, oneof="value", message=types.Int64Array,
     )
 
-    string_array_value = proto.Field(proto.MESSAGE, number=12, oneof='value',
-        message=types.StringArray,
+    string_array_value = proto.Field(
+        proto.MESSAGE, number=12, oneof="value", message=types.StringArray,
     )
 
-    bytes_value = proto.Field(proto.BYTES, number=13, oneof='value')
+    bytes_value = proto.Field(proto.BYTES, number=13, oneof="value")
 
-    metadata = proto.Field(proto.MESSAGE, number=14,
-        message=Metadata,
-    )
+    metadata = proto.Field(proto.MESSAGE, number=14, message=Metadata,)
 
 
 class FeatureValueList(proto.Message):
@@ -273,9 +276,7 @@ class FeatureValueList(proto.Message):
             be the same data type.
     """
 
-    values = proto.RepeatedField(proto.MESSAGE, number=1,
-        message='FeatureValue',
-    )
+    values = proto.RepeatedField(proto.MESSAGE, number=1, message="FeatureValue",)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

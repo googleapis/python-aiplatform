@@ -18,11 +18,11 @@
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple
 
-from google.api_core import grpc_helpers   # type: ignore
+from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google.api_core import gapic_v1       # type: ignore
-from google import auth                    # type: ignore
-from google.auth import credentials        # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google import auth  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
@@ -55,21 +55,24 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     It sends protocol buffers over the wire using gRPC (which is built on
     top of HTTP/2); the ``grpcio`` package must be installed.
     """
+
     _stubs: Dict[str, Callable]
 
-    def __init__(self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: credentials.Credentials = None,
-            credentials_file: str = None,
-            scopes: Sequence[str] = None,
-            channel: grpc.Channel = None,
-            api_mtls_endpoint: str = None,
-            client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-            ssl_channel_credentials: grpc.ChannelCredentials = None,
-            client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
-            quota_project_id: Optional[str] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: str = None,
+        scopes: Sequence[str] = None,
+        channel: grpc.Channel = None,
+        api_mtls_endpoint: str = None,
+        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+        ssl_channel_credentials: grpc.ChannelCredentials = None,
+        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+        quota_project_id: Optional[str] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -181,13 +184,15 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         self._prep_wrapped_messages(client_info)
 
     @classmethod
-    def create_channel(cls,
-                       host: str = 'aiplatform.googleapis.com',
-                       credentials: credentials.Credentials = None,
-                       credentials_file: str = None,
-                       scopes: Optional[Sequence[str]] = None,
-                       quota_project_id: Optional[str] = None,
-                       **kwargs) -> grpc.Channel:
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: credentials.Credentials = None,
+        credentials_file: str = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        **kwargs,
+    ) -> grpc.Channel:
         """Create and return a gRPC channel object.
         Args:
             host (Optional[str]): The host for the channel to use.
@@ -220,7 +225,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
             credentials_file=credentials_file,
             scopes=scopes,
             quota_project_id=quota_project_id,
-            **kwargs
+            **kwargs,
         )
 
     @property
@@ -238,17 +243,15 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         """
         # Sanity check: Only create a new client if we do not already have one.
         if self._operations_client is None:
-            self._operations_client = operations_v1.OperationsClient(
-                self.grpc_channel
-            )
+            self._operations_client = operations_v1.OperationsClient(self.grpc_channel)
 
         # Return the client from cache.
         return self._operations_client
 
     @property
-    def create_metadata_store(self) -> Callable[
-            [metadata_service.CreateMetadataStoreRequest],
-            operations.Operation]:
+    def create_metadata_store(
+        self,
+    ) -> Callable[[metadata_service.CreateMetadataStoreRequest], operations.Operation]:
         r"""Return a callable for the create metadata store method over gRPC.
 
         Initializes a MetadataStore, including allocation of
@@ -264,18 +267,20 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_metadata_store' not in self._stubs:
-            self._stubs['create_metadata_store'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/CreateMetadataStore',
+        if "create_metadata_store" not in self._stubs:
+            self._stubs["create_metadata_store"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/CreateMetadataStore",
                 request_serializer=metadata_service.CreateMetadataStoreRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['create_metadata_store']
+        return self._stubs["create_metadata_store"]
 
     @property
-    def get_metadata_store(self) -> Callable[
-            [metadata_service.GetMetadataStoreRequest],
-            metadata_store.MetadataStore]:
+    def get_metadata_store(
+        self,
+    ) -> Callable[
+        [metadata_service.GetMetadataStoreRequest], metadata_store.MetadataStore
+    ]:
         r"""Return a callable for the get metadata store method over gRPC.
 
         Retrieves a specific MetadataStore.
@@ -290,18 +295,21 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_metadata_store' not in self._stubs:
-            self._stubs['get_metadata_store'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/GetMetadataStore',
+        if "get_metadata_store" not in self._stubs:
+            self._stubs["get_metadata_store"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/GetMetadataStore",
                 request_serializer=metadata_service.GetMetadataStoreRequest.serialize,
                 response_deserializer=metadata_store.MetadataStore.deserialize,
             )
-        return self._stubs['get_metadata_store']
+        return self._stubs["get_metadata_store"]
 
     @property
-    def list_metadata_stores(self) -> Callable[
-            [metadata_service.ListMetadataStoresRequest],
-            metadata_service.ListMetadataStoresResponse]:
+    def list_metadata_stores(
+        self,
+    ) -> Callable[
+        [metadata_service.ListMetadataStoresRequest],
+        metadata_service.ListMetadataStoresResponse,
+    ]:
         r"""Return a callable for the list metadata stores method over gRPC.
 
         Lists MetadataStores for a Location.
@@ -316,18 +324,18 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_metadata_stores' not in self._stubs:
-            self._stubs['list_metadata_stores'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/ListMetadataStores',
+        if "list_metadata_stores" not in self._stubs:
+            self._stubs["list_metadata_stores"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/ListMetadataStores",
                 request_serializer=metadata_service.ListMetadataStoresRequest.serialize,
                 response_deserializer=metadata_service.ListMetadataStoresResponse.deserialize,
             )
-        return self._stubs['list_metadata_stores']
+        return self._stubs["list_metadata_stores"]
 
     @property
-    def delete_metadata_store(self) -> Callable[
-            [metadata_service.DeleteMetadataStoreRequest],
-            operations.Operation]:
+    def delete_metadata_store(
+        self,
+    ) -> Callable[[metadata_service.DeleteMetadataStoreRequest], operations.Operation]:
         r"""Return a callable for the delete metadata store method over gRPC.
 
         Deletes a single MetadataStore.
@@ -342,18 +350,18 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'delete_metadata_store' not in self._stubs:
-            self._stubs['delete_metadata_store'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/DeleteMetadataStore',
+        if "delete_metadata_store" not in self._stubs:
+            self._stubs["delete_metadata_store"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/DeleteMetadataStore",
                 request_serializer=metadata_service.DeleteMetadataStoreRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['delete_metadata_store']
+        return self._stubs["delete_metadata_store"]
 
     @property
-    def create_artifact(self) -> Callable[
-            [metadata_service.CreateArtifactRequest],
-            gca_artifact.Artifact]:
+    def create_artifact(
+        self,
+    ) -> Callable[[metadata_service.CreateArtifactRequest], gca_artifact.Artifact]:
         r"""Return a callable for the create artifact method over gRPC.
 
         Creates an Artifact associated with a MetadataStore.
@@ -368,18 +376,18 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_artifact' not in self._stubs:
-            self._stubs['create_artifact'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/CreateArtifact',
+        if "create_artifact" not in self._stubs:
+            self._stubs["create_artifact"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/CreateArtifact",
                 request_serializer=metadata_service.CreateArtifactRequest.serialize,
                 response_deserializer=gca_artifact.Artifact.deserialize,
             )
-        return self._stubs['create_artifact']
+        return self._stubs["create_artifact"]
 
     @property
-    def get_artifact(self) -> Callable[
-            [metadata_service.GetArtifactRequest],
-            artifact.Artifact]:
+    def get_artifact(
+        self,
+    ) -> Callable[[metadata_service.GetArtifactRequest], artifact.Artifact]:
         r"""Return a callable for the get artifact method over gRPC.
 
         Retrieves a specific Artifact.
@@ -394,18 +402,20 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_artifact' not in self._stubs:
-            self._stubs['get_artifact'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/GetArtifact',
+        if "get_artifact" not in self._stubs:
+            self._stubs["get_artifact"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/GetArtifact",
                 request_serializer=metadata_service.GetArtifactRequest.serialize,
                 response_deserializer=artifact.Artifact.deserialize,
             )
-        return self._stubs['get_artifact']
+        return self._stubs["get_artifact"]
 
     @property
-    def list_artifacts(self) -> Callable[
-            [metadata_service.ListArtifactsRequest],
-            metadata_service.ListArtifactsResponse]:
+    def list_artifacts(
+        self,
+    ) -> Callable[
+        [metadata_service.ListArtifactsRequest], metadata_service.ListArtifactsResponse
+    ]:
         r"""Return a callable for the list artifacts method over gRPC.
 
         Lists Artifacts in the MetadataStore.
@@ -420,18 +430,18 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_artifacts' not in self._stubs:
-            self._stubs['list_artifacts'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/ListArtifacts',
+        if "list_artifacts" not in self._stubs:
+            self._stubs["list_artifacts"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/ListArtifacts",
                 request_serializer=metadata_service.ListArtifactsRequest.serialize,
                 response_deserializer=metadata_service.ListArtifactsResponse.deserialize,
             )
-        return self._stubs['list_artifacts']
+        return self._stubs["list_artifacts"]
 
     @property
-    def update_artifact(self) -> Callable[
-            [metadata_service.UpdateArtifactRequest],
-            gca_artifact.Artifact]:
+    def update_artifact(
+        self,
+    ) -> Callable[[metadata_service.UpdateArtifactRequest], gca_artifact.Artifact]:
         r"""Return a callable for the update artifact method over gRPC.
 
         Updates a stored Artifact.
@@ -446,18 +456,18 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'update_artifact' not in self._stubs:
-            self._stubs['update_artifact'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/UpdateArtifact',
+        if "update_artifact" not in self._stubs:
+            self._stubs["update_artifact"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/UpdateArtifact",
                 request_serializer=metadata_service.UpdateArtifactRequest.serialize,
                 response_deserializer=gca_artifact.Artifact.deserialize,
             )
-        return self._stubs['update_artifact']
+        return self._stubs["update_artifact"]
 
     @property
-    def create_context(self) -> Callable[
-            [metadata_service.CreateContextRequest],
-            gca_context.Context]:
+    def create_context(
+        self,
+    ) -> Callable[[metadata_service.CreateContextRequest], gca_context.Context]:
         r"""Return a callable for the create context method over gRPC.
 
         Creates a Context associated with a MetadataStore.
@@ -472,18 +482,18 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_context' not in self._stubs:
-            self._stubs['create_context'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/CreateContext',
+        if "create_context" not in self._stubs:
+            self._stubs["create_context"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/CreateContext",
                 request_serializer=metadata_service.CreateContextRequest.serialize,
                 response_deserializer=gca_context.Context.deserialize,
             )
-        return self._stubs['create_context']
+        return self._stubs["create_context"]
 
     @property
-    def get_context(self) -> Callable[
-            [metadata_service.GetContextRequest],
-            context.Context]:
+    def get_context(
+        self,
+    ) -> Callable[[metadata_service.GetContextRequest], context.Context]:
         r"""Return a callable for the get context method over gRPC.
 
         Retrieves a specific Context.
@@ -498,18 +508,20 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_context' not in self._stubs:
-            self._stubs['get_context'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/GetContext',
+        if "get_context" not in self._stubs:
+            self._stubs["get_context"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/GetContext",
                 request_serializer=metadata_service.GetContextRequest.serialize,
                 response_deserializer=context.Context.deserialize,
             )
-        return self._stubs['get_context']
+        return self._stubs["get_context"]
 
     @property
-    def list_contexts(self) -> Callable[
-            [metadata_service.ListContextsRequest],
-            metadata_service.ListContextsResponse]:
+    def list_contexts(
+        self,
+    ) -> Callable[
+        [metadata_service.ListContextsRequest], metadata_service.ListContextsResponse
+    ]:
         r"""Return a callable for the list contexts method over gRPC.
 
         Lists Contexts on the MetadataStore.
@@ -524,18 +536,18 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_contexts' not in self._stubs:
-            self._stubs['list_contexts'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/ListContexts',
+        if "list_contexts" not in self._stubs:
+            self._stubs["list_contexts"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/ListContexts",
                 request_serializer=metadata_service.ListContextsRequest.serialize,
                 response_deserializer=metadata_service.ListContextsResponse.deserialize,
             )
-        return self._stubs['list_contexts']
+        return self._stubs["list_contexts"]
 
     @property
-    def update_context(self) -> Callable[
-            [metadata_service.UpdateContextRequest],
-            gca_context.Context]:
+    def update_context(
+        self,
+    ) -> Callable[[metadata_service.UpdateContextRequest], gca_context.Context]:
         r"""Return a callable for the update context method over gRPC.
 
         Updates a stored Context.
@@ -550,18 +562,18 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'update_context' not in self._stubs:
-            self._stubs['update_context'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/UpdateContext',
+        if "update_context" not in self._stubs:
+            self._stubs["update_context"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/UpdateContext",
                 request_serializer=metadata_service.UpdateContextRequest.serialize,
                 response_deserializer=gca_context.Context.deserialize,
             )
-        return self._stubs['update_context']
+        return self._stubs["update_context"]
 
     @property
-    def delete_context(self) -> Callable[
-            [metadata_service.DeleteContextRequest],
-            operations.Operation]:
+    def delete_context(
+        self,
+    ) -> Callable[[metadata_service.DeleteContextRequest], operations.Operation]:
         r"""Return a callable for the delete context method over gRPC.
 
         Deletes a stored Context.
@@ -576,18 +588,21 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'delete_context' not in self._stubs:
-            self._stubs['delete_context'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/DeleteContext',
+        if "delete_context" not in self._stubs:
+            self._stubs["delete_context"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/DeleteContext",
                 request_serializer=metadata_service.DeleteContextRequest.serialize,
                 response_deserializer=operations.Operation.FromString,
             )
-        return self._stubs['delete_context']
+        return self._stubs["delete_context"]
 
     @property
-    def add_context_artifacts_and_executions(self) -> Callable[
-            [metadata_service.AddContextArtifactsAndExecutionsRequest],
-            metadata_service.AddContextArtifactsAndExecutionsResponse]:
+    def add_context_artifacts_and_executions(
+        self,
+    ) -> Callable[
+        [metadata_service.AddContextArtifactsAndExecutionsRequest],
+        metadata_service.AddContextArtifactsAndExecutionsResponse,
+    ]:
         r"""Return a callable for the add context artifacts and
         executions method over gRPC.
 
@@ -605,18 +620,23 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'add_context_artifacts_and_executions' not in self._stubs:
-            self._stubs['add_context_artifacts_and_executions'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/AddContextArtifactsAndExecutions',
+        if "add_context_artifacts_and_executions" not in self._stubs:
+            self._stubs[
+                "add_context_artifacts_and_executions"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/AddContextArtifactsAndExecutions",
                 request_serializer=metadata_service.AddContextArtifactsAndExecutionsRequest.serialize,
                 response_deserializer=metadata_service.AddContextArtifactsAndExecutionsResponse.deserialize,
             )
-        return self._stubs['add_context_artifacts_and_executions']
+        return self._stubs["add_context_artifacts_and_executions"]
 
     @property
-    def add_context_children(self) -> Callable[
-            [metadata_service.AddContextChildrenRequest],
-            metadata_service.AddContextChildrenResponse]:
+    def add_context_children(
+        self,
+    ) -> Callable[
+        [metadata_service.AddContextChildrenRequest],
+        metadata_service.AddContextChildrenResponse,
+    ]:
         r"""Return a callable for the add context children method over gRPC.
 
         Adds a set of Contexts as children to a parent Context. If any
@@ -635,18 +655,21 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'add_context_children' not in self._stubs:
-            self._stubs['add_context_children'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/AddContextChildren',
+        if "add_context_children" not in self._stubs:
+            self._stubs["add_context_children"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/AddContextChildren",
                 request_serializer=metadata_service.AddContextChildrenRequest.serialize,
                 response_deserializer=metadata_service.AddContextChildrenResponse.deserialize,
             )
-        return self._stubs['add_context_children']
+        return self._stubs["add_context_children"]
 
     @property
-    def query_context_lineage_subgraph(self) -> Callable[
-            [metadata_service.QueryContextLineageSubgraphRequest],
-            lineage_subgraph.LineageSubgraph]:
+    def query_context_lineage_subgraph(
+        self,
+    ) -> Callable[
+        [metadata_service.QueryContextLineageSubgraphRequest],
+        lineage_subgraph.LineageSubgraph,
+    ]:
         r"""Return a callable for the query context lineage subgraph method over gRPC.
 
         Retrieves Artifacts and Executions within the
@@ -663,18 +686,20 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'query_context_lineage_subgraph' not in self._stubs:
-            self._stubs['query_context_lineage_subgraph'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/QueryContextLineageSubgraph',
+        if "query_context_lineage_subgraph" not in self._stubs:
+            self._stubs[
+                "query_context_lineage_subgraph"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/QueryContextLineageSubgraph",
                 request_serializer=metadata_service.QueryContextLineageSubgraphRequest.serialize,
                 response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
             )
-        return self._stubs['query_context_lineage_subgraph']
+        return self._stubs["query_context_lineage_subgraph"]
 
     @property
-    def create_execution(self) -> Callable[
-            [metadata_service.CreateExecutionRequest],
-            gca_execution.Execution]:
+    def create_execution(
+        self,
+    ) -> Callable[[metadata_service.CreateExecutionRequest], gca_execution.Execution]:
         r"""Return a callable for the create execution method over gRPC.
 
         Creates an Execution associated with a MetadataStore.
@@ -689,18 +714,18 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_execution' not in self._stubs:
-            self._stubs['create_execution'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/CreateExecution',
+        if "create_execution" not in self._stubs:
+            self._stubs["create_execution"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/CreateExecution",
                 request_serializer=metadata_service.CreateExecutionRequest.serialize,
                 response_deserializer=gca_execution.Execution.deserialize,
             )
-        return self._stubs['create_execution']
+        return self._stubs["create_execution"]
 
     @property
-    def get_execution(self) -> Callable[
-            [metadata_service.GetExecutionRequest],
-            execution.Execution]:
+    def get_execution(
+        self,
+    ) -> Callable[[metadata_service.GetExecutionRequest], execution.Execution]:
         r"""Return a callable for the get execution method over gRPC.
 
         Retrieves a specific Execution.
@@ -715,18 +740,21 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_execution' not in self._stubs:
-            self._stubs['get_execution'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/GetExecution',
+        if "get_execution" not in self._stubs:
+            self._stubs["get_execution"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/GetExecution",
                 request_serializer=metadata_service.GetExecutionRequest.serialize,
                 response_deserializer=execution.Execution.deserialize,
             )
-        return self._stubs['get_execution']
+        return self._stubs["get_execution"]
 
     @property
-    def list_executions(self) -> Callable[
-            [metadata_service.ListExecutionsRequest],
-            metadata_service.ListExecutionsResponse]:
+    def list_executions(
+        self,
+    ) -> Callable[
+        [metadata_service.ListExecutionsRequest],
+        metadata_service.ListExecutionsResponse,
+    ]:
         r"""Return a callable for the list executions method over gRPC.
 
         Lists Executions in the MetadataStore.
@@ -741,18 +769,18 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_executions' not in self._stubs:
-            self._stubs['list_executions'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/ListExecutions',
+        if "list_executions" not in self._stubs:
+            self._stubs["list_executions"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/ListExecutions",
                 request_serializer=metadata_service.ListExecutionsRequest.serialize,
                 response_deserializer=metadata_service.ListExecutionsResponse.deserialize,
             )
-        return self._stubs['list_executions']
+        return self._stubs["list_executions"]
 
     @property
-    def update_execution(self) -> Callable[
-            [metadata_service.UpdateExecutionRequest],
-            gca_execution.Execution]:
+    def update_execution(
+        self,
+    ) -> Callable[[metadata_service.UpdateExecutionRequest], gca_execution.Execution]:
         r"""Return a callable for the update execution method over gRPC.
 
         Updates a stored Execution.
@@ -767,18 +795,21 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'update_execution' not in self._stubs:
-            self._stubs['update_execution'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/UpdateExecution',
+        if "update_execution" not in self._stubs:
+            self._stubs["update_execution"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/UpdateExecution",
                 request_serializer=metadata_service.UpdateExecutionRequest.serialize,
                 response_deserializer=gca_execution.Execution.deserialize,
             )
-        return self._stubs['update_execution']
+        return self._stubs["update_execution"]
 
     @property
-    def add_execution_events(self) -> Callable[
-            [metadata_service.AddExecutionEventsRequest],
-            metadata_service.AddExecutionEventsResponse]:
+    def add_execution_events(
+        self,
+    ) -> Callable[
+        [metadata_service.AddExecutionEventsRequest],
+        metadata_service.AddExecutionEventsResponse,
+    ]:
         r"""Return a callable for the add execution events method over gRPC.
 
         Adds Events for denoting whether each Artifact was an
@@ -796,18 +827,21 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'add_execution_events' not in self._stubs:
-            self._stubs['add_execution_events'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/AddExecutionEvents',
+        if "add_execution_events" not in self._stubs:
+            self._stubs["add_execution_events"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/AddExecutionEvents",
                 request_serializer=metadata_service.AddExecutionEventsRequest.serialize,
                 response_deserializer=metadata_service.AddExecutionEventsResponse.deserialize,
             )
-        return self._stubs['add_execution_events']
+        return self._stubs["add_execution_events"]
 
     @property
-    def query_execution_inputs_and_outputs(self) -> Callable[
-            [metadata_service.QueryExecutionInputsAndOutputsRequest],
-            lineage_subgraph.LineageSubgraph]:
+    def query_execution_inputs_and_outputs(
+        self,
+    ) -> Callable[
+        [metadata_service.QueryExecutionInputsAndOutputsRequest],
+        lineage_subgraph.LineageSubgraph,
+    ]:
         r"""Return a callable for the query execution inputs and
         outputs method over gRPC.
 
@@ -825,18 +859,23 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'query_execution_inputs_and_outputs' not in self._stubs:
-            self._stubs['query_execution_inputs_and_outputs'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/QueryExecutionInputsAndOutputs',
+        if "query_execution_inputs_and_outputs" not in self._stubs:
+            self._stubs[
+                "query_execution_inputs_and_outputs"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/QueryExecutionInputsAndOutputs",
                 request_serializer=metadata_service.QueryExecutionInputsAndOutputsRequest.serialize,
                 response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
             )
-        return self._stubs['query_execution_inputs_and_outputs']
+        return self._stubs["query_execution_inputs_and_outputs"]
 
     @property
-    def create_metadata_schema(self) -> Callable[
-            [metadata_service.CreateMetadataSchemaRequest],
-            gca_metadata_schema.MetadataSchema]:
+    def create_metadata_schema(
+        self,
+    ) -> Callable[
+        [metadata_service.CreateMetadataSchemaRequest],
+        gca_metadata_schema.MetadataSchema,
+    ]:
         r"""Return a callable for the create metadata schema method over gRPC.
 
         Creates an MetadataSchema.
@@ -851,18 +890,20 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_metadata_schema' not in self._stubs:
-            self._stubs['create_metadata_schema'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/CreateMetadataSchema',
+        if "create_metadata_schema" not in self._stubs:
+            self._stubs["create_metadata_schema"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/CreateMetadataSchema",
                 request_serializer=metadata_service.CreateMetadataSchemaRequest.serialize,
                 response_deserializer=gca_metadata_schema.MetadataSchema.deserialize,
             )
-        return self._stubs['create_metadata_schema']
+        return self._stubs["create_metadata_schema"]
 
     @property
-    def get_metadata_schema(self) -> Callable[
-            [metadata_service.GetMetadataSchemaRequest],
-            metadata_schema.MetadataSchema]:
+    def get_metadata_schema(
+        self,
+    ) -> Callable[
+        [metadata_service.GetMetadataSchemaRequest], metadata_schema.MetadataSchema
+    ]:
         r"""Return a callable for the get metadata schema method over gRPC.
 
         Retrieves a specific MetadataSchema.
@@ -877,18 +918,21 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_metadata_schema' not in self._stubs:
-            self._stubs['get_metadata_schema'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/GetMetadataSchema',
+        if "get_metadata_schema" not in self._stubs:
+            self._stubs["get_metadata_schema"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/GetMetadataSchema",
                 request_serializer=metadata_service.GetMetadataSchemaRequest.serialize,
                 response_deserializer=metadata_schema.MetadataSchema.deserialize,
             )
-        return self._stubs['get_metadata_schema']
+        return self._stubs["get_metadata_schema"]
 
     @property
-    def list_metadata_schemas(self) -> Callable[
-            [metadata_service.ListMetadataSchemasRequest],
-            metadata_service.ListMetadataSchemasResponse]:
+    def list_metadata_schemas(
+        self,
+    ) -> Callable[
+        [metadata_service.ListMetadataSchemasRequest],
+        metadata_service.ListMetadataSchemasResponse,
+    ]:
         r"""Return a callable for the list metadata schemas method over gRPC.
 
         Lists MetadataSchemas.
@@ -903,18 +947,21 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_metadata_schemas' not in self._stubs:
-            self._stubs['list_metadata_schemas'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/ListMetadataSchemas',
+        if "list_metadata_schemas" not in self._stubs:
+            self._stubs["list_metadata_schemas"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/ListMetadataSchemas",
                 request_serializer=metadata_service.ListMetadataSchemasRequest.serialize,
                 response_deserializer=metadata_service.ListMetadataSchemasResponse.deserialize,
             )
-        return self._stubs['list_metadata_schemas']
+        return self._stubs["list_metadata_schemas"]
 
     @property
-    def query_artifact_lineage_subgraph(self) -> Callable[
-            [metadata_service.QueryArtifactLineageSubgraphRequest],
-            lineage_subgraph.LineageSubgraph]:
+    def query_artifact_lineage_subgraph(
+        self,
+    ) -> Callable[
+        [metadata_service.QueryArtifactLineageSubgraphRequest],
+        lineage_subgraph.LineageSubgraph,
+    ]:
         r"""Return a callable for the query artifact lineage
         subgraph method over gRPC.
 
@@ -932,15 +979,15 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'query_artifact_lineage_subgraph' not in self._stubs:
-            self._stubs['query_artifact_lineage_subgraph'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.MetadataService/QueryArtifactLineageSubgraph',
+        if "query_artifact_lineage_subgraph" not in self._stubs:
+            self._stubs[
+                "query_artifact_lineage_subgraph"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/QueryArtifactLineageSubgraph",
                 request_serializer=metadata_service.QueryArtifactLineageSubgraphRequest.serialize,
                 response_deserializer=lineage_subgraph.LineageSubgraph.deserialize,
             )
-        return self._stubs['query_artifact_lineage_subgraph']
+        return self._stubs["query_artifact_lineage_subgraph"]
 
 
-__all__ = (
-    'MetadataServiceGrpcTransport',
-)
+__all__ = ("MetadataServiceGrpcTransport",)

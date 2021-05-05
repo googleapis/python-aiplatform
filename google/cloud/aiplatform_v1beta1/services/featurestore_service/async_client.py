@@ -21,12 +21,12 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions # type: ignore
-from google.api_core import exceptions                 # type: ignore
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import retry as retries           # type: ignore
-from google.auth import credentials                    # type: ignore
-from google.oauth2 import service_account              # type: ignore
+import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core import exceptions  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -61,26 +61,44 @@ class FeaturestoreServiceAsyncClient:
     DEFAULT_MTLS_ENDPOINT = FeaturestoreServiceClient.DEFAULT_MTLS_ENDPOINT
 
     entity_type_path = staticmethod(FeaturestoreServiceClient.entity_type_path)
-    parse_entity_type_path = staticmethod(FeaturestoreServiceClient.parse_entity_type_path)
+    parse_entity_type_path = staticmethod(
+        FeaturestoreServiceClient.parse_entity_type_path
+    )
     feature_path = staticmethod(FeaturestoreServiceClient.feature_path)
     parse_feature_path = staticmethod(FeaturestoreServiceClient.parse_feature_path)
     featurestore_path = staticmethod(FeaturestoreServiceClient.featurestore_path)
-    parse_featurestore_path = staticmethod(FeaturestoreServiceClient.parse_featurestore_path)
+    parse_featurestore_path = staticmethod(
+        FeaturestoreServiceClient.parse_featurestore_path
+    )
 
-    common_billing_account_path = staticmethod(FeaturestoreServiceClient.common_billing_account_path)
-    parse_common_billing_account_path = staticmethod(FeaturestoreServiceClient.parse_common_billing_account_path)
+    common_billing_account_path = staticmethod(
+        FeaturestoreServiceClient.common_billing_account_path
+    )
+    parse_common_billing_account_path = staticmethod(
+        FeaturestoreServiceClient.parse_common_billing_account_path
+    )
 
     common_folder_path = staticmethod(FeaturestoreServiceClient.common_folder_path)
-    parse_common_folder_path = staticmethod(FeaturestoreServiceClient.parse_common_folder_path)
+    parse_common_folder_path = staticmethod(
+        FeaturestoreServiceClient.parse_common_folder_path
+    )
 
-    common_organization_path = staticmethod(FeaturestoreServiceClient.common_organization_path)
-    parse_common_organization_path = staticmethod(FeaturestoreServiceClient.parse_common_organization_path)
+    common_organization_path = staticmethod(
+        FeaturestoreServiceClient.common_organization_path
+    )
+    parse_common_organization_path = staticmethod(
+        FeaturestoreServiceClient.parse_common_organization_path
+    )
 
     common_project_path = staticmethod(FeaturestoreServiceClient.common_project_path)
-    parse_common_project_path = staticmethod(FeaturestoreServiceClient.parse_common_project_path)
+    parse_common_project_path = staticmethod(
+        FeaturestoreServiceClient.parse_common_project_path
+    )
 
     common_location_path = staticmethod(FeaturestoreServiceClient.common_location_path)
-    parse_common_location_path = staticmethod(FeaturestoreServiceClient.parse_common_location_path)
+    parse_common_location_path = staticmethod(
+        FeaturestoreServiceClient.parse_common_location_path
+    )
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -123,14 +141,19 @@ class FeaturestoreServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(type(FeaturestoreServiceClient).get_transport_class, type(FeaturestoreServiceClient))
+    get_transport_class = functools.partial(
+        type(FeaturestoreServiceClient).get_transport_class,
+        type(FeaturestoreServiceClient),
+    )
 
-    def __init__(self, *,
-            credentials: credentials.Credentials = None,
-            transport: Union[str, FeaturestoreServiceTransport] = 'grpc_asyncio',
-            client_options: ClientOptions = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: credentials.Credentials = None,
+        transport: Union[str, FeaturestoreServiceTransport] = "grpc_asyncio",
+        client_options: ClientOptions = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the featurestore service client.
 
         Args:
@@ -169,18 +192,18 @@ class FeaturestoreServiceAsyncClient:
             transport=transport,
             client_options=client_options,
             client_info=client_info,
-
         )
 
-    async def create_featurestore(self,
-            request: featurestore_service.CreateFeaturestoreRequest = None,
-            *,
-            parent: str = None,
-            featurestore: gca_featurestore.Featurestore = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def create_featurestore(
+        self,
+        request: featurestore_service.CreateFeaturestoreRequest = None,
+        *,
+        parent: str = None,
+        featurestore: gca_featurestore.Featurestore = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Creates a new Featurestore in a given project and
         location.
 
@@ -223,8 +246,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, featurestore])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.CreateFeaturestoreRequest(request)
 
@@ -247,18 +272,11 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -271,14 +289,15 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def get_featurestore(self,
-            request: featurestore_service.GetFeaturestoreRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> featurestore.Featurestore:
+    async def get_featurestore(
+        self,
+        request: featurestore_service.GetFeaturestoreRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> featurestore.Featurestore:
         r"""Gets details of a single Featurestore.
 
         Args:
@@ -311,8 +330,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.GetFeaturestoreRequest(request)
 
@@ -333,30 +354,24 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def list_featurestores(self,
-            request: featurestore_service.ListFeaturestoresRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListFeaturestoresAsyncPager:
+    async def list_featurestores(
+        self,
+        request: featurestore_service.ListFeaturestoresRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListFeaturestoresAsyncPager:
         r"""Lists Featurestores in a given project and location.
 
         Args:
@@ -392,8 +407,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.ListFeaturestoresRequest(request)
 
@@ -414,40 +431,31 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListFeaturestoresAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def update_featurestore(self,
-            request: featurestore_service.UpdateFeaturestoreRequest = None,
-            *,
-            featurestore: gca_featurestore.Featurestore = None,
-            update_mask: field_mask.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def update_featurestore(
+        self,
+        request: featurestore_service.UpdateFeaturestoreRequest = None,
+        *,
+        featurestore: gca_featurestore.Featurestore = None,
+        update_mask: field_mask.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Updates the parameters of a single Featurestore.
 
         Args:
@@ -504,8 +512,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([featurestore, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.UpdateFeaturestoreRequest(request)
 
@@ -528,18 +538,13 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('featurestore.name', request.featurestore.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("featurestore.name", request.featurestore.name),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -552,14 +557,15 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def delete_featurestore(self,
-            request: featurestore_service.DeleteFeaturestoreRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def delete_featurestore(
+        self,
+        request: featurestore_service.DeleteFeaturestoreRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Deletes a single Featurestore. The Featurestore must not contain
         any EntityTypes or ``force`` must be set to true for the request
         to succeed.
@@ -607,8 +613,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.DeleteFeaturestoreRequest(request)
 
@@ -629,18 +637,11 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -653,15 +654,16 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def create_entity_type(self,
-            request: featurestore_service.CreateEntityTypeRequest = None,
-            *,
-            parent: str = None,
-            entity_type: gca_entity_type.EntityType = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def create_entity_type(
+        self,
+        request: featurestore_service.CreateEntityTypeRequest = None,
+        *,
+        parent: str = None,
+        entity_type: gca_entity_type.EntityType = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Creates a new EntityType in a given Featurestore.
 
         Args:
@@ -703,8 +705,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, entity_type])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.CreateEntityTypeRequest(request)
 
@@ -727,18 +731,11 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -751,14 +748,15 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def get_entity_type(self,
-            request: featurestore_service.GetEntityTypeRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> entity_type.EntityType:
+    async def get_entity_type(
+        self,
+        request: featurestore_service.GetEntityTypeRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> entity_type.EntityType:
         r"""Gets details of a single EntityType.
 
         Args:
@@ -794,8 +792,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.GetEntityTypeRequest(request)
 
@@ -816,30 +816,24 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def list_entity_types(self,
-            request: featurestore_service.ListEntityTypesRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListEntityTypesAsyncPager:
+    async def list_entity_types(
+        self,
+        request: featurestore_service.ListEntityTypesRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListEntityTypesAsyncPager:
         r"""Lists EntityTypes in a given Featurestore.
 
         Args:
@@ -875,8 +869,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.ListEntityTypesRequest(request)
 
@@ -897,40 +893,31 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListEntityTypesAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def update_entity_type(self,
-            request: featurestore_service.UpdateEntityTypeRequest = None,
-            *,
-            entity_type: gca_entity_type.EntityType = None,
-            update_mask: field_mask.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_entity_type.EntityType:
+    async def update_entity_type(
+        self,
+        request: featurestore_service.UpdateEntityTypeRequest = None,
+        *,
+        entity_type: gca_entity_type.EntityType = None,
+        update_mask: field_mask.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_entity_type.EntityType:
         r"""Updates the parameters of a single EntityType.
 
         Args:
@@ -987,8 +974,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.UpdateEntityTypeRequest(request)
 
@@ -1011,30 +1000,26 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('entity_type.name', request.entity_type.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("entity_type.name", request.entity_type.name),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def delete_entity_type(self,
-            request: featurestore_service.DeleteEntityTypeRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def delete_entity_type(
+        self,
+        request: featurestore_service.DeleteEntityTypeRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Deletes a single EntityType. The EntityType must not have any
         Features or ``force`` must be set to true for the request to
         succeed.
@@ -1082,8 +1067,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.DeleteEntityTypeRequest(request)
 
@@ -1104,18 +1091,11 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1128,15 +1108,16 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def create_feature(self,
-            request: featurestore_service.CreateFeatureRequest = None,
-            *,
-            parent: str = None,
-            feature: gca_feature.Feature = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def create_feature(
+        self,
+        request: featurestore_service.CreateFeatureRequest = None,
+        *,
+        parent: str = None,
+        feature: gca_feature.Feature = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Creates a new Feature in a given EntityType.
 
         Args:
@@ -1177,8 +1158,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, feature])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.CreateFeatureRequest(request)
 
@@ -1201,18 +1184,11 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1225,15 +1201,16 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def batch_create_features(self,
-            request: featurestore_service.BatchCreateFeaturesRequest = None,
-            *,
-            parent: str = None,
-            requests: Sequence[featurestore_service.CreateFeatureRequest] = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def batch_create_features(
+        self,
+        request: featurestore_service.BatchCreateFeaturesRequest = None,
+        *,
+        parent: str = None,
+        requests: Sequence[featurestore_service.CreateFeatureRequest] = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Creates a batch of Features in a given EntityType.
 
         Args:
@@ -1281,8 +1258,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.BatchCreateFeaturesRequest(request)
 
@@ -1306,18 +1285,11 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1330,14 +1302,15 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def get_feature(self,
-            request: featurestore_service.GetFeatureRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> feature.Feature:
+    async def get_feature(
+        self,
+        request: featurestore_service.GetFeatureRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> feature.Feature:
         r"""Gets details of a single Feature.
 
         Args:
@@ -1372,8 +1345,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.GetFeatureRequest(request)
 
@@ -1394,30 +1369,24 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def list_features(self,
-            request: featurestore_service.ListFeaturesRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListFeaturesAsyncPager:
+    async def list_features(
+        self,
+        request: featurestore_service.ListFeaturesRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListFeaturesAsyncPager:
         r"""Lists Features in a given EntityType.
 
         Args:
@@ -1453,8 +1422,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.ListFeaturesRequest(request)
 
@@ -1475,40 +1446,31 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListFeaturesAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def update_feature(self,
-            request: featurestore_service.UpdateFeatureRequest = None,
-            *,
-            feature: gca_feature.Feature = None,
-            update_mask: field_mask.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_feature.Feature:
+    async def update_feature(
+        self,
+        request: featurestore_service.UpdateFeatureRequest = None,
+        *,
+        feature: gca_feature.Feature = None,
+        update_mask: field_mask.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_feature.Feature:
         r"""Updates the parameters of a single Feature.
 
         Args:
@@ -1564,8 +1526,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([feature, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.UpdateFeatureRequest(request)
 
@@ -1588,30 +1552,26 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('feature.name', request.feature.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("feature.name", request.feature.name),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def delete_feature(self,
-            request: featurestore_service.DeleteFeatureRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def delete_feature(
+        self,
+        request: featurestore_service.DeleteFeatureRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Deletes a single Feature.
 
         Args:
@@ -1657,8 +1617,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.DeleteFeatureRequest(request)
 
@@ -1679,18 +1641,11 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1703,14 +1658,15 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def import_feature_values(self,
-            request: featurestore_service.ImportFeatureValuesRequest = None,
-            *,
-            entity_type: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def import_feature_values(
+        self,
+        request: featurestore_service.ImportFeatureValuesRequest = None,
+        *,
+        entity_type: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Imports Feature values into the Featurestore from a
         source storage.
         The progress of the import is tracked by the returned
@@ -1768,8 +1724,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.ImportFeatureValuesRequest(request)
 
@@ -1790,18 +1748,13 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('entity_type', request.entity_type),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("entity_type", request.entity_type),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1814,14 +1767,15 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def batch_read_feature_values(self,
-            request: featurestore_service.BatchReadFeatureValuesRequest = None,
-            *,
-            featurestore: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def batch_read_feature_values(
+        self,
+        request: featurestore_service.BatchReadFeatureValuesRequest = None,
+        *,
+        featurestore: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Batch reads Feature values from a Featurestore.
         This API enables batch reading Feature values, where
         each read instance in the batch may read Feature values
@@ -1864,8 +1818,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([featurestore])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.BatchReadFeatureValuesRequest(request)
 
@@ -1886,18 +1842,13 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('featurestore', request.featurestore),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("featurestore", request.featurestore),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1910,14 +1861,15 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def export_feature_values(self,
-            request: featurestore_service.ExportFeatureValuesRequest = None,
-            *,
-            entity_type: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def export_feature_values(
+        self,
+        request: featurestore_service.ExportFeatureValuesRequest = None,
+        *,
+        entity_type: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Exports Feature values from all the entities of a
         target EntityType.
 
@@ -1955,8 +1907,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.ExportFeatureValuesRequest(request)
 
@@ -1977,18 +1931,13 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('entity_type', request.entity_type),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("entity_type", request.entity_type),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2001,14 +1950,15 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def search_features(self,
-            request: featurestore_service.SearchFeaturesRequest = None,
-            *,
-            location: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.SearchFeaturesAsyncPager:
+    async def search_features(
+        self,
+        request: featurestore_service.SearchFeaturesRequest = None,
+        *,
+        location: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.SearchFeaturesAsyncPager:
         r"""Searches Features matching a query in a given
         project.
 
@@ -2045,8 +1995,10 @@ class FeaturestoreServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([location])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_service.SearchFeaturesRequest(request)
 
@@ -2067,47 +2019,30 @@ class FeaturestoreServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('location', request.location),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("location", request.location),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.SearchFeaturesAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
 
-
-
-
-
-
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'FeaturestoreServiceAsyncClient',
-)
+__all__ = ("FeaturestoreServiceAsyncClient",)

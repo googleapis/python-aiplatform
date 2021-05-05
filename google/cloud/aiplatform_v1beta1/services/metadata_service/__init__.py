@@ -19,6 +19,6 @@ from .client import MetadataServiceClient
 from .async_client import MetadataServiceAsyncClient
 
 __all__ = (
-    'MetadataServiceClient',
-    'MetadataServiceAsyncClient',
+    "MetadataServiceClient",
+    "MetadataServiceAsyncClient",
 )

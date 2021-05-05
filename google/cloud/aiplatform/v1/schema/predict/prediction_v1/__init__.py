@@ -28,14 +28,14 @@ from .types.video_object_tracking import VideoObjectTrackingPredictionResult
 
 
 __all__ = (
-    'ImageObjectDetectionPredictionResult',
-    'ImageSegmentationPredictionResult',
-    'TabularClassificationPredictionResult',
-    'TabularRegressionPredictionResult',
-    'TextExtractionPredictionResult',
-    'TextSentimentPredictionResult',
-    'VideoActionRecognitionPredictionResult',
-    'VideoClassificationPredictionResult',
-    'VideoObjectTrackingPredictionResult',
-'ClassificationPredictionResult',
+    "ImageObjectDetectionPredictionResult",
+    "ImageSegmentationPredictionResult",
+    "TabularClassificationPredictionResult",
+    "TabularRegressionPredictionResult",
+    "TextExtractionPredictionResult",
+    "TextSentimentPredictionResult",
+    "VideoActionRecognitionPredictionResult",
+    "VideoClassificationPredictionResult",
+    "VideoObjectTrackingPredictionResult",
+    "ClassificationPredictionResult",
 )

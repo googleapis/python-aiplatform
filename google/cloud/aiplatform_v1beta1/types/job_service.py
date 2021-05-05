@@ -18,54 +18,62 @@
 import proto  # type: ignore
 
 
-from google.cloud.aiplatform_v1beta1.types import batch_prediction_job as gca_batch_prediction_job
+from google.cloud.aiplatform_v1beta1.types import (
+    batch_prediction_job as gca_batch_prediction_job,
+)
 from google.cloud.aiplatform_v1beta1.types import custom_job as gca_custom_job
-from google.cloud.aiplatform_v1beta1.types import data_labeling_job as gca_data_labeling_job
-from google.cloud.aiplatform_v1beta1.types import hyperparameter_tuning_job as gca_hyperparameter_tuning_job
-from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job as gca_model_deployment_monitoring_job
+from google.cloud.aiplatform_v1beta1.types import (
+    data_labeling_job as gca_data_labeling_job,
+)
+from google.cloud.aiplatform_v1beta1.types import (
+    hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
+)
+from google.cloud.aiplatform_v1beta1.types import (
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
+)
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
-        'CreateCustomJobRequest',
-        'GetCustomJobRequest',
-        'ListCustomJobsRequest',
-        'ListCustomJobsResponse',
-        'DeleteCustomJobRequest',
-        'CancelCustomJobRequest',
-        'CreateDataLabelingJobRequest',
-        'GetDataLabelingJobRequest',
-        'ListDataLabelingJobsRequest',
-        'ListDataLabelingJobsResponse',
-        'DeleteDataLabelingJobRequest',
-        'CancelDataLabelingJobRequest',
-        'CreateHyperparameterTuningJobRequest',
-        'GetHyperparameterTuningJobRequest',
-        'ListHyperparameterTuningJobsRequest',
-        'ListHyperparameterTuningJobsResponse',
-        'DeleteHyperparameterTuningJobRequest',
-        'CancelHyperparameterTuningJobRequest',
-        'CreateBatchPredictionJobRequest',
-        'GetBatchPredictionJobRequest',
-        'ListBatchPredictionJobsRequest',
-        'ListBatchPredictionJobsResponse',
-        'DeleteBatchPredictionJobRequest',
-        'CancelBatchPredictionJobRequest',
-        'CreateModelDeploymentMonitoringJobRequest',
-        'SearchModelDeploymentMonitoringStatsAnomaliesRequest',
-        'SearchModelDeploymentMonitoringStatsAnomaliesResponse',
-        'GetModelDeploymentMonitoringJobRequest',
-        'ListModelDeploymentMonitoringJobsRequest',
-        'ListModelDeploymentMonitoringJobsResponse',
-        'UpdateModelDeploymentMonitoringJobRequest',
-        'DeleteModelDeploymentMonitoringJobRequest',
-        'PauseModelDeploymentMonitoringJobRequest',
-        'ResumeModelDeploymentMonitoringJobRequest',
-        'UpdateModelDeploymentMonitoringJobOperationMetadata',
+        "CreateCustomJobRequest",
+        "GetCustomJobRequest",
+        "ListCustomJobsRequest",
+        "ListCustomJobsResponse",
+        "DeleteCustomJobRequest",
+        "CancelCustomJobRequest",
+        "CreateDataLabelingJobRequest",
+        "GetDataLabelingJobRequest",
+        "ListDataLabelingJobsRequest",
+        "ListDataLabelingJobsResponse",
+        "DeleteDataLabelingJobRequest",
+        "CancelDataLabelingJobRequest",
+        "CreateHyperparameterTuningJobRequest",
+        "GetHyperparameterTuningJobRequest",
+        "ListHyperparameterTuningJobsRequest",
+        "ListHyperparameterTuningJobsResponse",
+        "DeleteHyperparameterTuningJobRequest",
+        "CancelHyperparameterTuningJobRequest",
+        "CreateBatchPredictionJobRequest",
+        "GetBatchPredictionJobRequest",
+        "ListBatchPredictionJobsRequest",
+        "ListBatchPredictionJobsResponse",
+        "DeleteBatchPredictionJobRequest",
+        "CancelBatchPredictionJobRequest",
+        "CreateModelDeploymentMonitoringJobRequest",
+        "SearchModelDeploymentMonitoringStatsAnomaliesRequest",
+        "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
+        "GetModelDeploymentMonitoringJobRequest",
+        "ListModelDeploymentMonitoringJobsRequest",
+        "ListModelDeploymentMonitoringJobsResponse",
+        "UpdateModelDeploymentMonitoringJobRequest",
+        "DeleteModelDeploymentMonitoringJobRequest",
+        "PauseModelDeploymentMonitoringJobRequest",
+        "ResumeModelDeploymentMonitoringJobRequest",
+        "UpdateModelDeploymentMonitoringJobOperationMetadata",
     },
 )
 
@@ -85,9 +93,7 @@ class CreateCustomJobRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    custom_job = proto.Field(proto.MESSAGE, number=2,
-        message=gca_custom_job.CustomJob,
-    )
+    custom_job = proto.Field(proto.MESSAGE, number=2, message=gca_custom_job.CustomJob,)
 
 
 class GetCustomJobRequest(proto.Message):
@@ -150,9 +156,7 @@ class ListCustomJobsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
 class ListCustomJobsResponse(proto.Message):
@@ -172,8 +176,8 @@ class ListCustomJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    custom_jobs = proto.RepeatedField(proto.MESSAGE, number=1,
-        message=gca_custom_job.CustomJob,
+    custom_jobs = proto.RepeatedField(
+        proto.MESSAGE, number=1, message=gca_custom_job.CustomJob,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -220,8 +224,8 @@ class CreateDataLabelingJobRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    data_labeling_job = proto.Field(proto.MESSAGE, number=2,
-        message=gca_data_labeling_job.DataLabelingJob,
+    data_labeling_job = proto.Field(
+        proto.MESSAGE, number=2, message=gca_data_labeling_job.DataLabelingJob,
     )
 
 
@@ -288,9 +292,7 @@ class ListDataLabelingJobsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
     order_by = proto.Field(proto.STRING, number=6)
 
@@ -311,8 +313,8 @@ class ListDataLabelingJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    data_labeling_jobs = proto.RepeatedField(proto.MESSAGE, number=1,
-        message=gca_data_labeling_job.DataLabelingJob,
+    data_labeling_jobs = proto.RepeatedField(
+        proto.MESSAGE, number=1, message=gca_data_labeling_job.DataLabelingJob,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -361,7 +363,9 @@ class CreateHyperparameterTuningJobRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    hyperparameter_tuning_job = proto.Field(proto.MESSAGE, number=2,
+    hyperparameter_tuning_job = proto.Field(
+        proto.MESSAGE,
+        number=2,
         message=gca_hyperparameter_tuning_job.HyperparameterTuningJob,
     )
 
@@ -427,9 +431,7 @@ class ListHyperparameterTuningJobsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
 class ListHyperparameterTuningJobsResponse(proto.Message):
@@ -451,7 +453,9 @@ class ListHyperparameterTuningJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    hyperparameter_tuning_jobs = proto.RepeatedField(proto.MESSAGE, number=1,
+    hyperparameter_tuning_jobs = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
         message=gca_hyperparameter_tuning_job.HyperparameterTuningJob,
     )
 
@@ -501,8 +505,8 @@ class CreateBatchPredictionJobRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    batch_prediction_job = proto.Field(proto.MESSAGE, number=2,
-        message=gca_batch_prediction_job.BatchPredictionJob,
+    batch_prediction_job = proto.Field(
+        proto.MESSAGE, number=2, message=gca_batch_prediction_job.BatchPredictionJob,
     )
 
 
@@ -569,9 +573,7 @@ class ListBatchPredictionJobsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
 class ListBatchPredictionJobsResponse(proto.Message):
@@ -592,8 +594,8 @@ class ListBatchPredictionJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    batch_prediction_jobs = proto.RepeatedField(proto.MESSAGE, number=1,
-        message=gca_batch_prediction_job.BatchPredictionJob,
+    batch_prediction_jobs = proto.RepeatedField(
+        proto.MESSAGE, number=1, message=gca_batch_prediction_job.BatchPredictionJob,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -642,7 +644,9 @@ class CreateModelDeploymentMonitoringJobRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    model_deployment_monitoring_job = proto.Field(proto.MESSAGE, number=2,
+    model_deployment_monitoring_job = proto.Field(
+        proto.MESSAGE,
+        number=2,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
     )
 
@@ -682,6 +686,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
             generated. If not set, indicates feching stats
             till the latest possible one.
     """
+
     class StatsAnomaliesObjective(proto.Message):
         r"""Stats requested for specific objective.
 
@@ -699,7 +704,9 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
                 latest monitoring run.
         """
 
-        type_ = proto.Field(proto.ENUM, number=1,
+        type_ = proto.Field(
+            proto.ENUM,
+            number=1,
             enum=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveType,
         )
 
@@ -711,21 +718,17 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
 
     feature_display_name = proto.Field(proto.STRING, number=3)
 
-    objectives = proto.RepeatedField(proto.MESSAGE, number=4,
-        message=StatsAnomaliesObjective,
+    objectives = proto.RepeatedField(
+        proto.MESSAGE, number=4, message=StatsAnomaliesObjective,
     )
 
     page_size = proto.Field(proto.INT32, number=5)
 
     page_token = proto.Field(proto.STRING, number=6)
 
-    start_time = proto.Field(proto.MESSAGE, number=7,
-        message=timestamp.Timestamp,
-    )
+    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp.Timestamp,)
 
-    end_time = proto.Field(proto.MESSAGE, number=8,
-        message=timestamp.Timestamp,
-    )
+    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
 
 
 class SearchModelDeploymentMonitoringStatsAnomaliesResponse(proto.Message):
@@ -748,7 +751,9 @@ class SearchModelDeploymentMonitoringStatsAnomaliesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    monitoring_stats = proto.RepeatedField(proto.MESSAGE, number=1,
+    monitoring_stats = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
         message=gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies,
     )
 
@@ -795,9 +800,7 @@ class ListModelDeploymentMonitoringJobsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5,
-        message=field_mask.FieldMask,
-    )
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
 class ListModelDeploymentMonitoringJobsResponse(proto.Message):
@@ -816,7 +819,9 @@ class ListModelDeploymentMonitoringJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    model_deployment_monitoring_jobs = proto.RepeatedField(proto.MESSAGE, number=1,
+    model_deployment_monitoring_jobs = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
     )
 
@@ -836,13 +841,13 @@ class UpdateModelDeploymentMonitoringJobRequest(proto.Message):
             resource.
     """
 
-    model_deployment_monitoring_job = proto.Field(proto.MESSAGE, number=1,
+    model_deployment_monitoring_job = proto.Field(
+        proto.MESSAGE,
+        number=1,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
     )
 
-    update_mask = proto.Field(proto.MESSAGE, number=2,
-        message=field_mask.FieldMask,
-    )
+    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
 
 
 class DeleteModelDeploymentMonitoringJobRequest(proto.Message):
@@ -896,8 +901,8 @@ class UpdateModelDeploymentMonitoringJobOperationMetadata(proto.Message):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(proto.MESSAGE, number=1,
-        message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
 
 

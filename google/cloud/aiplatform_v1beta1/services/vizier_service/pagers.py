@@ -15,7 +15,16 @@
 # limitations under the License.
 #
 
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple, Optional
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1beta1.types import study
 from google.cloud.aiplatform_v1beta1.types import vizier_service
@@ -38,12 +47,15 @@ class ListStudiesPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., vizier_service.ListStudiesResponse],
-            request: vizier_service.ListStudiesRequest,
-            response: vizier_service.ListStudiesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., vizier_service.ListStudiesResponse],
+        request: vizier_service.ListStudiesRequest,
+        response: vizier_service.ListStudiesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -77,7 +89,7 @@ class ListStudiesPager:
             yield from page.studies
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListStudiesAsyncPager:
@@ -97,12 +109,15 @@ class ListStudiesAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[vizier_service.ListStudiesResponse]],
-            request: vizier_service.ListStudiesRequest,
-            response: vizier_service.ListStudiesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[vizier_service.ListStudiesResponse]],
+        request: vizier_service.ListStudiesRequest,
+        response: vizier_service.ListStudiesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -140,7 +155,7 @@ class ListStudiesAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListTrialsPager:
@@ -160,12 +175,15 @@ class ListTrialsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., vizier_service.ListTrialsResponse],
-            request: vizier_service.ListTrialsRequest,
-            response: vizier_service.ListTrialsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., vizier_service.ListTrialsResponse],
+        request: vizier_service.ListTrialsRequest,
+        response: vizier_service.ListTrialsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -199,7 +217,7 @@ class ListTrialsPager:
             yield from page.trials
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListTrialsAsyncPager:
@@ -219,12 +237,15 @@ class ListTrialsAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[vizier_service.ListTrialsResponse]],
-            request: vizier_service.ListTrialsRequest,
-            response: vizier_service.ListTrialsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[vizier_service.ListTrialsResponse]],
+        request: vizier_service.ListTrialsRequest,
+        response: vizier_service.ListTrialsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -262,4 +283,4 @@ class ListTrialsAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

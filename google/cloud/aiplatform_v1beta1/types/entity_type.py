@@ -23,10 +23,7 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'EntityType',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"EntityType",},
 )
 
 
@@ -86,19 +83,17 @@ class EntityType(proto.Message):
 
     description = proto.Field(proto.STRING, number=2)
 
-    create_time = proto.Field(proto.MESSAGE, number=3,
-        message=timestamp.Timestamp,
-    )
+    create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
 
-    update_time = proto.Field(proto.MESSAGE, number=4,
-        message=timestamp.Timestamp,
-    )
+    update_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=6)
 
     etag = proto.Field(proto.STRING, number=7)
 
-    monitoring_config = proto.Field(proto.MESSAGE, number=8,
+    monitoring_config = proto.Field(
+        proto.MESSAGE,
+        number=8,
         message=featurestore_monitoring.FeaturestoreMonitoringConfig,
     )
 

@@ -19,10 +19,7 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'Value',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"Value",},
 )
 
 
@@ -38,11 +35,11 @@ class Value(proto.Message):
             A string value.
     """
 
-    int_value = proto.Field(proto.INT64, number=1, oneof='value')
+    int_value = proto.Field(proto.INT64, number=1, oneof="value")
 
-    double_value = proto.Field(proto.DOUBLE, number=2, oneof='value')
+    double_value = proto.Field(proto.DOUBLE, number=2, oneof="value")
 
-    string_value = proto.Field(proto.STRING, number=3, oneof='value')
+    string_value = proto.Field(proto.STRING, number=3, oneof="value")
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

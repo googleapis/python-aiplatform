@@ -21,17 +21,22 @@ import re
 from typing import Dict, AsyncIterable, Awaitable, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions # type: ignore
-from google.api_core import exceptions                 # type: ignore
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import retry as retries           # type: ignore
-from google.auth import credentials                    # type: ignore
-from google.oauth2 import service_account              # type: ignore
+import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core import exceptions  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import featurestore_online_service
 
-from .transports.base import FeaturestoreOnlineServingServiceTransport, DEFAULT_CLIENT_INFO
-from .transports.grpc_asyncio import FeaturestoreOnlineServingServiceGrpcAsyncIOTransport
+from .transports.base import (
+    FeaturestoreOnlineServingServiceTransport,
+    DEFAULT_CLIENT_INFO,
+)
+from .transports.grpc_asyncio import (
+    FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
+)
 from .client import FeaturestoreOnlineServingServiceClient
 
 
@@ -43,23 +48,47 @@ class FeaturestoreOnlineServingServiceAsyncClient:
     DEFAULT_ENDPOINT = FeaturestoreOnlineServingServiceClient.DEFAULT_ENDPOINT
     DEFAULT_MTLS_ENDPOINT = FeaturestoreOnlineServingServiceClient.DEFAULT_MTLS_ENDPOINT
 
-    entity_type_path = staticmethod(FeaturestoreOnlineServingServiceClient.entity_type_path)
-    parse_entity_type_path = staticmethod(FeaturestoreOnlineServingServiceClient.parse_entity_type_path)
+    entity_type_path = staticmethod(
+        FeaturestoreOnlineServingServiceClient.entity_type_path
+    )
+    parse_entity_type_path = staticmethod(
+        FeaturestoreOnlineServingServiceClient.parse_entity_type_path
+    )
 
-    common_billing_account_path = staticmethod(FeaturestoreOnlineServingServiceClient.common_billing_account_path)
-    parse_common_billing_account_path = staticmethod(FeaturestoreOnlineServingServiceClient.parse_common_billing_account_path)
+    common_billing_account_path = staticmethod(
+        FeaturestoreOnlineServingServiceClient.common_billing_account_path
+    )
+    parse_common_billing_account_path = staticmethod(
+        FeaturestoreOnlineServingServiceClient.parse_common_billing_account_path
+    )
 
-    common_folder_path = staticmethod(FeaturestoreOnlineServingServiceClient.common_folder_path)
-    parse_common_folder_path = staticmethod(FeaturestoreOnlineServingServiceClient.parse_common_folder_path)
+    common_folder_path = staticmethod(
+        FeaturestoreOnlineServingServiceClient.common_folder_path
+    )
+    parse_common_folder_path = staticmethod(
+        FeaturestoreOnlineServingServiceClient.parse_common_folder_path
+    )
 
-    common_organization_path = staticmethod(FeaturestoreOnlineServingServiceClient.common_organization_path)
-    parse_common_organization_path = staticmethod(FeaturestoreOnlineServingServiceClient.parse_common_organization_path)
+    common_organization_path = staticmethod(
+        FeaturestoreOnlineServingServiceClient.common_organization_path
+    )
+    parse_common_organization_path = staticmethod(
+        FeaturestoreOnlineServingServiceClient.parse_common_organization_path
+    )
 
-    common_project_path = staticmethod(FeaturestoreOnlineServingServiceClient.common_project_path)
-    parse_common_project_path = staticmethod(FeaturestoreOnlineServingServiceClient.parse_common_project_path)
+    common_project_path = staticmethod(
+        FeaturestoreOnlineServingServiceClient.common_project_path
+    )
+    parse_common_project_path = staticmethod(
+        FeaturestoreOnlineServingServiceClient.parse_common_project_path
+    )
 
-    common_location_path = staticmethod(FeaturestoreOnlineServingServiceClient.common_location_path)
-    parse_common_location_path = staticmethod(FeaturestoreOnlineServingServiceClient.parse_common_location_path)
+    common_location_path = staticmethod(
+        FeaturestoreOnlineServingServiceClient.common_location_path
+    )
+    parse_common_location_path = staticmethod(
+        FeaturestoreOnlineServingServiceClient.parse_common_location_path
+    )
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -102,14 +131,21 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(type(FeaturestoreOnlineServingServiceClient).get_transport_class, type(FeaturestoreOnlineServingServiceClient))
+    get_transport_class = functools.partial(
+        type(FeaturestoreOnlineServingServiceClient).get_transport_class,
+        type(FeaturestoreOnlineServingServiceClient),
+    )
 
-    def __init__(self, *,
-            credentials: credentials.Credentials = None,
-            transport: Union[str, FeaturestoreOnlineServingServiceTransport] = 'grpc_asyncio',
-            client_options: ClientOptions = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: credentials.Credentials = None,
+        transport: Union[
+            str, FeaturestoreOnlineServingServiceTransport
+        ] = "grpc_asyncio",
+        client_options: ClientOptions = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the featurestore online serving service client.
 
         Args:
@@ -148,17 +184,17 @@ class FeaturestoreOnlineServingServiceAsyncClient:
             transport=transport,
             client_options=client_options,
             client_info=client_info,
-
         )
 
-    async def read_feature_values(self,
-            request: featurestore_online_service.ReadFeatureValuesRequest = None,
-            *,
-            entity_type: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> featurestore_online_service.ReadFeatureValuesResponse:
+    async def read_feature_values(
+        self,
+        request: featurestore_online_service.ReadFeatureValuesRequest = None,
+        *,
+        entity_type: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> featurestore_online_service.ReadFeatureValuesResponse:
         r"""Reads Feature values of a specific entity of an
         EntityType. For reading feature values of multiple
         entities of an EntityType, please use
@@ -197,8 +233,10 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_online_service.ReadFeatureValuesRequest(request)
 
@@ -219,30 +257,28 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('entity_type', request.entity_type),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("entity_type", request.entity_type),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def streaming_read_feature_values(self,
-            request: featurestore_online_service.StreamingReadFeatureValuesRequest = None,
-            *,
-            entity_type: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> Awaitable[AsyncIterable[featurestore_online_service.ReadFeatureValuesResponse]]:
+    def streaming_read_feature_values(
+        self,
+        request: featurestore_online_service.StreamingReadFeatureValuesRequest = None,
+        *,
+        entity_type: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> Awaitable[
+        AsyncIterable[featurestore_online_service.ReadFeatureValuesResponse]
+    ]:
         r"""Reads Feature values for multiple entities. Depending
         on their size, data for different entities may be broken
         up across multiple responses.
@@ -280,8 +316,10 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = featurestore_online_service.StreamingReadFeatureValuesRequest(request)
 
@@ -302,38 +340,26 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('entity_type', request.entity_type),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("entity_type", request.entity_type),)
+            ),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
 
-
-
-
-
-
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'FeaturestoreOnlineServingServiceAsyncClient',
-)
+__all__ = ("FeaturestoreOnlineServingServiceAsyncClient",)

@@ -23,14 +23,14 @@ from typing import Callable, Dict, Optional, Iterable, Sequence, Tuple, Type, Un
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions                            # type: ignore
-from google.api_core import gapic_v1                              # type: ignore
-from google.api_core import retry as retries                      # type: ignore
-from google.auth import credentials                               # type: ignore
-from google.auth.transport import mtls                            # type: ignore
-from google.auth.transport.grpc import SslCredentials             # type: ignore
-from google.auth.exceptions import MutualTLSChannelError          # type: ignore
-from google.oauth2 import service_account                         # type: ignore
+from google.api_core import exceptions  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials  # type: ignore
+from google.auth.transport import mtls  # type: ignore
+from google.auth.transport.grpc import SslCredentials  # type: ignore
+from google.auth.exceptions import MutualTLSChannelError  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -41,12 +41,16 @@ from google.cloud.aiplatform_v1beta1.types import tensorboard
 from google.cloud.aiplatform_v1beta1.types import tensorboard as gca_tensorboard
 from google.cloud.aiplatform_v1beta1.types import tensorboard_data
 from google.cloud.aiplatform_v1beta1.types import tensorboard_experiment
-from google.cloud.aiplatform_v1beta1.types import tensorboard_experiment as gca_tensorboard_experiment
+from google.cloud.aiplatform_v1beta1.types import (
+    tensorboard_experiment as gca_tensorboard_experiment,
+)
 from google.cloud.aiplatform_v1beta1.types import tensorboard_run
 from google.cloud.aiplatform_v1beta1.types import tensorboard_run as gca_tensorboard_run
 from google.cloud.aiplatform_v1beta1.types import tensorboard_service
 from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
-from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series as gca_tensorboard_time_series
+from google.cloud.aiplatform_v1beta1.types import (
+    tensorboard_time_series as gca_tensorboard_time_series,
+)
 from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
@@ -63,13 +67,16 @@ class TensorboardServiceClientMeta(type):
     support objects (e.g. transport) without polluting the client instance
     objects.
     """
-    _transport_registry = OrderedDict()  # type: Dict[str, Type[TensorboardServiceTransport]]
-    _transport_registry['grpc'] = TensorboardServiceGrpcTransport
-    _transport_registry['grpc_asyncio'] = TensorboardServiceGrpcAsyncIOTransport
 
-    def get_transport_class(cls,
-            label: str = None,
-        ) -> Type[TensorboardServiceTransport]:
+    _transport_registry = (
+        OrderedDict()
+    )  # type: Dict[str, Type[TensorboardServiceTransport]]
+    _transport_registry["grpc"] = TensorboardServiceGrpcTransport
+    _transport_registry["grpc_asyncio"] = TensorboardServiceGrpcAsyncIOTransport
+
+    def get_transport_class(
+        cls, label: str = None,
+    ) -> Type[TensorboardServiceTransport]:
         """Return an appropriate transport class.
 
         Args:
@@ -120,7 +127,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         return api_endpoint.replace(".googleapis.com", ".mtls.googleapis.com")
 
-    DEFAULT_ENDPOINT = 'aiplatform.googleapis.com'
+    DEFAULT_ENDPOINT = "aiplatform.googleapis.com"
     DEFAULT_MTLS_ENDPOINT = _get_default_mtls_endpoint.__func__(  # type: ignore
         DEFAULT_ENDPOINT
     )
@@ -155,9 +162,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Returns:
             TensorboardServiceClient: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_file(
-            filename)
-        kwargs['credentials'] = credentials
+        credentials = service_account.Credentials.from_service_account_file(filename)
+        kwargs["credentials"] = credentials
         return cls(*args, **kwargs)
 
     from_service_account_json = from_service_account_file
@@ -172,110 +178,159 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return self._transport
 
     @staticmethod
-    def tensorboard_path(project: str,location: str,tensorboard: str,) -> str:
+    def tensorboard_path(project: str, location: str, tensorboard: str,) -> str:
         """Return a fully-qualified tensorboard string."""
-        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(project=project, location=location, tensorboard=tensorboard, )
+        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
+            project=project, location=location, tensorboard=tensorboard,
+        )
 
     @staticmethod
-    def parse_tensorboard_path(path: str) -> Dict[str,str]:
+    def parse_tensorboard_path(path: str) -> Dict[str, str]:
         """Parse a tensorboard path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/tensorboards/(?P<tensorboard>.+?)$", path)
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/tensorboards/(?P<tensorboard>.+?)$",
+            path,
+        )
         return m.groupdict() if m else {}
 
     @staticmethod
-    def tensorboard_experiment_path(project: str,location: str,tensorboard: str,experiment: str,) -> str:
+    def tensorboard_experiment_path(
+        project: str, location: str, tensorboard: str, experiment: str,
+    ) -> str:
         """Return a fully-qualified tensorboard_experiment string."""
-        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}".format(project=project, location=location, tensorboard=tensorboard, experiment=experiment, )
+        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}".format(
+            project=project,
+            location=location,
+            tensorboard=tensorboard,
+            experiment=experiment,
+        )
 
     @staticmethod
-    def parse_tensorboard_experiment_path(path: str) -> Dict[str,str]:
+    def parse_tensorboard_experiment_path(path: str) -> Dict[str, str]:
         """Parse a tensorboard_experiment path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/tensorboards/(?P<tensorboard>.+?)/experiments/(?P<experiment>.+?)$", path)
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/tensorboards/(?P<tensorboard>.+?)/experiments/(?P<experiment>.+?)$",
+            path,
+        )
         return m.groupdict() if m else {}
 
     @staticmethod
-    def tensorboard_run_path(project: str,location: str,tensorboard: str,experiment: str,run: str,) -> str:
+    def tensorboard_run_path(
+        project: str, location: str, tensorboard: str, experiment: str, run: str,
+    ) -> str:
         """Return a fully-qualified tensorboard_run string."""
-        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}".format(project=project, location=location, tensorboard=tensorboard, experiment=experiment, run=run, )
+        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}".format(
+            project=project,
+            location=location,
+            tensorboard=tensorboard,
+            experiment=experiment,
+            run=run,
+        )
 
     @staticmethod
-    def parse_tensorboard_run_path(path: str) -> Dict[str,str]:
+    def parse_tensorboard_run_path(path: str) -> Dict[str, str]:
         """Parse a tensorboard_run path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/tensorboards/(?P<tensorboard>.+?)/experiments/(?P<experiment>.+?)/runs/(?P<run>.+?)$", path)
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/tensorboards/(?P<tensorboard>.+?)/experiments/(?P<experiment>.+?)/runs/(?P<run>.+?)$",
+            path,
+        )
         return m.groupdict() if m else {}
 
     @staticmethod
-    def tensorboard_time_series_path(project: str,location: str,tensorboard: str,experiment: str,run: str,time_series: str,) -> str:
+    def tensorboard_time_series_path(
+        project: str,
+        location: str,
+        tensorboard: str,
+        experiment: str,
+        run: str,
+        time_series: str,
+    ) -> str:
         """Return a fully-qualified tensorboard_time_series string."""
-        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}".format(project=project, location=location, tensorboard=tensorboard, experiment=experiment, run=run, time_series=time_series, )
+        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}".format(
+            project=project,
+            location=location,
+            tensorboard=tensorboard,
+            experiment=experiment,
+            run=run,
+            time_series=time_series,
+        )
 
     @staticmethod
-    def parse_tensorboard_time_series_path(path: str) -> Dict[str,str]:
+    def parse_tensorboard_time_series_path(path: str) -> Dict[str, str]:
         """Parse a tensorboard_time_series path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/tensorboards/(?P<tensorboard>.+?)/experiments/(?P<experiment>.+?)/runs/(?P<run>.+?)/timeSeries/(?P<time_series>.+?)$", path)
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/tensorboards/(?P<tensorboard>.+?)/experiments/(?P<experiment>.+?)/runs/(?P<run>.+?)/timeSeries/(?P<time_series>.+?)$",
+            path,
+        )
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str, ) -> str:
+    def common_billing_account_path(billing_account: str,) -> str:
         """Return a fully-qualified billing_account string."""
-        return "billingAccounts/{billing_account}".format(billing_account=billing_account, )
+        return "billingAccounts/{billing_account}".format(
+            billing_account=billing_account,
+        )
 
     @staticmethod
-    def parse_common_billing_account_path(path: str) -> Dict[str,str]:
+    def parse_common_billing_account_path(path: str) -> Dict[str, str]:
         """Parse a billing_account path into its component segments."""
         m = re.match(r"^billingAccounts/(?P<billing_account>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str, ) -> str:
+    def common_folder_path(folder: str,) -> str:
         """Return a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder, )
+        return "folders/{folder}".format(folder=folder,)
 
     @staticmethod
-    def parse_common_folder_path(path: str) -> Dict[str,str]:
+    def parse_common_folder_path(path: str) -> Dict[str, str]:
         """Parse a folder path into its component segments."""
         m = re.match(r"^folders/(?P<folder>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str, ) -> str:
+    def common_organization_path(organization: str,) -> str:
         """Return a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization, )
+        return "organizations/{organization}".format(organization=organization,)
 
     @staticmethod
-    def parse_common_organization_path(path: str) -> Dict[str,str]:
+    def parse_common_organization_path(path: str) -> Dict[str, str]:
         """Parse a organization path into its component segments."""
         m = re.match(r"^organizations/(?P<organization>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str, ) -> str:
+    def common_project_path(project: str,) -> str:
         """Return a fully-qualified project string."""
-        return "projects/{project}".format(project=project, )
+        return "projects/{project}".format(project=project,)
 
     @staticmethod
-    def parse_common_project_path(path: str) -> Dict[str,str]:
+    def parse_common_project_path(path: str) -> Dict[str, str]:
         """Parse a project path into its component segments."""
         m = re.match(r"^projects/(?P<project>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str, ) -> str:
+    def common_location_path(project: str, location: str,) -> str:
         """Return a fully-qualified location string."""
-        return "projects/{project}/locations/{location}".format(project=project, location=location, )
+        return "projects/{project}/locations/{location}".format(
+            project=project, location=location,
+        )
 
     @staticmethod
-    def parse_common_location_path(path: str) -> Dict[str,str]:
+    def parse_common_location_path(path: str) -> Dict[str, str]:
         """Parse a location path into its component segments."""
         m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)$", path)
         return m.groupdict() if m else {}
 
-    def __init__(self, *,
-            credentials: Optional[credentials.Credentials] = None,
-            transport: Union[str, TensorboardServiceTransport, None] = None,
-            client_options: Optional[client_options_lib.ClientOptions] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: Optional[credentials.Credentials] = None,
+        transport: Union[str, TensorboardServiceTransport, None] = None,
+        client_options: Optional[client_options_lib.ClientOptions] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the tensorboard service client.
 
         Args:
@@ -319,7 +374,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             client_options = client_options_lib.ClientOptions()
 
         # Create SSL credentials for mutual TLS if needed.
-        use_client_cert = bool(util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false")))
+        use_client_cert = bool(
+            util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
+        )
 
         client_cert_source_func = None
         is_mtls = False
@@ -329,7 +386,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 client_cert_source_func = client_options.client_cert_source
             else:
                 is_mtls = mtls.has_default_client_cert_source()
-                client_cert_source_func = mtls.default_client_cert_source() if is_mtls else None
+                client_cert_source_func = (
+                    mtls.default_client_cert_source() if is_mtls else None
+                )
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -341,7 +400,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             elif use_mtls_env == "always":
                 api_endpoint = self.DEFAULT_MTLS_ENDPOINT
             elif use_mtls_env == "auto":
-                api_endpoint = self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
+                api_endpoint = (
+                    self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
+                )
             else:
                 raise MutualTLSChannelError(
                     "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted values: never, auto, always"
@@ -353,8 +414,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         if isinstance(transport, TensorboardServiceTransport):
             # transport is a TensorboardServiceTransport instance.
             if credentials or client_options.credentials_file:
-                raise ValueError('When providing a transport instance, '
-                                 'provide its credentials directly.')
+                raise ValueError(
+                    "When providing a transport instance, "
+                    "provide its credentials directly."
+                )
             if client_options.scopes:
                 raise ValueError(
                     "When providing a transport instance, "
@@ -373,15 +436,16 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 client_info=client_info,
             )
 
-    def create_tensorboard(self,
-            request: tensorboard_service.CreateTensorboardRequest = None,
-            *,
-            parent: str = None,
-            tensorboard: gca_tensorboard.Tensorboard = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gac_operation.Operation:
+    def create_tensorboard(
+        self,
+        request: tensorboard_service.CreateTensorboardRequest = None,
+        *,
+        parent: str = None,
+        tensorboard: gca_tensorboard.Tensorboard = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
         r"""Creates a Tensorboard.
 
         Args:
@@ -423,8 +487,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.CreateTensorboardRequest.
@@ -448,18 +514,11 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -472,14 +531,15 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_tensorboard(self,
-            request: tensorboard_service.GetTensorboardRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> tensorboard.Tensorboard:
+    def get_tensorboard(
+        self,
+        request: tensorboard_service.GetTensorboardRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard.Tensorboard:
         r"""Gets a Tensorboard.
 
         Args:
@@ -515,8 +575,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.GetTensorboardRequest.
@@ -538,31 +600,25 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def update_tensorboard(self,
-            request: tensorboard_service.UpdateTensorboardRequest = None,
-            *,
-            tensorboard: gca_tensorboard.Tensorboard = None,
-            update_mask: field_mask.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gac_operation.Operation:
+    def update_tensorboard(
+        self,
+        request: tensorboard_service.UpdateTensorboardRequest = None,
+        *,
+        tensorboard: gca_tensorboard.Tensorboard = None,
+        update_mask: field_mask.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
         r"""Updates a Tensorboard.
 
         Args:
@@ -611,8 +667,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.UpdateTensorboardRequest.
@@ -636,18 +694,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard.name', request.tensorboard.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard.name", request.tensorboard.name),)
+            ),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -660,14 +713,15 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Done; return the response.
         return response
 
-    def list_tensorboards(self,
-            request: tensorboard_service.ListTensorboardsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListTensorboardsPager:
+    def list_tensorboards(
+        self,
+        request: tensorboard_service.ListTensorboardsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListTensorboardsPager:
         r"""Lists Tensorboards in a Location.
 
         Args:
@@ -703,8 +757,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.ListTensorboardsRequest.
@@ -726,39 +782,30 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTensorboardsPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    def delete_tensorboard(self,
-            request: tensorboard_service.DeleteTensorboardRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gac_operation.Operation:
+    def delete_tensorboard(
+        self,
+        request: tensorboard_service.DeleteTensorboardRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
         r"""Deletes a Tensorboard.
 
         Args:
@@ -804,8 +851,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.DeleteTensorboardRequest.
@@ -827,18 +876,11 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -851,16 +893,17 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Done; return the response.
         return response
 
-    def create_tensorboard_experiment(self,
-            request: tensorboard_service.CreateTensorboardExperimentRequest = None,
-            *,
-            parent: str = None,
-            tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
-            tensorboard_experiment_id: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_tensorboard_experiment.TensorboardExperiment:
+    def create_tensorboard_experiment(
+        self,
+        request: tensorboard_service.CreateTensorboardExperimentRequest = None,
+        *,
+        parent: str = None,
+        tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
+        tensorboard_experiment_id: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Creates a TensorboardExperiment.
 
         Args:
@@ -909,16 +952,22 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, tensorboard_experiment, tensorboard_experiment_id])
+        has_flattened_params = any(
+            [parent, tensorboard_experiment, tensorboard_experiment_id]
+        )
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.CreateTensorboardExperimentRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, tensorboard_service.CreateTensorboardExperimentRequest):
+        if not isinstance(
+            request, tensorboard_service.CreateTensorboardExperimentRequest
+        ):
             request = tensorboard_service.CreateTensorboardExperimentRequest(request)
 
             # If we have keyword arguments corresponding to fields on the
@@ -933,35 +982,31 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.create_tensorboard_experiment]
+        rpc = self._transport._wrapped_methods[
+            self._transport.create_tensorboard_experiment
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def get_tensorboard_experiment(self,
-            request: tensorboard_service.GetTensorboardExperimentRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> tensorboard_experiment.TensorboardExperiment:
+    def get_tensorboard_experiment(
+        self,
+        request: tensorboard_service.GetTensorboardExperimentRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_experiment.TensorboardExperiment:
         r"""Gets a TensorboardExperiment.
 
         Args:
@@ -996,8 +1041,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.GetTensorboardExperimentRequest.
@@ -1014,36 +1061,32 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.get_tensorboard_experiment]
+        rpc = self._transport._wrapped_methods[
+            self._transport.get_tensorboard_experiment
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def update_tensorboard_experiment(self,
-            request: tensorboard_service.UpdateTensorboardExperimentRequest = None,
-            *,
-            tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
-            update_mask: field_mask.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_tensorboard_experiment.TensorboardExperiment:
+    def update_tensorboard_experiment(
+        self,
+        request: tensorboard_service.UpdateTensorboardExperimentRequest = None,
+        *,
+        tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
+        update_mask: field_mask.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Updates a TensorboardExperiment.
 
         Args:
@@ -1091,14 +1134,18 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_experiment, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.UpdateTensorboardExperimentRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, tensorboard_service.UpdateTensorboardExperimentRequest):
+        if not isinstance(
+            request, tensorboard_service.UpdateTensorboardExperimentRequest
+        ):
             request = tensorboard_service.UpdateTensorboardExperimentRequest(request)
 
             # If we have keyword arguments corresponding to fields on the
@@ -1111,35 +1158,33 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.update_tensorboard_experiment]
+        rpc = self._transport._wrapped_methods[
+            self._transport.update_tensorboard_experiment
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard_experiment.name', request.tensorboard_experiment.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard_experiment.name", request.tensorboard_experiment.name),)
+            ),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def list_tensorboard_experiments(self,
-            request: tensorboard_service.ListTensorboardExperimentsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListTensorboardExperimentsPager:
+    def list_tensorboard_experiments(
+        self,
+        request: tensorboard_service.ListTensorboardExperimentsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListTensorboardExperimentsPager:
         r"""Lists TensorboardExperiments in a Location.
 
         Args:
@@ -1176,14 +1221,18 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.ListTensorboardExperimentsRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, tensorboard_service.ListTensorboardExperimentsRequest):
+        if not isinstance(
+            request, tensorboard_service.ListTensorboardExperimentsRequest
+        ):
             request = tensorboard_service.ListTensorboardExperimentsRequest(request)
 
             # If we have keyword arguments corresponding to fields on the
@@ -1194,44 +1243,37 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.list_tensorboard_experiments]
+        rpc = self._transport._wrapped_methods[
+            self._transport.list_tensorboard_experiments
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTensorboardExperimentsPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    def delete_tensorboard_experiment(self,
-            request: tensorboard_service.DeleteTensorboardExperimentRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gac_operation.Operation:
+    def delete_tensorboard_experiment(
+        self,
+        request: tensorboard_service.DeleteTensorboardExperimentRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
         r"""Deletes a TensorboardExperiment.
 
         Args:
@@ -1277,14 +1319,18 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.DeleteTensorboardExperimentRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, tensorboard_service.DeleteTensorboardExperimentRequest):
+        if not isinstance(
+            request, tensorboard_service.DeleteTensorboardExperimentRequest
+        ):
             request = tensorboard_service.DeleteTensorboardExperimentRequest(request)
 
             # If we have keyword arguments corresponding to fields on the
@@ -1295,23 +1341,18 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.delete_tensorboard_experiment]
+        rpc = self._transport._wrapped_methods[
+            self._transport.delete_tensorboard_experiment
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1324,16 +1365,17 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Done; return the response.
         return response
 
-    def create_tensorboard_run(self,
-            request: tensorboard_service.CreateTensorboardRunRequest = None,
-            *,
-            parent: str = None,
-            tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
-            tensorboard_run_id: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_tensorboard_run.TensorboardRun:
+    def create_tensorboard_run(
+        self,
+        request: tensorboard_service.CreateTensorboardRunRequest = None,
+        *,
+        parent: str = None,
+        tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
+        tensorboard_run_id: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_tensorboard_run.TensorboardRun:
         r"""Creates a TensorboardRun.
 
         Args:
@@ -1386,8 +1428,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_run, tensorboard_run_id])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.CreateTensorboardRunRequest.
@@ -1413,30 +1457,24 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def get_tensorboard_run(self,
-            request: tensorboard_service.GetTensorboardRunRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> tensorboard_run.TensorboardRun:
+    def get_tensorboard_run(
+        self,
+        request: tensorboard_service.GetTensorboardRunRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_run.TensorboardRun:
         r"""Gets a TensorboardRun.
 
         Args:
@@ -1471,8 +1509,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.GetTensorboardRunRequest.
@@ -1494,31 +1534,25 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def update_tensorboard_run(self,
-            request: tensorboard_service.UpdateTensorboardRunRequest = None,
-            *,
-            tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
-            update_mask: field_mask.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_tensorboard_run.TensorboardRun:
+    def update_tensorboard_run(
+        self,
+        request: tensorboard_service.UpdateTensorboardRunRequest = None,
+        *,
+        tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
+        update_mask: field_mask.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_tensorboard_run.TensorboardRun:
         r"""Updates a TensorboardRun.
 
         Args:
@@ -1565,8 +1599,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.UpdateTensorboardRunRequest.
@@ -1590,30 +1626,26 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard_run.name', request.tensorboard_run.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard_run.name", request.tensorboard_run.name),)
+            ),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def list_tensorboard_runs(self,
-            request: tensorboard_service.ListTensorboardRunsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListTensorboardRunsPager:
+    def list_tensorboard_runs(
+        self,
+        request: tensorboard_service.ListTensorboardRunsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListTensorboardRunsPager:
         r"""Lists TensorboardRuns in a Location.
 
         Args:
@@ -1650,8 +1682,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.ListTensorboardRunsRequest.
@@ -1673,39 +1707,30 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTensorboardRunsPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    def delete_tensorboard_run(self,
-            request: tensorboard_service.DeleteTensorboardRunRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gac_operation.Operation:
+    def delete_tensorboard_run(
+        self,
+        request: tensorboard_service.DeleteTensorboardRunRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
         r"""Deletes a TensorboardRun.
 
         Args:
@@ -1751,8 +1776,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.DeleteTensorboardRunRequest.
@@ -1774,18 +1801,11 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1798,15 +1818,16 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Done; return the response.
         return response
 
-    def create_tensorboard_time_series(self,
-            request: tensorboard_service.CreateTensorboardTimeSeriesRequest = None,
-            *,
-            parent: str = None,
-            tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
+    def create_tensorboard_time_series(
+        self,
+        request: tensorboard_service.CreateTensorboardTimeSeriesRequest = None,
+        *,
+        parent: str = None,
+        tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Creates a TensorboardTimeSeries.
 
         Args:
@@ -1846,14 +1867,18 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_time_series])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.CreateTensorboardTimeSeriesRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, tensorboard_service.CreateTensorboardTimeSeriesRequest):
+        if not isinstance(
+            request, tensorboard_service.CreateTensorboardTimeSeriesRequest
+        ):
             request = tensorboard_service.CreateTensorboardTimeSeriesRequest(request)
 
             # If we have keyword arguments corresponding to fields on the
@@ -1866,35 +1891,31 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.create_tensorboard_time_series]
+        rpc = self._transport._wrapped_methods[
+            self._transport.create_tensorboard_time_series
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def get_tensorboard_time_series(self,
-            request: tensorboard_service.GetTensorboardTimeSeriesRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> tensorboard_time_series.TensorboardTimeSeries:
+    def get_tensorboard_time_series(
+        self,
+        request: tensorboard_service.GetTensorboardTimeSeriesRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_time_series.TensorboardTimeSeries:
         r"""Gets a TensorboardTimeSeries.
 
         Args:
@@ -1927,8 +1948,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.GetTensorboardTimeSeriesRequest.
@@ -1945,36 +1968,32 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.get_tensorboard_time_series]
+        rpc = self._transport._wrapped_methods[
+            self._transport.get_tensorboard_time_series
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def update_tensorboard_time_series(self,
-            request: tensorboard_service.UpdateTensorboardTimeSeriesRequest = None,
-            *,
-            tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
-            update_mask: field_mask.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
+    def update_tensorboard_time_series(
+        self,
+        request: tensorboard_service.UpdateTensorboardTimeSeriesRequest = None,
+        *,
+        tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
+        update_mask: field_mask.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Updates a TensorboardTimeSeries.
 
         Args:
@@ -2020,14 +2039,18 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.UpdateTensorboardTimeSeriesRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, tensorboard_service.UpdateTensorboardTimeSeriesRequest):
+        if not isinstance(
+            request, tensorboard_service.UpdateTensorboardTimeSeriesRequest
+        ):
             request = tensorboard_service.UpdateTensorboardTimeSeriesRequest(request)
 
             # If we have keyword arguments corresponding to fields on the
@@ -2040,35 +2063,38 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.update_tensorboard_time_series]
+        rpc = self._transport._wrapped_methods[
+            self._transport.update_tensorboard_time_series
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard_time_series.name', request.tensorboard_time_series.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (
+                    (
+                        "tensorboard_time_series.name",
+                        request.tensorboard_time_series.name,
+                    ),
+                )
+            ),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def list_tensorboard_time_series(self,
-            request: tensorboard_service.ListTensorboardTimeSeriesRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListTensorboardTimeSeriesPager:
+    def list_tensorboard_time_series(
+        self,
+        request: tensorboard_service.ListTensorboardTimeSeriesRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListTensorboardTimeSeriesPager:
         r"""Lists TensorboardTimeSeries in a Location.
 
         Args:
@@ -2105,14 +2131,18 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.ListTensorboardTimeSeriesRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, tensorboard_service.ListTensorboardTimeSeriesRequest):
+        if not isinstance(
+            request, tensorboard_service.ListTensorboardTimeSeriesRequest
+        ):
             request = tensorboard_service.ListTensorboardTimeSeriesRequest(request)
 
             # If we have keyword arguments corresponding to fields on the
@@ -2123,44 +2153,37 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.list_tensorboard_time_series]
+        rpc = self._transport._wrapped_methods[
+            self._transport.list_tensorboard_time_series
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTensorboardTimeSeriesPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    def delete_tensorboard_time_series(self,
-            request: tensorboard_service.DeleteTensorboardTimeSeriesRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gac_operation.Operation:
+    def delete_tensorboard_time_series(
+        self,
+        request: tensorboard_service.DeleteTensorboardTimeSeriesRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
         r"""Deletes a TensorboardTimeSeries.
 
         Args:
@@ -2206,14 +2229,18 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.DeleteTensorboardTimeSeriesRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, tensorboard_service.DeleteTensorboardTimeSeriesRequest):
+        if not isinstance(
+            request, tensorboard_service.DeleteTensorboardTimeSeriesRequest
+        ):
             request = tensorboard_service.DeleteTensorboardTimeSeriesRequest(request)
 
             # If we have keyword arguments corresponding to fields on the
@@ -2224,23 +2251,18 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.delete_tensorboard_time_series]
+        rpc = self._transport._wrapped_methods[
+            self._transport.delete_tensorboard_time_series
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -2253,14 +2275,15 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # Done; return the response.
         return response
 
-    def read_tensorboard_time_series_data(self,
-            request: tensorboard_service.ReadTensorboardTimeSeriesDataRequest = None,
-            *,
-            tensorboard_time_series: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> tensorboard_service.ReadTensorboardTimeSeriesDataResponse:
+    def read_tensorboard_time_series_data(
+        self,
+        request: tensorboard_service.ReadTensorboardTimeSeriesDataRequest = None,
+        *,
+        tensorboard_time_series: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.ReadTensorboardTimeSeriesDataResponse:
         r"""Reads a TensorboardTimeSeries' data. Data is returned in
         paginated responses. By default, if the number of data points
         stored is less than 1000, all data will be returned. Otherwise,
@@ -2298,14 +2321,18 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.ReadTensorboardTimeSeriesDataRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, tensorboard_service.ReadTensorboardTimeSeriesDataRequest):
+        if not isinstance(
+            request, tensorboard_service.ReadTensorboardTimeSeriesDataRequest
+        ):
             request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest(request)
 
             # If we have keyword arguments corresponding to fields on the
@@ -2316,35 +2343,33 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.read_tensorboard_time_series_data]
+        rpc = self._transport._wrapped_methods[
+            self._transport.read_tensorboard_time_series_data
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard_time_series', request.tensorboard_time_series),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard_time_series", request.tensorboard_time_series),)
+            ),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def read_tensorboard_blob_data(self,
-            request: tensorboard_service.ReadTensorboardBlobDataRequest = None,
-            *,
-            time_series: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> Iterable[tensorboard_service.ReadTensorboardBlobDataResponse]:
+    def read_tensorboard_blob_data(
+        self,
+        request: tensorboard_service.ReadTensorboardBlobDataRequest = None,
+        *,
+        time_series: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> Iterable[tensorboard_service.ReadTensorboardBlobDataResponse]:
         r"""Gets bytes of TensorboardBlobs.
         This is to allow reading blob data stored in consumer
         project's Cloud Storage bucket without users having to
@@ -2380,8 +2405,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([time_series])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.ReadTensorboardBlobDataRequest.
@@ -2398,36 +2425,34 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.read_tensorboard_blob_data]
+        rpc = self._transport._wrapped_methods[
+            self._transport.read_tensorboard_blob_data
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('time_series', request.time_series),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("time_series", request.time_series),)
+            ),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def write_tensorboard_run_data(self,
-            request: tensorboard_service.WriteTensorboardRunDataRequest = None,
-            *,
-            tensorboard_run: str = None,
-            time_series_data: Sequence[tensorboard_data.TimeSeriesData] = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> tensorboard_service.WriteTensorboardRunDataResponse:
+    def write_tensorboard_run_data(
+        self,
+        request: tensorboard_service.WriteTensorboardRunDataRequest = None,
+        *,
+        tensorboard_run: str = None,
+        time_series_data: Sequence[tensorboard_data.TimeSeriesData] = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.WriteTensorboardRunDataResponse:
         r"""Write time series data points into multiple
         TensorboardTimeSeries under a TensorboardRun. If any
         data fail to be ingested, an error will be returned.
@@ -2475,8 +2500,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, time_series_data])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.WriteTensorboardRunDataRequest.
@@ -2495,35 +2522,33 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.write_tensorboard_run_data]
+        rpc = self._transport._wrapped_methods[
+            self._transport.write_tensorboard_run_data
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard_run', request.tensorboard_run),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard_run", request.tensorboard_run),)
+            ),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def export_tensorboard_time_series_data(self,
-            request: tensorboard_service.ExportTensorboardTimeSeriesDataRequest = None,
-            *,
-            tensorboard_time_series: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ExportTensorboardTimeSeriesDataPager:
+    def export_tensorboard_time_series_data(
+        self,
+        request: tensorboard_service.ExportTensorboardTimeSeriesDataRequest = None,
+        *,
+        tensorboard_time_series: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ExportTensorboardTimeSeriesDataPager:
         r"""Exports a TensorboardTimeSeries' data. Data is
         returned in paginated responses.
 
@@ -2560,15 +2585,21 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         # Minor optimization to avoid making a copy if the user passes
         # in a tensorboard_service.ExportTensorboardTimeSeriesDataRequest.
         # There's no risk of modifying the input as we've already verified
         # there are no flattened fields.
-        if not isinstance(request, tensorboard_service.ExportTensorboardTimeSeriesDataRequest):
-            request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(request)
+        if not isinstance(
+            request, tensorboard_service.ExportTensorboardTimeSeriesDataRequest
+        ):
+            request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(
+                request
+            )
 
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
@@ -2578,52 +2609,39 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.export_tensorboard_time_series_data]
+        rpc = self._transport._wrapped_methods[
+            self._transport.export_tensorboard_time_series_data
+        ]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard_time_series', request.tensorboard_time_series),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard_time_series", request.tensorboard_time_series),)
+            ),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ExportTensorboardTimeSeriesDataPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
 
-
-
-
-
-
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'TensorboardServiceClient',
-)
+__all__ = ("TensorboardServiceClient",)

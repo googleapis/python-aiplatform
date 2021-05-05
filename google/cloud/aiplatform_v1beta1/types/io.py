@@ -19,17 +19,17 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
-        'AvroSource',
-        'CsvSource',
-        'GcsSource',
-        'GcsDestination',
-        'BigQuerySource',
-        'BigQueryDestination',
-        'CsvDestination',
-        'TFRecordDestination',
-        'ContainerRegistryDestination',
+        "AvroSource",
+        "CsvSource",
+        "GcsSource",
+        "GcsDestination",
+        "BigQuerySource",
+        "BigQueryDestination",
+        "CsvDestination",
+        "TFRecordDestination",
+        "ContainerRegistryDestination",
     },
 )
 
@@ -42,9 +42,7 @@ class AvroSource(proto.Message):
             Required. Google Cloud Storage location.
     """
 
-    gcs_source = proto.Field(proto.MESSAGE, number=1,
-        message='GcsSource',
-    )
+    gcs_source = proto.Field(proto.MESSAGE, number=1, message="GcsSource",)
 
 
 class CsvSource(proto.Message):
@@ -55,9 +53,7 @@ class CsvSource(proto.Message):
             Required. Google Cloud Storage location.
     """
 
-    gcs_source = proto.Field(proto.MESSAGE, number=1,
-        message='GcsSource',
-    )
+    gcs_source = proto.Field(proto.MESSAGE, number=1, message="GcsSource",)
 
 
 class GcsSource(proto.Message):
@@ -133,9 +129,7 @@ class CsvDestination(proto.Message):
             Required. Google Cloud Storage location.
     """
 
-    gcs_destination = proto.Field(proto.MESSAGE, number=1,
-        message='GcsDestination',
-    )
+    gcs_destination = proto.Field(proto.MESSAGE, number=1, message="GcsDestination",)
 
 
 class TFRecordDestination(proto.Message):
@@ -146,9 +140,7 @@ class TFRecordDestination(proto.Message):
             Required. Google Cloud Storage location.
     """
 
-    gcs_destination = proto.Field(proto.MESSAGE, number=1,
-        message='GcsDestination',
-    )
+    gcs_destination = proto.Field(proto.MESSAGE, number=1, message="GcsDestination",)
 
 
 class ContainerRegistryDestination(proto.Message):
