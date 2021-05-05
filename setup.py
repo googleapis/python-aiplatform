@@ -29,6 +29,12 @@ readme_filename = os.path.join(package_root, "README.rst")
 with io.open(readme_filename, encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
+tensorboard_extra_require = ["tensorflow-cpu >= 2.0.0"]
+metadata_extra_require = ["pandas >= 1.0.0"]
+full_extra_require = tensorboard_extra_require + metadata_extra_require
+testing_extra_require = full_extra_require + ["grpcio-testing >= 1.37.1"]
+
+
 setuptools.setup(
     name=name,
     version=version,
@@ -48,7 +54,12 @@ setuptools.setup(
         "google-cloud-storage >= 1.26.0, < 2.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
     ),
-    extras_require={"full": ["pandas>=1.0.0"]},
+    extras_require={
+        "full": full_extra_require,
+        "metadata": metadata_extra_require,
+        "tensorboard": tensorboard_extra_require,
+        "testing": testing_extra_require,
+    },
     python_requires=">=3.6",
     scripts=[],
     classifiers=[
