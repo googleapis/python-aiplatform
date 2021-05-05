@@ -75,5 +75,5 @@ AUTOML_VIDEO_PREDICTION_MODEL_TYPES = {
     },
 }
 
-# Class attribute to set user_agent header used for metrics reporting.
+# Used in constructing the requests user_agent header for metrics reporting.
 USER_AGENT_PRODUCT = "model-builder"
