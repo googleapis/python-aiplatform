@@ -259,8 +259,8 @@ class _Config:
             "google-cloud-aiplatform",
         ).version
         client_info = gapic_v1.client_info.ClientInfo(
-            gapic_version=gapic_version, 
-            user_agent=f"{constants.USER_AGENT_PRODUCT}/{gapic_version}"
+            gapic_version=gapic_version,
+            user_agent=f"{constants.USER_AGENT_PRODUCT}/{gapic_version}",
         )
 
         kwargs = {
