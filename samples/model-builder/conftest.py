@@ -148,6 +148,18 @@ def mock_custom_training_job():
 
 
 @pytest.fixture
+def mock_custom_container_training_job():
+    mock = MagicMock(aiplatform.training_jobs.CustomContainerTrainingJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_custom_package_training_job():
+    mock = MagicMock(aiplatform.training_jobs.CustomPythonPackageTrainingJob)
+    yield mock
+
+
+@pytest.fixture
 def mock_image_training_job():
     mock = MagicMock(aiplatform.training_jobs.AutoMLImageTrainingJob)
     yield mock
@@ -198,15 +210,41 @@ def mock_run_automl_image_training_job(mock_image_training_job):
 
 
 @pytest.fixture
-def mock_init_custom_training_job():
-    with patch.object(aiplatform.training_jobs.CustomTrainingJob, "__init__") as mock:
-        mock.return_value = None
+def mock_get_custom_training_job(mock_custom_training_job):
+    with patch.object(aiplatform, "CustomTrainingJob") as mock:
+        mock.return_value = mock_custom_training_job
         yield mock
 
 
 @pytest.fixture
-def mock_run_custom_training_job():
-    with patch.object(aiplatform.training_jobs.CustomTrainingJob, "run") as mock:
+def mock_get_custom_container_training_job(mock_custom_container_training_job):
+    with patch.object(aiplatform, "CustomContainerTrainingJob") as mock:
+        mock.return_value = mock_custom_container_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_get_custom_package_training_job(mock_custom_package_training_job):
+    with patch.object(aiplatform, "CustomPythonPackageTrainingJob") as mock:
+        mock.return_value = mock_custom_package_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_training_job(mock_custom_training_job):
+    with patch.object(mock_custom_training_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_container_training_job(mock_custom_container_training_job):
+    with patch.object(mock_custom_container_training_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_package_training_job(mock_custom_package_training_job):
+    with patch.object(mock_custom_package_training_job, "run") as mock:
         yield mock
 
 

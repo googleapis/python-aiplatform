@@ -17,19 +17,20 @@ from typing import List, Optional, Union
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_training_pipeline_custom_job_sample]
-def create_training_pipeline_custom_job_sample(
+#  [START aiplatform_sdk_create_training_pipeline_custom_package_job_sample]
+def create_training_pipeline_custom_package_job_sample(
     project: str,
     location: str,
     staging_bucket: str,
     display_name: str,
-    script_path: str,
+    python_package_gcs_uri: str,
+    python_module_name: str,
     container_uri: str,
     model_serving_container_image_uri: str,
     dataset_id: Optional[str] = None,
     model_display_name: Optional[str] = None,
     args: Optional[List[Union[str, float, int]]] = None,
-    replica_count: int = 0,
+    replica_count: int = 1,
     machine_type: str = "n1-standard-4",
     accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
     accelerator_count: int = 0,
@@ -40,9 +41,10 @@ def create_training_pipeline_custom_job_sample(
 ):
     aiplatform.init(project=project, location=location, staging_bucket=staging_bucket)
 
-    job = aiplatform.CustomTrainingJob(
+    job = aiplatform.CustomPythonPackageTrainingJob(
         display_name=display_name,
-        script_path=script_path,
+        python_package_gcs_uri=python_package_gcs_uri,
+        python_module_name=python_module_name,
         container_uri=container_uri,
         model_serving_container_image_uri=model_serving_container_image_uri,
     )
@@ -72,4 +74,4 @@ def create_training_pipeline_custom_job_sample(
     return model
 
 
-#  [END aiplatform_sdk_create_training_pipeline_custom_job_sample]
+#  [END aiplatform_sdk_create_training_pipeline_custom_package_job_sample]

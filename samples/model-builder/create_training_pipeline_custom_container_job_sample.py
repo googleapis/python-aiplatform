@@ -17,18 +17,18 @@ from typing import List, Optional, Union
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_training_pipeline_custom_job_sample]
-def create_training_pipeline_custom_training_managed_dataset_sample(
+#  [START aiplatform_sdk_create_training_pipeline_custom_container_job_sample]
+def create_training_pipeline_custom_container_job_sample(
     project: str,
     location: str,
+    staging_bucket: str,
     display_name: str,
-    script_path: str,
     container_uri: str,
     model_serving_container_image_uri: str,
-    dataset_id: int,
+    dataset_id: Optional[str] = None,
     model_display_name: Optional[str] = None,
     args: Optional[List[Union[str, float, int]]] = None,
-    replica_count: int = 0,
+    replica_count: int = 1,
     machine_type: str = "n1-standard-4",
     accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
     accelerator_count: int = 0,
@@ -37,19 +37,19 @@ def create_training_pipeline_custom_training_managed_dataset_sample(
     test_fraction_split: float = 0.1,
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location)
+    aiplatform.init(project=project, location=location, staging_bucket=staging_bucket)
 
-    job = aiplatform.CustomTrainingJob(
+    job = aiplatform.CustomContainerTrainingJob(
         display_name=display_name,
-        script_path=script_path,
         container_uri=container_uri,
         model_serving_container_image_uri=model_serving_container_image_uri,
     )
 
-    my_image_ds = aiplatform.ImageDataset(dataset_id)
+    # This example uses an ImageDataset, but you can use another type
+    dataset = aiplatform.ImageDataset(dataset_id) if dataset_id else None
 
     model = job.run(
-        dataset=my_image_ds,
+        dataset=dataset,
         model_display_name=model_display_name,
         args=args,
         replica_count=replica_count,
@@ -70,4 +70,4 @@ def create_training_pipeline_custom_training_managed_dataset_sample(
     return model
 
 
-#  [END aiplatform_sdk_create_training_pipeline_custom_job_sample]
+#  [END aiplatform_sdk_create_training_pipeline_custom_container_job_sample]
