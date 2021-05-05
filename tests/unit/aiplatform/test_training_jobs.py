@@ -119,6 +119,9 @@ _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
     "learning_rate": 0.01,
     "loss_fn": "mse",
 }
+_TEST_ENVIRONMENT_VARIABLES = {
+    "MY_PATH": "/path/to/my_path",
+}
 _TEST_MODEL_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_MODEL_DESCRIPTION = "test description"
 
@@ -596,6 +599,7 @@ class TestCustomTrainingJob:
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             service_account=_TEST_SERVICE_ACCOUNT,
             args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
             replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
@@ -618,6 +622,7 @@ class TestCustomTrainingJob:
         )
 
         true_args = _TEST_RUN_ARGS
+        true_env = _TEST_ENVIRONMENT_VARIABLES
 
         true_worker_pool_spec = {
             "replicaCount": _TEST_REPLICA_COUNT,
@@ -631,6 +636,7 @@ class TestCustomTrainingJob:
                 "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
                 "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
+                "env": true_env,
             },
         }
 
@@ -754,6 +760,7 @@ class TestCustomTrainingJob:
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             bigquery_destination=_TEST_BIGQUERY_DESTINATION,
             args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
             replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
@@ -770,6 +777,7 @@ class TestCustomTrainingJob:
             model_from_job.wait()
 
         true_args = _TEST_RUN_ARGS
+        true_env = _TEST_ENVIRONMENT_VARIABLES
 
         true_worker_pool_spec = {
             "replicaCount": _TEST_REPLICA_COUNT,
@@ -783,6 +791,7 @@ class TestCustomTrainingJob:
                 "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
                 "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
+                "env": true_env,
             },
         }
 
@@ -1018,6 +1027,7 @@ class TestCustomTrainingJob:
         model_from_job = job.run(
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
             replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
@@ -1039,6 +1049,7 @@ class TestCustomTrainingJob:
         )
 
         true_args = _TEST_RUN_ARGS
+        true_env = _TEST_ENVIRONMENT_VARIABLES
 
         true_worker_pool_spec = {
             "replicaCount": _TEST_REPLICA_COUNT,
@@ -1052,6 +1063,7 @@ class TestCustomTrainingJob:
                 "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
                 "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
+                "env": true_env,
             },
         }
 
@@ -1263,6 +1275,7 @@ class TestCustomTrainingJob:
             dataset=mock_tabular_dataset,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
             replica_count=10,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
@@ -1284,6 +1297,7 @@ class TestCustomTrainingJob:
         )
 
         true_args = _TEST_RUN_ARGS
+        true_env = _TEST_ENVIRONMENT_VARIABLES
 
         true_worker_pool_spec = [
             {
@@ -1298,6 +1312,7 @@ class TestCustomTrainingJob:
                     "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
                     "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
+                    "env": true_env,
                 },
             },
             {
@@ -1312,6 +1327,7 @@ class TestCustomTrainingJob:
                     "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
                     "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
+                    "env": true_env,
                 },
             },
         ]
@@ -1730,6 +1746,7 @@ class TestCustomContainerTrainingJob:
             dataset=mock_tabular_dataset,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
             replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
@@ -1746,6 +1763,7 @@ class TestCustomContainerTrainingJob:
             model_from_job.wait()
 
         true_args = _TEST_RUN_ARGS
+        true_env = _TEST_ENVIRONMENT_VARIABLES
 
         true_worker_pool_spec = {
             "replicaCount": _TEST_REPLICA_COUNT,
@@ -1758,6 +1776,7 @@ class TestCustomContainerTrainingJob:
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "command": _TEST_TRAINING_CONTAINER_CMD,
                 "args": true_args,
+                "env": true_env,
             },
         }
 
@@ -2937,6 +2956,7 @@ class TestCustomPythonPackageTrainingJob:
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             service_account=_TEST_SERVICE_ACCOUNT,
             args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
             replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
@@ -2952,6 +2972,7 @@ class TestCustomPythonPackageTrainingJob:
             model_from_job.wait()
 
         true_args = _TEST_RUN_ARGS
+        true_env = _TEST_ENVIRONMENT_VARIABLES
 
         true_worker_pool_spec = {
             "replicaCount": _TEST_REPLICA_COUNT,
@@ -2965,6 +2986,7 @@ class TestCustomPythonPackageTrainingJob:
                 "pythonModule": _TEST_PYTHON_MODULE_NAME,
                 "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
+                "env": true_env,
             },
         }
 
