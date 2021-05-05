@@ -24,7 +24,11 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"Endpoint", "DeployedModel",},
+    package='google.cloud.aiplatform.v1',
+    manifest={
+        'Endpoint',
+        'DeployedModel',
+    },
 )
 
 
@@ -45,9 +49,9 @@ class Endpoint(proto.Message):
         deployed_models (Sequence[google.cloud.aiplatform_v1.types.DeployedModel]):
             Output only. The models deployed in this Endpoint. To add or
             remove DeployedModels use
-            ``EndpointService.DeployModel``
+            [EndpointService.DeployModel][google.cloud.aiplatform.v1.EndpointService.DeployModel]
             and
-            ``EndpointService.UndeployModel``
+            [EndpointService.UndeployModel][google.cloud.aiplatform.v1.EndpointService.UndeployModel]
             respectively.
         traffic_split (Sequence[google.cloud.aiplatform_v1.types.Endpoint.TrafficSplitEntry]):
             A map from a DeployedModel's ID to the
@@ -92,8 +96,8 @@ class Endpoint(proto.Message):
 
     description = proto.Field(proto.STRING, number=3)
 
-    deployed_models = proto.RepeatedField(
-        proto.MESSAGE, number=4, message="DeployedModel",
+    deployed_models = proto.RepeatedField(proto.MESSAGE, number=4,
+        message='DeployedModel',
     )
 
     traffic_split = proto.MapField(proto.STRING, proto.INT32, number=5)
@@ -102,12 +106,16 @@ class Endpoint(proto.Message):
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=7)
 
-    create_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
+    create_time = proto.Field(proto.MESSAGE, number=8,
+        message=timestamp.Timestamp,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=9,
+        message=timestamp.Timestamp,
+    )
 
-    encryption_spec = proto.Field(
-        proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
+    encryption_spec = proto.Field(proto.MESSAGE, number=10,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -168,17 +176,11 @@ class DeployedModel(proto.Message):
             option.
     """
 
-    dedicated_resources = proto.Field(
-        proto.MESSAGE,
-        number=7,
-        oneof="prediction_resources",
+    dedicated_resources = proto.Field(proto.MESSAGE, number=7, oneof='prediction_resources',
         message=machine_resources.DedicatedResources,
     )
 
-    automatic_resources = proto.Field(
-        proto.MESSAGE,
-        number=8,
-        oneof="prediction_resources",
+    automatic_resources = proto.Field(proto.MESSAGE, number=8, oneof='prediction_resources',
         message=machine_resources.AutomaticResources,
     )
 
@@ -188,7 +190,9 @@ class DeployedModel(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=3)
 
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
+    create_time = proto.Field(proto.MESSAGE, number=6,
+        message=timestamp.Timestamp,
+    )
 
     service_account = proto.Field(proto.STRING, number=11)
 

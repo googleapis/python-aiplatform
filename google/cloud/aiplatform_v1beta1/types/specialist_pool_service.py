@@ -24,23 +24,23 @@ from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "CreateSpecialistPoolRequest",
-        "CreateSpecialistPoolOperationMetadata",
-        "GetSpecialistPoolRequest",
-        "ListSpecialistPoolsRequest",
-        "ListSpecialistPoolsResponse",
-        "DeleteSpecialistPoolRequest",
-        "UpdateSpecialistPoolRequest",
-        "UpdateSpecialistPoolOperationMetadata",
+        'CreateSpecialistPoolRequest',
+        'CreateSpecialistPoolOperationMetadata',
+        'GetSpecialistPoolRequest',
+        'ListSpecialistPoolsRequest',
+        'ListSpecialistPoolsResponse',
+        'DeleteSpecialistPoolRequest',
+        'UpdateSpecialistPoolRequest',
+        'UpdateSpecialistPoolOperationMetadata',
     },
 )
 
 
 class CreateSpecialistPoolRequest(proto.Message):
     r"""Request message for
-    ``SpecialistPoolService.CreateSpecialistPool``.
+    [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.CreateSpecialistPool].
 
     Attributes:
         parent (str):
@@ -53,28 +53,28 @@ class CreateSpecialistPoolRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    specialist_pool = proto.Field(
-        proto.MESSAGE, number=2, message=gca_specialist_pool.SpecialistPool,
+    specialist_pool = proto.Field(proto.MESSAGE, number=2,
+        message=gca_specialist_pool.SpecialistPool,
     )
 
 
 class CreateSpecialistPoolOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``SpecialistPoolService.CreateSpecialistPool``.
+    [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.CreateSpecialistPool].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
 class GetSpecialistPoolRequest(proto.Message):
     r"""Request message for
-    ``SpecialistPoolService.GetSpecialistPool``.
+    [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.GetSpecialistPool].
 
     Attributes:
         name (str):
@@ -88,7 +88,7 @@ class GetSpecialistPoolRequest(proto.Message):
 
 class ListSpecialistPoolsRequest(proto.Message):
     r"""Request message for
-    ``SpecialistPoolService.ListSpecialistPools``.
+    [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
 
     Attributes:
         parent (str):
@@ -98,9 +98,9 @@ class ListSpecialistPoolsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained by
-            ``ListSpecialistPoolsResponse.next_page_token``
+            [ListSpecialistPoolsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListSpecialistPoolsResponse.next_page_token]
             of the previous
-            ``SpecialistPoolService.ListSpecialistPools``
+            [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools]
             call. Return first page if empty.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
@@ -113,12 +113,14 @@ class ListSpecialistPoolsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=3)
 
-    read_mask = proto.Field(proto.MESSAGE, number=4, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=4,
+        message=field_mask.FieldMask,
+    )
 
 
 class ListSpecialistPoolsResponse(proto.Message):
     r"""Response message for
-    ``SpecialistPoolService.ListSpecialistPools``.
+    [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
 
     Attributes:
         specialist_pools (Sequence[google.cloud.aiplatform_v1beta1.types.SpecialistPool]):
@@ -132,8 +134,8 @@ class ListSpecialistPoolsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    specialist_pools = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=gca_specialist_pool.SpecialistPool,
+    specialist_pools = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=gca_specialist_pool.SpecialistPool,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -141,7 +143,7 @@ class ListSpecialistPoolsResponse(proto.Message):
 
 class DeleteSpecialistPoolRequest(proto.Message):
     r"""Request message for
-    ``SpecialistPoolService.DeleteSpecialistPool``.
+    [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.DeleteSpecialistPool].
 
     Attributes:
         name (str):
@@ -162,7 +164,7 @@ class DeleteSpecialistPoolRequest(proto.Message):
 
 class UpdateSpecialistPoolRequest(proto.Message):
     r"""Request message for
-    ``SpecialistPoolService.UpdateSpecialistPool``.
+    [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.UpdateSpecialistPool].
 
     Attributes:
         specialist_pool (google.cloud.aiplatform_v1beta1.types.SpecialistPool):
@@ -173,16 +175,18 @@ class UpdateSpecialistPoolRequest(proto.Message):
             resource.
     """
 
-    specialist_pool = proto.Field(
-        proto.MESSAGE, number=1, message=gca_specialist_pool.SpecialistPool,
+    specialist_pool = proto.Field(proto.MESSAGE, number=1,
+        message=gca_specialist_pool.SpecialistPool,
     )
 
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(proto.MESSAGE, number=2,
+        message=field_mask.FieldMask,
+    )
 
 
 class UpdateSpecialistPoolOperationMetadata(proto.Message):
     r"""Runtime operation metadata for
-    ``SpecialistPoolService.UpdateSpecialistPool``.
+    [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.UpdateSpecialistPool].
 
     Attributes:
         specialist_pool (str):
@@ -195,8 +199,8 @@ class UpdateSpecialistPoolOperationMetadata(proto.Message):
 
     specialist_pool = proto.Field(proto.STRING, number=1)
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE, number=2, message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(proto.MESSAGE, number=2,
+        message=operation.GenericOperationMetadata,
     )
 
 

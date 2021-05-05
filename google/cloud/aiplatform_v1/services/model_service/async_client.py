@@ -21,14 +21,14 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
-from google.oauth2 import service_account  # type: ignore
+import google.api_core.client_options as ClientOptions # type: ignore
+from google.api_core import exceptions                 # type: ignore
+from google.api_core import gapic_v1                   # type: ignore
+from google.api_core import retry as retries           # type: ignore
+from google.auth import credentials                    # type: ignore
+from google.oauth2 import service_account              # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.model_service import pagers
 from google.cloud.aiplatform_v1.types import deployed_model_ref
@@ -62,44 +62,26 @@ class ModelServiceAsyncClient:
     model_path = staticmethod(ModelServiceClient.model_path)
     parse_model_path = staticmethod(ModelServiceClient.parse_model_path)
     model_evaluation_path = staticmethod(ModelServiceClient.model_evaluation_path)
-    parse_model_evaluation_path = staticmethod(
-        ModelServiceClient.parse_model_evaluation_path
-    )
-    model_evaluation_slice_path = staticmethod(
-        ModelServiceClient.model_evaluation_slice_path
-    )
-    parse_model_evaluation_slice_path = staticmethod(
-        ModelServiceClient.parse_model_evaluation_slice_path
-    )
+    parse_model_evaluation_path = staticmethod(ModelServiceClient.parse_model_evaluation_path)
+    model_evaluation_slice_path = staticmethod(ModelServiceClient.model_evaluation_slice_path)
+    parse_model_evaluation_slice_path = staticmethod(ModelServiceClient.parse_model_evaluation_slice_path)
     training_pipeline_path = staticmethod(ModelServiceClient.training_pipeline_path)
-    parse_training_pipeline_path = staticmethod(
-        ModelServiceClient.parse_training_pipeline_path
-    )
+    parse_training_pipeline_path = staticmethod(ModelServiceClient.parse_training_pipeline_path)
 
-    common_billing_account_path = staticmethod(
-        ModelServiceClient.common_billing_account_path
-    )
-    parse_common_billing_account_path = staticmethod(
-        ModelServiceClient.parse_common_billing_account_path
-    )
+    common_billing_account_path = staticmethod(ModelServiceClient.common_billing_account_path)
+    parse_common_billing_account_path = staticmethod(ModelServiceClient.parse_common_billing_account_path)
 
     common_folder_path = staticmethod(ModelServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(ModelServiceClient.parse_common_folder_path)
 
     common_organization_path = staticmethod(ModelServiceClient.common_organization_path)
-    parse_common_organization_path = staticmethod(
-        ModelServiceClient.parse_common_organization_path
-    )
+    parse_common_organization_path = staticmethod(ModelServiceClient.parse_common_organization_path)
 
     common_project_path = staticmethod(ModelServiceClient.common_project_path)
-    parse_common_project_path = staticmethod(
-        ModelServiceClient.parse_common_project_path
-    )
+    parse_common_project_path = staticmethod(ModelServiceClient.parse_common_project_path)
 
     common_location_path = staticmethod(ModelServiceClient.common_location_path)
-    parse_common_location_path = staticmethod(
-        ModelServiceClient.parse_common_location_path
-    )
+    parse_common_location_path = staticmethod(ModelServiceClient.parse_common_location_path)
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -142,18 +124,14 @@ class ModelServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(
-        type(ModelServiceClient).get_transport_class, type(ModelServiceClient)
-    )
+    get_transport_class = functools.partial(type(ModelServiceClient).get_transport_class, type(ModelServiceClient))
 
-    def __init__(
-        self,
-        *,
-        credentials: credentials.Credentials = None,
-        transport: Union[str, ModelServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
-        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-    ) -> None:
+    def __init__(self, *,
+            credentials: credentials.Credentials = None,
+            transport: Union[str, ModelServiceTransport] = 'grpc_asyncio',
+            client_options: ClientOptions = None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            ) -> None:
         """Instantiate the model service client.
 
         Args:
@@ -192,24 +170,24 @@ class ModelServiceAsyncClient:
             transport=transport,
             client_options=client_options,
             client_info=client_info,
+
         )
 
-    async def upload_model(
-        self,
-        request: model_service.UploadModelRequest = None,
-        *,
-        parent: str = None,
-        model: gca_model.Model = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def upload_model(self,
+            request: model_service.UploadModelRequest = None,
+            *,
+            parent: str = None,
+            model: gca_model.Model = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Uploads a Model artifact into AI Platform.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UploadModelRequest`):
                 The request object. Request message for
-                ``ModelService.UploadModel``.
+                [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel].
             parent (:class:`str`):
                 Required. The resource name of the Location into which
                 to upload the Model. Format:
@@ -237,7 +215,7 @@ class ModelServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.UploadModelResponse`
                 Response message of
-                ``ModelService.UploadModel``
+                [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel]
                 operation.
 
         """
@@ -246,10 +224,8 @@ class ModelServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, model])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = model_service.UploadModelRequest(request)
 
@@ -265,18 +241,25 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.upload_model,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -289,21 +272,20 @@ class ModelServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def get_model(
-        self,
-        request: model_service.GetModelRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> model.Model:
+    async def get_model(self,
+            request: model_service.GetModelRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> model.Model:
         r"""Gets a Model.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelRequest`):
                 The request object. Request message for
-                ``ModelService.GetModel``.
+                [ModelService.GetModel][google.cloud.aiplatform.v1.ModelService.GetModel].
             name (:class:`str`):
                 Required. The name of the Model resource. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
@@ -327,10 +309,8 @@ class ModelServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = model_service.GetModelRequest(request)
 
@@ -344,37 +324,43 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_model,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def list_models(
-        self,
-        request: model_service.ListModelsRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListModelsAsyncPager:
+    async def list_models(self,
+            request: model_service.ListModelsRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListModelsAsyncPager:
         r"""Lists Models in a Location.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelsRequest`):
                 The request object. Request message for
-                ``ModelService.ListModels``.
+                [ModelService.ListModels][google.cloud.aiplatform.v1.ModelService.ListModels].
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 Models from. Format:
@@ -393,7 +379,7 @@ class ModelServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelsAsyncPager:
                 Response message for
-                ``ModelService.ListModels``
+                [ModelService.ListModels][google.cloud.aiplatform.v1.ModelService.ListModels]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -404,10 +390,8 @@ class ModelServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = model_service.ListModelsRequest(request)
 
@@ -421,44 +405,53 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_models,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListModelsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def update_model(
-        self,
-        request: model_service.UpdateModelRequest = None,
-        *,
-        model: gca_model.Model = None,
-        update_mask: field_mask.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_model.Model:
+    async def update_model(self,
+            request: model_service.UpdateModelRequest = None,
+            *,
+            model: gca_model.Model = None,
+            update_mask: field_mask.FieldMask = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gca_model.Model:
         r"""Updates a Model.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateModelRequest`):
                 The request object. Request message for
-                ``ModelService.UpdateModel``.
+                [ModelService.UpdateModel][google.cloud.aiplatform.v1.ModelService.UpdateModel].
             model (:class:`google.cloud.aiplatform_v1.types.Model`):
                 Required. The Model which replaces
                 the resource on the server.
@@ -490,10 +483,8 @@ class ModelServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([model, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = model_service.UpdateModelRequest(request)
 
@@ -509,33 +500,37 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.update_model,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("model.name", request.model.name),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('model.name', request.model.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def delete_model(
-        self,
-        request: model_service.DeleteModelRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def delete_model(self,
+            request: model_service.DeleteModelRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Deletes a Model.
         Note: Model can only be deleted if there are no
         DeployedModels created from it.
@@ -543,7 +538,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteModelRequest`):
                 The request object. Request message for
-                ``ModelService.DeleteModel``.
+                [ModelService.DeleteModel][google.cloud.aiplatform.v1.ModelService.DeleteModel].
             name (:class:`str`):
                 Required. The name of the Model resource to be deleted.
                 Format:
@@ -583,10 +578,8 @@ class ModelServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = model_service.DeleteModelRequest(request)
 
@@ -600,18 +593,25 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_model,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -624,16 +624,15 @@ class ModelServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def export_model(
-        self,
-        request: model_service.ExportModelRequest = None,
-        *,
-        name: str = None,
-        output_config: model_service.ExportModelRequest.OutputConfig = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def export_model(self,
+            request: model_service.ExportModelRequest = None,
+            *,
+            name: str = None,
+            output_config: model_service.ExportModelRequest.OutputConfig = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Exports a trained, exportable, Model to a location specified by
         the user. A Model is considered to be exportable if it has at
         least one [supported export
@@ -642,7 +641,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ExportModelRequest`):
                 The request object. Request message for
-                ``ModelService.ExportModel``.
+                [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel].
             name (:class:`str`):
                 Required. The resource name of the Model to export.
                 Format:
@@ -672,7 +671,7 @@ class ModelServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.ExportModelResponse`
                 Response message of
-                ``ModelService.ExportModel``
+                [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel]
                 operation.
 
         """
@@ -681,10 +680,8 @@ class ModelServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, output_config])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = model_service.ExportModelRequest(request)
 
@@ -700,18 +697,25 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.export_model,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -724,21 +728,20 @@ class ModelServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def get_model_evaluation(
-        self,
-        request: model_service.GetModelEvaluationRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> model_evaluation.ModelEvaluation:
+    async def get_model_evaluation(self,
+            request: model_service.GetModelEvaluationRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> model_evaluation.ModelEvaluation:
         r"""Gets a ModelEvaluation.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelEvaluationRequest`):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluation``.
+                [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1.ModelService.GetModelEvaluation].
             name (:class:`str`):
                 Required. The name of the ModelEvaluation resource.
                 Format:
@@ -768,10 +771,8 @@ class ModelServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = model_service.GetModelEvaluationRequest(request)
 
@@ -785,37 +786,43 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_model_evaluation,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def list_model_evaluations(
-        self,
-        request: model_service.ListModelEvaluationsRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListModelEvaluationsAsyncPager:
+    async def list_model_evaluations(self,
+            request: model_service.ListModelEvaluationsRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListModelEvaluationsAsyncPager:
         r"""Lists ModelEvaluations in a Model.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelEvaluationsRequest`):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1.ModelService.ListModelEvaluations].
             parent (:class:`str`):
                 Required. The resource name of the Model to list the
                 ModelEvaluations from. Format:
@@ -834,7 +841,7 @@ class ModelServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelEvaluationsAsyncPager:
                 Response message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1.ModelService.ListModelEvaluations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -845,10 +852,8 @@ class ModelServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = model_service.ListModelEvaluationsRequest(request)
 
@@ -862,43 +867,52 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_model_evaluations,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListModelEvaluationsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def get_model_evaluation_slice(
-        self,
-        request: model_service.GetModelEvaluationSliceRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> model_evaluation_slice.ModelEvaluationSlice:
+    async def get_model_evaluation_slice(self,
+            request: model_service.GetModelEvaluationSliceRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> model_evaluation_slice.ModelEvaluationSlice:
         r"""Gets a ModelEvaluationSlice.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelEvaluationSliceRequest`):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluationSlice``.
+                [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1.ModelService.GetModelEvaluationSlice].
             name (:class:`str`):
                 Required. The name of the ModelEvaluationSlice resource.
                 Format:
@@ -928,10 +942,8 @@ class ModelServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = model_service.GetModelEvaluationSliceRequest(request)
 
@@ -945,37 +957,43 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_model_evaluation_slice,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def list_model_evaluation_slices(
-        self,
-        request: model_service.ListModelEvaluationSlicesRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListModelEvaluationSlicesAsyncPager:
+    async def list_model_evaluation_slices(self,
+            request: model_service.ListModelEvaluationSlicesRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListModelEvaluationSlicesAsyncPager:
         r"""Lists ModelEvaluationSlices in a ModelEvaluation.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelEvaluationSlicesRequest`):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices].
             parent (:class:`str`):
                 Required. The resource name of the ModelEvaluation to
                 list the ModelEvaluationSlices from. Format:
@@ -995,7 +1013,7 @@ class ModelServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelEvaluationSlicesAsyncPager:
                 Response message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1006,10 +1024,8 @@ class ModelServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = model_service.ListModelEvaluationSlicesRequest(request)
 
@@ -1023,37 +1039,54 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_model_evaluation_slices,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListModelEvaluationSlicesAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
 
+
+
+
+
+
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
+            'google-cloud-aiplatform',
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = ("ModelServiceAsyncClient",)
+__all__ = (
+    'ModelServiceAsyncClient',
+)

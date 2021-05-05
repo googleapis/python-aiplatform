@@ -21,14 +21,14 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
-from google.oauth2 import service_account  # type: ignore
+import google.api_core.client_options as ClientOptions # type: ignore
+from google.api_core import exceptions                 # type: ignore
+from google.api_core import gapic_v1                   # type: ignore
+from google.api_core import retry as retries           # type: ignore
+from google.auth import credentials                    # type: ignore
+from google.oauth2 import service_account              # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.dataset_service import pagers
 from google.cloud.aiplatform_v1.types import annotation
@@ -60,42 +60,26 @@ class DatasetServiceAsyncClient:
     annotation_path = staticmethod(DatasetServiceClient.annotation_path)
     parse_annotation_path = staticmethod(DatasetServiceClient.parse_annotation_path)
     annotation_spec_path = staticmethod(DatasetServiceClient.annotation_spec_path)
-    parse_annotation_spec_path = staticmethod(
-        DatasetServiceClient.parse_annotation_spec_path
-    )
+    parse_annotation_spec_path = staticmethod(DatasetServiceClient.parse_annotation_spec_path)
     data_item_path = staticmethod(DatasetServiceClient.data_item_path)
     parse_data_item_path = staticmethod(DatasetServiceClient.parse_data_item_path)
     dataset_path = staticmethod(DatasetServiceClient.dataset_path)
     parse_dataset_path = staticmethod(DatasetServiceClient.parse_dataset_path)
 
-    common_billing_account_path = staticmethod(
-        DatasetServiceClient.common_billing_account_path
-    )
-    parse_common_billing_account_path = staticmethod(
-        DatasetServiceClient.parse_common_billing_account_path
-    )
+    common_billing_account_path = staticmethod(DatasetServiceClient.common_billing_account_path)
+    parse_common_billing_account_path = staticmethod(DatasetServiceClient.parse_common_billing_account_path)
 
     common_folder_path = staticmethod(DatasetServiceClient.common_folder_path)
-    parse_common_folder_path = staticmethod(
-        DatasetServiceClient.parse_common_folder_path
-    )
+    parse_common_folder_path = staticmethod(DatasetServiceClient.parse_common_folder_path)
 
-    common_organization_path = staticmethod(
-        DatasetServiceClient.common_organization_path
-    )
-    parse_common_organization_path = staticmethod(
-        DatasetServiceClient.parse_common_organization_path
-    )
+    common_organization_path = staticmethod(DatasetServiceClient.common_organization_path)
+    parse_common_organization_path = staticmethod(DatasetServiceClient.parse_common_organization_path)
 
     common_project_path = staticmethod(DatasetServiceClient.common_project_path)
-    parse_common_project_path = staticmethod(
-        DatasetServiceClient.parse_common_project_path
-    )
+    parse_common_project_path = staticmethod(DatasetServiceClient.parse_common_project_path)
 
     common_location_path = staticmethod(DatasetServiceClient.common_location_path)
-    parse_common_location_path = staticmethod(
-        DatasetServiceClient.parse_common_location_path
-    )
+    parse_common_location_path = staticmethod(DatasetServiceClient.parse_common_location_path)
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -138,18 +122,14 @@ class DatasetServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(
-        type(DatasetServiceClient).get_transport_class, type(DatasetServiceClient)
-    )
+    get_transport_class = functools.partial(type(DatasetServiceClient).get_transport_class, type(DatasetServiceClient))
 
-    def __init__(
-        self,
-        *,
-        credentials: credentials.Credentials = None,
-        transport: Union[str, DatasetServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
-        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-    ) -> None:
+    def __init__(self, *,
+            credentials: credentials.Credentials = None,
+            transport: Union[str, DatasetServiceTransport] = 'grpc_asyncio',
+            client_options: ClientOptions = None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            ) -> None:
         """Instantiate the dataset service client.
 
         Args:
@@ -188,24 +168,24 @@ class DatasetServiceAsyncClient:
             transport=transport,
             client_options=client_options,
             client_info=client_info,
+
         )
 
-    async def create_dataset(
-        self,
-        request: dataset_service.CreateDatasetRequest = None,
-        *,
-        parent: str = None,
-        dataset: gca_dataset.Dataset = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def create_dataset(self,
+            request: dataset_service.CreateDatasetRequest = None,
+            *,
+            parent: str = None,
+            dataset: gca_dataset.Dataset = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Creates a Dataset.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateDatasetRequest`):
                 The request object. Request message for
-                ``DatasetService.CreateDataset``.
+                [DatasetService.CreateDataset][google.cloud.aiplatform.v1.DatasetService.CreateDataset].
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the Dataset in. Format:
@@ -240,10 +220,8 @@ class DatasetServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, dataset])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = dataset_service.CreateDatasetRequest(request)
 
@@ -259,18 +237,25 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.create_dataset,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -283,21 +268,20 @@ class DatasetServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def get_dataset(
-        self,
-        request: dataset_service.GetDatasetRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> dataset.Dataset:
+    async def get_dataset(self,
+            request: dataset_service.GetDatasetRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> dataset.Dataset:
         r"""Gets a Dataset.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetDatasetRequest`):
                 The request object. Request message for
-                ``DatasetService.GetDataset``.
+                [DatasetService.GetDataset][google.cloud.aiplatform.v1.DatasetService.GetDataset].
             name (:class:`str`):
                 Required. The name of the Dataset
                 resource.
@@ -323,10 +307,8 @@ class DatasetServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = dataset_service.GetDatasetRequest(request)
 
@@ -340,38 +322,44 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_dataset,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def update_dataset(
-        self,
-        request: dataset_service.UpdateDatasetRequest = None,
-        *,
-        dataset: gca_dataset.Dataset = None,
-        update_mask: field_mask.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_dataset.Dataset:
+    async def update_dataset(self,
+            request: dataset_service.UpdateDatasetRequest = None,
+            *,
+            dataset: gca_dataset.Dataset = None,
+            update_mask: field_mask.FieldMask = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gca_dataset.Dataset:
         r"""Updates a Dataset.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateDatasetRequest`):
                 The request object. Request message for
-                ``DatasetService.UpdateDataset``.
+                [DatasetService.UpdateDataset][google.cloud.aiplatform.v1.DatasetService.UpdateDataset].
             dataset (:class:`google.cloud.aiplatform_v1.types.Dataset`):
                 Required. The Dataset which replaces
                 the resource on the server.
@@ -410,10 +398,8 @@ class DatasetServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([dataset, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = dataset_service.UpdateDatasetRequest(request)
 
@@ -429,39 +415,43 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.update_dataset,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("dataset.name", request.dataset.name),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('dataset.name', request.dataset.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def list_datasets(
-        self,
-        request: dataset_service.ListDatasetsRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListDatasetsAsyncPager:
+    async def list_datasets(self,
+            request: dataset_service.ListDatasetsRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListDatasetsAsyncPager:
         r"""Lists Datasets in a Location.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListDatasetsRequest`):
                 The request object. Request message for
-                ``DatasetService.ListDatasets``.
+                [DatasetService.ListDatasets][google.cloud.aiplatform.v1.DatasetService.ListDatasets].
             parent (:class:`str`):
                 Required. The name of the Dataset's parent resource.
                 Format: ``projects/{project}/locations/{location}``
@@ -479,7 +469,7 @@ class DatasetServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListDatasetsAsyncPager:
                 Response message for
-                ``DatasetService.ListDatasets``.
+                [DatasetService.ListDatasets][google.cloud.aiplatform.v1.DatasetService.ListDatasets].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -490,10 +480,8 @@ class DatasetServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = dataset_service.ListDatasetsRequest(request)
 
@@ -507,43 +495,52 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_datasets,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListDatasetsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def delete_dataset(
-        self,
-        request: dataset_service.DeleteDatasetRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def delete_dataset(self,
+            request: dataset_service.DeleteDatasetRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Deletes a Dataset.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteDatasetRequest`):
                 The request object. Request message for
-                ``DatasetService.DeleteDataset``.
+                [DatasetService.DeleteDataset][google.cloud.aiplatform.v1.DatasetService.DeleteDataset].
             name (:class:`str`):
                 Required. The resource name of the Dataset to delete.
                 Format:
@@ -583,10 +580,8 @@ class DatasetServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = dataset_service.DeleteDatasetRequest(request)
 
@@ -600,18 +595,25 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_dataset,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -624,22 +626,21 @@ class DatasetServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def import_data(
-        self,
-        request: dataset_service.ImportDataRequest = None,
-        *,
-        name: str = None,
-        import_configs: Sequence[dataset.ImportDataConfig] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def import_data(self,
+            request: dataset_service.ImportDataRequest = None,
+            *,
+            name: str = None,
+            import_configs: Sequence[dataset.ImportDataConfig] = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Imports data into a Dataset.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ImportDataRequest`):
                 The request object. Request message for
-                ``DatasetService.ImportData``.
+                [DatasetService.ImportData][google.cloud.aiplatform.v1.DatasetService.ImportData].
             name (:class:`str`):
                 Required. The name of the Dataset resource. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
@@ -669,7 +670,7 @@ class DatasetServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.ImportDataResponse`
                 Response message for
-                ``DatasetService.ImportData``.
+                [DatasetService.ImportData][google.cloud.aiplatform.v1.DatasetService.ImportData].
 
         """
         # Create or coerce a protobuf request object.
@@ -677,10 +678,8 @@ class DatasetServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, import_configs])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = dataset_service.ImportDataRequest(request)
 
@@ -697,18 +696,25 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.import_data,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -721,22 +727,21 @@ class DatasetServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def export_data(
-        self,
-        request: dataset_service.ExportDataRequest = None,
-        *,
-        name: str = None,
-        export_config: dataset.ExportDataConfig = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def export_data(self,
+            request: dataset_service.ExportDataRequest = None,
+            *,
+            name: str = None,
+            export_config: dataset.ExportDataConfig = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Exports data from a Dataset.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ExportDataRequest`):
                 The request object. Request message for
-                ``DatasetService.ExportData``.
+                [DatasetService.ExportData][google.cloud.aiplatform.v1.DatasetService.ExportData].
             name (:class:`str`):
                 Required. The name of the Dataset resource. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
@@ -765,7 +770,7 @@ class DatasetServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.ExportDataResponse`
                 Response message for
-                ``DatasetService.ExportData``.
+                [DatasetService.ExportData][google.cloud.aiplatform.v1.DatasetService.ExportData].
 
         """
         # Create or coerce a protobuf request object.
@@ -773,10 +778,8 @@ class DatasetServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name, export_config])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = dataset_service.ExportDataRequest(request)
 
@@ -792,18 +795,25 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.export_data,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -816,21 +826,20 @@ class DatasetServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def list_data_items(
-        self,
-        request: dataset_service.ListDataItemsRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListDataItemsAsyncPager:
+    async def list_data_items(self,
+            request: dataset_service.ListDataItemsRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListDataItemsAsyncPager:
         r"""Lists DataItems in a Dataset.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListDataItemsRequest`):
                 The request object. Request message for
-                ``DatasetService.ListDataItems``.
+                [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems].
             parent (:class:`str`):
                 Required. The resource name of the Dataset to list
                 DataItems from. Format:
@@ -849,7 +858,7 @@ class DatasetServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListDataItemsAsyncPager:
                 Response message for
-                ``DatasetService.ListDataItems``.
+                [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -860,10 +869,8 @@ class DatasetServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = dataset_service.ListDataItemsRequest(request)
 
@@ -877,43 +884,52 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_data_items,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListDataItemsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def get_annotation_spec(
-        self,
-        request: dataset_service.GetAnnotationSpecRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> annotation_spec.AnnotationSpec:
+    async def get_annotation_spec(self,
+            request: dataset_service.GetAnnotationSpecRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> annotation_spec.AnnotationSpec:
         r"""Gets an AnnotationSpec.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetAnnotationSpecRequest`):
                 The request object. Request message for
-                ``DatasetService.GetAnnotationSpec``.
+                [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1.DatasetService.GetAnnotationSpec].
             name (:class:`str`):
                 Required. The name of the AnnotationSpec resource.
                 Format:
@@ -941,10 +957,8 @@ class DatasetServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = dataset_service.GetAnnotationSpecRequest(request)
 
@@ -958,37 +972,43 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_annotation_spec,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def list_annotations(
-        self,
-        request: dataset_service.ListAnnotationsRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListAnnotationsAsyncPager:
+    async def list_annotations(self,
+            request: dataset_service.ListAnnotationsRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListAnnotationsAsyncPager:
         r"""Lists Annotations belongs to a dataitem
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListAnnotationsRequest`):
                 The request object. Request message for
-                ``DatasetService.ListAnnotations``.
+                [DatasetService.ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
             parent (:class:`str`):
                 Required. The resource name of the DataItem to list
                 Annotations from. Format:
@@ -1008,7 +1028,7 @@ class DatasetServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListAnnotationsAsyncPager:
                 Response message for
-                ``DatasetService.ListAnnotations``.
+                [DatasetService.ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1019,10 +1039,8 @@ class DatasetServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = dataset_service.ListAnnotationsRequest(request)
 
@@ -1036,37 +1054,54 @@ class DatasetServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_annotations,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListAnnotationsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
 
+
+
+
+
+
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
+            'google-cloud-aiplatform',
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = ("DatasetServiceAsyncClient",)
+__all__ = (
+    'DatasetServiceAsyncClient',
+)

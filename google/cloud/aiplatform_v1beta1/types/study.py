@@ -18,13 +18,19 @@
 import proto  # type: ignore
 
 
+from google.protobuf import duration_pb2 as duration  # type: ignore
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
-    manifest={"Study", "Trial", "StudySpec", "Measurement",},
+    package='google.cloud.aiplatform.v1beta1',
+    manifest={
+        'Study',
+        'Trial',
+        'StudySpec',
+        'Measurement',
+    },
 )
 
 
@@ -51,7 +57,6 @@ class Study(proto.Message):
             Study is inactive. This should be empty if a
             study is ACTIVE or COMPLETED.
     """
-
     class State(proto.Enum):
         r"""Describes the Study state."""
         STATE_UNSPECIFIED = 0
@@ -63,11 +68,17 @@ class Study(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=2)
 
-    study_spec = proto.Field(proto.MESSAGE, number=3, message="StudySpec",)
+    study_spec = proto.Field(proto.MESSAGE, number=3,
+        message='StudySpec',
+    )
 
-    state = proto.Field(proto.ENUM, number=4, enum=State,)
+    state = proto.Field(proto.ENUM, number=4,
+        enum=State,
+    )
 
-    create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
+    create_time = proto.Field(proto.MESSAGE, number=5,
+        message=timestamp.Timestamp,
+    )
 
     inactive_reason = proto.Field(proto.STRING, number=6)
 
@@ -91,17 +102,35 @@ class Trial(proto.Message):
         final_measurement (google.cloud.aiplatform_v1beta1.types.Measurement):
             Output only. The final measurement containing
             the objective value.
+        measurements (Sequence[google.cloud.aiplatform_v1beta1.types.Measurement]):
+            Output only. A list of measurements that are strictly
+            lexicographically ordered by their induced tuples (steps,
+            elapsed_duration). These are used for early stopping
+            computations.
         start_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the Trial was started.
         end_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the Trial's status changed to
             ``SUCCEEDED`` or ``INFEASIBLE``.
+        client_id (str):
+            Output only. The identifier of the client that originally
+            requested this Trial. Each client is identified by a unique
+            client_id. When a client asks for a suggestion, Vizier will
+            assign it a Trial. The client should evaluate the Trial,
+            complete it, and report back to Vizier. If suggestion is
+            asked again by same client_id before the Trial is completed,
+            the same Trial will be returned. Multiple clients with
+            different client_ids can ask for suggestions simultaneously,
+            each of them will get their own Trial.
+        infeasible_reason (str):
+            Output only. A human readable string describing why the
+            Trial is infeasible. This is set only if Trial state is
+            ``INFEASIBLE``.
         custom_job (str):
             Output only. The CustomJob name linked to the
             Trial. It's set for a HyperparameterTuningJob's
             Trial.
     """
-
     class State(proto.Enum):
         r"""Describes a Trial state."""
         STATE_UNSPECIFIED = 0
@@ -129,21 +158,41 @@ class Trial(proto.Message):
 
         parameter_id = proto.Field(proto.STRING, number=1)
 
-        value = proto.Field(proto.MESSAGE, number=2, message=struct.Value,)
+        value = proto.Field(proto.MESSAGE, number=2,
+            message=struct.Value,
+        )
 
     name = proto.Field(proto.STRING, number=1)
 
     id = proto.Field(proto.STRING, number=2)
 
-    state = proto.Field(proto.ENUM, number=3, enum=State,)
+    state = proto.Field(proto.ENUM, number=3,
+        enum=State,
+    )
 
-    parameters = proto.RepeatedField(proto.MESSAGE, number=4, message=Parameter,)
+    parameters = proto.RepeatedField(proto.MESSAGE, number=4,
+        message=Parameter,
+    )
 
-    final_measurement = proto.Field(proto.MESSAGE, number=5, message="Measurement",)
+    final_measurement = proto.Field(proto.MESSAGE, number=5,
+        message='Measurement',
+    )
 
-    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp.Timestamp,)
+    measurements = proto.RepeatedField(proto.MESSAGE, number=6,
+        message='Measurement',
+    )
 
-    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
+    start_time = proto.Field(proto.MESSAGE, number=7,
+        message=timestamp.Timestamp,
+    )
+
+    end_time = proto.Field(proto.MESSAGE, number=8,
+        message=timestamp.Timestamp,
+    )
+
+    client_id = proto.Field(proto.STRING, number=9)
+
+    infeasible_reason = proto.Field(proto.STRING, number=10)
 
     custom_job = proto.Field(proto.STRING, number=11)
 
@@ -176,7 +225,6 @@ class StudySpec(proto.Message):
             Describe which measurement selection type
             will be used
     """
-
     class Algorithm(proto.Enum):
         r"""The available search algorithms for the Study."""
         ALGORITHM_UNSPECIFIED = 0
@@ -222,7 +270,6 @@ class StudySpec(proto.Message):
                 Required. The optimization goal of the
                 metric.
         """
-
         class GoalType(proto.Enum):
             r"""The available types of optimization goals."""
             GOAL_TYPE_UNSPECIFIED = 0
@@ -231,7 +278,9 @@ class StudySpec(proto.Message):
 
         metric_id = proto.Field(proto.STRING, number=1)
 
-        goal = proto.Field(proto.ENUM, number=2, enum="StudySpec.MetricSpec.GoalType",)
+        goal = proto.Field(proto.ENUM, number=2,
+            enum='StudySpec.MetricSpec.GoalType',
+        )
 
     class ParameterSpec(proto.Message):
         r"""Represents a single parameter to optimize.
@@ -259,7 +308,6 @@ class StudySpec(proto.Message):
                 If two items in conditional_parameter_specs have the same
                 name, they must have disjoint parent_value_condition.
         """
-
         class ScaleType(proto.Enum):
             r"""The type of scaling that should be applied to this parameter."""
             SCALE_TYPE_UNSPECIFIED = 0
@@ -342,7 +390,6 @@ class StudySpec(proto.Message):
                     Required. The spec for a conditional
                     parameter.
             """
-
             class DiscreteValueCondition(proto.Message):
                 r"""Represents the spec to match discrete values from parent
                 parameter.
@@ -384,69 +431,46 @@ class StudySpec(proto.Message):
 
                 values = proto.RepeatedField(proto.STRING, number=1)
 
-            parent_discrete_values = proto.Field(
-                proto.MESSAGE,
-                number=2,
-                oneof="parent_value_condition",
-                message="StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition",
+            parent_discrete_values = proto.Field(proto.MESSAGE, number=2, oneof='parent_value_condition',
+                message='StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition',
             )
 
-            parent_int_values = proto.Field(
-                proto.MESSAGE,
-                number=3,
-                oneof="parent_value_condition",
-                message="StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition",
+            parent_int_values = proto.Field(proto.MESSAGE, number=3, oneof='parent_value_condition',
+                message='StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition',
             )
 
-            parent_categorical_values = proto.Field(
-                proto.MESSAGE,
-                number=4,
-                oneof="parent_value_condition",
-                message="StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition",
+            parent_categorical_values = proto.Field(proto.MESSAGE, number=4, oneof='parent_value_condition',
+                message='StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition',
             )
 
-            parameter_spec = proto.Field(
-                proto.MESSAGE, number=1, message="StudySpec.ParameterSpec",
+            parameter_spec = proto.Field(proto.MESSAGE, number=1,
+                message='StudySpec.ParameterSpec',
             )
 
-        double_value_spec = proto.Field(
-            proto.MESSAGE,
-            number=2,
-            oneof="parameter_value_spec",
-            message="StudySpec.ParameterSpec.DoubleValueSpec",
+        double_value_spec = proto.Field(proto.MESSAGE, number=2, oneof='parameter_value_spec',
+            message='StudySpec.ParameterSpec.DoubleValueSpec',
         )
 
-        integer_value_spec = proto.Field(
-            proto.MESSAGE,
-            number=3,
-            oneof="parameter_value_spec",
-            message="StudySpec.ParameterSpec.IntegerValueSpec",
+        integer_value_spec = proto.Field(proto.MESSAGE, number=3, oneof='parameter_value_spec',
+            message='StudySpec.ParameterSpec.IntegerValueSpec',
         )
 
-        categorical_value_spec = proto.Field(
-            proto.MESSAGE,
-            number=4,
-            oneof="parameter_value_spec",
-            message="StudySpec.ParameterSpec.CategoricalValueSpec",
+        categorical_value_spec = proto.Field(proto.MESSAGE, number=4, oneof='parameter_value_spec',
+            message='StudySpec.ParameterSpec.CategoricalValueSpec',
         )
 
-        discrete_value_spec = proto.Field(
-            proto.MESSAGE,
-            number=5,
-            oneof="parameter_value_spec",
-            message="StudySpec.ParameterSpec.DiscreteValueSpec",
+        discrete_value_spec = proto.Field(proto.MESSAGE, number=5, oneof='parameter_value_spec',
+            message='StudySpec.ParameterSpec.DiscreteValueSpec',
         )
 
         parameter_id = proto.Field(proto.STRING, number=1)
 
-        scale_type = proto.Field(
-            proto.ENUM, number=6, enum="StudySpec.ParameterSpec.ScaleType",
+        scale_type = proto.Field(proto.ENUM, number=6,
+            enum='StudySpec.ParameterSpec.ScaleType',
         )
 
-        conditional_parameter_specs = proto.RepeatedField(
-            proto.MESSAGE,
-            number=10,
-            message="StudySpec.ParameterSpec.ConditionalParameterSpec",
+        conditional_parameter_specs = proto.RepeatedField(proto.MESSAGE, number=10,
+            message='StudySpec.ParameterSpec.ConditionalParameterSpec',
         )
 
     class DecayCurveAutomatedStoppingSpec(proto.Message):
@@ -460,9 +484,9 @@ class StudySpec(proto.Message):
         Attributes:
             use_elapsed_duration (bool):
                 True if
-                ``Measurement.elapsed_duration``
+                [Measurement.elapsed_duration][google.cloud.aiplatform.v1beta1.Measurement.elapsed_duration]
                 is used as the x-axis of each Trials Decay Curve. Otherwise,
-                ``Measurement.step_count``
+                [Measurement.step_count][google.cloud.aiplatform.v1beta1.Measurement.step_count]
                 will be used as the x-axis.
         """
 
@@ -479,7 +503,7 @@ class StudySpec(proto.Message):
         Attributes:
             use_elapsed_duration (bool):
                 True if median automated stopping rule applies on
-                ``Measurement.elapsed_duration``.
+                [Measurement.elapsed_duration][google.cloud.aiplatform.v1beta1.Measurement.elapsed_duration].
                 It means that elapsed_duration field of latest measurement
                 of current Trial is used to compute median objective value
                 for each completed Trials.
@@ -535,37 +559,36 @@ class StudySpec(proto.Message):
 
         use_seconds = proto.Field(proto.BOOL, number=5)
 
-    decay_curve_stopping_spec = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        oneof="automated_stopping_spec",
+    decay_curve_stopping_spec = proto.Field(proto.MESSAGE, number=4, oneof='automated_stopping_spec',
         message=DecayCurveAutomatedStoppingSpec,
     )
 
-    median_automated_stopping_spec = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        oneof="automated_stopping_spec",
+    median_automated_stopping_spec = proto.Field(proto.MESSAGE, number=5, oneof='automated_stopping_spec',
         message=MedianAutomatedStoppingSpec,
     )
 
-    convex_stop_config = proto.Field(
-        proto.MESSAGE,
-        number=8,
-        oneof="automated_stopping_spec",
+    convex_stop_config = proto.Field(proto.MESSAGE, number=8, oneof='automated_stopping_spec',
         message=ConvexStopConfig,
     )
 
-    metrics = proto.RepeatedField(proto.MESSAGE, number=1, message=MetricSpec,)
+    metrics = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=MetricSpec,
+    )
 
-    parameters = proto.RepeatedField(proto.MESSAGE, number=2, message=ParameterSpec,)
+    parameters = proto.RepeatedField(proto.MESSAGE, number=2,
+        message=ParameterSpec,
+    )
 
-    algorithm = proto.Field(proto.ENUM, number=3, enum=Algorithm,)
+    algorithm = proto.Field(proto.ENUM, number=3,
+        enum=Algorithm,
+    )
 
-    observation_noise = proto.Field(proto.ENUM, number=6, enum=ObservationNoise,)
+    observation_noise = proto.Field(proto.ENUM, number=6,
+        enum=ObservationNoise,
+    )
 
-    measurement_selection_type = proto.Field(
-        proto.ENUM, number=7, enum=MeasurementSelectionType,
+    measurement_selection_type = proto.Field(proto.ENUM, number=7,
+        enum=MeasurementSelectionType,
     )
 
 
@@ -575,6 +598,9 @@ class Measurement(proto.Message):
     suggested hyperparameter values.
 
     Attributes:
+        elapsed_duration (google.protobuf.duration_pb2.Duration):
+            Output only. Time that the Trial has been
+            running at the point of this Measurement.
         step_count (int):
             Output only. The number of steps the machine
             learning model has been trained for. Must be
@@ -584,7 +610,6 @@ class Measurement(proto.Message):
             evaluating the objective functions using
             suggested Parameter values.
     """
-
     class Metric(proto.Message):
         r"""A message representing a metric in the measurement.
 
@@ -601,9 +626,15 @@ class Measurement(proto.Message):
 
         value = proto.Field(proto.DOUBLE, number=2)
 
+    elapsed_duration = proto.Field(proto.MESSAGE, number=1,
+        message=duration.Duration,
+    )
+
     step_count = proto.Field(proto.INT64, number=2)
 
-    metrics = proto.RepeatedField(proto.MESSAGE, number=3, message=Metric,)
+    metrics = proto.RepeatedField(proto.MESSAGE, number=3,
+        message=Metric,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

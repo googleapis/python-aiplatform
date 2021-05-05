@@ -21,14 +21,14 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
-from google.oauth2 import service_account  # type: ignore
+import google.api_core.client_options as ClientOptions # type: ignore
+from google.api_core import exceptions                 # type: ignore
+from google.api_core import gapic_v1                   # type: ignore
+from google.api_core import retry as retries           # type: ignore
+from google.auth import credentials                    # type: ignore
+from google.oauth2 import service_account              # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import pagers
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -57,43 +57,23 @@ class SpecialistPoolServiceAsyncClient:
     DEFAULT_ENDPOINT = SpecialistPoolServiceClient.DEFAULT_ENDPOINT
     DEFAULT_MTLS_ENDPOINT = SpecialistPoolServiceClient.DEFAULT_MTLS_ENDPOINT
 
-    specialist_pool_path = staticmethod(
-        SpecialistPoolServiceClient.specialist_pool_path
-    )
-    parse_specialist_pool_path = staticmethod(
-        SpecialistPoolServiceClient.parse_specialist_pool_path
-    )
+    specialist_pool_path = staticmethod(SpecialistPoolServiceClient.specialist_pool_path)
+    parse_specialist_pool_path = staticmethod(SpecialistPoolServiceClient.parse_specialist_pool_path)
 
-    common_billing_account_path = staticmethod(
-        SpecialistPoolServiceClient.common_billing_account_path
-    )
-    parse_common_billing_account_path = staticmethod(
-        SpecialistPoolServiceClient.parse_common_billing_account_path
-    )
+    common_billing_account_path = staticmethod(SpecialistPoolServiceClient.common_billing_account_path)
+    parse_common_billing_account_path = staticmethod(SpecialistPoolServiceClient.parse_common_billing_account_path)
 
     common_folder_path = staticmethod(SpecialistPoolServiceClient.common_folder_path)
-    parse_common_folder_path = staticmethod(
-        SpecialistPoolServiceClient.parse_common_folder_path
-    )
+    parse_common_folder_path = staticmethod(SpecialistPoolServiceClient.parse_common_folder_path)
 
-    common_organization_path = staticmethod(
-        SpecialistPoolServiceClient.common_organization_path
-    )
-    parse_common_organization_path = staticmethod(
-        SpecialistPoolServiceClient.parse_common_organization_path
-    )
+    common_organization_path = staticmethod(SpecialistPoolServiceClient.common_organization_path)
+    parse_common_organization_path = staticmethod(SpecialistPoolServiceClient.parse_common_organization_path)
 
     common_project_path = staticmethod(SpecialistPoolServiceClient.common_project_path)
-    parse_common_project_path = staticmethod(
-        SpecialistPoolServiceClient.parse_common_project_path
-    )
+    parse_common_project_path = staticmethod(SpecialistPoolServiceClient.parse_common_project_path)
 
-    common_location_path = staticmethod(
-        SpecialistPoolServiceClient.common_location_path
-    )
-    parse_common_location_path = staticmethod(
-        SpecialistPoolServiceClient.parse_common_location_path
-    )
+    common_location_path = staticmethod(SpecialistPoolServiceClient.common_location_path)
+    parse_common_location_path = staticmethod(SpecialistPoolServiceClient.parse_common_location_path)
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -136,19 +116,14 @@ class SpecialistPoolServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(
-        type(SpecialistPoolServiceClient).get_transport_class,
-        type(SpecialistPoolServiceClient),
-    )
+    get_transport_class = functools.partial(type(SpecialistPoolServiceClient).get_transport_class, type(SpecialistPoolServiceClient))
 
-    def __init__(
-        self,
-        *,
-        credentials: credentials.Credentials = None,
-        transport: Union[str, SpecialistPoolServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
-        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-    ) -> None:
+    def __init__(self, *,
+            credentials: credentials.Credentials = None,
+            transport: Union[str, SpecialistPoolServiceTransport] = 'grpc_asyncio',
+            client_options: ClientOptions = None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            ) -> None:
         """Instantiate the specialist pool service client.
 
         Args:
@@ -187,24 +162,24 @@ class SpecialistPoolServiceAsyncClient:
             transport=transport,
             client_options=client_options,
             client_info=client_info,
+
         )
 
-    async def create_specialist_pool(
-        self,
-        request: specialist_pool_service.CreateSpecialistPoolRequest = None,
-        *,
-        parent: str = None,
-        specialist_pool: gca_specialist_pool.SpecialistPool = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def create_specialist_pool(self,
+            request: specialist_pool_service.CreateSpecialistPoolRequest = None,
+            *,
+            parent: str = None,
+            specialist_pool: gca_specialist_pool.SpecialistPool = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Creates a SpecialistPool.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateSpecialistPoolRequest`):
                 The request object. Request message for
-                ``SpecialistPoolService.CreateSpecialistPool``.
+                [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.CreateSpecialistPool].
             parent (:class:`str`):
                 Required. The parent Project name for the new
                 SpecialistPool. The form is
@@ -246,10 +221,8 @@ class SpecialistPoolServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, specialist_pool])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = specialist_pool_service.CreateSpecialistPoolRequest(request)
 
@@ -272,11 +245,18 @@ class SpecialistPoolServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -289,21 +269,20 @@ class SpecialistPoolServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def get_specialist_pool(
-        self,
-        request: specialist_pool_service.GetSpecialistPoolRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> specialist_pool.SpecialistPool:
+    async def get_specialist_pool(self,
+            request: specialist_pool_service.GetSpecialistPoolRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> specialist_pool.SpecialistPool:
         r"""Gets a SpecialistPool.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetSpecialistPoolRequest`):
                 The request object. Request message for
-                ``SpecialistPoolService.GetSpecialistPool``.
+                [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.GetSpecialistPool].
             name (:class:`str`):
                 Required. The name of the SpecialistPool resource. The
                 form is
@@ -339,10 +318,8 @@ class SpecialistPoolServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = specialist_pool_service.GetSpecialistPoolRequest(request)
 
@@ -363,30 +340,36 @@ class SpecialistPoolServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def list_specialist_pools(
-        self,
-        request: specialist_pool_service.ListSpecialistPoolsRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListSpecialistPoolsAsyncPager:
+    async def list_specialist_pools(self,
+            request: specialist_pool_service.ListSpecialistPoolsRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListSpecialistPoolsAsyncPager:
         r"""Lists SpecialistPools in a Location.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsRequest`):
                 The request object. Request message for
-                ``SpecialistPoolService.ListSpecialistPools``.
+                [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
             parent (:class:`str`):
                 Required. The name of the SpecialistPool's parent
                 resource. Format:
@@ -405,7 +388,7 @@ class SpecialistPoolServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.specialist_pool_service.pagers.ListSpecialistPoolsAsyncPager:
                 Response message for
-                ``SpecialistPoolService.ListSpecialistPools``.
+                [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -416,10 +399,8 @@ class SpecialistPoolServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = specialist_pool_service.ListSpecialistPoolsRequest(request)
 
@@ -440,37 +421,46 @@ class SpecialistPoolServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListSpecialistPoolsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def delete_specialist_pool(
-        self,
-        request: specialist_pool_service.DeleteSpecialistPoolRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def delete_specialist_pool(self,
+            request: specialist_pool_service.DeleteSpecialistPoolRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Deletes a SpecialistPool as well as all Specialists
         in the pool.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteSpecialistPoolRequest`):
                 The request object. Request message for
-                ``SpecialistPoolService.DeleteSpecialistPool``.
+                [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.DeleteSpecialistPool].
             name (:class:`str`):
                 Required. The resource name of the SpecialistPool to
                 delete. Format:
@@ -510,10 +500,8 @@ class SpecialistPoolServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = specialist_pool_service.DeleteSpecialistPoolRequest(request)
 
@@ -534,11 +522,18 @@ class SpecialistPoolServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -551,22 +546,21 @@ class SpecialistPoolServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def update_specialist_pool(
-        self,
-        request: specialist_pool_service.UpdateSpecialistPoolRequest = None,
-        *,
-        specialist_pool: gca_specialist_pool.SpecialistPool = None,
-        update_mask: field_mask.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def update_specialist_pool(self,
+            request: specialist_pool_service.UpdateSpecialistPoolRequest = None,
+            *,
+            specialist_pool: gca_specialist_pool.SpecialistPool = None,
+            update_mask: field_mask.FieldMask = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Updates a SpecialistPool.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateSpecialistPoolRequest`):
                 The request object. Request message for
-                ``SpecialistPoolService.UpdateSpecialistPool``.
+                [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.UpdateSpecialistPool].
             specialist_pool (:class:`google.cloud.aiplatform_v1beta1.types.SpecialistPool`):
                 Required. The SpecialistPool which
                 replaces the resource on the server.
@@ -607,10 +601,8 @@ class SpecialistPoolServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([specialist_pool, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = specialist_pool_service.UpdateSpecialistPoolRequest(request)
 
@@ -633,13 +625,18 @@ class SpecialistPoolServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("specialist_pool.name", request.specialist_pool.name),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('specialist_pool.name', request.specialist_pool.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -653,14 +650,21 @@ class SpecialistPoolServiceAsyncClient:
         return response
 
 
+
+
+
+
+
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
+            'google-cloud-aiplatform',
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = ("SpecialistPoolServiceAsyncClient",)
+__all__ = (
+    'SpecialistPoolServiceAsyncClient',
+)

@@ -21,12 +21,12 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
-from google.oauth2 import service_account  # type: ignore
+import google.api_core.client_options as ClientOptions # type: ignore
+from google.api_core import exceptions                 # type: ignore
+from google.api_core import gapic_v1                   # type: ignore
+from google.api_core import retry as retries           # type: ignore
+from google.auth import credentials                    # type: ignore
+from google.oauth2 import service_account              # type: ignore
 
 from google.cloud.aiplatform_v1.types import prediction_service
 from google.protobuf import struct_pb2 as struct  # type: ignore
@@ -47,34 +47,20 @@ class PredictionServiceAsyncClient:
     endpoint_path = staticmethod(PredictionServiceClient.endpoint_path)
     parse_endpoint_path = staticmethod(PredictionServiceClient.parse_endpoint_path)
 
-    common_billing_account_path = staticmethod(
-        PredictionServiceClient.common_billing_account_path
-    )
-    parse_common_billing_account_path = staticmethod(
-        PredictionServiceClient.parse_common_billing_account_path
-    )
+    common_billing_account_path = staticmethod(PredictionServiceClient.common_billing_account_path)
+    parse_common_billing_account_path = staticmethod(PredictionServiceClient.parse_common_billing_account_path)
 
     common_folder_path = staticmethod(PredictionServiceClient.common_folder_path)
-    parse_common_folder_path = staticmethod(
-        PredictionServiceClient.parse_common_folder_path
-    )
+    parse_common_folder_path = staticmethod(PredictionServiceClient.parse_common_folder_path)
 
-    common_organization_path = staticmethod(
-        PredictionServiceClient.common_organization_path
-    )
-    parse_common_organization_path = staticmethod(
-        PredictionServiceClient.parse_common_organization_path
-    )
+    common_organization_path = staticmethod(PredictionServiceClient.common_organization_path)
+    parse_common_organization_path = staticmethod(PredictionServiceClient.parse_common_organization_path)
 
     common_project_path = staticmethod(PredictionServiceClient.common_project_path)
-    parse_common_project_path = staticmethod(
-        PredictionServiceClient.parse_common_project_path
-    )
+    parse_common_project_path = staticmethod(PredictionServiceClient.parse_common_project_path)
 
     common_location_path = staticmethod(PredictionServiceClient.common_location_path)
-    parse_common_location_path = staticmethod(
-        PredictionServiceClient.parse_common_location_path
-    )
+    parse_common_location_path = staticmethod(PredictionServiceClient.parse_common_location_path)
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -117,18 +103,14 @@ class PredictionServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(
-        type(PredictionServiceClient).get_transport_class, type(PredictionServiceClient)
-    )
+    get_transport_class = functools.partial(type(PredictionServiceClient).get_transport_class, type(PredictionServiceClient))
 
-    def __init__(
-        self,
-        *,
-        credentials: credentials.Credentials = None,
-        transport: Union[str, PredictionServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
-        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-    ) -> None:
+    def __init__(self, *,
+            credentials: credentials.Credentials = None,
+            transport: Union[str, PredictionServiceTransport] = 'grpc_asyncio',
+            client_options: ClientOptions = None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            ) -> None:
         """Instantiate the prediction service client.
 
         Args:
@@ -167,25 +149,25 @@ class PredictionServiceAsyncClient:
             transport=transport,
             client_options=client_options,
             client_info=client_info,
+
         )
 
-    async def predict(
-        self,
-        request: prediction_service.PredictRequest = None,
-        *,
-        endpoint: str = None,
-        instances: Sequence[struct.Value] = None,
-        parameters: struct.Value = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> prediction_service.PredictResponse:
+    async def predict(self,
+            request: prediction_service.PredictRequest = None,
+            *,
+            endpoint: str = None,
+            instances: Sequence[struct.Value] = None,
+            parameters: struct.Value = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> prediction_service.PredictResponse:
         r"""Perform an online prediction.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.PredictRequest`):
                 The request object. Request message for
-                ``PredictionService.Predict``.
+                [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
             endpoint (:class:`str`):
                 Required. The name of the Endpoint requested to serve
                 the prediction. Format:
@@ -205,7 +187,7 @@ class PredictionServiceAsyncClient:
                 Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-                ``instance_schema_uri``.
+                [instance_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri].
 
                 This corresponds to the ``instances`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -216,7 +198,7 @@ class PredictionServiceAsyncClient:
                 DeployedModels' [Model's
                 ][google.cloud.aiplatform.v1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-                ``parameters_schema_uri``.
+                [parameters_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri].
 
                 This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -231,7 +213,7 @@ class PredictionServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.types.PredictResponse:
                 Response message for
-                ``PredictionService.Predict``.
+                [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
 
         """
         # Create or coerce a protobuf request object.
@@ -239,10 +221,8 @@ class PredictionServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, instances, parameters])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = prediction_service.PredictRequest(request)
 
@@ -261,31 +241,45 @@ class PredictionServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.predict,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('endpoint', request.endpoint),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
 
+
+
+
+
+
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
+            'google-cloud-aiplatform',
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = ("PredictionServiceAsyncClient",)
+__all__ = (
+    'PredictionServiceAsyncClient',
+)

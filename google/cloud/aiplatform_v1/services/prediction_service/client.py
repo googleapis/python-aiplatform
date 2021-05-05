@@ -23,14 +23,14 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
-from google.auth.transport import mtls  # type: ignore
-from google.auth.transport.grpc import SslCredentials  # type: ignore
-from google.auth.exceptions import MutualTLSChannelError  # type: ignore
-from google.oauth2 import service_account  # type: ignore
+from google.api_core import exceptions                            # type: ignore
+from google.api_core import gapic_v1                              # type: ignore
+from google.api_core import retry as retries                      # type: ignore
+from google.auth import credentials                               # type: ignore
+from google.auth.transport import mtls                            # type: ignore
+from google.auth.transport.grpc import SslCredentials             # type: ignore
+from google.auth.exceptions import MutualTLSChannelError          # type: ignore
+from google.oauth2 import service_account                         # type: ignore
 
 from google.cloud.aiplatform_v1.types import prediction_service
 from google.protobuf import struct_pb2 as struct  # type: ignore
@@ -47,16 +47,13 @@ class PredictionServiceClientMeta(type):
     support objects (e.g. transport) without polluting the client instance
     objects.
     """
+    _transport_registry = OrderedDict()  # type: Dict[str, Type[PredictionServiceTransport]]
+    _transport_registry['grpc'] = PredictionServiceGrpcTransport
+    _transport_registry['grpc_asyncio'] = PredictionServiceGrpcAsyncIOTransport
 
-    _transport_registry = (
-        OrderedDict()
-    )  # type: Dict[str, Type[PredictionServiceTransport]]
-    _transport_registry["grpc"] = PredictionServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = PredictionServiceGrpcAsyncIOTransport
-
-    def get_transport_class(
-        cls, label: str = None,
-    ) -> Type[PredictionServiceTransport]:
+    def get_transport_class(cls,
+            label: str = None,
+        ) -> Type[PredictionServiceTransport]:
         """Return an appropriate transport class.
 
         Args:
@@ -107,7 +104,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         return api_endpoint.replace(".googleapis.com", ".mtls.googleapis.com")
 
-    DEFAULT_ENDPOINT = "aiplatform.googleapis.com"
+    DEFAULT_ENDPOINT = 'aiplatform.googleapis.com'
     DEFAULT_MTLS_ENDPOINT = _get_default_mtls_endpoint.__func__(  # type: ignore
         DEFAULT_ENDPOINT
     )
@@ -142,8 +139,9 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Returns:
             PredictionServiceClient: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_file(filename)
-        kwargs["credentials"] = credentials
+        credentials = service_account.Credentials.from_service_account_file(
+            filename)
+        kwargs['credentials'] = credentials
         return cls(*args, **kwargs)
 
     from_service_account_json = from_service_account_file
@@ -158,88 +156,77 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         return self._transport
 
     @staticmethod
-    def endpoint_path(project: str, location: str, endpoint: str,) -> str:
+    def endpoint_path(project: str,location: str,endpoint: str,) -> str:
         """Return a fully-qualified endpoint string."""
-        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-            project=project, location=location, endpoint=endpoint,
-        )
+        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(project=project, location=location, endpoint=endpoint, )
 
     @staticmethod
-    def parse_endpoint_path(path: str) -> Dict[str, str]:
+    def parse_endpoint_path(path: str) -> Dict[str,str]:
         """Parse a endpoint path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
-            path,
-        )
+        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(billing_account: str, ) -> str:
         """Return a fully-qualified billing_account string."""
-        return "billingAccounts/{billing_account}".format(
-            billing_account=billing_account,
-        )
+        return "billingAccounts/{billing_account}".format(billing_account=billing_account, )
 
     @staticmethod
-    def parse_common_billing_account_path(path: str) -> Dict[str, str]:
+    def parse_common_billing_account_path(path: str) -> Dict[str,str]:
         """Parse a billing_account path into its component segments."""
         m = re.match(r"^billingAccounts/(?P<billing_account>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(folder: str, ) -> str:
         """Return a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(folder=folder, )
 
     @staticmethod
-    def parse_common_folder_path(path: str) -> Dict[str, str]:
+    def parse_common_folder_path(path: str) -> Dict[str,str]:
         """Parse a folder path into its component segments."""
         m = re.match(r"^folders/(?P<folder>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(organization: str, ) -> str:
         """Return a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(organization=organization, )
 
     @staticmethod
-    def parse_common_organization_path(path: str) -> Dict[str, str]:
+    def parse_common_organization_path(path: str) -> Dict[str,str]:
         """Parse a organization path into its component segments."""
         m = re.match(r"^organizations/(?P<organization>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(project: str, ) -> str:
         """Return a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(project=project, )
 
     @staticmethod
-    def parse_common_project_path(path: str) -> Dict[str, str]:
+    def parse_common_project_path(path: str) -> Dict[str,str]:
         """Parse a project path into its component segments."""
         m = re.match(r"^projects/(?P<project>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(project: str, location: str, ) -> str:
         """Return a fully-qualified location string."""
-        return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
-        )
+        return "projects/{project}/locations/{location}".format(project=project, location=location, )
 
     @staticmethod
-    def parse_common_location_path(path: str) -> Dict[str, str]:
+    def parse_common_location_path(path: str) -> Dict[str,str]:
         """Parse a location path into its component segments."""
         m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)$", path)
         return m.groupdict() if m else {}
 
-    def __init__(
-        self,
-        *,
-        credentials: Optional[credentials.Credentials] = None,
-        transport: Union[str, PredictionServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
-        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-    ) -> None:
+    def __init__(self, *,
+            credentials: Optional[credentials.Credentials] = None,
+            transport: Union[str, PredictionServiceTransport, None] = None,
+            client_options: Optional[client_options_lib.ClientOptions] = None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            ) -> None:
         """Instantiate the prediction service client.
 
         Args:
@@ -283,9 +270,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
             client_options = client_options_lib.ClientOptions()
 
         # Create SSL credentials for mutual TLS if needed.
-        use_client_cert = bool(
-            util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
-        )
+        use_client_cert = bool(util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false")))
 
         client_cert_source_func = None
         is_mtls = False
@@ -295,9 +280,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 client_cert_source_func = client_options.client_cert_source
             else:
                 is_mtls = mtls.has_default_client_cert_source()
-                client_cert_source_func = (
-                    mtls.default_client_cert_source() if is_mtls else None
-                )
+                client_cert_source_func = mtls.default_client_cert_source() if is_mtls else None
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -309,9 +292,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
             elif use_mtls_env == "always":
                 api_endpoint = self.DEFAULT_MTLS_ENDPOINT
             elif use_mtls_env == "auto":
-                api_endpoint = (
-                    self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
-                )
+                api_endpoint = self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
             else:
                 raise MutualTLSChannelError(
                     "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted values: never, auto, always"
@@ -323,10 +304,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         if isinstance(transport, PredictionServiceTransport):
             # transport is a PredictionServiceTransport instance.
             if credentials or client_options.credentials_file:
-                raise ValueError(
-                    "When providing a transport instance, "
-                    "provide its credentials directly."
-                )
+                raise ValueError('When providing a transport instance, '
+                                 'provide its credentials directly.')
             if client_options.scopes:
                 raise ValueError(
                     "When providing a transport instance, "
@@ -345,23 +324,22 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 client_info=client_info,
             )
 
-    def predict(
-        self,
-        request: prediction_service.PredictRequest = None,
-        *,
-        endpoint: str = None,
-        instances: Sequence[struct.Value] = None,
-        parameters: struct.Value = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> prediction_service.PredictResponse:
+    def predict(self,
+            request: prediction_service.PredictRequest = None,
+            *,
+            endpoint: str = None,
+            instances: Sequence[struct.Value] = None,
+            parameters: struct.Value = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> prediction_service.PredictResponse:
         r"""Perform an online prediction.
 
         Args:
             request (google.cloud.aiplatform_v1.types.PredictRequest):
                 The request object. Request message for
-                ``PredictionService.Predict``.
+                [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
             endpoint (str):
                 Required. The name of the Endpoint requested to serve
                 the prediction. Format:
@@ -381,7 +359,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-                ``instance_schema_uri``.
+                [instance_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri].
 
                 This corresponds to the ``instances`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -392,7 +370,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 DeployedModels' [Model's
                 ][google.cloud.aiplatform.v1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-                ``parameters_schema_uri``.
+                [parameters_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri].
 
                 This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -407,7 +385,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.types.PredictResponse:
                 Response message for
-                ``PredictionService.Predict``.
+                [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
 
         """
         # Create or coerce a protobuf request object.
@@ -415,10 +393,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([endpoint, instances, parameters])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a prediction_service.PredictRequest.
@@ -433,7 +409,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
             if endpoint is not None:
                 request.endpoint = endpoint
             if instances is not None:
-                request.instances.extend(instances)
+                request.instances = instances
             if parameters is not None:
                 request.parameters = parameters
 
@@ -444,24 +420,38 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("endpoint", request.endpoint),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('endpoint', request.endpoint),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
 
+
+
+
+
+
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
+            'google-cloud-aiplatform',
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = ("PredictionServiceClient",)
+__all__ = (
+    'PredictionServiceClient',
+)

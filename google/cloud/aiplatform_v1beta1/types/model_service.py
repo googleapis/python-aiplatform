@@ -27,32 +27,32 @@ from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "UploadModelRequest",
-        "UploadModelOperationMetadata",
-        "UploadModelResponse",
-        "GetModelRequest",
-        "ListModelsRequest",
-        "ListModelsResponse",
-        "UpdateModelRequest",
-        "DeleteModelRequest",
-        "ExportModelRequest",
-        "ExportModelOperationMetadata",
-        "ExportModelResponse",
-        "GetModelEvaluationRequest",
-        "ListModelEvaluationsRequest",
-        "ListModelEvaluationsResponse",
-        "GetModelEvaluationSliceRequest",
-        "ListModelEvaluationSlicesRequest",
-        "ListModelEvaluationSlicesResponse",
+        'UploadModelRequest',
+        'UploadModelOperationMetadata',
+        'UploadModelResponse',
+        'GetModelRequest',
+        'ListModelsRequest',
+        'ListModelsResponse',
+        'UpdateModelRequest',
+        'DeleteModelRequest',
+        'ExportModelRequest',
+        'ExportModelOperationMetadata',
+        'ExportModelResponse',
+        'GetModelEvaluationRequest',
+        'ListModelEvaluationsRequest',
+        'ListModelEvaluationsResponse',
+        'GetModelEvaluationSliceRequest',
+        'ListModelEvaluationSlicesRequest',
+        'ListModelEvaluationSlicesResponse',
     },
 )
 
 
 class UploadModelRequest(proto.Message):
     r"""Request message for
-    ``ModelService.UploadModel``.
+    [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel].
 
     Attributes:
         parent (str):
@@ -65,12 +65,14 @@ class UploadModelRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    model = proto.Field(proto.MESSAGE, number=2, message=gca_model.Model,)
+    model = proto.Field(proto.MESSAGE, number=2,
+        message=gca_model.Model,
+    )
 
 
 class UploadModelOperationMetadata(proto.Message):
     r"""Details of
-    ``ModelService.UploadModel``
+    [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
     operation.
 
     Attributes:
@@ -78,14 +80,14 @@ class UploadModelOperationMetadata(proto.Message):
             The common part of the operation metadata.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
 class UploadModelResponse(proto.Message):
     r"""Response message of
-    ``ModelService.UploadModel``
+    [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
     operation.
 
     Attributes:
@@ -99,7 +101,7 @@ class UploadModelResponse(proto.Message):
 
 class GetModelRequest(proto.Message):
     r"""Request message for
-    ``ModelService.GetModel``.
+    [ModelService.GetModel][google.cloud.aiplatform.v1beta1.ModelService.GetModel].
 
     Attributes:
         name (str):
@@ -112,7 +114,7 @@ class GetModelRequest(proto.Message):
 
 class ListModelsRequest(proto.Message):
     r"""Request message for
-    ``ModelService.ListModels``.
+    [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels].
 
     Attributes:
         parent (str):
@@ -143,9 +145,9 @@ class ListModelsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            ``ListModelsResponse.next_page_token``
+            [ListModelsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListModelsResponse.next_page_token]
             of the previous
-            ``ModelService.ListModels``
+            [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels]
             call.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
@@ -159,19 +161,21 @@ class ListModelsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5,
+        message=field_mask.FieldMask,
+    )
 
 
 class ListModelsResponse(proto.Message):
     r"""Response message for
-    ``ModelService.ListModels``
+    [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels]
 
     Attributes:
         models (Sequence[google.cloud.aiplatform_v1beta1.types.Model]):
             List of Models in the requested page.
         next_page_token (str):
             A token to retrieve next page of results. Pass to
-            ``ListModelsRequest.page_token``
+            [ListModelsRequest.page_token][google.cloud.aiplatform.v1beta1.ListModelsRequest.page_token]
             to obtain that page.
     """
 
@@ -179,14 +183,16 @@ class ListModelsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    models = proto.RepeatedField(proto.MESSAGE, number=1, message=gca_model.Model,)
+    models = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=gca_model.Model,
+    )
 
     next_page_token = proto.Field(proto.STRING, number=2)
 
 
 class UpdateModelRequest(proto.Message):
     r"""Request message for
-    ``ModelService.UpdateModel``.
+    [ModelService.UpdateModel][google.cloud.aiplatform.v1beta1.ModelService.UpdateModel].
 
     Attributes:
         model (google.cloud.aiplatform_v1beta1.types.Model):
@@ -198,14 +204,18 @@ class UpdateModelRequest(proto.Message):
             `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
     """
 
-    model = proto.Field(proto.MESSAGE, number=1, message=gca_model.Model,)
+    model = proto.Field(proto.MESSAGE, number=1,
+        message=gca_model.Model,
+    )
 
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(proto.MESSAGE, number=2,
+        message=field_mask.FieldMask,
+    )
 
 
 class DeleteModelRequest(proto.Message):
     r"""Request message for
-    ``ModelService.DeleteModel``.
+    [ModelService.DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel].
 
     Attributes:
         name (str):
@@ -219,7 +229,7 @@ class DeleteModelRequest(proto.Message):
 
 class ExportModelRequest(proto.Message):
     r"""Request message for
-    ``ModelService.ExportModel``.
+    [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel].
 
     Attributes:
         name (str):
@@ -229,7 +239,6 @@ class ExportModelRequest(proto.Message):
             Required. The desired output location and
             configuration.
     """
-
     class OutputConfig(proto.Message):
         r"""Output configuration for the Model export.
 
@@ -261,22 +270,24 @@ class ExportModelRequest(proto.Message):
 
         export_format_id = proto.Field(proto.STRING, number=1)
 
-        artifact_destination = proto.Field(
-            proto.MESSAGE, number=3, message=io.GcsDestination,
+        artifact_destination = proto.Field(proto.MESSAGE, number=3,
+            message=io.GcsDestination,
         )
 
-        image_destination = proto.Field(
-            proto.MESSAGE, number=4, message=io.ContainerRegistryDestination,
+        image_destination = proto.Field(proto.MESSAGE, number=4,
+            message=io.ContainerRegistryDestination,
         )
 
     name = proto.Field(proto.STRING, number=1)
 
-    output_config = proto.Field(proto.MESSAGE, number=2, message=OutputConfig,)
+    output_config = proto.Field(proto.MESSAGE, number=2,
+        message=OutputConfig,
+    )
 
 
 class ExportModelOperationMetadata(proto.Message):
     r"""Details of
-    ``ModelService.ExportModel``
+    [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel]
     operation.
 
     Attributes:
@@ -286,10 +297,9 @@ class ExportModelOperationMetadata(proto.Message):
             Output only. Information further describing
             the output of this Model export.
     """
-
     class OutputInfo(proto.Message):
         r"""Further describes the output of the ExportModel. Supplements
-        ``ExportModelRequest.OutputConfig``.
+        [ExportModelRequest.OutputConfig][google.cloud.aiplatform.v1beta1.ExportModelRequest.OutputConfig].
 
         Attributes:
             artifact_output_uri (str):
@@ -308,23 +318,25 @@ class ExportModelOperationMetadata(proto.Message):
 
         image_output_uri = proto.Field(proto.STRING, number=3)
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+        message=operation.GenericOperationMetadata,
     )
 
-    output_info = proto.Field(proto.MESSAGE, number=2, message=OutputInfo,)
+    output_info = proto.Field(proto.MESSAGE, number=2,
+        message=OutputInfo,
+    )
 
 
 class ExportModelResponse(proto.Message):
     r"""Response message of
-    ``ModelService.ExportModel``
+    [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel]
     operation.
     """
 
 
 class GetModelEvaluationRequest(proto.Message):
     r"""Request message for
-    ``ModelService.GetModelEvaluation``.
+    [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluation].
 
     Attributes:
         name (str):
@@ -337,7 +349,7 @@ class GetModelEvaluationRequest(proto.Message):
 
 class ListModelEvaluationsRequest(proto.Message):
     r"""Request message for
-    ``ModelService.ListModelEvaluations``.
+    [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
 
     Attributes:
         parent (str):
@@ -350,9 +362,9 @@ class ListModelEvaluationsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            ``ListModelEvaluationsResponse.next_page_token``
+            [ListModelEvaluationsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListModelEvaluationsResponse.next_page_token]
             of the previous
-            ``ModelService.ListModelEvaluations``
+            [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations]
             call.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
@@ -366,12 +378,14 @@ class ListModelEvaluationsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5,
+        message=field_mask.FieldMask,
+    )
 
 
 class ListModelEvaluationsResponse(proto.Message):
     r"""Response message for
-    ``ModelService.ListModelEvaluations``.
+    [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
 
     Attributes:
         model_evaluations (Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluation]):
@@ -379,7 +393,7 @@ class ListModelEvaluationsResponse(proto.Message):
             page.
         next_page_token (str):
             A token to retrieve next page of results. Pass to
-            ``ListModelEvaluationsRequest.page_token``
+            [ListModelEvaluationsRequest.page_token][google.cloud.aiplatform.v1beta1.ListModelEvaluationsRequest.page_token]
             to obtain that page.
     """
 
@@ -387,8 +401,8 @@ class ListModelEvaluationsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    model_evaluations = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=model_evaluation.ModelEvaluation,
+    model_evaluations = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=model_evaluation.ModelEvaluation,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -396,7 +410,7 @@ class ListModelEvaluationsResponse(proto.Message):
 
 class GetModelEvaluationSliceRequest(proto.Message):
     r"""Request message for
-    ``ModelService.GetModelEvaluationSlice``.
+    [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluationSlice].
 
     Attributes:
         name (str):
@@ -410,7 +424,7 @@ class GetModelEvaluationSliceRequest(proto.Message):
 
 class ListModelEvaluationSlicesRequest(proto.Message):
     r"""Request message for
-    ``ModelService.ListModelEvaluationSlices``.
+    [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
 
     Attributes:
         parent (str):
@@ -425,9 +439,9 @@ class ListModelEvaluationSlicesRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            ``ListModelEvaluationSlicesResponse.next_page_token``
+            [ListModelEvaluationSlicesResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListModelEvaluationSlicesResponse.next_page_token]
             of the previous
-            ``ModelService.ListModelEvaluationSlices``
+            [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices]
             call.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
@@ -441,12 +455,14 @@ class ListModelEvaluationSlicesRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5,
+        message=field_mask.FieldMask,
+    )
 
 
 class ListModelEvaluationSlicesResponse(proto.Message):
     r"""Response message for
-    ``ModelService.ListModelEvaluationSlices``.
+    [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
 
     Attributes:
         model_evaluation_slices (Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice]):
@@ -454,7 +470,7 @@ class ListModelEvaluationSlicesResponse(proto.Message):
             page.
         next_page_token (str):
             A token to retrieve next page of results. Pass to
-            ``ListModelEvaluationSlicesRequest.page_token``
+            [ListModelEvaluationSlicesRequest.page_token][google.cloud.aiplatform.v1beta1.ListModelEvaluationSlicesRequest.page_token]
             to obtain that page.
     """
 
@@ -462,8 +478,8 @@ class ListModelEvaluationSlicesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    model_evaluation_slices = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=model_evaluation_slice.ModelEvaluationSlice,
+    model_evaluation_slices = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=model_evaluation_slice.ModelEvaluationSlice,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)

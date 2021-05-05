@@ -28,14 +28,14 @@ from google.rpc import status_pb2 as status  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1",
+    package='google.cloud.aiplatform.v1',
     manifest={
-        "TrainingPipeline",
-        "InputDataConfig",
-        "FractionSplit",
-        "FilterSplit",
-        "PredefinedSplit",
-        "TimestampSplit",
+        'TrainingPipeline',
+        'InputDataConfig',
+        'FractionSplit',
+        'FilterSplit',
+        'PredefinedSplit',
+        'TimestampSplit',
     },
 )
 
@@ -44,7 +44,7 @@ class TrainingPipeline(proto.Message):
     r"""The TrainingPipeline orchestrates tasks associated with training a
     Model. It always executes the training task, and optionally may also
     export data from AI Platform's Dataset which becomes the training
-    input, ``upload``
+    input, [upload][google.cloud.aiplatform.v1.ModelService.UploadModel]
     the Model to AI Platform, and evaluate the Model.
 
     Attributes:
@@ -57,11 +57,11 @@ class TrainingPipeline(proto.Message):
         input_data_config (google.cloud.aiplatform_v1.types.InputDataConfig):
             Specifies AI Platform owned input data that may be used for
             training the Model. The TrainingPipeline's
-            ``training_task_definition``
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition]
             should make clear whether this config is used and if there
             are any special requirements on how it should be filled. If
             nothing about this config is mentioned in the
-            ``training_task_definition``,
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition],
             then it should be assumed that the TrainingPipeline does not
             depend on this configuration.
         training_task_definition (str):
@@ -80,27 +80,27 @@ class TrainingPipeline(proto.Message):
         training_task_inputs (google.protobuf.struct_pb2.Value):
             Required. The training task's parameter(s), as specified in
             the
-            ``training_task_definition``'s
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition]'s
             ``inputs``.
         training_task_metadata (google.protobuf.struct_pb2.Value):
             Output only. The metadata information as specified in the
-            ``training_task_definition``'s
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition]'s
             ``metadata``. This metadata is an auxiliary runtime and
             final information about the training task. While the
             pipeline is running this information is populated only at a
             best effort basis. Only present if the pipeline's
-            ``training_task_definition``
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition]
             contains ``metadata`` object.
         model_to_upload (google.cloud.aiplatform_v1.types.Model):
             Describes the Model that may be uploaded (via
-            ``ModelService.UploadModel``)
+            [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel])
             by this TrainingPipeline. The TrainingPipeline's
-            ``training_task_definition``
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition]
             should make clear whether this Model description should be
             populated, and if there are any special requirements
             regarding how it should be filled. If nothing is mentioned
             in the
-            ``training_task_definition``,
+            [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition],
             then it should be assumed that this field should not be
             filled and the training task either uploads the Model
             without a need of this information, or that training task
@@ -108,7 +108,7 @@ class TrainingPipeline(proto.Message):
             When the Pipeline's state becomes
             ``PIPELINE_STATE_SUCCEEDED`` and the trained Model had been
             uploaded into AI Platform, then the model_to_upload's
-            resource ``name`` is
+            resource [name][google.cloud.aiplatform.v1.Model.name] is
             populated. The Model is always uploaded into the Project and
             Location in which this pipeline is.
         state (google.cloud.aiplatform_v1.types.PipelineState):
@@ -146,7 +146,7 @@ class TrainingPipeline(proto.Message):
 
             Note: Model trained by this TrainingPipeline is also secured
             by this key if
-            ``model_to_upload``
+            [model_to_upload][google.cloud.aiplatform.v1.TrainingPipeline.encryption_spec]
             is not set separately.
     """
 
@@ -154,32 +154,52 @@ class TrainingPipeline(proto.Message):
 
     display_name = proto.Field(proto.STRING, number=2)
 
-    input_data_config = proto.Field(proto.MESSAGE, number=3, message="InputDataConfig",)
+    input_data_config = proto.Field(proto.MESSAGE, number=3,
+        message='InputDataConfig',
+    )
 
     training_task_definition = proto.Field(proto.STRING, number=4)
 
-    training_task_inputs = proto.Field(proto.MESSAGE, number=5, message=struct.Value,)
+    training_task_inputs = proto.Field(proto.MESSAGE, number=5,
+        message=struct.Value,
+    )
 
-    training_task_metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
+    training_task_metadata = proto.Field(proto.MESSAGE, number=6,
+        message=struct.Value,
+    )
 
-    model_to_upload = proto.Field(proto.MESSAGE, number=7, message=model.Model,)
+    model_to_upload = proto.Field(proto.MESSAGE, number=7,
+        message=model.Model,
+    )
 
-    state = proto.Field(proto.ENUM, number=9, enum=pipeline_state.PipelineState,)
+    state = proto.Field(proto.ENUM, number=9,
+        enum=pipeline_state.PipelineState,
+    )
 
-    error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
+    error = proto.Field(proto.MESSAGE, number=10,
+        message=status.Status,
+    )
 
-    create_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
+    create_time = proto.Field(proto.MESSAGE, number=11,
+        message=timestamp.Timestamp,
+    )
 
-    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
+    start_time = proto.Field(proto.MESSAGE, number=12,
+        message=timestamp.Timestamp,
+    )
 
-    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=13,
+        message=timestamp.Timestamp,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=14,
+        message=timestamp.Timestamp,
+    )
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=15)
 
-    encryption_spec = proto.Field(
-        proto.MESSAGE, number=18, message=gca_encryption_spec.EncryptionSpec,
+    encryption_spec = proto.Field(proto.MESSAGE, number=18,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -272,7 +292,7 @@ class InputDataConfig(proto.Message):
             the DataItem they are on (for the auto-assigned that role is
             decided by AI Platform). A filter with same syntax as the
             one used in
-            ``ListAnnotations``
+            [ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations]
             may be used, but note here it filters across all Annotations
             of the Dataset, and not just within a single DataItem.
         annotation_schema_uri (str):
@@ -286,9 +306,9 @@ class InputDataConfig(proto.Message):
             schema files that can be used here are found in
             gs://google-cloud-aiplatform/schema/dataset/annotation/ ,
             note that the chosen schema must be consistent with
-            ``metadata``
+            [metadata][google.cloud.aiplatform.v1.Dataset.metadata_schema_uri]
             of the Dataset specified by
-            ``dataset_id``.
+            [dataset_id][google.cloud.aiplatform.v1.InputDataConfig.dataset_id].
 
             Only Annotations that both match this schema and belong to
             DataItems not ignored by the split method are used in
@@ -296,35 +316,35 @@ class InputDataConfig(proto.Message):
             the role of the DataItem they are on.
 
             When used in conjunction with
-            ``annotations_filter``,
+            [annotations_filter][google.cloud.aiplatform.v1.InputDataConfig.annotations_filter],
             the Annotations used for training are filtered by both
-            ``annotations_filter``
+            [annotations_filter][google.cloud.aiplatform.v1.InputDataConfig.annotations_filter]
             and
-            ``annotation_schema_uri``.
+            [annotation_schema_uri][google.cloud.aiplatform.v1.InputDataConfig.annotation_schema_uri].
     """
 
-    fraction_split = proto.Field(
-        proto.MESSAGE, number=2, oneof="split", message="FractionSplit",
+    fraction_split = proto.Field(proto.MESSAGE, number=2, oneof='split',
+        message='FractionSplit',
     )
 
-    filter_split = proto.Field(
-        proto.MESSAGE, number=3, oneof="split", message="FilterSplit",
+    filter_split = proto.Field(proto.MESSAGE, number=3, oneof='split',
+        message='FilterSplit',
     )
 
-    predefined_split = proto.Field(
-        proto.MESSAGE, number=4, oneof="split", message="PredefinedSplit",
+    predefined_split = proto.Field(proto.MESSAGE, number=4, oneof='split',
+        message='PredefinedSplit',
     )
 
-    timestamp_split = proto.Field(
-        proto.MESSAGE, number=5, oneof="split", message="TimestampSplit",
+    timestamp_split = proto.Field(proto.MESSAGE, number=5, oneof='split',
+        message='TimestampSplit',
     )
 
-    gcs_destination = proto.Field(
-        proto.MESSAGE, number=8, oneof="destination", message=io.GcsDestination,
+    gcs_destination = proto.Field(proto.MESSAGE, number=8, oneof='destination',
+        message=io.GcsDestination,
     )
 
-    bigquery_destination = proto.Field(
-        proto.MESSAGE, number=10, oneof="destination", message=io.BigQueryDestination,
+    bigquery_destination = proto.Field(proto.MESSAGE, number=10, oneof='destination',
+        message=io.BigQueryDestination,
     )
 
     dataset_id = proto.Field(proto.STRING, number=1)
@@ -377,7 +397,7 @@ class FilterSplit(proto.Message):
             Required. A filter on DataItems of the Dataset. DataItems
             that match this filter are used to train the Model. A filter
             with same syntax as the one used in
-            ``DatasetService.ListDataItems``
+            [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems]
             may be used. If a single DataItem is matched by more than
             one of the FilterSplit filters, then it is assigned to the
             first set that applies to it in the training, validation,
@@ -386,7 +406,7 @@ class FilterSplit(proto.Message):
             Required. A filter on DataItems of the Dataset. DataItems
             that match this filter are used to validate the Model. A
             filter with same syntax as the one used in
-            ``DatasetService.ListDataItems``
+            [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems]
             may be used. If a single DataItem is matched by more than
             one of the FilterSplit filters, then it is assigned to the
             first set that applies to it in the training, validation,
@@ -395,7 +415,7 @@ class FilterSplit(proto.Message):
             Required. A filter on DataItems of the Dataset. DataItems
             that match this filter are used to test the Model. A filter
             with same syntax as the one used in
-            ``DatasetService.ListDataItems``
+            [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems]
             may be used. If a single DataItem is matched by more than
             one of the FilterSplit filters, then it is assigned to the
             first set that applies to it in the training, validation,

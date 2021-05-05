@@ -19,7 +19,10 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"JobState",},
+    package='google.cloud.aiplatform.v1',
+    manifest={
+        'JobState',
+    },
 )
 
 

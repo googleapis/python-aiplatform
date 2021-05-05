@@ -23,22 +23,23 @@ from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_s
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import machine_resources
-from google.cloud.aiplatform_v1.types import (
-    manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters,
-)
+from google.cloud.aiplatform_v1.types import manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 from google.rpc import status_pb2 as status  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"BatchPredictionJob",},
+    package='google.cloud.aiplatform.v1',
+    manifest={
+        'BatchPredictionJob',
+    },
 )
 
 
 class BatchPredictionJob(proto.Message):
     r"""A job that uses a
-    ``Model`` to
+    [Model][google.cloud.aiplatform.v1.BatchPredictionJob.model] to
     produce predictions on multiple [input
     instances][google.cloud.aiplatform.v1.BatchPredictionJob.input_config].
     If predictions for significant portion of the instances fail, the
@@ -64,33 +65,33 @@ class BatchPredictionJob(proto.Message):
             may be specified via the
             [Model's][google.cloud.aiplatform.v1.BatchPredictionJob.model]
             [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-            ``instance_schema_uri``.
+            [instance_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri].
         model_parameters (google.protobuf.struct_pb2.Value):
             The parameters that govern the predictions. The schema of
             the parameters may be specified via the
             [Model's][google.cloud.aiplatform.v1.BatchPredictionJob.model]
             [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-            ``parameters_schema_uri``.
+            [parameters_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri].
         output_config (google.cloud.aiplatform_v1.types.BatchPredictionJob.OutputConfig):
             Required. The Configuration specifying where output
             predictions should be written. The schema of any single
             prediction may be specified as a concatenation of
             [Model's][google.cloud.aiplatform.v1.BatchPredictionJob.model]
             [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-            ``instance_schema_uri``
+            [instance_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri]
             and
-            ``prediction_schema_uri``.
+            [prediction_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.prediction_schema_uri].
         dedicated_resources (google.cloud.aiplatform_v1.types.BatchDedicatedResources):
             The config of resources used by the Model during the batch
             prediction. If the Model
-            ``supports``
+            [supports][google.cloud.aiplatform.v1.Model.supported_deployment_resources_types]
             DEDICATED_RESOURCES this config may be provided (and the job
             will use these resources), if the Model doesn't support
             AUTOMATIC_RESOURCES, this config must be provided.
         manual_batch_tuning_parameters (google.cloud.aiplatform_v1.types.ManualBatchTuningParameters):
             Immutable. Parameters configuring the batch behavior.
             Currently only applicable when
-            ``dedicated_resources``
+            [dedicated_resources][google.cloud.aiplatform.v1.BatchPredictionJob.dedicated_resources]
             are used (in other cases AI Platform does the tuning
             itself).
         output_info (google.cloud.aiplatform_v1.types.BatchPredictionJob.OutputInfo):
@@ -147,12 +148,11 @@ class BatchPredictionJob(proto.Message):
             resources created by the BatchPredictionJob will
             be encrypted with the provided encryption key.
     """
-
     class InputConfig(proto.Message):
         r"""Configures the input to
-        ``BatchPredictionJob``.
+        [BatchPredictionJob][google.cloud.aiplatform.v1.BatchPredictionJob].
         See
-        ``Model.supported_input_storage_formats``
+        [Model.supported_input_storage_formats][google.cloud.aiplatform.v1.Model.supported_input_storage_formats]
         for Model's supported input formats, and how instances should be
         expressed via any of them.
 
@@ -171,24 +171,24 @@ class BatchPredictionJob(proto.Message):
                 Required. The format in which instances are given, must be
                 one of the
                 [Model's][google.cloud.aiplatform.v1.BatchPredictionJob.model]
-                ``supported_input_storage_formats``.
+                [supported_input_storage_formats][google.cloud.aiplatform.v1.Model.supported_input_storage_formats].
         """
 
-        gcs_source = proto.Field(
-            proto.MESSAGE, number=2, oneof="source", message=io.GcsSource,
+        gcs_source = proto.Field(proto.MESSAGE, number=2, oneof='source',
+            message=io.GcsSource,
         )
 
-        bigquery_source = proto.Field(
-            proto.MESSAGE, number=3, oneof="source", message=io.BigQuerySource,
+        bigquery_source = proto.Field(proto.MESSAGE, number=3, oneof='source',
+            message=io.BigQuerySource,
         )
 
         instances_format = proto.Field(proto.STRING, number=1)
 
     class OutputConfig(proto.Message):
         r"""Configures the output of
-        ``BatchPredictionJob``.
+        [BatchPredictionJob][google.cloud.aiplatform.v1.BatchPredictionJob].
         See
-        ``Model.supported_output_storage_formats``
+        [Model.supported_output_storage_formats][google.cloud.aiplatform.v1.Model.supported_output_storage_formats]
         for supported output formats, and how predictions are expressed via
         any of them.
 
@@ -203,15 +203,15 @@ class BatchPredictionJob(proto.Message):
                 ``predictions_0002.<extension>``, ...,
                 ``predictions_N.<extension>`` are created where
                 ``<extension>`` depends on chosen
-                ``predictions_format``,
+                [predictions_format][google.cloud.aiplatform.v1.BatchPredictionJob.OutputConfig.predictions_format],
                 and N may equal 0001 and depends on the total number of
                 successfully predicted instances. If the Model has both
-                ``instance``
+                [instance][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri]
                 and
-                ``prediction``
+                [prediction][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri]
                 schemata defined then each such file contains predictions as
                 per the
-                ``predictions_format``.
+                [predictions_format][google.cloud.aiplatform.v1.BatchPredictionJob.OutputConfig.predictions_format].
                 If prediction for any instance failed (partially or
                 completely), then an additional ``errors_0001.<extension>``,
                 ``errors_0002.<extension>``,..., ``errors_N.<extension>``
@@ -230,9 +230,9 @@ class BatchPredictionJob(proto.Message):
                 YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
                 dataset two tables will be created, ``predictions``, and
                 ``errors``. If the Model has both
-                ``instance``
+                [instance][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri]
                 and
-                ``prediction``
+                [prediction][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri]
                 schemata defined then the tables have columns as follows:
                 The ``predictions`` table contains instances for which the
                 prediction succeeded, it has columns as per a concatenation
@@ -247,17 +247,14 @@ class BatchPredictionJob(proto.Message):
                 predictions, must be one of the
                 [Model's][google.cloud.aiplatform.v1.BatchPredictionJob.model]
 
-                ``supported_output_storage_formats``.
+                [supported_output_storage_formats][google.cloud.aiplatform.v1.Model.supported_output_storage_formats].
         """
 
-        gcs_destination = proto.Field(
-            proto.MESSAGE, number=2, oneof="destination", message=io.GcsDestination,
+        gcs_destination = proto.Field(proto.MESSAGE, number=2, oneof='destination',
+            message=io.GcsDestination,
         )
 
-        bigquery_destination = proto.Field(
-            proto.MESSAGE,
-            number=3,
-            oneof="destination",
+        bigquery_destination = proto.Field(proto.MESSAGE, number=3, oneof='destination',
             message=io.BigQueryDestination,
         )
 
@@ -265,7 +262,7 @@ class BatchPredictionJob(proto.Message):
 
     class OutputInfo(proto.Message):
         r"""Further describes this job's output. Supplements
-        ``output_config``.
+        [output_config][google.cloud.aiplatform.v1.BatchPredictionJob.output_config].
 
         Attributes:
             gcs_output_directory (str):
@@ -278,13 +275,9 @@ class BatchPredictionJob(proto.Message):
                 prediction output is written.
         """
 
-        gcs_output_directory = proto.Field(
-            proto.STRING, number=1, oneof="output_location"
-        )
+        gcs_output_directory = proto.Field(proto.STRING, number=1, oneof='output_location')
 
-        bigquery_output_dataset = proto.Field(
-            proto.STRING, number=2, oneof="output_location"
-        )
+        bigquery_output_dataset = proto.Field(proto.STRING, number=2, oneof='output_location')
 
     name = proto.Field(proto.STRING, number=1)
 
@@ -292,52 +285,70 @@ class BatchPredictionJob(proto.Message):
 
     model = proto.Field(proto.STRING, number=3)
 
-    input_config = proto.Field(proto.MESSAGE, number=4, message=InputConfig,)
-
-    model_parameters = proto.Field(proto.MESSAGE, number=5, message=struct.Value,)
-
-    output_config = proto.Field(proto.MESSAGE, number=6, message=OutputConfig,)
-
-    dedicated_resources = proto.Field(
-        proto.MESSAGE, number=7, message=machine_resources.BatchDedicatedResources,
+    input_config = proto.Field(proto.MESSAGE, number=4,
+        message=InputConfig,
     )
 
-    manual_batch_tuning_parameters = proto.Field(
-        proto.MESSAGE,
-        number=8,
+    model_parameters = proto.Field(proto.MESSAGE, number=5,
+        message=struct.Value,
+    )
+
+    output_config = proto.Field(proto.MESSAGE, number=6,
+        message=OutputConfig,
+    )
+
+    dedicated_resources = proto.Field(proto.MESSAGE, number=7,
+        message=machine_resources.BatchDedicatedResources,
+    )
+
+    manual_batch_tuning_parameters = proto.Field(proto.MESSAGE, number=8,
         message=gca_manual_batch_tuning_parameters.ManualBatchTuningParameters,
     )
 
-    output_info = proto.Field(proto.MESSAGE, number=9, message=OutputInfo,)
-
-    state = proto.Field(proto.ENUM, number=10, enum=job_state.JobState,)
-
-    error = proto.Field(proto.MESSAGE, number=11, message=status.Status,)
-
-    partial_failures = proto.RepeatedField(
-        proto.MESSAGE, number=12, message=status.Status,
+    output_info = proto.Field(proto.MESSAGE, number=9,
+        message=OutputInfo,
     )
 
-    resources_consumed = proto.Field(
-        proto.MESSAGE, number=13, message=machine_resources.ResourcesConsumed,
+    state = proto.Field(proto.ENUM, number=10,
+        enum=job_state.JobState,
     )
 
-    completion_stats = proto.Field(
-        proto.MESSAGE, number=14, message=gca_completion_stats.CompletionStats,
+    error = proto.Field(proto.MESSAGE, number=11,
+        message=status.Status,
     )
 
-    create_time = proto.Field(proto.MESSAGE, number=15, message=timestamp.Timestamp,)
+    partial_failures = proto.RepeatedField(proto.MESSAGE, number=12,
+        message=status.Status,
+    )
 
-    start_time = proto.Field(proto.MESSAGE, number=16, message=timestamp.Timestamp,)
+    resources_consumed = proto.Field(proto.MESSAGE, number=13,
+        message=machine_resources.ResourcesConsumed,
+    )
 
-    end_time = proto.Field(proto.MESSAGE, number=17, message=timestamp.Timestamp,)
+    completion_stats = proto.Field(proto.MESSAGE, number=14,
+        message=gca_completion_stats.CompletionStats,
+    )
 
-    update_time = proto.Field(proto.MESSAGE, number=18, message=timestamp.Timestamp,)
+    create_time = proto.Field(proto.MESSAGE, number=15,
+        message=timestamp.Timestamp,
+    )
+
+    start_time = proto.Field(proto.MESSAGE, number=16,
+        message=timestamp.Timestamp,
+    )
+
+    end_time = proto.Field(proto.MESSAGE, number=17,
+        message=timestamp.Timestamp,
+    )
+
+    update_time = proto.Field(proto.MESSAGE, number=18,
+        message=timestamp.Timestamp,
+    )
 
     labels = proto.MapField(proto.STRING, proto.STRING, number=19)
 
-    encryption_spec = proto.Field(
-        proto.MESSAGE, number=24, message=gca_encryption_spec.EncryptionSpec,
+    encryption_spec = proto.Field(proto.MESSAGE, number=24,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 

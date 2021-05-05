@@ -22,14 +22,14 @@ from google.cloud.aiplatform_v1.types import accelerator_type as gca_accelerator
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1",
+    package='google.cloud.aiplatform.v1',
     manifest={
-        "MachineSpec",
-        "DedicatedResources",
-        "AutomaticResources",
-        "BatchDedicatedResources",
-        "ResourcesConsumed",
-        "DiskSpec",
+        'MachineSpec',
+        'DedicatedResources',
+        'AutomaticResources',
+        'BatchDedicatedResources',
+        'ResourcesConsumed',
+        'DiskSpec',
     },
 )
 
@@ -46,17 +46,17 @@ class MachineSpec(proto.Message):
             see https://tinyurl.com/aip-docs/training/configure-compute.
 
             For
-            ``DeployedModel``
+            [DeployedModel][google.cloud.aiplatform.v1.DeployedModel]
             this field is optional, and the default value is
             ``n1-standard-2``. For
-            ``BatchPredictionJob``
+            [BatchPredictionJob][google.cloud.aiplatform.v1.BatchPredictionJob]
             or as part of
-            ``WorkerPoolSpec``
+            [WorkerPoolSpec][google.cloud.aiplatform.v1.WorkerPoolSpec]
             this field is required.
         accelerator_type (google.cloud.aiplatform_v1.types.AcceleratorType):
             Immutable. The type of accelerator(s) that may be attached
             to the machine as per
-            ``accelerator_count``.
+            [accelerator_count][google.cloud.aiplatform.v1.MachineSpec.accelerator_count].
         accelerator_count (int):
             The number of accelerators to attach to the
             machine.
@@ -64,8 +64,8 @@ class MachineSpec(proto.Message):
 
     machine_type = proto.Field(proto.STRING, number=1)
 
-    accelerator_type = proto.Field(
-        proto.ENUM, number=2, enum=gca_accelerator_type.AcceleratorType,
+    accelerator_type = proto.Field(proto.ENUM, number=2,
+        enum=gca_accelerator_type.AcceleratorType,
     )
 
     accelerator_count = proto.Field(proto.INT32, number=3)
@@ -86,10 +86,10 @@ class DedicatedResources(proto.Message):
             against it increases, it may dynamically be deployed onto
             more replicas, and as traffic decreases, some of these extra
             replicas may be freed. Note: if
-            ``machine_spec.accelerator_count``
+            [machine_spec.accelerator_count][google.cloud.aiplatform.v1.MachineSpec.accelerator_count]
             is above 0, currently the model will be always deployed
             precisely on
-            ``min_replica_count``.
+            [min_replica_count][google.cloud.aiplatform.v1.DedicatedResources.min_replica_count].
         max_replica_count (int):
             Immutable. The maximum number of replicas this DeployedModel
             may be deployed on when the traffic against it increases. If
@@ -100,11 +100,13 @@ class DedicatedResources(proto.Message):
             beyond what its replicas at maximum may handle, a portion of
             the traffic will be dropped. If this value is not provided,
             will use
-            ``min_replica_count``
+            [min_replica_count][google.cloud.aiplatform.v1.DedicatedResources.min_replica_count]
             as the default value.
     """
 
-    machine_spec = proto.Field(proto.MESSAGE, number=1, message="MachineSpec",)
+    machine_spec = proto.Field(proto.MESSAGE, number=1,
+        message='MachineSpec',
+    )
 
     min_replica_count = proto.Field(proto.INT32, number=2)
 
@@ -122,7 +124,7 @@ class AutomaticResources(proto.Message):
             Immutable. The minimum number of replicas this DeployedModel
             will be always deployed on. If traffic against it increases,
             it may dynamically be deployed onto more replicas up to
-            ``max_replica_count``,
+            [max_replica_count][google.cloud.aiplatform.v1.AutomaticResources.max_replica_count],
             and as traffic decreases, some of these extra replicas may
             be freed. If the requested value is too large, the
             deployment will error.
@@ -161,14 +163,16 @@ class BatchDedicatedResources(proto.Message):
             Immutable. The number of machine replicas used at the start
             of the batch operation. If not set, AI Platform decides
             starting number, not greater than
-            ``max_replica_count``
+            [max_replica_count][google.cloud.aiplatform.v1.BatchDedicatedResources.max_replica_count]
         max_replica_count (int):
             Immutable. The maximum number of machine
             replicas the batch operation may be scaled to.
             The default value is 10.
     """
 
-    machine_spec = proto.Field(proto.MESSAGE, number=1, message="MachineSpec",)
+    machine_spec = proto.Field(proto.MESSAGE, number=1,
+        message='MachineSpec',
+    )
 
     starting_replica_count = proto.Field(proto.INT32, number=2)
 

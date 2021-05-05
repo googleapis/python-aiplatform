@@ -23,7 +23,10 @@ from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"ModelEvaluation",},
+    package='google.cloud.aiplatform.v1',
+    manifest={
+        'ModelEvaluation',
+    },
 )
 
 
@@ -39,23 +42,23 @@ class ModelEvaluation(proto.Message):
         metrics_schema_uri (str):
             Output only. Points to a YAML file stored on Google Cloud
             Storage describing the
-            ``metrics``
+            [metrics][google.cloud.aiplatform.v1.ModelEvaluation.metrics]
             of this ModelEvaluation. The schema is defined as an OpenAPI
             3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
         metrics (google.protobuf.struct_pb2.Value):
             Output only. Evaluation metrics of the Model. The schema of
             the metrics is stored in
-            ``metrics_schema_uri``
+            [metrics_schema_uri][google.cloud.aiplatform.v1.ModelEvaluation.metrics_schema_uri]
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             ModelEvaluation was created.
         slice_dimensions (Sequence[str]):
             Output only. All possible
-            ``dimensions`` of
+            [dimensions][ModelEvaluationSlice.slice.dimension] of
             ModelEvaluationSlices. The dimensions can be used as the
             filter of the
-            ``ModelService.ListModelEvaluationSlices``
+            [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices]
             request, in the form of ``slice.dimension = <dimension>``.
     """
 
@@ -63,9 +66,13 @@ class ModelEvaluation(proto.Message):
 
     metrics_schema_uri = proto.Field(proto.STRING, number=2)
 
-    metrics = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
+    metrics = proto.Field(proto.MESSAGE, number=3,
+        message=struct.Value,
+    )
 
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
+    create_time = proto.Field(proto.MESSAGE, number=4,
+        message=timestamp.Timestamp,
+    )
 
     slice_dimensions = proto.RepeatedField(proto.STRING, number=5)
 

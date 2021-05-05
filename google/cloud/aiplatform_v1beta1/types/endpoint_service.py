@@ -24,28 +24,28 @@ from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "CreateEndpointRequest",
-        "CreateEndpointOperationMetadata",
-        "GetEndpointRequest",
-        "ListEndpointsRequest",
-        "ListEndpointsResponse",
-        "UpdateEndpointRequest",
-        "DeleteEndpointRequest",
-        "DeployModelRequest",
-        "DeployModelResponse",
-        "DeployModelOperationMetadata",
-        "UndeployModelRequest",
-        "UndeployModelResponse",
-        "UndeployModelOperationMetadata",
+        'CreateEndpointRequest',
+        'CreateEndpointOperationMetadata',
+        'GetEndpointRequest',
+        'ListEndpointsRequest',
+        'ListEndpointsResponse',
+        'UpdateEndpointRequest',
+        'DeleteEndpointRequest',
+        'DeployModelRequest',
+        'DeployModelResponse',
+        'DeployModelOperationMetadata',
+        'UndeployModelRequest',
+        'UndeployModelResponse',
+        'UndeployModelOperationMetadata',
     },
 )
 
 
 class CreateEndpointRequest(proto.Message):
     r"""Request message for
-    ``EndpointService.CreateEndpoint``.
+    [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.CreateEndpoint].
 
     Attributes:
         parent (str):
@@ -58,26 +58,28 @@ class CreateEndpointRequest(proto.Message):
 
     parent = proto.Field(proto.STRING, number=1)
 
-    endpoint = proto.Field(proto.MESSAGE, number=2, message=gca_endpoint.Endpoint,)
+    endpoint = proto.Field(proto.MESSAGE, number=2,
+        message=gca_endpoint.Endpoint,
+    )
 
 
 class CreateEndpointOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``EndpointService.CreateEndpoint``.
+    [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.CreateEndpoint].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
 class GetEndpointRequest(proto.Message):
     r"""Request message for
-    ``EndpointService.GetEndpoint``
+    [EndpointService.GetEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.GetEndpoint]
 
     Attributes:
         name (str):
@@ -90,7 +92,7 @@ class GetEndpointRequest(proto.Message):
 
 class ListEndpointsRequest(proto.Message):
     r"""Request message for
-    ``EndpointService.ListEndpoints``.
+    [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
 
     Attributes:
         parent (str):
@@ -124,9 +126,9 @@ class ListEndpointsRequest(proto.Message):
         page_token (str):
             Optional. The standard list page token. Typically obtained
             via
-            ``ListEndpointsResponse.next_page_token``
+            [ListEndpointsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListEndpointsResponse.next_page_token]
             of the previous
-            ``EndpointService.ListEndpoints``
+            [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints]
             call.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Optional. Mask specifying which fields to
@@ -141,19 +143,21 @@ class ListEndpointsRequest(proto.Message):
 
     page_token = proto.Field(proto.STRING, number=4)
 
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5,
+        message=field_mask.FieldMask,
+    )
 
 
 class ListEndpointsResponse(proto.Message):
     r"""Response message for
-    ``EndpointService.ListEndpoints``.
+    [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
 
     Attributes:
         endpoints (Sequence[google.cloud.aiplatform_v1beta1.types.Endpoint]):
             List of Endpoints in the requested page.
         next_page_token (str):
             A token to retrieve the next page of results. Pass to
-            ``ListEndpointsRequest.page_token``
+            [ListEndpointsRequest.page_token][google.cloud.aiplatform.v1beta1.ListEndpointsRequest.page_token]
             to obtain that page.
     """
 
@@ -161,8 +165,8 @@ class ListEndpointsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    endpoints = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=gca_endpoint.Endpoint,
+    endpoints = proto.RepeatedField(proto.MESSAGE, number=1,
+        message=gca_endpoint.Endpoint,
     )
 
     next_page_token = proto.Field(proto.STRING, number=2)
@@ -170,7 +174,7 @@ class ListEndpointsResponse(proto.Message):
 
 class UpdateEndpointRequest(proto.Message):
     r"""Request message for
-    ``EndpointService.UpdateEndpoint``.
+    [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpoint].
 
     Attributes:
         endpoint (google.cloud.aiplatform_v1beta1.types.Endpoint):
@@ -181,14 +185,18 @@ class UpdateEndpointRequest(proto.Message):
             `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
     """
 
-    endpoint = proto.Field(proto.MESSAGE, number=1, message=gca_endpoint.Endpoint,)
+    endpoint = proto.Field(proto.MESSAGE, number=1,
+        message=gca_endpoint.Endpoint,
+    )
 
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(proto.MESSAGE, number=2,
+        message=field_mask.FieldMask,
+    )
 
 
 class DeleteEndpointRequest(proto.Message):
     r"""Request message for
-    ``EndpointService.DeleteEndpoint``.
+    [EndpointService.DeleteEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.DeleteEndpoint].
 
     Attributes:
         name (str):
@@ -202,7 +210,7 @@ class DeleteEndpointRequest(proto.Message):
 
 class DeployModelRequest(proto.Message):
     r"""Request message for
-    ``EndpointService.DeployModel``.
+    [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
 
     Attributes:
         endpoint (str):
@@ -212,17 +220,17 @@ class DeployModelRequest(proto.Message):
         deployed_model (google.cloud.aiplatform_v1beta1.types.DeployedModel):
             Required. The DeployedModel to be created within the
             Endpoint. Note that
-            ``Endpoint.traffic_split``
+            [Endpoint.traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
             must be updated for the DeployedModel to start receiving
             traffic, either as part of this call, or via
-            ``EndpointService.UpdateEndpoint``.
+            [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpoint].
         traffic_split (Sequence[google.cloud.aiplatform_v1beta1.types.DeployModelRequest.TrafficSplitEntry]):
             A map from a DeployedModel's ID to the percentage of this
             Endpoint's traffic that should be forwarded to that
             DeployedModel.
 
             If this field is non-empty, then the Endpoint's
-            ``traffic_split``
+            [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
             will be overwritten with it. To refer to the ID of the just
             being deployed Model, a "0" should be used, and the actual
             ID of the new DeployedModel will be filled in its place by
@@ -230,14 +238,14 @@ class DeployModelRequest(proto.Message):
             100.
 
             If this field is empty, then the Endpoint's
-            ``traffic_split``
+            [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
             is not updated.
     """
 
     endpoint = proto.Field(proto.STRING, number=1)
 
-    deployed_model = proto.Field(
-        proto.MESSAGE, number=2, message=gca_endpoint.DeployedModel,
+    deployed_model = proto.Field(proto.MESSAGE, number=2,
+        message=gca_endpoint.DeployedModel,
     )
 
     traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3)
@@ -245,7 +253,7 @@ class DeployModelRequest(proto.Message):
 
 class DeployModelResponse(proto.Message):
     r"""Response message for
-    ``EndpointService.DeployModel``.
+    [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
 
     Attributes:
         deployed_model (google.cloud.aiplatform_v1beta1.types.DeployedModel):
@@ -253,28 +261,28 @@ class DeployModelResponse(proto.Message):
             the Endpoint.
     """
 
-    deployed_model = proto.Field(
-        proto.MESSAGE, number=1, message=gca_endpoint.DeployedModel,
+    deployed_model = proto.Field(proto.MESSAGE, number=1,
+        message=gca_endpoint.DeployedModel,
     )
 
 
 class DeployModelOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``EndpointService.DeployModel``.
+    [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
 class UndeployModelRequest(proto.Message):
     r"""Request message for
-    ``EndpointService.UndeployModel``.
+    [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
 
     Attributes:
         endpoint (str):
@@ -286,7 +294,7 @@ class UndeployModelRequest(proto.Message):
             undeployed from the Endpoint.
         traffic_split (Sequence[google.cloud.aiplatform_v1beta1.types.UndeployModelRequest.TrafficSplitEntry]):
             If this field is provided, then the Endpoint's
-            ``traffic_split``
+            [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
             will be overwritten with it. If last DeployedModel is being
             undeployed from the Endpoint, the [Endpoint.traffic_split]
             will always end up empty when this call returns. A
@@ -304,21 +312,21 @@ class UndeployModelRequest(proto.Message):
 
 class UndeployModelResponse(proto.Message):
     r"""Response message for
-    ``EndpointService.UndeployModel``.
+    [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
     """
 
 
 class UndeployModelOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``EndpointService.UndeployModel``.
+    [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    generic_metadata = proto.Field(proto.MESSAGE, number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 

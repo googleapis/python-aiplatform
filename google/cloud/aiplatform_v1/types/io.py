@@ -19,13 +19,13 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1",
+    package='google.cloud.aiplatform.v1',
     manifest={
-        "GcsSource",
-        "GcsDestination",
-        "BigQuerySource",
-        "BigQueryDestination",
-        "ContainerRegistryDestination",
+        'GcsSource',
+        'GcsDestination',
+        'BigQuerySource',
+        'BigQueryDestination',
+        'ContainerRegistryDestination',
     },
 )
 
