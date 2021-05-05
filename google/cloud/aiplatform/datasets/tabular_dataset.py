@@ -16,7 +16,9 @@
 #
 
 import csv
-from typing import Optional, Sequence, Tuple, Union
+import logging
+
+from typing import List, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
@@ -28,9 +30,6 @@ from google.cloud.aiplatform.datasets import _datasources
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
-
-from typing import List
-import logging
 
 
 class TabularDataset(datasets._Dataset):
@@ -128,7 +127,10 @@ class TabularDataset(datasets._Dataset):
         line = ""
 
         try:
-            logging.disable(logging.CRITICAL)
+            logger = logging.getLogger("google.resumable_media._helpers")
+            logging_warning_filter = utils.LoggingFilter(logging.INFO)
+            logger.addFilter(logging_warning_filter)
+
             while first_new_line_index == -1:
                 line += blob.download_as_bytes(
                     start=start_index, end=start_index + increment
@@ -149,7 +151,7 @@ class TabularDataset(datasets._Dataset):
                 )
             )
         finally:
-            logging.disable(logging.NOTSET)
+            logger.removeFilter(logging_warning_filter)
 
         return next(csv_reader)
 
