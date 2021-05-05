@@ -130,7 +130,6 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         super().__init__(project=project, location=location, credentials=credentials)
         self._display_name = display_name
-        self._project = project
         self._training_encryption_spec = initializer.global_config.get_encryption_spec(
             encryption_spec_key_name=training_encryption_spec_key_name
         )
@@ -2955,10 +2954,31 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         training_task_definition = schema.training_job.definition.automl_tabular
 
+        if self._column_transformations is None:
+            _LOGGER.info(
+                "No column transformations provided, so now retrieving columns from dataset in order to set default column transformations."
+            )
+
+            column_names = [
+                column_name
+                for column_name in dataset.column_names
+                if column_name != target_column
+            ]
+            column_transformations = [
+                {"auto": {"column_name": column_name}} for column_name in column_names
+            ]
+
+            _LOGGER.info(
+                "The column transformation of type 'auto' was set for the following columns: %s."
+                % column_names
+            )
+        else:
+            column_transformations = self._column_transformations
+
         training_task_inputs_dict = {
             # required inputs
             "targetColumn": target_column,
-            "transformations": self._column_transformations,
+            "transformations": column_transformations,
             "trainBudgetMilliNodeHours": budget_milli_node_hours,
             # optional inputs
             "weightColumnName": weight_column,

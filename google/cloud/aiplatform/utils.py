@@ -468,6 +468,9 @@ AiPlatformServiceClientWithOverride = TypeVar(
 )
 
 
-class LoggingWarningFilter(logging.Filter):
+class LoggingFilter(logging.Filter):
+    def __init__(self, warning_level: int):
+        self._warning_level = warning_level
+
     def filter(self, record):
-        return record.levelname == logging.WARNING
+        return record.levelname == self._warning_level

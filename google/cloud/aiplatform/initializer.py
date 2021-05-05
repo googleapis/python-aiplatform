@@ -170,7 +170,7 @@ class _Config:
         if self._credentials:
             return self._credentials
         logger = logging.getLogger("google.auth._default")
-        logging_warning_filter = utils.LoggingWarningFilter()
+        logging_warning_filter = utils.LoggingFilter(logging.WARNING)
         logger.addFilter(logging_warning_filter)
         credentials, _ = google.auth.default()
         logger.removeFilter(logging_warning_filter)
