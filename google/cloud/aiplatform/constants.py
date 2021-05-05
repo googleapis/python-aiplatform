@@ -59,15 +59,14 @@ MOBILE_TF_MODEL_TYPES = {
 #       "automl_image_{prediction_type}_*" used by the YAML schemas on GCS
 AUTOML_IMAGE_PREDICTION_MODEL_TYPES = {
     "classification": {"CLOUD"} | MOBILE_TF_MODEL_TYPES,
-    "object_detection": {"CLOUD_HIGH_ACCURACY_1", "CLOUD_LOW_LATENCY_1"}
-    | MOBILE_TF_MODEL_TYPES,
+    "object_detection": {"CLOUD_HIGH_ACCURACY_1", "CLOUD_LOW_LATENCY_1"} |
+                        MOBILE_TF_MODEL_TYPES,
 }
 
 AUTOML_VIDEO_PREDICTION_MODEL_TYPES = {
     "classification": {"CLOUD"} | {"MOBILE_VERSATILE_1"},
     "action_recognition": {"CLOUD"} | {"MOBILE_VERSATILE_1"},
-    "object_tracking": {"CLOUD"}
-    | {
+    "object_tracking": {"CLOUD"} | {
         "MOBILE_VERSATILE_1",
         "MOBILE_CORAL_VERSATILE_1",
         "MOBILE_CORAL_LOW_LATENCY_1",
@@ -75,3 +74,6 @@ AUTOML_VIDEO_PREDICTION_MODEL_TYPES = {
         "MOBILE_JETSON_LOW_LATENCY_1",
     },
 }
+
+# Class attribute to set user_agent header used for metrics reporting.
+USER_AGENT_PRODUCT = "model-builder"

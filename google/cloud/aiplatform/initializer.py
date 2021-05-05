@@ -41,10 +41,6 @@ from google.cloud.aiplatform.compat.types import (
 class _Config:
     """Stores common parameters and options for API calls."""
 
-    # Class attribute to set user_agent header used for metrics reporting.
-    user_agent_product = "model-builder"
-    user_agent_comments = ""
-
     def __init__(self):
         self._project = None
         self._experiment = None
@@ -260,8 +256,7 @@ class _Config:
         ).version
         client_info = gapic_v1.client_info.ClientInfo(
             gapic_version=gapic_version,
-            user_agent=
-            f"{self.user_agent_product}/{gapic_version} ({self.user_agent_comments})"
+            user_agent=f"{constants.USER_AGENT_PRODUCT}/{gapic_version}"
         )
 
         kwargs = {
