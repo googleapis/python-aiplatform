@@ -33,6 +33,7 @@ from google.cloud.aiplatform.training_jobs import (
     CustomContainerTrainingJob,
     CustomPythonPackageTrainingJob,
     AutoMLTabularTrainingJob,
+    AutoMLForecastingTrainingJob,
     AutoMLImageTrainingJob,
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
@@ -52,6 +53,7 @@ __all__ = (
     "init",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
+    "AutoMLForecastingTrainingJob",
     "AutoMLTextTrainingJob",
     "AutoMLVideoTrainingJob",
     "BatchPredictionJob",
@@ -63,5 +65,6 @@ __all__ = (
     "Model",
     "TabularDataset",
     "TextDataset",
+    "TimeSeriesDataset",
     "VideoDataset",
 )
