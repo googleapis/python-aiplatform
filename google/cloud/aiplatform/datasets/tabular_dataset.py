@@ -42,13 +42,13 @@ class TabularDataset(datasets._Dataset):
 
     @property
     def column_names(self) -> List[str]:
-        """Retrieve the columns for the dataset by extracting it from the Google Cloud Storage or 
+        """Retrieve the columns for the dataset by extracting it from the Google Cloud Storage or
         Google BigQuery source.
 
         Returns:
             List[str]
                 A list of columns names
-                
+
         Raises:
             RuntimeError: When no valid source is found.
         """
@@ -109,7 +109,7 @@ class TabularDataset(datasets._Dataset):
         Returns:
             List[str]
                 A list of columns names in the CSV file.
-                
+
         Raises:
             RuntimeError: When the retrieved CSV file is invalid.
         """
@@ -142,9 +142,11 @@ class TabularDataset(datasets._Dataset):
             header_line = header_line.split("\n")[:1]
 
             csv_reader = csv.reader(header_line, delimiter=",")
-        except:
+        except (ValueError, RuntimeError) as err:
             raise RuntimeError(
-                f"There was a problem extracting the headers from the CSV file at: { gcs_csv_file_path }"
+                "There was a problem extracting the headers from the CSV file at '{}': {}".format(
+                    gcs_csv_file_path, err
+                )
             )
         finally:
             logging.disable(logging.NOTSET)
@@ -168,7 +170,7 @@ class TabularDataset(datasets._Dataset):
             project (str):
                 Required. Project to initiate the BigQuery client with.
             bq_table_uri (str):
-                Required. A URI to a BigQuery table. 
+                Required. A URI to a BigQuery table.
                 Can include "bq://" prefix but not required.
 
         Returns:
