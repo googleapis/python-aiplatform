@@ -69,18 +69,18 @@ for version in versions:
     # ---------------------------------------------------------------------
 
     # https://github.com/googleapis/gapic-generator-python/issues/413
-#    s.replace(
-#        f"google/cloud/aiplatform_{version}/services/prediction_service/client.py",
-#        "request.instances = instances",
-#        "request.instances.extend(instances)",
-#    )
+    s.replace(
+        f"google/cloud/aiplatform_{version}/services/prediction_service/client.py",
+        "request.instances = instances",
+        "request.instances.extend(instances)",
+    )
 
     # https://github.com/googleapis/gapic-generator-python/issues/672
-#    s.replace(
-#        "google/cloud/aiplatform_{version}/services/endpoint_service/client.py",
-#        "request.traffic_split.extend\(traffic_split\)",
-#        "request.traffic_split = traffic_split",
-#    )
+    s.replace(
+        "google/cloud/aiplatform_{version}/services/endpoint_service/client.py",
+        "request.traffic_split.extend\(traffic_split\)",
+        "request.traffic_split = traffic_split",
+    )
 
 # ----------------------------------------------------------------------------
 # Patch the library
