@@ -75,3 +75,6 @@ AUTOML_VIDEO_PREDICTION_MODEL_TYPES = {
         "MOBILE_JETSON_LOW_LATENCY_1",
     },
 }
+
+# Used in constructing the requests user_agent header for metrics reporting.
+USER_AGENT_PRODUCT = "model-builder"
