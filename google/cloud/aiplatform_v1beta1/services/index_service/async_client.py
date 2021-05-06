@@ -447,7 +447,7 @@ class IndexServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateIndexRequest`):
                 The request object. Request message for
-                [IndexService.UpdateModel][].
+                ``IndexService.UpdateIndex``.
             index (:class:`google.cloud.aiplatform_v1beta1.types.Index`):
                 Required. The Index which updates the
                 resource on the server.

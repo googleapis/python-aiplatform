@@ -198,22 +198,6 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def index_endpoint_path(project: str, location: str, index_endpoint: str,) -> str:
-        """Return a fully-qualified index_endpoint string."""
-        return "projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}".format(
-            project=project, location=location, index_endpoint=index_endpoint,
-        )
-
-    @staticmethod
-    def parse_index_endpoint_path(path: str) -> Dict[str, str]:
-        """Parse a index_endpoint path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/indexEndpoints/(?P<index_endpoint>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
     def common_billing_account_path(billing_account: str,) -> str:
         """Return a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(

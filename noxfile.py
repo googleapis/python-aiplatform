@@ -95,7 +95,7 @@ def default(session):
 
     session.install("mock", "pytest", "pytest-cov", "-c", constraints_path)
 
-    session.install("-e", ".", "-c", constraints_path)
+    session.install("-e", ".[testing]", "-c", constraints_path)
 
     # Run py.test against the unit tests.
     session.run(
@@ -131,9 +131,6 @@ def system(session):
     # Check the value of `RUN_SYSTEM_TESTS` env var. It defaults to true.
     if os.environ.get("RUN_SYSTEM_TESTS", "true") == "false":
         session.skip("RUN_SYSTEM_TESTS is set to false, skipping")
-    # Sanity check: Only run tests if the environment variable is set.
-    if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", ""):
-        session.skip("Credentials must be set via environment variable")
     # Install pyopenssl for mTLS testing.
     if os.environ.get("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") == "true":
         session.install("pyopenssl")

@@ -122,8 +122,9 @@ class _Config:
             gca_encryption_spec_v1beta1.EncryptionSpec,
         ]
     ]:
-        """Creates a gca_encryption_spec.EncryptionSpec instance from the given key name.
-        If the provided key name is None, it uses the default key name if provided.
+        """Creates a gca_encryption_spec.EncryptionSpec instance from the given
+        key name. If the provided key name is None, it uses the default key
+        name if provided.
 
         Args:
             encryption_spec_key_name (Optional[str]): The default encryption key name to use when creating resources.
@@ -251,7 +252,8 @@ class _Config:
         location_override: Optional[str] = None,
         prediction_client: bool = False,
     ) -> utils.AiPlatformServiceClientWithOverride:
-        """Instantiates a given AiPlatformServiceClient with optional overrides.
+        """Instantiates a given AiPlatformServiceClient with optional
+        overrides.
 
         Args:
             client_class (utils.AiPlatformServiceClientWithOverride):

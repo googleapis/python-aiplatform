@@ -230,9 +230,16 @@ class DeployedIndexAuthConfig(proto.Message):
                 `audiences <https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.3>`__.
                 that are allowed to access. A JWT containing any of these
                 audiences will be accepted.
+            allowed_issuers (Sequence[str]):
+                A list of allowed JWT issuers. Each entry must be a valid
+                Google service account, in the following format:
+
+                ``service-account-name@project-id.iam.gserviceaccount.com``
         """
 
         audiences = proto.RepeatedField(proto.STRING, number=1)
+
+        allowed_issuers = proto.RepeatedField(proto.STRING, number=2)
 
     auth_provider = proto.Field(proto.MESSAGE, number=1, message=AuthProvider,)
 

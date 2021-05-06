@@ -72,6 +72,10 @@ class Feature(proto.Message):
             rite updates. If not set, a blind "overwrite"
             update happens.
         monitoring_config (google.cloud.aiplatform_v1beta1.types.FeaturestoreMonitoringConfig):
+            Optional. The custom monitoring configuration for this
+            Feature, if not set, use the monitoring_config defined for
+            the EntityType this Feature belongs to.
+
             If this is populated with
             [FeaturestoreMonitoringConfig.disabled][] = true, snapshot
             analysis monitoring is disabled; if

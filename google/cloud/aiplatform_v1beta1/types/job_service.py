@@ -212,7 +212,7 @@ class CancelCustomJobRequest(proto.Message):
 
 class CreateDataLabelingJobRequest(proto.Message):
     r"""Request message for
-    [DataLabelingJobService.CreateDataLabelingJob][].
+    ``JobService.CreateDataLabelingJob``.
 
     Attributes:
         parent (str):
@@ -230,7 +230,8 @@ class CreateDataLabelingJobRequest(proto.Message):
 
 
 class GetDataLabelingJobRequest(proto.Message):
-    r"""Request message for [DataLabelingJobService.GetDataLabelingJob][].
+    r"""Request message for
+    ``JobService.GetDataLabelingJob``.
 
     Attributes:
         name (str):
@@ -242,7 +243,8 @@ class GetDataLabelingJobRequest(proto.Message):
 
 
 class ListDataLabelingJobsRequest(proto.Message):
-    r"""Request message for [DataLabelingJobService.ListDataLabelingJobs][].
+    r"""Request message for
+    ``JobService.ListDataLabelingJobs``.
 
     Attributes:
         parent (str):
@@ -334,7 +336,7 @@ class DeleteDataLabelingJobRequest(proto.Message):
 
 class CancelDataLabelingJobRequest(proto.Message):
     r"""Request message for
-    [DataLabelingJobService.CancelDataLabelingJob][].
+    ``JobService.CancelDataLabelingJob``.
 
     Attributes:
         name (str):
@@ -629,7 +631,7 @@ class CancelBatchPredictionJobRequest(proto.Message):
 
 class CreateModelDeploymentMonitoringJobRequest(proto.Message):
     r"""Request message for
-    [ModelDeploymentMonitoringJobService.CreateModelDeploymentMonitoringJob][].
+    ``JobService.CreateModelDeploymentMonitoringJob``.
 
     Attributes:
         parent (str):
@@ -651,7 +653,7 @@ class CreateModelDeploymentMonitoringJobRequest(proto.Message):
 
 class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
     r"""Request message for
-    [ModelDeploymentMonitoringJobService.SearchModelDeploymentMonitoringStatsAnomalies][].
+    ``JobService.SearchModelDeploymentMonitoringStatsAnomalies``.
 
     Attributes:
         model_deployment_monitoring_job (str):
@@ -673,7 +675,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
             The standard list page size.
         page_token (str):
             A page token received from a previous
-            [ModelDeploymentMonitoringJobService.SearchModelDeploymentMonitoringStatsAnomalies][]
+            ``JobService.SearchModelDeploymentMonitoringStatsAnomalies``
             call.
         start_time (google.protobuf.timestamp_pb2.Timestamp):
             The earliest timestamp of stats being
@@ -731,17 +733,17 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
 
 class SearchModelDeploymentMonitoringStatsAnomaliesResponse(proto.Message):
     r"""Response message for
-    [ModelDeploymentMonitoringJobService.SearchModelDeploymentMonitoringStatsAnomalies][].
+    ``JobService.SearchModelDeploymentMonitoringStatsAnomalies``.
 
     Attributes:
         monitoring_stats (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringStatsAnomalies]):
             Stats retrieved for requested objectives. There are at most
             1000
-            [ModelMonitoringStatsAnomalies.feature_stats.prediction_stats][]
+            ``ModelMonitoringStatsAnomalies.FeatureHistoricStatsAnomalies.prediction_stats``
             in the response.
         next_page_token (str):
             The page token that can be used by the next
-            [ModelDeploymentMonitoringJobService.SearchModelDeploymentMonitoringStatsAnomalies][]
+            ``JobService.SearchModelDeploymentMonitoringStatsAnomalies``
             call.
     """
 
@@ -760,7 +762,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesResponse(proto.Message):
 
 class GetModelDeploymentMonitoringJobRequest(proto.Message):
     r"""Request message for
-    [ModelDeploymentMonitoringJobService.GetModelDeploymentMonitoringJob][].
+    ``JobService.GetModelDeploymentMonitoringJob``.
 
     Attributes:
         name (str):
@@ -774,7 +776,7 @@ class GetModelDeploymentMonitoringJobRequest(proto.Message):
 
 class ListModelDeploymentMonitoringJobsRequest(proto.Message):
     r"""Request message for
-    [ModelDeploymentMonitoringJobService.ListModelDeploymentMonitoringJobs][].
+    ``JobService.ListModelDeploymentMonitoringJobs``.
 
     Attributes:
         parent (str):
@@ -803,7 +805,7 @@ class ListModelDeploymentMonitoringJobsRequest(proto.Message):
 
 class ListModelDeploymentMonitoringJobsResponse(proto.Message):
     r"""Response message for
-    [ModelDeploymentMonitoringJobService.ListModelDeploymentMonitoringJobs][].
+    ``JobService.ListModelDeploymentMonitoringJobs``.
 
     Attributes:
         model_deployment_monitoring_jobs (Sequence[google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringJob]):
@@ -828,7 +830,7 @@ class ListModelDeploymentMonitoringJobsResponse(proto.Message):
 
 class UpdateModelDeploymentMonitoringJobRequest(proto.Message):
     r"""Request message for
-    [ModelDeploymentMonitoringJobService.UpdateModelDeploymentMonitoringJob][].
+    ``JobService.UpdateModelDeploymentMonitoringJob``.
 
     Attributes:
         model_deployment_monitoring_job (google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringJob):
@@ -850,7 +852,7 @@ class UpdateModelDeploymentMonitoringJobRequest(proto.Message):
 
 class DeleteModelDeploymentMonitoringJobRequest(proto.Message):
     r"""Request message for
-    [ModelDeploymentMonitoringJobService.DeleteModelDeploymentMonitoringJob][].
+    ``JobService.DeleteModelDeploymentMonitoringJob``.
 
     Attributes:
         name (str):
@@ -864,7 +866,7 @@ class DeleteModelDeploymentMonitoringJobRequest(proto.Message):
 
 class PauseModelDeploymentMonitoringJobRequest(proto.Message):
     r"""Request message for
-    [ModelDeploymentMonitoringJobService.PauseModelDeploymentMonitoringJob][].
+    ``JobService.PauseModelDeploymentMonitoringJob``.
 
     Attributes:
         name (str):
@@ -878,7 +880,7 @@ class PauseModelDeploymentMonitoringJobRequest(proto.Message):
 
 class ResumeModelDeploymentMonitoringJobRequest(proto.Message):
     r"""Request message for
-    [ModelDeploymentMonitoringJobService.ResumeModelDeploymentMonitoringJob][].
+    ``JobService.ResumeModelDeploymentMonitoringJob``.
 
     Attributes:
         name (str):
@@ -892,7 +894,7 @@ class ResumeModelDeploymentMonitoringJobRequest(proto.Message):
 
 class UpdateModelDeploymentMonitoringJobOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    [ModelDeploymentMonitoringJobService.UpdateModelDeploymentMonitoringJob][].
+    ``JobService.UpdateModelDeploymentMonitoringJob``.
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):

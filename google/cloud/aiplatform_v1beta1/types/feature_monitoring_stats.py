@@ -76,11 +76,17 @@ class FeatureStatsAnomaly(proto.Message):
             different from
             ``ThresholdConfig.value``.
         start_time (google.protobuf.timestamp_pb2.Timestamp):
-            The start timestamp of window where stats
-            were generated.
+            The start timestamp of window where stats were generated.
+            For objectives where time window doesn't make sense (e.g.
+            Featurestore Snapshot Monitoring), start_time is only used
+            to indicate the monitoring intervals, so it always equals to
+            (end_time - monitoring_interval).
         end_time (google.protobuf.timestamp_pb2.Timestamp):
-            The end timestamp of window where stats were
-            generated.
+            The end timestamp of window where stats were generated. For
+            objectives where time window doesn't make sense (e.g.
+            Featurestore Snapshot Monitoring), end_time indicates the
+            timestamp of the data used to generate stats (e.g. timestamp
+            we take snapshots for feature values).
     """
 
     score = proto.Field(proto.DOUBLE, number=1)

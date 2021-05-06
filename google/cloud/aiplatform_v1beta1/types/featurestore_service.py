@@ -42,8 +42,10 @@ __protobuf__ = proto.module(
         "ImportFeatureValuesRequest",
         "ImportFeatureValuesResponse",
         "BatchReadFeatureValuesRequest",
+        "ExportFeatureValuesRequest",
         "DestinationFeatureSetting",
         "FeatureValueDestination",
+        "ExportFeatureValuesResponse",
         "BatchReadFeatureValuesResponse",
         "CreateEntityTypeRequest",
         "GetEntityTypeRequest",
@@ -64,6 +66,7 @@ __protobuf__ = proto.module(
         "CreateFeaturestoreOperationMetadata",
         "UpdateFeaturestoreOperationMetadata",
         "ImportFeatureValuesOperationMetadata",
+        "ExportFeatureValuesOperationMetadata",
         "BatchReadFeatureValuesOperationMetadata",
         "CreateEntityTypeOperationMetadata",
         "CreateFeatureOperationMetadata",
@@ -300,13 +303,15 @@ class ImportFeatureValuesRequest(proto.Message):
             where Feature generation timestamps are not in
             the timestamp range needed for online serving.
         worker_count (int):
-            Required. Specifies the number of workers
-            that are used to write data to the Featurestore.
-            Consider the online serving capacity that you
-            require to achieve the desired import throughput
-            without interfering with online serving. The
-            value must be greater than 0, and less than or
-            equal to 100.
+            Specifies the number of workers that are used
+            to write data to the Featurestore. Consider the
+            online serving capacity that you require to
+            achieve the desired import throughput without
+            interfering with online serving. The value must
+            be positive, and less than or equal to 100. If
+            not set, defaults to using 1 worker. The low
+            count ensures minimal impact on online serving
+            performance.
     """
 
     class FeatureSpec(proto.Message):
@@ -465,6 +470,63 @@ class BatchReadFeatureValuesRequest(proto.Message):
     )
 
 
+class ExportFeatureValuesRequest(proto.Message):
+    r"""Request message for
+    ``FeaturestoreService.ExportFeatureValues``.
+
+    Attributes:
+        snapshot_export (google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesRequest.SnapshotExport):
+            Exports Feature values of all entities of the
+            EntityType as of a snapshot time.
+        entity_type (str):
+            Required. The resource name of the EntityType from which to
+            export Feature values. Format:
+            ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
+        destination (google.cloud.aiplatform_v1beta1.types.FeatureValueDestination):
+            Required. Specifies destination location and
+            format.
+        feature_selector (google.cloud.aiplatform_v1beta1.types.FeatureSelector):
+            Required. Selects Features to export values
+            of.
+        settings (Sequence[google.cloud.aiplatform_v1beta1.types.DestinationFeatureSetting]):
+            Per-Feature export settings.
+    """
+
+    class SnapshotExport(proto.Message):
+        r"""Describes exporting Feature values as of the snapshot
+        timestamp.
+
+        Attributes:
+            snapshot_time (google.protobuf.timestamp_pb2.Timestamp):
+                Exports Feature values as of this timestamp.
+                If not set, retrieve values as of now.
+                Timestamp, if present, must not have higher than
+                millisecond precision.
+        """
+
+        snapshot_time = proto.Field(
+            proto.MESSAGE, number=1, message=timestamp.Timestamp,
+        )
+
+    snapshot_export = proto.Field(
+        proto.MESSAGE, number=3, oneof="mode", message=SnapshotExport,
+    )
+
+    entity_type = proto.Field(proto.STRING, number=1)
+
+    destination = proto.Field(
+        proto.MESSAGE, number=4, message="FeatureValueDestination",
+    )
+
+    feature_selector = proto.Field(
+        proto.MESSAGE, number=5, message=gca_feature_selector.FeatureSelector,
+    )
+
+    settings = proto.RepeatedField(
+        proto.MESSAGE, number=6, message="DestinationFeatureSetting",
+    )
+
+
 class DestinationFeatureSetting(proto.Message):
     r"""
 
@@ -523,6 +585,12 @@ class FeatureValueDestination(proto.Message):
     csv_destination = proto.Field(
         proto.MESSAGE, number=3, oneof="destination", message=io.CsvDestination,
     )
+
+
+class ExportFeatureValuesResponse(proto.Message):
+    r"""Response message for
+    ``FeaturestoreService.ExportFeatureValues``.
+    """
 
 
 class BatchReadFeatureValuesResponse(proto.Message):
@@ -1140,6 +1208,20 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
     imported_entity_count = proto.Field(proto.INT64, number=2)
 
     imported_feature_value_count = proto.Field(proto.INT64, number=3)
+
+
+class ExportFeatureValuesOperationMetadata(proto.Message):
+    r"""Details of operations that exports Features values.
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            Operation metadata for Featurestore export
+            Feature values.
+    """
+
+    generic_metadata = proto.Field(
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+    )
 
 
 class BatchReadFeatureValuesOperationMetadata(proto.Message):

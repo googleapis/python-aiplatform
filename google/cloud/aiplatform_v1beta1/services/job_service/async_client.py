@@ -109,6 +109,10 @@ class JobServiceAsyncClient:
     parse_model_deployment_monitoring_job_path = staticmethod(
         JobServiceClient.parse_model_deployment_monitoring_job_path
     )
+    network_path = staticmethod(JobServiceClient.network_path)
+    parse_network_path = staticmethod(JobServiceClient.parse_network_path)
+    tensorboard_path = staticmethod(JobServiceClient.tensorboard_path)
+    parse_tensorboard_path = staticmethod(JobServiceClient.parse_tensorboard_path)
     trial_path = staticmethod(JobServiceClient.trial_path)
     parse_trial_path = staticmethod(JobServiceClient.parse_trial_path)
 
@@ -667,7 +671,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateDataLabelingJobRequest`):
                 The request object. Request message for
-                [DataLabelingJobService.CreateDataLabelingJob][].
+                ``JobService.CreateDataLabelingJob``.
             parent (:class:`str`):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
@@ -750,7 +754,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetDataLabelingJobRequest`):
                 The request object. Request message for
-                [DataLabelingJobService.GetDataLabelingJob][].
+                ``JobService.GetDataLabelingJob``.
             name (:class:`str`):
                 Required. The name of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
@@ -824,7 +828,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsRequest`):
                 The request object. Request message for
-                [DataLabelingJobService.ListDataLabelingJobs][].
+                ``JobService.ListDataLabelingJobs``.
             parent (:class:`str`):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
@@ -1002,7 +1006,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CancelDataLabelingJobRequest`):
                 The request object. Request message for
-                [DataLabelingJobService.CancelDataLabelingJob][].
+                ``JobService.CancelDataLabelingJob``.
             name (:class:`str`):
                 Required. The name of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
@@ -1914,7 +1918,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateModelDeploymentMonitoringJobRequest`):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.CreateModelDeploymentMonitoringJob][].
+                ``JobService.CreateModelDeploymentMonitoringJob``.
             parent (:class:`str`):
                 Required. The parent of the
                 ModelDeploymentMonitoringJob. Format:
@@ -2002,7 +2006,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest`):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.SearchModelDeploymentMonitoringStatsAnomalies][].
+                ``JobService.SearchModelDeploymentMonitoringStatsAnomalies``.
             model_deployment_monitoring_job (:class:`str`):
                 Required. ModelDeploymentMonitoring Job resource name.
                 Format:
@@ -2028,7 +2032,7 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.job_service.pagers.SearchModelDeploymentMonitoringStatsAnomaliesAsyncPager:
                 Response message for
-                   [ModelDeploymentMonitoringJobService.SearchModelDeploymentMonitoringStatsAnomalies][].
+                   ``JobService.SearchModelDeploymentMonitoringStatsAnomalies``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2103,7 +2107,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetModelDeploymentMonitoringJobRequest`):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.GetModelDeploymentMonitoringJob][].
+                ``JobService.GetModelDeploymentMonitoringJob``.
             name (:class:`str`):
                 Required. The resource name of the
                 ModelDeploymentMonitoringJob. Format:
@@ -2180,7 +2184,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListModelDeploymentMonitoringJobsRequest`):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.ListModelDeploymentMonitoringJobs][].
+                ``JobService.ListModelDeploymentMonitoringJobs``.
             parent (:class:`str`):
                 Required. The parent of the
                 ModelDeploymentMonitoringJob. Format:
@@ -2199,7 +2203,7 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListModelDeploymentMonitoringJobsAsyncPager:
                 Response message for
-                   [ModelDeploymentMonitoringJobService.ListModelDeploymentMonitoringJobs][].
+                   ``JobService.ListModelDeploymentMonitoringJobs``.
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2264,7 +2268,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateModelDeploymentMonitoringJobRequest`):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.UpdateModelDeploymentMonitoringJob][].
+                ``JobService.UpdateModelDeploymentMonitoringJob``.
             model_deployment_monitoring_job (:class:`google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringJob`):
                 Required. The model monitoring
                 configuration which replaces the
@@ -2365,7 +2369,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteModelDeploymentMonitoringJobRequest`):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.DeleteModelDeploymentMonitoringJob][].
+                ``JobService.DeleteModelDeploymentMonitoringJob``.
             name (:class:`str`):
                 Required. The resource name of the model monitoring job
                 to delete. Format:
@@ -2463,7 +2467,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.PauseModelDeploymentMonitoringJobRequest`):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.PauseModelDeploymentMonitoringJob][].
+                ``JobService.PauseModelDeploymentMonitoringJob``.
             name (:class:`str`):
                 Required. The resource name of the
                 ModelDeploymentMonitoringJob to pause. Format:
@@ -2532,7 +2536,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ResumeModelDeploymentMonitoringJobRequest`):
                 The request object. Request message for
-                [ModelDeploymentMonitoringJobService.ResumeModelDeploymentMonitoringJob][].
+                ``JobService.ResumeModelDeploymentMonitoringJob``.
             name (:class:`str`):
                 Required. The resource name of the
                 ModelDeploymentMonitoringJob to resume. Format:

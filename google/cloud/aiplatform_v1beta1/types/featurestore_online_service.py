@@ -29,7 +29,6 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "ReadFeatureValuesRequest",
-        "ReadSetting",
         "ReadFeatureValuesResponse",
         "StreamingReadFeatureValuesRequest",
         "FeatureValue",
@@ -56,17 +55,6 @@ class ReadFeatureValuesRequest(proto.Message):
         feature_selector (google.cloud.aiplatform_v1beta1.types.FeatureSelector):
             Required. Selector choosing Features of the
             target EntityType.
-        setting (google.cloud.aiplatform_v1beta1.types.ReadSetting):
-            Setting to apply to all Feature values being
-            read, by default.
-        setting_overrides (Sequence[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesRequest.SettingOverridesEntry]):
-            Map from Feature ID to settings to apply to Feature values
-            being read. If no setting is specified for a Feature
-            selected by
-            ``ReadFeatureValuesRequest.feature_selector``,
-            the default
-            ``ReadFeatureValuesRequest.setting``
-            will be used.
     """
 
     entity_type = proto.Field(proto.STRING, number=1)
@@ -76,33 +64,6 @@ class ReadFeatureValuesRequest(proto.Message):
     feature_selector = proto.Field(
         proto.MESSAGE, number=3, message=gca_feature_selector.FeatureSelector,
     )
-
-    setting = proto.Field(proto.MESSAGE, number=5, message="ReadSetting",)
-
-    setting_overrides = proto.MapField(
-        proto.STRING, proto.MESSAGE, number=6, message="ReadSetting",
-    )
-
-
-class ReadSetting(proto.Message):
-    r"""Setting to apply when reading Feature values, e.g. "limit
-    read to the K-latest values".
-
-    Attributes:
-        values_count (int):
-            Number of values, successive in time, to
-            retrieve for a Feature. If not set, default to
-            1. Must be less than or equal to 32.
-        read_time (google.protobuf.timestamp_pb2.Timestamp):
-            Retrieve latest values before or at this
-            timestamp. If not set, retrieve latest values.
-            Resolution in millisecond. Request will fail if
-            timestamp is not millisecond-aligned.
-    """
-
-    values_count = proto.Field(proto.INT32, number=2)
-
-    read_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
 
 
 class ReadFeatureValuesResponse(proto.Message):
@@ -223,17 +184,6 @@ class StreamingReadFeatureValuesRequest(proto.Message):
         feature_selector (google.cloud.aiplatform_v1beta1.types.FeatureSelector):
             Required. Selector choosing Features of the
             target EntityType.
-        setting (google.cloud.aiplatform_v1beta1.types.ReadSetting):
-            Setting to apply to all Feature values being
-            read, by default.
-        setting_overrides (Sequence[google.cloud.aiplatform_v1beta1.types.StreamingReadFeatureValuesRequest.SettingOverridesEntry]):
-            Map from Feature ID to settings to apply to Feature values
-            being read. If no setting is specified for a Feature
-            selected by
-            ``ReadFeatureValuesRequest.feature_selector``,
-            the default
-            ``ReadFeatureValuesRequest.setting``
-            will be used.
     """
 
     entity_type = proto.Field(proto.STRING, number=1)
@@ -242,12 +192,6 @@ class StreamingReadFeatureValuesRequest(proto.Message):
 
     feature_selector = proto.Field(
         proto.MESSAGE, number=3, message=gca_feature_selector.FeatureSelector,
-    )
-
-    setting = proto.Field(proto.MESSAGE, number=5, message="ReadSetting",)
-
-    setting_overrides = proto.MapField(
-        proto.STRING, proto.MESSAGE, number=6, message="ReadSetting",
     )
 
 

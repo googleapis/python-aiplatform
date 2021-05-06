@@ -173,8 +173,8 @@ class ListMetadataStoresResponse(proto.Message):
             The MetadataStores found for the Location.
         next_page_token (str):
             A token, which can be sent as
-            [MetadataService.ListMetadataStores.page_token][] to
-            retrieve the next page. If this field is not populated,
+            ``ListMetadataStoresRequest.page_token``
+            to retrieve the next page. If this field is not populated,
             there are no subsequent pages.
     """
 
@@ -291,8 +291,31 @@ class ListArtifactsRequest(proto.Message):
             the call that provided the page token. (Otherwise the
             request will fail with INVALID_ARGUMENT error.)
         filter (str):
-            A query to filter available Artifacts for
-            matching results.
+            Filter specifying the boolean condition for the Artifacts to
+            satisfy in order to be part of the result set. The syntax to
+            define filter query is based on https://google.aip.dev/160.
+            The supported set of filters include the following:
+
+            1. Attributes filtering e.g. display_name = "test"
+
+               Supported fields include: name, display_name, uri, state,
+               schema_title, create_time and update_time. Time fields,
+               i.e. create_time and update_time, require values to
+               specified in RFC-3339 format. e.g. create_time =
+               "2020-11-19T11:30:00-04:00"
+
+            2. Metadata field To filter on metadata fields use traversal
+               operation as follows: metadata.<field_name>.<type_value>
+               e.g. metadata.field_1.number_value = 10.0
+
+            3. Context based filtering To filter Artifacts based on the
+               contexts to which they belong use the function operator
+               with the full resource name "in_context()" e.g.
+               in_context("projects/<project_number>/locations//metadataStores/<metadatastore_name>/contexts/")
+
+            Each of the above supported filter types can be combined
+            together using Logical operators (AND & OR). e.g.
+            display_name = "test" AND metadata.field1.bool_value = true.
     """
 
     parent = proto.Field(proto.STRING, number=1)
@@ -314,9 +337,9 @@ class ListArtifactsResponse(proto.Message):
             MetadataStore.
         next_page_token (str):
             A token, which can be sent as
-            [MetadataService.ListArtifacts.page_token][] to retrieve the
-            next page. If this field is not populated, there are no
-            subsequent pages.
+            ``ListArtifactsRequest.page_token``
+            to retrieve the next page. If this field is not populated,
+            there are no subsequent pages.
     """
 
     @property
@@ -425,8 +448,7 @@ class ListContextsRequest(proto.Message):
             the call that provided the page token. (Otherwise the
             request will fail with INVALID_ARGUMENT error.)
         filter (str):
-            A query to filter available Contexts for
-            matching results.
+
     """
 
     parent = proto.Field(proto.STRING, number=1)
@@ -448,9 +470,9 @@ class ListContextsResponse(proto.Message):
             MetadataStore.
         next_page_token (str):
             A token, which can be sent as
-            [MetadataService.ListContexts.page_token][] to retrieve the
-            next page. If this field is not populated, there are no
-            subsequent pages.
+            ``ListContextsRequest.page_token``
+            to retrieve the next page. If this field is not populated,
+            there are no subsequent pages.
     """
 
     @property
@@ -654,14 +676,32 @@ class ListExecutionsRequest(proto.Message):
             the call that provided the page token. (Otherwise the
             request will fail with INVALID_ARGUMENT error.)
         filter (str):
-            A query to filter available Executions for matching results.
-            Current implementation supports filtering on fields:
+            Filter specifying the boolean condition for the Executions
+            to satisfy in order to be part of the result set. The syntax
+            to define filter query is based on
+            https://google.aip.dev/160. Following are the supported set
+            of filters:
 
-            1) display_name e.g display_name = "test_name"
-            2) state e.g. state = RUNNING
-            3) create_time and update_time e.g create_time >
-               "2020-12-17T13:25:12-08:00"
-            4) metadata e.g metadata.flag.number_value > 1
+            1. Attributes filtering e.g. display_name = "test"
+
+               supported fields include: name, display_name, state,
+               schema_title, create_time and update_time. Time fields,
+               i.e. create_time and update_time, require values to
+               specified in RFC-3339 format. e.g. create_time =
+               "2020-11-19T11:30:00-04:00"
+
+            2. Metadata field To filter on metadata fields use traversal
+               operation as follows: metadata.<field_name>.<type_value>
+               e.g. metadata.field_1.number_value = 10.0
+
+            3. Context based filtering To filter Executions based on the
+               contexts to which they belong use the function operator
+               with the full resource name "in_context()" e.g.
+               in_context("projects/<project_number>/locations//metadataStores/<metadatastore_name>/contexts/")
+
+            Each of the above supported filters can be combined together
+            using Logical operators (AND & OR). e.g. display_name =
+            "test" AND metadata.field1.bool_value = true.
     """
 
     parent = proto.Field(proto.STRING, number=1)
@@ -683,9 +723,9 @@ class ListExecutionsResponse(proto.Message):
             MetadataStore.
         next_page_token (str):
             A token, which can be sent as
-            [MetadataService.ListExecutions.page_token][] to retrieve
-            the next page. If this field is not populated, there are no
-            subsequent pages.
+            ``ListExecutionsRequest.page_token``
+            to retrieve the next page. If this field is not populated,
+            there are no subsequent pages.
     """
 
     @property
@@ -862,8 +902,8 @@ class ListMetadataSchemasResponse(proto.Message):
             MetadataStore.
         next_page_token (str):
             A token, which can be sent as
-            [MetadataService.ListMetadataSchemas.page_token][] to
-            retrieve the next page. If this field is not populated,
+            ``ListMetadataSchemasRequest.page_token``
+            to retrieve the next page. If this field is not populated,
             there are no subsequent pages.
     """
 
@@ -897,11 +937,35 @@ class QueryArtifactLineageSubgraphRequest(proto.Message):
             INVALID_ARGUMENT error is returned 0: Only input artifact is
             returned. No value: Transitive closure is performed to
             return the complete graph.
+        filter (str):
+            Filter specifying the boolean condition for the Artifacts to
+            satisfy in order to be part of the Lineage Subgraph. The
+            syntax to define filter query is based on
+            https://google.aip.dev/160. The supported set of filters
+            include the following:
+
+            1. Attributes filtering e.g. display_name = "test"
+
+               supported fields include: name, display_name, uri, state,
+               schema_title, create_time and update_time. Time fields,
+               i.e. create_time and update_time, require values to
+               specified in RFC-3339 format. e.g. create_time =
+               "2020-11-19T11:30:00-04:00"
+
+            2. Metadata field To filter on metadata fields use traversal
+               operation as follows: metadata.<field_name>.<type_value>
+               e.g. metadata.field_1.number_value = 10.0
+
+            Each of the above supported filter types can be combined
+            together using Logical operators (AND & OR). e.g.
+            display_name = "test" AND metadata.field1.bool_value = true.
     """
 
     artifact = proto.Field(proto.STRING, number=1)
 
     max_hops = proto.Field(proto.INT32, number=2)
+
+    filter = proto.Field(proto.STRING, number=3)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

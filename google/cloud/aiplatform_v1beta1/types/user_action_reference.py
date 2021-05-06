@@ -41,7 +41,7 @@ class UserActionReference(proto.Message):
         method (str):
             The method name of the API RPC call. For
             example,
-            "/google.cloud.aiplatform.master.DatasetService.CreateDataset".
+            "/google.cloud.aiplatform.{apiVersion}.DatasetService.CreateDataset".
     """
 
     operation = proto.Field(proto.STRING, number=1, oneof="reference")
