@@ -542,10 +542,6 @@ class TestMetadata:
         with pytest.raises(TypeError):
             aiplatform.log_metrics({"test": "string"})
 
-    # TODO: remove skip once koroko test would install extra required packages.
-    @pytest.mark.skip(
-        reason="Temporarily skip this test as extra required package are not installed in current setup"
-    )
     @pytest.mark.usefixtures("get_context_mock")
     def test_get_experiment_df(
         self, list_executions_mock, query_execution_inputs_and_outputs_mock
@@ -605,9 +601,6 @@ class TestMetadata:
         with pytest.raises(ValueError):
             aiplatform.get_experiment_df(_TEST_EXPERIMENT)
 
-    @pytest.mark.skip(
-        reason="Temporarily skip this test as extra required package are not installed in current setup"
-    )
     @pytest.mark.usefixtures("get_pipeline_context_mock")
     def test_get_pipeline_df(
         self, list_executions_mock, query_execution_inputs_and_outputs_mock
