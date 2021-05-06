@@ -37,6 +37,7 @@ from google.cloud.aiplatform.compat.services import (
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
     metadata_service_client_v1beta1,
+    tensorboard_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -471,6 +472,14 @@ class MetadataClientWithOverride(ClientWithOverride):
     )
 
 
+class TensorboardClientWithOverride(ClientWithOverride):
+    _is_temporary = False
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (compat.V1BETA1, tensorboard_service_client_v1beta1.TensorboardServiceClient),
+    )
+
+
 AiPlatformServiceClientWithOverride = TypeVar(
     "AiPlatformServiceClientWithOverride",
     DatasetClientWithOverride,
@@ -480,6 +489,7 @@ AiPlatformServiceClientWithOverride = TypeVar(
     PipelineClientWithOverride,
     PredictionClientWithOverride,
     MetadataClientWithOverride,
+    TensorboardClientWithOverride,
 )
 
 
