@@ -29,10 +29,14 @@ readme_filename = os.path.join(package_root, "README.rst")
 with io.open(readme_filename, encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
-tensorboard_extra_require = ["tensorflow-cpu >= 2.3.0, <=2.5.0rc"]
+tensorboard_extra_require = [
+    "tensorflow-cpu >= 2.3.0, <=2.5.0rc",
+    "grpcio~=1.34.0",
+    "six~=1.15.0",
+]
 metadata_extra_require = ["pandas >= 1.0.0"]
 full_extra_require = tensorboard_extra_require + metadata_extra_require
-testing_extra_require = full_extra_require + ["grpcio-testing >= 1.37.1"]
+testing_extra_require = full_extra_require + ["grpcio-testing ~= 1.34.0"]
 
 
 setuptools.setup(
@@ -41,6 +45,11 @@ setuptools.setup(
     description=description,
     long_description=readme,
     packages=setuptools.PEP420PackageFinder.find(),
+    entry_points={
+        "console_scripts": [
+            "tb-gcp-uploader=google.cloud.aiplatform.tensorboard.uploader_main:run_main"
+        ],
+    },
     namespace_packages=("google", "google.cloud"),
     author="Google LLC",
     author_email="googleapis-packages@google.com",
