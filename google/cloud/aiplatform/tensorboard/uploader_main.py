@@ -29,33 +29,12 @@ from tensorboard.plugins.image import metadata as images_metadata
 from tensorboard.plugins.graph import metadata as graphs_metadata
 
 from google.cloud import storage
-from google import auth as google_auth
-from google.auth.transport import grpc as google_auth_transport_grpc
-from google.auth.transport import requests as google_auth_transport_requests
+from google.cloud import aiplatform
 from google.cloud.aiplatform.tensorboard import uploader
-from google.cloud.aiplatform_v1beta1.services.tensorboard_service import (
-    TensorboardServiceClient,
-)
-from google.cloud.aiplatform_v1beta1.services.tensorboard_service.transports import (
-    grpc as transports_grpc,
-)
+from google.cloud.aiplatform.utils import TensorboardClientWithOverride
 
 _AUTH_SCOPE = "https://www.googleapis.com/auth/cloud-platform"
 _TB_GCP_RESOURCE_NAME = "projects/{}/locations/{}"
-_ENV_SPECIFIC_CONFIGS = {
-    "autopush": {
-        "api_server_hostname": "autopush-aiplatform.sandbox.googleapis.com",
-        "web_server_hostname": "tensorboard-gcp-dev.wm.r.appspot.com",
-    },
-    "staging": {
-        "api_server_hostname": "staging-aiplatform.sandbox.googleapis.com",
-        "web_server_hostname": "tensorboard-gcp-staging.uc.r.appspot.com",
-    },
-    "prod": {
-        "api_server_hostname": "aiplatform.googleapis.com",
-        "web_server_hostname": "tensorboard-gcp-prod.uc.r.appspot.com",
-    },
-}
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string("experiment_name", None, "The name of the Cloud AI Experiment.")
@@ -64,7 +43,6 @@ flags.DEFINE_string(
 )
 flags.DEFINE_string("logdir", None, "Tensorboard log directory to upload")
 flags.DEFINE_bool("one_shot", False, "Iterate through logdir once to upload.")
-flags.DEFINE_string("api_uri", None, "DEPRECATED - API uri.")
 flags.DEFINE_string("env", "prod", "Environment which this tensorboard belongs to.")
 flags.DEFINE_string(
     "tensorboard_resource_name",
@@ -104,33 +82,13 @@ def main(argv):
     if len(argv) > 1:
         raise app.UsageError("Too many command-line arguments.")
 
-    scope = _AUTH_SCOPE
-    credentials, _ = google_auth.default(scopes=(scope,))
-    request = google_auth_transport_requests.Request()
     m = re.match(
         "projects/(.*)/locations/(.*)/tensorboards/.*", FLAGS.tensorboard_resource_name
     )
     project_id = m[1]
     region = m[2]
-
-    web_server_hostname = None
-    if FLAGS.api_uri:
-        api_server_hostname = FLAGS.api_uri
-        for env, config in _ENV_SPECIFIC_CONFIGS.items():
-            if config["api_server_hostname"] in FLAGS.api_uri:
-                web_server_hostname = config["web_server_hostname"]
-                break
-    else:
-        api_server_hostname = "{}-{}".format(
-            region, _ENV_SPECIFIC_CONFIGS[FLAGS.env]["api_server_hostname"]
-        )
-        web_server_hostname = _ENV_SPECIFIC_CONFIGS[FLAGS.env]["web_server_hostname"]
-
-    channel = google_auth_transport_grpc.secure_authorized_channel(
-        credentials, request, api_server_hostname
-    )
-    api_client = TensorboardServiceClient(
-        transport=transports_grpc.TensorboardServiceGrpcTransport(channel=channel)
+    api_client = aiplatform.initializer.global_config.create_client(
+        client_class=TensorboardClientWithOverride, location_override=region,
     )
 
     try:
@@ -143,8 +101,6 @@ def main(argv):
             )
         raise
 
-    blob_storage_bucket = None
-    blob_storage_folder = None
     if tensorboard.blob_storage_path_prefix:
         path_prefix = tensorboard.blob_storage_path_prefix + "/"
         first_slash_index = path_prefix.find("/")
@@ -177,7 +133,7 @@ def main(argv):
 
     print(
         "View your Tensorboard at https://{}/experiment/{}".format(
-            web_server_hostname,
+            "tensorboard-gcp-prod.uc.r.appspot.com",
             tb_uploader.get_experiment_resource_name().replace("/", "+"),
         )
     )

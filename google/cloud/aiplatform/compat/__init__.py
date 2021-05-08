@@ -35,6 +35,7 @@ if DEFAULT_VERSION == V1BETA1:
         services.specialist_pool_service_client_v1beta1
     )
     services.metadata_service_client = services.metadata_service_client_v1beta1
+    services.tensorboard_service_client = services.tensorboard_service_client_v1beta1
 
     types.accelerator_type = types.accelerator_type_v1beta1
     types.annotation = types.annotation_v1beta1
@@ -71,6 +72,12 @@ if DEFAULT_VERSION == V1BETA1:
     types.specialist_pool_service = types.specialist_pool_service_v1beta1
     types.training_pipeline = types.training_pipeline_v1beta1
     types.metadata_service = types.metadata_service_v1beta1
+    types.tensorboard_service = types.tensorboard_service_v1beta1
+    types.tensorboard_data = types.tensorboard_data_v1beta1
+    types.tensorboard_experiment = types.tensorboard_experiment_v1beta1
+    types.tensorboard_run = types.tensorboard_run_v1beta1
+    types.tensorboard_service = types.tensorboard_service_v1beta1
+    types.tensorboard_time_series = types.tensorboard_time_series_v1beta1
 
 if DEFAULT_VERSION == V1:
 

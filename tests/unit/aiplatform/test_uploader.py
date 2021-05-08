@@ -41,21 +41,21 @@ import tensorflow as tf
 from google.api_core import datetime_helpers
 import google.cloud.aiplatform.tensorboard.uploader as uploader_lib
 from google.cloud import storage
-from google.cloud.aiplatform_v1beta1.services.tensorboard_service import (
-    TensorboardServiceClient,
-)
+from google.cloud.aiplatform.compat.services import tensorboard_service_client_v1beta1
 from google.cloud.aiplatform_v1beta1.services.tensorboard_service.transports import (
     grpc as transports_grpc,
 )
-from google.cloud.aiplatform_v1beta1.types import tensorboard_data
-from google.cloud.aiplatform_v1beta1.types import (
-    tensorboard_experiment as tensorboard_experiment_type,
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_data_v1beta1 as tensorboard_data,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    tensorboard_run as tensorboard_run_type,
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_experiment_v1beta1 as tensorboard_experiment_type,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    tensorboard_time_series as tensorboard_time_series_type,
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_run_v1beta1 as tensorboard_run_type,
+)
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_time_series_v1beta1 as tensorboard_time_series_type,
 )
 from google.protobuf import timestamp_pb2
 from google.protobuf import message
@@ -139,7 +139,7 @@ def _create_mock_client():
         service_descriptors=[], time=grpc_testing.strict_real_time()
     )
     mock_client = mock.Mock(
-        spec=TensorboardServiceClient(
+        spec=tensorboard_service_client_v1beta1.TensorboardServiceClient(
             transport=transports_grpc.TensorboardServiceGrpcTransport(
                 channel=test_channel
             )

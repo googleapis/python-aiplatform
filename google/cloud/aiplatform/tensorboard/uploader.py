@@ -15,10 +15,6 @@
 # limitations under the License.
 #
 """Uploads a TensorBoard logdir to TensorBoard.gcp."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import contextlib
 import functools
 import json
@@ -51,16 +47,26 @@ import tensorflow as tf
 
 from google.api_core import exceptions
 from google.cloud import storage
-from google.cloud.aiplatform_v1beta1.services.tensorboard_service import (
-    TensorboardServiceClient,
+from google.cloud.aiplatform.compat.services import tensorboard_service_client_v1beta1
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_data_v1beta1 as tensorboard_data,
 )
-from google.cloud.aiplatform_v1beta1.types import tensorboard_data
-from google.cloud.aiplatform_v1beta1.types import tensorboard_experiment
-from google.cloud.aiplatform_v1beta1.types import tensorboard_run
-from google.cloud.aiplatform_v1beta1.types import tensorboard_service
-from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_experiment_v1beta1 as tensorboard_experiment,
+)
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_run_v1beta1 as tensorboard_run,
+)
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_service_v1beta1 as tensorboard_service,
+)
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_time_series_v1beta1 as tensorboard_time_series,
+)
 from google.protobuf import message
 from google.protobuf import timestamp_pb2 as timestamp
+
+TensorboardServiceClient = tensorboard_service_client_v1beta1.TensorboardServiceClient
 
 # Minimum length of a logdir polling cycle in seconds. Shorter cycles will
 # sleep to avoid spinning over the logdir, which isn't great for disks and can
@@ -126,43 +132,43 @@ class TensorBoardUploader(object):
     ):
         """Constructs a TensorBoardUploader.
 
-    Args:
-      experiment_name: Name of this experiment. Unique to the given
-        tensorboard_resource_name.
-      tensorboard_resource_name: Name of the Tensorboard resource with this
-        format
-        projects/{project}/locations/{location}/tensorboards/{tensorboard}
-      writer_client: a TensorBoardWriterService stub instance
-      logdir: path of the log directory to upload
-      experiment_display_name: The display name of the experiment.
-      allowed_plugins: collection of string plugin names; events will only be
-        uploaded if their time series's metadata specifies one of these plugin
-        names
-      upload_limits: instance of tensorboard.service.UploadLimits proto.
-      logdir_poll_rate_limiter: a `RateLimiter` to use to limit logdir polling
-        frequency, to avoid thrashing disks, especially on networked file
-        systems
-      rpc_rate_limiter: a `RateLimiter` to use to limit write RPC frequency.
-        Note this limit applies at the level of single RPCs in the Scalar and
-        Tensor case, but at the level of an entire blob upload in the Blob
-        case-- which may require a few preparatory RPCs and a stream of chunks.
-        Note the chunk stream is internally rate-limited by backpressure from
-        the server, so it is not a concern that we do not explicitly rate-limit
-        within the stream here.
-      description: String description to assign to the experiment.
-      verbosity: Level of verbosity, an integer. Supported value: 0 - No upload
-        statistics is printed. 1 - Print upload statistics while uploading data
-        (default).
-      one_shot: Once uploading starts, upload only the existing data in the
-        logdir and then return immediately, instead of the default behavior of
-        continuing to listen for new data in the logdir and upload them when it
-        appears.
-      event_file_inactive_secs: Age in seconds of last write after which an
-        event file is considered inactive. If none then event file is never
-        considered inactive.
-      run_name_prefix: If present, all runs created by this invocation will have
-        their name prefixed by this value.
-    """
+        Args:
+          experiment_name: Name of this experiment. Unique to the given
+            tensorboard_resource_name.
+          tensorboard_resource_name: Name of the Tensorboard resource with this
+            format
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}
+          writer_client: a TensorBoardWriterService stub instance
+          logdir: path of the log directory to upload
+          experiment_display_name: The display name of the experiment.
+          allowed_plugins: collection of string plugin names; events will only be
+            uploaded if their time series's metadata specifies one of these plugin
+            names
+          upload_limits: instance of tensorboard.service.UploadLimits proto.
+          logdir_poll_rate_limiter: a `RateLimiter` to use to limit logdir polling
+            frequency, to avoid thrashing disks, especially on networked file
+            systems
+          rpc_rate_limiter: a `RateLimiter` to use to limit write RPC frequency.
+            Note this limit applies at the level of single RPCs in the Scalar and
+            Tensor case, but at the level of an entire blob upload in the Blob
+            case-- which may require a few preparatory RPCs and a stream of chunks.
+            Note the chunk stream is internally rate-limited by backpressure from
+            the server, so it is not a concern that we do not explicitly rate-limit
+            within the stream here.
+          description: String description to assign to the experiment.
+          verbosity: Level of verbosity, an integer. Supported value: 0 - No upload
+            statistics is printed. 1 - Print upload statistics while uploading data
+            (default).
+          one_shot: Once uploading starts, upload only the existing data in the
+            logdir and then return immediately, instead of the default behavior of
+            continuing to listen for new data in the logdir and upload them when it
+            appears.
+          event_file_inactive_secs: Age in seconds of last write after which an
+            event file is considered inactive. If none then event file is never
+            considered inactive.
+          run_name_prefix: If present, all runs created by this invocation will have
+            their name prefixed by this value.
+        """
         self._experiment_name = experiment_name
         self._experiment_display_name = experiment_display_name
         self._tensorboard_resource_name = tensorboard_resource_name
@@ -247,12 +253,12 @@ class TensorBoardUploader(object):
     def _create_or_get_experiment(self) -> tensorboard_experiment.TensorboardExperiment:
         """Create an experiment or get an experiment.
 
-    Attempts to create an experiment. If the experiment already exists and
-    creation fails then the experiment will be retrieved.
+        Attempts to create an experiment. If the experiment already exists and
+        creation fails then the experiment will be retrieved.
 
-    Returns:
-      The created or retrieved experiment.
-    """
+        Returns:
+          The created or retrieved experiment.
+        """
         logger.info("Creating experiment")
 
         tb_experiment = tensorboard_experiment.TensorboardExperiment(
@@ -297,11 +303,11 @@ class TensorBoardUploader(object):
     def start_uploading(self):
         """Blocks forever to continuously upload data from the logdir.
 
-    Raises:
-      RuntimeError: If `create_experiment` has not yet been called.
-      ExperimentNotFoundError: If the experiment is deleted during the
-        course of the upload.
-    """
+        Raises:
+          RuntimeError: If `create_experiment` has not yet been called.
+          ExperimentNotFoundError: If the experiment is deleted during the
+            course of the upload.
+        """
         if self._request_sender is None:
             raise RuntimeError("Must call create_experiment() before start_uploading()")
         while True:
@@ -348,9 +354,9 @@ class ExistingResourceNotFoundError(RuntimeError):
 class _OutOfSpaceError(Exception):
     """Action could not proceed without overflowing request budget.
 
-  This is a signaling exception (like `StopIteration`) used internally
-  by `_*RequestSender`; it does not mean that anything has gone wrong.
-  """
+    This is a signaling exception (like `StopIteration`) used internally
+    by `_*RequestSender`; it does not mean that anything has gone wrong.
+    """
 
     pass
 
@@ -358,17 +364,17 @@ class _OutOfSpaceError(Exception):
 class _BatchedRequestSender(object):
     """Helper class for building requests that fit under a size limit.
 
-  This class maintains stateful request builders for each of the possible
-  request types (scalars, tensors, and blobs).  These accumulate batches
-  independently, each maintaining its own byte budget and emitting a request
-  when the batch becomes full.  As a consequence, events of different types
-  will likely be sent to the backend out of order.  E.g., in the extreme case,
-  a single tensor-flavored request may be sent only when the event stream is
-  exhausted, even though many more recent scalar events were sent earlier.
+    This class maintains stateful request builders for each of the possible
+    request types (scalars, tensors, and blobs).  These accumulate batches
+    independently, each maintaining its own byte budget and emitting a request
+    when the batch becomes full.  As a consequence, events of different types
+    will likely be sent to the backend out of order.  E.g., in the extreme case,
+    a single tensor-flavored request may be sent only when the event stream is
+    exhausted, even though many more recent scalar events were sent earlier.
 
-  This class is not threadsafe. Use external synchronization if
-  calling its methods concurrently.
-  """
+    This class is not threadsafe. Use external synchronization if
+    calling its methods concurrently.
+    """
 
     def __init__(
         self,
@@ -385,21 +391,21 @@ class _BatchedRequestSender(object):
     ):
         """Constructs _BatchedRequestSender for the given experiment resource.
 
-    Args:
-      experiment_resource_name: Name of the experiment resource of the form
-        projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
-      api: Tensorboard service stub used to interact with experiment resource.
-      allowed_plugins: The plugins supported by the Tensorboard.gcp resource.
-      upload_limits: Upload limits for for api calls.
-      rpc_rate_limiter: a `RateLimiter` to use to limit write RPC frequency.
-        Note this limit applies at the level of single RPCs in the Scalar and
-        Tensor case, but at the level of an entire blob upload in the Blob
-        case-- which may require a few preparatory RPCs and a stream of chunks.
-        Note the chunk stream is internally rate-limited by backpressure from
-        the server, so it is not a concern that we do not explicitly rate-limit
-        within the stream here.
-      tracker: Upload tracker to track information about uploads.
-    """
+        Args:
+          experiment_resource_name: Name of the experiment resource of the form
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}
+          api: Tensorboard service stub used to interact with experiment resource.
+          allowed_plugins: The plugins supported by the Tensorboard.gcp resource.
+          upload_limits: Upload limits for for api calls.
+          rpc_rate_limiter: a `RateLimiter` to use to limit write RPC frequency.
+            Note this limit applies at the level of single RPCs in the Scalar and
+            Tensor case, but at the level of an entire blob upload in the Blob
+            case-- which may require a few preparatory RPCs and a stream of chunks.
+            Note the chunk stream is internally rate-limited by backpressure from
+            the server, so it is not a concern that we do not explicitly rate-limit
+            within the stream here.
+          tracker: Upload tracker to track information about uploads.
+        """
         self._experiment_resource_name = experiment_resource_name
         self._api = api
         self._tag_metadata = {}
@@ -440,17 +446,17 @@ class _BatchedRequestSender(object):
     ):
         """Accepts a stream of TF events and sends batched write RPCs.
 
-    Each sent request will be batched, the size of each batch depending on
-    the type of data (Scalar vs Tensor vs Blob) being sent.
+        Each sent request will be batched, the size of each batch depending on
+        the type of data (Scalar vs Tensor vs Blob) being sent.
 
-    Args:
-      run_to_events: Mapping from run name to generator of `tf.compat.v1.Event`
-        values, as returned by `LogdirLoader.get_run_events`.
+        Args:
+          run_to_events: Mapping from run name to generator of `tf.compat.v1.Event`
+            values, as returned by `LogdirLoader.get_run_events`.
 
-    Raises:
-      RuntimeError: If no progress can be made because even a single
-      point is too large (say, due to a gigabyte-long tag name).
-    """
+        Raises:
+          RuntimeError: If no progress can be made because even a single
+          point is too large (say, due to a gigabyte-long tag name).
+        """
 
         for (run_name, event, value) in self._run_values(run_to_events):
             time_series_key = (run_name, value.tag)
@@ -528,9 +534,9 @@ class _BatchedRequestSender(object):
     def _create_or_get_run_resource(self, run_name: str):
         """Creates a new Run Resource in current Tensorboard Experiment resource.
 
-    Args:
-      run_name: The display name of this run.
-    """
+        Args:
+          run_name: The display name of this run.
+        """
         tb_run = tensorboard_run.TensorboardRun()
         tb_run.display_name = run_name
         try:
@@ -566,25 +572,25 @@ class _BatchedRequestSender(object):
     ]:
         """Helper generator to create a single stream of work items.
 
-    Note that `dataclass_compat` may emit multiple variants of
-    the same event, for backwards compatibility.  Thus this stream should
-    be filtered to obtain the desired version of each event.  Here, we
-    ignore any event that does not have a `summary` field.
+        Note that `dataclass_compat` may emit multiple variants of
+        the same event, for backwards compatibility.  Thus this stream should
+        be filtered to obtain the desired version of each event.  Here, we
+        ignore any event that does not have a `summary` field.
 
-    Furthermore, the events emitted here could contain values that do not
-    have `metadata.data_class` set; these too should be ignored.  In
-    `_send_summary_value(...)` above, we switch on `metadata.data_class`
-    and drop any values with an unknown (i.e., absent or unrecognized)
-    `data_class`.
+        Furthermore, the events emitted here could contain values that do not
+        have `metadata.data_class` set; these too should be ignored.  In
+        `_send_summary_value(...)` above, we switch on `metadata.data_class`
+        and drop any values with an unknown (i.e., absent or unrecognized)
+        `data_class`.
 
-    Args:
-      run_to_events: Mapping from run name to generator of `tf.compat.v1.Event`
-        values, as returned by `LogdirLoader.get_run_events`.
+        Args:
+          run_to_events: Mapping from run name to generator of `tf.compat.v1.Event`
+            values, as returned by `LogdirLoader.get_run_events`.
 
-    Yields:
-      Tuple of run name, tf.compat.v1.Event, tf.compat.v1.Summary.Value per
-      value.
-    """
+        Yields:
+          Tuple of run name, tf.compat.v1.Event, tf.compat.v1.Summary.Value per
+          value.
+        """
         # Note that this join in principle has deletion anomalies: if the input
         # stream contains runs with no events, or events with no values, we'll
         # lose that information. This is not a problem: we would need to prune
@@ -602,11 +608,11 @@ class _TimeSeriesResourceManager(object):
     def __init__(self, run_resource_id: str, api: TensorboardServiceClient):
         """Constructor for _TimeSeriesResourceManager.
 
-    Args:
-      run_resource_id: The resource id for the run with the following format
-        projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
-      api: TensorboardServiceStub
-    """
+        Args:
+          run_resource_id: The resource id for the run with the following format
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
+          api: TensorboardServiceStub
+        """
         self._run_resource_id = run_resource_id
         self._api = api
         self._tag_to_time_series_proto: Dict[
@@ -622,13 +628,13 @@ class _TimeSeriesResourceManager(object):
     ) -> tensorboard_time_series.TensorboardTimeSeries:
         """get a time series resource with given tag_name, and create a new one on
 
-    OnePlatform if not present.
+        OnePlatform if not present.
 
-    Args:
-      tag_name: The tag name of the time series in the Tensorboard log dir.
-      time_series_resource_creator: A callable that produces a TimeSeries for
-        creation.
-    """
+        Args:
+          tag_name: The tag name of the time series in the Tensorboard log dir.
+          time_series_resource_creator: A callable that produces a TimeSeries for
+            creation.
+        """
         if tag_name in self._tag_to_time_series_proto:
             return self._tag_to_time_series_proto[tag_name]
 
@@ -668,13 +674,13 @@ class _TimeSeriesResourceManager(object):
 class _ScalarBatchedRequestSender(object):
     """Helper class for building requests that fit under a size limit.
 
-  This class accumulates a current request.  `add_event(...)` may or may not
-  send the request (and start a new one).  After all `add_event(...)` calls
-  are complete, a final call to `flush()` is needed to send the final request.
+    This class accumulates a current request.  `add_event(...)` may or may not
+    send the request (and start a new one).  After all `add_event(...)` calls
+    are complete, a final call to `flush()` is needed to send the final request.
 
-  This class is not threadsafe. Use external synchronization if calling its
-  methods concurrently.
-  """
+    This class is not threadsafe. Use external synchronization if calling its
+    methods concurrently.
+    """
 
     def __init__(
         self,
@@ -686,14 +692,14 @@ class _ScalarBatchedRequestSender(object):
     ):
         """Constructer for _ScalarBatchedRequestSender.
 
-    Args:
-      run_resource_id: The resource id for the run with the following format
-        projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
-      api: TensorboardServiceStub
-      rpc_rate_limiter: until.RateLimiter to limit rate of this request sender
-      max_request_size: max number of bytes to send
-      tracker:
-    """
+        Args:
+          run_resource_id: The resource id for the run with the following format
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
+          api: TensorboardServiceStub
+          rpc_rate_limiter: until.RateLimiter to limit rate of this request sender
+          max_request_size: max number of bytes to send
+          tracker:
+        """
         self._run_resource_id = run_resource_id
         self._api = api
         self._rpc_rate_limiter = rpc_rate_limiter
@@ -725,15 +731,15 @@ class _ScalarBatchedRequestSender(object):
     ):
         """Attempts to add the given event to the current request.
 
-    If the event cannot be added to the current request because the byte
-    budget is exhausted, the request is flushed, and the event is added
-    to the next request.
+        If the event cannot be added to the current request because the byte
+        budget is exhausted, the request is flushed, and the event is added
+        to the next request.
 
-    Args:
-      event: The tf.compat.v1.Event event containing the value.
-      value: A scalar tf.compat.v1.Summary.Value.
-      metadata: SummaryMetadata of the event.
-    """
+        Args:
+          event: The tf.compat.v1.Event event containing the value.
+          value: A scalar tf.compat.v1.Summary.Value.
+          metadata: SummaryMetadata of the event.
+        """
         try:
             self._add_event_internal(event, value, metadata)
         except _OutOfSpaceError:
@@ -760,8 +766,8 @@ class _ScalarBatchedRequestSender(object):
     def flush(self):
         """Sends the active request after removing empty runs and tags.
 
-    Starts a new, empty active request.
-    """
+        Starts a new, empty active request.
+        """
         request = self._request
         request.time_series_data = list(self._tag_to_time_series_data.values())
         _prune_empty_time_series(request)
@@ -792,16 +798,16 @@ class _ScalarBatchedRequestSender(object):
     ) -> tensorboard_data.TimeSeriesData:
         """Adds a time_series for the tag_name, if there's space.
 
-    Args:
-      tag_name: String name of the tag to add (as `value.tag`).
+        Args:
+          tag_name: String name of the tag to add (as `value.tag`).
 
-    Returns:
-      The TimeSeriesData in _request proto with the given tag name.
+        Returns:
+          The TimeSeriesData in _request proto with the given tag name.
 
-    Raises:
-      _OutOfSpaceError: If adding the tag would exceed the remaining
-        request budget.
-    """
+        Raises:
+          _OutOfSpaceError: If adding the tag would exceed the remaining
+            request budget.
+        """
         time_series_data_proto = tensorboard_data.TimeSeriesData(
             tensorboard_time_series_id=self._time_series_resource_manager.get_or_create(
                 tag_name,
@@ -828,15 +834,15 @@ class _ScalarBatchedRequestSender(object):
     ):
         """Adds a scalar point to the given tag, if there's space.
 
-    Args:
-      time_series_proto: TimeSeriesData proto to which to add a point.
-      event: Enclosing `Event` proto with the step and wall time data.
-      value: Scalar `Summary.Value` proto with the actual scalar data.
+        Args:
+          time_series_proto: TimeSeriesData proto to which to add a point.
+          event: Enclosing `Event` proto with the step and wall time data.
+          value: Scalar `Summary.Value` proto with the actual scalar data.
 
-    Raises:
-      _OutOfSpaceError: If adding the point would exceed the remaining
-        request budget.
-    """
+        Raises:
+          _OutOfSpaceError: If adding the point would exceed the remaining
+            request budget.
+        """
         scalar_proto = tensorboard_data.Scalar(
             value=tensor_util.make_ndarray(value.tensor).item()
         )
@@ -859,12 +865,12 @@ class _ScalarBatchedRequestSender(object):
 class _TensorBatchedRequestSender(object):
     """Helper class for building WriteTensor() requests that fit under a size limit.
 
-  This class accumulates a current request.  `add_event(...)` may or may not
-  send the request (and start a new one).  After all `add_event(...)` calls
-  are complete, a final call to `flush()` is needed to send the final request.
-  This class is not threadsafe. Use external synchronization if calling its
-  methods concurrently.
-  """
+    This class accumulates a current request.  `add_event(...)` may or may not
+    send the request (and start a new one).  After all `add_event(...)` calls
+    are complete, a final call to `flush()` is needed to send the final request.
+    This class is not threadsafe. Use external synchronization if calling its
+    methods concurrently.
+    """
 
     def __init__(
         self,
@@ -877,14 +883,14 @@ class _TensorBatchedRequestSender(object):
     ):
         """Constructer for _TensorBatchedRequestSender.
 
-    Args:
-      run_resource_id: The resource id for the run with the following format
-        projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
-      api: TensorboardServiceStub
-      rpc_rate_limiter: until.RateLimiter to limit rate of this request sender
-      max_request_size: max number of bytes to send
-      tracker:
-    """
+        Args:
+          run_resource_id: The resource id for the run with the following format
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
+          api: TensorboardServiceStub
+          rpc_rate_limiter: until.RateLimiter to limit rate of this request sender
+          max_request_size: max number of bytes to send
+          tracker:
+        """
         self._run_resource_id = run_resource_id
         self._api = api
         self._rpc_rate_limiter = rpc_rate_limiter
@@ -921,10 +927,10 @@ class _TensorBatchedRequestSender(object):
     ):
         """Attempts to add the given event to the current request.
 
-      If the event cannot be added to the current request because the byte
-      budget is exhausted, the request is flushed, and the event is added
-      to the next request.
-    """
+          If the event cannot be added to the current request because the byte
+          budget is exhausted, the request is flushed, and the event is added
+          to the next request.
+        """
         try:
             self._add_event_internal(event, value, metadata)
         except _OutOfSpaceError:
@@ -951,8 +957,8 @@ class _TensorBatchedRequestSender(object):
     def flush(self):
         """Sends the active request after removing empty runs and tags.
 
-    Starts a new, empty active request.
-    """
+        Starts a new, empty active request.
+        """
         request = self._request
         request.time_series_data = list(self._tag_to_time_series_data.values())
         _prune_empty_time_series(request)
@@ -985,17 +991,17 @@ class _TensorBatchedRequestSender(object):
     ) -> tensorboard_data.TimeSeriesData:
         """Adds a time_series for the tag_name, if there's space.
 
-    Args:
-      tag_name: String name of the tag to add (as `value.tag`).
-      metadata: SummaryMetadata of the event.
+        Args:
+          tag_name: String name of the tag to add (as `value.tag`).
+          metadata: SummaryMetadata of the event.
 
-    Returns:
-      The TimeSeriesData in _request proto with the given tag name.
+        Returns:
+          The TimeSeriesData in _request proto with the given tag name.
 
-    Raises:
-      _OutOfSpaceError: If adding the tag would exceed the remaining
-        request budget.
-    """
+        Raises:
+          _OutOfSpaceError: If adding the tag would exceed the remaining
+            request budget.
+        """
         time_series_data_proto = tensorboard_data.TimeSeriesData(
             tensorboard_time_series_id=self._time_series_resource_manager.get_or_create(
                 tag_name,
@@ -1022,15 +1028,15 @@ class _TensorBatchedRequestSender(object):
     ):
         """Adds a tensor point to the given tag, if there's space.
 
-      Args:
-        tag_proto: `WriteTensorRequest.Tag` proto to which to add a point.
-        event: Enclosing `Event` proto with the step and wall time data.
-        value: Tensor `Summary.Value` proto with the actual tensor data.
+        Args:
+          tag_proto: `WriteTensorRequest.Tag` proto to which to add a point.
+          event: Enclosing `Event` proto with the step and wall time data.
+          value: Tensor `Summary.Value` proto with the actual tensor data.
 
-      Raises:
-        _OutOfSpaceError: If adding the point would exceed the remaining
-          request budget.
-      """
+        Raises:
+          _OutOfSpaceError: If adding the point would exceed the remaining
+            request budget.
+        """
         point = tensorboard_data.TimeSeriesDataPoint(
             step=event.step,
             tensor=tensorboard_data.TensorboardTensor(
@@ -1084,18 +1090,18 @@ class _TensorBatchedRequestSender(object):
 class _ByteBudgetManager(object):
     """Helper class for managing the request byte budget for certain RPCs.
 
-  This should be used for RPCs that organize data by Runs, Tags, and Points,
-  specifically WriteScalar and WriteTensor.
+    This should be used for RPCs that organize data by Runs, Tags, and Points,
+    specifically WriteScalar and WriteTensor.
 
-  Any call to add_time_series() or add_point() may raise an
-  _OutOfSpaceError, which is non-fatal. It signals to the caller that they
-  should flush the current request and begin a new one.
+    Any call to add_time_series() or add_point() may raise an
+    _OutOfSpaceError, which is non-fatal. It signals to the caller that they
+    should flush the current request and begin a new one.
 
-  For more information on the protocol buffer encoding and how byte cost
-  can be calculated, visit:
+    For more information on the protocol buffer encoding and how byte cost
+    can be calculated, visit:
 
-  https://developers.google.com/protocol-buffers/docs/encoding
-  """
+    https://developers.google.com/protocol-buffers/docs/encoding
+    """
 
     def __init__(self, max_bytes: int):
         # The remaining number of bytes that we may yet add to the request.
@@ -1105,13 +1111,13 @@ class _ByteBudgetManager(object):
     def reset(self, base_request: tensorboard_service.WriteTensorboardRunDataRequest):
         """Resets the byte budget and calculates the cost of the base request.
 
-    Args:
-      base_request: Base request.
+        Args:
+          base_request: Base request.
 
-    Raises:
-      _OutOfSpaceError: If the size of the request exceeds the entire
-        request byte budget.
-    """
+        Raises:
+          _OutOfSpaceError: If the size of the request exceeds the entire
+            request byte budget.
+        """
         self._byte_budget = self._max_bytes
         self._byte_budget -= (
             base_request._pb.ByteSize()
@@ -1122,13 +1128,13 @@ class _ByteBudgetManager(object):
     def add_time_series(self, time_series_proto: tensorboard_data.TimeSeriesData):
         """Integrates the cost of a tag proto into the byte budget.
 
-    Args:
-      time_series_proto: The proto representing a time series.
+        Args:
+          time_series_proto: The proto representing a time series.
 
-    Raises:
-      _OutOfSpaceError: If adding the time_series would exceed the remaining
-      request budget.
-    """
+        Raises:
+          _OutOfSpaceError: If adding the time_series would exceed the remaining
+          request budget.
+        """
         cost = (
             # The size of the tag proto without any tag fields set.
             time_series_proto._pb.ByteSize()  # pylint: disable=protected-access
@@ -1148,13 +1154,13 @@ class _ByteBudgetManager(object):
     def add_point(self, point_proto: tensorboard_data.TimeSeriesDataPoint):
         """Integrates the cost of a point proto into the byte budget.
 
-    Args:
-      point_proto: The proto representing a point.
+        Args:
+          point_proto: The proto representing a point.
 
-    Raises:
-      _OutOfSpaceError: If adding the point would exceed the remaining request
-       budget.
-    """
+        Raises:
+          _OutOfSpaceError: If adding the point would exceed the remaining request
+           budget.
+        """
         submessage_cost = point_proto._pb.ByteSize()  # pylint: disable=protected-access
         cost = (
             # The size of the point proto.
@@ -1173,13 +1179,13 @@ class _ByteBudgetManager(object):
 class _BlobRequestSender(object):
     """Uploader for blob-type event data.
 
-  Unlike the other types, this class does not accumulate events in batches;
-  every blob is sent individually and immediately.  Nonetheless we retain
-  the `add_event()`/`flush()` structure for symmetry.
+    Unlike the other types, this class does not accumulate events in batches;
+    every blob is sent individually and immediately.  Nonetheless we retain
+    the `add_event()`/`flush()` structure for symmetry.
 
-  This class is not threadsafe. Use external synchronization if calling its
-  methods concurrently.
-  """
+    This class is not threadsafe. Use external synchronization if calling its
+    methods concurrently.
+    """
 
     def __init__(
         self,
@@ -1221,10 +1227,10 @@ class _BlobRequestSender(object):
     ):
         """Attempts to add the given event to the current request.
 
-    If the event cannot be added to the current request because the byte
-    budget is exhausted, the request is flushed, and the event is added
-    to the next request.
-    """
+        If the event cannot be added to the current request because the byte
+        budget is exhausted, the request is flushed, and the event is added
+        to the next request.
+        """
         if self._value:
             raise RuntimeError("Tried to send blob while another is pending")
         self._event = event  # provides step and possibly plugin_name
@@ -1323,11 +1329,11 @@ class _BlobRequestSender(object):
     def _send_blob(self, blob, blob_path_prefix):
         """Sends a single blob to a GCS bucket in the consumer project.
 
-    The blob will not be sent if it is too large.
+        The blob will not be sent if it is too large.
 
-    Returns:
-      The ID of blob successfully sent.
-    """
+        Returns:
+          The ID of blob successfully sent.
+        """
         if len(blob) > self._max_blob_size:
             logger.warning(
                 "Blob too large; skipping.  Size %d exceeds limit of %d bytes.",
@@ -1360,15 +1366,15 @@ def _request_logger(request: tensorboard_service.WriteTensorboardRunDataRequest)
 def _varint_cost(n: int):
     """Computes the size of `n` encoded as an unsigned base-128 varint.
 
-  This should be consistent with the proto wire format:
-  <https://developers.google.com/protocol-buffers/docs/encoding#varints>
+    This should be consistent with the proto wire format:
+    <https://developers.google.com/protocol-buffers/docs/encoding#varints>
 
-  Args:
-    n: A non-negative integer.
+    Args:
+      n: A non-negative integer.
 
-  Returns:
-    An integer number of bytes.
-  """
+    Returns:
+      An integer number of bytes.
+    """
     result = 1
     while n >= 128:
         result += 1
@@ -1390,9 +1396,9 @@ def _prune_empty_time_series(
 def _filter_graph_defs(event: tf.compat.v1.Event):
     """Filters graph definitions.
 
-  Args:
-    event: tf.compat.v1.Event to filter.
-  """
+    Args:
+      event: tf.compat.v1.Event to filter.
+    """
     for v in event.summary.value:
         if v.metadata.plugin_data.plugin_name != graph_metadata.PLUGIN_NAME:
             continue
@@ -1410,15 +1416,15 @@ def _filter_graph_defs(event: tf.compat.v1.Event):
 def _filtered_graph_bytes(graph_bytes: bytes):
     """Prepares the graph to be served to the front-end.
 
-  For now, it supports filtering out attributes that are too large to be shown
-  in the graph UI.
+    For now, it supports filtering out attributes that are too large to be shown
+    in the graph UI.
 
-  Args:
-    graph_bytes: Graph definition.
+    Args:
+      graph_bytes: Graph definition.
 
-  Returns:
-    Filtered graph.
-  """
+    Returns:
+      Filtered graph.
+    """
     try:
         graph_def = graph_pb2.GraphDef().FromString(graph_bytes)
     # The reason for the RuntimeWarning catch here is b/27494216, whereby
