@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,25 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import warnings
-from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple
+from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import grpc_helpers_async  # type: ignore
-from google.api_core import operations_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.api_core import gapic_v1                   # type: ignore
+from google.api_core import grpc_helpers_async         # type: ignore
+from google.api_core import operations_v1              # type: ignore
+from google.auth import credentials as ga_credentials   # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
+import packaging.version
 
-import grpc  # type: ignore
+import grpc                        # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
-
+from google.longrunning import operations_pb2  # type: ignore
 from .base import EndpointServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import EndpointServiceGrpcTransport
 
@@ -52,15 +49,13 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     _stubs: Dict[str, Callable] = {}
 
     @classmethod
-    def create_channel(
-        cls,
-        host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
-        credentials_file: Optional[str] = None,
-        scopes: Optional[Sequence[str]] = None,
-        quota_project_id: Optional[str] = None,
-        **kwargs,
-    ) -> aio.Channel:
+    def create_channel(cls,
+                       host: str = 'aiplatform.googleapis.com',
+                       credentials: ga_credentials.Credentials = None,
+                       credentials_file: Optional[str] = None,
+                       scopes: Optional[Sequence[str]] = None,
+                       quota_project_id: Optional[str] = None,
+                       **kwargs) -> aio.Channel:
         """Create and return a gRPC AsyncIO channel object.
         Args:
             host (Optional[str]): The host for the channel to use.
@@ -82,35 +77,36 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         Returns:
             aio.Channel: A gRPC AsyncIO channel object.
         """
-        scopes = scopes or cls.AUTH_SCOPES
+
+        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
+
         return grpc_helpers_async.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
-            scopes=scopes,
             quota_project_id=quota_project_id,
-            **kwargs,
+            **self_signed_jwt_kwargs,
+            **kwargs
         )
 
-    def __init__(
-        self,
-        *,
-        host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
-        credentials_file: Optional[str] = None,
-        scopes: Optional[Sequence[str]] = None,
-        channel: aio.Channel = None,
-        api_mtls_endpoint: str = None,
-        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-        ssl_channel_credentials: grpc.ChannelCredentials = None,
-        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
-        quota_project_id=None,
-        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-    ) -> None:
+    def __init__(self, *,
+            host: str = 'aiplatform.googleapis.com',
+            credentials: ga_credentials.Credentials = None,
+            credentials_file: Optional[str] = None,
+            scopes: Optional[Sequence[str]] = None,
+            channel: aio.Channel = None,
+            api_mtls_endpoint: str = None,
+            client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+            ssl_channel_credentials: grpc.ChannelCredentials = None,
+            client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+            quota_project_id=None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            ) -> None:
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]): The hostname to connect to.
+            host (Optional[str]):
+                 The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -169,7 +165,6 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
-
         else:
             if api_mtls_endpoint:
                 host = api_mtls_endpoint
@@ -245,11 +240,9 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         return self._operations_client
 
     @property
-    def create_endpoint(
-        self,
-    ) -> Callable[
-        [endpoint_service.CreateEndpointRequest], Awaitable[operations.Operation]
-    ]:
+    def create_endpoint(self) -> Callable[
+            [endpoint_service.CreateEndpointRequest],
+            Awaitable[operations_pb2.Operation]]:
         r"""Return a callable for the create endpoint method over gRPC.
 
         Creates an Endpoint.
@@ -264,18 +257,18 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "create_endpoint" not in self._stubs:
-            self._stubs["create_endpoint"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.EndpointService/CreateEndpoint",
+        if 'create_endpoint' not in self._stubs:
+            self._stubs['create_endpoint'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.EndpointService/CreateEndpoint',
                 request_serializer=endpoint_service.CreateEndpointRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs["create_endpoint"]
+        return self._stubs['create_endpoint']
 
     @property
-    def get_endpoint(
-        self,
-    ) -> Callable[[endpoint_service.GetEndpointRequest], Awaitable[endpoint.Endpoint]]:
+    def get_endpoint(self) -> Callable[
+            [endpoint_service.GetEndpointRequest],
+            Awaitable[endpoint.Endpoint]]:
         r"""Return a callable for the get endpoint method over gRPC.
 
         Gets an Endpoint.
@@ -290,21 +283,18 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "get_endpoint" not in self._stubs:
-            self._stubs["get_endpoint"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.EndpointService/GetEndpoint",
+        if 'get_endpoint' not in self._stubs:
+            self._stubs['get_endpoint'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.EndpointService/GetEndpoint',
                 request_serializer=endpoint_service.GetEndpointRequest.serialize,
                 response_deserializer=endpoint.Endpoint.deserialize,
             )
-        return self._stubs["get_endpoint"]
+        return self._stubs['get_endpoint']
 
     @property
-    def list_endpoints(
-        self,
-    ) -> Callable[
-        [endpoint_service.ListEndpointsRequest],
-        Awaitable[endpoint_service.ListEndpointsResponse],
-    ]:
+    def list_endpoints(self) -> Callable[
+            [endpoint_service.ListEndpointsRequest],
+            Awaitable[endpoint_service.ListEndpointsResponse]]:
         r"""Return a callable for the list endpoints method over gRPC.
 
         Lists Endpoints in a Location.
@@ -319,20 +309,18 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "list_endpoints" not in self._stubs:
-            self._stubs["list_endpoints"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.EndpointService/ListEndpoints",
+        if 'list_endpoints' not in self._stubs:
+            self._stubs['list_endpoints'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.EndpointService/ListEndpoints',
                 request_serializer=endpoint_service.ListEndpointsRequest.serialize,
                 response_deserializer=endpoint_service.ListEndpointsResponse.deserialize,
             )
-        return self._stubs["list_endpoints"]
+        return self._stubs['list_endpoints']
 
     @property
-    def update_endpoint(
-        self,
-    ) -> Callable[
-        [endpoint_service.UpdateEndpointRequest], Awaitable[gca_endpoint.Endpoint]
-    ]:
+    def update_endpoint(self) -> Callable[
+            [endpoint_service.UpdateEndpointRequest],
+            Awaitable[gca_endpoint.Endpoint]]:
         r"""Return a callable for the update endpoint method over gRPC.
 
         Updates an Endpoint.
@@ -347,20 +335,18 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "update_endpoint" not in self._stubs:
-            self._stubs["update_endpoint"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.EndpointService/UpdateEndpoint",
+        if 'update_endpoint' not in self._stubs:
+            self._stubs['update_endpoint'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.EndpointService/UpdateEndpoint',
                 request_serializer=endpoint_service.UpdateEndpointRequest.serialize,
                 response_deserializer=gca_endpoint.Endpoint.deserialize,
             )
-        return self._stubs["update_endpoint"]
+        return self._stubs['update_endpoint']
 
     @property
-    def delete_endpoint(
-        self,
-    ) -> Callable[
-        [endpoint_service.DeleteEndpointRequest], Awaitable[operations.Operation]
-    ]:
+    def delete_endpoint(self) -> Callable[
+            [endpoint_service.DeleteEndpointRequest],
+            Awaitable[operations_pb2.Operation]]:
         r"""Return a callable for the delete endpoint method over gRPC.
 
         Deletes an Endpoint.
@@ -375,20 +361,18 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "delete_endpoint" not in self._stubs:
-            self._stubs["delete_endpoint"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.EndpointService/DeleteEndpoint",
+        if 'delete_endpoint' not in self._stubs:
+            self._stubs['delete_endpoint'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.EndpointService/DeleteEndpoint',
                 request_serializer=endpoint_service.DeleteEndpointRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs["delete_endpoint"]
+        return self._stubs['delete_endpoint']
 
     @property
-    def deploy_model(
-        self,
-    ) -> Callable[
-        [endpoint_service.DeployModelRequest], Awaitable[operations.Operation]
-    ]:
+    def deploy_model(self) -> Callable[
+            [endpoint_service.DeployModelRequest],
+            Awaitable[operations_pb2.Operation]]:
         r"""Return a callable for the deploy model method over gRPC.
 
         Deploys a Model into this Endpoint, creating a
@@ -404,20 +388,18 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "deploy_model" not in self._stubs:
-            self._stubs["deploy_model"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.EndpointService/DeployModel",
+        if 'deploy_model' not in self._stubs:
+            self._stubs['deploy_model'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.EndpointService/DeployModel',
                 request_serializer=endpoint_service.DeployModelRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs["deploy_model"]
+        return self._stubs['deploy_model']
 
     @property
-    def undeploy_model(
-        self,
-    ) -> Callable[
-        [endpoint_service.UndeployModelRequest], Awaitable[operations.Operation]
-    ]:
+    def undeploy_model(self) -> Callable[
+            [endpoint_service.UndeployModelRequest],
+            Awaitable[operations_pb2.Operation]]:
         r"""Return a callable for the undeploy model method over gRPC.
 
         Undeploys a Model from an Endpoint, removing a
@@ -434,13 +416,15 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if "undeploy_model" not in self._stubs:
-            self._stubs["undeploy_model"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.EndpointService/UndeployModel",
+        if 'undeploy_model' not in self._stubs:
+            self._stubs['undeploy_model'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1beta1.EndpointService/UndeployModel',
                 request_serializer=endpoint_service.UndeployModelRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs["undeploy_model"]
+        return self._stubs['undeploy_model']
 
 
-__all__ = ("EndpointServiceGrpcAsyncIOTransport",)
+__all__ = (
+    'EndpointServiceGrpcAsyncIOTransport',
+)

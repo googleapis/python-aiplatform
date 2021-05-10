@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
-    manifest={"IdMatcher", "FeatureSelector",},
+    package='google.cloud.aiplatform.v1beta1',
+    manifest={
+        'IdMatcher',
+        'FeatureSelector',
+    },
 )
 
 
 class IdMatcher(proto.Message):
     r"""Matcher for Features of an EntityType by Feature ID.
-
     Attributes:
         ids (Sequence[str]):
             Required. The following are accepted as ``ids``:
@@ -37,18 +37,24 @@ class IdMatcher(proto.Message):
                Features with those IDs in the target EntityType.
     """
 
-    ids = proto.RepeatedField(proto.STRING, number=1)
+    ids = proto.RepeatedField(
+        proto.STRING,
+        number=1,
+    )
 
 
 class FeatureSelector(proto.Message):
     r"""Selector for Features of an EntityType.
-
     Attributes:
         id_matcher (google.cloud.aiplatform_v1beta1.types.IdMatcher):
             Required. Matches Features based on ID.
     """
 
-    id_matcher = proto.Field(proto.MESSAGE, number=1, message="IdMatcher",)
+    id_matcher = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message='IdMatcher',
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

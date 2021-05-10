@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,63 +13,59 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_selector as gca_feature_selector,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_selector as gca_feature_selector
 from google.cloud.aiplatform_v1beta1.types import featurestore as gca_featurestore
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "CreateFeaturestoreRequest",
-        "GetFeaturestoreRequest",
-        "ListFeaturestoresRequest",
-        "ListFeaturestoresResponse",
-        "UpdateFeaturestoreRequest",
-        "DeleteFeaturestoreRequest",
-        "ImportFeatureValuesRequest",
-        "ImportFeatureValuesResponse",
-        "BatchReadFeatureValuesRequest",
-        "ExportFeatureValuesRequest",
-        "DestinationFeatureSetting",
-        "FeatureValueDestination",
-        "ExportFeatureValuesResponse",
-        "BatchReadFeatureValuesResponse",
-        "CreateEntityTypeRequest",
-        "GetEntityTypeRequest",
-        "ListEntityTypesRequest",
-        "ListEntityTypesResponse",
-        "UpdateEntityTypeRequest",
-        "DeleteEntityTypeRequest",
-        "CreateFeatureRequest",
-        "BatchCreateFeaturesRequest",
-        "BatchCreateFeaturesResponse",
-        "GetFeatureRequest",
-        "ListFeaturesRequest",
-        "ListFeaturesResponse",
-        "SearchFeaturesRequest",
-        "SearchFeaturesResponse",
-        "UpdateFeatureRequest",
-        "DeleteFeatureRequest",
-        "CreateFeaturestoreOperationMetadata",
-        "UpdateFeaturestoreOperationMetadata",
-        "ImportFeatureValuesOperationMetadata",
-        "ExportFeatureValuesOperationMetadata",
-        "BatchReadFeatureValuesOperationMetadata",
-        "CreateEntityTypeOperationMetadata",
-        "CreateFeatureOperationMetadata",
-        "BatchCreateFeaturesOperationMetadata",
+        'CreateFeaturestoreRequest',
+        'GetFeaturestoreRequest',
+        'ListFeaturestoresRequest',
+        'ListFeaturestoresResponse',
+        'UpdateFeaturestoreRequest',
+        'DeleteFeaturestoreRequest',
+        'ImportFeatureValuesRequest',
+        'ImportFeatureValuesResponse',
+        'BatchReadFeatureValuesRequest',
+        'ExportFeatureValuesRequest',
+        'DestinationFeatureSetting',
+        'FeatureValueDestination',
+        'ExportFeatureValuesResponse',
+        'BatchReadFeatureValuesResponse',
+        'CreateEntityTypeRequest',
+        'GetEntityTypeRequest',
+        'ListEntityTypesRequest',
+        'ListEntityTypesResponse',
+        'UpdateEntityTypeRequest',
+        'DeleteEntityTypeRequest',
+        'CreateFeatureRequest',
+        'BatchCreateFeaturesRequest',
+        'BatchCreateFeaturesResponse',
+        'GetFeatureRequest',
+        'ListFeaturesRequest',
+        'ListFeaturesResponse',
+        'SearchFeaturesRequest',
+        'SearchFeaturesResponse',
+        'UpdateFeatureRequest',
+        'DeleteFeatureRequest',
+        'CreateFeaturestoreOperationMetadata',
+        'UpdateFeaturestoreOperationMetadata',
+        'ImportFeatureValuesOperationMetadata',
+        'ExportFeatureValuesOperationMetadata',
+        'BatchReadFeatureValuesOperationMetadata',
+        'CreateEntityTypeOperationMetadata',
+        'CreateFeatureOperationMetadata',
+        'BatchCreateFeaturesOperationMetadata',
     },
 )
 
@@ -97,13 +92,19 @@ class CreateFeaturestoreRequest(proto.Message):
             The value must be unique within the project and location.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    featurestore = proto.Field(
-        proto.MESSAGE, number=2, message=gca_featurestore.Featurestore,
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
     )
-
-    featurestore_id = proto.Field(proto.STRING, number=3)
+    featurestore = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_featurestore.Featurestore,
+    )
+    featurestore_id = proto.Field(
+        proto.STRING,
+        number=3,
+    )
 
 
 class GetFeaturestoreRequest(proto.Message):
@@ -116,7 +117,10 @@ class GetFeaturestoreRequest(proto.Message):
             resource.
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class ListFeaturestoresRequest(proto.Message):
@@ -174,17 +178,31 @@ class ListFeaturestoresRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    order_by = proto.Field(proto.STRING, number=5)
-
-    read_mask = proto.Field(proto.MESSAGE, number=6, message=field_mask.FieldMask,)
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    order_by = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    read_mask = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=field_mask_pb2.FieldMask,
+    )
 
 
 class ListFeaturestoresResponse(proto.Message):
@@ -206,10 +224,14 @@ class ListFeaturestoresResponse(proto.Message):
         return self
 
     featurestores = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=gca_featurestore.Featurestore,
+        proto.MESSAGE,
+        number=1,
+        message=gca_featurestore.Featurestore,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 class UpdateFeaturestoreRequest(proto.Message):
@@ -236,14 +258,19 @@ class UpdateFeaturestoreRequest(proto.Message):
             -  ``display_name``
             -  ``labels``
             -  ``online_serving_config.fixed_node_count``
-            -  ``online_serving_config.max_online_serving_size``
+            -  ``retention_policy.online_storage_ttl_days``
     """
 
     featurestore = proto.Field(
-        proto.MESSAGE, number=1, message=gca_featurestore.Featurestore,
+        proto.MESSAGE,
+        number=1,
+        message=gca_featurestore.Featurestore,
     )
-
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask_pb2.FieldMask,
+    )
 
 
 class DeleteFeaturestoreRequest(proto.Message):
@@ -262,9 +289,14 @@ class DeleteFeaturestoreRequest(proto.Message):
             Featurestore has no EntityTypes.)
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    force = proto.Field(proto.BOOL, number=2)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    force = proto.Field(
+        proto.BOOL,
+        number=2,
+    )
 
 
 class ImportFeatureValuesRequest(proto.Message):
@@ -316,7 +348,6 @@ class ImportFeatureValuesRequest(proto.Message):
 
     class FeatureSpec(proto.Message):
         r"""Defines the Feature value(s) to import.
-
         Attributes:
             id (str):
                 Required. ID of the Feature to import values
@@ -328,42 +359,65 @@ class ImportFeatureValuesRequest(proto.Message):
                 as the Feature ID.
         """
 
-        id = proto.Field(proto.STRING, number=1)
-
-        source_field = proto.Field(proto.STRING, number=2)
+        id = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        source_field = proto.Field(
+            proto.STRING,
+            number=2,
+        )
 
     avro_source = proto.Field(
-        proto.MESSAGE, number=2, oneof="source", message=io.AvroSource,
+        proto.MESSAGE,
+        number=2,
+        oneof='source',
+        message=io.AvroSource,
     )
-
     bigquery_source = proto.Field(
-        proto.MESSAGE, number=3, oneof="source", message=io.BigQuerySource,
+        proto.MESSAGE,
+        number=3,
+        oneof='source',
+        message=io.BigQuerySource,
     )
-
     csv_source = proto.Field(
-        proto.MESSAGE, number=4, oneof="source", message=io.CsvSource,
+        proto.MESSAGE,
+        number=4,
+        oneof='source',
+        message=io.CsvSource,
     )
-
     feature_time_field = proto.Field(
-        proto.STRING, number=6, oneof="feature_time_source"
+        proto.STRING,
+        number=6,
+        oneof='feature_time_source',
     )
-
     feature_time = proto.Field(
         proto.MESSAGE,
         number=7,
-        oneof="feature_time_source",
-        message=timestamp.Timestamp,
+        oneof='feature_time_source',
+        message=timestamp_pb2.Timestamp,
     )
-
-    entity_type = proto.Field(proto.STRING, number=1)
-
-    entity_id_field = proto.Field(proto.STRING, number=5)
-
-    feature_specs = proto.RepeatedField(proto.MESSAGE, number=8, message=FeatureSpec,)
-
-    disable_online_serving = proto.Field(proto.BOOL, number=9)
-
-    worker_count = proto.Field(proto.INT32, number=11)
+    entity_type = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    entity_id_field = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    feature_specs = proto.RepeatedField(
+        proto.MESSAGE,
+        number=8,
+        message=FeatureSpec,
+    )
+    disable_online_serving = proto.Field(
+        proto.BOOL,
+        number=9,
+    )
+    worker_count = proto.Field(
+        proto.INT32,
+        number=11,
+    )
 
 
 class ImportFeatureValuesResponse(proto.Message):
@@ -377,11 +431,28 @@ class ImportFeatureValuesResponse(proto.Message):
         imported_feature_value_count (int):
             Number of Feature values that have been
             imported by the operation.
+        invalid_row_count (int):
+            The number of rows in input source that weren't imported due
+            to either
+
+            -  Not having any featureValues.
+            -  Having a null entityId.
+            -  Having a null timestamp.
+            -  Not being parsable (applicable for CSV sources).
     """
 
-    imported_entity_count = proto.Field(proto.INT64, number=1)
-
-    imported_feature_value_count = proto.Field(proto.INT64, number=2)
+    imported_entity_count = proto.Field(
+        proto.INT64,
+        number=1,
+    )
+    imported_feature_value_count = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+    invalid_row_count = proto.Field(
+        proto.INT64,
+        number=6,
+    )
 
 
 class BatchReadFeatureValuesRequest(proto.Message):
@@ -446,28 +517,40 @@ class BatchReadFeatureValuesRequest(proto.Message):
                 Per-Feature settings for the batch read.
         """
 
-        entity_type_id = proto.Field(proto.STRING, number=1)
-
-        feature_selector = proto.Field(
-            proto.MESSAGE, number=2, message=gca_feature_selector.FeatureSelector,
+        entity_type_id = proto.Field(
+            proto.STRING,
+            number=1,
         )
-
+        feature_selector = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=gca_feature_selector.FeatureSelector,
+        )
         settings = proto.RepeatedField(
-            proto.MESSAGE, number=3, message="DestinationFeatureSetting",
+            proto.MESSAGE,
+            number=3,
+            message='DestinationFeatureSetting',
         )
 
     csv_read_instances = proto.Field(
-        proto.MESSAGE, number=3, oneof="read_option", message=io.CsvSource,
+        proto.MESSAGE,
+        number=3,
+        oneof='read_option',
+        message=io.CsvSource,
     )
-
-    featurestore = proto.Field(proto.STRING, number=1)
-
+    featurestore = proto.Field(
+        proto.STRING,
+        number=1,
+    )
     destination = proto.Field(
-        proto.MESSAGE, number=4, message="FeatureValueDestination",
+        proto.MESSAGE,
+        number=4,
+        message='FeatureValueDestination',
     )
-
     entity_type_specs = proto.RepeatedField(
-        proto.MESSAGE, number=7, message=EntityTypeSpec,
+        proto.MESSAGE,
+        number=7,
+        message=EntityTypeSpec,
     )
 
 
@@ -506,31 +589,40 @@ class ExportFeatureValuesRequest(proto.Message):
         """
 
         snapshot_time = proto.Field(
-            proto.MESSAGE, number=1, message=timestamp.Timestamp,
+            proto.MESSAGE,
+            number=1,
+            message=timestamp_pb2.Timestamp,
         )
 
     snapshot_export = proto.Field(
-        proto.MESSAGE, number=3, oneof="mode", message=SnapshotExport,
+        proto.MESSAGE,
+        number=3,
+        oneof='mode',
+        message=SnapshotExport,
     )
-
-    entity_type = proto.Field(proto.STRING, number=1)
-
+    entity_type = proto.Field(
+        proto.STRING,
+        number=1,
+    )
     destination = proto.Field(
-        proto.MESSAGE, number=4, message="FeatureValueDestination",
+        proto.MESSAGE,
+        number=4,
+        message='FeatureValueDestination',
     )
-
     feature_selector = proto.Field(
-        proto.MESSAGE, number=5, message=gca_feature_selector.FeatureSelector,
+        proto.MESSAGE,
+        number=5,
+        message=gca_feature_selector.FeatureSelector,
     )
-
     settings = proto.RepeatedField(
-        proto.MESSAGE, number=6, message="DestinationFeatureSetting",
+        proto.MESSAGE,
+        number=6,
+        message='DestinationFeatureSetting',
     )
 
 
 class DestinationFeatureSetting(proto.Message):
     r"""
-
     Attributes:
         feature_id (str):
             Required. The ID of the Feature to apply the
@@ -541,14 +633,18 @@ class DestinationFeatureSetting(proto.Message):
             used.
     """
 
-    feature_id = proto.Field(proto.STRING, number=1)
-
-    destination_field = proto.Field(proto.STRING, number=2)
+    feature_id = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    destination_field = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 class FeatureValueDestination(proto.Message):
     r"""A destination location for Feature values and format.
-
     Attributes:
         bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
             Output in BigQuery format.
@@ -576,28 +672,35 @@ class FeatureValueDestination(proto.Message):
     """
 
     bigquery_destination = proto.Field(
-        proto.MESSAGE, number=1, oneof="destination", message=io.BigQueryDestination,
+        proto.MESSAGE,
+        number=1,
+        oneof='destination',
+        message=io.BigQueryDestination,
     )
-
     tfrecord_destination = proto.Field(
-        proto.MESSAGE, number=2, oneof="destination", message=io.TFRecordDestination,
+        proto.MESSAGE,
+        number=2,
+        oneof='destination',
+        message=io.TFRecordDestination,
     )
-
     csv_destination = proto.Field(
-        proto.MESSAGE, number=3, oneof="destination", message=io.CsvDestination,
+        proto.MESSAGE,
+        number=3,
+        oneof='destination',
+        message=io.CsvDestination,
     )
 
 
 class ExportFeatureValuesResponse(proto.Message):
     r"""Response message for
     [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ExportFeatureValues].
-    """
+        """
 
 
 class BatchReadFeatureValuesResponse(proto.Message):
     r"""Response message for
     [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchReadFeatureValues].
-    """
+        """
 
 
 class CreateEntityTypeRequest(proto.Message):
@@ -622,13 +725,19 @@ class CreateEntityTypeRequest(proto.Message):
             The value must be unique within a featurestore.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    entity_type = proto.Field(
-        proto.MESSAGE, number=2, message=gca_entity_type.EntityType,
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
     )
-
-    entity_type_id = proto.Field(proto.STRING, number=3)
+    entity_type = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_entity_type.EntityType,
+    )
+    entity_type_id = proto.Field(
+        proto.STRING,
+        number=3,
+    )
 
 
 class GetEntityTypeRequest(proto.Message):
@@ -641,7 +750,10 @@ class GetEntityTypeRequest(proto.Message):
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class ListEntityTypesRequest(proto.Message):
@@ -702,17 +814,31 @@ class ListEntityTypesRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    order_by = proto.Field(proto.STRING, number=5)
-
-    read_mask = proto.Field(proto.MESSAGE, number=6, message=field_mask.FieldMask,)
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    order_by = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    read_mask = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=field_mask_pb2.FieldMask,
+    )
 
 
 class ListEntityTypesResponse(proto.Message):
@@ -734,10 +860,14 @@ class ListEntityTypesResponse(proto.Message):
         return self
 
     entity_types = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=gca_entity_type.EntityType,
+        proto.MESSAGE,
+        number=1,
+        message=gca_entity_type.EntityType,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 class UpdateEntityTypeRequest(proto.Message):
@@ -768,15 +898,19 @@ class UpdateEntityTypeRequest(proto.Message):
     """
 
     entity_type = proto.Field(
-        proto.MESSAGE, number=1, message=gca_entity_type.EntityType,
+        proto.MESSAGE,
+        number=1,
+        message=gca_entity_type.EntityType,
     )
-
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask_pb2.FieldMask,
+    )
 
 
 class DeleteEntityTypeRequest(proto.Message):
     r"""Request message for [FeaturestoreService.DeleteEntityTypes][].
-
     Attributes:
         name (str):
             Required. The name of the EntityType to be deleted. Format:
@@ -788,9 +922,14 @@ class DeleteEntityTypeRequest(proto.Message):
             Features.)
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    force = proto.Field(proto.BOOL, number=2)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    force = proto.Field(
+        proto.BOOL,
+        number=2,
+    )
 
 
 class CreateFeatureRequest(proto.Message):
@@ -814,11 +953,19 @@ class CreateFeatureRequest(proto.Message):
             The value must be unique within an EntityType.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    feature = proto.Field(proto.MESSAGE, number=2, message=gca_feature.Feature,)
-
-    feature_id = proto.Field(proto.STRING, number=3)
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    feature = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_feature.Feature,
+    )
+    feature_id = proto.Field(
+        proto.STRING,
+        number=3,
+    )
 
 
 class BatchCreateFeaturesRequest(proto.Message):
@@ -839,10 +986,14 @@ class BatchCreateFeaturesRequest(proto.Message):
             this request message.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
     requests = proto.RepeatedField(
-        proto.MESSAGE, number=2, message="CreateFeatureRequest",
+        proto.MESSAGE,
+        number=2,
+        message='CreateFeatureRequest',
     )
 
 
@@ -856,7 +1007,9 @@ class BatchCreateFeaturesResponse(proto.Message):
     """
 
     features = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=gca_feature.Feature,
+        proto.MESSAGE,
+        number=1,
+        message=gca_feature.Feature,
     )
 
 
@@ -870,7 +1023,10 @@ class GetFeatureRequest(proto.Message):
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class ListFeaturesRequest(proto.Message):
@@ -940,19 +1096,35 @@ class ListFeaturesRequest(proto.Message):
             return all existing stats.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    order_by = proto.Field(proto.STRING, number=5)
-
-    read_mask = proto.Field(proto.MESSAGE, number=6, message=field_mask.FieldMask,)
-
-    latest_stats_count = proto.Field(proto.INT32, number=7)
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    order_by = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    read_mask = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=field_mask_pb2.FieldMask,
+    )
+    latest_stats_count = proto.Field(
+        proto.INT32,
+        number=7,
+    )
 
 
 class ListFeaturesResponse(proto.Message):
@@ -974,10 +1146,14 @@ class ListFeaturesResponse(proto.Message):
         return self
 
     features = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=gca_feature.Feature,
+        proto.MESSAGE,
+        number=1,
+        message=gca_feature.Feature,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 class SearchFeaturesRequest(proto.Message):
@@ -1075,13 +1251,22 @@ class SearchFeaturesRequest(proto.Message):
             page token.
     """
 
-    location = proto.Field(proto.STRING, number=1)
-
-    query = proto.Field(proto.STRING, number=3)
-
-    page_size = proto.Field(proto.INT32, number=4)
-
-    page_token = proto.Field(proto.STRING, number=5)
+    location = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    query = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    page_size = proto.Field(
+        proto.INT32,
+        number=4,
+    )
+    page_token = proto.Field(
+        proto.STRING,
+        number=5,
+    )
 
 
 class SearchFeaturesResponse(proto.Message):
@@ -1111,10 +1296,14 @@ class SearchFeaturesResponse(proto.Message):
         return self
 
     features = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=gca_feature.Feature,
+        proto.MESSAGE,
+        number=1,
+        message=gca_feature.Feature,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 class UpdateFeatureRequest(proto.Message):
@@ -1143,9 +1332,16 @@ class UpdateFeatureRequest(proto.Message):
             -  ``monitoring_config.snapshot_analysis.monitoring_interval``
     """
 
-    feature = proto.Field(proto.MESSAGE, number=1, message=gca_feature.Feature,)
-
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    feature = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=gca_feature.Feature,
+    )
+    update_mask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask_pb2.FieldMask,
+    )
 
 
 class DeleteFeatureRequest(proto.Message):
@@ -1158,38 +1354,42 @@ class DeleteFeatureRequest(proto.Message):
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class CreateFeaturestoreOperationMetadata(proto.Message):
     r"""Details of operations that perform create Featurestore.
-
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore.
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
 class UpdateFeaturestoreOperationMetadata(proto.Message):
     r"""Details of operations that perform update Featurestore.
-
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore.
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
 class ImportFeatureValuesOperationMetadata(proto.Message):
     r"""Details of operations that perform import feature values.
-
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore import
@@ -1200,20 +1400,37 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
         imported_feature_value_count (int):
             Number of feature values that have been
             imported by the operation.
+        invalid_row_count (int):
+            The number of rows in input source that weren't imported due
+            to either
+
+            -  Not having any featureValues.
+            -  Having a null entityId.
+            -  Having a null timestamp.
+            -  Not being parsable (applicable for CSV sources).
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
-
-    imported_entity_count = proto.Field(proto.INT64, number=2)
-
-    imported_feature_value_count = proto.Field(proto.INT64, number=3)
+    imported_entity_count = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+    imported_feature_value_count = proto.Field(
+        proto.INT64,
+        number=3,
+    )
+    invalid_row_count = proto.Field(
+        proto.INT64,
+        number=6,
+    )
 
 
 class ExportFeatureValuesOperationMetadata(proto.Message):
     r"""Details of operations that exports Features values.
-
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore export
@@ -1221,13 +1438,14 @@ class ExportFeatureValuesOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
 class BatchReadFeatureValuesOperationMetadata(proto.Message):
     r"""Details of operations that batch reads Feature values.
-
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Featurestore batch
@@ -1235,46 +1453,51 @@ class BatchReadFeatureValuesOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
 class CreateEntityTypeOperationMetadata(proto.Message):
     r"""Details of operations that perform create EntityType.
-
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for EntityType.
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
 class CreateFeatureOperationMetadata(proto.Message):
     r"""Details of operations that perform create Feature.
-
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Feature.
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 
 class BatchCreateFeaturesOperationMetadata(proto.Message):
     r"""Details of operations that perform batch create Features.
-
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for Feature.
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 

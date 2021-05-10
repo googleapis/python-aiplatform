@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,23 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
-
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1",
-    manifest={"GenericOperationMetadata", "DeleteOperationMetadata",},
+    package='google.cloud.aiplatform.v1',
+    manifest={
+        'GenericOperationMetadata',
+        'DeleteOperationMetadata',
+    },
 )
 
 
 class GenericOperationMetadata(proto.Message):
     r"""Generic Metadata shared by all operations.
-
     Attributes:
         partial_failures (Sequence[google.rpc.status_pb2.Status]):
             Output only. Partial failures encountered.
@@ -49,24 +48,33 @@ class GenericOperationMetadata(proto.Message):
     """
 
     partial_failures = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=status.Status,
+        proto.MESSAGE,
+        number=1,
+        message=status_pb2.Status,
     )
-
-    create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp.Timestamp,)
-
-    update_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=timestamp_pb2.Timestamp,
+    )
 
 
 class DeleteOperationMetadata(proto.Message):
     r"""Details of operations that perform deletes of any entities.
-
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
             The common part of the operation metadata.
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message="GenericOperationMetadata",
+        proto.MESSAGE,
+        number=1,
+        message='GenericOperationMetadata',
     )
 
 

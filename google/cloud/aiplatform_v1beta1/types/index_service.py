@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,27 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import index as gca_index
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "CreateIndexRequest",
-        "CreateIndexOperationMetadata",
-        "GetIndexRequest",
-        "ListIndexesRequest",
-        "ListIndexesResponse",
-        "UpdateIndexRequest",
-        "UpdateIndexOperationMetadata",
-        "DeleteIndexRequest",
-        "NearestNeighborSearchOperationMetadata",
+        'CreateIndexRequest',
+        'CreateIndexOperationMetadata',
+        'GetIndexRequest',
+        'ListIndexesRequest',
+        'ListIndexesResponse',
+        'UpdateIndexRequest',
+        'UpdateIndexOperationMetadata',
+        'DeleteIndexRequest',
+        'NearestNeighborSearchOperationMetadata',
     },
 )
 
@@ -52,9 +49,15 @@ class CreateIndexRequest(proto.Message):
             Required. The Index to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    index = proto.Field(proto.MESSAGE, number=2, message=gca_index.Index,)
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    index = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_index.Index,
+    )
 
 
 class CreateIndexOperationMetadata(proto.Message):
@@ -70,11 +73,14 @@ class CreateIndexOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
-
     nearest_neighbor_search_operation_metadata = proto.Field(
-        proto.MESSAGE, number=2, message="NearestNeighborSearchOperationMetadata",
+        proto.MESSAGE,
+        number=2,
+        message='NearestNeighborSearchOperationMetadata',
     )
 
 
@@ -88,7 +94,10 @@ class GetIndexRequest(proto.Message):
             ``projects/{project}/locations/{location}/indexes/{index}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class ListIndexesRequest(proto.Message):
@@ -114,15 +123,27 @@ class ListIndexesRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    read_mask = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=field_mask_pb2.FieldMask,
+    )
 
 
 class ListIndexesResponse(proto.Message):
@@ -142,9 +163,15 @@ class ListIndexesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    indexes = proto.RepeatedField(proto.MESSAGE, number=1, message=gca_index.Index,)
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    indexes = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_index.Index,
+    )
+    next_page_token = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 class UpdateIndexRequest(proto.Message):
@@ -161,9 +188,16 @@ class UpdateIndexRequest(proto.Message):
             `FieldMask <https://tinyurl.com/protobufs#google.protobuf.FieldMask>`__.
     """
 
-    index = proto.Field(proto.MESSAGE, number=1, message=gca_index.Index,)
-
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    index = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=gca_index.Index,
+    )
+    update_mask = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=field_mask_pb2.FieldMask,
+    )
 
 
 class UpdateIndexOperationMetadata(proto.Message):
@@ -179,11 +213,14 @@ class UpdateIndexOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
-
     nearest_neighbor_search_operation_metadata = proto.Field(
-        proto.MESSAGE, number=2, message="NearestNeighborSearchOperationMetadata",
+        proto.MESSAGE,
+        number=2,
+        message='NearestNeighborSearchOperationMetadata',
     )
 
 
@@ -198,7 +235,10 @@ class DeleteIndexRequest(proto.Message):
             ``projects/{project}/locations/{location}/indexes/{index}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class NearestNeighborSearchOperationMetadata(proto.Message):
@@ -218,7 +258,6 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
 
     class RecordError(proto.Message):
         r"""
-
         Attributes:
             error_type (google.cloud.aiplatform_v1beta1.types.NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType):
                 The error type of this record.
@@ -228,14 +267,13 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                 time to time, your code should check against error_type as
                 the source of truth.
             source_gcs_uri (str):
-                GCS uri pointing to the original file in
-                user's bucket.
+                Cloud Storage URI pointing to the original
+                file in user's bucket.
             embedding_id (str):
                 Empty if the embedding id is failed to parse.
             raw_record (str):
                 The original content of this record.
         """
-
         class RecordErrorType(proto.Enum):
             r""""""
             ERROR_TYPE_UNSPECIFIED = 0
@@ -250,24 +288,31 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
         error_type = proto.Field(
             proto.ENUM,
             number=1,
-            enum="NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType",
+            enum='NearestNeighborSearchOperationMetadata.RecordError.RecordErrorType',
         )
-
-        error_message = proto.Field(proto.STRING, number=2)
-
-        source_gcs_uri = proto.Field(proto.STRING, number=3)
-
-        embedding_id = proto.Field(proto.STRING, number=4)
-
-        raw_record = proto.Field(proto.STRING, number=5)
+        error_message = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+        source_gcs_uri = proto.Field(
+            proto.STRING,
+            number=3,
+        )
+        embedding_id = proto.Field(
+            proto.STRING,
+            number=4,
+        )
+        raw_record = proto.Field(
+            proto.STRING,
+            number=5,
+        )
 
     class ContentValidationStats(proto.Message):
         r"""
-
         Attributes:
             source_gcs_uri (str):
-                GCS uri pointing to the original file in
-                user's bucket.
+                Cloud Storage URI pointing to the original
+                file in user's bucket.
             valid_record_count (int):
                 Number of records in this file that were
                 successfully processed.
@@ -281,20 +326,28 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                 will be reported.
         """
 
-        source_gcs_uri = proto.Field(proto.STRING, number=1)
-
-        valid_record_count = proto.Field(proto.INT64, number=2)
-
-        invalid_record_count = proto.Field(proto.INT64, number=3)
-
+        source_gcs_uri = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        valid_record_count = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+        invalid_record_count = proto.Field(
+            proto.INT64,
+            number=3,
+        )
         partial_errors = proto.RepeatedField(
             proto.MESSAGE,
             number=4,
-            message="NearestNeighborSearchOperationMetadata.RecordError",
+            message='NearestNeighborSearchOperationMetadata.RecordError',
         )
 
     content_validation_stats = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=ContentValidationStats,
+        proto.MESSAGE,
+        number=1,
+        message=ContentValidationStats,
     )
 
 

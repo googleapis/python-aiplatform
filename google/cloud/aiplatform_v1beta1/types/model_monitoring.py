@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,27 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import io
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1",
+    package='google.cloud.aiplatform.v1beta1',
     manifest={
-        "ModelMonitoringObjectiveConfig",
-        "ModelMonitoringAlertConfig",
-        "ThresholdConfig",
-        "SamplingStrategy",
+        'ModelMonitoringObjectiveConfig',
+        'ModelMonitoringAlertConfig',
+        'ThresholdConfig',
+        'SamplingStrategy',
     },
 )
 
 
 class ModelMonitoringObjectiveConfig(proto.Message):
     r"""Next ID: 6
-
     Attributes:
         training_dataset (google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.TrainingDataset):
             Training dataset for models. This field has
@@ -50,7 +46,6 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
     class TrainingDataset(proto.Message):
         r"""Training Dataset information.
-
         Attributes:
             dataset (str):
                 The resource name of the Dataset used to
@@ -81,22 +76,35 @@ class ModelMonitoringObjectiveConfig(proto.Message):
                 dataset.
         """
 
-        dataset = proto.Field(proto.STRING, number=3, oneof="data_source")
-
+        dataset = proto.Field(
+            proto.STRING,
+            number=3,
+            oneof='data_source',
+        )
         gcs_source = proto.Field(
-            proto.MESSAGE, number=4, oneof="data_source", message=io.GcsSource,
+            proto.MESSAGE,
+            number=4,
+            oneof='data_source',
+            message=io.GcsSource,
         )
-
         bigquery_source = proto.Field(
-            proto.MESSAGE, number=5, oneof="data_source", message=io.BigQuerySource,
+            proto.MESSAGE,
+            number=5,
+            oneof='data_source',
+            message=io.BigQuerySource,
         )
-
-        data_format = proto.Field(proto.STRING, number=2)
-
-        target_field = proto.Field(proto.STRING, number=6)
-
+        data_format = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+        target_field = proto.Field(
+            proto.STRING,
+            number=6,
+        )
         logging_sampling_strategy = proto.Field(
-            proto.MESSAGE, number=7, message="SamplingStrategy",
+            proto.MESSAGE,
+            number=7,
+            message='SamplingStrategy',
         )
 
     class TrainingPredictionSkewDetectionConfig(proto.Message):
@@ -115,12 +123,14 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         """
 
         skew_thresholds = proto.MapField(
-            proto.STRING, proto.MESSAGE, number=1, message="ThresholdConfig",
+            proto.STRING,
+            proto.MESSAGE,
+            number=1,
+            message='ThresholdConfig',
         )
 
     class PredictionDriftDetectionConfig(proto.Message):
         r"""The config for Prediction data drift detection.
-
         Attributes:
             drift_thresholds (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig.DriftThresholdsEntry]):
                 Key is the feature name and value is the
@@ -132,23 +142,31 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         """
 
         drift_thresholds = proto.MapField(
-            proto.STRING, proto.MESSAGE, number=1, message="ThresholdConfig",
+            proto.STRING,
+            proto.MESSAGE,
+            number=1,
+            message='ThresholdConfig',
         )
 
-    training_dataset = proto.Field(proto.MESSAGE, number=1, message=TrainingDataset,)
-
-    training_prediction_skew_detection_config = proto.Field(
-        proto.MESSAGE, number=2, message=TrainingPredictionSkewDetectionConfig,
+    training_dataset = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=TrainingDataset,
     )
-
+    training_prediction_skew_detection_config = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=TrainingPredictionSkewDetectionConfig,
+    )
     prediction_drift_detection_config = proto.Field(
-        proto.MESSAGE, number=3, message=PredictionDriftDetectionConfig,
+        proto.MESSAGE,
+        number=3,
+        message=PredictionDriftDetectionConfig,
     )
 
 
 class ModelMonitoringAlertConfig(proto.Message):
     r"""Next ID: 2
-
     Attributes:
         email_alert_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringAlertConfig.EmailAlertConfig):
             Email alert config.
@@ -156,16 +174,21 @@ class ModelMonitoringAlertConfig(proto.Message):
 
     class EmailAlertConfig(proto.Message):
         r"""The config for email alert.
-
         Attributes:
             user_emails (Sequence[str]):
                 The email addresses to send the alert.
         """
 
-        user_emails = proto.RepeatedField(proto.STRING, number=1)
+        user_emails = proto.RepeatedField(
+            proto.STRING,
+            number=1,
+        )
 
     email_alert_config = proto.Field(
-        proto.MESSAGE, number=1, oneof="alert", message=EmailAlertConfig,
+        proto.MESSAGE,
+        number=1,
+        oneof='alert',
+        message=EmailAlertConfig,
     )
 
 
@@ -188,7 +211,11 @@ class ThresholdConfig(proto.Message):
             will be triggered for that feature.
     """
 
-    value = proto.Field(proto.DOUBLE, number=1, oneof="threshold")
+    value = proto.Field(
+        proto.DOUBLE,
+        number=1,
+        oneof='threshold',
+    )
 
 
 class SamplingStrategy(proto.Message):
@@ -204,16 +231,20 @@ class SamplingStrategy(proto.Message):
 
     class RandomSampleConfig(proto.Message):
         r"""Requests are randomly selected.
-
         Attributes:
             sample_rate (float):
                 Sample rate (0, 1]
         """
 
-        sample_rate = proto.Field(proto.DOUBLE, number=1)
+        sample_rate = proto.Field(
+            proto.DOUBLE,
+            number=1,
+        )
 
     random_sample_config = proto.Field(
-        proto.MESSAGE, number=1, message=RandomSampleConfig,
+        proto.MESSAGE,
+        number=1,
+        message=RandomSampleConfig,
     )
 
 

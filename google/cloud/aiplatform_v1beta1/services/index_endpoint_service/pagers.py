@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from typing import (
-    Any,
-    AsyncIterable,
-    Awaitable,
-    Callable,
-    Iterable,
-    Sequence,
-    Tuple,
-    Optional,
-)
+from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple, Optional
 
 from google.cloud.aiplatform_v1beta1.types import index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint_service
@@ -47,15 +36,12 @@ class ListIndexEndpointsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-
-    def __init__(
-        self,
-        method: Callable[..., index_endpoint_service.ListIndexEndpointsResponse],
-        request: index_endpoint_service.ListIndexEndpointsRequest,
-        response: index_endpoint_service.ListIndexEndpointsResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
+    def __init__(self,
+            method: Callable[..., index_endpoint_service.ListIndexEndpointsResponse],
+            request: index_endpoint_service.ListIndexEndpointsRequest,
+            response: index_endpoint_service.ListIndexEndpointsResponse,
+            *,
+            metadata: Sequence[Tuple[str, str]] = ()):
         """Instantiate the pager.
 
         Args:
@@ -89,7 +75,7 @@ class ListIndexEndpointsPager:
             yield from page.index_endpoints
 
     def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
 
 
 class ListIndexEndpointsAsyncPager:
@@ -109,17 +95,12 @@ class ListIndexEndpointsAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-
-    def __init__(
-        self,
-        method: Callable[
-            ..., Awaitable[index_endpoint_service.ListIndexEndpointsResponse]
-        ],
-        request: index_endpoint_service.ListIndexEndpointsRequest,
-        response: index_endpoint_service.ListIndexEndpointsResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
+    def __init__(self,
+            method: Callable[..., Awaitable[index_endpoint_service.ListIndexEndpointsResponse]],
+            request: index_endpoint_service.ListIndexEndpointsRequest,
+            response: index_endpoint_service.ListIndexEndpointsResponse,
+            *,
+            metadata: Sequence[Tuple[str, str]] = ()):
         """Instantiate the pager.
 
         Args:
@@ -141,9 +122,7 @@ class ListIndexEndpointsAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(
-        self,
-    ) -> AsyncIterable[index_endpoint_service.ListIndexEndpointsResponse]:
+    async def pages(self) -> AsyncIterable[index_endpoint_service.ListIndexEndpointsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -159,4 +138,4 @@ class ListIndexEndpointsAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)

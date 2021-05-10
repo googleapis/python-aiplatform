@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,23 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
-
-from google.protobuf import duration_pb2 as duration  # type: ignore
-from google.protobuf import wrappers_pb2 as wrappers  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
+from google.protobuf import wrappers_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1.schema.predict.prediction",
-    manifest={"VideoActionRecognitionPredictionResult",},
+    package='google.cloud.aiplatform.v1.schema.predict.prediction',
+    manifest={
+        'VideoActionRecognitionPredictionResult',
+    },
 )
 
 
 class VideoActionRecognitionPredictionResult(proto.Message):
     r"""Prediction output format for Video Action Recognition.
-
     Attributes:
         id (str):
             The resource ID of the AnnotationSpec that
@@ -58,17 +56,29 @@ class VideoActionRecognitionPredictionResult(proto.Message):
             confidence.
     """
 
-    id = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
-    time_segment_start = proto.Field(
-        proto.MESSAGE, number=4, message=duration.Duration,
+    id = proto.Field(
+        proto.STRING,
+        number=1,
     )
-
-    time_segment_end = proto.Field(proto.MESSAGE, number=5, message=duration.Duration,)
-
-    confidence = proto.Field(proto.MESSAGE, number=6, message=wrappers.FloatValue,)
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    time_segment_start = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=duration_pb2.Duration,
+    )
+    time_segment_end = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=duration_pb2.Duration,
+    )
+    confidence = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=wrappers_pb2.FloatValue,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

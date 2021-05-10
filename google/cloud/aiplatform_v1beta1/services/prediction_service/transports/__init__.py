@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from typing import Dict, Type
 
@@ -25,11 +23,11 @@ from .grpc_asyncio import PredictionServiceGrpcAsyncIOTransport
 
 # Compile a registry of transports.
 _transport_registry = OrderedDict()  # type: Dict[str, Type[PredictionServiceTransport]]
-_transport_registry["grpc"] = PredictionServiceGrpcTransport
-_transport_registry["grpc_asyncio"] = PredictionServiceGrpcAsyncIOTransport
+_transport_registry['grpc'] = PredictionServiceGrpcTransport
+_transport_registry['grpc_asyncio'] = PredictionServiceGrpcAsyncIOTransport
 
 __all__ = (
-    "PredictionServiceTransport",
-    "PredictionServiceGrpcTransport",
-    "PredictionServiceGrpcAsyncIOTransport",
+    'PredictionServiceTransport',
+    'PredictionServiceGrpcTransport',
+    'PredictionServiceGrpcAsyncIOTransport',
 )

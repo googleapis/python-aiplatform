@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 import functools
 import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
-from google.oauth2 import service_account  # type: ignore
+import google.api_core.client_options as ClientOptions # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
+from google.api_core import gapic_v1                   # type: ignore
+from google.api_core import retry as retries           # type: ignore
+from google.auth import credentials as ga_credentials   # type: ignore
+from google.oauth2 import service_account              # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -46,11 +44,10 @@ from google.cloud.aiplatform_v1beta1.types import metadata_service
 from google.cloud.aiplatform_v1beta1.types import metadata_store
 from google.cloud.aiplatform_v1beta1.types import metadata_store as gca_metadata_store
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import MetadataServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import MetadataServiceGrpcAsyncIOTransport
 from .client import MetadataServiceClient
@@ -71,42 +68,19 @@ class MetadataServiceAsyncClient:
     execution_path = staticmethod(MetadataServiceClient.execution_path)
     parse_execution_path = staticmethod(MetadataServiceClient.parse_execution_path)
     metadata_schema_path = staticmethod(MetadataServiceClient.metadata_schema_path)
-    parse_metadata_schema_path = staticmethod(
-        MetadataServiceClient.parse_metadata_schema_path
-    )
+    parse_metadata_schema_path = staticmethod(MetadataServiceClient.parse_metadata_schema_path)
     metadata_store_path = staticmethod(MetadataServiceClient.metadata_store_path)
-    parse_metadata_store_path = staticmethod(
-        MetadataServiceClient.parse_metadata_store_path
-    )
-
-    common_billing_account_path = staticmethod(
-        MetadataServiceClient.common_billing_account_path
-    )
-    parse_common_billing_account_path = staticmethod(
-        MetadataServiceClient.parse_common_billing_account_path
-    )
-
+    parse_metadata_store_path = staticmethod(MetadataServiceClient.parse_metadata_store_path)
+    common_billing_account_path = staticmethod(MetadataServiceClient.common_billing_account_path)
+    parse_common_billing_account_path = staticmethod(MetadataServiceClient.parse_common_billing_account_path)
     common_folder_path = staticmethod(MetadataServiceClient.common_folder_path)
-    parse_common_folder_path = staticmethod(
-        MetadataServiceClient.parse_common_folder_path
-    )
-
-    common_organization_path = staticmethod(
-        MetadataServiceClient.common_organization_path
-    )
-    parse_common_organization_path = staticmethod(
-        MetadataServiceClient.parse_common_organization_path
-    )
-
+    parse_common_folder_path = staticmethod(MetadataServiceClient.parse_common_folder_path)
+    common_organization_path = staticmethod(MetadataServiceClient.common_organization_path)
+    parse_common_organization_path = staticmethod(MetadataServiceClient.parse_common_organization_path)
     common_project_path = staticmethod(MetadataServiceClient.common_project_path)
-    parse_common_project_path = staticmethod(
-        MetadataServiceClient.parse_common_project_path
-    )
-
+    parse_common_project_path = staticmethod(MetadataServiceClient.parse_common_project_path)
     common_location_path = staticmethod(MetadataServiceClient.common_location_path)
-    parse_common_location_path = staticmethod(
-        MetadataServiceClient.parse_common_location_path
-    )
+    parse_common_location_path = staticmethod(MetadataServiceClient.parse_common_location_path)
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -149,18 +123,14 @@ class MetadataServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(
-        type(MetadataServiceClient).get_transport_class, type(MetadataServiceClient)
-    )
+    get_transport_class = functools.partial(type(MetadataServiceClient).get_transport_class, type(MetadataServiceClient))
 
-    def __init__(
-        self,
-        *,
-        credentials: credentials.Credentials = None,
-        transport: Union[str, MetadataServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
-        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-    ) -> None:
+    def __init__(self, *,
+            credentials: ga_credentials.Credentials = None,
+            transport: Union[str, MetadataServiceTransport] = 'grpc_asyncio',
+            client_options: ClientOptions = None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            ) -> None:
         """Instantiate the metadata service client.
 
         Args:
@@ -193,25 +163,24 @@ class MetadataServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
-
         self._client = MetadataServiceClient(
             credentials=credentials,
             transport=transport,
             client_options=client_options,
             client_info=client_info,
+
         )
 
-    async def create_metadata_store(
-        self,
-        request: metadata_service.CreateMetadataStoreRequest = None,
-        *,
-        parent: str = None,
-        metadata_store: gca_metadata_store.MetadataStore = None,
-        metadata_store_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def create_metadata_store(self,
+            request: metadata_service.CreateMetadataStoreRequest = None,
+            *,
+            parent: str = None,
+            metadata_store: gca_metadata_store.MetadataStore = None,
+            metadata_store_id: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Initializes a MetadataStore, including allocation of
         resources.
 
@@ -250,7 +219,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``metadata_store_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -270,16 +238,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, metadata_store, metadata_store_id])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.CreateMetadataStoreRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if metadata_store is not None:
@@ -298,11 +263,18 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -315,15 +287,14 @@ class MetadataServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def get_metadata_store(
-        self,
-        request: metadata_service.GetMetadataStoreRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> metadata_store.MetadataStore:
+    async def get_metadata_store(self,
+            request: metadata_service.GetMetadataStoreRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> metadata_store.MetadataStore:
         r"""Retrieves a specific MetadataStore.
 
         Args:
@@ -338,7 +309,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -357,16 +327,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.GetMetadataStoreRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -381,24 +348,30 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def list_metadata_stores(
-        self,
-        request: metadata_service.ListMetadataStoresRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListMetadataStoresAsyncPager:
+    async def list_metadata_stores(self,
+            request: metadata_service.ListMetadataStoresRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListMetadataStoresAsyncPager:
         r"""Lists MetadataStores for a Location.
 
         Args:
@@ -413,7 +386,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -434,16 +406,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.ListMetadataStoresRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -458,30 +427,39 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListMetadataStoresAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def delete_metadata_store(
-        self,
-        request: metadata_service.DeleteMetadataStoreRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def delete_metadata_store(self,
+            request: metadata_service.DeleteMetadataStoreRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Deletes a single MetadataStore.
 
         Args:
@@ -496,7 +474,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -527,16 +504,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.DeleteMetadataStoreRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -551,34 +525,40 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=metadata_service.DeleteMetadataStoreOperationMetadata,
         )
 
         # Done; return the response.
         return response
 
-    async def create_artifact(
-        self,
-        request: metadata_service.CreateArtifactRequest = None,
-        *,
-        parent: str = None,
-        artifact: gca_artifact.Artifact = None,
-        artifact_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_artifact.Artifact:
+    async def create_artifact(self,
+            request: metadata_service.CreateArtifactRequest = None,
+            *,
+            parent: str = None,
+            artifact: gca_artifact.Artifact = None,
+            artifact_id: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gca_artifact.Artifact:
         r"""Creates an Artifact associated with a MetadataStore.
 
         Args:
@@ -614,7 +594,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``artifact_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -630,16 +609,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, artifact, artifact_id])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.CreateArtifactRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if artifact is not None:
@@ -658,24 +634,30 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def get_artifact(
-        self,
-        request: metadata_service.GetArtifactRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> artifact.Artifact:
+    async def get_artifact(self,
+            request: metadata_service.GetArtifactRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> artifact.Artifact:
         r"""Retrieves a specific Artifact.
 
         Args:
@@ -690,7 +672,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -706,16 +687,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.GetArtifactRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -730,24 +708,30 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def list_artifacts(
-        self,
-        request: metadata_service.ListArtifactsRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListArtifactsAsyncPager:
+    async def list_artifacts(self,
+            request: metadata_service.ListArtifactsRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListArtifactsAsyncPager:
         r"""Lists Artifacts in the MetadataStore.
 
         Args:
@@ -762,7 +746,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -783,16 +766,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.ListArtifactsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -807,31 +787,40 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListArtifactsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def update_artifact(
-        self,
-        request: metadata_service.UpdateArtifactRequest = None,
-        *,
-        artifact: gca_artifact.Artifact = None,
-        update_mask: field_mask.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_artifact.Artifact:
+    async def update_artifact(self,
+            request: metadata_service.UpdateArtifactRequest = None,
+            *,
+            artifact: gca_artifact.Artifact = None,
+            update_mask: field_mask_pb2.FieldMask = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gca_artifact.Artifact:
         r"""Updates a stored Artifact.
 
         Args:
@@ -856,7 +845,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -872,16 +860,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([artifact, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.UpdateArtifactRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if artifact is not None:
             request.artifact = artifact
         if update_mask is not None:
@@ -898,28 +883,32 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("artifact.name", request.artifact.name),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('artifact.name', request.artifact.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def create_context(
-        self,
-        request: metadata_service.CreateContextRequest = None,
-        *,
-        parent: str = None,
-        context: gca_context.Context = None,
-        context_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_context.Context:
+    async def create_context(self,
+            request: metadata_service.CreateContextRequest = None,
+            *,
+            parent: str = None,
+            context: gca_context.Context = None,
+            context_id: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gca_context.Context:
         r"""Creates a Context associated with a MetadataStore.
 
         Args:
@@ -955,7 +944,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``context_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -971,16 +959,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, context, context_id])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.CreateContextRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if context is not None:
@@ -999,24 +984,30 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def get_context(
-        self,
-        request: metadata_service.GetContextRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> context.Context:
+    async def get_context(self,
+            request: metadata_service.GetContextRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> context.Context:
         r"""Retrieves a specific Context.
 
         Args:
@@ -1031,7 +1022,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1047,16 +1037,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.GetContextRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -1071,24 +1058,30 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def list_contexts(
-        self,
-        request: metadata_service.ListContextsRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListContextsAsyncPager:
+    async def list_contexts(self,
+            request: metadata_service.ListContextsRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListContextsAsyncPager:
         r"""Lists Contexts on the MetadataStore.
 
         Args:
@@ -1103,7 +1096,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1124,16 +1116,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.ListContextsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -1148,31 +1137,40 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListContextsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def update_context(
-        self,
-        request: metadata_service.UpdateContextRequest = None,
-        *,
-        context: gca_context.Context = None,
-        update_mask: field_mask.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_context.Context:
+    async def update_context(self,
+            request: metadata_service.UpdateContextRequest = None,
+            *,
+            context: gca_context.Context = None,
+            update_mask: field_mask_pb2.FieldMask = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gca_context.Context:
         r"""Updates a stored Context.
 
         Args:
@@ -1196,7 +1194,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1212,16 +1209,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.UpdateContextRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if context is not None:
             request.context = context
         if update_mask is not None:
@@ -1238,26 +1232,30 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("context.name", request.context.name),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('context.name', request.context.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def delete_context(
-        self,
-        request: metadata_service.DeleteContextRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation_async.AsyncOperation:
+    async def delete_context(self,
+            request: metadata_service.DeleteContextRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> operation_async.AsyncOperation:
         r"""Deletes a stored Context.
 
         Args:
@@ -1272,7 +1270,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1303,16 +1300,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.DeleteContextRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -1327,34 +1321,40 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
         # Done; return the response.
         return response
 
-    async def add_context_artifacts_and_executions(
-        self,
-        request: metadata_service.AddContextArtifactsAndExecutionsRequest = None,
-        *,
-        context: str = None,
-        artifacts: Sequence[str] = None,
-        executions: Sequence[str] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> metadata_service.AddContextArtifactsAndExecutionsResponse:
+    async def add_context_artifacts_and_executions(self,
+            request: metadata_service.AddContextArtifactsAndExecutionsRequest = None,
+            *,
+            context: str = None,
+            artifacts: Sequence[str] = None,
+            executions: Sequence[str] = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> metadata_service.AddContextArtifactsAndExecutionsResponse:
         r"""Adds a set of Artifacts and Executions to a Context.
         If any of the Artifacts or Executions have already been
         added to a Context, they are simply skipped.
@@ -1386,7 +1386,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``executions`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1404,19 +1403,15 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, artifacts, executions])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.AddContextArtifactsAndExecutionsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if context is not None:
             request.context = context
-
         if artifacts:
             request.artifacts.extend(artifacts)
         if executions:
@@ -1433,25 +1428,31 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("context", request.context),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('context', request.context),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def add_context_children(
-        self,
-        request: metadata_service.AddContextChildrenRequest = None,
-        *,
-        context: str = None,
-        child_contexts: Sequence[str] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> metadata_service.AddContextChildrenResponse:
+    async def add_context_children(self,
+            request: metadata_service.AddContextChildrenRequest = None,
+            *,
+            context: str = None,
+            child_contexts: Sequence[str] = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> metadata_service.AddContextChildrenResponse:
         r"""Adds a set of Contexts as children to a parent Context. If any
         of the child Contexts have already been added to the parent
         Context, they are simply skipped. If this call would create a
@@ -1477,7 +1478,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``child_contexts`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1495,19 +1495,15 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([context, child_contexts])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.AddContextChildrenRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if context is not None:
             request.context = context
-
         if child_contexts:
             request.child_contexts.extend(child_contexts)
 
@@ -1522,24 +1518,30 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("context", request.context),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('context', request.context),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def query_context_lineage_subgraph(
-        self,
-        request: metadata_service.QueryContextLineageSubgraphRequest = None,
-        *,
-        context: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> lineage_subgraph.LineageSubgraph:
+    async def query_context_lineage_subgraph(self,
+            request: metadata_service.QueryContextLineageSubgraphRequest = None,
+            *,
+            context: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> lineage_subgraph.LineageSubgraph:
         r"""Retrieves Artifacts and Executions within the
         specified Context, connected by Event edges and returned
         as a LineageSubgraph.
@@ -1562,7 +1564,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``context`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1581,16 +1582,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([context])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.QueryContextLineageSubgraphRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if context is not None:
             request.context = context
 
@@ -1605,26 +1603,32 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("context", request.context),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('context', request.context),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def create_execution(
-        self,
-        request: metadata_service.CreateExecutionRequest = None,
-        *,
-        parent: str = None,
-        execution: gca_execution.Execution = None,
-        execution_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_execution.Execution:
+    async def create_execution(self,
+            request: metadata_service.CreateExecutionRequest = None,
+            *,
+            parent: str = None,
+            execution: gca_execution.Execution = None,
+            execution_id: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gca_execution.Execution:
         r"""Creates an Execution associated with a MetadataStore.
 
         Args:
@@ -1660,7 +1664,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``execution_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1676,16 +1679,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, execution, execution_id])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.CreateExecutionRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if execution is not None:
@@ -1704,24 +1704,30 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def get_execution(
-        self,
-        request: metadata_service.GetExecutionRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> execution.Execution:
+    async def get_execution(self,
+            request: metadata_service.GetExecutionRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> execution.Execution:
         r"""Retrieves a specific Execution.
 
         Args:
@@ -1736,7 +1742,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1752,16 +1757,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.GetExecutionRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -1776,24 +1778,30 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def list_executions(
-        self,
-        request: metadata_service.ListExecutionsRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListExecutionsAsyncPager:
+    async def list_executions(self,
+            request: metadata_service.ListExecutionsRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListExecutionsAsyncPager:
         r"""Lists Executions in the MetadataStore.
 
         Args:
@@ -1808,7 +1816,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1829,16 +1836,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.ListExecutionsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -1853,31 +1857,40 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListExecutionsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def update_execution(
-        self,
-        request: metadata_service.UpdateExecutionRequest = None,
-        *,
-        execution: gca_execution.Execution = None,
-        update_mask: field_mask.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_execution.Execution:
+    async def update_execution(self,
+            request: metadata_service.UpdateExecutionRequest = None,
+            *,
+            execution: gca_execution.Execution = None,
+            update_mask: field_mask_pb2.FieldMask = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gca_execution.Execution:
         r"""Updates a stored Execution.
 
         Args:
@@ -1902,7 +1915,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1918,16 +1930,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.UpdateExecutionRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if execution is not None:
             request.execution = execution
         if update_mask is not None:
@@ -1944,27 +1953,31 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("execution.name", request.execution.name),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('execution.name', request.execution.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def add_execution_events(
-        self,
-        request: metadata_service.AddExecutionEventsRequest = None,
-        *,
-        execution: str = None,
-        events: Sequence[event.Event] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> metadata_service.AddExecutionEventsResponse:
+    async def add_execution_events(self,
+            request: metadata_service.AddExecutionEventsRequest = None,
+            *,
+            execution: str = None,
+            events: Sequence[event.Event] = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> metadata_service.AddExecutionEventsResponse:
         r"""Adds Events for denoting whether each Artifact was an
         input or output for a given Execution. If any Events
         already exist between the Execution and any of the
@@ -1988,7 +2001,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``events`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2006,19 +2018,15 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution, events])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.AddExecutionEventsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if execution is not None:
             request.execution = execution
-
         if events:
             request.events.extend(events)
 
@@ -2033,26 +2041,30 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("execution", request.execution),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('execution', request.execution),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def query_execution_inputs_and_outputs(
-        self,
-        request: metadata_service.QueryExecutionInputsAndOutputsRequest = None,
-        *,
-        execution: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> lineage_subgraph.LineageSubgraph:
+    async def query_execution_inputs_and_outputs(self,
+            request: metadata_service.QueryExecutionInputsAndOutputsRequest = None,
+            *,
+            execution: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> lineage_subgraph.LineageSubgraph:
         r"""Obtains the set of input and output Artifacts for
         this Execution, in the form of LineageSubgraph that also
         contains the Execution and connecting Events.
@@ -2071,7 +2083,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``execution`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2090,16 +2101,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([execution])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.QueryExecutionInputsAndOutputsRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if execution is not None:
             request.execution = execution
 
@@ -2114,28 +2122,32 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("execution", request.execution),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('execution', request.execution),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def create_metadata_schema(
-        self,
-        request: metadata_service.CreateMetadataSchemaRequest = None,
-        *,
-        parent: str = None,
-        metadata_schema: gca_metadata_schema.MetadataSchema = None,
-        metadata_schema_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_metadata_schema.MetadataSchema:
+    async def create_metadata_schema(self,
+            request: metadata_service.CreateMetadataSchemaRequest = None,
+            *,
+            parent: str = None,
+            metadata_schema: gca_metadata_schema.MetadataSchema = None,
+            metadata_schema_id: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gca_metadata_schema.MetadataSchema:
         r"""Creates an MetadataSchema.
 
         Args:
@@ -2173,7 +2185,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``metadata_schema_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2189,16 +2200,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, metadata_schema, metadata_schema_id])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.CreateMetadataSchemaRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if metadata_schema is not None:
@@ -2217,24 +2225,30 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def get_metadata_schema(
-        self,
-        request: metadata_service.GetMetadataSchemaRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> metadata_schema.MetadataSchema:
+    async def get_metadata_schema(self,
+            request: metadata_service.GetMetadataSchemaRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> metadata_schema.MetadataSchema:
         r"""Retrieves a specific MetadataSchema.
 
         Args:
@@ -2249,7 +2263,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2265,16 +2278,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.GetMetadataSchemaRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -2289,24 +2299,30 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    async def list_metadata_schemas(
-        self,
-        request: metadata_service.ListMetadataSchemasRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListMetadataSchemasAsyncPager:
+    async def list_metadata_schemas(self,
+            request: metadata_service.ListMetadataSchemasRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListMetadataSchemasAsyncPager:
         r"""Lists MetadataSchemas.
 
         Args:
@@ -2322,7 +2338,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2343,16 +2358,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.ListMetadataSchemasRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -2367,30 +2379,39 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListMetadataSchemasAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def query_artifact_lineage_subgraph(
-        self,
-        request: metadata_service.QueryArtifactLineageSubgraphRequest = None,
-        *,
-        artifact: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> lineage_subgraph.LineageSubgraph:
+    async def query_artifact_lineage_subgraph(self,
+            request: metadata_service.QueryArtifactLineageSubgraphRequest = None,
+            *,
+            artifact: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> lineage_subgraph.LineageSubgraph:
         r"""Retrieves lineage of an Artifact represented through
         Artifacts and Executions connected by Event edges and
         returned as a LineageSubgraph.
@@ -2413,7 +2434,6 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``artifact`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2432,16 +2452,13 @@ class MetadataServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([artifact])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         request = metadata_service.QueryArtifactLineageSubgraphRequest(request)
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if artifact is not None:
             request.artifact = artifact
 
@@ -2456,24 +2473,36 @@ class MetadataServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("artifact", request.artifact),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('artifact', request.artifact),
+            )),
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
 
+
+
+
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
+            'google-cloud-aiplatform',
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = ("MetadataServiceAsyncClient",)
+__all__ = (
+    'MetadataServiceAsyncClient',
+)

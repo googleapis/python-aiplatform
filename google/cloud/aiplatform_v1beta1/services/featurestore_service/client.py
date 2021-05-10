@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -23,14 +21,14 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
-from google.auth.transport import mtls  # type: ignore
-from google.auth.transport.grpc import SslCredentials  # type: ignore
-from google.auth.exceptions import MutualTLSChannelError  # type: ignore
-from google.oauth2 import service_account  # type: ignore
+from google.api_core import exceptions as core_exceptions         # type: ignore
+from google.api_core import gapic_v1                              # type: ignore
+from google.api_core import retry as retries                      # type: ignore
+from google.auth import credentials as ga_credentials             # type: ignore
+from google.auth.transport import mtls                            # type: ignore
+from google.auth.transport.grpc import SslCredentials             # type: ignore
+from google.auth.exceptions import MutualTLSChannelError          # type: ignore
+from google.oauth2 import service_account                         # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -45,10 +43,9 @@ from google.cloud.aiplatform_v1beta1.types import featurestore as gca_featuresto
 from google.cloud.aiplatform_v1beta1.types import featurestore_monitoring
 from google.cloud.aiplatform_v1beta1.types import featurestore_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import FeaturestoreServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import FeaturestoreServiceGrpcTransport
 from .transports.grpc_asyncio import FeaturestoreServiceGrpcAsyncIOTransport
@@ -61,16 +58,13 @@ class FeaturestoreServiceClientMeta(type):
     support objects (e.g. transport) without polluting the client instance
     objects.
     """
+    _transport_registry = OrderedDict()  # type: Dict[str, Type[FeaturestoreServiceTransport]]
+    _transport_registry['grpc'] = FeaturestoreServiceGrpcTransport
+    _transport_registry['grpc_asyncio'] = FeaturestoreServiceGrpcAsyncIOTransport
 
-    _transport_registry = (
-        OrderedDict()
-    )  # type: Dict[str, Type[FeaturestoreServiceTransport]]
-    _transport_registry["grpc"] = FeaturestoreServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = FeaturestoreServiceGrpcAsyncIOTransport
-
-    def get_transport_class(
-        cls, label: str = None,
-    ) -> Type[FeaturestoreServiceTransport]:
+    def get_transport_class(cls,
+            label: str = None,
+        ) -> Type[FeaturestoreServiceTransport]:
         """Return an appropriate transport class.
 
         Args:
@@ -123,7 +117,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         return api_endpoint.replace(".googleapis.com", ".mtls.googleapis.com")
 
-    DEFAULT_ENDPOINT = "aiplatform.googleapis.com"
+    DEFAULT_ENDPOINT = 'aiplatform.googleapis.com'
     DEFAULT_MTLS_ENDPOINT = _get_default_mtls_endpoint.__func__(  # type: ignore
         DEFAULT_ENDPOINT
     )
@@ -158,8 +152,9 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Returns:
             FeaturestoreServiceClient: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_file(filename)
-        kwargs["credentials"] = credentials
+        credentials = service_account.Credentials.from_service_account_file(
+            filename)
+        kwargs['credentials'] = credentials
         return cls(*args, **kwargs)
 
     from_service_account_json = from_service_account_file
@@ -174,131 +169,99 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         return self._transport
 
     @staticmethod
-    def entity_type_path(
-        project: str, location: str, featurestore: str, entity_type: str,
-    ) -> str:
+    def entity_type_path(project: str,location: str,featurestore: str,entity_type: str,) -> str:
         """Return a fully-qualified entity_type string."""
-        return "projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}".format(
-            project=project,
-            location=location,
-            featurestore=featurestore,
-            entity_type=entity_type,
-        )
+        return "projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}".format(project=project, location=location, featurestore=featurestore, entity_type=entity_type, )
 
     @staticmethod
-    def parse_entity_type_path(path: str) -> Dict[str, str]:
+    def parse_entity_type_path(path: str) -> Dict[str,str]:
         """Parse a entity_type path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/featurestores/(?P<featurestore>.+?)/entityTypes/(?P<entity_type>.+?)$",
-            path,
-        )
+        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/featurestores/(?P<featurestore>.+?)/entityTypes/(?P<entity_type>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def feature_path(
-        project: str, location: str, featurestore: str, entity_type: str, feature: str,
-    ) -> str:
+    def feature_path(project: str,location: str,featurestore: str,entity_type: str,feature: str,) -> str:
         """Return a fully-qualified feature string."""
-        return "projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}".format(
-            project=project,
-            location=location,
-            featurestore=featurestore,
-            entity_type=entity_type,
-            feature=feature,
-        )
+        return "projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}".format(project=project, location=location, featurestore=featurestore, entity_type=entity_type, feature=feature, )
 
     @staticmethod
-    def parse_feature_path(path: str) -> Dict[str, str]:
+    def parse_feature_path(path: str) -> Dict[str,str]:
         """Parse a feature path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/featurestores/(?P<featurestore>.+?)/entityTypes/(?P<entity_type>.+?)/features/(?P<feature>.+?)$",
-            path,
-        )
+        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/featurestores/(?P<featurestore>.+?)/entityTypes/(?P<entity_type>.+?)/features/(?P<feature>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def featurestore_path(project: str, location: str, featurestore: str,) -> str:
+    def featurestore_path(project: str,location: str,featurestore: str,) -> str:
         """Return a fully-qualified featurestore string."""
-        return "projects/{project}/locations/{location}/featurestores/{featurestore}".format(
-            project=project, location=location, featurestore=featurestore,
-        )
+        return "projects/{project}/locations/{location}/featurestores/{featurestore}".format(project=project, location=location, featurestore=featurestore, )
 
     @staticmethod
-    def parse_featurestore_path(path: str) -> Dict[str, str]:
+    def parse_featurestore_path(path: str) -> Dict[str,str]:
         """Parse a featurestore path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/featurestores/(?P<featurestore>.+?)$",
-            path,
-        )
+        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/featurestores/(?P<featurestore>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(billing_account: str, ) -> str:
         """Return a fully-qualified billing_account string."""
-        return "billingAccounts/{billing_account}".format(
-            billing_account=billing_account,
-        )
+        return "billingAccounts/{billing_account}".format(billing_account=billing_account, )
 
     @staticmethod
-    def parse_common_billing_account_path(path: str) -> Dict[str, str]:
+    def parse_common_billing_account_path(path: str) -> Dict[str,str]:
         """Parse a billing_account path into its component segments."""
         m = re.match(r"^billingAccounts/(?P<billing_account>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(folder: str, ) -> str:
         """Return a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(folder=folder, )
 
     @staticmethod
-    def parse_common_folder_path(path: str) -> Dict[str, str]:
+    def parse_common_folder_path(path: str) -> Dict[str,str]:
         """Parse a folder path into its component segments."""
         m = re.match(r"^folders/(?P<folder>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(organization: str, ) -> str:
         """Return a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(organization=organization, )
 
     @staticmethod
-    def parse_common_organization_path(path: str) -> Dict[str, str]:
+    def parse_common_organization_path(path: str) -> Dict[str,str]:
         """Parse a organization path into its component segments."""
         m = re.match(r"^organizations/(?P<organization>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(project: str, ) -> str:
         """Return a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(project=project, )
 
     @staticmethod
-    def parse_common_project_path(path: str) -> Dict[str, str]:
+    def parse_common_project_path(path: str) -> Dict[str,str]:
         """Parse a project path into its component segments."""
         m = re.match(r"^projects/(?P<project>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(project: str, location: str, ) -> str:
         """Return a fully-qualified location string."""
-        return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
-        )
+        return "projects/{project}/locations/{location}".format(project=project, location=location, )
 
     @staticmethod
-    def parse_common_location_path(path: str) -> Dict[str, str]:
+    def parse_common_location_path(path: str) -> Dict[str,str]:
         """Parse a location path into its component segments."""
         m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)$", path)
         return m.groupdict() if m else {}
 
-    def __init__(
-        self,
-        *,
-        credentials: Optional[credentials.Credentials] = None,
-        transport: Union[str, FeaturestoreServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
-        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-    ) -> None:
+    def __init__(self, *,
+            credentials: Optional[ga_credentials.Credentials] = None,
+            transport: Union[str, FeaturestoreServiceTransport, None] = None,
+            client_options: Optional[client_options_lib.ClientOptions] = None,
+            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+            ) -> None:
         """Instantiate the featurestore service client.
 
         Args:
@@ -342,9 +305,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             client_options = client_options_lib.ClientOptions()
 
         # Create SSL credentials for mutual TLS if needed.
-        use_client_cert = bool(
-            util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
-        )
+        use_client_cert = bool(util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false")))
 
         client_cert_source_func = None
         is_mtls = False
@@ -354,9 +315,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 client_cert_source_func = client_options.client_cert_source
             else:
                 is_mtls = mtls.has_default_client_cert_source()
-                client_cert_source_func = (
-                    mtls.default_client_cert_source() if is_mtls else None
-                )
+                client_cert_source_func = mtls.default_client_cert_source() if is_mtls else None
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -368,9 +327,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             elif use_mtls_env == "always":
                 api_endpoint = self.DEFAULT_MTLS_ENDPOINT
             elif use_mtls_env == "auto":
-                api_endpoint = (
-                    self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
-                )
+                api_endpoint = self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
             else:
                 raise MutualTLSChannelError(
                     "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted values: never, auto, always"
@@ -382,10 +339,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         if isinstance(transport, FeaturestoreServiceTransport):
             # transport is a FeaturestoreServiceTransport instance.
             if credentials or client_options.credentials_file:
-                raise ValueError(
-                    "When providing a transport instance, "
-                    "provide its credentials directly."
-                )
+                raise ValueError('When providing a transport instance, '
+                                 'provide its credentials directly.')
             if client_options.scopes:
                 raise ValueError(
                     "When providing a transport instance, "
@@ -404,16 +359,15 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 client_info=client_info,
             )
 
-    def create_featurestore(
-        self,
-        request: featurestore_service.CreateFeaturestoreRequest = None,
-        *,
-        parent: str = None,
-        featurestore: gca_featurestore.Featurestore = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    def create_featurestore(self,
+            request: featurestore_service.CreateFeaturestoreRequest = None,
+            *,
+            parent: str = None,
+            featurestore: gca_featurestore.Featurestore = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gac_operation.Operation:
         r"""Creates a new Featurestore in a given project and
         location.
 
@@ -434,7 +388,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``featurestore`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -456,10 +409,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, featurestore])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.CreateFeaturestoreRequest.
@@ -467,10 +418,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.CreateFeaturestoreRequest):
             request = featurestore_service.CreateFeaturestoreRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if featurestore is not None:
@@ -483,11 +432,18 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -500,15 +456,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_featurestore(
-        self,
-        request: featurestore_service.GetFeaturestoreRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> featurestore.Featurestore:
+    def get_featurestore(self,
+            request: featurestore_service.GetFeaturestoreRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> featurestore.Featurestore:
         r"""Gets details of a single Featurestore.
 
         Args:
@@ -522,7 +477,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -541,10 +495,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.GetFeaturestoreRequest.
@@ -552,10 +504,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.GetFeaturestoreRequest):
             request = featurestore_service.GetFeaturestoreRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -566,24 +516,30 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    def list_featurestores(
-        self,
-        request: featurestore_service.ListFeaturestoresRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListFeaturestoresPager:
+    def list_featurestores(self,
+            request: featurestore_service.ListFeaturestoresRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListFeaturestoresPager:
         r"""Lists Featurestores in a given project and location.
 
         Args:
@@ -598,7 +554,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -619,10 +574,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.ListFeaturestoresRequest.
@@ -630,10 +583,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.ListFeaturestoresRequest):
             request = featurestore_service.ListFeaturestoresRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -644,31 +595,40 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListFeaturestoresPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    def update_featurestore(
-        self,
-        request: featurestore_service.UpdateFeaturestoreRequest = None,
-        *,
-        featurestore: gca_featurestore.Featurestore = None,
-        update_mask: field_mask.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    def update_featurestore(self,
+            request: featurestore_service.UpdateFeaturestoreRequest = None,
+            *,
+            featurestore: gca_featurestore.Featurestore = None,
+            update_mask: field_mask_pb2.FieldMask = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gac_operation.Operation:
         r"""Updates the parameters of a single Featurestore.
 
         Args:
@@ -698,12 +658,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 -  ``display_name``
                 -  ``labels``
                 -  ``online_serving_config.fixed_node_count``
-                -  ``online_serving_config.max_online_serving_size``
+                -  ``retention_policy.online_storage_ttl_days``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -725,10 +684,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([featurestore, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.UpdateFeaturestoreRequest.
@@ -736,10 +693,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.UpdateFeaturestoreRequest):
             request = featurestore_service.UpdateFeaturestoreRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if featurestore is not None:
                 request.featurestore = featurestore
             if update_mask is not None:
@@ -752,13 +707,18 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("featurestore.name", request.featurestore.name),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('featurestore.name', request.featurestore.name),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -771,15 +731,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Done; return the response.
         return response
 
-    def delete_featurestore(
-        self,
-        request: featurestore_service.DeleteFeaturestoreRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    def delete_featurestore(self,
+            request: featurestore_service.DeleteFeaturestoreRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gac_operation.Operation:
         r"""Deletes a single Featurestore. The Featurestore must not contain
         any EntityTypes or ``force`` must be set to true for the request
         to succeed.
@@ -796,7 +755,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -827,10 +785,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.DeleteFeaturestoreRequest.
@@ -838,10 +794,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.DeleteFeaturestoreRequest):
             request = featurestore_service.DeleteFeaturestoreRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -852,33 +806,39 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
         # Done; return the response.
         return response
 
-    def create_entity_type(
-        self,
-        request: featurestore_service.CreateEntityTypeRequest = None,
-        *,
-        parent: str = None,
-        entity_type: gca_entity_type.EntityType = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    def create_entity_type(self,
+            request: featurestore_service.CreateEntityTypeRequest = None,
+            *,
+            parent: str = None,
+            entity_type: gca_entity_type.EntityType = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gac_operation.Operation:
         r"""Creates a new EntityType in a given Featurestore.
 
         Args:
@@ -898,7 +858,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -920,10 +879,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, entity_type])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.CreateEntityTypeRequest.
@@ -931,10 +888,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.CreateEntityTypeRequest):
             request = featurestore_service.CreateEntityTypeRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if entity_type is not None:
@@ -947,11 +902,18 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -964,15 +926,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_entity_type(
-        self,
-        request: featurestore_service.GetEntityTypeRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> entity_type.EntityType:
+    def get_entity_type(self,
+            request: featurestore_service.GetEntityTypeRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> entity_type.EntityType:
         r"""Gets details of a single EntityType.
 
         Args:
@@ -986,7 +947,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1008,10 +968,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.GetEntityTypeRequest.
@@ -1019,10 +977,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.GetEntityTypeRequest):
             request = featurestore_service.GetEntityTypeRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1033,24 +989,30 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    def list_entity_types(
-        self,
-        request: featurestore_service.ListEntityTypesRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListEntityTypesPager:
+    def list_entity_types(self,
+            request: featurestore_service.ListEntityTypesRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListEntityTypesPager:
         r"""Lists EntityTypes in a given Featurestore.
 
         Args:
@@ -1065,7 +1027,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1086,10 +1047,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.ListEntityTypesRequest.
@@ -1097,10 +1056,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.ListEntityTypesRequest):
             request = featurestore_service.ListEntityTypesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -1111,31 +1068,40 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListEntityTypesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    def update_entity_type(
-        self,
-        request: featurestore_service.UpdateEntityTypeRequest = None,
-        *,
-        entity_type: gca_entity_type.EntityType = None,
-        update_mask: field_mask.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_entity_type.EntityType:
+    def update_entity_type(self,
+            request: featurestore_service.UpdateEntityTypeRequest = None,
+            *,
+            entity_type: gca_entity_type.EntityType = None,
+            update_mask: field_mask_pb2.FieldMask = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gca_entity_type.EntityType:
         r"""Updates the parameters of a single EntityType.
 
         Args:
@@ -1170,7 +1136,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1192,10 +1157,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.UpdateEntityTypeRequest.
@@ -1203,10 +1166,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.UpdateEntityTypeRequest):
             request = featurestore_service.UpdateEntityTypeRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if entity_type is not None:
                 request.entity_type = entity_type
             if update_mask is not None:
@@ -1219,26 +1180,30 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("entity_type.name", request.entity_type.name),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('entity_type.name', request.entity_type.name),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    def delete_entity_type(
-        self,
-        request: featurestore_service.DeleteEntityTypeRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    def delete_entity_type(self,
+            request: featurestore_service.DeleteEntityTypeRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gac_operation.Operation:
         r"""Deletes a single EntityType. The EntityType must not have any
         Features or ``force`` must be set to true for the request to
         succeed.
@@ -1255,7 +1220,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1286,10 +1250,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.DeleteEntityTypeRequest.
@@ -1297,10 +1259,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.DeleteEntityTypeRequest):
             request = featurestore_service.DeleteEntityTypeRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1311,33 +1271,39 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
         # Done; return the response.
         return response
 
-    def create_feature(
-        self,
-        request: featurestore_service.CreateFeatureRequest = None,
-        *,
-        parent: str = None,
-        feature: gca_feature.Feature = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    def create_feature(self,
+            request: featurestore_service.CreateFeatureRequest = None,
+            *,
+            parent: str = None,
+            feature: gca_feature.Feature = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gac_operation.Operation:
         r"""Creates a new Feature in a given EntityType.
 
         Args:
@@ -1357,7 +1323,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``feature`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1378,10 +1343,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, feature])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.CreateFeatureRequest.
@@ -1389,10 +1352,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.CreateFeatureRequest):
             request = featurestore_service.CreateFeatureRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if feature is not None:
@@ -1405,11 +1366,18 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1422,16 +1390,15 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Done; return the response.
         return response
 
-    def batch_create_features(
-        self,
-        request: featurestore_service.BatchCreateFeaturesRequest = None,
-        *,
-        parent: str = None,
-        requests: Sequence[featurestore_service.CreateFeatureRequest] = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    def batch_create_features(self,
+            request: featurestore_service.BatchCreateFeaturesRequest = None,
+            *,
+            parent: str = None,
+            requests: Sequence[featurestore_service.CreateFeatureRequest] = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gac_operation.Operation:
         r"""Creates a batch of Features in a given EntityType.
 
         Args:
@@ -1457,7 +1424,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1479,10 +1445,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.BatchCreateFeaturesRequest.
@@ -1490,10 +1454,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.BatchCreateFeaturesRequest):
             request = featurestore_service.BatchCreateFeaturesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if requests is not None:
@@ -1506,11 +1468,18 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1523,15 +1492,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_feature(
-        self,
-        request: featurestore_service.GetFeatureRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> feature.Feature:
+    def get_feature(self,
+            request: featurestore_service.GetFeatureRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> feature.Feature:
         r"""Gets details of a single Feature.
 
         Args:
@@ -1545,7 +1513,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1566,10 +1533,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.GetFeatureRequest.
@@ -1577,10 +1542,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.GetFeatureRequest):
             request = featurestore_service.GetFeatureRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1591,24 +1554,30 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    def list_features(
-        self,
-        request: featurestore_service.ListFeaturesRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListFeaturesPager:
+    def list_features(self,
+            request: featurestore_service.ListFeaturesRequest = None,
+            *,
+            parent: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.ListFeaturesPager:
         r"""Lists Features in a given EntityType.
 
         Args:
@@ -1623,7 +1592,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1644,10 +1612,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.ListFeaturesRequest.
@@ -1655,10 +1621,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.ListFeaturesRequest):
             request = featurestore_service.ListFeaturesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -1669,31 +1633,40 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', request.parent),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListFeaturesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    def update_feature(
-        self,
-        request: featurestore_service.UpdateFeatureRequest = None,
-        *,
-        feature: gca_feature.Feature = None,
-        update_mask: field_mask.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_feature.Feature:
+    def update_feature(self,
+            request: featurestore_service.UpdateFeatureRequest = None,
+            *,
+            feature: gca_feature.Feature = None,
+            update_mask: field_mask_pb2.FieldMask = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gca_feature.Feature:
         r"""Updates the parameters of a single Feature.
 
         Args:
@@ -1728,7 +1701,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1749,10 +1721,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([feature, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.UpdateFeatureRequest.
@@ -1760,10 +1730,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.UpdateFeatureRequest):
             request = featurestore_service.UpdateFeatureRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if feature is not None:
                 request.feature = feature
             if update_mask is not None:
@@ -1776,26 +1744,30 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("feature.name", request.feature.name),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('feature.name', request.feature.name),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
 
-    def delete_feature(
-        self,
-        request: featurestore_service.DeleteFeatureRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    def delete_feature(self,
+            request: featurestore_service.DeleteFeatureRequest = None,
+            *,
+            name: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gac_operation.Operation:
         r"""Deletes a single Feature.
 
         Args:
@@ -1810,7 +1782,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1841,10 +1812,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.DeleteFeatureRequest.
@@ -1852,10 +1821,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.DeleteFeatureRequest):
             request = featurestore_service.DeleteFeatureRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1866,32 +1833,38 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('name', request.name),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
         # Done; return the response.
         return response
 
-    def import_feature_values(
-        self,
-        request: featurestore_service.ImportFeatureValuesRequest = None,
-        *,
-        entity_type: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    def import_feature_values(self,
+            request: featurestore_service.ImportFeatureValuesRequest = None,
+            *,
+            entity_type: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gac_operation.Operation:
         r"""Imports Feature values into the Featurestore from a
         source storage.
         The progress of the import is tracked by the returned
@@ -1927,7 +1900,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1949,10 +1921,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.ImportFeatureValuesRequest.
@@ -1960,10 +1930,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.ImportFeatureValuesRequest):
             request = featurestore_service.ImportFeatureValuesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if entity_type is not None:
                 request.entity_type = entity_type
 
@@ -1974,13 +1942,18 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("entity_type", request.entity_type),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('entity_type', request.entity_type),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1993,15 +1966,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Done; return the response.
         return response
 
-    def batch_read_feature_values(
-        self,
-        request: featurestore_service.BatchReadFeatureValuesRequest = None,
-        *,
-        featurestore: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    def batch_read_feature_values(self,
+            request: featurestore_service.BatchReadFeatureValuesRequest = None,
+            *,
+            featurestore: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gac_operation.Operation:
         r"""Batch reads Feature values from a Featurestore.
         This API enables batch reading Feature values, where
         each read instance in the batch may read Feature values
@@ -2022,7 +1994,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``featurestore`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2044,10 +2015,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([featurestore])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.BatchReadFeatureValuesRequest.
@@ -2055,29 +2024,30 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.BatchReadFeatureValuesRequest):
             request = featurestore_service.BatchReadFeatureValuesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if featurestore is not None:
                 request.featurestore = featurestore
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.batch_read_feature_values
-        ]
+        rpc = self._transport._wrapped_methods[self._transport.batch_read_feature_values]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("featurestore", request.featurestore),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('featurestore', request.featurestore),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -2090,15 +2060,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Done; return the response.
         return response
 
-    def export_feature_values(
-        self,
-        request: featurestore_service.ExportFeatureValuesRequest = None,
-        *,
-        entity_type: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    def export_feature_values(self,
+            request: featurestore_service.ExportFeatureValuesRequest = None,
+            *,
+            entity_type: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> gac_operation.Operation:
         r"""Exports Feature values from all the entities of a
         target EntityType.
 
@@ -2114,7 +2083,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2136,10 +2104,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([entity_type])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.ExportFeatureValuesRequest.
@@ -2147,10 +2113,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.ExportFeatureValuesRequest):
             request = featurestore_service.ExportFeatureValuesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if entity_type is not None:
                 request.entity_type = entity_type
 
@@ -2161,13 +2125,18 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (("entity_type", request.entity_type),)
-            ),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('entity_type', request.entity_type),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -2180,15 +2149,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Done; return the response.
         return response
 
-    def search_features(
-        self,
-        request: featurestore_service.SearchFeaturesRequest = None,
-        *,
-        location: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.SearchFeaturesPager:
+    def search_features(self,
+            request: featurestore_service.SearchFeaturesRequest = None,
+            *,
+            location: str = None,
+            retry: retries.Retry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> pagers.SearchFeaturesPager:
         r"""Searches Features matching a query in a given
         project.
 
@@ -2204,7 +2172,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``location`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2225,10 +2192,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([location])
         if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
+            raise ValueError('If the `request` argument is set, then none of '
+                             'the individual field arguments should be set.')
 
         # Minor optimization to avoid making a copy if the user passes
         # in a featurestore_service.SearchFeaturesRequest.
@@ -2236,10 +2201,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, featurestore_service.SearchFeaturesRequest):
             request = featurestore_service.SearchFeaturesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if location is not None:
                 request.location = location
 
@@ -2250,30 +2213,45 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("location", request.location),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('location', request.location),
+            )),
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.SearchFeaturesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
 
+
+
+
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
+            'google-cloud-aiplatform',
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = ("FeaturestoreServiceClient",)
+__all__ = (
+    'FeaturestoreServiceClient',
+)

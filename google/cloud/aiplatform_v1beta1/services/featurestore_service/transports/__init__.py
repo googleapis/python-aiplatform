@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from typing import Dict, Type
 
@@ -24,14 +22,12 @@ from .grpc_asyncio import FeaturestoreServiceGrpcAsyncIOTransport
 
 
 # Compile a registry of transports.
-_transport_registry = (
-    OrderedDict()
-)  # type: Dict[str, Type[FeaturestoreServiceTransport]]
-_transport_registry["grpc"] = FeaturestoreServiceGrpcTransport
-_transport_registry["grpc_asyncio"] = FeaturestoreServiceGrpcAsyncIOTransport
+_transport_registry = OrderedDict()  # type: Dict[str, Type[FeaturestoreServiceTransport]]
+_transport_registry['grpc'] = FeaturestoreServiceGrpcTransport
+_transport_registry['grpc_asyncio'] = FeaturestoreServiceGrpcAsyncIOTransport
 
 __all__ = (
-    "FeaturestoreServiceTransport",
-    "FeaturestoreServiceGrpcTransport",
-    "FeaturestoreServiceGrpcAsyncIOTransport",
+    'FeaturestoreServiceTransport',
+    'FeaturestoreServiceGrpcTransport',
+    'FeaturestoreServiceGrpcAsyncIOTransport',
 )
