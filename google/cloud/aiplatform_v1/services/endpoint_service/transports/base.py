@@ -21,7 +21,7 @@ import pkg_resources
 import google.auth  # type: ignore
 import google.api_core  # type: ignore
 from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1    # type: ignore
+from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
@@ -34,7 +34,7 @@ from google.longrunning import operations_pb2  # type: ignore
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
@@ -55,21 +55,21 @@ _API_CORE_VERSION = google.api_core.__version__
 class EndpointServiceTransport(abc.ABC):
     """Abstract transport class for EndpointService."""
 
-    AUTH_SCOPES = (
-        'https://www.googleapis.com/auth/cloud-platform',
-    )
+    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
-    DEFAULT_HOST: str = 'aiplatform.googleapis.com'
+    DEFAULT_HOST: str = "aiplatform.googleapis.com"
+
     def __init__(
-            self, *,
-            host: str = DEFAULT_HOST,
-            credentials: ga_credentials.Credentials = None,
-            credentials_file: Optional[str] = None,
-            scopes: Optional[Sequence[str]] = None,
-            quota_project_id: Optional[str] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            **kwargs,
-            ) -> None:
+        self,
+        *,
+        host: str = DEFAULT_HOST,
+        credentials: ga_credentials.Credentials = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+        **kwargs,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -93,8 +93,8 @@ class EndpointServiceTransport(abc.ABC):
                 your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ':' not in host:
-            host += ':443'
+        if ":" not in host:
+            host += ":443"
         self._host = host
 
         scopes_kwargs = self._get_scopes_kwargs(self._host, scopes)
@@ -105,17 +105,19 @@ class EndpointServiceTransport(abc.ABC):
         # If no credentials are provided, then determine the appropriate
         # defaults.
         if credentials and credentials_file:
-            raise core_exceptions.DuplicateCredentialArgs("'credentials_file' and 'credentials' are mutually exclusive")
+            raise core_exceptions.DuplicateCredentialArgs(
+                "'credentials_file' and 'credentials' are mutually exclusive"
+            )
 
         if credentials_file is not None:
             credentials, _ = google.auth.load_credentials_from_file(
-                                credentials_file,
-                                **scopes_kwargs,
-                                quota_project_id=quota_project_id
-                            )
+                credentials_file, **scopes_kwargs, quota_project_id=quota_project_id
+            )
 
         elif credentials is None:
-            credentials, _ = google.auth.default(**scopes_kwargs, quota_project_id=quota_project_id)
+            credentials, _ = google.auth.default(
+                **scopes_kwargs, quota_project_id=quota_project_id
+            )
 
         # Save the credentials.
         self._credentials = credentials
@@ -127,7 +129,9 @@ class EndpointServiceTransport(abc.ABC):
 
     # TODO: Remove this function once google-auth >= 1.25.0 is required
     @classmethod
-    def _get_scopes_kwargs(cls, host: str, scopes: Optional[Sequence[str]]) -> Dict[str, Optional[Sequence[str]]]:
+    def _get_scopes_kwargs(
+        cls, host: str, scopes: Optional[Sequence[str]]
+    ) -> Dict[str, Optional[Sequence[str]]]:
         """Returns scopes kwargs to pass to google-auth methods depending on the google-auth version"""
 
         scopes_kwargs = {}
@@ -144,7 +148,9 @@ class EndpointServiceTransport(abc.ABC):
 
     # TODO: Remove this function once google-api-core >= 1.26.0 is required
     @classmethod
-    def _get_self_signed_jwt_kwargs(cls, host: str, scopes: Optional[Sequence[str]]) -> Dict[str, Union[Optional[Sequence[str]], str]]:
+    def _get_self_signed_jwt_kwargs(
+        cls, host: str, scopes: Optional[Sequence[str]]
+    ) -> Dict[str, Union[Optional[Sequence[str]], str]]:
         """Returns kwargs to pass to grpc_helpers.create_channel depending on the google-api-core version"""
 
         self_signed_jwt_kwargs: Dict[str, Union[Optional[Sequence[str]], str]] = {}
@@ -165,41 +171,27 @@ class EndpointServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_endpoint: gapic_v1.method.wrap_method(
-                self.create_endpoint,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.create_endpoint, default_timeout=5.0, client_info=client_info,
             ),
             self.get_endpoint: gapic_v1.method.wrap_method(
-                self.get_endpoint,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.get_endpoint, default_timeout=5.0, client_info=client_info,
             ),
             self.list_endpoints: gapic_v1.method.wrap_method(
-                self.list_endpoints,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.list_endpoints, default_timeout=5.0, client_info=client_info,
             ),
             self.update_endpoint: gapic_v1.method.wrap_method(
-                self.update_endpoint,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.update_endpoint, default_timeout=5.0, client_info=client_info,
             ),
             self.delete_endpoint: gapic_v1.method.wrap_method(
-                self.delete_endpoint,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.delete_endpoint, default_timeout=5.0, client_info=client_info,
             ),
             self.deploy_model: gapic_v1.method.wrap_method(
-                self.deploy_model,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.deploy_model, default_timeout=5.0, client_info=client_info,
             ),
             self.undeploy_model: gapic_v1.method.wrap_method(
-                self.undeploy_model,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.undeploy_model, default_timeout=5.0, client_info=client_info,
             ),
-         }
+        }
 
     @property
     def operations_client(self) -> operations_v1.OperationsClient:
@@ -207,69 +199,70 @@ class EndpointServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
-    def create_endpoint(self) -> Callable[
-            [endpoint_service.CreateEndpointRequest],
-            Union[
-                operations_pb2.Operation,
-                Awaitable[operations_pb2.Operation]
-            ]]:
+    def create_endpoint(
+        self,
+    ) -> Callable[
+        [endpoint_service.CreateEndpointRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def get_endpoint(self) -> Callable[
-            [endpoint_service.GetEndpointRequest],
-            Union[
-                endpoint.Endpoint,
-                Awaitable[endpoint.Endpoint]
-            ]]:
+    def get_endpoint(
+        self,
+    ) -> Callable[
+        [endpoint_service.GetEndpointRequest],
+        Union[endpoint.Endpoint, Awaitable[endpoint.Endpoint]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def list_endpoints(self) -> Callable[
-            [endpoint_service.ListEndpointsRequest],
-            Union[
-                endpoint_service.ListEndpointsResponse,
-                Awaitable[endpoint_service.ListEndpointsResponse]
-            ]]:
+    def list_endpoints(
+        self,
+    ) -> Callable[
+        [endpoint_service.ListEndpointsRequest],
+        Union[
+            endpoint_service.ListEndpointsResponse,
+            Awaitable[endpoint_service.ListEndpointsResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def update_endpoint(self) -> Callable[
-            [endpoint_service.UpdateEndpointRequest],
-            Union[
-                gca_endpoint.Endpoint,
-                Awaitable[gca_endpoint.Endpoint]
-            ]]:
+    def update_endpoint(
+        self,
+    ) -> Callable[
+        [endpoint_service.UpdateEndpointRequest],
+        Union[gca_endpoint.Endpoint, Awaitable[gca_endpoint.Endpoint]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def delete_endpoint(self) -> Callable[
-            [endpoint_service.DeleteEndpointRequest],
-            Union[
-                operations_pb2.Operation,
-                Awaitable[operations_pb2.Operation]
-            ]]:
+    def delete_endpoint(
+        self,
+    ) -> Callable[
+        [endpoint_service.DeleteEndpointRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def deploy_model(self) -> Callable[
-            [endpoint_service.DeployModelRequest],
-            Union[
-                operations_pb2.Operation,
-                Awaitable[operations_pb2.Operation]
-            ]]:
+    def deploy_model(
+        self,
+    ) -> Callable[
+        [endpoint_service.DeployModelRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def undeploy_model(self) -> Callable[
-            [endpoint_service.UndeployModelRequest],
-            Union[
-                operations_pb2.Operation,
-                Awaitable[operations_pb2.Operation]
-            ]]:
+    def undeploy_model(
+        self,
+    ) -> Callable[
+        [endpoint_service.UndeployModelRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
         raise NotImplementedError()
 
 
-__all__ = (
-    'EndpointServiceTransport',
-)
+__all__ = ("EndpointServiceTransport",)

@@ -17,10 +17,8 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1.schema.trainingjob.definition',
-    manifest={
-        'ExportEvaluatedDataItemsConfig',
-    },
+    package="google.cloud.aiplatform.v1beta1.schema.trainingjob.definition",
+    manifest={"ExportEvaluatedDataItemsConfig",},
 )
 
 
@@ -45,14 +43,8 @@ class ExportEvaluatedDataItemsConfig(proto.Message):
             operation fails.
     """
 
-    destination_bigquery_uri = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    override_existing_table = proto.Field(
-        proto.BOOL,
-        number=2,
-    )
+    destination_bigquery_uri = proto.Field(proto.STRING, number=1,)
+    override_existing_table = proto.Field(proto.BOOL, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -17,10 +17,8 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1.schema.predict.prediction',
-    manifest={
-        'ImageSegmentationPredictionResult',
-    },
+    package="google.cloud.aiplatform.v1beta1.schema.predict.prediction",
+    manifest={"ImageSegmentationPredictionResult",},
 )
 
 
@@ -48,14 +46,8 @@ class ImageSegmentationPredictionResult(proto.Message):
             confidence and white means complete confidence.
     """
 
-    category_mask = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    confidence_mask = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+    category_mask = proto.Field(proto.STRING, number=1,)
+    confidence_mask = proto.Field(proto.STRING, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

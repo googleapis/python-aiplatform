@@ -13,7 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple, Optional
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1beta1.types import tensorboard
 from google.cloud.aiplatform_v1beta1.types import tensorboard_data
@@ -40,12 +49,15 @@ class ListTensorboardsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., tensorboard_service.ListTensorboardsResponse],
-            request: tensorboard_service.ListTensorboardsRequest,
-            response: tensorboard_service.ListTensorboardsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., tensorboard_service.ListTensorboardsResponse],
+        request: tensorboard_service.ListTensorboardsRequest,
+        response: tensorboard_service.ListTensorboardsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -79,7 +91,7 @@ class ListTensorboardsPager:
             yield from page.tensorboards
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListTensorboardsAsyncPager:
@@ -99,12 +111,15 @@ class ListTensorboardsAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[tensorboard_service.ListTensorboardsResponse]],
-            request: tensorboard_service.ListTensorboardsRequest,
-            response: tensorboard_service.ListTensorboardsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[tensorboard_service.ListTensorboardsResponse]],
+        request: tensorboard_service.ListTensorboardsRequest,
+        response: tensorboard_service.ListTensorboardsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -126,7 +141,9 @@ class ListTensorboardsAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[tensorboard_service.ListTensorboardsResponse]:
+    async def pages(
+        self,
+    ) -> AsyncIterable[tensorboard_service.ListTensorboardsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -142,7 +159,7 @@ class ListTensorboardsAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListTensorboardExperimentsPager:
@@ -162,12 +179,15 @@ class ListTensorboardExperimentsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., tensorboard_service.ListTensorboardExperimentsResponse],
-            request: tensorboard_service.ListTensorboardExperimentsRequest,
-            response: tensorboard_service.ListTensorboardExperimentsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., tensorboard_service.ListTensorboardExperimentsResponse],
+        request: tensorboard_service.ListTensorboardExperimentsRequest,
+        response: tensorboard_service.ListTensorboardExperimentsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -201,7 +221,7 @@ class ListTensorboardExperimentsPager:
             yield from page.tensorboard_experiments
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListTensorboardExperimentsAsyncPager:
@@ -221,12 +241,17 @@ class ListTensorboardExperimentsAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[tensorboard_service.ListTensorboardExperimentsResponse]],
-            request: tensorboard_service.ListTensorboardExperimentsRequest,
-            response: tensorboard_service.ListTensorboardExperimentsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., Awaitable[tensorboard_service.ListTensorboardExperimentsResponse]
+        ],
+        request: tensorboard_service.ListTensorboardExperimentsRequest,
+        response: tensorboard_service.ListTensorboardExperimentsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -248,7 +273,9 @@ class ListTensorboardExperimentsAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[tensorboard_service.ListTensorboardExperimentsResponse]:
+    async def pages(
+        self,
+    ) -> AsyncIterable[tensorboard_service.ListTensorboardExperimentsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -264,7 +291,7 @@ class ListTensorboardExperimentsAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListTensorboardRunsPager:
@@ -284,12 +311,15 @@ class ListTensorboardRunsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., tensorboard_service.ListTensorboardRunsResponse],
-            request: tensorboard_service.ListTensorboardRunsRequest,
-            response: tensorboard_service.ListTensorboardRunsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., tensorboard_service.ListTensorboardRunsResponse],
+        request: tensorboard_service.ListTensorboardRunsRequest,
+        response: tensorboard_service.ListTensorboardRunsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -323,7 +353,7 @@ class ListTensorboardRunsPager:
             yield from page.tensorboard_runs
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListTensorboardRunsAsyncPager:
@@ -343,12 +373,17 @@ class ListTensorboardRunsAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[tensorboard_service.ListTensorboardRunsResponse]],
-            request: tensorboard_service.ListTensorboardRunsRequest,
-            response: tensorboard_service.ListTensorboardRunsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., Awaitable[tensorboard_service.ListTensorboardRunsResponse]
+        ],
+        request: tensorboard_service.ListTensorboardRunsRequest,
+        response: tensorboard_service.ListTensorboardRunsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -370,7 +405,9 @@ class ListTensorboardRunsAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[tensorboard_service.ListTensorboardRunsResponse]:
+    async def pages(
+        self,
+    ) -> AsyncIterable[tensorboard_service.ListTensorboardRunsResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -386,7 +423,7 @@ class ListTensorboardRunsAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListTensorboardTimeSeriesPager:
@@ -406,12 +443,15 @@ class ListTensorboardTimeSeriesPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., tensorboard_service.ListTensorboardTimeSeriesResponse],
-            request: tensorboard_service.ListTensorboardTimeSeriesRequest,
-            response: tensorboard_service.ListTensorboardTimeSeriesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., tensorboard_service.ListTensorboardTimeSeriesResponse],
+        request: tensorboard_service.ListTensorboardTimeSeriesRequest,
+        response: tensorboard_service.ListTensorboardTimeSeriesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -445,7 +485,7 @@ class ListTensorboardTimeSeriesPager:
             yield from page.tensorboard_time_series
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListTensorboardTimeSeriesAsyncPager:
@@ -465,12 +505,17 @@ class ListTensorboardTimeSeriesAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[tensorboard_service.ListTensorboardTimeSeriesResponse]],
-            request: tensorboard_service.ListTensorboardTimeSeriesRequest,
-            response: tensorboard_service.ListTensorboardTimeSeriesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., Awaitable[tensorboard_service.ListTensorboardTimeSeriesResponse]
+        ],
+        request: tensorboard_service.ListTensorboardTimeSeriesRequest,
+        response: tensorboard_service.ListTensorboardTimeSeriesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -492,7 +537,9 @@ class ListTensorboardTimeSeriesAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[tensorboard_service.ListTensorboardTimeSeriesResponse]:
+    async def pages(
+        self,
+    ) -> AsyncIterable[tensorboard_service.ListTensorboardTimeSeriesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -508,7 +555,7 @@ class ListTensorboardTimeSeriesAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ExportTensorboardTimeSeriesDataPager:
@@ -528,12 +575,17 @@ class ExportTensorboardTimeSeriesDataPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., tensorboard_service.ExportTensorboardTimeSeriesDataResponse],
-            request: tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
-            response: tensorboard_service.ExportTensorboardTimeSeriesDataResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., tensorboard_service.ExportTensorboardTimeSeriesDataResponse
+        ],
+        request: tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
+        response: tensorboard_service.ExportTensorboardTimeSeriesDataResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -547,7 +599,9 @@ class ExportTensorboardTimeSeriesDataPager:
                 sent along with the request as metadata.
         """
         self._method = method
-        self._request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(request)
+        self._request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(
+            request
+        )
         self._response = response
         self._metadata = metadata
 
@@ -555,7 +609,9 @@ class ExportTensorboardTimeSeriesDataPager:
         return getattr(self._response, name)
 
     @property
-    def pages(self) -> Iterable[tensorboard_service.ExportTensorboardTimeSeriesDataResponse]:
+    def pages(
+        self,
+    ) -> Iterable[tensorboard_service.ExportTensorboardTimeSeriesDataResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -567,7 +623,7 @@ class ExportTensorboardTimeSeriesDataPager:
             yield from page.time_series_data_points
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ExportTensorboardTimeSeriesDataAsyncPager:
@@ -587,12 +643,17 @@ class ExportTensorboardTimeSeriesDataAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[tensorboard_service.ExportTensorboardTimeSeriesDataResponse]],
-            request: tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
-            response: tensorboard_service.ExportTensorboardTimeSeriesDataResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., Awaitable[tensorboard_service.ExportTensorboardTimeSeriesDataResponse]
+        ],
+        request: tensorboard_service.ExportTensorboardTimeSeriesDataRequest,
+        response: tensorboard_service.ExportTensorboardTimeSeriesDataResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -606,7 +667,9 @@ class ExportTensorboardTimeSeriesDataAsyncPager:
                 sent along with the request as metadata.
         """
         self._method = method
-        self._request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(request)
+        self._request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(
+            request
+        )
         self._response = response
         self._metadata = metadata
 
@@ -614,7 +677,9 @@ class ExportTensorboardTimeSeriesDataAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[tensorboard_service.ExportTensorboardTimeSeriesDataResponse]:
+    async def pages(
+        self,
+    ) -> AsyncIterable[tensorboard_service.ExportTensorboardTimeSeriesDataResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -630,4 +695,4 @@ class ExportTensorboardTimeSeriesDataAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

@@ -19,10 +19,8 @@ from google.protobuf import duration_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'FeaturestoreMonitoringConfig',
-    },
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={"FeaturestoreMonitoringConfig",},
 )
 
 
@@ -59,21 +57,12 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 is rolled up to full day.
         """
 
-        disabled = proto.Field(
-            proto.BOOL,
-            number=1,
-        )
+        disabled = proto.Field(proto.BOOL, number=1,)
         monitoring_interval = proto.Field(
-            proto.MESSAGE,
-            number=2,
-            message=duration_pb2.Duration,
+            proto.MESSAGE, number=2, message=duration_pb2.Duration,
         )
 
-    snapshot_analysis = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=SnapshotAnalysis,
-    )
+    snapshot_analysis = proto.Field(proto.MESSAGE, number=1, message=SnapshotAnalysis,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

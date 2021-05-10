@@ -17,10 +17,8 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1.schema.predict.instance',
-    manifest={
-        'TextSentimentPredictionInstance',
-    },
+    package="google.cloud.aiplatform.v1.schema.predict.instance",
+    manifest={"TextSentimentPredictionInstance",},
 )
 
 
@@ -35,14 +33,8 @@ class TextSentimentPredictionInstance(proto.Message):
             - text/plain
     """
 
-    content = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    mime_type = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+    content = proto.Field(proto.STRING, number=1,)
+    mime_type = proto.Field(proto.STRING, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

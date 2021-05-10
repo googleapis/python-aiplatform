@@ -16,13 +16,13 @@
 import warnings
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import grpc_helpers_async         # type: ignore
-from google.auth import credentials as ga_credentials   # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import grpc_helpers_async  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 import packaging.version
 
-import grpc                        # type: ignore
+import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import featurestore_online_service
@@ -30,7 +30,9 @@ from .base import FeaturestoreOnlineServingServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import FeaturestoreOnlineServingServiceGrpcTransport
 
 
-class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(FeaturestoreOnlineServingServiceTransport):
+class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(
+    FeaturestoreOnlineServingServiceTransport
+):
     """gRPC AsyncIO backend transport for FeaturestoreOnlineServingService.
 
     A service for serving online feature values.
@@ -47,13 +49,15 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(FeaturestoreOnlineSer
     _stubs: Dict[str, Callable] = {}
 
     @classmethod
-    def create_channel(cls,
-                       host: str = 'aiplatform.googleapis.com',
-                       credentials: ga_credentials.Credentials = None,
-                       credentials_file: Optional[str] = None,
-                       scopes: Optional[Sequence[str]] = None,
-                       quota_project_id: Optional[str] = None,
-                       **kwargs) -> aio.Channel:
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: ga_credentials.Credentials = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        **kwargs,
+    ) -> aio.Channel:
         """Create and return a gRPC AsyncIO channel object.
         Args:
             host (Optional[str]): The host for the channel to use.
@@ -84,22 +88,24 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(FeaturestoreOnlineSer
             credentials_file=credentials_file,
             quota_project_id=quota_project_id,
             **self_signed_jwt_kwargs,
-            **kwargs
+            **kwargs,
         )
 
-    def __init__(self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: ga_credentials.Credentials = None,
-            credentials_file: Optional[str] = None,
-            scopes: Optional[Sequence[str]] = None,
-            channel: aio.Channel = None,
-            api_mtls_endpoint: str = None,
-            client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-            ssl_channel_credentials: grpc.ChannelCredentials = None,
-            client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
-            quota_project_id=None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: ga_credentials.Credentials = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        channel: aio.Channel = None,
+        api_mtls_endpoint: str = None,
+        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+        ssl_channel_credentials: grpc.ChannelCredentials = None,
+        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+        quota_project_id=None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -221,9 +227,12 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(FeaturestoreOnlineSer
         return self._grpc_channel
 
     @property
-    def read_feature_values(self) -> Callable[
-            [featurestore_online_service.ReadFeatureValuesRequest],
-            Awaitable[featurestore_online_service.ReadFeatureValuesResponse]]:
+    def read_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_online_service.ReadFeatureValuesRequest],
+        Awaitable[featurestore_online_service.ReadFeatureValuesResponse],
+    ]:
         r"""Return a callable for the read feature values method over gRPC.
 
         Reads Feature values of a specific entity of an
@@ -241,18 +250,21 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(FeaturestoreOnlineSer
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'read_feature_values' not in self._stubs:
-            self._stubs['read_feature_values'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService/ReadFeatureValues',
+        if "read_feature_values" not in self._stubs:
+            self._stubs["read_feature_values"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService/ReadFeatureValues",
                 request_serializer=featurestore_online_service.ReadFeatureValuesRequest.serialize,
                 response_deserializer=featurestore_online_service.ReadFeatureValuesResponse.deserialize,
             )
-        return self._stubs['read_feature_values']
+        return self._stubs["read_feature_values"]
 
     @property
-    def streaming_read_feature_values(self) -> Callable[
-            [featurestore_online_service.StreamingReadFeatureValuesRequest],
-            Awaitable[featurestore_online_service.ReadFeatureValuesResponse]]:
+    def streaming_read_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_online_service.StreamingReadFeatureValuesRequest],
+        Awaitable[featurestore_online_service.ReadFeatureValuesResponse],
+    ]:
         r"""Return a callable for the streaming read feature values method over gRPC.
 
         Reads Feature values for multiple entities. Depending
@@ -269,15 +281,15 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(FeaturestoreOnlineSer
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'streaming_read_feature_values' not in self._stubs:
-            self._stubs['streaming_read_feature_values'] = self.grpc_channel.unary_stream(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService/StreamingReadFeatureValues',
+        if "streaming_read_feature_values" not in self._stubs:
+            self._stubs[
+                "streaming_read_feature_values"
+            ] = self.grpc_channel.unary_stream(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService/StreamingReadFeatureValues",
                 request_serializer=featurestore_online_service.StreamingReadFeatureValuesRequest.serialize,
                 response_deserializer=featurestore_online_service.ReadFeatureValuesResponse.deserialize,
             )
-        return self._stubs['streaming_read_feature_values']
+        return self._stubs["streaming_read_feature_values"]
 
 
-__all__ = (
-    'FeaturestoreOnlineServingServiceGrpcAsyncIOTransport',
-)
+__all__ = ("FeaturestoreOnlineServingServiceGrpcAsyncIOTransport",)

@@ -21,7 +21,7 @@ import pkg_resources
 import google.auth  # type: ignore
 import google.api_core  # type: ignore
 from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1    # type: ignore
+from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
@@ -35,7 +35,7 @@ from google.protobuf import empty_pb2  # type: ignore
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
@@ -56,21 +56,21 @@ _API_CORE_VERSION = google.api_core.__version__
 class VizierServiceTransport(abc.ABC):
     """Abstract transport class for VizierService."""
 
-    AUTH_SCOPES = (
-        'https://www.googleapis.com/auth/cloud-platform',
-    )
+    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
-    DEFAULT_HOST: str = 'aiplatform.googleapis.com'
+    DEFAULT_HOST: str = "aiplatform.googleapis.com"
+
     def __init__(
-            self, *,
-            host: str = DEFAULT_HOST,
-            credentials: ga_credentials.Credentials = None,
-            credentials_file: Optional[str] = None,
-            scopes: Optional[Sequence[str]] = None,
-            quota_project_id: Optional[str] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            **kwargs,
-            ) -> None:
+        self,
+        *,
+        host: str = DEFAULT_HOST,
+        credentials: ga_credentials.Credentials = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+        **kwargs,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -94,8 +94,8 @@ class VizierServiceTransport(abc.ABC):
                 your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ':' not in host:
-            host += ':443'
+        if ":" not in host:
+            host += ":443"
         self._host = host
 
         scopes_kwargs = self._get_scopes_kwargs(self._host, scopes)
@@ -106,17 +106,19 @@ class VizierServiceTransport(abc.ABC):
         # If no credentials are provided, then determine the appropriate
         # defaults.
         if credentials and credentials_file:
-            raise core_exceptions.DuplicateCredentialArgs("'credentials_file' and 'credentials' are mutually exclusive")
+            raise core_exceptions.DuplicateCredentialArgs(
+                "'credentials_file' and 'credentials' are mutually exclusive"
+            )
 
         if credentials_file is not None:
             credentials, _ = google.auth.load_credentials_from_file(
-                                credentials_file,
-                                **scopes_kwargs,
-                                quota_project_id=quota_project_id
-                            )
+                credentials_file, **scopes_kwargs, quota_project_id=quota_project_id
+            )
 
         elif credentials is None:
-            credentials, _ = google.auth.default(**scopes_kwargs, quota_project_id=quota_project_id)
+            credentials, _ = google.auth.default(
+                **scopes_kwargs, quota_project_id=quota_project_id
+            )
 
         # Save the credentials.
         self._credentials = credentials
@@ -128,7 +130,9 @@ class VizierServiceTransport(abc.ABC):
 
     # TODO: Remove this function once google-auth >= 1.25.0 is required
     @classmethod
-    def _get_scopes_kwargs(cls, host: str, scopes: Optional[Sequence[str]]) -> Dict[str, Optional[Sequence[str]]]:
+    def _get_scopes_kwargs(
+        cls, host: str, scopes: Optional[Sequence[str]]
+    ) -> Dict[str, Optional[Sequence[str]]]:
         """Returns scopes kwargs to pass to google-auth methods depending on the google-auth version"""
 
         scopes_kwargs = {}
@@ -145,7 +149,9 @@ class VizierServiceTransport(abc.ABC):
 
     # TODO: Remove this function once google-api-core >= 1.26.0 is required
     @classmethod
-    def _get_self_signed_jwt_kwargs(cls, host: str, scopes: Optional[Sequence[str]]) -> Dict[str, Union[Optional[Sequence[str]], str]]:
+    def _get_self_signed_jwt_kwargs(
+        cls, host: str, scopes: Optional[Sequence[str]]
+    ) -> Dict[str, Union[Optional[Sequence[str]], str]]:
         """Returns kwargs to pass to grpc_helpers.create_channel depending on the google-api-core version"""
 
         self_signed_jwt_kwargs: Dict[str, Union[Optional[Sequence[str]], str]] = {}
@@ -166,49 +172,31 @@ class VizierServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_study: gapic_v1.method.wrap_method(
-                self.create_study,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.create_study, default_timeout=5.0, client_info=client_info,
             ),
             self.get_study: gapic_v1.method.wrap_method(
-                self.get_study,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.get_study, default_timeout=5.0, client_info=client_info,
             ),
             self.list_studies: gapic_v1.method.wrap_method(
-                self.list_studies,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.list_studies, default_timeout=5.0, client_info=client_info,
             ),
             self.delete_study: gapic_v1.method.wrap_method(
-                self.delete_study,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.delete_study, default_timeout=5.0, client_info=client_info,
             ),
             self.lookup_study: gapic_v1.method.wrap_method(
-                self.lookup_study,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.lookup_study, default_timeout=5.0, client_info=client_info,
             ),
             self.suggest_trials: gapic_v1.method.wrap_method(
-                self.suggest_trials,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.suggest_trials, default_timeout=5.0, client_info=client_info,
             ),
             self.create_trial: gapic_v1.method.wrap_method(
-                self.create_trial,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.create_trial, default_timeout=5.0, client_info=client_info,
             ),
             self.get_trial: gapic_v1.method.wrap_method(
-                self.get_trial,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.get_trial, default_timeout=5.0, client_info=client_info,
             ),
             self.list_trials: gapic_v1.method.wrap_method(
-                self.list_trials,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.list_trials, default_timeout=5.0, client_info=client_info,
             ),
             self.add_trial_measurement: gapic_v1.method.wrap_method(
                 self.add_trial_measurement,
@@ -216,14 +204,10 @@ class VizierServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.complete_trial: gapic_v1.method.wrap_method(
-                self.complete_trial,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.complete_trial, default_timeout=5.0, client_info=client_info,
             ),
             self.delete_trial: gapic_v1.method.wrap_method(
-                self.delete_trial,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.delete_trial, default_timeout=5.0, client_info=client_info,
             ),
             self.check_trial_early_stopping_state: gapic_v1.method.wrap_method(
                 self.check_trial_early_stopping_state,
@@ -231,16 +215,12 @@ class VizierServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.stop_trial: gapic_v1.method.wrap_method(
-                self.stop_trial,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.stop_trial, default_timeout=5.0, client_info=client_info,
             ),
             self.list_optimal_trials: gapic_v1.method.wrap_method(
-                self.list_optimal_trials,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.list_optimal_trials, default_timeout=5.0, client_info=client_info,
             ),
-         }
+        }
 
     @property
     def operations_client(self) -> operations_v1.OperationsClient:
@@ -248,141 +228,143 @@ class VizierServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
-    def create_study(self) -> Callable[
-            [vizier_service.CreateStudyRequest],
-            Union[
-                gca_study.Study,
-                Awaitable[gca_study.Study]
-            ]]:
+    def create_study(
+        self,
+    ) -> Callable[
+        [vizier_service.CreateStudyRequest],
+        Union[gca_study.Study, Awaitable[gca_study.Study]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def get_study(self) -> Callable[
-            [vizier_service.GetStudyRequest],
-            Union[
-                study.Study,
-                Awaitable[study.Study]
-            ]]:
+    def get_study(
+        self,
+    ) -> Callable[
+        [vizier_service.GetStudyRequest], Union[study.Study, Awaitable[study.Study]]
+    ]:
         raise NotImplementedError()
 
     @property
-    def list_studies(self) -> Callable[
-            [vizier_service.ListStudiesRequest],
-            Union[
-                vizier_service.ListStudiesResponse,
-                Awaitable[vizier_service.ListStudiesResponse]
-            ]]:
+    def list_studies(
+        self,
+    ) -> Callable[
+        [vizier_service.ListStudiesRequest],
+        Union[
+            vizier_service.ListStudiesResponse,
+            Awaitable[vizier_service.ListStudiesResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def delete_study(self) -> Callable[
-            [vizier_service.DeleteStudyRequest],
-            Union[
-                empty_pb2.Empty,
-                Awaitable[empty_pb2.Empty]
-            ]]:
+    def delete_study(
+        self,
+    ) -> Callable[
+        [vizier_service.DeleteStudyRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def lookup_study(self) -> Callable[
-            [vizier_service.LookupStudyRequest],
-            Union[
-                study.Study,
-                Awaitable[study.Study]
-            ]]:
+    def lookup_study(
+        self,
+    ) -> Callable[
+        [vizier_service.LookupStudyRequest], Union[study.Study, Awaitable[study.Study]]
+    ]:
         raise NotImplementedError()
 
     @property
-    def suggest_trials(self) -> Callable[
-            [vizier_service.SuggestTrialsRequest],
-            Union[
-                operations_pb2.Operation,
-                Awaitable[operations_pb2.Operation]
-            ]]:
+    def suggest_trials(
+        self,
+    ) -> Callable[
+        [vizier_service.SuggestTrialsRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def create_trial(self) -> Callable[
-            [vizier_service.CreateTrialRequest],
-            Union[
-                study.Trial,
-                Awaitable[study.Trial]
-            ]]:
+    def create_trial(
+        self,
+    ) -> Callable[
+        [vizier_service.CreateTrialRequest], Union[study.Trial, Awaitable[study.Trial]]
+    ]:
         raise NotImplementedError()
 
     @property
-    def get_trial(self) -> Callable[
-            [vizier_service.GetTrialRequest],
-            Union[
-                study.Trial,
-                Awaitable[study.Trial]
-            ]]:
+    def get_trial(
+        self,
+    ) -> Callable[
+        [vizier_service.GetTrialRequest], Union[study.Trial, Awaitable[study.Trial]]
+    ]:
         raise NotImplementedError()
 
     @property
-    def list_trials(self) -> Callable[
-            [vizier_service.ListTrialsRequest],
-            Union[
-                vizier_service.ListTrialsResponse,
-                Awaitable[vizier_service.ListTrialsResponse]
-            ]]:
+    def list_trials(
+        self,
+    ) -> Callable[
+        [vizier_service.ListTrialsRequest],
+        Union[
+            vizier_service.ListTrialsResponse,
+            Awaitable[vizier_service.ListTrialsResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def add_trial_measurement(self) -> Callable[
-            [vizier_service.AddTrialMeasurementRequest],
-            Union[
-                study.Trial,
-                Awaitable[study.Trial]
-            ]]:
+    def add_trial_measurement(
+        self,
+    ) -> Callable[
+        [vizier_service.AddTrialMeasurementRequest],
+        Union[study.Trial, Awaitable[study.Trial]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def complete_trial(self) -> Callable[
-            [vizier_service.CompleteTrialRequest],
-            Union[
-                study.Trial,
-                Awaitable[study.Trial]
-            ]]:
+    def complete_trial(
+        self,
+    ) -> Callable[
+        [vizier_service.CompleteTrialRequest],
+        Union[study.Trial, Awaitable[study.Trial]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def delete_trial(self) -> Callable[
-            [vizier_service.DeleteTrialRequest],
-            Union[
-                empty_pb2.Empty,
-                Awaitable[empty_pb2.Empty]
-            ]]:
+    def delete_trial(
+        self,
+    ) -> Callable[
+        [vizier_service.DeleteTrialRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def check_trial_early_stopping_state(self) -> Callable[
-            [vizier_service.CheckTrialEarlyStoppingStateRequest],
-            Union[
-                operations_pb2.Operation,
-                Awaitable[operations_pb2.Operation]
-            ]]:
+    def check_trial_early_stopping_state(
+        self,
+    ) -> Callable[
+        [vizier_service.CheckTrialEarlyStoppingStateRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def stop_trial(self) -> Callable[
-            [vizier_service.StopTrialRequest],
-            Union[
-                study.Trial,
-                Awaitable[study.Trial]
-            ]]:
+    def stop_trial(
+        self,
+    ) -> Callable[
+        [vizier_service.StopTrialRequest], Union[study.Trial, Awaitable[study.Trial]]
+    ]:
         raise NotImplementedError()
 
     @property
-    def list_optimal_trials(self) -> Callable[
-            [vizier_service.ListOptimalTrialsRequest],
-            Union[
-                vizier_service.ListOptimalTrialsResponse,
-                Awaitable[vizier_service.ListOptimalTrialsResponse]
-            ]]:
+    def list_optimal_trials(
+        self,
+    ) -> Callable[
+        [vizier_service.ListOptimalTrialsRequest],
+        Union[
+            vizier_service.ListOptimalTrialsResponse,
+            Awaitable[vizier_service.ListOptimalTrialsResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
 
-__all__ = (
-    'VizierServiceTransport',
-)
+__all__ = ("VizierServiceTransport",)

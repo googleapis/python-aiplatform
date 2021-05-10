@@ -19,12 +19,12 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions # type: ignore
+import google.api_core.client_options as ClientOptions  # type: ignore
 from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import retry as retries           # type: ignore
-from google.auth import credentials as ga_credentials   # type: ignore
-from google.oauth2 import service_account              # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -58,17 +58,33 @@ class PipelineServiceAsyncClient:
     model_path = staticmethod(PipelineServiceClient.model_path)
     parse_model_path = staticmethod(PipelineServiceClient.parse_model_path)
     training_pipeline_path = staticmethod(PipelineServiceClient.training_pipeline_path)
-    parse_training_pipeline_path = staticmethod(PipelineServiceClient.parse_training_pipeline_path)
-    common_billing_account_path = staticmethod(PipelineServiceClient.common_billing_account_path)
-    parse_common_billing_account_path = staticmethod(PipelineServiceClient.parse_common_billing_account_path)
+    parse_training_pipeline_path = staticmethod(
+        PipelineServiceClient.parse_training_pipeline_path
+    )
+    common_billing_account_path = staticmethod(
+        PipelineServiceClient.common_billing_account_path
+    )
+    parse_common_billing_account_path = staticmethod(
+        PipelineServiceClient.parse_common_billing_account_path
+    )
     common_folder_path = staticmethod(PipelineServiceClient.common_folder_path)
-    parse_common_folder_path = staticmethod(PipelineServiceClient.parse_common_folder_path)
-    common_organization_path = staticmethod(PipelineServiceClient.common_organization_path)
-    parse_common_organization_path = staticmethod(PipelineServiceClient.parse_common_organization_path)
+    parse_common_folder_path = staticmethod(
+        PipelineServiceClient.parse_common_folder_path
+    )
+    common_organization_path = staticmethod(
+        PipelineServiceClient.common_organization_path
+    )
+    parse_common_organization_path = staticmethod(
+        PipelineServiceClient.parse_common_organization_path
+    )
     common_project_path = staticmethod(PipelineServiceClient.common_project_path)
-    parse_common_project_path = staticmethod(PipelineServiceClient.parse_common_project_path)
+    parse_common_project_path = staticmethod(
+        PipelineServiceClient.parse_common_project_path
+    )
     common_location_path = staticmethod(PipelineServiceClient.common_location_path)
-    parse_common_location_path = staticmethod(PipelineServiceClient.parse_common_location_path)
+    parse_common_location_path = staticmethod(
+        PipelineServiceClient.parse_common_location_path
+    )
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -111,14 +127,18 @@ class PipelineServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(type(PipelineServiceClient).get_transport_class, type(PipelineServiceClient))
+    get_transport_class = functools.partial(
+        type(PipelineServiceClient).get_transport_class, type(PipelineServiceClient)
+    )
 
-    def __init__(self, *,
-            credentials: ga_credentials.Credentials = None,
-            transport: Union[str, PipelineServiceTransport] = 'grpc_asyncio',
-            client_options: ClientOptions = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: ga_credentials.Credentials = None,
+        transport: Union[str, PipelineServiceTransport] = "grpc_asyncio",
+        client_options: ClientOptions = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the pipeline service client.
 
         Args:
@@ -156,18 +176,18 @@ class PipelineServiceAsyncClient:
             transport=transport,
             client_options=client_options,
             client_info=client_info,
-
         )
 
-    async def create_training_pipeline(self,
-            request: pipeline_service.CreateTrainingPipelineRequest = None,
-            *,
-            parent: str = None,
-            training_pipeline: gca_training_pipeline.TrainingPipeline = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_training_pipeline.TrainingPipeline:
+    async def create_training_pipeline(
+        self,
+        request: pipeline_service.CreateTrainingPipelineRequest = None,
+        *,
+        parent: str = None,
+        training_pipeline: gca_training_pipeline.TrainingPipeline = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_training_pipeline.TrainingPipeline:
         r"""Creates a TrainingPipeline. A created
         TrainingPipeline right away will be attempted to be run.
 
@@ -211,8 +231,10 @@ class PipelineServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, training_pipeline])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.CreateTrainingPipelineRequest(request)
 
@@ -234,30 +256,24 @@ class PipelineServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def get_training_pipeline(self,
-            request: pipeline_service.GetTrainingPipelineRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> training_pipeline.TrainingPipeline:
+    async def get_training_pipeline(
+        self,
+        request: pipeline_service.GetTrainingPipelineRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> training_pipeline.TrainingPipeline:
         r"""Gets a TrainingPipeline.
 
         Args:
@@ -294,8 +310,10 @@ class PipelineServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.GetTrainingPipelineRequest(request)
 
@@ -315,30 +333,24 @@ class PipelineServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def list_training_pipelines(self,
-            request: pipeline_service.ListTrainingPipelinesRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListTrainingPipelinesAsyncPager:
+    async def list_training_pipelines(
+        self,
+        request: pipeline_service.ListTrainingPipelinesRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListTrainingPipelinesAsyncPager:
         r"""Lists TrainingPipelines in a Location.
 
         Args:
@@ -373,8 +385,10 @@ class PipelineServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.ListTrainingPipelinesRequest(request)
 
@@ -394,39 +408,30 @@ class PipelineServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListTrainingPipelinesAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def delete_training_pipeline(self,
-            request: pipeline_service.DeleteTrainingPipelineRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def delete_training_pipeline(
+        self,
+        request: pipeline_service.DeleteTrainingPipelineRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Deletes a TrainingPipeline.
 
         Args:
@@ -472,8 +477,10 @@ class PipelineServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.DeleteTrainingPipelineRequest(request)
 
@@ -493,18 +500,11 @@ class PipelineServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -517,14 +517,15 @@ class PipelineServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def cancel_training_pipeline(self,
-            request: pipeline_service.CancelTrainingPipelineRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> None:
+    async def cancel_training_pipeline(
+        self,
+        request: pipeline_service.CancelTrainingPipelineRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
         r"""Cancels a TrainingPipeline. Starts asynchronous cancellation on
         the TrainingPipeline. The server makes a best effort to cancel
         the pipeline, but success is not guaranteed. Clients can use
@@ -563,8 +564,10 @@ class PipelineServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = pipeline_service.CancelTrainingPipelineRequest(request)
 
@@ -584,33 +587,23 @@ class PipelineServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
         await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
+            request, retry=retry, timeout=timeout, metadata=metadata,
         )
-
-
-
 
 
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'PipelineServiceAsyncClient',
-)
+__all__ = ("PipelineServiceAsyncClient",)

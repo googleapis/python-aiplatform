@@ -19,10 +19,8 @@ from google.protobuf import struct_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1.schema.predict.prediction',
-    manifest={
-        'ImageObjectDetectionPredictionResult',
-    },
+    package="google.cloud.aiplatform.v1beta1.schema.predict.prediction",
+    manifest={"ImageObjectDetectionPredictionResult",},
 )
 
 
@@ -50,23 +48,10 @@ class ImageObjectDetectionPredictionResult(proto.Message):
             image.
     """
 
-    ids = proto.RepeatedField(
-        proto.INT64,
-        number=1,
-    )
-    display_names = proto.RepeatedField(
-        proto.STRING,
-        number=2,
-    )
-    confidences = proto.RepeatedField(
-        proto.FLOAT,
-        number=3,
-    )
-    bboxes = proto.RepeatedField(
-        proto.MESSAGE,
-        number=4,
-        message=struct_pb2.ListValue,
-    )
+    ids = proto.RepeatedField(proto.INT64, number=1,)
+    display_names = proto.RepeatedField(proto.STRING, number=2,)
+    confidences = proto.RepeatedField(proto.FLOAT, number=3,)
+    bboxes = proto.RepeatedField(proto.MESSAGE, number=4, message=struct_pb2.ListValue,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -17,10 +17,8 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1.schema.predict.params',
-    manifest={
-        'ImageSegmentationPredictionParams',
-    },
+    package="google.cloud.aiplatform.v1beta1.schema.predict.params",
+    manifest={"ImageSegmentationPredictionParams",},
 )
 
 
@@ -35,10 +33,7 @@ class ImageSegmentationPredictionParams(proto.Message):
             background. Default value is 0.5.
     """
 
-    confidence_threshold = proto.Field(
-        proto.FLOAT,
-        number=1,
-    )
+    confidence_threshold = proto.Field(proto.FLOAT, number=1,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

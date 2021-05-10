@@ -20,10 +20,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'Execution',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"Execution",},
 )
 
 
@@ -83,6 +80,7 @@ class Execution(proto.Message):
         description (str):
             Description of the Execution
     """
+
     class State(proto.Enum):
         r"""Describes the state of the Execution."""
         STATE_UNSPECIFIED = 0
@@ -91,55 +89,21 @@ class Execution(proto.Message):
         COMPLETE = 3
         FAILED = 4
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    display_name = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    state = proto.Field(
-        proto.ENUM,
-        number=6,
-        enum=State,
-    )
-    etag = proto.Field(
-        proto.STRING,
-        number=9,
-    )
-    labels = proto.MapField(
-        proto.STRING,
-        proto.STRING,
-        number=10,
-    )
+    name = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
+    state = proto.Field(proto.ENUM, number=6, enum=State,)
+    etag = proto.Field(proto.STRING, number=9,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=10,)
     create_time = proto.Field(
-        proto.MESSAGE,
-        number=11,
-        message=timestamp_pb2.Timestamp,
+        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
     )
     update_time = proto.Field(
-        proto.MESSAGE,
-        number=12,
-        message=timestamp_pb2.Timestamp,
+        proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,
     )
-    schema_title = proto.Field(
-        proto.STRING,
-        number=13,
-    )
-    schema_version = proto.Field(
-        proto.STRING,
-        number=14,
-    )
-    metadata = proto.Field(
-        proto.MESSAGE,
-        number=15,
-        message=struct_pb2.Struct,
-    )
-    description = proto.Field(
-        proto.STRING,
-        number=16,
-    )
+    schema_title = proto.Field(proto.STRING, number=13,)
+    schema_version = proto.Field(proto.STRING, number=14,)
+    metadata = proto.Field(proto.MESSAGE, number=15, message=struct_pb2.Struct,)
+    description = proto.Field(proto.STRING, number=16,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

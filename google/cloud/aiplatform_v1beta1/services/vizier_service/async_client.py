@@ -19,12 +19,12 @@ import re
 from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions # type: ignore
+import google.api_core.client_options as ClientOptions  # type: ignore
 from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import retry as retries           # type: ignore
-from google.auth import credentials as ga_credentials   # type: ignore
-from google.oauth2 import service_account              # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -56,16 +56,30 @@ class VizierServiceAsyncClient:
     parse_study_path = staticmethod(VizierServiceClient.parse_study_path)
     trial_path = staticmethod(VizierServiceClient.trial_path)
     parse_trial_path = staticmethod(VizierServiceClient.parse_trial_path)
-    common_billing_account_path = staticmethod(VizierServiceClient.common_billing_account_path)
-    parse_common_billing_account_path = staticmethod(VizierServiceClient.parse_common_billing_account_path)
+    common_billing_account_path = staticmethod(
+        VizierServiceClient.common_billing_account_path
+    )
+    parse_common_billing_account_path = staticmethod(
+        VizierServiceClient.parse_common_billing_account_path
+    )
     common_folder_path = staticmethod(VizierServiceClient.common_folder_path)
-    parse_common_folder_path = staticmethod(VizierServiceClient.parse_common_folder_path)
-    common_organization_path = staticmethod(VizierServiceClient.common_organization_path)
-    parse_common_organization_path = staticmethod(VizierServiceClient.parse_common_organization_path)
+    parse_common_folder_path = staticmethod(
+        VizierServiceClient.parse_common_folder_path
+    )
+    common_organization_path = staticmethod(
+        VizierServiceClient.common_organization_path
+    )
+    parse_common_organization_path = staticmethod(
+        VizierServiceClient.parse_common_organization_path
+    )
     common_project_path = staticmethod(VizierServiceClient.common_project_path)
-    parse_common_project_path = staticmethod(VizierServiceClient.parse_common_project_path)
+    parse_common_project_path = staticmethod(
+        VizierServiceClient.parse_common_project_path
+    )
     common_location_path = staticmethod(VizierServiceClient.common_location_path)
-    parse_common_location_path = staticmethod(VizierServiceClient.parse_common_location_path)
+    parse_common_location_path = staticmethod(
+        VizierServiceClient.parse_common_location_path
+    )
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -108,14 +122,18 @@ class VizierServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(type(VizierServiceClient).get_transport_class, type(VizierServiceClient))
+    get_transport_class = functools.partial(
+        type(VizierServiceClient).get_transport_class, type(VizierServiceClient)
+    )
 
-    def __init__(self, *,
-            credentials: ga_credentials.Credentials = None,
-            transport: Union[str, VizierServiceTransport] = 'grpc_asyncio',
-            client_options: ClientOptions = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: ga_credentials.Credentials = None,
+        transport: Union[str, VizierServiceTransport] = "grpc_asyncio",
+        client_options: ClientOptions = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the vizier service client.
 
         Args:
@@ -153,18 +171,18 @@ class VizierServiceAsyncClient:
             transport=transport,
             client_options=client_options,
             client_info=client_info,
-
         )
 
-    async def create_study(self,
-            request: vizier_service.CreateStudyRequest = None,
-            *,
-            parent: str = None,
-            study: gca_study.Study = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_study.Study:
+    async def create_study(
+        self,
+        request: vizier_service.CreateStudyRequest = None,
+        *,
+        parent: str = None,
+        study: gca_study.Study = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_study.Study:
         r"""Creates a Study. A resource name will be generated
         after creation of the Study.
 
@@ -202,8 +220,10 @@ class VizierServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, study])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = vizier_service.CreateStudyRequest(request)
 
@@ -225,30 +245,24 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def get_study(self,
-            request: vizier_service.GetStudyRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> study.Study:
+    async def get_study(
+        self,
+        request: vizier_service.GetStudyRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> study.Study:
         r"""Gets a Study by name.
 
         Args:
@@ -277,8 +291,10 @@ class VizierServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = vizier_service.GetStudyRequest(request)
 
@@ -298,30 +314,24 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def list_studies(self,
-            request: vizier_service.ListStudiesRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListStudiesAsyncPager:
+    async def list_studies(
+        self,
+        request: vizier_service.ListStudiesRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListStudiesAsyncPager:
         r"""Lists all the studies in a region for an associated
         project.
 
@@ -357,8 +367,10 @@ class VizierServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = vizier_service.ListStudiesRequest(request)
 
@@ -378,39 +390,30 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListStudiesAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def delete_study(self,
-            request: vizier_service.DeleteStudyRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> None:
+    async def delete_study(
+        self,
+        request: vizier_service.DeleteStudyRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
         r"""Deletes a Study.
 
         Args:
@@ -436,8 +439,10 @@ class VizierServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = vizier_service.DeleteStudyRequest(request)
 
@@ -457,27 +462,23 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
         await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
+            request, retry=retry, timeout=timeout, metadata=metadata,
         )
 
-    async def lookup_study(self,
-            request: vizier_service.LookupStudyRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> study.Study:
+    async def lookup_study(
+        self,
+        request: vizier_service.LookupStudyRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> study.Study:
         r"""Looks a study up using the user-defined display_name field
         instead of the fully qualified resource name.
 
@@ -508,8 +509,10 @@ class VizierServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = vizier_service.LookupStudyRequest(request)
 
@@ -529,29 +532,23 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def suggest_trials(self,
-            request: vizier_service.SuggestTrialsRequest = None,
-            *,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def suggest_trials(
+        self,
+        request: vizier_service.SuggestTrialsRequest = None,
+        *,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Adds one or more Trials to a Study, with parameter values
         suggested by AI Platform Vizier. Returns a long-running
         operation associated with the generation of Trial suggestions.
@@ -592,18 +589,11 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -616,15 +606,16 @@ class VizierServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def create_trial(self,
-            request: vizier_service.CreateTrialRequest = None,
-            *,
-            parent: str = None,
-            trial: study.Trial = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> study.Trial:
+    async def create_trial(
+        self,
+        request: vizier_service.CreateTrialRequest = None,
+        *,
+        parent: str = None,
+        trial: study.Trial = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> study.Trial:
         r"""Adds a user provided Trial to a Study.
 
         Args:
@@ -664,8 +655,10 @@ class VizierServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, trial])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = vizier_service.CreateTrialRequest(request)
 
@@ -687,30 +680,24 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def get_trial(self,
-            request: vizier_service.GetTrialRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> study.Trial:
+    async def get_trial(
+        self,
+        request: vizier_service.GetTrialRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> study.Trial:
         r"""Gets a Trial.
 
         Args:
@@ -744,8 +731,10 @@ class VizierServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = vizier_service.GetTrialRequest(request)
 
@@ -765,30 +754,24 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def list_trials(self,
-            request: vizier_service.ListTrialsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListTrialsAsyncPager:
+    async def list_trials(
+        self,
+        request: vizier_service.ListTrialsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListTrialsAsyncPager:
         r"""Lists the Trials associated with a Study.
 
         Args:
@@ -823,8 +806,10 @@ class VizierServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = vizier_service.ListTrialsRequest(request)
 
@@ -844,38 +829,29 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListTrialsAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def add_trial_measurement(self,
-            request: vizier_service.AddTrialMeasurementRequest = None,
-            *,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> study.Trial:
+    async def add_trial_measurement(
+        self,
+        request: vizier_service.AddTrialMeasurementRequest = None,
+        *,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> study.Trial:
         r"""Adds a measurement of the objective metrics to a
         Trial. This measurement is assumed to have been taken
         before the Trial is complete.
@@ -913,29 +889,25 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('trial_name', request.trial_name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("trial_name", request.trial_name),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def complete_trial(self,
-            request: vizier_service.CompleteTrialRequest = None,
-            *,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> study.Trial:
+    async def complete_trial(
+        self,
+        request: vizier_service.CompleteTrialRequest = None,
+        *,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> study.Trial:
         r"""Marks a Trial as complete.
 
         Args:
@@ -971,30 +943,24 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def delete_trial(self,
-            request: vizier_service.DeleteTrialRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> None:
+    async def delete_trial(
+        self,
+        request: vizier_service.DeleteTrialRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
         r"""Deletes a Trial.
 
         Args:
@@ -1019,8 +985,10 @@ class VizierServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = vizier_service.DeleteTrialRequest(request)
 
@@ -1040,26 +1008,22 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
         await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
+            request, retry=retry, timeout=timeout, metadata=metadata,
         )
 
-    async def check_trial_early_stopping_state(self,
-            request: vizier_service.CheckTrialEarlyStoppingStateRequest = None,
-            *,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def check_trial_early_stopping_state(
+        self,
+        request: vizier_service.CheckTrialEarlyStoppingStateRequest = None,
+        *,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Checks whether a Trial should stop or not. Returns a
         long-running operation. When the operation is successful, it
         will contain a
@@ -1099,18 +1063,13 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('trial_name', request.trial_name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("trial_name", request.trial_name),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1123,13 +1082,14 @@ class VizierServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def stop_trial(self,
-            request: vizier_service.StopTrialRequest = None,
-            *,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> study.Trial:
+    async def stop_trial(
+        self,
+        request: vizier_service.StopTrialRequest = None,
+        *,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> study.Trial:
         r"""Stops a Trial.
 
         Args:
@@ -1165,30 +1125,24 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def list_optimal_trials(self,
-            request: vizier_service.ListOptimalTrialsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> vizier_service.ListOptimalTrialsResponse:
+    async def list_optimal_trials(
+        self,
+        request: vizier_service.ListOptimalTrialsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> vizier_service.ListOptimalTrialsResponse:
         r"""Lists the pareto-optimal Trials for multi-objective Study or the
         optimal Trials for single-objective Study. The definition of
         pareto-optimal can be checked in wiki page.
@@ -1222,8 +1176,10 @@ class VizierServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = vizier_service.ListOptimalTrialsRequest(request)
 
@@ -1243,36 +1199,24 @@ class VizierServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
 
-
-
-
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'VizierServiceAsyncClient',
-)
+__all__ = ("VizierServiceAsyncClient",)

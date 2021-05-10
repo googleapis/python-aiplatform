@@ -17,13 +17,13 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1',
+    package="google.cloud.aiplatform.v1",
     manifest={
-        'GcsSource',
-        'GcsDestination',
-        'BigQuerySource',
-        'BigQueryDestination',
-        'ContainerRegistryDestination',
+        "GcsSource",
+        "GcsDestination",
+        "BigQuerySource",
+        "BigQueryDestination",
+        "ContainerRegistryDestination",
     },
 )
 
@@ -38,10 +38,7 @@ class GcsSource(proto.Message):
             https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
     """
 
-    uris = proto.RepeatedField(
-        proto.STRING,
-        number=1,
-    )
+    uris = proto.RepeatedField(proto.STRING, number=1,)
 
 
 class GcsDestination(proto.Message):
@@ -56,10 +53,7 @@ class GcsDestination(proto.Message):
             directory is created if it doesn't exist.
     """
 
-    output_uri_prefix = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    output_uri_prefix = proto.Field(proto.STRING, number=1,)
 
 
 class BigQuerySource(proto.Message):
@@ -73,10 +67,7 @@ class BigQuerySource(proto.Message):
                ``bq://projectId.bqDatasetId.bqTableId``.
     """
 
-    input_uri = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    input_uri = proto.Field(proto.STRING, number=1,)
 
 
 class BigQueryDestination(proto.Message):
@@ -96,10 +87,7 @@ class BigQueryDestination(proto.Message):
                ``bq://projectId.bqDatasetId.bqTableId``.
     """
 
-    output_uri = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    output_uri = proto.Field(proto.STRING, number=1,)
 
 
 class ContainerRegistryDestination(proto.Message):
@@ -120,10 +108,7 @@ class ContainerRegistryDestination(proto.Message):
             default tag.
     """
 
-    output_uri = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    output_uri = proto.Field(proto.STRING, number=1,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

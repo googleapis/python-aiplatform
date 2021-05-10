@@ -13,7 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple, Optional
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1beta1.types import entity_type
 from google.cloud.aiplatform_v1beta1.types import feature
@@ -38,12 +47,15 @@ class ListFeaturestoresPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., featurestore_service.ListFeaturestoresResponse],
-            request: featurestore_service.ListFeaturestoresRequest,
-            response: featurestore_service.ListFeaturestoresResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., featurestore_service.ListFeaturestoresResponse],
+        request: featurestore_service.ListFeaturestoresRequest,
+        response: featurestore_service.ListFeaturestoresResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -77,7 +89,7 @@ class ListFeaturestoresPager:
             yield from page.featurestores
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListFeaturestoresAsyncPager:
@@ -97,12 +109,17 @@ class ListFeaturestoresAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[featurestore_service.ListFeaturestoresResponse]],
-            request: featurestore_service.ListFeaturestoresRequest,
-            response: featurestore_service.ListFeaturestoresResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., Awaitable[featurestore_service.ListFeaturestoresResponse]
+        ],
+        request: featurestore_service.ListFeaturestoresRequest,
+        response: featurestore_service.ListFeaturestoresResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -124,7 +141,9 @@ class ListFeaturestoresAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[featurestore_service.ListFeaturestoresResponse]:
+    async def pages(
+        self,
+    ) -> AsyncIterable[featurestore_service.ListFeaturestoresResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -140,7 +159,7 @@ class ListFeaturestoresAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListEntityTypesPager:
@@ -160,12 +179,15 @@ class ListEntityTypesPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., featurestore_service.ListEntityTypesResponse],
-            request: featurestore_service.ListEntityTypesRequest,
-            response: featurestore_service.ListEntityTypesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., featurestore_service.ListEntityTypesResponse],
+        request: featurestore_service.ListEntityTypesRequest,
+        response: featurestore_service.ListEntityTypesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -199,7 +221,7 @@ class ListEntityTypesPager:
             yield from page.entity_types
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListEntityTypesAsyncPager:
@@ -219,12 +241,15 @@ class ListEntityTypesAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[featurestore_service.ListEntityTypesResponse]],
-            request: featurestore_service.ListEntityTypesRequest,
-            response: featurestore_service.ListEntityTypesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[featurestore_service.ListEntityTypesResponse]],
+        request: featurestore_service.ListEntityTypesRequest,
+        response: featurestore_service.ListEntityTypesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -246,7 +271,9 @@ class ListEntityTypesAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[featurestore_service.ListEntityTypesResponse]:
+    async def pages(
+        self,
+    ) -> AsyncIterable[featurestore_service.ListEntityTypesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -262,7 +289,7 @@ class ListEntityTypesAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListFeaturesPager:
@@ -282,12 +309,15 @@ class ListFeaturesPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., featurestore_service.ListFeaturesResponse],
-            request: featurestore_service.ListFeaturesRequest,
-            response: featurestore_service.ListFeaturesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., featurestore_service.ListFeaturesResponse],
+        request: featurestore_service.ListFeaturesRequest,
+        response: featurestore_service.ListFeaturesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -321,7 +351,7 @@ class ListFeaturesPager:
             yield from page.features
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListFeaturesAsyncPager:
@@ -341,12 +371,15 @@ class ListFeaturesAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[featurestore_service.ListFeaturesResponse]],
-            request: featurestore_service.ListFeaturesRequest,
-            response: featurestore_service.ListFeaturesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[featurestore_service.ListFeaturesResponse]],
+        request: featurestore_service.ListFeaturesRequest,
+        response: featurestore_service.ListFeaturesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -384,7 +417,7 @@ class ListFeaturesAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class SearchFeaturesPager:
@@ -404,12 +437,15 @@ class SearchFeaturesPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., featurestore_service.SearchFeaturesResponse],
-            request: featurestore_service.SearchFeaturesRequest,
-            response: featurestore_service.SearchFeaturesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., featurestore_service.SearchFeaturesResponse],
+        request: featurestore_service.SearchFeaturesRequest,
+        response: featurestore_service.SearchFeaturesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -443,7 +479,7 @@ class SearchFeaturesPager:
             yield from page.features
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class SearchFeaturesAsyncPager:
@@ -463,12 +499,15 @@ class SearchFeaturesAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[featurestore_service.SearchFeaturesResponse]],
-            request: featurestore_service.SearchFeaturesRequest,
-            response: featurestore_service.SearchFeaturesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[featurestore_service.SearchFeaturesResponse]],
+        request: featurestore_service.SearchFeaturesRequest,
+        response: featurestore_service.SearchFeaturesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -506,4 +545,4 @@ class SearchFeaturesAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

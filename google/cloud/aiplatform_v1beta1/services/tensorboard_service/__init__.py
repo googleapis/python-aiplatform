@@ -17,6 +17,6 @@ from .client import TensorboardServiceClient
 from .async_client import TensorboardServiceAsyncClient
 
 __all__ = (
-    'TensorboardServiceClient',
-    'TensorboardServiceAsyncClient',
+    "TensorboardServiceClient",
+    "TensorboardServiceAsyncClient",
 )

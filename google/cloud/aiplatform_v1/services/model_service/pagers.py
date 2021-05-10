@@ -13,7 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple, Optional
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model_evaluation
@@ -38,12 +47,15 @@ class ListModelsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., model_service.ListModelsResponse],
-            request: model_service.ListModelsRequest,
-            response: model_service.ListModelsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., model_service.ListModelsResponse],
+        request: model_service.ListModelsRequest,
+        response: model_service.ListModelsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -77,7 +89,7 @@ class ListModelsPager:
             yield from page.models
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListModelsAsyncPager:
@@ -97,12 +109,15 @@ class ListModelsAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[model_service.ListModelsResponse]],
-            request: model_service.ListModelsRequest,
-            response: model_service.ListModelsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[model_service.ListModelsResponse]],
+        request: model_service.ListModelsRequest,
+        response: model_service.ListModelsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -140,7 +155,7 @@ class ListModelsAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListModelEvaluationsPager:
@@ -160,12 +175,15 @@ class ListModelEvaluationsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., model_service.ListModelEvaluationsResponse],
-            request: model_service.ListModelEvaluationsRequest,
-            response: model_service.ListModelEvaluationsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., model_service.ListModelEvaluationsResponse],
+        request: model_service.ListModelEvaluationsRequest,
+        response: model_service.ListModelEvaluationsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -199,7 +217,7 @@ class ListModelEvaluationsPager:
             yield from page.model_evaluations
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListModelEvaluationsAsyncPager:
@@ -219,12 +237,15 @@ class ListModelEvaluationsAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[model_service.ListModelEvaluationsResponse]],
-            request: model_service.ListModelEvaluationsRequest,
-            response: model_service.ListModelEvaluationsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[model_service.ListModelEvaluationsResponse]],
+        request: model_service.ListModelEvaluationsRequest,
+        response: model_service.ListModelEvaluationsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -262,7 +283,7 @@ class ListModelEvaluationsAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListModelEvaluationSlicesPager:
@@ -282,12 +303,15 @@ class ListModelEvaluationSlicesPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., model_service.ListModelEvaluationSlicesResponse],
-            request: model_service.ListModelEvaluationSlicesRequest,
-            response: model_service.ListModelEvaluationSlicesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., model_service.ListModelEvaluationSlicesResponse],
+        request: model_service.ListModelEvaluationSlicesRequest,
+        response: model_service.ListModelEvaluationSlicesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -321,7 +345,7 @@ class ListModelEvaluationSlicesPager:
             yield from page.model_evaluation_slices
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListModelEvaluationSlicesAsyncPager:
@@ -341,12 +365,17 @@ class ListModelEvaluationSlicesAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[model_service.ListModelEvaluationSlicesResponse]],
-            request: model_service.ListModelEvaluationSlicesRequest,
-            response: model_service.ListModelEvaluationSlicesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., Awaitable[model_service.ListModelEvaluationSlicesResponse]
+        ],
+        request: model_service.ListModelEvaluationSlicesRequest,
+        response: model_service.ListModelEvaluationSlicesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -368,7 +397,9 @@ class ListModelEvaluationSlicesAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[model_service.ListModelEvaluationSlicesResponse]:
+    async def pages(
+        self,
+    ) -> AsyncIterable[model_service.ListModelEvaluationSlicesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -384,4 +415,4 @@ class ListModelEvaluationSlicesAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

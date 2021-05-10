@@ -19,10 +19,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'Event',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"Event",},
 )
 
 
@@ -57,6 +54,7 @@ class Event(proto.Message):
             keys are prefixed with
             "aiplatform.googleapis.com/" and are immutable.
     """
+
     class Type(proto.Enum):
         r"""Describes whether an Event's Artifact is the Execution's
         input or output.
@@ -65,29 +63,11 @@ class Event(proto.Message):
         INPUT = 1
         OUTPUT = 2
 
-    artifact = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    execution = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    event_time = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        message=timestamp_pb2.Timestamp,
-    )
-    type_ = proto.Field(
-        proto.ENUM,
-        number=4,
-        enum=Type,
-    )
-    labels = proto.MapField(
-        proto.STRING,
-        proto.STRING,
-        number=5,
-    )
+    artifact = proto.Field(proto.STRING, number=1,)
+    execution = proto.Field(proto.STRING, number=2,)
+    event_time = proto.Field(proto.MESSAGE, number=3, message=timestamp_pb2.Timestamp,)
+    type_ = proto.Field(proto.ENUM, number=4, enum=Type,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=5,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

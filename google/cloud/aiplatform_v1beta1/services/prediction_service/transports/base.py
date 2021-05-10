@@ -21,7 +21,7 @@ import pkg_resources
 import google.auth  # type: ignore
 import google.api_core  # type: ignore
 from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1    # type: ignore
+from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 
@@ -30,7 +30,7 @@ from google.cloud.aiplatform_v1beta1.types import prediction_service
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
@@ -51,21 +51,21 @@ _API_CORE_VERSION = google.api_core.__version__
 class PredictionServiceTransport(abc.ABC):
     """Abstract transport class for PredictionService."""
 
-    AUTH_SCOPES = (
-        'https://www.googleapis.com/auth/cloud-platform',
-    )
+    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
-    DEFAULT_HOST: str = 'aiplatform.googleapis.com'
+    DEFAULT_HOST: str = "aiplatform.googleapis.com"
+
     def __init__(
-            self, *,
-            host: str = DEFAULT_HOST,
-            credentials: ga_credentials.Credentials = None,
-            credentials_file: Optional[str] = None,
-            scopes: Optional[Sequence[str]] = None,
-            quota_project_id: Optional[str] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            **kwargs,
-            ) -> None:
+        self,
+        *,
+        host: str = DEFAULT_HOST,
+        credentials: ga_credentials.Credentials = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+        **kwargs,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -89,8 +89,8 @@ class PredictionServiceTransport(abc.ABC):
                 your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ':' not in host:
-            host += ':443'
+        if ":" not in host:
+            host += ":443"
         self._host = host
 
         scopes_kwargs = self._get_scopes_kwargs(self._host, scopes)
@@ -101,17 +101,19 @@ class PredictionServiceTransport(abc.ABC):
         # If no credentials are provided, then determine the appropriate
         # defaults.
         if credentials and credentials_file:
-            raise core_exceptions.DuplicateCredentialArgs("'credentials_file' and 'credentials' are mutually exclusive")
+            raise core_exceptions.DuplicateCredentialArgs(
+                "'credentials_file' and 'credentials' are mutually exclusive"
+            )
 
         if credentials_file is not None:
             credentials, _ = google.auth.load_credentials_from_file(
-                                credentials_file,
-                                **scopes_kwargs,
-                                quota_project_id=quota_project_id
-                            )
+                credentials_file, **scopes_kwargs, quota_project_id=quota_project_id
+            )
 
         elif credentials is None:
-            credentials, _ = google.auth.default(**scopes_kwargs, quota_project_id=quota_project_id)
+            credentials, _ = google.auth.default(
+                **scopes_kwargs, quota_project_id=quota_project_id
+            )
 
         # Save the credentials.
         self._credentials = credentials
@@ -123,7 +125,9 @@ class PredictionServiceTransport(abc.ABC):
 
     # TODO: Remove this function once google-auth >= 1.25.0 is required
     @classmethod
-    def _get_scopes_kwargs(cls, host: str, scopes: Optional[Sequence[str]]) -> Dict[str, Optional[Sequence[str]]]:
+    def _get_scopes_kwargs(
+        cls, host: str, scopes: Optional[Sequence[str]]
+    ) -> Dict[str, Optional[Sequence[str]]]:
         """Returns scopes kwargs to pass to google-auth methods depending on the google-auth version"""
 
         scopes_kwargs = {}
@@ -140,7 +144,9 @@ class PredictionServiceTransport(abc.ABC):
 
     # TODO: Remove this function once google-api-core >= 1.26.0 is required
     @classmethod
-    def _get_self_signed_jwt_kwargs(cls, host: str, scopes: Optional[Sequence[str]]) -> Dict[str, Union[Optional[Sequence[str]], str]]:
+    def _get_self_signed_jwt_kwargs(
+        cls, host: str, scopes: Optional[Sequence[str]]
+    ) -> Dict[str, Union[Optional[Sequence[str]], str]]:
         """Returns kwargs to pass to grpc_helpers.create_channel depending on the google-api-core version"""
 
         self_signed_jwt_kwargs: Dict[str, Union[Optional[Sequence[str]], str]] = {}
@@ -161,36 +167,36 @@ class PredictionServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.predict: gapic_v1.method.wrap_method(
-                self.predict,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.predict, default_timeout=5.0, client_info=client_info,
             ),
             self.explain: gapic_v1.method.wrap_method(
-                self.explain,
-                default_timeout=5.0,
-                client_info=client_info,
+                self.explain, default_timeout=5.0, client_info=client_info,
             ),
-         }
+        }
 
     @property
-    def predict(self) -> Callable[
-            [prediction_service.PredictRequest],
-            Union[
-                prediction_service.PredictResponse,
-                Awaitable[prediction_service.PredictResponse]
-            ]]:
+    def predict(
+        self,
+    ) -> Callable[
+        [prediction_service.PredictRequest],
+        Union[
+            prediction_service.PredictResponse,
+            Awaitable[prediction_service.PredictResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def explain(self) -> Callable[
-            [prediction_service.ExplainRequest],
-            Union[
-                prediction_service.ExplainResponse,
-                Awaitable[prediction_service.ExplainResponse]
-            ]]:
+    def explain(
+        self,
+    ) -> Callable[
+        [prediction_service.ExplainRequest],
+        Union[
+            prediction_service.ExplainResponse,
+            Awaitable[prediction_service.ExplainResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
 
-__all__ = (
-    'PredictionServiceTransport',
-)
+__all__ = ("PredictionServiceTransport",)

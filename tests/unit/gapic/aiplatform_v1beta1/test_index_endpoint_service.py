@@ -34,12 +34,20 @@ from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import IndexEndpointServiceAsyncClient
-from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import IndexEndpointServiceClient
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
+    IndexEndpointServiceAsyncClient,
+)
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
+    IndexEndpointServiceClient,
+)
 from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import pagers
 from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import transports
-from google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.base import _API_CORE_VERSION
-from google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.base import _GOOGLE_AUTH_VERSION
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.base import (
+    _API_CORE_VERSION,
+)
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.base import (
+    _GOOGLE_AUTH_VERSION,
+)
 from google.cloud.aiplatform_v1beta1.types import index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint_service
@@ -74,6 +82,7 @@ requires_api_core_gte_1_26_0 = pytest.mark.skipif(
     reason="This test requires google-api-core >= 1.26.0",
 )
 
+
 def client_cert_source_callback():
     return b"cert bytes", b"key bytes"
 
@@ -82,7 +91,11 @@ def client_cert_source_callback():
 # This method modifies the default endpoint so the client can produce a different
 # mtls endpoint for endpoint testing purposes.
 def modify_default_endpoint(client):
-    return "foo.googleapis.com" if ("localhost" in client.DEFAULT_ENDPOINT) else client.DEFAULT_ENDPOINT
+    return (
+        "foo.googleapis.com"
+        if ("localhost" in client.DEFAULT_ENDPOINT)
+        else client.DEFAULT_ENDPOINT
+    )
 
 
 def test__get_default_mtls_endpoint():
@@ -93,36 +106,53 @@ def test__get_default_mtls_endpoint():
     non_googleapi = "api.example.com"
 
     assert IndexEndpointServiceClient._get_default_mtls_endpoint(None) is None
-    assert IndexEndpointServiceClient._get_default_mtls_endpoint(api_endpoint) == api_mtls_endpoint
-    assert IndexEndpointServiceClient._get_default_mtls_endpoint(api_mtls_endpoint) == api_mtls_endpoint
-    assert IndexEndpointServiceClient._get_default_mtls_endpoint(sandbox_endpoint) == sandbox_mtls_endpoint
-    assert IndexEndpointServiceClient._get_default_mtls_endpoint(sandbox_mtls_endpoint) == sandbox_mtls_endpoint
-    assert IndexEndpointServiceClient._get_default_mtls_endpoint(non_googleapi) == non_googleapi
+    assert (
+        IndexEndpointServiceClient._get_default_mtls_endpoint(api_endpoint)
+        == api_mtls_endpoint
+    )
+    assert (
+        IndexEndpointServiceClient._get_default_mtls_endpoint(api_mtls_endpoint)
+        == api_mtls_endpoint
+    )
+    assert (
+        IndexEndpointServiceClient._get_default_mtls_endpoint(sandbox_endpoint)
+        == sandbox_mtls_endpoint
+    )
+    assert (
+        IndexEndpointServiceClient._get_default_mtls_endpoint(sandbox_mtls_endpoint)
+        == sandbox_mtls_endpoint
+    )
+    assert (
+        IndexEndpointServiceClient._get_default_mtls_endpoint(non_googleapi)
+        == non_googleapi
+    )
 
 
-@pytest.mark.parametrize("client_class", [
-    IndexEndpointServiceClient,
-    IndexEndpointServiceAsyncClient,
-])
+@pytest.mark.parametrize(
+    "client_class", [IndexEndpointServiceClient, IndexEndpointServiceAsyncClient,]
+)
 def test_index_endpoint_service_client_from_service_account_info(client_class):
     creds = ga_credentials.AnonymousCredentials()
-    with mock.patch.object(service_account.Credentials, 'from_service_account_info') as factory:
+    with mock.patch.object(
+        service_account.Credentials, "from_service_account_info"
+    ) as factory:
         factory.return_value = creds
         info = {"valid": True}
         client = client_class.from_service_account_info(info)
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == 'aiplatform.googleapis.com:443'
+        assert client.transport._host == "aiplatform.googleapis.com:443"
 
 
-@pytest.mark.parametrize("client_class", [
-    IndexEndpointServiceClient,
-    IndexEndpointServiceAsyncClient,
-])
+@pytest.mark.parametrize(
+    "client_class", [IndexEndpointServiceClient, IndexEndpointServiceAsyncClient,]
+)
 def test_index_endpoint_service_client_from_service_account_file(client_class):
     creds = ga_credentials.AnonymousCredentials()
-    with mock.patch.object(service_account.Credentials, 'from_service_account_file') as factory:
+    with mock.patch.object(
+        service_account.Credentials, "from_service_account_file"
+    ) as factory:
         factory.return_value = creds
         client = client_class.from_service_account_file("dummy/file/path.json")
         assert client.transport._credentials == creds
@@ -132,7 +162,7 @@ def test_index_endpoint_service_client_from_service_account_file(client_class):
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == 'aiplatform.googleapis.com:443'
+        assert client.transport._host == "aiplatform.googleapis.com:443"
 
 
 def test_index_endpoint_service_client_get_transport_class():
@@ -146,29 +176,48 @@ def test_index_endpoint_service_client_get_transport_class():
     assert transport == transports.IndexEndpointServiceGrpcTransport
 
 
-@pytest.mark.parametrize("client_class,transport_class,transport_name", [
-    (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport, "grpc"),
-    (IndexEndpointServiceAsyncClient, transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio"),
-])
-@mock.patch.object(IndexEndpointServiceClient, "DEFAULT_ENDPOINT", modify_default_endpoint(IndexEndpointServiceClient))
-@mock.patch.object(IndexEndpointServiceAsyncClient, "DEFAULT_ENDPOINT", modify_default_endpoint(IndexEndpointServiceAsyncClient))
-def test_index_endpoint_service_client_client_options(client_class, transport_class, transport_name):
+@pytest.mark.parametrize(
+    "client_class,transport_class,transport_name",
+    [
+        (
+            IndexEndpointServiceClient,
+            transports.IndexEndpointServiceGrpcTransport,
+            "grpc",
+        ),
+        (
+            IndexEndpointServiceAsyncClient,
+            transports.IndexEndpointServiceGrpcAsyncIOTransport,
+            "grpc_asyncio",
+        ),
+    ],
+)
+@mock.patch.object(
+    IndexEndpointServiceClient,
+    "DEFAULT_ENDPOINT",
+    modify_default_endpoint(IndexEndpointServiceClient),
+)
+@mock.patch.object(
+    IndexEndpointServiceAsyncClient,
+    "DEFAULT_ENDPOINT",
+    modify_default_endpoint(IndexEndpointServiceAsyncClient),
+)
+def test_index_endpoint_service_client_client_options(
+    client_class, transport_class, transport_name
+):
     # Check that if channel is provided we won't create a new one.
-    with mock.patch.object(IndexEndpointServiceClient, 'get_transport_class') as gtc:
-        transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials()
-        )
+    with mock.patch.object(IndexEndpointServiceClient, "get_transport_class") as gtc:
+        transport = transport_class(credentials=ga_credentials.AnonymousCredentials())
         client = client_class(transport=transport)
         gtc.assert_not_called()
 
     # Check that if channel is provided via str we will create a new one.
-    with mock.patch.object(IndexEndpointServiceClient, 'get_transport_class') as gtc:
+    with mock.patch.object(IndexEndpointServiceClient, "get_transport_class") as gtc:
         client = client_class(transport=transport_name)
         gtc.assert_called()
 
     # Check the case api_endpoint is provided.
     options = client_options.ClientOptions(api_endpoint="squid.clam.whelk")
-    with mock.patch.object(transport_class, '__init__') as patched:
+    with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options)
         patched.assert_called_once_with(
@@ -184,7 +233,7 @@ def test_index_endpoint_service_client_client_options(client_class, transport_cl
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
     # "never".
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
-        with mock.patch.object(transport_class, '__init__') as patched:
+        with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
             client = client_class()
             patched.assert_called_once_with(
@@ -200,7 +249,7 @@ def test_index_endpoint_service_client_client_options(client_class, transport_cl
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
     # "always".
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
-        with mock.patch.object(transport_class, '__init__') as patched:
+        with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
             client = client_class()
             patched.assert_called_once_with(
@@ -220,13 +269,15 @@ def test_index_endpoint_service_client_client_options(client_class, transport_cl
             client = client_class()
 
     # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}):
+    with mock.patch.dict(
+        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
+    ):
         with pytest.raises(ValueError):
             client = client_class()
 
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
-    with mock.patch.object(transport_class, '__init__') as patched:
+    with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options)
         patched.assert_called_once_with(
@@ -239,24 +290,62 @@ def test_index_endpoint_service_client_client_options(client_class, transport_cl
             client_info=transports.base.DEFAULT_CLIENT_INFO,
         )
 
-@pytest.mark.parametrize("client_class,transport_class,transport_name,use_client_cert_env", [
-    (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport, "grpc", "true"),
-    (IndexEndpointServiceAsyncClient, transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio", "true"),
-    (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport, "grpc", "false"),
-    (IndexEndpointServiceAsyncClient, transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio", "false"),
-])
-@mock.patch.object(IndexEndpointServiceClient, "DEFAULT_ENDPOINT", modify_default_endpoint(IndexEndpointServiceClient))
-@mock.patch.object(IndexEndpointServiceAsyncClient, "DEFAULT_ENDPOINT", modify_default_endpoint(IndexEndpointServiceAsyncClient))
+
+@pytest.mark.parametrize(
+    "client_class,transport_class,transport_name,use_client_cert_env",
+    [
+        (
+            IndexEndpointServiceClient,
+            transports.IndexEndpointServiceGrpcTransport,
+            "grpc",
+            "true",
+        ),
+        (
+            IndexEndpointServiceAsyncClient,
+            transports.IndexEndpointServiceGrpcAsyncIOTransport,
+            "grpc_asyncio",
+            "true",
+        ),
+        (
+            IndexEndpointServiceClient,
+            transports.IndexEndpointServiceGrpcTransport,
+            "grpc",
+            "false",
+        ),
+        (
+            IndexEndpointServiceAsyncClient,
+            transports.IndexEndpointServiceGrpcAsyncIOTransport,
+            "grpc_asyncio",
+            "false",
+        ),
+    ],
+)
+@mock.patch.object(
+    IndexEndpointServiceClient,
+    "DEFAULT_ENDPOINT",
+    modify_default_endpoint(IndexEndpointServiceClient),
+)
+@mock.patch.object(
+    IndexEndpointServiceAsyncClient,
+    "DEFAULT_ENDPOINT",
+    modify_default_endpoint(IndexEndpointServiceAsyncClient),
+)
 @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"})
-def test_index_endpoint_service_client_mtls_env_auto(client_class, transport_class, transport_name, use_client_cert_env):
+def test_index_endpoint_service_client_mtls_env_auto(
+    client_class, transport_class, transport_name, use_client_cert_env
+):
     # This tests the endpoint autoswitch behavior. Endpoint is autoswitched to the default
     # mtls endpoint, if GOOGLE_API_USE_CLIENT_CERTIFICATE is "true" and client cert exists.
 
     # Check the case client_cert_source is provided. Whether client cert is used depends on
     # GOOGLE_API_USE_CLIENT_CERTIFICATE value.
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": use_client_cert_env}):
-        options = client_options.ClientOptions(client_cert_source=client_cert_source_callback)
-        with mock.patch.object(transport_class, '__init__') as patched:
+    with mock.patch.dict(
+        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": use_client_cert_env}
+    ):
+        options = client_options.ClientOptions(
+            client_cert_source=client_cert_source_callback
+        )
+        with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
             client = client_class(client_options=options)
 
@@ -279,10 +368,18 @@ def test_index_endpoint_service_client_mtls_env_auto(client_class, transport_cla
 
     # Check the case ADC client cert is provided. Whether client cert is used depends on
     # GOOGLE_API_USE_CLIENT_CERTIFICATE value.
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": use_client_cert_env}):
-        with mock.patch.object(transport_class, '__init__') as patched:
-            with mock.patch('google.auth.transport.mtls.has_default_client_cert_source', return_value=True):
-                with mock.patch('google.auth.transport.mtls.default_client_cert_source', return_value=client_cert_source_callback):
+    with mock.patch.dict(
+        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": use_client_cert_env}
+    ):
+        with mock.patch.object(transport_class, "__init__") as patched:
+            with mock.patch(
+                "google.auth.transport.mtls.has_default_client_cert_source",
+                return_value=True,
+            ):
+                with mock.patch(
+                    "google.auth.transport.mtls.default_client_cert_source",
+                    return_value=client_cert_source_callback,
+                ):
                     if use_client_cert_env == "false":
                         expected_host = client.DEFAULT_ENDPOINT
                         expected_client_cert_source = None
@@ -303,9 +400,14 @@ def test_index_endpoint_service_client_mtls_env_auto(client_class, transport_cla
                     )
 
     # Check the case client_cert_source and ADC client cert are not provided.
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": use_client_cert_env}):
-        with mock.patch.object(transport_class, '__init__') as patched:
-            with mock.patch("google.auth.transport.mtls.has_default_client_cert_source", return_value=False):
+    with mock.patch.dict(
+        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": use_client_cert_env}
+    ):
+        with mock.patch.object(transport_class, "__init__") as patched:
+            with mock.patch(
+                "google.auth.transport.mtls.has_default_client_cert_source",
+                return_value=False,
+            ):
                 patched.return_value = None
                 client = client_class()
                 patched.assert_called_once_with(
@@ -319,16 +421,27 @@ def test_index_endpoint_service_client_mtls_env_auto(client_class, transport_cla
                 )
 
 
-@pytest.mark.parametrize("client_class,transport_class,transport_name", [
-    (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport, "grpc"),
-    (IndexEndpointServiceAsyncClient, transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio"),
-])
-def test_index_endpoint_service_client_client_options_scopes(client_class, transport_class, transport_name):
+@pytest.mark.parametrize(
+    "client_class,transport_class,transport_name",
+    [
+        (
+            IndexEndpointServiceClient,
+            transports.IndexEndpointServiceGrpcTransport,
+            "grpc",
+        ),
+        (
+            IndexEndpointServiceAsyncClient,
+            transports.IndexEndpointServiceGrpcAsyncIOTransport,
+            "grpc_asyncio",
+        ),
+    ],
+)
+def test_index_endpoint_service_client_client_options_scopes(
+    client_class, transport_class, transport_name
+):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(
-        scopes=["1", "2"],
-    )
-    with mock.patch.object(transport_class, '__init__') as patched:
+    options = client_options.ClientOptions(scopes=["1", "2"],)
+    with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options)
         patched.assert_called_once_with(
@@ -341,16 +454,28 @@ def test_index_endpoint_service_client_client_options_scopes(client_class, trans
             client_info=transports.base.DEFAULT_CLIENT_INFO,
         )
 
-@pytest.mark.parametrize("client_class,transport_class,transport_name", [
-    (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport, "grpc"),
-    (IndexEndpointServiceAsyncClient, transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio"),
-])
-def test_index_endpoint_service_client_client_options_credentials_file(client_class, transport_class, transport_name):
+
+@pytest.mark.parametrize(
+    "client_class,transport_class,transport_name",
+    [
+        (
+            IndexEndpointServiceClient,
+            transports.IndexEndpointServiceGrpcTransport,
+            "grpc",
+        ),
+        (
+            IndexEndpointServiceAsyncClient,
+            transports.IndexEndpointServiceGrpcAsyncIOTransport,
+            "grpc_asyncio",
+        ),
+    ],
+)
+def test_index_endpoint_service_client_client_options_credentials_file(
+    client_class, transport_class, transport_name
+):
     # Check the case credentials file is provided.
-    options = client_options.ClientOptions(
-        credentials_file="credentials.json"
-    )
-    with mock.patch.object(transport_class, '__init__') as patched:
+    options = client_options.ClientOptions(credentials_file="credentials.json")
+    with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options)
         patched.assert_called_once_with(
@@ -365,10 +490,12 @@ def test_index_endpoint_service_client_client_options_credentials_file(client_cl
 
 
 def test_index_endpoint_service_client_client_options_from_dict():
-    with mock.patch('google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceGrpcTransport.__init__') as grpc_transport:
+    with mock.patch(
+        "google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceGrpcTransport.__init__"
+    ) as grpc_transport:
         grpc_transport.return_value = None
         client = IndexEndpointServiceClient(
-            client_options={'api_endpoint': 'squid.clam.whelk'}
+            client_options={"api_endpoint": "squid.clam.whelk"}
         )
         grpc_transport.assert_called_once_with(
             credentials=None,
@@ -381,10 +508,12 @@ def test_index_endpoint_service_client_client_options_from_dict():
         )
 
 
-def test_create_index_endpoint(transport: str = 'grpc', request_type=index_endpoint_service.CreateIndexEndpointRequest):
+def test_create_index_endpoint(
+    transport: str = "grpc",
+    request_type=index_endpoint_service.CreateIndexEndpointRequest,
+):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -393,10 +522,10 @@ def test_create_index_endpoint(transport: str = 'grpc', request_type=index_endpo
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.create_index_endpoint),
-            '__call__') as call:
+        type(client.transport.create_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name='operations/spam')
+        call.return_value = operations_pb2.Operation(name="operations/spam")
         response = client.create_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -416,14 +545,13 @@ def test_create_index_endpoint_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport='grpc',
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.create_index_endpoint),
-            '__call__') as call:
+        type(client.transport.create_index_endpoint), "__call__"
+    ) as call:
         client.create_index_endpoint()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -431,10 +559,12 @@ def test_create_index_endpoint_empty_call():
 
 
 @pytest.mark.asyncio
-async def test_create_index_endpoint_async(transport: str = 'grpc_asyncio', request_type=index_endpoint_service.CreateIndexEndpointRequest):
+async def test_create_index_endpoint_async(
+    transport: str = "grpc_asyncio",
+    request_type=index_endpoint_service.CreateIndexEndpointRequest,
+):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -443,11 +573,11 @@ async def test_create_index_endpoint_async(transport: str = 'grpc_asyncio', requ
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.create_index_endpoint),
-            '__call__') as call:
+        type(client.transport.create_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name='operations/spam')
+            operations_pb2.Operation(name="operations/spam")
         )
         response = await client.create_index_endpoint(request)
 
@@ -474,13 +604,13 @@ def test_create_index_endpoint_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.CreateIndexEndpointRequest()
 
-    request.parent = 'parent/value'
+    request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.create_index_endpoint),
-            '__call__') as call:
-        call.return_value = operations_pb2.Operation(name='operations/op')
+        type(client.transport.create_index_endpoint), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
         client.create_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -490,10 +620,7 @@ def test_create_index_endpoint_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        'x-goog-request-params',
-        'parent=parent/value',
-    ) in kw['metadata']
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -506,13 +633,15 @@ async def test_create_index_endpoint_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.CreateIndexEndpointRequest()
 
-    request.parent = 'parent/value'
+    request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.create_index_endpoint),
-            '__call__') as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
+        type(client.transport.create_index_endpoint), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
         await client.create_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -522,10 +651,7 @@ async def test_create_index_endpoint_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        'x-goog-request-params',
-        'parent=parent/value',
-    ) in kw['metadata']
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
 
 
 def test_create_index_endpoint_flattened():
@@ -535,23 +661,25 @@ def test_create_index_endpoint_flattened():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.create_index_endpoint),
-            '__call__') as call:
+        type(client.transport.create_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name='operations/op')
+        call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_index_endpoint(
-            parent='parent_value',
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
+            parent="parent_value",
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == 'parent_value'
-        assert args[0].index_endpoint == gca_index_endpoint.IndexEndpoint(name='name_value')
+        assert args[0].parent == "parent_value"
+        assert args[0].index_endpoint == gca_index_endpoint.IndexEndpoint(
+            name="name_value"
+        )
 
 
 def test_create_index_endpoint_flattened_error():
@@ -564,8 +692,8 @@ def test_create_index_endpoint_flattened_error():
     with pytest.raises(ValueError):
         client.create_index_endpoint(
             index_endpoint_service.CreateIndexEndpointRequest(),
-            parent='parent_value',
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
+            parent="parent_value",
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
         )
 
 
@@ -577,27 +705,29 @@ async def test_create_index_endpoint_flattened_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.create_index_endpoint),
-            '__call__') as call:
+        type(client.transport.create_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name='operations/op')
+        call.return_value = operations_pb2.Operation(name="operations/op")
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name='operations/spam')
+            operations_pb2.Operation(name="operations/spam")
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.create_index_endpoint(
-            parent='parent_value',
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
+            parent="parent_value",
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == 'parent_value'
-        assert args[0].index_endpoint == gca_index_endpoint.IndexEndpoint(name='name_value')
+        assert args[0].parent == "parent_value"
+        assert args[0].index_endpoint == gca_index_endpoint.IndexEndpoint(
+            name="name_value"
+        )
 
 
 @pytest.mark.asyncio
@@ -611,15 +741,16 @@ async def test_create_index_endpoint_flattened_error_async():
     with pytest.raises(ValueError):
         await client.create_index_endpoint(
             index_endpoint_service.CreateIndexEndpointRequest(),
-            parent='parent_value',
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
+            parent="parent_value",
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
         )
 
 
-def test_get_index_endpoint(transport: str = 'grpc', request_type=index_endpoint_service.GetIndexEndpointRequest):
+def test_get_index_endpoint(
+    transport: str = "grpc", request_type=index_endpoint_service.GetIndexEndpointRequest
+):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -628,15 +759,15 @@ def test_get_index_endpoint(transport: str = 'grpc', request_type=index_endpoint
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.get_index_endpoint),
-            '__call__') as call:
+        type(client.transport.get_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = index_endpoint.IndexEndpoint(
-            name='name_value',
-            display_name='display_name_value',
-            description='description_value',
-            etag='etag_value',
-            network='network_value',
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            etag="etag_value",
+            network="network_value",
         )
         response = client.get_index_endpoint(request)
 
@@ -647,11 +778,11 @@ def test_get_index_endpoint(transport: str = 'grpc', request_type=index_endpoint
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, index_endpoint.IndexEndpoint)
-    assert response.name == 'name_value'
-    assert response.display_name == 'display_name_value'
-    assert response.description == 'description_value'
-    assert response.etag == 'etag_value'
-    assert response.network == 'network_value'
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.etag == "etag_value"
+    assert response.network == "network_value"
 
 
 def test_get_index_endpoint_from_dict():
@@ -662,14 +793,13 @@ def test_get_index_endpoint_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport='grpc',
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.get_index_endpoint),
-            '__call__') as call:
+        type(client.transport.get_index_endpoint), "__call__"
+    ) as call:
         client.get_index_endpoint()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -677,10 +807,12 @@ def test_get_index_endpoint_empty_call():
 
 
 @pytest.mark.asyncio
-async def test_get_index_endpoint_async(transport: str = 'grpc_asyncio', request_type=index_endpoint_service.GetIndexEndpointRequest):
+async def test_get_index_endpoint_async(
+    transport: str = "grpc_asyncio",
+    request_type=index_endpoint_service.GetIndexEndpointRequest,
+):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -689,16 +821,18 @@ async def test_get_index_endpoint_async(transport: str = 'grpc_asyncio', request
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.get_index_endpoint),
-            '__call__') as call:
+        type(client.transport.get_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint.IndexEndpoint(
-            name='name_value',
-            display_name='display_name_value',
-            description='description_value',
-            etag='etag_value',
-            network='network_value',
-        ))
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            index_endpoint.IndexEndpoint(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+                network="network_value",
+            )
+        )
         response = await client.get_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -708,11 +842,11 @@ async def test_get_index_endpoint_async(transport: str = 'grpc_asyncio', request
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, index_endpoint.IndexEndpoint)
-    assert response.name == 'name_value'
-    assert response.display_name == 'display_name_value'
-    assert response.description == 'description_value'
-    assert response.etag == 'etag_value'
-    assert response.network == 'network_value'
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.etag == "etag_value"
+    assert response.network == "network_value"
 
 
 @pytest.mark.asyncio
@@ -729,12 +863,12 @@ def test_get_index_endpoint_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.GetIndexEndpointRequest()
 
-    request.name = 'name/value'
+    request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.get_index_endpoint),
-            '__call__') as call:
+        type(client.transport.get_index_endpoint), "__call__"
+    ) as call:
         call.return_value = index_endpoint.IndexEndpoint()
         client.get_index_endpoint(request)
 
@@ -745,10 +879,7 @@ def test_get_index_endpoint_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        'x-goog-request-params',
-        'name=name/value',
-    ) in kw['metadata']
+    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -761,13 +892,15 @@ async def test_get_index_endpoint_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.GetIndexEndpointRequest()
 
-    request.name = 'name/value'
+    request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.get_index_endpoint),
-            '__call__') as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint.IndexEndpoint())
+        type(client.transport.get_index_endpoint), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            index_endpoint.IndexEndpoint()
+        )
         await client.get_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -777,10 +910,7 @@ async def test_get_index_endpoint_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        'x-goog-request-params',
-        'name=name/value',
-    ) in kw['metadata']
+    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
 
 
 def test_get_index_endpoint_flattened():
@@ -790,21 +920,19 @@ def test_get_index_endpoint_flattened():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.get_index_endpoint),
-            '__call__') as call:
+        type(client.transport.get_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = index_endpoint.IndexEndpoint()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_index_endpoint(
-            name='name_value',
-        )
+        client.get_index_endpoint(name="name_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == 'name_value'
+        assert args[0].name == "name_value"
 
 
 def test_get_index_endpoint_flattened_error():
@@ -816,8 +944,7 @@ def test_get_index_endpoint_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_index_endpoint(
-            index_endpoint_service.GetIndexEndpointRequest(),
-            name='name_value',
+            index_endpoint_service.GetIndexEndpointRequest(), name="name_value",
         )
 
 
@@ -829,23 +956,23 @@ async def test_get_index_endpoint_flattened_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.get_index_endpoint),
-            '__call__') as call:
+        type(client.transport.get_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = index_endpoint.IndexEndpoint()
 
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint.IndexEndpoint())
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            index_endpoint.IndexEndpoint()
+        )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_index_endpoint(
-            name='name_value',
-        )
+        response = await client.get_index_endpoint(name="name_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == 'name_value'
+        assert args[0].name == "name_value"
 
 
 @pytest.mark.asyncio
@@ -858,15 +985,16 @@ async def test_get_index_endpoint_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_index_endpoint(
-            index_endpoint_service.GetIndexEndpointRequest(),
-            name='name_value',
+            index_endpoint_service.GetIndexEndpointRequest(), name="name_value",
         )
 
 
-def test_list_index_endpoints(transport: str = 'grpc', request_type=index_endpoint_service.ListIndexEndpointsRequest):
+def test_list_index_endpoints(
+    transport: str = "grpc",
+    request_type=index_endpoint_service.ListIndexEndpointsRequest,
+):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -875,11 +1003,11 @@ def test_list_index_endpoints(transport: str = 'grpc', request_type=index_endpoi
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.list_index_endpoints),
-            '__call__') as call:
+        type(client.transport.list_index_endpoints), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = index_endpoint_service.ListIndexEndpointsResponse(
-            next_page_token='next_page_token_value',
+            next_page_token="next_page_token_value",
         )
         response = client.list_index_endpoints(request)
 
@@ -890,7 +1018,7 @@ def test_list_index_endpoints(transport: str = 'grpc', request_type=index_endpoi
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListIndexEndpointsPager)
-    assert response.next_page_token == 'next_page_token_value'
+    assert response.next_page_token == "next_page_token_value"
 
 
 def test_list_index_endpoints_from_dict():
@@ -901,14 +1029,13 @@ def test_list_index_endpoints_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport='grpc',
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.list_index_endpoints),
-            '__call__') as call:
+        type(client.transport.list_index_endpoints), "__call__"
+    ) as call:
         client.list_index_endpoints()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -916,10 +1043,12 @@ def test_list_index_endpoints_empty_call():
 
 
 @pytest.mark.asyncio
-async def test_list_index_endpoints_async(transport: str = 'grpc_asyncio', request_type=index_endpoint_service.ListIndexEndpointsRequest):
+async def test_list_index_endpoints_async(
+    transport: str = "grpc_asyncio",
+    request_type=index_endpoint_service.ListIndexEndpointsRequest,
+):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -928,12 +1057,14 @@ async def test_list_index_endpoints_async(transport: str = 'grpc_asyncio', reque
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.list_index_endpoints),
-            '__call__') as call:
+        type(client.transport.list_index_endpoints), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint_service.ListIndexEndpointsResponse(
-            next_page_token='next_page_token_value',
-        ))
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            index_endpoint_service.ListIndexEndpointsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
         response = await client.list_index_endpoints(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -943,7 +1074,7 @@ async def test_list_index_endpoints_async(transport: str = 'grpc_asyncio', reque
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListIndexEndpointsAsyncPager)
-    assert response.next_page_token == 'next_page_token_value'
+    assert response.next_page_token == "next_page_token_value"
 
 
 @pytest.mark.asyncio
@@ -960,12 +1091,12 @@ def test_list_index_endpoints_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.ListIndexEndpointsRequest()
 
-    request.parent = 'parent/value'
+    request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.list_index_endpoints),
-            '__call__') as call:
+        type(client.transport.list_index_endpoints), "__call__"
+    ) as call:
         call.return_value = index_endpoint_service.ListIndexEndpointsResponse()
         client.list_index_endpoints(request)
 
@@ -976,10 +1107,7 @@ def test_list_index_endpoints_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        'x-goog-request-params',
-        'parent=parent/value',
-    ) in kw['metadata']
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -992,13 +1120,15 @@ async def test_list_index_endpoints_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.ListIndexEndpointsRequest()
 
-    request.parent = 'parent/value'
+    request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.list_index_endpoints),
-            '__call__') as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint_service.ListIndexEndpointsResponse())
+        type(client.transport.list_index_endpoints), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            index_endpoint_service.ListIndexEndpointsResponse()
+        )
         await client.list_index_endpoints(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1008,10 +1138,7 @@ async def test_list_index_endpoints_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        'x-goog-request-params',
-        'parent=parent/value',
-    ) in kw['metadata']
+    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
 
 
 def test_list_index_endpoints_flattened():
@@ -1021,21 +1148,19 @@ def test_list_index_endpoints_flattened():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.list_index_endpoints),
-            '__call__') as call:
+        type(client.transport.list_index_endpoints), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = index_endpoint_service.ListIndexEndpointsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_index_endpoints(
-            parent='parent_value',
-        )
+        client.list_index_endpoints(parent="parent_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == 'parent_value'
+        assert args[0].parent == "parent_value"
 
 
 def test_list_index_endpoints_flattened_error():
@@ -1047,8 +1172,7 @@ def test_list_index_endpoints_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_index_endpoints(
-            index_endpoint_service.ListIndexEndpointsRequest(),
-            parent='parent_value',
+            index_endpoint_service.ListIndexEndpointsRequest(), parent="parent_value",
         )
 
 
@@ -1060,23 +1184,23 @@ async def test_list_index_endpoints_flattened_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.list_index_endpoints),
-            '__call__') as call:
+        type(client.transport.list_index_endpoints), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = index_endpoint_service.ListIndexEndpointsResponse()
 
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint_service.ListIndexEndpointsResponse())
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            index_endpoint_service.ListIndexEndpointsResponse()
+        )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_index_endpoints(
-            parent='parent_value',
-        )
+        response = await client.list_index_endpoints(parent="parent_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].parent == 'parent_value'
+        assert args[0].parent == "parent_value"
 
 
 @pytest.mark.asyncio
@@ -1089,8 +1213,7 @@ async def test_list_index_endpoints_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_index_endpoints(
-            index_endpoint_service.ListIndexEndpointsRequest(),
-            parent='parent_value',
+            index_endpoint_service.ListIndexEndpointsRequest(), parent="parent_value",
         )
 
 
@@ -1101,8 +1224,8 @@ def test_list_index_endpoints_pager():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.list_index_endpoints),
-            '__call__') as call:
+        type(client.transport.list_index_endpoints), "__call__"
+    ) as call:
         # Set the response to a series of pages.
         call.side_effect = (
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -1111,17 +1234,14 @@ def test_list_index_endpoints_pager():
                     index_endpoint.IndexEndpoint(),
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token='abc',
+                next_page_token="abc",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[],
-                next_page_token='def',
+                index_endpoints=[], next_page_token="def",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[
-                    index_endpoint.IndexEndpoint(),
-                ],
-                next_page_token='ghi',
+                index_endpoints=[index_endpoint.IndexEndpoint(),],
+                next_page_token="ghi",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
@@ -1134,9 +1254,7 @@ def test_list_index_endpoints_pager():
 
         metadata = ()
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', ''),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
         pager = client.list_index_endpoints(request={})
 
@@ -1144,8 +1262,8 @@ def test_list_index_endpoints_pager():
 
         results = [i for i in pager]
         assert len(results) == 6
-        assert all(isinstance(i, index_endpoint.IndexEndpoint)
-                   for i in results)
+        assert all(isinstance(i, index_endpoint.IndexEndpoint) for i in results)
+
 
 def test_list_index_endpoints_pages():
     client = IndexEndpointServiceClient(
@@ -1154,8 +1272,8 @@ def test_list_index_endpoints_pages():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.list_index_endpoints),
-            '__call__') as call:
+        type(client.transport.list_index_endpoints), "__call__"
+    ) as call:
         # Set the response to a series of pages.
         call.side_effect = (
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -1164,17 +1282,14 @@ def test_list_index_endpoints_pages():
                     index_endpoint.IndexEndpoint(),
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token='abc',
+                next_page_token="abc",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[],
-                next_page_token='def',
+                index_endpoints=[], next_page_token="def",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[
-                    index_endpoint.IndexEndpoint(),
-                ],
-                next_page_token='ghi',
+                index_endpoints=[index_endpoint.IndexEndpoint(),],
+                next_page_token="ghi",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
@@ -1185,8 +1300,9 @@ def test_list_index_endpoints_pages():
             RuntimeError,
         )
         pages = list(client.list_index_endpoints(request={}).pages)
-        for page_, token in zip(pages, ['abc','def','ghi', '']):
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
+
 
 @pytest.mark.asyncio
 async def test_list_index_endpoints_async_pager():
@@ -1196,8 +1312,10 @@ async def test_list_index_endpoints_async_pager():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.list_index_endpoints),
-            '__call__', new_callable=mock.AsyncMock) as call:
+        type(client.transport.list_index_endpoints),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
         # Set the response to a series of pages.
         call.side_effect = (
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -1206,17 +1324,14 @@ async def test_list_index_endpoints_async_pager():
                     index_endpoint.IndexEndpoint(),
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token='abc',
+                next_page_token="abc",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[],
-                next_page_token='def',
+                index_endpoints=[], next_page_token="def",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[
-                    index_endpoint.IndexEndpoint(),
-                ],
-                next_page_token='ghi',
+                index_endpoints=[index_endpoint.IndexEndpoint(),],
+                next_page_token="ghi",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
@@ -1227,14 +1342,14 @@ async def test_list_index_endpoints_async_pager():
             RuntimeError,
         )
         async_pager = await client.list_index_endpoints(request={},)
-        assert async_pager.next_page_token == 'abc'
+        assert async_pager.next_page_token == "abc"
         responses = []
         async for response in async_pager:
             responses.append(response)
 
         assert len(responses) == 6
-        assert all(isinstance(i, index_endpoint.IndexEndpoint)
-                   for i in responses)
+        assert all(isinstance(i, index_endpoint.IndexEndpoint) for i in responses)
+
 
 @pytest.mark.asyncio
 async def test_list_index_endpoints_async_pages():
@@ -1244,8 +1359,10 @@ async def test_list_index_endpoints_async_pages():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.list_index_endpoints),
-            '__call__', new_callable=mock.AsyncMock) as call:
+        type(client.transport.list_index_endpoints),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
         # Set the response to a series of pages.
         call.side_effect = (
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -1254,17 +1371,14 @@ async def test_list_index_endpoints_async_pages():
                     index_endpoint.IndexEndpoint(),
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token='abc',
+                next_page_token="abc",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[],
-                next_page_token='def',
+                index_endpoints=[], next_page_token="def",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
-                index_endpoints=[
-                    index_endpoint.IndexEndpoint(),
-                ],
-                next_page_token='ghi',
+                index_endpoints=[index_endpoint.IndexEndpoint(),],
+                next_page_token="ghi",
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
@@ -1277,13 +1391,16 @@ async def test_list_index_endpoints_async_pages():
         pages = []
         async for page_ in (await client.list_index_endpoints(request={})).pages:
             pages.append(page_)
-        for page_, token in zip(pages, ['abc','def','ghi', '']):
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
-def test_update_index_endpoint(transport: str = 'grpc', request_type=index_endpoint_service.UpdateIndexEndpointRequest):
+
+def test_update_index_endpoint(
+    transport: str = "grpc",
+    request_type=index_endpoint_service.UpdateIndexEndpointRequest,
+):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1292,15 +1409,15 @@ def test_update_index_endpoint(transport: str = 'grpc', request_type=index_endpo
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.update_index_endpoint),
-            '__call__') as call:
+        type(client.transport.update_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_index_endpoint.IndexEndpoint(
-            name='name_value',
-            display_name='display_name_value',
-            description='description_value',
-            etag='etag_value',
-            network='network_value',
+            name="name_value",
+            display_name="display_name_value",
+            description="description_value",
+            etag="etag_value",
+            network="network_value",
         )
         response = client.update_index_endpoint(request)
 
@@ -1311,11 +1428,11 @@ def test_update_index_endpoint(transport: str = 'grpc', request_type=index_endpo
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_index_endpoint.IndexEndpoint)
-    assert response.name == 'name_value'
-    assert response.display_name == 'display_name_value'
-    assert response.description == 'description_value'
-    assert response.etag == 'etag_value'
-    assert response.network == 'network_value'
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.etag == "etag_value"
+    assert response.network == "network_value"
 
 
 def test_update_index_endpoint_from_dict():
@@ -1326,14 +1443,13 @@ def test_update_index_endpoint_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport='grpc',
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.update_index_endpoint),
-            '__call__') as call:
+        type(client.transport.update_index_endpoint), "__call__"
+    ) as call:
         client.update_index_endpoint()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1341,10 +1457,12 @@ def test_update_index_endpoint_empty_call():
 
 
 @pytest.mark.asyncio
-async def test_update_index_endpoint_async(transport: str = 'grpc_asyncio', request_type=index_endpoint_service.UpdateIndexEndpointRequest):
+async def test_update_index_endpoint_async(
+    transport: str = "grpc_asyncio",
+    request_type=index_endpoint_service.UpdateIndexEndpointRequest,
+):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1353,16 +1471,18 @@ async def test_update_index_endpoint_async(transport: str = 'grpc_asyncio', requ
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.update_index_endpoint),
-            '__call__') as call:
+        type(client.transport.update_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(gca_index_endpoint.IndexEndpoint(
-            name='name_value',
-            display_name='display_name_value',
-            description='description_value',
-            etag='etag_value',
-            network='network_value',
-        ))
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_index_endpoint.IndexEndpoint(
+                name="name_value",
+                display_name="display_name_value",
+                description="description_value",
+                etag="etag_value",
+                network="network_value",
+            )
+        )
         response = await client.update_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1372,11 +1492,11 @@ async def test_update_index_endpoint_async(transport: str = 'grpc_asyncio', requ
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_index_endpoint.IndexEndpoint)
-    assert response.name == 'name_value'
-    assert response.display_name == 'display_name_value'
-    assert response.description == 'description_value'
-    assert response.etag == 'etag_value'
-    assert response.network == 'network_value'
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.description == "description_value"
+    assert response.etag == "etag_value"
+    assert response.network == "network_value"
 
 
 @pytest.mark.asyncio
@@ -1393,12 +1513,12 @@ def test_update_index_endpoint_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.UpdateIndexEndpointRequest()
 
-    request.index_endpoint.name = 'index_endpoint.name/value'
+    request.index_endpoint.name = "index_endpoint.name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.update_index_endpoint),
-            '__call__') as call:
+        type(client.transport.update_index_endpoint), "__call__"
+    ) as call:
         call.return_value = gca_index_endpoint.IndexEndpoint()
         client.update_index_endpoint(request)
 
@@ -1410,9 +1530,9 @@ def test_update_index_endpoint_field_headers():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        'x-goog-request-params',
-        'index_endpoint.name=index_endpoint.name/value',
-    ) in kw['metadata']
+        "x-goog-request-params",
+        "index_endpoint.name=index_endpoint.name/value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1425,13 +1545,15 @@ async def test_update_index_endpoint_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.UpdateIndexEndpointRequest()
 
-    request.index_endpoint.name = 'index_endpoint.name/value'
+    request.index_endpoint.name = "index_endpoint.name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.update_index_endpoint),
-            '__call__') as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(gca_index_endpoint.IndexEndpoint())
+        type(client.transport.update_index_endpoint), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_index_endpoint.IndexEndpoint()
+        )
         await client.update_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1442,9 +1564,9 @@ async def test_update_index_endpoint_field_headers_async():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        'x-goog-request-params',
-        'index_endpoint.name=index_endpoint.name/value',
-    ) in kw['metadata']
+        "x-goog-request-params",
+        "index_endpoint.name=index_endpoint.name/value",
+    ) in kw["metadata"]
 
 
 def test_update_index_endpoint_flattened():
@@ -1454,23 +1576,25 @@ def test_update_index_endpoint_flattened():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.update_index_endpoint),
-            '__call__') as call:
+        type(client.transport.update_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_index_endpoint.IndexEndpoint()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.update_index_endpoint(
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
-            update_mask=field_mask_pb2.FieldMask(paths=['paths_value']),
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].index_endpoint == gca_index_endpoint.IndexEndpoint(name='name_value')
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=['paths_value'])
+        assert args[0].index_endpoint == gca_index_endpoint.IndexEndpoint(
+            name="name_value"
+        )
+        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
 
 
 def test_update_index_endpoint_flattened_error():
@@ -1483,8 +1607,8 @@ def test_update_index_endpoint_flattened_error():
     with pytest.raises(ValueError):
         client.update_index_endpoint(
             index_endpoint_service.UpdateIndexEndpointRequest(),
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
-            update_mask=field_mask_pb2.FieldMask(paths=['paths_value']),
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
 
@@ -1496,25 +1620,29 @@ async def test_update_index_endpoint_flattened_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.update_index_endpoint),
-            '__call__') as call:
+        type(client.transport.update_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_index_endpoint.IndexEndpoint()
 
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(gca_index_endpoint.IndexEndpoint())
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_index_endpoint.IndexEndpoint()
+        )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.update_index_endpoint(
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
-            update_mask=field_mask_pb2.FieldMask(paths=['paths_value']),
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].index_endpoint == gca_index_endpoint.IndexEndpoint(name='name_value')
-        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=['paths_value'])
+        assert args[0].index_endpoint == gca_index_endpoint.IndexEndpoint(
+            name="name_value"
+        )
+        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
 
 
 @pytest.mark.asyncio
@@ -1528,15 +1656,17 @@ async def test_update_index_endpoint_flattened_error_async():
     with pytest.raises(ValueError):
         await client.update_index_endpoint(
             index_endpoint_service.UpdateIndexEndpointRequest(),
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
-            update_mask=field_mask_pb2.FieldMask(paths=['paths_value']),
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
 
-def test_delete_index_endpoint(transport: str = 'grpc', request_type=index_endpoint_service.DeleteIndexEndpointRequest):
+def test_delete_index_endpoint(
+    transport: str = "grpc",
+    request_type=index_endpoint_service.DeleteIndexEndpointRequest,
+):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1545,10 +1675,10 @@ def test_delete_index_endpoint(transport: str = 'grpc', request_type=index_endpo
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.delete_index_endpoint),
-            '__call__') as call:
+        type(client.transport.delete_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name='operations/spam')
+        call.return_value = operations_pb2.Operation(name="operations/spam")
         response = client.delete_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1568,14 +1698,13 @@ def test_delete_index_endpoint_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport='grpc',
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.delete_index_endpoint),
-            '__call__') as call:
+        type(client.transport.delete_index_endpoint), "__call__"
+    ) as call:
         client.delete_index_endpoint()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1583,10 +1712,12 @@ def test_delete_index_endpoint_empty_call():
 
 
 @pytest.mark.asyncio
-async def test_delete_index_endpoint_async(transport: str = 'grpc_asyncio', request_type=index_endpoint_service.DeleteIndexEndpointRequest):
+async def test_delete_index_endpoint_async(
+    transport: str = "grpc_asyncio",
+    request_type=index_endpoint_service.DeleteIndexEndpointRequest,
+):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1595,11 +1726,11 @@ async def test_delete_index_endpoint_async(transport: str = 'grpc_asyncio', requ
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.delete_index_endpoint),
-            '__call__') as call:
+        type(client.transport.delete_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name='operations/spam')
+            operations_pb2.Operation(name="operations/spam")
         )
         response = await client.delete_index_endpoint(request)
 
@@ -1626,13 +1757,13 @@ def test_delete_index_endpoint_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.DeleteIndexEndpointRequest()
 
-    request.name = 'name/value'
+    request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.delete_index_endpoint),
-            '__call__') as call:
-        call.return_value = operations_pb2.Operation(name='operations/op')
+        type(client.transport.delete_index_endpoint), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
         client.delete_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1642,10 +1773,7 @@ def test_delete_index_endpoint_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        'x-goog-request-params',
-        'name=name/value',
-    ) in kw['metadata']
+    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1658,13 +1786,15 @@ async def test_delete_index_endpoint_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.DeleteIndexEndpointRequest()
 
-    request.name = 'name/value'
+    request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.delete_index_endpoint),
-            '__call__') as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
+        type(client.transport.delete_index_endpoint), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
         await client.delete_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1674,10 +1804,7 @@ async def test_delete_index_endpoint_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        'x-goog-request-params',
-        'name=name/value',
-    ) in kw['metadata']
+    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
 
 
 def test_delete_index_endpoint_flattened():
@@ -1687,21 +1814,19 @@ def test_delete_index_endpoint_flattened():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.delete_index_endpoint),
-            '__call__') as call:
+        type(client.transport.delete_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name='operations/op')
+        call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_index_endpoint(
-            name='name_value',
-        )
+        client.delete_index_endpoint(name="name_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == 'name_value'
+        assert args[0].name == "name_value"
 
 
 def test_delete_index_endpoint_flattened_error():
@@ -1713,8 +1838,7 @@ def test_delete_index_endpoint_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_index_endpoint(
-            index_endpoint_service.DeleteIndexEndpointRequest(),
-            name='name_value',
+            index_endpoint_service.DeleteIndexEndpointRequest(), name="name_value",
         )
 
 
@@ -1726,25 +1850,23 @@ async def test_delete_index_endpoint_flattened_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-            type(client.transport.delete_index_endpoint),
-            '__call__') as call:
+        type(client.transport.delete_index_endpoint), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name='operations/op')
+        call.return_value = operations_pb2.Operation(name="operations/op")
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name='operations/spam')
+            operations_pb2.Operation(name="operations/spam")
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_index_endpoint(
-            name='name_value',
-        )
+        response = await client.delete_index_endpoint(name="name_value",)
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].name == 'name_value'
+        assert args[0].name == "name_value"
 
 
 @pytest.mark.asyncio
@@ -1757,15 +1879,15 @@ async def test_delete_index_endpoint_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_index_endpoint(
-            index_endpoint_service.DeleteIndexEndpointRequest(),
-            name='name_value',
+            index_endpoint_service.DeleteIndexEndpointRequest(), name="name_value",
         )
 
 
-def test_deploy_index(transport: str = 'grpc', request_type=index_endpoint_service.DeployIndexRequest):
+def test_deploy_index(
+    transport: str = "grpc", request_type=index_endpoint_service.DeployIndexRequest
+):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1773,11 +1895,9 @@ def test_deploy_index(transport: str = 'grpc', request_type=index_endpoint_servi
     request = request_type()
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.deploy_index),
-            '__call__') as call:
+    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name='operations/spam')
+        call.return_value = operations_pb2.Operation(name="operations/spam")
         response = client.deploy_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1797,14 +1917,11 @@ def test_deploy_index_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport='grpc',
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.deploy_index),
-            '__call__') as call:
+    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
         client.deploy_index()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -1812,10 +1929,12 @@ def test_deploy_index_empty_call():
 
 
 @pytest.mark.asyncio
-async def test_deploy_index_async(transport: str = 'grpc_asyncio', request_type=index_endpoint_service.DeployIndexRequest):
+async def test_deploy_index_async(
+    transport: str = "grpc_asyncio",
+    request_type=index_endpoint_service.DeployIndexRequest,
+):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1823,12 +1942,10 @@ async def test_deploy_index_async(transport: str = 'grpc_asyncio', request_type=
     request = request_type()
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.deploy_index),
-            '__call__') as call:
+    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name='operations/spam')
+            operations_pb2.Operation(name="operations/spam")
         )
         response = await client.deploy_index(request)
 
@@ -1855,13 +1972,11 @@ def test_deploy_index_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.DeployIndexRequest()
 
-    request.index_endpoint = 'index_endpoint/value'
+    request.index_endpoint = "index_endpoint/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.deploy_index),
-            '__call__') as call:
-        call.return_value = operations_pb2.Operation(name='operations/op')
+    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
         client.deploy_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1871,10 +1986,9 @@ def test_deploy_index_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        'x-goog-request-params',
-        'index_endpoint=index_endpoint/value',
-    ) in kw['metadata']
+    assert ("x-goog-request-params", "index_endpoint=index_endpoint/value",) in kw[
+        "metadata"
+    ]
 
 
 @pytest.mark.asyncio
@@ -1887,13 +2001,13 @@ async def test_deploy_index_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.DeployIndexRequest()
 
-    request.index_endpoint = 'index_endpoint/value'
+    request.index_endpoint = "index_endpoint/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.deploy_index),
-            '__call__') as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
+    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
         await client.deploy_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1903,10 +2017,9 @@ async def test_deploy_index_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        'x-goog-request-params',
-        'index_endpoint=index_endpoint/value',
-    ) in kw['metadata']
+    assert ("x-goog-request-params", "index_endpoint=index_endpoint/value",) in kw[
+        "metadata"
+    ]
 
 
 def test_deploy_index_flattened():
@@ -1915,24 +2028,22 @@ def test_deploy_index_flattened():
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.deploy_index),
-            '__call__') as call:
+    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name='operations/op')
+        call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.deploy_index(
-            index_endpoint='index_endpoint_value',
-            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
+            index_endpoint="index_endpoint_value",
+            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].index_endpoint == 'index_endpoint_value'
-        assert args[0].deployed_index == gca_index_endpoint.DeployedIndex(id='id_value')
+        assert args[0].index_endpoint == "index_endpoint_value"
+        assert args[0].deployed_index == gca_index_endpoint.DeployedIndex(id="id_value")
 
 
 def test_deploy_index_flattened_error():
@@ -1945,8 +2056,8 @@ def test_deploy_index_flattened_error():
     with pytest.raises(ValueError):
         client.deploy_index(
             index_endpoint_service.DeployIndexRequest(),
-            index_endpoint='index_endpoint_value',
-            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
+            index_endpoint="index_endpoint_value",
+            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
         )
 
 
@@ -1957,28 +2068,26 @@ async def test_deploy_index_flattened_async():
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.deploy_index),
-            '__call__') as call:
+    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name='operations/op')
+        call.return_value = operations_pb2.Operation(name="operations/op")
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name='operations/spam')
+            operations_pb2.Operation(name="operations/spam")
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.deploy_index(
-            index_endpoint='index_endpoint_value',
-            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
+            index_endpoint="index_endpoint_value",
+            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].index_endpoint == 'index_endpoint_value'
-        assert args[0].deployed_index == gca_index_endpoint.DeployedIndex(id='id_value')
+        assert args[0].index_endpoint == "index_endpoint_value"
+        assert args[0].deployed_index == gca_index_endpoint.DeployedIndex(id="id_value")
 
 
 @pytest.mark.asyncio
@@ -1992,15 +2101,16 @@ async def test_deploy_index_flattened_error_async():
     with pytest.raises(ValueError):
         await client.deploy_index(
             index_endpoint_service.DeployIndexRequest(),
-            index_endpoint='index_endpoint_value',
-            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
+            index_endpoint="index_endpoint_value",
+            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
         )
 
 
-def test_undeploy_index(transport: str = 'grpc', request_type=index_endpoint_service.UndeployIndexRequest):
+def test_undeploy_index(
+    transport: str = "grpc", request_type=index_endpoint_service.UndeployIndexRequest
+):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2008,11 +2118,9 @@ def test_undeploy_index(transport: str = 'grpc', request_type=index_endpoint_ser
     request = request_type()
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.undeploy_index),
-            '__call__') as call:
+    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name='operations/spam')
+        call.return_value = operations_pb2.Operation(name="operations/spam")
         response = client.undeploy_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2032,14 +2140,11 @@ def test_undeploy_index_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport='grpc',
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.undeploy_index),
-            '__call__') as call:
+    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
         client.undeploy_index()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
@@ -2047,10 +2152,12 @@ def test_undeploy_index_empty_call():
 
 
 @pytest.mark.asyncio
-async def test_undeploy_index_async(transport: str = 'grpc_asyncio', request_type=index_endpoint_service.UndeployIndexRequest):
+async def test_undeploy_index_async(
+    transport: str = "grpc_asyncio",
+    request_type=index_endpoint_service.UndeployIndexRequest,
+):
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2058,12 +2165,10 @@ async def test_undeploy_index_async(transport: str = 'grpc_asyncio', request_typ
     request = request_type()
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.undeploy_index),
-            '__call__') as call:
+    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name='operations/spam')
+            operations_pb2.Operation(name="operations/spam")
         )
         response = await client.undeploy_index(request)
 
@@ -2090,13 +2195,11 @@ def test_undeploy_index_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.UndeployIndexRequest()
 
-    request.index_endpoint = 'index_endpoint/value'
+    request.index_endpoint = "index_endpoint/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.undeploy_index),
-            '__call__') as call:
-        call.return_value = operations_pb2.Operation(name='operations/op')
+    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
         client.undeploy_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2106,10 +2209,9 @@ def test_undeploy_index_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        'x-goog-request-params',
-        'index_endpoint=index_endpoint/value',
-    ) in kw['metadata']
+    assert ("x-goog-request-params", "index_endpoint=index_endpoint/value",) in kw[
+        "metadata"
+    ]
 
 
 @pytest.mark.asyncio
@@ -2122,13 +2224,13 @@ async def test_undeploy_index_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.UndeployIndexRequest()
 
-    request.index_endpoint = 'index_endpoint/value'
+    request.index_endpoint = "index_endpoint/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.undeploy_index),
-            '__call__') as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
+    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
         await client.undeploy_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2138,10 +2240,9 @@ async def test_undeploy_index_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        'x-goog-request-params',
-        'index_endpoint=index_endpoint/value',
-    ) in kw['metadata']
+    assert ("x-goog-request-params", "index_endpoint=index_endpoint/value",) in kw[
+        "metadata"
+    ]
 
 
 def test_undeploy_index_flattened():
@@ -2150,24 +2251,22 @@ def test_undeploy_index_flattened():
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.undeploy_index),
-            '__call__') as call:
+    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name='operations/op')
+        call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.undeploy_index(
-            index_endpoint='index_endpoint_value',
-            deployed_index_id='deployed_index_id_value',
+            index_endpoint="index_endpoint_value",
+            deployed_index_id="deployed_index_id_value",
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].index_endpoint == 'index_endpoint_value'
-        assert args[0].deployed_index_id == 'deployed_index_id_value'
+        assert args[0].index_endpoint == "index_endpoint_value"
+        assert args[0].deployed_index_id == "deployed_index_id_value"
 
 
 def test_undeploy_index_flattened_error():
@@ -2180,8 +2279,8 @@ def test_undeploy_index_flattened_error():
     with pytest.raises(ValueError):
         client.undeploy_index(
             index_endpoint_service.UndeployIndexRequest(),
-            index_endpoint='index_endpoint_value',
-            deployed_index_id='deployed_index_id_value',
+            index_endpoint="index_endpoint_value",
+            deployed_index_id="deployed_index_id_value",
         )
 
 
@@ -2192,28 +2291,26 @@ async def test_undeploy_index_flattened_async():
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-            type(client.transport.undeploy_index),
-            '__call__') as call:
+    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name='operations/op')
+        call.return_value = operations_pb2.Operation(name="operations/op")
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name='operations/spam')
+            operations_pb2.Operation(name="operations/spam")
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.undeploy_index(
-            index_endpoint='index_endpoint_value',
-            deployed_index_id='deployed_index_id_value',
+            index_endpoint="index_endpoint_value",
+            deployed_index_id="deployed_index_id_value",
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].index_endpoint == 'index_endpoint_value'
-        assert args[0].deployed_index_id == 'deployed_index_id_value'
+        assert args[0].index_endpoint == "index_endpoint_value"
+        assert args[0].deployed_index_id == "deployed_index_id_value"
 
 
 @pytest.mark.asyncio
@@ -2227,8 +2324,8 @@ async def test_undeploy_index_flattened_error_async():
     with pytest.raises(ValueError):
         await client.undeploy_index(
             index_endpoint_service.UndeployIndexRequest(),
-            index_endpoint='index_endpoint_value',
-            deployed_index_id='deployed_index_id_value',
+            index_endpoint="index_endpoint_value",
+            deployed_index_id="deployed_index_id_value",
         )
 
 
@@ -2239,8 +2336,7 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = IndexEndpointServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -2259,8 +2355,7 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = IndexEndpointServiceClient(
-            client_options={"scopes": ["1", "2"]},
-            transport=transport,
+            client_options={"scopes": ["1", "2"]}, transport=transport,
         )
 
 
@@ -2271,6 +2366,7 @@ def test_transport_instance():
     )
     client = IndexEndpointServiceClient(transport=transport)
     assert client.transport is transport
+
 
 def test_transport_get_channel():
     # A client may be instantiated with a custom transport instance.
@@ -2286,39 +2382,44 @@ def test_transport_get_channel():
     channel = transport.grpc_channel
     assert channel
 
-@pytest.mark.parametrize("transport_class", [
-    transports.IndexEndpointServiceGrpcTransport,
-    transports.IndexEndpointServiceGrpcAsyncIOTransport,
-])
+
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.IndexEndpointServiceGrpcTransport,
+        transports.IndexEndpointServiceGrpcAsyncIOTransport,
+    ],
+)
 def test_transport_adc(transport_class):
     # Test default credentials are used if not provided.
-    with mock.patch.object(google.auth, 'default') as adc:
+    with mock.patch.object(google.auth, "default") as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport_class()
         adc.assert_called_once()
+
 
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
-    assert isinstance(
-        client.transport,
-        transports.IndexEndpointServiceGrpcTransport,
-    )
+    assert isinstance(client.transport, transports.IndexEndpointServiceGrpcTransport,)
+
 
 def test_index_endpoint_service_base_transport_error():
     # Passing both a credentials object and credentials_file should raise an error
     with pytest.raises(core_exceptions.DuplicateCredentialArgs):
         transport = transports.IndexEndpointServiceTransport(
             credentials=ga_credentials.AnonymousCredentials(),
-            credentials_file="credentials.json"
+            credentials_file="credentials.json",
         )
 
 
 def test_index_endpoint_service_base_transport():
     # Instantiate the base transport.
-    with mock.patch('google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport.__init__') as Transport:
+    with mock.patch(
+        "google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport.__init__"
+    ) as Transport:
         Transport.return_value = None
         transport = transports.IndexEndpointServiceTransport(
             credentials=ga_credentials.AnonymousCredentials(),
@@ -2327,13 +2428,13 @@ def test_index_endpoint_service_base_transport():
     # Every method on the transport should just blindly
     # raise NotImplementedError.
     methods = (
-        'create_index_endpoint',
-        'get_index_endpoint',
-        'list_index_endpoints',
-        'update_index_endpoint',
-        'delete_index_endpoint',
-        'deploy_index',
-        'undeploy_index',
+        "create_index_endpoint",
+        "get_index_endpoint",
+        "list_index_endpoints",
+        "update_index_endpoint",
+        "delete_index_endpoint",
+        "deploy_index",
+        "undeploy_index",
     )
     for method in methods:
         with pytest.raises(NotImplementedError):
@@ -2348,18 +2449,20 @@ def test_index_endpoint_service_base_transport():
 @requires_google_auth_gte_1_25_0
 def test_index_endpoint_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
-    with mock.patch.object(google.auth, 'load_credentials_from_file', autospec=True) as load_creds, mock.patch('google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport._prep_wrapped_messages') as Transport:
+    with mock.patch.object(
+        google.auth, "load_credentials_from_file", autospec=True
+    ) as load_creds, mock.patch(
+        "google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport._prep_wrapped_messages"
+    ) as Transport:
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.IndexEndpointServiceTransport(
-            credentials_file="credentials.json",
-            quota_project_id="octopus",
+            credentials_file="credentials.json", quota_project_id="octopus",
         )
-        load_creds.assert_called_once_with("credentials.json",
+        load_creds.assert_called_once_with(
+            "credentials.json",
             scopes=None,
-            default_scopes=(
-            'https://www.googleapis.com/auth/cloud-platform',
-),
+            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
 
@@ -2367,23 +2470,28 @@ def test_index_endpoint_service_base_transport_with_credentials_file():
 @requires_google_auth_lt_1_25_0
 def test_index_endpoint_service_base_transport_with_credentials_file_old_google_auth():
     # Instantiate the base transport with a credentials file
-    with mock.patch.object(google.auth, 'load_credentials_from_file', autospec=True) as load_creds, mock.patch('google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport._prep_wrapped_messages') as Transport:
+    with mock.patch.object(
+        google.auth, "load_credentials_from_file", autospec=True
+    ) as load_creds, mock.patch(
+        "google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport._prep_wrapped_messages"
+    ) as Transport:
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.IndexEndpointServiceTransport(
-            credentials_file="credentials.json",
-            quota_project_id="octopus",
+            credentials_file="credentials.json", quota_project_id="octopus",
         )
-        load_creds.assert_called_once_with("credentials.json", scopes=(
-            'https://www.googleapis.com/auth/cloud-platform',
-            ),
+        load_creds.assert_called_once_with(
+            "credentials.json",
+            scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
 
 
 def test_index_endpoint_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
-    with mock.patch.object(google.auth, 'default', autospec=True) as adc, mock.patch('google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport._prep_wrapped_messages') as Transport:
+    with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
+        "google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport._prep_wrapped_messages"
+    ) as Transport:
         Transport.return_value = None
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.IndexEndpointServiceTransport()
@@ -2393,14 +2501,12 @@ def test_index_endpoint_service_base_transport_with_adc():
 @requires_google_auth_gte_1_25_0
 def test_index_endpoint_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(google.auth, 'default', autospec=True) as adc:
+    with mock.patch.object(google.auth, "default", autospec=True) as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         IndexEndpointServiceClient()
         adc.assert_called_once_with(
             scopes=None,
-            default_scopes=(
-            'https://www.googleapis.com/auth/cloud-platform',
-),
+            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id=None,
         )
 
@@ -2408,11 +2514,11 @@ def test_index_endpoint_service_auth_adc():
 @requires_google_auth_lt_1_25_0
 def test_index_endpoint_service_auth_adc_old_google_auth():
     # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(google.auth, 'default', autospec=True) as adc:
+    with mock.patch.object(google.auth, "default", autospec=True) as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         IndexEndpointServiceClient()
         adc.assert_called_once_with(
-            scopes=(                'https://www.googleapis.com/auth/cloud-platform',),
+            scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id=None,
         )
 
@@ -2428,12 +2534,12 @@ def test_index_endpoint_service_auth_adc_old_google_auth():
 def test_index_endpoint_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(google.auth, 'default', autospec=True) as adc:
+    with mock.patch.object(google.auth, "default", autospec=True) as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport_class(quota_project_id="octopus", scopes=["1", "2"])
         adc.assert_called_once_with(
             scopes=["1", "2"],
-            default_scopes=(                'https://www.googleapis.com/auth/cloud-platform',),
+            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
 
@@ -2452,9 +2558,8 @@ def test_index_endpoint_service_transport_auth_adc_old_google_auth(transport_cla
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport_class(quota_project_id="octopus")
-        adc.assert_called_once_with(scopes=(
-            'https://www.googleapis.com/auth/cloud-platform',
-),
+        adc.assert_called_once_with(
+            scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
 
@@ -2463,31 +2568,28 @@ def test_index_endpoint_service_transport_auth_adc_old_google_auth(transport_cla
     "transport_class,grpc_helpers",
     [
         (transports.IndexEndpointServiceGrpcTransport, grpc_helpers),
-        (transports.IndexEndpointServiceGrpcAsyncIOTransport, grpc_helpers_async)
+        (transports.IndexEndpointServiceGrpcAsyncIOTransport, grpc_helpers_async),
     ],
 )
 @requires_api_core_gte_1_26_0
 def test_index_endpoint_service_transport_create_channel(transport_class, grpc_helpers):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch.object(
+    with mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
         grpc_helpers, "create_channel", autospec=True
     ) as create_channel:
         creds = ga_credentials.AnonymousCredentials()
         adc.return_value = (creds, None)
-        transport_class(
-            quota_project_id="octopus",
-            scopes=["1", "2"]
-        )
+        transport_class(quota_project_id="octopus", scopes=["1", "2"])
 
         create_channel.assert_called_with(
             "aiplatform.googleapis.com:443",
             credentials=creds,
             credentials_file=None,
             quota_project_id="octopus",
-            default_scopes=(
-                'https://www.googleapis.com/auth/cloud-platform',
-),
+            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
             scopes=["1", "2"],
             default_host="aiplatform.googleapis.com",
             ssl_credentials=None,
@@ -2502,14 +2604,18 @@ def test_index_endpoint_service_transport_create_channel(transport_class, grpc_h
     "transport_class,grpc_helpers",
     [
         (transports.IndexEndpointServiceGrpcTransport, grpc_helpers),
-        (transports.IndexEndpointServiceGrpcAsyncIOTransport, grpc_helpers_async)
+        (transports.IndexEndpointServiceGrpcAsyncIOTransport, grpc_helpers_async),
     ],
 )
 @requires_api_core_lt_1_26_0
-def test_index_endpoint_service_transport_create_channel_old_api_core(transport_class, grpc_helpers):
+def test_index_endpoint_service_transport_create_channel_old_api_core(
+    transport_class, grpc_helpers
+):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch.object(
+    with mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
         grpc_helpers, "create_channel", autospec=True
     ) as create_channel:
         creds = ga_credentials.AnonymousCredentials()
@@ -2521,9 +2627,7 @@ def test_index_endpoint_service_transport_create_channel_old_api_core(transport_
             credentials=creds,
             credentials_file=None,
             quota_project_id="octopus",
-            scopes=(
-                'https://www.googleapis.com/auth/cloud-platform',
-),
+            scopes=("https://www.googleapis.com/auth/cloud-platform",),
             ssl_credentials=None,
             options=[
                 ("grpc.max_send_message_length", -1),
@@ -2536,14 +2640,18 @@ def test_index_endpoint_service_transport_create_channel_old_api_core(transport_
     "transport_class,grpc_helpers",
     [
         (transports.IndexEndpointServiceGrpcTransport, grpc_helpers),
-        (transports.IndexEndpointServiceGrpcAsyncIOTransport, grpc_helpers_async)
+        (transports.IndexEndpointServiceGrpcAsyncIOTransport, grpc_helpers_async),
     ],
 )
 @requires_api_core_lt_1_26_0
-def test_index_endpoint_service_transport_create_channel_user_scopes(transport_class, grpc_helpers):
+def test_index_endpoint_service_transport_create_channel_user_scopes(
+    transport_class, grpc_helpers
+):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch.object(
+    with mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
         grpc_helpers, "create_channel", autospec=True
     ) as create_channel:
         creds = ga_credentials.AnonymousCredentials()
@@ -2565,9 +2673,15 @@ def test_index_endpoint_service_transport_create_channel_user_scopes(transport_c
         )
 
 
-@pytest.mark.parametrize("transport_class", [transports.IndexEndpointServiceGrpcTransport, transports.IndexEndpointServiceGrpcAsyncIOTransport])
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.IndexEndpointServiceGrpcTransport,
+        transports.IndexEndpointServiceGrpcAsyncIOTransport,
+    ],
+)
 def test_index_endpoint_service_grpc_transport_client_cert_source_for_mtls(
-    transport_class
+    transport_class,
 ):
     cred = ga_credentials.AnonymousCredentials()
 
@@ -2577,15 +2691,13 @@ def test_index_endpoint_service_grpc_transport_client_cert_source_for_mtls(
         transport_class(
             host="squid.clam.whelk",
             credentials=cred,
-            ssl_channel_credentials=mock_ssl_channel_creds
+            ssl_channel_credentials=mock_ssl_channel_creds,
         )
         mock_create_channel.assert_called_once_with(
             "squid.clam.whelk:443",
             credentials=cred,
             credentials_file=None,
-            scopes=(
-                'https://www.googleapis.com/auth/cloud-platform',
-            ),
+            scopes=("https://www.googleapis.com/auth/cloud-platform",),
             ssl_credentials=mock_ssl_channel_creds,
             quota_project_id=None,
             options=[
@@ -2600,37 +2712,40 @@ def test_index_endpoint_service_grpc_transport_client_cert_source_for_mtls(
         with mock.patch("grpc.ssl_channel_credentials") as mock_ssl_cred:
             transport_class(
                 credentials=cred,
-                client_cert_source_for_mtls=client_cert_source_callback
+                client_cert_source_for_mtls=client_cert_source_callback,
             )
             expected_cert, expected_key = client_cert_source_callback()
             mock_ssl_cred.assert_called_once_with(
-                certificate_chain=expected_cert,
-                private_key=expected_key
+                certificate_chain=expected_cert, private_key=expected_key
             )
 
 
 def test_index_endpoint_service_host_no_port():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        client_options=client_options.ClientOptions(api_endpoint='aiplatform.googleapis.com'),
+        client_options=client_options.ClientOptions(
+            api_endpoint="aiplatform.googleapis.com"
+        ),
     )
-    assert client.transport._host == 'aiplatform.googleapis.com:443'
+    assert client.transport._host == "aiplatform.googleapis.com:443"
 
 
 def test_index_endpoint_service_host_with_port():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        client_options=client_options.ClientOptions(api_endpoint='aiplatform.googleapis.com:8000'),
+        client_options=client_options.ClientOptions(
+            api_endpoint="aiplatform.googleapis.com:8000"
+        ),
     )
-    assert client.transport._host == 'aiplatform.googleapis.com:8000'
+    assert client.transport._host == "aiplatform.googleapis.com:8000"
+
 
 def test_index_endpoint_service_grpc_transport_channel():
-    channel = grpc.secure_channel('http://localhost/', grpc.local_channel_credentials())
+    channel = grpc.secure_channel("http://localhost/", grpc.local_channel_credentials())
 
     # Check that channel is used if provided.
     transport = transports.IndexEndpointServiceGrpcTransport(
-        host="squid.clam.whelk",
-        channel=channel,
+        host="squid.clam.whelk", channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -2638,12 +2753,11 @@ def test_index_endpoint_service_grpc_transport_channel():
 
 
 def test_index_endpoint_service_grpc_asyncio_transport_channel():
-    channel = aio.secure_channel('http://localhost/', grpc.local_channel_credentials())
+    channel = aio.secure_channel("http://localhost/", grpc.local_channel_credentials())
 
     # Check that channel is used if provided.
     transport = transports.IndexEndpointServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk",
-        channel=channel,
+        host="squid.clam.whelk", channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -2652,12 +2766,22 @@ def test_index_endpoint_service_grpc_asyncio_transport_channel():
 
 # Remove this test when deprecated arguments (api_mtls_endpoint, client_cert_source) are
 # removed from grpc/grpc_asyncio transport constructor.
-@pytest.mark.parametrize("transport_class", [transports.IndexEndpointServiceGrpcTransport, transports.IndexEndpointServiceGrpcAsyncIOTransport])
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.IndexEndpointServiceGrpcTransport,
+        transports.IndexEndpointServiceGrpcAsyncIOTransport,
+    ],
+)
 def test_index_endpoint_service_transport_channel_mtls_with_client_cert_source(
-    transport_class
+    transport_class,
 ):
-    with mock.patch("grpc.ssl_channel_credentials", autospec=True) as grpc_ssl_channel_cred:
-        with mock.patch.object(transport_class, "create_channel") as grpc_create_channel:
+    with mock.patch(
+        "grpc.ssl_channel_credentials", autospec=True
+    ) as grpc_ssl_channel_cred:
+        with mock.patch.object(
+            transport_class, "create_channel"
+        ) as grpc_create_channel:
             mock_ssl_cred = mock.Mock()
             grpc_ssl_channel_cred.return_value = mock_ssl_cred
 
@@ -2666,7 +2790,7 @@ def test_index_endpoint_service_transport_channel_mtls_with_client_cert_source(
 
             cred = ga_credentials.AnonymousCredentials()
             with pytest.warns(DeprecationWarning):
-                with mock.patch.object(google.auth, 'default') as adc:
+                with mock.patch.object(google.auth, "default") as adc:
                     adc.return_value = (cred, None)
                     transport = transport_class(
                         host="squid.clam.whelk",
@@ -2682,9 +2806,7 @@ def test_index_endpoint_service_transport_channel_mtls_with_client_cert_source(
                 "mtls.squid.clam.whelk:443",
                 credentials=cred,
                 credentials_file=None,
-                scopes=(
-                    'https://www.googleapis.com/auth/cloud-platform',
-                ),
+                scopes=("https://www.googleapis.com/auth/cloud-platform",),
                 ssl_credentials=mock_ssl_cred,
                 quota_project_id=None,
                 options=[
@@ -2698,17 +2820,23 @@ def test_index_endpoint_service_transport_channel_mtls_with_client_cert_source(
 
 # Remove this test when deprecated arguments (api_mtls_endpoint, client_cert_source) are
 # removed from grpc/grpc_asyncio transport constructor.
-@pytest.mark.parametrize("transport_class", [transports.IndexEndpointServiceGrpcTransport, transports.IndexEndpointServiceGrpcAsyncIOTransport])
-def test_index_endpoint_service_transport_channel_mtls_with_adc(
-    transport_class
-):
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.IndexEndpointServiceGrpcTransport,
+        transports.IndexEndpointServiceGrpcAsyncIOTransport,
+    ],
+)
+def test_index_endpoint_service_transport_channel_mtls_with_adc(transport_class):
     mock_ssl_cred = mock.Mock()
     with mock.patch.multiple(
         "google.auth.transport.grpc.SslCredentials",
         __init__=mock.Mock(return_value=None),
         ssl_credentials=mock.PropertyMock(return_value=mock_ssl_cred),
     ):
-        with mock.patch.object(transport_class, "create_channel") as grpc_create_channel:
+        with mock.patch.object(
+            transport_class, "create_channel"
+        ) as grpc_create_channel:
             mock_grpc_channel = mock.Mock()
             grpc_create_channel.return_value = mock_grpc_channel
             mock_cred = mock.Mock()
@@ -2725,9 +2853,7 @@ def test_index_endpoint_service_transport_channel_mtls_with_adc(
                 "mtls.squid.clam.whelk:443",
                 credentials=mock_cred,
                 credentials_file=None,
-                scopes=(
-                    'https://www.googleapis.com/auth/cloud-platform',
-                ),
+                scopes=("https://www.googleapis.com/auth/cloud-platform",),
                 ssl_credentials=mock_ssl_cred,
                 quota_project_id=None,
                 options=[
@@ -2740,16 +2866,12 @@ def test_index_endpoint_service_transport_channel_mtls_with_adc(
 
 def test_index_endpoint_service_grpc_lro_client():
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport='grpc',
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.OperationsClient,
-    )
+    assert isinstance(transport.operations_client, operations_v1.OperationsClient,)
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -2757,16 +2879,12 @@ def test_index_endpoint_service_grpc_lro_client():
 
 def test_index_endpoint_service_grpc_lro_async_client():
     client = IndexEndpointServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport='grpc_asyncio',
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(
-        transport.operations_client,
-        operations_v1.OperationsAsyncClient,
-    )
+    assert isinstance(transport.operations_client, operations_v1.OperationsAsyncClient,)
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -2776,7 +2894,9 @@ def test_index_path():
     project = "squid"
     location = "clam"
     index = "whelk"
-    expected = "projects/{project}/locations/{location}/indexes/{index}".format(project=project, location=location, index=index, )
+    expected = "projects/{project}/locations/{location}/indexes/{index}".format(
+        project=project, location=location, index=index,
+    )
     actual = IndexEndpointServiceClient.index_path(project, location, index)
     assert expected == actual
 
@@ -2793,12 +2913,17 @@ def test_parse_index_path():
     actual = IndexEndpointServiceClient.parse_index_path(path)
     assert expected == actual
 
+
 def test_index_endpoint_path():
     project = "cuttlefish"
     location = "mussel"
     index_endpoint = "winkle"
-    expected = "projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}".format(project=project, location=location, index_endpoint=index_endpoint, )
-    actual = IndexEndpointServiceClient.index_endpoint_path(project, location, index_endpoint)
+    expected = "projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}".format(
+        project=project, location=location, index_endpoint=index_endpoint,
+    )
+    actual = IndexEndpointServiceClient.index_endpoint_path(
+        project, location, index_endpoint
+    )
     assert expected == actual
 
 
@@ -2814,9 +2939,12 @@ def test_parse_index_endpoint_path():
     actual = IndexEndpointServiceClient.parse_index_endpoint_path(path)
     assert expected == actual
 
+
 def test_common_billing_account_path():
     billing_account = "squid"
-    expected = "billingAccounts/{billing_account}".format(billing_account=billing_account, )
+    expected = "billingAccounts/{billing_account}".format(
+        billing_account=billing_account,
+    )
     actual = IndexEndpointServiceClient.common_billing_account_path(billing_account)
     assert expected == actual
 
@@ -2831,9 +2959,10 @@ def test_parse_common_billing_account_path():
     actual = IndexEndpointServiceClient.parse_common_billing_account_path(path)
     assert expected == actual
 
+
 def test_common_folder_path():
     folder = "whelk"
-    expected = "folders/{folder}".format(folder=folder, )
+    expected = "folders/{folder}".format(folder=folder,)
     actual = IndexEndpointServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -2848,9 +2977,10 @@ def test_parse_common_folder_path():
     actual = IndexEndpointServiceClient.parse_common_folder_path(path)
     assert expected == actual
 
+
 def test_common_organization_path():
     organization = "oyster"
-    expected = "organizations/{organization}".format(organization=organization, )
+    expected = "organizations/{organization}".format(organization=organization,)
     actual = IndexEndpointServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -2865,9 +2995,10 @@ def test_parse_common_organization_path():
     actual = IndexEndpointServiceClient.parse_common_organization_path(path)
     assert expected == actual
 
+
 def test_common_project_path():
     project = "cuttlefish"
-    expected = "projects/{project}".format(project=project, )
+    expected = "projects/{project}".format(project=project,)
     actual = IndexEndpointServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -2882,10 +3013,13 @@ def test_parse_common_project_path():
     actual = IndexEndpointServiceClient.parse_common_project_path(path)
     assert expected == actual
 
+
 def test_common_location_path():
     project = "winkle"
     location = "nautilus"
-    expected = "projects/{project}/locations/{location}".format(project=project, location=location, )
+    expected = "projects/{project}/locations/{location}".format(
+        project=project, location=location,
+    )
     actual = IndexEndpointServiceClient.common_location_path(project, location)
     assert expected == actual
 
@@ -2905,17 +3039,19 @@ def test_parse_common_location_path():
 def test_client_withDEFAULT_CLIENT_INFO():
     client_info = gapic_v1.client_info.ClientInfo()
 
-    with mock.patch.object(transports.IndexEndpointServiceTransport, '_prep_wrapped_messages') as prep:
+    with mock.patch.object(
+        transports.IndexEndpointServiceTransport, "_prep_wrapped_messages"
+    ) as prep:
         client = IndexEndpointServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(),
-            client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
-    with mock.patch.object(transports.IndexEndpointServiceTransport, '_prep_wrapped_messages') as prep:
+    with mock.patch.object(
+        transports.IndexEndpointServiceTransport, "_prep_wrapped_messages"
+    ) as prep:
         transport_class = IndexEndpointServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials(),
-            client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)

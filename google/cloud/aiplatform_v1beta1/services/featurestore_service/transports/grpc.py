@@ -16,10 +16,10 @@
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
-from google.api_core import grpc_helpers   # type: ignore
+from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google.api_core import gapic_v1       # type: ignore
-import google.auth                         # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+import google.auth  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
@@ -48,21 +48,24 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
     It sends protocol buffers over the wire using gRPC (which is built on
     top of HTTP/2); the ``grpcio`` package must be installed.
     """
+
     _stubs: Dict[str, Callable]
 
-    def __init__(self, *,
-            host: str = 'aiplatform.googleapis.com',
-            credentials: ga_credentials.Credentials = None,
-            credentials_file: str = None,
-            scopes: Sequence[str] = None,
-            channel: grpc.Channel = None,
-            api_mtls_endpoint: str = None,
-            client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-            ssl_channel_credentials: grpc.ChannelCredentials = None,
-            client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
-            quota_project_id: Optional[str] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        host: str = "aiplatform.googleapis.com",
+        credentials: ga_credentials.Credentials = None,
+        credentials_file: str = None,
+        scopes: Sequence[str] = None,
+        channel: grpc.Channel = None,
+        api_mtls_endpoint: str = None,
+        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+        ssl_channel_credentials: grpc.ChannelCredentials = None,
+        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+        quota_project_id: Optional[str] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -175,13 +178,15 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         self._prep_wrapped_messages(client_info)
 
     @classmethod
-    def create_channel(cls,
-                       host: str = 'aiplatform.googleapis.com',
-                       credentials: ga_credentials.Credentials = None,
-                       credentials_file: str = None,
-                       scopes: Optional[Sequence[str]] = None,
-                       quota_project_id: Optional[str] = None,
-                       **kwargs) -> grpc.Channel:
+    def create_channel(
+        cls,
+        host: str = "aiplatform.googleapis.com",
+        credentials: ga_credentials.Credentials = None,
+        credentials_file: str = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        **kwargs,
+    ) -> grpc.Channel:
         """Create and return a gRPC channel object.
         Args:
             host (Optional[str]): The host for the channel to use.
@@ -216,7 +221,7 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
             credentials_file=credentials_file,
             quota_project_id=quota_project_id,
             **self_signed_jwt_kwargs,
-            **kwargs
+            **kwargs,
         )
 
     @property
@@ -234,17 +239,17 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         """
         # Sanity check: Only create a new client if we do not already have one.
         if self._operations_client is None:
-            self._operations_client = operations_v1.OperationsClient(
-                self.grpc_channel
-            )
+            self._operations_client = operations_v1.OperationsClient(self.grpc_channel)
 
         # Return the client from cache.
         return self._operations_client
 
     @property
-    def create_featurestore(self) -> Callable[
-            [featurestore_service.CreateFeaturestoreRequest],
-            operations_pb2.Operation]:
+    def create_featurestore(
+        self,
+    ) -> Callable[
+        [featurestore_service.CreateFeaturestoreRequest], operations_pb2.Operation
+    ]:
         r"""Return a callable for the create featurestore method over gRPC.
 
         Creates a new Featurestore in a given project and
@@ -260,18 +265,20 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_featurestore' not in self._stubs:
-            self._stubs['create_featurestore'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/CreateFeaturestore',
+        if "create_featurestore" not in self._stubs:
+            self._stubs["create_featurestore"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/CreateFeaturestore",
                 request_serializer=featurestore_service.CreateFeaturestoreRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs['create_featurestore']
+        return self._stubs["create_featurestore"]
 
     @property
-    def get_featurestore(self) -> Callable[
-            [featurestore_service.GetFeaturestoreRequest],
-            featurestore.Featurestore]:
+    def get_featurestore(
+        self,
+    ) -> Callable[
+        [featurestore_service.GetFeaturestoreRequest], featurestore.Featurestore
+    ]:
         r"""Return a callable for the get featurestore method over gRPC.
 
         Gets details of a single Featurestore.
@@ -286,18 +293,21 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_featurestore' not in self._stubs:
-            self._stubs['get_featurestore'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/GetFeaturestore',
+        if "get_featurestore" not in self._stubs:
+            self._stubs["get_featurestore"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/GetFeaturestore",
                 request_serializer=featurestore_service.GetFeaturestoreRequest.serialize,
                 response_deserializer=featurestore.Featurestore.deserialize,
             )
-        return self._stubs['get_featurestore']
+        return self._stubs["get_featurestore"]
 
     @property
-    def list_featurestores(self) -> Callable[
-            [featurestore_service.ListFeaturestoresRequest],
-            featurestore_service.ListFeaturestoresResponse]:
+    def list_featurestores(
+        self,
+    ) -> Callable[
+        [featurestore_service.ListFeaturestoresRequest],
+        featurestore_service.ListFeaturestoresResponse,
+    ]:
         r"""Return a callable for the list featurestores method over gRPC.
 
         Lists Featurestores in a given project and location.
@@ -312,18 +322,20 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_featurestores' not in self._stubs:
-            self._stubs['list_featurestores'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/ListFeaturestores',
+        if "list_featurestores" not in self._stubs:
+            self._stubs["list_featurestores"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/ListFeaturestores",
                 request_serializer=featurestore_service.ListFeaturestoresRequest.serialize,
                 response_deserializer=featurestore_service.ListFeaturestoresResponse.deserialize,
             )
-        return self._stubs['list_featurestores']
+        return self._stubs["list_featurestores"]
 
     @property
-    def update_featurestore(self) -> Callable[
-            [featurestore_service.UpdateFeaturestoreRequest],
-            operations_pb2.Operation]:
+    def update_featurestore(
+        self,
+    ) -> Callable[
+        [featurestore_service.UpdateFeaturestoreRequest], operations_pb2.Operation
+    ]:
         r"""Return a callable for the update featurestore method over gRPC.
 
         Updates the parameters of a single Featurestore.
@@ -338,18 +350,20 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'update_featurestore' not in self._stubs:
-            self._stubs['update_featurestore'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/UpdateFeaturestore',
+        if "update_featurestore" not in self._stubs:
+            self._stubs["update_featurestore"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/UpdateFeaturestore",
                 request_serializer=featurestore_service.UpdateFeaturestoreRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs['update_featurestore']
+        return self._stubs["update_featurestore"]
 
     @property
-    def delete_featurestore(self) -> Callable[
-            [featurestore_service.DeleteFeaturestoreRequest],
-            operations_pb2.Operation]:
+    def delete_featurestore(
+        self,
+    ) -> Callable[
+        [featurestore_service.DeleteFeaturestoreRequest], operations_pb2.Operation
+    ]:
         r"""Return a callable for the delete featurestore method over gRPC.
 
         Deletes a single Featurestore. The Featurestore must not contain
@@ -366,18 +380,20 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'delete_featurestore' not in self._stubs:
-            self._stubs['delete_featurestore'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/DeleteFeaturestore',
+        if "delete_featurestore" not in self._stubs:
+            self._stubs["delete_featurestore"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/DeleteFeaturestore",
                 request_serializer=featurestore_service.DeleteFeaturestoreRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs['delete_featurestore']
+        return self._stubs["delete_featurestore"]
 
     @property
-    def create_entity_type(self) -> Callable[
-            [featurestore_service.CreateEntityTypeRequest],
-            operations_pb2.Operation]:
+    def create_entity_type(
+        self,
+    ) -> Callable[
+        [featurestore_service.CreateEntityTypeRequest], operations_pb2.Operation
+    ]:
         r"""Return a callable for the create entity type method over gRPC.
 
         Creates a new EntityType in a given Featurestore.
@@ -392,18 +408,18 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_entity_type' not in self._stubs:
-            self._stubs['create_entity_type'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/CreateEntityType',
+        if "create_entity_type" not in self._stubs:
+            self._stubs["create_entity_type"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/CreateEntityType",
                 request_serializer=featurestore_service.CreateEntityTypeRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs['create_entity_type']
+        return self._stubs["create_entity_type"]
 
     @property
-    def get_entity_type(self) -> Callable[
-            [featurestore_service.GetEntityTypeRequest],
-            entity_type.EntityType]:
+    def get_entity_type(
+        self,
+    ) -> Callable[[featurestore_service.GetEntityTypeRequest], entity_type.EntityType]:
         r"""Return a callable for the get entity type method over gRPC.
 
         Gets details of a single EntityType.
@@ -418,18 +434,21 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_entity_type' not in self._stubs:
-            self._stubs['get_entity_type'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/GetEntityType',
+        if "get_entity_type" not in self._stubs:
+            self._stubs["get_entity_type"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/GetEntityType",
                 request_serializer=featurestore_service.GetEntityTypeRequest.serialize,
                 response_deserializer=entity_type.EntityType.deserialize,
             )
-        return self._stubs['get_entity_type']
+        return self._stubs["get_entity_type"]
 
     @property
-    def list_entity_types(self) -> Callable[
-            [featurestore_service.ListEntityTypesRequest],
-            featurestore_service.ListEntityTypesResponse]:
+    def list_entity_types(
+        self,
+    ) -> Callable[
+        [featurestore_service.ListEntityTypesRequest],
+        featurestore_service.ListEntityTypesResponse,
+    ]:
         r"""Return a callable for the list entity types method over gRPC.
 
         Lists EntityTypes in a given Featurestore.
@@ -444,18 +463,20 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_entity_types' not in self._stubs:
-            self._stubs['list_entity_types'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/ListEntityTypes',
+        if "list_entity_types" not in self._stubs:
+            self._stubs["list_entity_types"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/ListEntityTypes",
                 request_serializer=featurestore_service.ListEntityTypesRequest.serialize,
                 response_deserializer=featurestore_service.ListEntityTypesResponse.deserialize,
             )
-        return self._stubs['list_entity_types']
+        return self._stubs["list_entity_types"]
 
     @property
-    def update_entity_type(self) -> Callable[
-            [featurestore_service.UpdateEntityTypeRequest],
-            gca_entity_type.EntityType]:
+    def update_entity_type(
+        self,
+    ) -> Callable[
+        [featurestore_service.UpdateEntityTypeRequest], gca_entity_type.EntityType
+    ]:
         r"""Return a callable for the update entity type method over gRPC.
 
         Updates the parameters of a single EntityType.
@@ -470,18 +491,20 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'update_entity_type' not in self._stubs:
-            self._stubs['update_entity_type'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/UpdateEntityType',
+        if "update_entity_type" not in self._stubs:
+            self._stubs["update_entity_type"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/UpdateEntityType",
                 request_serializer=featurestore_service.UpdateEntityTypeRequest.serialize,
                 response_deserializer=gca_entity_type.EntityType.deserialize,
             )
-        return self._stubs['update_entity_type']
+        return self._stubs["update_entity_type"]
 
     @property
-    def delete_entity_type(self) -> Callable[
-            [featurestore_service.DeleteEntityTypeRequest],
-            operations_pb2.Operation]:
+    def delete_entity_type(
+        self,
+    ) -> Callable[
+        [featurestore_service.DeleteEntityTypeRequest], operations_pb2.Operation
+    ]:
         r"""Return a callable for the delete entity type method over gRPC.
 
         Deletes a single EntityType. The EntityType must not have any
@@ -498,18 +521,20 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'delete_entity_type' not in self._stubs:
-            self._stubs['delete_entity_type'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/DeleteEntityType',
+        if "delete_entity_type" not in self._stubs:
+            self._stubs["delete_entity_type"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/DeleteEntityType",
                 request_serializer=featurestore_service.DeleteEntityTypeRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs['delete_entity_type']
+        return self._stubs["delete_entity_type"]
 
     @property
-    def create_feature(self) -> Callable[
-            [featurestore_service.CreateFeatureRequest],
-            operations_pb2.Operation]:
+    def create_feature(
+        self,
+    ) -> Callable[
+        [featurestore_service.CreateFeatureRequest], operations_pb2.Operation
+    ]:
         r"""Return a callable for the create feature method over gRPC.
 
         Creates a new Feature in a given EntityType.
@@ -524,18 +549,20 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'create_feature' not in self._stubs:
-            self._stubs['create_feature'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/CreateFeature',
+        if "create_feature" not in self._stubs:
+            self._stubs["create_feature"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/CreateFeature",
                 request_serializer=featurestore_service.CreateFeatureRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs['create_feature']
+        return self._stubs["create_feature"]
 
     @property
-    def batch_create_features(self) -> Callable[
-            [featurestore_service.BatchCreateFeaturesRequest],
-            operations_pb2.Operation]:
+    def batch_create_features(
+        self,
+    ) -> Callable[
+        [featurestore_service.BatchCreateFeaturesRequest], operations_pb2.Operation
+    ]:
         r"""Return a callable for the batch create features method over gRPC.
 
         Creates a batch of Features in a given EntityType.
@@ -550,18 +577,18 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'batch_create_features' not in self._stubs:
-            self._stubs['batch_create_features'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/BatchCreateFeatures',
+        if "batch_create_features" not in self._stubs:
+            self._stubs["batch_create_features"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/BatchCreateFeatures",
                 request_serializer=featurestore_service.BatchCreateFeaturesRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs['batch_create_features']
+        return self._stubs["batch_create_features"]
 
     @property
-    def get_feature(self) -> Callable[
-            [featurestore_service.GetFeatureRequest],
-            feature.Feature]:
+    def get_feature(
+        self,
+    ) -> Callable[[featurestore_service.GetFeatureRequest], feature.Feature]:
         r"""Return a callable for the get feature method over gRPC.
 
         Gets details of a single Feature.
@@ -576,18 +603,21 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'get_feature' not in self._stubs:
-            self._stubs['get_feature'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/GetFeature',
+        if "get_feature" not in self._stubs:
+            self._stubs["get_feature"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/GetFeature",
                 request_serializer=featurestore_service.GetFeatureRequest.serialize,
                 response_deserializer=feature.Feature.deserialize,
             )
-        return self._stubs['get_feature']
+        return self._stubs["get_feature"]
 
     @property
-    def list_features(self) -> Callable[
-            [featurestore_service.ListFeaturesRequest],
-            featurestore_service.ListFeaturesResponse]:
+    def list_features(
+        self,
+    ) -> Callable[
+        [featurestore_service.ListFeaturesRequest],
+        featurestore_service.ListFeaturesResponse,
+    ]:
         r"""Return a callable for the list features method over gRPC.
 
         Lists Features in a given EntityType.
@@ -602,18 +632,18 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'list_features' not in self._stubs:
-            self._stubs['list_features'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/ListFeatures',
+        if "list_features" not in self._stubs:
+            self._stubs["list_features"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/ListFeatures",
                 request_serializer=featurestore_service.ListFeaturesRequest.serialize,
                 response_deserializer=featurestore_service.ListFeaturesResponse.deserialize,
             )
-        return self._stubs['list_features']
+        return self._stubs["list_features"]
 
     @property
-    def update_feature(self) -> Callable[
-            [featurestore_service.UpdateFeatureRequest],
-            gca_feature.Feature]:
+    def update_feature(
+        self,
+    ) -> Callable[[featurestore_service.UpdateFeatureRequest], gca_feature.Feature]:
         r"""Return a callable for the update feature method over gRPC.
 
         Updates the parameters of a single Feature.
@@ -628,18 +658,20 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'update_feature' not in self._stubs:
-            self._stubs['update_feature'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/UpdateFeature',
+        if "update_feature" not in self._stubs:
+            self._stubs["update_feature"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/UpdateFeature",
                 request_serializer=featurestore_service.UpdateFeatureRequest.serialize,
                 response_deserializer=gca_feature.Feature.deserialize,
             )
-        return self._stubs['update_feature']
+        return self._stubs["update_feature"]
 
     @property
-    def delete_feature(self) -> Callable[
-            [featurestore_service.DeleteFeatureRequest],
-            operations_pb2.Operation]:
+    def delete_feature(
+        self,
+    ) -> Callable[
+        [featurestore_service.DeleteFeatureRequest], operations_pb2.Operation
+    ]:
         r"""Return a callable for the delete feature method over gRPC.
 
         Deletes a single Feature.
@@ -654,18 +686,20 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'delete_feature' not in self._stubs:
-            self._stubs['delete_feature'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/DeleteFeature',
+        if "delete_feature" not in self._stubs:
+            self._stubs["delete_feature"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/DeleteFeature",
                 request_serializer=featurestore_service.DeleteFeatureRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs['delete_feature']
+        return self._stubs["delete_feature"]
 
     @property
-    def import_feature_values(self) -> Callable[
-            [featurestore_service.ImportFeatureValuesRequest],
-            operations_pb2.Operation]:
+    def import_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_service.ImportFeatureValuesRequest], operations_pb2.Operation
+    ]:
         r"""Return a callable for the import feature values method over gRPC.
 
         Imports Feature values into the Featurestore from a
@@ -700,18 +734,20 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'import_feature_values' not in self._stubs:
-            self._stubs['import_feature_values'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/ImportFeatureValues',
+        if "import_feature_values" not in self._stubs:
+            self._stubs["import_feature_values"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/ImportFeatureValues",
                 request_serializer=featurestore_service.ImportFeatureValuesRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs['import_feature_values']
+        return self._stubs["import_feature_values"]
 
     @property
-    def batch_read_feature_values(self) -> Callable[
-            [featurestore_service.BatchReadFeatureValuesRequest],
-            operations_pb2.Operation]:
+    def batch_read_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_service.BatchReadFeatureValuesRequest], operations_pb2.Operation
+    ]:
         r"""Return a callable for the batch read feature values method over gRPC.
 
         Batch reads Feature values from a Featurestore.
@@ -731,18 +767,20 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'batch_read_feature_values' not in self._stubs:
-            self._stubs['batch_read_feature_values'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/BatchReadFeatureValues',
+        if "batch_read_feature_values" not in self._stubs:
+            self._stubs["batch_read_feature_values"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/BatchReadFeatureValues",
                 request_serializer=featurestore_service.BatchReadFeatureValuesRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs['batch_read_feature_values']
+        return self._stubs["batch_read_feature_values"]
 
     @property
-    def export_feature_values(self) -> Callable[
-            [featurestore_service.ExportFeatureValuesRequest],
-            operations_pb2.Operation]:
+    def export_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_service.ExportFeatureValuesRequest], operations_pb2.Operation
+    ]:
         r"""Return a callable for the export feature values method over gRPC.
 
         Exports Feature values from all the entities of a
@@ -758,18 +796,21 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'export_feature_values' not in self._stubs:
-            self._stubs['export_feature_values'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/ExportFeatureValues',
+        if "export_feature_values" not in self._stubs:
+            self._stubs["export_feature_values"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/ExportFeatureValues",
                 request_serializer=featurestore_service.ExportFeatureValuesRequest.serialize,
                 response_deserializer=operations_pb2.Operation.FromString,
             )
-        return self._stubs['export_feature_values']
+        return self._stubs["export_feature_values"]
 
     @property
-    def search_features(self) -> Callable[
-            [featurestore_service.SearchFeaturesRequest],
-            featurestore_service.SearchFeaturesResponse]:
+    def search_features(
+        self,
+    ) -> Callable[
+        [featurestore_service.SearchFeaturesRequest],
+        featurestore_service.SearchFeaturesResponse,
+    ]:
         r"""Return a callable for the search features method over gRPC.
 
         Searches Features matching a query in a given
@@ -785,15 +826,13 @@ class FeaturestoreServiceGrpcTransport(FeaturestoreServiceTransport):
         # the request.
         # gRPC handles serialization and deserialization, so we just need
         # to pass in the functions for each.
-        if 'search_features' not in self._stubs:
-            self._stubs['search_features'] = self.grpc_channel.unary_unary(
-                '/google.cloud.aiplatform.v1beta1.FeaturestoreService/SearchFeatures',
+        if "search_features" not in self._stubs:
+            self._stubs["search_features"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/SearchFeatures",
                 request_serializer=featurestore_service.SearchFeaturesRequest.serialize,
                 response_deserializer=featurestore_service.SearchFeaturesResponse.deserialize,
             )
-        return self._stubs['search_features']
+        return self._stubs["search_features"]
 
 
-__all__ = (
-    'FeaturestoreServiceGrpcTransport',
-)
+__all__ = ("FeaturestoreServiceGrpcTransport",)

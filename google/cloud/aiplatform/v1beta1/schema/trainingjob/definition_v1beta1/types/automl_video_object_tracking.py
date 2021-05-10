@@ -17,11 +17,8 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1.schema.trainingjob.definition',
-    manifest={
-        'AutoMlVideoObjectTracking',
-        'AutoMlVideoObjectTrackingInputs',
-    },
+    package="google.cloud.aiplatform.v1beta1.schema.trainingjob.definition",
+    manifest={"AutoMlVideoObjectTracking", "AutoMlVideoObjectTrackingInputs",},
 )
 
 
@@ -35,9 +32,7 @@ class AutoMlVideoObjectTracking(proto.Message):
     """
 
     inputs = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message='AutoMlVideoObjectTrackingInputs',
+        proto.MESSAGE, number=1, message="AutoMlVideoObjectTrackingInputs",
     )
 
 
@@ -47,6 +42,7 @@ class AutoMlVideoObjectTrackingInputs(proto.Message):
         model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoObjectTrackingInputs.ModelType):
 
     """
+
     class ModelType(proto.Enum):
         r""""""
         MODEL_TYPE_UNSPECIFIED = 0
@@ -57,11 +53,7 @@ class AutoMlVideoObjectTrackingInputs(proto.Message):
         MOBILE_JETSON_VERSATILE_1 = 5
         MOBILE_JETSON_LOW_LATENCY_1 = 6
 
-    model_type = proto.Field(
-        proto.ENUM,
-        number=1,
-        enum=ModelType,
-    )
+    model_type = proto.Field(proto.ENUM, number=1, enum=ModelType,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -17,6 +17,6 @@ from .client import MigrationServiceClient
 from .async_client import MigrationServiceAsyncClient
 
 __all__ = (
-    'MigrationServiceClient',
-    'MigrationServiceAsyncClient',
+    "MigrationServiceClient",
+    "MigrationServiceAsyncClient",
 )

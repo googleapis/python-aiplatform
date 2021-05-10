@@ -19,12 +19,12 @@ import re
 from typing import Dict, AsyncIterable, Awaitable, Sequence, Tuple, Type, Union
 import pkg_resources
 
-import google.api_core.client_options as ClientOptions # type: ignore
+import google.api_core.client_options as ClientOptions  # type: ignore
 from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1                   # type: ignore
-from google.api_core import retry as retries           # type: ignore
-from google.auth import credentials as ga_credentials   # type: ignore
-from google.oauth2 import service_account              # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
+from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -35,12 +35,16 @@ from google.cloud.aiplatform_v1beta1.types import tensorboard
 from google.cloud.aiplatform_v1beta1.types import tensorboard as gca_tensorboard
 from google.cloud.aiplatform_v1beta1.types import tensorboard_data
 from google.cloud.aiplatform_v1beta1.types import tensorboard_experiment
-from google.cloud.aiplatform_v1beta1.types import tensorboard_experiment as gca_tensorboard_experiment
+from google.cloud.aiplatform_v1beta1.types import (
+    tensorboard_experiment as gca_tensorboard_experiment,
+)
 from google.cloud.aiplatform_v1beta1.types import tensorboard_run
 from google.cloud.aiplatform_v1beta1.types import tensorboard_run as gca_tensorboard_run
 from google.cloud.aiplatform_v1beta1.types import tensorboard_service
 from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
-from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series as gca_tensorboard_time_series
+from google.cloud.aiplatform_v1beta1.types import (
+    tensorboard_time_series as gca_tensorboard_time_series,
+)
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -58,23 +62,49 @@ class TensorboardServiceAsyncClient:
     DEFAULT_MTLS_ENDPOINT = TensorboardServiceClient.DEFAULT_MTLS_ENDPOINT
 
     tensorboard_path = staticmethod(TensorboardServiceClient.tensorboard_path)
-    parse_tensorboard_path = staticmethod(TensorboardServiceClient.parse_tensorboard_path)
-    tensorboard_experiment_path = staticmethod(TensorboardServiceClient.tensorboard_experiment_path)
-    parse_tensorboard_experiment_path = staticmethod(TensorboardServiceClient.parse_tensorboard_experiment_path)
+    parse_tensorboard_path = staticmethod(
+        TensorboardServiceClient.parse_tensorboard_path
+    )
+    tensorboard_experiment_path = staticmethod(
+        TensorboardServiceClient.tensorboard_experiment_path
+    )
+    parse_tensorboard_experiment_path = staticmethod(
+        TensorboardServiceClient.parse_tensorboard_experiment_path
+    )
     tensorboard_run_path = staticmethod(TensorboardServiceClient.tensorboard_run_path)
-    parse_tensorboard_run_path = staticmethod(TensorboardServiceClient.parse_tensorboard_run_path)
-    tensorboard_time_series_path = staticmethod(TensorboardServiceClient.tensorboard_time_series_path)
-    parse_tensorboard_time_series_path = staticmethod(TensorboardServiceClient.parse_tensorboard_time_series_path)
-    common_billing_account_path = staticmethod(TensorboardServiceClient.common_billing_account_path)
-    parse_common_billing_account_path = staticmethod(TensorboardServiceClient.parse_common_billing_account_path)
+    parse_tensorboard_run_path = staticmethod(
+        TensorboardServiceClient.parse_tensorboard_run_path
+    )
+    tensorboard_time_series_path = staticmethod(
+        TensorboardServiceClient.tensorboard_time_series_path
+    )
+    parse_tensorboard_time_series_path = staticmethod(
+        TensorboardServiceClient.parse_tensorboard_time_series_path
+    )
+    common_billing_account_path = staticmethod(
+        TensorboardServiceClient.common_billing_account_path
+    )
+    parse_common_billing_account_path = staticmethod(
+        TensorboardServiceClient.parse_common_billing_account_path
+    )
     common_folder_path = staticmethod(TensorboardServiceClient.common_folder_path)
-    parse_common_folder_path = staticmethod(TensorboardServiceClient.parse_common_folder_path)
-    common_organization_path = staticmethod(TensorboardServiceClient.common_organization_path)
-    parse_common_organization_path = staticmethod(TensorboardServiceClient.parse_common_organization_path)
+    parse_common_folder_path = staticmethod(
+        TensorboardServiceClient.parse_common_folder_path
+    )
+    common_organization_path = staticmethod(
+        TensorboardServiceClient.common_organization_path
+    )
+    parse_common_organization_path = staticmethod(
+        TensorboardServiceClient.parse_common_organization_path
+    )
     common_project_path = staticmethod(TensorboardServiceClient.common_project_path)
-    parse_common_project_path = staticmethod(TensorboardServiceClient.parse_common_project_path)
+    parse_common_project_path = staticmethod(
+        TensorboardServiceClient.parse_common_project_path
+    )
     common_location_path = staticmethod(TensorboardServiceClient.common_location_path)
-    parse_common_location_path = staticmethod(TensorboardServiceClient.parse_common_location_path)
+    parse_common_location_path = staticmethod(
+        TensorboardServiceClient.parse_common_location_path
+    )
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
@@ -117,14 +147,19 @@ class TensorboardServiceAsyncClient:
         """
         return self._client.transport
 
-    get_transport_class = functools.partial(type(TensorboardServiceClient).get_transport_class, type(TensorboardServiceClient))
+    get_transport_class = functools.partial(
+        type(TensorboardServiceClient).get_transport_class,
+        type(TensorboardServiceClient),
+    )
 
-    def __init__(self, *,
-            credentials: ga_credentials.Credentials = None,
-            transport: Union[str, TensorboardServiceTransport] = 'grpc_asyncio',
-            client_options: ClientOptions = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            ) -> None:
+    def __init__(
+        self,
+        *,
+        credentials: ga_credentials.Credentials = None,
+        transport: Union[str, TensorboardServiceTransport] = "grpc_asyncio",
+        client_options: ClientOptions = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+    ) -> None:
         """Instantiate the tensorboard service client.
 
         Args:
@@ -162,18 +197,18 @@ class TensorboardServiceAsyncClient:
             transport=transport,
             client_options=client_options,
             client_info=client_info,
-
         )
 
-    async def create_tensorboard(self,
-            request: tensorboard_service.CreateTensorboardRequest = None,
-            *,
-            parent: str = None,
-            tensorboard: gca_tensorboard.Tensorboard = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def create_tensorboard(
+        self,
+        request: tensorboard_service.CreateTensorboardRequest = None,
+        *,
+        parent: str = None,
+        tensorboard: gca_tensorboard.Tensorboard = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Creates a Tensorboard.
 
         Args:
@@ -214,8 +249,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.CreateTensorboardRequest(request)
 
@@ -237,18 +274,11 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -261,14 +291,15 @@ class TensorboardServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def get_tensorboard(self,
-            request: tensorboard_service.GetTensorboardRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> tensorboard.Tensorboard:
+    async def get_tensorboard(
+        self,
+        request: tensorboard_service.GetTensorboardRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard.Tensorboard:
         r"""Gets a Tensorboard.
 
         Args:
@@ -303,8 +334,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.GetTensorboardRequest(request)
 
@@ -324,31 +357,25 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def update_tensorboard(self,
-            request: tensorboard_service.UpdateTensorboardRequest = None,
-            *,
-            tensorboard: gca_tensorboard.Tensorboard = None,
-            update_mask: field_mask_pb2.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def update_tensorboard(
+        self,
+        request: tensorboard_service.UpdateTensorboardRequest = None,
+        *,
+        tensorboard: gca_tensorboard.Tensorboard = None,
+        update_mask: field_mask_pb2.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Updates a Tensorboard.
 
         Args:
@@ -396,8 +423,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.UpdateTensorboardRequest(request)
 
@@ -419,18 +448,13 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard.name', request.tensorboard.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard.name", request.tensorboard.name),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -443,14 +467,15 @@ class TensorboardServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def list_tensorboards(self,
-            request: tensorboard_service.ListTensorboardsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListTensorboardsAsyncPager:
+    async def list_tensorboards(
+        self,
+        request: tensorboard_service.ListTensorboardsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListTensorboardsAsyncPager:
         r"""Lists Tensorboards in a Location.
 
         Args:
@@ -485,8 +510,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.ListTensorboardsRequest(request)
 
@@ -506,39 +533,30 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListTensorboardsAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def delete_tensorboard(self,
-            request: tensorboard_service.DeleteTensorboardRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def delete_tensorboard(
+        self,
+        request: tensorboard_service.DeleteTensorboardRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Deletes a Tensorboard.
 
         Args:
@@ -583,8 +601,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.DeleteTensorboardRequest(request)
 
@@ -604,18 +624,11 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -628,16 +641,17 @@ class TensorboardServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def create_tensorboard_experiment(self,
-            request: tensorboard_service.CreateTensorboardExperimentRequest = None,
-            *,
-            parent: str = None,
-            tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
-            tensorboard_experiment_id: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_tensorboard_experiment.TensorboardExperiment:
+    async def create_tensorboard_experiment(
+        self,
+        request: tensorboard_service.CreateTensorboardExperimentRequest = None,
+        *,
+        parent: str = None,
+        tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
+        tensorboard_experiment_id: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Creates a TensorboardExperiment.
 
         Args:
@@ -685,10 +699,14 @@ class TensorboardServiceAsyncClient:
         # Create or coerce a protobuf request object.
         # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, tensorboard_experiment, tensorboard_experiment_id])
+        has_flattened_params = any(
+            [parent, tensorboard_experiment, tensorboard_experiment_id]
+        )
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.CreateTensorboardExperimentRequest(request)
 
@@ -712,30 +730,24 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def get_tensorboard_experiment(self,
-            request: tensorboard_service.GetTensorboardExperimentRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> tensorboard_experiment.TensorboardExperiment:
+    async def get_tensorboard_experiment(
+        self,
+        request: tensorboard_service.GetTensorboardExperimentRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_experiment.TensorboardExperiment:
         r"""Gets a TensorboardExperiment.
 
         Args:
@@ -769,8 +781,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.GetTensorboardExperimentRequest(request)
 
@@ -790,31 +804,25 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def update_tensorboard_experiment(self,
-            request: tensorboard_service.UpdateTensorboardExperimentRequest = None,
-            *,
-            tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
-            update_mask: field_mask_pb2.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_tensorboard_experiment.TensorboardExperiment:
+    async def update_tensorboard_experiment(
+        self,
+        request: tensorboard_service.UpdateTensorboardExperimentRequest = None,
+        *,
+        tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
+        update_mask: field_mask_pb2.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Updates a TensorboardExperiment.
 
         Args:
@@ -861,8 +869,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_experiment, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.UpdateTensorboardExperimentRequest(request)
 
@@ -884,30 +894,26 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard_experiment.name', request.tensorboard_experiment.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard_experiment.name", request.tensorboard_experiment.name),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def list_tensorboard_experiments(self,
-            request: tensorboard_service.ListTensorboardExperimentsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListTensorboardExperimentsAsyncPager:
+    async def list_tensorboard_experiments(
+        self,
+        request: tensorboard_service.ListTensorboardExperimentsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListTensorboardExperimentsAsyncPager:
         r"""Lists TensorboardExperiments in a Location.
 
         Args:
@@ -943,8 +949,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.ListTensorboardExperimentsRequest(request)
 
@@ -964,39 +972,30 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListTensorboardExperimentsAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def delete_tensorboard_experiment(self,
-            request: tensorboard_service.DeleteTensorboardExperimentRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def delete_tensorboard_experiment(
+        self,
+        request: tensorboard_service.DeleteTensorboardExperimentRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Deletes a TensorboardExperiment.
 
         Args:
@@ -1041,8 +1040,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.DeleteTensorboardExperimentRequest(request)
 
@@ -1062,18 +1063,11 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1086,16 +1080,17 @@ class TensorboardServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def create_tensorboard_run(self,
-            request: tensorboard_service.CreateTensorboardRunRequest = None,
-            *,
-            parent: str = None,
-            tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
-            tensorboard_run_id: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_tensorboard_run.TensorboardRun:
+    async def create_tensorboard_run(
+        self,
+        request: tensorboard_service.CreateTensorboardRunRequest = None,
+        *,
+        parent: str = None,
+        tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
+        tensorboard_run_id: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_tensorboard_run.TensorboardRun:
         r"""Creates a TensorboardRun.
 
         Args:
@@ -1147,8 +1142,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_run, tensorboard_run_id])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.CreateTensorboardRunRequest(request)
 
@@ -1172,30 +1169,24 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def get_tensorboard_run(self,
-            request: tensorboard_service.GetTensorboardRunRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> tensorboard_run.TensorboardRun:
+    async def get_tensorboard_run(
+        self,
+        request: tensorboard_service.GetTensorboardRunRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_run.TensorboardRun:
         r"""Gets a TensorboardRun.
 
         Args:
@@ -1229,8 +1220,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.GetTensorboardRunRequest(request)
 
@@ -1250,31 +1243,25 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def update_tensorboard_run(self,
-            request: tensorboard_service.UpdateTensorboardRunRequest = None,
-            *,
-            tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
-            update_mask: field_mask_pb2.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_tensorboard_run.TensorboardRun:
+    async def update_tensorboard_run(
+        self,
+        request: tensorboard_service.UpdateTensorboardRunRequest = None,
+        *,
+        tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
+        update_mask: field_mask_pb2.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_tensorboard_run.TensorboardRun:
         r"""Updates a TensorboardRun.
 
         Args:
@@ -1320,8 +1307,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.UpdateTensorboardRunRequest(request)
 
@@ -1343,30 +1332,26 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard_run.name', request.tensorboard_run.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard_run.name", request.tensorboard_run.name),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def list_tensorboard_runs(self,
-            request: tensorboard_service.ListTensorboardRunsRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListTensorboardRunsAsyncPager:
+    async def list_tensorboard_runs(
+        self,
+        request: tensorboard_service.ListTensorboardRunsRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListTensorboardRunsAsyncPager:
         r"""Lists TensorboardRuns in a Location.
 
         Args:
@@ -1402,8 +1387,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.ListTensorboardRunsRequest(request)
 
@@ -1423,39 +1410,30 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListTensorboardRunsAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def delete_tensorboard_run(self,
-            request: tensorboard_service.DeleteTensorboardRunRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def delete_tensorboard_run(
+        self,
+        request: tensorboard_service.DeleteTensorboardRunRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Deletes a TensorboardRun.
 
         Args:
@@ -1500,8 +1478,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.DeleteTensorboardRunRequest(request)
 
@@ -1521,18 +1501,11 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1545,15 +1518,16 @@ class TensorboardServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def create_tensorboard_time_series(self,
-            request: tensorboard_service.CreateTensorboardTimeSeriesRequest = None,
-            *,
-            parent: str = None,
-            tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
+    async def create_tensorboard_time_series(
+        self,
+        request: tensorboard_service.CreateTensorboardTimeSeriesRequest = None,
+        *,
+        parent: str = None,
+        tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Creates a TensorboardTimeSeries.
 
         Args:
@@ -1592,8 +1566,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_time_series])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.CreateTensorboardTimeSeriesRequest(request)
 
@@ -1615,30 +1591,24 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def get_tensorboard_time_series(self,
-            request: tensorboard_service.GetTensorboardTimeSeriesRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> tensorboard_time_series.TensorboardTimeSeries:
+    async def get_tensorboard_time_series(
+        self,
+        request: tensorboard_service.GetTensorboardTimeSeriesRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_time_series.TensorboardTimeSeries:
         r"""Gets a TensorboardTimeSeries.
 
         Args:
@@ -1670,8 +1640,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.GetTensorboardTimeSeriesRequest(request)
 
@@ -1691,31 +1663,25 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def update_tensorboard_time_series(self,
-            request: tensorboard_service.UpdateTensorboardTimeSeriesRequest = None,
-            *,
-            tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
-            update_mask: field_mask_pb2.FieldMask = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
+    async def update_tensorboard_time_series(
+        self,
+        request: tensorboard_service.UpdateTensorboardTimeSeriesRequest = None,
+        *,
+        tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
+        update_mask: field_mask_pb2.FieldMask = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Updates a TensorboardTimeSeries.
 
         Args:
@@ -1760,8 +1726,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series, update_mask])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.UpdateTensorboardTimeSeriesRequest(request)
 
@@ -1783,30 +1751,31 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard_time_series.name', request.tensorboard_time_series.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (
+                    (
+                        "tensorboard_time_series.name",
+                        request.tensorboard_time_series.name,
+                    ),
+                )
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def list_tensorboard_time_series(self,
-            request: tensorboard_service.ListTensorboardTimeSeriesRequest = None,
-            *,
-            parent: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ListTensorboardTimeSeriesAsyncPager:
+    async def list_tensorboard_time_series(
+        self,
+        request: tensorboard_service.ListTensorboardTimeSeriesRequest = None,
+        *,
+        parent: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListTensorboardTimeSeriesAsyncPager:
         r"""Lists TensorboardTimeSeries in a Location.
 
         Args:
@@ -1842,8 +1811,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.ListTensorboardTimeSeriesRequest(request)
 
@@ -1863,39 +1834,30 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('parent', request.parent),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListTensorboardTimeSeriesAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
-    async def delete_tensorboard_time_series(self,
-            request: tensorboard_service.DeleteTensorboardTimeSeriesRequest = None,
-            *,
-            name: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> operation_async.AsyncOperation:
+    async def delete_tensorboard_time_series(
+        self,
+        request: tensorboard_service.DeleteTensorboardTimeSeriesRequest = None,
+        *,
+        name: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
         r"""Deletes a TensorboardTimeSeries.
 
         Args:
@@ -1940,8 +1902,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.DeleteTensorboardTimeSeriesRequest(request)
 
@@ -1961,18 +1925,11 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('name', request.name),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1985,14 +1942,15 @@ class TensorboardServiceAsyncClient:
         # Done; return the response.
         return response
 
-    async def read_tensorboard_time_series_data(self,
-            request: tensorboard_service.ReadTensorboardTimeSeriesDataRequest = None,
-            *,
-            tensorboard_time_series: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> tensorboard_service.ReadTensorboardTimeSeriesDataResponse:
+    async def read_tensorboard_time_series_data(
+        self,
+        request: tensorboard_service.ReadTensorboardTimeSeriesDataRequest = None,
+        *,
+        tensorboard_time_series: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.ReadTensorboardTimeSeriesDataResponse:
         r"""Reads a TensorboardTimeSeries' data. Data is returned in
         paginated responses. By default, if the number of data points
         stored is less than 1000, all data will be returned. Otherwise,
@@ -2029,8 +1987,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest(request)
 
@@ -2050,30 +2010,26 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard_time_series', request.tensorboard_time_series),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard_time_series", request.tensorboard_time_series),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    def read_tensorboard_blob_data(self,
-            request: tensorboard_service.ReadTensorboardBlobDataRequest = None,
-            *,
-            time_series: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> Awaitable[AsyncIterable[tensorboard_service.ReadTensorboardBlobDataResponse]]:
+    def read_tensorboard_blob_data(
+        self,
+        request: tensorboard_service.ReadTensorboardBlobDataRequest = None,
+        *,
+        time_series: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> Awaitable[AsyncIterable[tensorboard_service.ReadTensorboardBlobDataResponse]]:
         r"""Gets bytes of TensorboardBlobs.
         This is to allow reading blob data stored in consumer
         project's Cloud Storage bucket without users having to
@@ -2108,8 +2064,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([time_series])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.ReadTensorboardBlobDataRequest(request)
 
@@ -2129,31 +2087,27 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('time_series', request.time_series),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("time_series", request.time_series),)
+            ),
         )
 
         # Send the request.
-        response = rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def write_tensorboard_run_data(self,
-            request: tensorboard_service.WriteTensorboardRunDataRequest = None,
-            *,
-            tensorboard_run: str = None,
-            time_series_data: Sequence[tensorboard_data.TimeSeriesData] = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> tensorboard_service.WriteTensorboardRunDataResponse:
+    async def write_tensorboard_run_data(
+        self,
+        request: tensorboard_service.WriteTensorboardRunDataRequest = None,
+        *,
+        tensorboard_run: str = None,
+        time_series_data: Sequence[tensorboard_data.TimeSeriesData] = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.WriteTensorboardRunDataResponse:
         r"""Write time series data points into multiple
         TensorboardTimeSeries under a TensorboardRun. If any
         data fail to be ingested, an error will be returned.
@@ -2200,8 +2154,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, time_series_data])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.WriteTensorboardRunDataRequest(request)
 
@@ -2223,30 +2179,26 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard_run', request.tensorboard_run),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard_run", request.tensorboard_run),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Done; return the response.
         return response
 
-    async def export_tensorboard_time_series_data(self,
-            request: tensorboard_service.ExportTensorboardTimeSeriesDataRequest = None,
-            *,
-            tensorboard_time_series: str = None,
-            retry: retries.Retry = gapic_v1.method.DEFAULT,
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            ) -> pagers.ExportTensorboardTimeSeriesDataAsyncPager:
+    async def export_tensorboard_time_series_data(
+        self,
+        request: tensorboard_service.ExportTensorboardTimeSeriesDataRequest = None,
+        *,
+        tensorboard_time_series: str = None,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ExportTensorboardTimeSeriesDataAsyncPager:
         r"""Exports a TensorboardTimeSeries' data. Data is
         returned in paginated responses.
 
@@ -2282,8 +2234,10 @@ class TensorboardServiceAsyncClient:
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
-            raise ValueError('If the `request` argument is set, then none of '
-                             'the individual field arguments should be set.')
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
         request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest(request)
 
@@ -2303,45 +2257,32 @@ class TensorboardServiceAsyncClient:
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((
-                ('tensorboard_time_series', request.tensorboard_time_series),
-            )),
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard_time_series", request.tensorboard_time_series),)
+            ),
         )
 
         # Send the request.
-        response = await rpc(
-            request,
-            retry=retry,
-            timeout=timeout,
-            metadata=metadata,
-        )
+        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ExportTensorboardTimeSeriesDataAsyncPager(
-            method=rpc,
-            request=request,
-            response=response,
-            metadata=metadata,
+            method=rpc, request=request, response=response, metadata=metadata,
         )
 
         # Done; return the response.
         return response
 
 
-
-
-
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = (
-    'TensorboardServiceAsyncClient',
-)
+__all__ = ("TensorboardServiceAsyncClient",)

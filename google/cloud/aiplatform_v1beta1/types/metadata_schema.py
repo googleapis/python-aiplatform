@@ -19,10 +19,7 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
-    manifest={
-        'MetadataSchema',
-    },
+    package="google.cloud.aiplatform.v1beta1", manifest={"MetadataSchema",},
 )
 
 
@@ -56,6 +53,7 @@ class MetadataSchema(proto.Message):
         description (str):
             Description of the Metadata Schema
     """
+
     class MetadataSchemaType(proto.Enum):
         r"""Describes the type of the MetadataSchema."""
         METADATA_SCHEMA_TYPE_UNSPECIFIED = 0
@@ -63,32 +61,12 @@ class MetadataSchema(proto.Message):
         EXECUTION_TYPE = 2
         CONTEXT_TYPE = 3
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    schema_version = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    schema = proto.Field(
-        proto.STRING,
-        number=3,
-    )
-    schema_type = proto.Field(
-        proto.ENUM,
-        number=4,
-        enum=MetadataSchemaType,
-    )
-    create_time = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=timestamp_pb2.Timestamp,
-    )
-    description = proto.Field(
-        proto.STRING,
-        number=6,
-    )
+    name = proto.Field(proto.STRING, number=1,)
+    schema_version = proto.Field(proto.STRING, number=2,)
+    schema = proto.Field(proto.STRING, number=3,)
+    schema_type = proto.Field(proto.ENUM, number=4, enum=MetadataSchemaType,)
+    create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp_pb2.Timestamp,)
+    description = proto.Field(proto.STRING, number=6,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -15,21 +15,23 @@
 #
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import migratable_resource as gca_migratable_resource
+from google.cloud.aiplatform_v1beta1.types import (
+    migratable_resource as gca_migratable_resource,
+)
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
-        'SearchMigratableResourcesRequest',
-        'SearchMigratableResourcesResponse',
-        'BatchMigrateResourcesRequest',
-        'MigrateResourceRequest',
-        'BatchMigrateResourcesResponse',
-        'MigrateResourceResponse',
-        'BatchMigrateResourcesOperationMetadata',
+        "SearchMigratableResourcesRequest",
+        "SearchMigratableResourcesResponse",
+        "BatchMigrateResourcesRequest",
+        "MigrateResourceRequest",
+        "BatchMigrateResourcesResponse",
+        "MigrateResourceResponse",
+        "BatchMigrateResourcesOperationMetadata",
     },
 )
 
@@ -73,22 +75,10 @@ class SearchMigratableResourcesRequest(proto.Message):
                   migrated resources.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    page_size = proto.Field(
-        proto.INT32,
-        number=2,
-    )
-    page_token = proto.Field(
-        proto.STRING,
-        number=3,
-    )
-    filter = proto.Field(
-        proto.STRING,
-        number=4,
-    )
+    parent = proto.Field(proto.STRING, number=1,)
+    page_size = proto.Field(proto.INT32, number=2,)
+    page_token = proto.Field(proto.STRING, number=3,)
+    filter = proto.Field(proto.STRING, number=4,)
 
 
 class SearchMigratableResourcesResponse(proto.Message):
@@ -110,14 +100,9 @@ class SearchMigratableResourcesResponse(proto.Message):
         return self
 
     migratable_resources = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=gca_migratable_resource.MigratableResource,
+        proto.MESSAGE, number=1, message=gca_migratable_resource.MigratableResource,
     )
-    next_page_token = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class BatchMigrateResourcesRequest(proto.Message):
@@ -135,14 +120,9 @@ class BatchMigrateResourcesRequest(proto.Message):
             can be migrated in one batch.
     """
 
-    parent = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    parent = proto.Field(proto.STRING, number=1,)
     migrate_resource_requests = proto.RepeatedField(
-        proto.MESSAGE,
-        number=2,
-        message='MigrateResourceRequest',
+        proto.MESSAGE, number=2, message="MigrateResourceRequest",
     )
 
 
@@ -193,18 +173,9 @@ class MigrateResourceRequest(proto.Message):
                 unspecified.
         """
 
-        endpoint = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-        model_version = proto.Field(
-            proto.STRING,
-            number=2,
-        )
-        model_display_name = proto.Field(
-            proto.STRING,
-            number=3,
-        )
+        endpoint = proto.Field(proto.STRING, number=1,)
+        model_version = proto.Field(proto.STRING, number=2,)
+        model_display_name = proto.Field(proto.STRING, number=3,)
 
     class MigrateAutomlModelConfig(proto.Message):
         r"""Config for migrating Model in automl.googleapis.com to AI
@@ -220,14 +191,8 @@ class MigrateResourceRequest(proto.Message):
                 unspecified.
         """
 
-        model = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-        model_display_name = proto.Field(
-            proto.STRING,
-            number=2,
-        )
+        model = proto.Field(proto.STRING, number=1,)
+        model_display_name = proto.Field(proto.STRING, number=2,)
 
     class MigrateAutomlDatasetConfig(proto.Message):
         r"""Config for migrating Dataset in automl.googleapis.com to AI
@@ -243,14 +208,8 @@ class MigrateResourceRequest(proto.Message):
                 unspecified.
         """
 
-        dataset = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-        dataset_display_name = proto.Field(
-            proto.STRING,
-            number=2,
-        )
+        dataset = proto.Field(proto.STRING, number=1,)
+        dataset_display_name = proto.Field(proto.STRING, number=2,)
 
     class MigrateDataLabelingDatasetConfig(proto.Message):
         r"""Config for migrating Dataset in datalabeling.googleapis.com
@@ -283,47 +242,32 @@ class MigrateResourceRequest(proto.Message):
                     ``projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}``.
             """
 
-            annotated_dataset = proto.Field(
-                proto.STRING,
-                number=1,
-            )
+            annotated_dataset = proto.Field(proto.STRING, number=1,)
 
-        dataset = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-        dataset_display_name = proto.Field(
-            proto.STRING,
-            number=2,
-        )
+        dataset = proto.Field(proto.STRING, number=1,)
+        dataset_display_name = proto.Field(proto.STRING, number=2,)
         migrate_data_labeling_annotated_dataset_configs = proto.RepeatedField(
             proto.MESSAGE,
             number=3,
-            message='MigrateResourceRequest.MigrateDataLabelingDatasetConfig.MigrateDataLabelingAnnotatedDatasetConfig',
+            message="MigrateResourceRequest.MigrateDataLabelingDatasetConfig.MigrateDataLabelingAnnotatedDatasetConfig",
         )
 
     migrate_ml_engine_model_version_config = proto.Field(
         proto.MESSAGE,
         number=1,
-        oneof='request',
+        oneof="request",
         message=MigrateMlEngineModelVersionConfig,
     )
     migrate_automl_model_config = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        oneof='request',
-        message=MigrateAutomlModelConfig,
+        proto.MESSAGE, number=2, oneof="request", message=MigrateAutomlModelConfig,
     )
     migrate_automl_dataset_config = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        oneof='request',
-        message=MigrateAutomlDatasetConfig,
+        proto.MESSAGE, number=3, oneof="request", message=MigrateAutomlDatasetConfig,
     )
     migrate_data_labeling_dataset_config = proto.Field(
         proto.MESSAGE,
         number=4,
-        oneof='request',
+        oneof="request",
         message=MigrateDataLabelingDatasetConfig,
     )
 
@@ -338,9 +282,7 @@ class BatchMigrateResourcesResponse(proto.Message):
     """
 
     migrate_resource_responses = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message='MigrateResourceResponse',
+        proto.MESSAGE, number=1, message="MigrateResourceResponse",
     )
 
 
@@ -357,20 +299,10 @@ class MigrateResourceResponse(proto.Message):
             datalabeling.googleapis.com.
     """
 
-    dataset = proto.Field(
-        proto.STRING,
-        number=1,
-        oneof='migrated_resource',
-    )
-    model = proto.Field(
-        proto.STRING,
-        number=2,
-        oneof='migrated_resource',
-    )
+    dataset = proto.Field(proto.STRING, number=1, oneof="migrated_resource",)
+    model = proto.Field(proto.STRING, number=2, oneof="migrated_resource",)
     migratable_resource = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        message=gca_migratable_resource.MigratableResource,
+        proto.MESSAGE, number=3, message=gca_migratable_resource.MigratableResource,
     )
 
 
@@ -404,36 +336,19 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
         """
 
         error = proto.Field(
-            proto.MESSAGE,
-            number=2,
-            oneof='result',
-            message=status_pb2.Status,
+            proto.MESSAGE, number=2, oneof="result", message=status_pb2.Status,
         )
-        model = proto.Field(
-            proto.STRING,
-            number=3,
-            oneof='result',
-        )
-        dataset = proto.Field(
-            proto.STRING,
-            number=4,
-            oneof='result',
-        )
+        model = proto.Field(proto.STRING, number=3, oneof="result",)
+        dataset = proto.Field(proto.STRING, number=4, oneof="result",)
         request = proto.Field(
-            proto.MESSAGE,
-            number=1,
-            message='MigrateResourceRequest',
+            proto.MESSAGE, number=1, message="MigrateResourceRequest",
         )
 
     generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message=operation.GenericOperationMetadata,
+        proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
     partial_results = proto.RepeatedField(
-        proto.MESSAGE,
-        number=2,
-        message=PartialResult,
+        proto.MESSAGE, number=2, message=PartialResult,
     )
 
 

@@ -17,10 +17,8 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1.schema.predict.instance',
-    manifest={
-        'ImageObjectDetectionPredictionInstance',
-    },
+    package="google.cloud.aiplatform.v1.schema.predict.instance",
+    manifest={"ImageObjectDetectionPredictionInstance",},
 )
 
 
@@ -42,14 +40,8 @@ class ImageObjectDetectionPredictionInstance(proto.Message):
             - image/vnd.microsoft.icon
     """
 
-    content = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    mime_type = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+    content = proto.Field(proto.STRING, number=1,)
+    mime_type = proto.Field(proto.STRING, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

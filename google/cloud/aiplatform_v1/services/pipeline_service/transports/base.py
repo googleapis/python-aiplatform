@@ -21,7 +21,7 @@ import pkg_resources
 import google.auth  # type: ignore
 import google.api_core  # type: ignore
 from google.api_core import exceptions as core_exceptions  # type: ignore
-from google.api_core import gapic_v1    # type: ignore
+from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
@@ -35,7 +35,7 @@ from google.protobuf import empty_pb2  # type: ignore
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
         gapic_version=pkg_resources.get_distribution(
-            'google-cloud-aiplatform',
+            "google-cloud-aiplatform",
         ).version,
     )
 except pkg_resources.DistributionNotFound:
@@ -56,21 +56,21 @@ _API_CORE_VERSION = google.api_core.__version__
 class PipelineServiceTransport(abc.ABC):
     """Abstract transport class for PipelineService."""
 
-    AUTH_SCOPES = (
-        'https://www.googleapis.com/auth/cloud-platform',
-    )
+    AUTH_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
 
-    DEFAULT_HOST: str = 'aiplatform.googleapis.com'
+    DEFAULT_HOST: str = "aiplatform.googleapis.com"
+
     def __init__(
-            self, *,
-            host: str = DEFAULT_HOST,
-            credentials: ga_credentials.Credentials = None,
-            credentials_file: Optional[str] = None,
-            scopes: Optional[Sequence[str]] = None,
-            quota_project_id: Optional[str] = None,
-            client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-            **kwargs,
-            ) -> None:
+        self,
+        *,
+        host: str = DEFAULT_HOST,
+        credentials: ga_credentials.Credentials = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        quota_project_id: Optional[str] = None,
+        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+        **kwargs,
+    ) -> None:
         """Instantiate the transport.
 
         Args:
@@ -94,8 +94,8 @@ class PipelineServiceTransport(abc.ABC):
                 your own client library.
         """
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ':' not in host:
-            host += ':443'
+        if ":" not in host:
+            host += ":443"
         self._host = host
 
         scopes_kwargs = self._get_scopes_kwargs(self._host, scopes)
@@ -106,17 +106,19 @@ class PipelineServiceTransport(abc.ABC):
         # If no credentials are provided, then determine the appropriate
         # defaults.
         if credentials and credentials_file:
-            raise core_exceptions.DuplicateCredentialArgs("'credentials_file' and 'credentials' are mutually exclusive")
+            raise core_exceptions.DuplicateCredentialArgs(
+                "'credentials_file' and 'credentials' are mutually exclusive"
+            )
 
         if credentials_file is not None:
             credentials, _ = google.auth.load_credentials_from_file(
-                                credentials_file,
-                                **scopes_kwargs,
-                                quota_project_id=quota_project_id
-                            )
+                credentials_file, **scopes_kwargs, quota_project_id=quota_project_id
+            )
 
         elif credentials is None:
-            credentials, _ = google.auth.default(**scopes_kwargs, quota_project_id=quota_project_id)
+            credentials, _ = google.auth.default(
+                **scopes_kwargs, quota_project_id=quota_project_id
+            )
 
         # Save the credentials.
         self._credentials = credentials
@@ -128,7 +130,9 @@ class PipelineServiceTransport(abc.ABC):
 
     # TODO: Remove this function once google-auth >= 1.25.0 is required
     @classmethod
-    def _get_scopes_kwargs(cls, host: str, scopes: Optional[Sequence[str]]) -> Dict[str, Optional[Sequence[str]]]:
+    def _get_scopes_kwargs(
+        cls, host: str, scopes: Optional[Sequence[str]]
+    ) -> Dict[str, Optional[Sequence[str]]]:
         """Returns scopes kwargs to pass to google-auth methods depending on the google-auth version"""
 
         scopes_kwargs = {}
@@ -145,7 +149,9 @@ class PipelineServiceTransport(abc.ABC):
 
     # TODO: Remove this function once google-api-core >= 1.26.0 is required
     @classmethod
-    def _get_self_signed_jwt_kwargs(cls, host: str, scopes: Optional[Sequence[str]]) -> Dict[str, Union[Optional[Sequence[str]], str]]:
+    def _get_self_signed_jwt_kwargs(
+        cls, host: str, scopes: Optional[Sequence[str]]
+    ) -> Dict[str, Union[Optional[Sequence[str]], str]]:
         """Returns kwargs to pass to grpc_helpers.create_channel depending on the google-api-core version"""
 
         self_signed_jwt_kwargs: Dict[str, Union[Optional[Sequence[str]], str]] = {}
@@ -190,7 +196,7 @@ class PipelineServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
-         }
+        }
 
     @property
     def operations_client(self) -> operations_v1.OperationsClient:
@@ -198,51 +204,58 @@ class PipelineServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
-    def create_training_pipeline(self) -> Callable[
-            [pipeline_service.CreateTrainingPipelineRequest],
-            Union[
-                gca_training_pipeline.TrainingPipeline,
-                Awaitable[gca_training_pipeline.TrainingPipeline]
-            ]]:
+    def create_training_pipeline(
+        self,
+    ) -> Callable[
+        [pipeline_service.CreateTrainingPipelineRequest],
+        Union[
+            gca_training_pipeline.TrainingPipeline,
+            Awaitable[gca_training_pipeline.TrainingPipeline],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def get_training_pipeline(self) -> Callable[
-            [pipeline_service.GetTrainingPipelineRequest],
-            Union[
-                training_pipeline.TrainingPipeline,
-                Awaitable[training_pipeline.TrainingPipeline]
-            ]]:
+    def get_training_pipeline(
+        self,
+    ) -> Callable[
+        [pipeline_service.GetTrainingPipelineRequest],
+        Union[
+            training_pipeline.TrainingPipeline,
+            Awaitable[training_pipeline.TrainingPipeline],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def list_training_pipelines(self) -> Callable[
-            [pipeline_service.ListTrainingPipelinesRequest],
-            Union[
-                pipeline_service.ListTrainingPipelinesResponse,
-                Awaitable[pipeline_service.ListTrainingPipelinesResponse]
-            ]]:
+    def list_training_pipelines(
+        self,
+    ) -> Callable[
+        [pipeline_service.ListTrainingPipelinesRequest],
+        Union[
+            pipeline_service.ListTrainingPipelinesResponse,
+            Awaitable[pipeline_service.ListTrainingPipelinesResponse],
+        ],
+    ]:
         raise NotImplementedError()
 
     @property
-    def delete_training_pipeline(self) -> Callable[
-            [pipeline_service.DeleteTrainingPipelineRequest],
-            Union[
-                operations_pb2.Operation,
-                Awaitable[operations_pb2.Operation]
-            ]]:
+    def delete_training_pipeline(
+        self,
+    ) -> Callable[
+        [pipeline_service.DeleteTrainingPipelineRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
         raise NotImplementedError()
 
     @property
-    def cancel_training_pipeline(self) -> Callable[
-            [pipeline_service.CancelTrainingPipelineRequest],
-            Union[
-                empty_pb2.Empty,
-                Awaitable[empty_pb2.Empty]
-            ]]:
+    def cancel_training_pipeline(
+        self,
+    ) -> Callable[
+        [pipeline_service.CancelTrainingPipelineRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
         raise NotImplementedError()
 
 
-__all__ = (
-    'PipelineServiceTransport',
-)
+__all__ = ("PipelineServiceTransport",)

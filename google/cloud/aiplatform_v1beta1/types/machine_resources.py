@@ -15,19 +15,21 @@
 #
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import accelerator_type as gca_accelerator_type
+from google.cloud.aiplatform_v1beta1.types import (
+    accelerator_type as gca_accelerator_type,
+)
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
-        'MachineSpec',
-        'DedicatedResources',
-        'AutomaticResources',
-        'BatchDedicatedResources',
-        'ResourcesConsumed',
-        'DiskSpec',
-        'AutoscalingMetricSpec',
+        "MachineSpec",
+        "DedicatedResources",
+        "AutomaticResources",
+        "BatchDedicatedResources",
+        "ResourcesConsumed",
+        "DiskSpec",
+        "AutoscalingMetricSpec",
     },
 )
 
@@ -59,19 +61,11 @@ class MachineSpec(proto.Message):
             machine.
     """
 
-    machine_type = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+    machine_type = proto.Field(proto.STRING, number=1,)
     accelerator_type = proto.Field(
-        proto.ENUM,
-        number=2,
-        enum=gca_accelerator_type.AcceleratorType,
+        proto.ENUM, number=2, enum=gca_accelerator_type.AcceleratorType,
     )
-    accelerator_count = proto.Field(
-        proto.INT32,
-        number=3,
-    )
+    accelerator_count = proto.Field(proto.INT32, number=3,)
 
 
 class DedicatedResources(proto.Message):
@@ -135,23 +129,11 @@ class DedicatedResources(proto.Message):
             to ``80``.
     """
 
-    machine_spec = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message='MachineSpec',
-    )
-    min_replica_count = proto.Field(
-        proto.INT32,
-        number=2,
-    )
-    max_replica_count = proto.Field(
-        proto.INT32,
-        number=3,
-    )
+    machine_spec = proto.Field(proto.MESSAGE, number=1, message="MachineSpec",)
+    min_replica_count = proto.Field(proto.INT32, number=2,)
+    max_replica_count = proto.Field(proto.INT32, number=3,)
     autoscaling_metric_specs = proto.RepeatedField(
-        proto.MESSAGE,
-        number=4,
-        message='AutoscalingMetricSpec',
+        proto.MESSAGE, number=4, message="AutoscalingMetricSpec",
     )
 
 
@@ -187,14 +169,8 @@ class AutomaticResources(proto.Message):
             number.
     """
 
-    min_replica_count = proto.Field(
-        proto.INT32,
-        number=1,
-    )
-    max_replica_count = proto.Field(
-        proto.INT32,
-        number=2,
-    )
+    min_replica_count = proto.Field(proto.INT32, number=1,)
+    max_replica_count = proto.Field(proto.INT32, number=2,)
 
 
 class BatchDedicatedResources(proto.Message):
@@ -217,19 +193,9 @@ class BatchDedicatedResources(proto.Message):
             The default value is 10.
     """
 
-    machine_spec = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message='MachineSpec',
-    )
-    starting_replica_count = proto.Field(
-        proto.INT32,
-        number=2,
-    )
-    max_replica_count = proto.Field(
-        proto.INT32,
-        number=3,
-    )
+    machine_spec = proto.Field(proto.MESSAGE, number=1, message="MachineSpec",)
+    starting_replica_count = proto.Field(proto.INT32, number=2,)
+    max_replica_count = proto.Field(proto.INT32, number=3,)
 
 
 class ResourcesConsumed(proto.Message):
@@ -243,10 +209,7 @@ class ResourcesConsumed(proto.Message):
             not strictly related to wall time.
     """
 
-    replica_hours = proto.Field(
-        proto.DOUBLE,
-        number=1,
-    )
+    replica_hours = proto.Field(proto.DOUBLE, number=1,)
 
 
 class DiskSpec(proto.Message):
@@ -262,14 +225,8 @@ class DiskSpec(proto.Message):
             100GB).
     """
 
-    boot_disk_type = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    boot_disk_size_gb = proto.Field(
-        proto.INT32,
-        number=2,
-    )
+    boot_disk_type = proto.Field(proto.STRING, number=1,)
+    boot_disk_size_gb = proto.Field(proto.INT32, number=2,)
 
 
 class AutoscalingMetricSpec(proto.Message):
@@ -293,14 +250,8 @@ class AutoscalingMetricSpec(proto.Message):
             provided.
     """
 
-    metric_name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    target = proto.Field(
-        proto.INT32,
-        number=2,
-    )
+    metric_name = proto.Field(proto.STRING, number=1,)
+    target = proto.Field(proto.INT32, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

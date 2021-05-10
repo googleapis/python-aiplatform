@@ -13,7 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple, Optional
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1.types import endpoint
 from google.cloud.aiplatform_v1.types import endpoint_service
@@ -36,12 +45,15 @@ class ListEndpointsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., endpoint_service.ListEndpointsResponse],
-            request: endpoint_service.ListEndpointsRequest,
-            response: endpoint_service.ListEndpointsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., endpoint_service.ListEndpointsResponse],
+        request: endpoint_service.ListEndpointsRequest,
+        response: endpoint_service.ListEndpointsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -75,7 +87,7 @@ class ListEndpointsPager:
             yield from page.endpoints
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListEndpointsAsyncPager:
@@ -95,12 +107,15 @@ class ListEndpointsAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[endpoint_service.ListEndpointsResponse]],
-            request: endpoint_service.ListEndpointsRequest,
-            response: endpoint_service.ListEndpointsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[endpoint_service.ListEndpointsResponse]],
+        request: endpoint_service.ListEndpointsRequest,
+        response: endpoint_service.ListEndpointsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -138,4 +153,4 @@ class ListEndpointsAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

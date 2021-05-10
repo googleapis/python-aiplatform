@@ -17,11 +17,11 @@ import proto  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1.schema.trainingjob.definition',
+    package="google.cloud.aiplatform.v1.schema.trainingjob.definition",
     manifest={
-        'AutoMlImageClassification',
-        'AutoMlImageClassificationInputs',
-        'AutoMlImageClassificationMetadata',
+        "AutoMlImageClassification",
+        "AutoMlImageClassificationInputs",
+        "AutoMlImageClassificationMetadata",
     },
 )
 
@@ -38,14 +38,10 @@ class AutoMlImageClassification(proto.Message):
     """
 
     inputs = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message='AutoMlImageClassificationInputs',
+        proto.MESSAGE, number=1, message="AutoMlImageClassificationInputs",
     )
     metadata = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message='AutoMlImageClassificationMetadata',
+        proto.MESSAGE, number=2, message="AutoMlImageClassificationMetadata",
     )
 
 
@@ -92,6 +88,7 @@ class AutoMlImageClassificationInputs(proto.Message):
             be trained (i.e. assuming that for each image
             multiple annotations may be applicable).
     """
+
     class ModelType(proto.Enum):
         r""""""
         MODEL_TYPE_UNSPECIFIED = 0
@@ -100,27 +97,11 @@ class AutoMlImageClassificationInputs(proto.Message):
         MOBILE_TF_VERSATILE_1 = 3
         MOBILE_TF_HIGH_ACCURACY_1 = 4
 
-    model_type = proto.Field(
-        proto.ENUM,
-        number=1,
-        enum=ModelType,
-    )
-    base_model_id = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    budget_milli_node_hours = proto.Field(
-        proto.INT64,
-        number=3,
-    )
-    disable_early_stopping = proto.Field(
-        proto.BOOL,
-        number=4,
-    )
-    multi_label = proto.Field(
-        proto.BOOL,
-        number=5,
-    )
+    model_type = proto.Field(proto.ENUM, number=1, enum=ModelType,)
+    base_model_id = proto.Field(proto.STRING, number=2,)
+    budget_milli_node_hours = proto.Field(proto.INT64, number=3,)
+    disable_early_stopping = proto.Field(proto.BOOL, number=4,)
+    multi_label = proto.Field(proto.BOOL, number=5,)
 
 
 class AutoMlImageClassificationMetadata(proto.Message):
@@ -136,20 +117,16 @@ class AutoMlImageClassificationMetadata(proto.Message):
             For successful job completions, this is the
             reason why the job has finished.
     """
+
     class SuccessfulStopReason(proto.Enum):
         r""""""
         SUCCESSFUL_STOP_REASON_UNSPECIFIED = 0
         BUDGET_REACHED = 1
         MODEL_CONVERGED = 2
 
-    cost_milli_node_hours = proto.Field(
-        proto.INT64,
-        number=1,
-    )
+    cost_milli_node_hours = proto.Field(proto.INT64, number=1,)
     successful_stop_reason = proto.Field(
-        proto.ENUM,
-        number=2,
-        enum=SuccessfulStopReason,
+        proto.ENUM, number=2, enum=SuccessfulStopReason,
     )
 
 

@@ -13,7 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, Sequence, Tuple, Optional
+from typing import (
+    Any,
+    AsyncIterable,
+    Awaitable,
+    Callable,
+    Iterable,
+    Sequence,
+    Tuple,
+    Optional,
+)
 
 from google.cloud.aiplatform_v1beta1.types import pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
@@ -37,12 +46,15 @@ class ListTrainingPipelinesPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., pipeline_service.ListTrainingPipelinesResponse],
-            request: pipeline_service.ListTrainingPipelinesRequest,
-            response: pipeline_service.ListTrainingPipelinesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., pipeline_service.ListTrainingPipelinesResponse],
+        request: pipeline_service.ListTrainingPipelinesRequest,
+        response: pipeline_service.ListTrainingPipelinesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -76,7 +88,7 @@ class ListTrainingPipelinesPager:
             yield from page.training_pipelines
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListTrainingPipelinesAsyncPager:
@@ -96,12 +108,17 @@ class ListTrainingPipelinesAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[pipeline_service.ListTrainingPipelinesResponse]],
-            request: pipeline_service.ListTrainingPipelinesRequest,
-            response: pipeline_service.ListTrainingPipelinesResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., Awaitable[pipeline_service.ListTrainingPipelinesResponse]
+        ],
+        request: pipeline_service.ListTrainingPipelinesRequest,
+        response: pipeline_service.ListTrainingPipelinesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -123,7 +140,9 @@ class ListTrainingPipelinesAsyncPager:
         return getattr(self._response, name)
 
     @property
-    async def pages(self) -> AsyncIterable[pipeline_service.ListTrainingPipelinesResponse]:
+    async def pages(
+        self,
+    ) -> AsyncIterable[pipeline_service.ListTrainingPipelinesResponse]:
         yield self._response
         while self._response.next_page_token:
             self._request.page_token = self._response.next_page_token
@@ -139,7 +158,7 @@ class ListTrainingPipelinesAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListPipelineJobsPager:
@@ -159,12 +178,15 @@ class ListPipelineJobsPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., pipeline_service.ListPipelineJobsResponse],
-            request: pipeline_service.ListPipelineJobsRequest,
-            response: pipeline_service.ListPipelineJobsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., pipeline_service.ListPipelineJobsResponse],
+        request: pipeline_service.ListPipelineJobsRequest,
+        response: pipeline_service.ListPipelineJobsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -198,7 +220,7 @@ class ListPipelineJobsPager:
             yield from page.pipeline_jobs
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListPipelineJobsAsyncPager:
@@ -218,12 +240,15 @@ class ListPipelineJobsAsyncPager:
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
-    def __init__(self,
-            method: Callable[..., Awaitable[pipeline_service.ListPipelineJobsResponse]],
-            request: pipeline_service.ListPipelineJobsRequest,
-            response: pipeline_service.ListPipelineJobsResponse,
-            *,
-            metadata: Sequence[Tuple[str, str]] = ()):
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[pipeline_service.ListPipelineJobsResponse]],
+        request: pipeline_service.ListPipelineJobsRequest,
+        response: pipeline_service.ListPipelineJobsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
         """Instantiate the pager.
 
         Args:
@@ -261,4 +286,4 @@ class ListPipelineJobsAsyncPager:
         return async_generator()
 
     def __repr__(self) -> str:
-        return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

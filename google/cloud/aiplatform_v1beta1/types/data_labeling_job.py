@@ -24,12 +24,12 @@ from google.type import money_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package='google.cloud.aiplatform.v1beta1',
+    package="google.cloud.aiplatform.v1beta1",
     manifest={
-        'DataLabelingJob',
-        'ActiveLearningConfig',
-        'SampleConfig',
-        'TrainingConfig',
+        "DataLabelingJob",
+        "ActiveLearningConfig",
+        "SampleConfig",
+        "TrainingConfig",
     },
 )
 
@@ -137,87 +137,29 @@ class DataLabelingJob(proto.Message):
             on the sampling strategy.
     """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    display_name = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    datasets = proto.RepeatedField(
-        proto.STRING,
-        number=3,
-    )
-    annotation_labels = proto.MapField(
-        proto.STRING,
-        proto.STRING,
-        number=12,
-    )
-    labeler_count = proto.Field(
-        proto.INT32,
-        number=4,
-    )
-    instruction_uri = proto.Field(
-        proto.STRING,
-        number=5,
-    )
-    inputs_schema_uri = proto.Field(
-        proto.STRING,
-        number=6,
-    )
-    inputs = proto.Field(
-        proto.MESSAGE,
-        number=7,
-        message=struct_pb2.Value,
-    )
-    state = proto.Field(
-        proto.ENUM,
-        number=8,
-        enum=job_state.JobState,
-    )
-    labeling_progress = proto.Field(
-        proto.INT32,
-        number=13,
-    )
-    current_spend = proto.Field(
-        proto.MESSAGE,
-        number=14,
-        message=money_pb2.Money,
-    )
-    create_time = proto.Field(
-        proto.MESSAGE,
-        number=9,
-        message=timestamp_pb2.Timestamp,
-    )
+    name = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
+    datasets = proto.RepeatedField(proto.STRING, number=3,)
+    annotation_labels = proto.MapField(proto.STRING, proto.STRING, number=12,)
+    labeler_count = proto.Field(proto.INT32, number=4,)
+    instruction_uri = proto.Field(proto.STRING, number=5,)
+    inputs_schema_uri = proto.Field(proto.STRING, number=6,)
+    inputs = proto.Field(proto.MESSAGE, number=7, message=struct_pb2.Value,)
+    state = proto.Field(proto.ENUM, number=8, enum=job_state.JobState,)
+    labeling_progress = proto.Field(proto.INT32, number=13,)
+    current_spend = proto.Field(proto.MESSAGE, number=14, message=money_pb2.Money,)
+    create_time = proto.Field(proto.MESSAGE, number=9, message=timestamp_pb2.Timestamp,)
     update_time = proto.Field(
-        proto.MESSAGE,
-        number=10,
-        message=timestamp_pb2.Timestamp,
+        proto.MESSAGE, number=10, message=timestamp_pb2.Timestamp,
     )
-    error = proto.Field(
-        proto.MESSAGE,
-        number=22,
-        message=status_pb2.Status,
-    )
-    labels = proto.MapField(
-        proto.STRING,
-        proto.STRING,
-        number=11,
-    )
-    specialist_pools = proto.RepeatedField(
-        proto.STRING,
-        number=16,
-    )
+    error = proto.Field(proto.MESSAGE, number=22, message=status_pb2.Status,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=11,)
+    specialist_pools = proto.RepeatedField(proto.STRING, number=16,)
     encryption_spec = proto.Field(
-        proto.MESSAGE,
-        number=20,
-        message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE, number=20, message=gca_encryption_spec.EncryptionSpec,
     )
     active_learning_config = proto.Field(
-        proto.MESSAGE,
-        number=21,
-        message='ActiveLearningConfig',
+        proto.MESSAGE, number=21, message="ActiveLearningConfig",
     )
 
 
@@ -247,25 +189,13 @@ class ActiveLearningConfig(proto.Message):
     """
 
     max_data_item_count = proto.Field(
-        proto.INT64,
-        number=1,
-        oneof='human_labeling_budget',
+        proto.INT64, number=1, oneof="human_labeling_budget",
     )
     max_data_item_percentage = proto.Field(
-        proto.INT32,
-        number=2,
-        oneof='human_labeling_budget',
+        proto.INT32, number=2, oneof="human_labeling_budget",
     )
-    sample_config = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        message='SampleConfig',
-    )
-    training_config = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        message='TrainingConfig',
-    )
+    sample_config = proto.Field(proto.MESSAGE, number=3, message="SampleConfig",)
+    training_config = proto.Field(proto.MESSAGE, number=4, message="TrainingConfig",)
 
 
 class SampleConfig(proto.Message):
@@ -286,6 +216,7 @@ class SampleConfig(proto.Message):
             strategy will decide which data should be
             selected for human labeling in every batch.
     """
+
     class SampleStrategy(proto.Enum):
         r"""Sample strategy decides which subset of DataItems should be
         selected for human labeling in every batch.
@@ -294,20 +225,12 @@ class SampleConfig(proto.Message):
         UNCERTAINTY = 1
 
     initial_batch_sample_percentage = proto.Field(
-        proto.INT32,
-        number=1,
-        oneof='initial_batch_sample_size',
+        proto.INT32, number=1, oneof="initial_batch_sample_size",
     )
     following_batch_sample_percentage = proto.Field(
-        proto.INT32,
-        number=3,
-        oneof='following_batch_sample_size',
+        proto.INT32, number=3, oneof="following_batch_sample_size",
     )
-    sample_strategy = proto.Field(
-        proto.ENUM,
-        number=5,
-        enum=SampleStrategy,
-    )
+    sample_strategy = proto.Field(proto.ENUM, number=5, enum=SampleStrategy,)
 
 
 class TrainingConfig(proto.Message):
@@ -323,10 +246,7 @@ class TrainingConfig(proto.Message):
             this field means 1 hour.
     """
 
-    timeout_training_milli_hours = proto.Field(
-        proto.INT64,
-        number=1,
-    )
+    timeout_training_milli_hours = proto.Field(proto.INT64, number=1,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
