@@ -622,7 +622,10 @@ class TestCustomTrainingJob:
         )
 
         true_args = _TEST_RUN_ARGS
-        true_env = _TEST_ENVIRONMENT_VARIABLES
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
 
         true_worker_pool_spec = {
             "replicaCount": _TEST_REPLICA_COUNT,
@@ -777,7 +780,10 @@ class TestCustomTrainingJob:
             model_from_job.wait()
 
         true_args = _TEST_RUN_ARGS
-        true_env = _TEST_ENVIRONMENT_VARIABLES
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
 
         true_worker_pool_spec = {
             "replicaCount": _TEST_REPLICA_COUNT,
@@ -1049,7 +1055,10 @@ class TestCustomTrainingJob:
         )
 
         true_args = _TEST_RUN_ARGS
-        true_env = _TEST_ENVIRONMENT_VARIABLES
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
 
         true_worker_pool_spec = {
             "replicaCount": _TEST_REPLICA_COUNT,
@@ -1297,7 +1306,10 @@ class TestCustomTrainingJob:
         )
 
         true_args = _TEST_RUN_ARGS
-        true_env = _TEST_ENVIRONMENT_VARIABLES
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
 
         true_worker_pool_spec = [
             {
@@ -1763,7 +1775,10 @@ class TestCustomContainerTrainingJob:
             model_from_job.wait()
 
         true_args = _TEST_RUN_ARGS
-        true_env = _TEST_ENVIRONMENT_VARIABLES
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
 
         true_worker_pool_spec = {
             "replicaCount": _TEST_REPLICA_COUNT,
@@ -2972,7 +2987,10 @@ class TestCustomPythonPackageTrainingJob:
             model_from_job.wait()
 
         true_args = _TEST_RUN_ARGS
-        true_env = _TEST_ENVIRONMENT_VARIABLES
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
 
         true_worker_pool_spec = {
             "replicaCount": _TEST_REPLICA_COUNT,
