@@ -2151,7 +2151,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network
+            network=network,
         )
 
         model = self._run_job(
@@ -2717,7 +2717,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network
+            network=network,
         )
 
         model = self._run_job(

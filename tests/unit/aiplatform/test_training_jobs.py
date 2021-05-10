@@ -3053,7 +3053,7 @@ class TestCustomPythonPackageTrainingJob:
                     "workerPoolSpecs": [true_worker_pool_spec],
                     "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
                     "serviceAccount": _TEST_SERVICE_ACCOUNT,
-                    "network": _TEST_NETWORK
+                    "network": _TEST_NETWORK,
                 },
                 struct_pb2.Value(),
             ),
