@@ -23,6 +23,7 @@ from google.cloud.aiplatform.datasets import (
     ImageDataset,
     TabularDataset,
     TextDataset,
+    TimeSeriesDataset,
     VideoDataset,
 )
 from google.cloud.aiplatform.models import Endpoint
@@ -33,6 +34,7 @@ from google.cloud.aiplatform.training_jobs import (
     CustomContainerTrainingJob,
     CustomPythonPackageTrainingJob,
     AutoMLTabularTrainingJob,
+    AutoMLForecastingTrainingJob,
     AutoMLImageTrainingJob,
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
@@ -65,6 +67,7 @@ __all__ = (
     "start_run",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
+    "AutoMLForecastingTrainingJob",
     "AutoMLTextTrainingJob",
     "AutoMLVideoTrainingJob",
     "BatchPredictionJob",
@@ -76,5 +79,6 @@ __all__ = (
     "Model",
     "TabularDataset",
     "TextDataset",
+    "TimeSeriesDataset",
     "VideoDataset",
 )
