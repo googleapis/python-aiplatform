@@ -23,6 +23,7 @@ from google.cloud.aiplatform.datasets import (
     ImageDataset,
     TabularDataset,
     TextDataset,
+    TimeSeriesDataset,
     VideoDataset,
 )
 from google.cloud.aiplatform.models import Endpoint
