@@ -31,24 +31,22 @@ from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_service import (
-    FeaturestoreOnlineServingServiceAsyncClient,
+from google.cloud.aiplatform_v1.services.prediction_service import (
+    PredictionServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_service import (
-    FeaturestoreOnlineServingServiceClient,
+from google.cloud.aiplatform_v1.services.prediction_service import (
+    PredictionServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_service import (
-    transports,
-)
-from google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_service.transports.base import (
+from google.cloud.aiplatform_v1.services.prediction_service import transports
+from google.cloud.aiplatform_v1.services.prediction_service.transports.base import (
     _API_CORE_VERSION,
 )
-from google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_service.transports.base import (
+from google.cloud.aiplatform_v1.services.prediction_service.transports.base import (
     _GOOGLE_AUTH_VERSION,
 )
-from google.cloud.aiplatform_v1beta1.types import feature_selector
-from google.cloud.aiplatform_v1beta1.types import featurestore_online_service
+from google.cloud.aiplatform_v1.types import prediction_service
 from google.oauth2 import service_account
+from google.protobuf import struct_pb2  # type: ignore
 import google.auth
 
 
@@ -97,47 +95,33 @@ def test__get_default_mtls_endpoint():
     sandbox_mtls_endpoint = "example.mtls.sandbox.googleapis.com"
     non_googleapi = "api.example.com"
 
+    assert PredictionServiceClient._get_default_mtls_endpoint(None) is None
     assert (
-        FeaturestoreOnlineServingServiceClient._get_default_mtls_endpoint(None) is None
-    )
-    assert (
-        FeaturestoreOnlineServingServiceClient._get_default_mtls_endpoint(api_endpoint)
+        PredictionServiceClient._get_default_mtls_endpoint(api_endpoint)
         == api_mtls_endpoint
     )
     assert (
-        FeaturestoreOnlineServingServiceClient._get_default_mtls_endpoint(
-            api_mtls_endpoint
-        )
+        PredictionServiceClient._get_default_mtls_endpoint(api_mtls_endpoint)
         == api_mtls_endpoint
     )
     assert (
-        FeaturestoreOnlineServingServiceClient._get_default_mtls_endpoint(
-            sandbox_endpoint
-        )
+        PredictionServiceClient._get_default_mtls_endpoint(sandbox_endpoint)
         == sandbox_mtls_endpoint
     )
     assert (
-        FeaturestoreOnlineServingServiceClient._get_default_mtls_endpoint(
-            sandbox_mtls_endpoint
-        )
+        PredictionServiceClient._get_default_mtls_endpoint(sandbox_mtls_endpoint)
         == sandbox_mtls_endpoint
     )
     assert (
-        FeaturestoreOnlineServingServiceClient._get_default_mtls_endpoint(non_googleapi)
+        PredictionServiceClient._get_default_mtls_endpoint(non_googleapi)
         == non_googleapi
     )
 
 
 @pytest.mark.parametrize(
-    "client_class",
-    [
-        FeaturestoreOnlineServingServiceClient,
-        FeaturestoreOnlineServingServiceAsyncClient,
-    ],
+    "client_class", [PredictionServiceClient, PredictionServiceAsyncClient,]
 )
-def test_featurestore_online_serving_service_client_from_service_account_info(
-    client_class,
-):
+def test_prediction_service_client_from_service_account_info(client_class):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
@@ -152,15 +136,9 @@ def test_featurestore_online_serving_service_client_from_service_account_info(
 
 
 @pytest.mark.parametrize(
-    "client_class",
-    [
-        FeaturestoreOnlineServingServiceClient,
-        FeaturestoreOnlineServingServiceAsyncClient,
-    ],
+    "client_class", [PredictionServiceClient, PredictionServiceAsyncClient,]
 )
-def test_featurestore_online_serving_service_client_from_service_account_file(
-    client_class,
-):
+def test_prediction_service_client_from_service_account_file(client_class):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_file"
@@ -177,57 +155,49 @@ def test_featurestore_online_serving_service_client_from_service_account_file(
         assert client.transport._host == "aiplatform.googleapis.com:443"
 
 
-def test_featurestore_online_serving_service_client_get_transport_class():
-    transport = FeaturestoreOnlineServingServiceClient.get_transport_class()
+def test_prediction_service_client_get_transport_class():
+    transport = PredictionServiceClient.get_transport_class()
     available_transports = [
-        transports.FeaturestoreOnlineServingServiceGrpcTransport,
+        transports.PredictionServiceGrpcTransport,
     ]
     assert transport in available_transports
 
-    transport = FeaturestoreOnlineServingServiceClient.get_transport_class("grpc")
-    assert transport == transports.FeaturestoreOnlineServingServiceGrpcTransport
+    transport = PredictionServiceClient.get_transport_class("grpc")
+    assert transport == transports.PredictionServiceGrpcTransport
 
 
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
     [
+        (PredictionServiceClient, transports.PredictionServiceGrpcTransport, "grpc"),
         (
-            FeaturestoreOnlineServingServiceClient,
-            transports.FeaturestoreOnlineServingServiceGrpcTransport,
-            "grpc",
-        ),
-        (
-            FeaturestoreOnlineServingServiceAsyncClient,
-            transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
+            PredictionServiceAsyncClient,
+            transports.PredictionServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
     ],
 )
 @mock.patch.object(
-    FeaturestoreOnlineServingServiceClient,
+    PredictionServiceClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(FeaturestoreOnlineServingServiceClient),
+    modify_default_endpoint(PredictionServiceClient),
 )
 @mock.patch.object(
-    FeaturestoreOnlineServingServiceAsyncClient,
+    PredictionServiceAsyncClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(FeaturestoreOnlineServingServiceAsyncClient),
+    modify_default_endpoint(PredictionServiceAsyncClient),
 )
-def test_featurestore_online_serving_service_client_client_options(
+def test_prediction_service_client_client_options(
     client_class, transport_class, transport_name
 ):
     # Check that if channel is provided we won't create a new one.
-    with mock.patch.object(
-        FeaturestoreOnlineServingServiceClient, "get_transport_class"
-    ) as gtc:
+    with mock.patch.object(PredictionServiceClient, "get_transport_class") as gtc:
         transport = transport_class(credentials=ga_credentials.AnonymousCredentials())
         client = client_class(transport=transport)
         gtc.assert_not_called()
 
     # Check that if channel is provided via str we will create a new one.
-    with mock.patch.object(
-        FeaturestoreOnlineServingServiceClient, "get_transport_class"
-    ) as gtc:
+    with mock.patch.object(PredictionServiceClient, "get_transport_class") as gtc:
         client = client_class(transport=transport_name)
         gtc.assert_called()
 
@@ -311,43 +281,43 @@ def test_featurestore_online_serving_service_client_client_options(
     "client_class,transport_class,transport_name,use_client_cert_env",
     [
         (
-            FeaturestoreOnlineServingServiceClient,
-            transports.FeaturestoreOnlineServingServiceGrpcTransport,
+            PredictionServiceClient,
+            transports.PredictionServiceGrpcTransport,
             "grpc",
             "true",
         ),
         (
-            FeaturestoreOnlineServingServiceAsyncClient,
-            transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
+            PredictionServiceAsyncClient,
+            transports.PredictionServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             "true",
         ),
         (
-            FeaturestoreOnlineServingServiceClient,
-            transports.FeaturestoreOnlineServingServiceGrpcTransport,
+            PredictionServiceClient,
+            transports.PredictionServiceGrpcTransport,
             "grpc",
             "false",
         ),
         (
-            FeaturestoreOnlineServingServiceAsyncClient,
-            transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
+            PredictionServiceAsyncClient,
+            transports.PredictionServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             "false",
         ),
     ],
 )
 @mock.patch.object(
-    FeaturestoreOnlineServingServiceClient,
+    PredictionServiceClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(FeaturestoreOnlineServingServiceClient),
+    modify_default_endpoint(PredictionServiceClient),
 )
 @mock.patch.object(
-    FeaturestoreOnlineServingServiceAsyncClient,
+    PredictionServiceAsyncClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(FeaturestoreOnlineServingServiceAsyncClient),
+    modify_default_endpoint(PredictionServiceAsyncClient),
 )
 @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"})
-def test_featurestore_online_serving_service_client_mtls_env_auto(
+def test_prediction_service_client_mtls_env_auto(
     client_class, transport_class, transport_name, use_client_cert_env
 ):
     # This tests the endpoint autoswitch behavior. Endpoint is autoswitched to the default
@@ -440,19 +410,15 @@ def test_featurestore_online_serving_service_client_mtls_env_auto(
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
     [
+        (PredictionServiceClient, transports.PredictionServiceGrpcTransport, "grpc"),
         (
-            FeaturestoreOnlineServingServiceClient,
-            transports.FeaturestoreOnlineServingServiceGrpcTransport,
-            "grpc",
-        ),
-        (
-            FeaturestoreOnlineServingServiceAsyncClient,
-            transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
+            PredictionServiceAsyncClient,
+            transports.PredictionServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
     ],
 )
-def test_featurestore_online_serving_service_client_client_options_scopes(
+def test_prediction_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
@@ -474,19 +440,15 @@ def test_featurestore_online_serving_service_client_client_options_scopes(
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
     [
+        (PredictionServiceClient, transports.PredictionServiceGrpcTransport, "grpc"),
         (
-            FeaturestoreOnlineServingServiceClient,
-            transports.FeaturestoreOnlineServingServiceGrpcTransport,
-            "grpc",
-        ),
-        (
-            FeaturestoreOnlineServingServiceAsyncClient,
-            transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
+            PredictionServiceAsyncClient,
+            transports.PredictionServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
     ],
 )
-def test_featurestore_online_serving_service_client_client_options_credentials_file(
+def test_prediction_service_client_client_options_credentials_file(
     client_class, transport_class, transport_name
 ):
     # Check the case credentials file is provided.
@@ -505,12 +467,12 @@ def test_featurestore_online_serving_service_client_client_options_credentials_f
         )
 
 
-def test_featurestore_online_serving_service_client_client_options_from_dict():
+def test_prediction_service_client_client_options_from_dict():
     with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_service.transports.FeaturestoreOnlineServingServiceGrpcTransport.__init__"
+        "google.cloud.aiplatform_v1.services.prediction_service.transports.PredictionServiceGrpcTransport.__init__"
     ) as grpc_transport:
         grpc_transport.return_value = None
-        client = FeaturestoreOnlineServingServiceClient(
+        client = PredictionServiceClient(
             client_options={"api_endpoint": "squid.clam.whelk"}
         )
         grpc_transport.assert_called_once_with(
@@ -524,11 +486,10 @@ def test_featurestore_online_serving_service_client_client_options_from_dict():
         )
 
 
-def test_read_feature_values(
-    transport: str = "grpc",
-    request_type=featurestore_online_service.ReadFeatureValuesRequest,
+def test_predict(
+    transport: str = "grpc", request_type=prediction_service.PredictRequest
 ):
-    client = FeaturestoreOnlineServingServiceClient(
+    client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
@@ -537,49 +498,47 @@ def test_read_feature_values(
     request = request_type()
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_feature_values), "__call__"
-    ) as call:
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = featurestore_online_service.ReadFeatureValuesResponse()
-        response = client.read_feature_values(request)
+        call.return_value = prediction_service.PredictResponse(
+            deployed_model_id="deployed_model_id_value",
+        )
+        response = client.predict(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == featurestore_online_service.ReadFeatureValuesRequest()
+        assert args[0] == prediction_service.PredictRequest()
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, featurestore_online_service.ReadFeatureValuesResponse)
+    assert isinstance(response, prediction_service.PredictResponse)
+    assert response.deployed_model_id == "deployed_model_id_value"
 
 
-def test_read_feature_values_from_dict():
-    test_read_feature_values(request_type=dict)
+def test_predict_from_dict():
+    test_predict(request_type=dict)
 
 
-def test_read_feature_values_empty_call():
+def test_predict_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = FeaturestoreOnlineServingServiceClient(
+    client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_feature_values), "__call__"
-    ) as call:
-        client.read_feature_values()
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
+        client.predict()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == featurestore_online_service.ReadFeatureValuesRequest()
+        assert args[0] == prediction_service.PredictRequest()
 
 
 @pytest.mark.asyncio
-async def test_read_feature_values_async(
-    transport: str = "grpc_asyncio",
-    request_type=featurestore_online_service.ReadFeatureValuesRequest,
+async def test_predict_async(
+    transport: str = "grpc_asyncio", request_type=prediction_service.PredictRequest
 ):
-    client = FeaturestoreOnlineServingServiceAsyncClient(
+    client = PredictionServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
@@ -588,46 +547,43 @@ async def test_read_feature_values_async(
     request = request_type()
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_feature_values), "__call__"
-    ) as call:
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            featurestore_online_service.ReadFeatureValuesResponse()
+            prediction_service.PredictResponse(
+                deployed_model_id="deployed_model_id_value",
+            )
         )
-        response = await client.read_feature_values(request)
+        response = await client.predict(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == featurestore_online_service.ReadFeatureValuesRequest()
+        assert args[0] == prediction_service.PredictRequest()
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, featurestore_online_service.ReadFeatureValuesResponse)
+    assert isinstance(response, prediction_service.PredictResponse)
+    assert response.deployed_model_id == "deployed_model_id_value"
 
 
 @pytest.mark.asyncio
-async def test_read_feature_values_async_from_dict():
-    await test_read_feature_values_async(request_type=dict)
+async def test_predict_async_from_dict():
+    await test_predict_async(request_type=dict)
 
 
-def test_read_feature_values_field_headers():
-    client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+def test_predict_field_headers():
+    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = featurestore_online_service.ReadFeatureValuesRequest()
+    request = prediction_service.PredictRequest()
 
-    request.entity_type = "entity_type/value"
+    request.endpoint = "endpoint/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_feature_values), "__call__"
-    ) as call:
-        call.return_value = featurestore_online_service.ReadFeatureValuesResponse()
-        client.read_feature_values(request)
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
+        call.return_value = prediction_service.PredictResponse()
+        client.predict(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -636,29 +592,27 @@ def test_read_feature_values_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type=entity_type/value",) in kw["metadata"]
+    assert ("x-goog-request-params", "endpoint=endpoint/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
-async def test_read_feature_values_field_headers_async():
-    client = FeaturestoreOnlineServingServiceAsyncClient(
+async def test_predict_field_headers_async():
+    client = PredictionServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = featurestore_online_service.ReadFeatureValuesRequest()
+    request = prediction_service.PredictRequest()
 
-    request.entity_type = "entity_type/value"
+    request.endpoint = "endpoint/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_feature_values), "__call__"
-    ) as call:
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            featurestore_online_service.ReadFeatureValuesResponse()
+            prediction_service.PredictResponse()
         )
-        await client.read_feature_values(request)
+        await client.predict(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
@@ -667,379 +621,149 @@ async def test_read_feature_values_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type=entity_type/value",) in kw["metadata"]
+    assert ("x-goog-request-params", "endpoint=endpoint/value",) in kw["metadata"]
 
 
-def test_read_feature_values_flattened():
-    client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+def test_predict_flattened():
+    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_feature_values), "__call__"
-    ) as call:
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = featurestore_online_service.ReadFeatureValuesResponse()
+        call.return_value = prediction_service.PredictResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.read_feature_values(entity_type="entity_type_value",)
+        client.predict(
+            endpoint="endpoint_value",
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
+            parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == "entity_type_value"
+        assert args[0].endpoint == "endpoint_value"
+        assert args[0].instances == [
+            struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)
+        ]
+        # https://github.com/googleapis/gapic-generator-python/issues/414
+        # assert args[0].parameters == struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)
 
 
-def test_read_feature_values_flattened_error():
-    client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
+def test_predict_flattened_error():
+    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.read_feature_values(
-            featurestore_online_service.ReadFeatureValuesRequest(),
-            entity_type="entity_type_value",
+        client.predict(
+            prediction_service.PredictRequest(),
+            endpoint="endpoint_value",
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
+            parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
         )
 
 
 @pytest.mark.asyncio
-async def test_read_feature_values_flattened_async():
-    client = FeaturestoreOnlineServingServiceAsyncClient(
+async def test_predict_flattened_async():
+    client = PredictionServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.read_feature_values), "__call__"
-    ) as call:
+    with mock.patch.object(type(client.transport.predict), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = featurestore_online_service.ReadFeatureValuesResponse()
+        call.return_value = prediction_service.PredictResponse()
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            featurestore_online_service.ReadFeatureValuesResponse()
+            prediction_service.PredictResponse()
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.read_feature_values(entity_type="entity_type_value",)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == "entity_type_value"
-
-
-@pytest.mark.asyncio
-async def test_read_feature_values_flattened_error_async():
-    client = FeaturestoreOnlineServingServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        await client.read_feature_values(
-            featurestore_online_service.ReadFeatureValuesRequest(),
-            entity_type="entity_type_value",
-        )
-
-
-def test_streaming_read_feature_values(
-    transport: str = "grpc",
-    request_type=featurestore_online_service.StreamingReadFeatureValuesRequest,
-):
-    client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.streaming_read_feature_values), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = iter(
-            [featurestore_online_service.ReadFeatureValuesResponse()]
-        )
-        response = client.streaming_read_feature_values(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert (
-            args[0] == featurestore_online_service.StreamingReadFeatureValuesRequest()
-        )
-
-    # Establish that the response is the type that we expect.
-    for message in response:
-        assert isinstance(
-            message, featurestore_online_service.ReadFeatureValuesResponse
-        )
-
-
-def test_streaming_read_feature_values_from_dict():
-    test_streaming_read_feature_values(request_type=dict)
-
-
-def test_streaming_read_feature_values_empty_call():
-    # This test is a coverage failsafe to make sure that totally empty calls,
-    # i.e. request == None and no flattened fields passed, work.
-    client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.streaming_read_feature_values), "__call__"
-    ) as call:
-        client.streaming_read_feature_values()
-        call.assert_called()
-        _, args, _ = call.mock_calls[0]
-        assert (
-            args[0] == featurestore_online_service.StreamingReadFeatureValuesRequest()
-        )
-
-
-@pytest.mark.asyncio
-async def test_streaming_read_feature_values_async(
-    transport: str = "grpc_asyncio",
-    request_type=featurestore_online_service.StreamingReadFeatureValuesRequest,
-):
-    client = FeaturestoreOnlineServingServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.streaming_read_feature_values), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
-        call.return_value.read = mock.AsyncMock(
-            side_effect=[featurestore_online_service.ReadFeatureValuesResponse()]
-        )
-        response = await client.streaming_read_feature_values(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert (
-            args[0] == featurestore_online_service.StreamingReadFeatureValuesRequest()
-        )
-
-    # Establish that the response is the type that we expect.
-    message = await response.read()
-    assert isinstance(message, featurestore_online_service.ReadFeatureValuesResponse)
-
-
-@pytest.mark.asyncio
-async def test_streaming_read_feature_values_async_from_dict():
-    await test_streaming_read_feature_values_async(request_type=dict)
-
-
-def test_streaming_read_feature_values_field_headers():
-    client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = featurestore_online_service.StreamingReadFeatureValuesRequest()
-
-    request.entity_type = "entity_type/value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.streaming_read_feature_values), "__call__"
-    ) as call:
-        call.return_value = iter(
-            [featurestore_online_service.ReadFeatureValuesResponse()]
-        )
-        client.streaming_read_feature_values(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type=entity_type/value",) in kw["metadata"]
-
-
-@pytest.mark.asyncio
-async def test_streaming_read_feature_values_field_headers_async():
-    client = FeaturestoreOnlineServingServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Any value that is part of the HTTP/1.1 URI should be sent as
-    # a field header. Set these to a non-empty value.
-    request = featurestore_online_service.StreamingReadFeatureValuesRequest()
-
-    request.entity_type = "entity_type/value"
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.streaming_read_feature_values), "__call__"
-    ) as call:
-        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
-        call.return_value.read = mock.AsyncMock(
-            side_effect=[featurestore_online_service.ReadFeatureValuesResponse()]
-        )
-        await client.streaming_read_feature_values(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls)
-        _, args, _ = call.mock_calls[0]
-        assert args[0] == request
-
-    # Establish that the field header was sent.
-    _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type=entity_type/value",) in kw["metadata"]
-
-
-def test_streaming_read_feature_values_flattened():
-    client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.streaming_read_feature_values), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = iter(
-            [featurestore_online_service.ReadFeatureValuesResponse()]
-        )
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        client.streaming_read_feature_values(entity_type="entity_type_value",)
-
-        # Establish that the underlying call was made with the expected
-        # request object values.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == "entity_type_value"
-
-
-def test_streaming_read_feature_values_flattened_error():
-    client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Attempting to call a method with both a request object and flattened
-    # fields is an error.
-    with pytest.raises(ValueError):
-        client.streaming_read_feature_values(
-            featurestore_online_service.StreamingReadFeatureValuesRequest(),
-            entity_type="entity_type_value",
-        )
-
-
-@pytest.mark.asyncio
-async def test_streaming_read_feature_values_flattened_async():
-    client = FeaturestoreOnlineServingServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.streaming_read_feature_values), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = iter(
-            [featurestore_online_service.ReadFeatureValuesResponse()]
-        )
-
-        call.return_value = mock.Mock(aio.UnaryStreamCall, autospec=True)
-        # Call the method with a truthy value for each flattened field,
-        # using the keyword arguments to the method.
-        response = await client.streaming_read_feature_values(
-            entity_type="entity_type_value",
+        response = await client.predict(
+            endpoint="endpoint_value",
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
+            parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0].entity_type == "entity_type_value"
+        assert args[0].endpoint == "endpoint_value"
+        assert args[0].instances == [
+            struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)
+        ]
+        # https://github.com/googleapis/gapic-generator-python/issues/414
+        # assert args[0].parameters == struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)
 
 
 @pytest.mark.asyncio
-async def test_streaming_read_feature_values_flattened_error_async():
-    client = FeaturestoreOnlineServingServiceAsyncClient(
+async def test_predict_flattened_error_async():
+    client = PredictionServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        await client.streaming_read_feature_values(
-            featurestore_online_service.StreamingReadFeatureValuesRequest(),
-            entity_type="entity_type_value",
+        await client.predict(
+            prediction_service.PredictRequest(),
+            endpoint="endpoint_value",
+            instances=[struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)],
+            parameters=struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE),
         )
 
 
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
-    transport = transports.FeaturestoreOnlineServingServiceGrpcTransport(
+    transport = transports.PredictionServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
-        client = FeaturestoreOnlineServingServiceClient(
+        client = PredictionServiceClient(
             credentials=ga_credentials.AnonymousCredentials(), transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
-    transport = transports.FeaturestoreOnlineServingServiceGrpcTransport(
+    transport = transports.PredictionServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
-        client = FeaturestoreOnlineServingServiceClient(
+        client = PredictionServiceClient(
             client_options={"credentials_file": "credentials.json"},
             transport=transport,
         )
 
     # It is an error to provide scopes and a transport instance.
-    transport = transports.FeaturestoreOnlineServingServiceGrpcTransport(
+    transport = transports.PredictionServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
-        client = FeaturestoreOnlineServingServiceClient(
+        client = PredictionServiceClient(
             client_options={"scopes": ["1", "2"]}, transport=transport,
         )
 
 
 def test_transport_instance():
     # A client may be instantiated with a custom transport instance.
-    transport = transports.FeaturestoreOnlineServingServiceGrpcTransport(
+    transport = transports.PredictionServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
-    client = FeaturestoreOnlineServingServiceClient(transport=transport)
+    client = PredictionServiceClient(transport=transport)
     assert client.transport is transport
 
 
 def test_transport_get_channel():
     # A client may be instantiated with a custom transport instance.
-    transport = transports.FeaturestoreOnlineServingServiceGrpcTransport(
+    transport = transports.PredictionServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     channel = transport.grpc_channel
     assert channel
 
-    transport = transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(
+    transport = transports.PredictionServiceGrpcAsyncIOTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     channel = transport.grpc_channel
@@ -1049,8 +773,8 @@ def test_transport_get_channel():
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.FeaturestoreOnlineServingServiceGrpcTransport,
-        transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
+        transports.PredictionServiceGrpcTransport,
+        transports.PredictionServiceGrpcAsyncIOTransport,
     ],
 )
 def test_transport_adc(transport_class):
@@ -1063,55 +787,48 @@ def test_transport_adc(transport_class):
 
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = FeaturestoreOnlineServingServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-    )
-    assert isinstance(
-        client.transport, transports.FeaturestoreOnlineServingServiceGrpcTransport,
-    )
+    client = PredictionServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    assert isinstance(client.transport, transports.PredictionServiceGrpcTransport,)
 
 
-def test_featurestore_online_serving_service_base_transport_error():
+def test_prediction_service_base_transport_error():
     # Passing both a credentials object and credentials_file should raise an error
     with pytest.raises(core_exceptions.DuplicateCredentialArgs):
-        transport = transports.FeaturestoreOnlineServingServiceTransport(
+        transport = transports.PredictionServiceTransport(
             credentials=ga_credentials.AnonymousCredentials(),
             credentials_file="credentials.json",
         )
 
 
-def test_featurestore_online_serving_service_base_transport():
+def test_prediction_service_base_transport():
     # Instantiate the base transport.
     with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_service.transports.FeaturestoreOnlineServingServiceTransport.__init__"
+        "google.cloud.aiplatform_v1.services.prediction_service.transports.PredictionServiceTransport.__init__"
     ) as Transport:
         Transport.return_value = None
-        transport = transports.FeaturestoreOnlineServingServiceTransport(
+        transport = transports.PredictionServiceTransport(
             credentials=ga_credentials.AnonymousCredentials(),
         )
 
     # Every method on the transport should just blindly
     # raise NotImplementedError.
-    methods = (
-        "read_feature_values",
-        "streaming_read_feature_values",
-    )
+    methods = ("predict",)
     for method in methods:
         with pytest.raises(NotImplementedError):
             getattr(transport, method)(request=object())
 
 
 @requires_google_auth_gte_1_25_0
-def test_featurestore_online_serving_service_base_transport_with_credentials_file():
+def test_prediction_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
         google.auth, "load_credentials_from_file", autospec=True
     ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_service.transports.FeaturestoreOnlineServingServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1.services.prediction_service.transports.PredictionServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.FeaturestoreOnlineServingServiceTransport(
+        transport = transports.PredictionServiceTransport(
             credentials_file="credentials.json", quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
@@ -1123,16 +840,16 @@ def test_featurestore_online_serving_service_base_transport_with_credentials_fil
 
 
 @requires_google_auth_lt_1_25_0
-def test_featurestore_online_serving_service_base_transport_with_credentials_file_old_google_auth():
+def test_prediction_service_base_transport_with_credentials_file_old_google_auth():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
         google.auth, "load_credentials_from_file", autospec=True
     ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_service.transports.FeaturestoreOnlineServingServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1.services.prediction_service.transports.PredictionServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.FeaturestoreOnlineServingServiceTransport(
+        transport = transports.PredictionServiceTransport(
             credentials_file="credentials.json", quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
@@ -1142,23 +859,23 @@ def test_featurestore_online_serving_service_base_transport_with_credentials_fil
         )
 
 
-def test_featurestore_online_serving_service_base_transport_with_adc():
+def test_prediction_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
     with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.featurestore_online_serving_service.transports.FeaturestoreOnlineServingServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1.services.prediction_service.transports.PredictionServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.FeaturestoreOnlineServingServiceTransport()
+        transport = transports.PredictionServiceTransport()
         adc.assert_called_once()
 
 
 @requires_google_auth_gte_1_25_0
-def test_featurestore_online_serving_service_auth_adc():
+def test_prediction_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        FeaturestoreOnlineServingServiceClient()
+        PredictionServiceClient()
         adc.assert_called_once_with(
             scopes=None,
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
@@ -1167,11 +884,11 @@ def test_featurestore_online_serving_service_auth_adc():
 
 
 @requires_google_auth_lt_1_25_0
-def test_featurestore_online_serving_service_auth_adc_old_google_auth():
+def test_prediction_service_auth_adc_old_google_auth():
     # If no credentials are provided, we should use ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        FeaturestoreOnlineServingServiceClient()
+        PredictionServiceClient()
         adc.assert_called_once_with(
             scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id=None,
@@ -1181,12 +898,12 @@ def test_featurestore_online_serving_service_auth_adc_old_google_auth():
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.FeaturestoreOnlineServingServiceGrpcTransport,
-        transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
+        transports.PredictionServiceGrpcTransport,
+        transports.PredictionServiceGrpcAsyncIOTransport,
     ],
 )
 @requires_google_auth_gte_1_25_0
-def test_featurestore_online_serving_service_transport_auth_adc(transport_class):
+def test_prediction_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
@@ -1202,14 +919,12 @@ def test_featurestore_online_serving_service_transport_auth_adc(transport_class)
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.FeaturestoreOnlineServingServiceGrpcTransport,
-        transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
+        transports.PredictionServiceGrpcTransport,
+        transports.PredictionServiceGrpcAsyncIOTransport,
     ],
 )
 @requires_google_auth_lt_1_25_0
-def test_featurestore_online_serving_service_transport_auth_adc_old_google_auth(
-    transport_class,
-):
+def test_prediction_service_transport_auth_adc_old_google_auth(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
@@ -1224,17 +939,12 @@ def test_featurestore_online_serving_service_transport_auth_adc_old_google_auth(
 @pytest.mark.parametrize(
     "transport_class,grpc_helpers",
     [
-        (transports.FeaturestoreOnlineServingServiceGrpcTransport, grpc_helpers),
-        (
-            transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
-            grpc_helpers_async,
-        ),
+        (transports.PredictionServiceGrpcTransport, grpc_helpers),
+        (transports.PredictionServiceGrpcAsyncIOTransport, grpc_helpers_async),
     ],
 )
 @requires_api_core_gte_1_26_0
-def test_featurestore_online_serving_service_transport_create_channel(
-    transport_class, grpc_helpers
-):
+def test_prediction_service_transport_create_channel(transport_class, grpc_helpers):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
     with mock.patch.object(
@@ -1265,15 +975,12 @@ def test_featurestore_online_serving_service_transport_create_channel(
 @pytest.mark.parametrize(
     "transport_class,grpc_helpers",
     [
-        (transports.FeaturestoreOnlineServingServiceGrpcTransport, grpc_helpers),
-        (
-            transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
-            grpc_helpers_async,
-        ),
+        (transports.PredictionServiceGrpcTransport, grpc_helpers),
+        (transports.PredictionServiceGrpcAsyncIOTransport, grpc_helpers_async),
     ],
 )
 @requires_api_core_lt_1_26_0
-def test_featurestore_online_serving_service_transport_create_channel_old_api_core(
+def test_prediction_service_transport_create_channel_old_api_core(
     transport_class, grpc_helpers
 ):
     # If credentials and host are not provided, the transport class should use
@@ -1304,15 +1011,12 @@ def test_featurestore_online_serving_service_transport_create_channel_old_api_co
 @pytest.mark.parametrize(
     "transport_class,grpc_helpers",
     [
-        (transports.FeaturestoreOnlineServingServiceGrpcTransport, grpc_helpers),
-        (
-            transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
-            grpc_helpers_async,
-        ),
+        (transports.PredictionServiceGrpcTransport, grpc_helpers),
+        (transports.PredictionServiceGrpcAsyncIOTransport, grpc_helpers_async),
     ],
 )
 @requires_api_core_lt_1_26_0
-def test_featurestore_online_serving_service_transport_create_channel_user_scopes(
+def test_prediction_service_transport_create_channel_user_scopes(
     transport_class, grpc_helpers
 ):
     # If credentials and host are not provided, the transport class should use
@@ -1344,13 +1048,11 @@ def test_featurestore_online_serving_service_transport_create_channel_user_scope
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.FeaturestoreOnlineServingServiceGrpcTransport,
-        transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
+        transports.PredictionServiceGrpcTransport,
+        transports.PredictionServiceGrpcAsyncIOTransport,
     ],
 )
-def test_featurestore_online_serving_service_grpc_transport_client_cert_source_for_mtls(
-    transport_class,
-):
+def test_prediction_service_grpc_transport_client_cert_source_for_mtls(transport_class):
     cred = ga_credentials.AnonymousCredentials()
 
     # Check ssl_channel_credentials is used if provided.
@@ -1388,8 +1090,8 @@ def test_featurestore_online_serving_service_grpc_transport_client_cert_source_f
             )
 
 
-def test_featurestore_online_serving_service_host_no_port():
-    client = FeaturestoreOnlineServingServiceClient(
+def test_prediction_service_host_no_port():
+    client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com"
@@ -1398,8 +1100,8 @@ def test_featurestore_online_serving_service_host_no_port():
     assert client.transport._host == "aiplatform.googleapis.com:443"
 
 
-def test_featurestore_online_serving_service_host_with_port():
-    client = FeaturestoreOnlineServingServiceClient(
+def test_prediction_service_host_with_port():
+    client = PredictionServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com:8000"
@@ -1408,11 +1110,11 @@ def test_featurestore_online_serving_service_host_with_port():
     assert client.transport._host == "aiplatform.googleapis.com:8000"
 
 
-def test_featurestore_online_serving_service_grpc_transport_channel():
+def test_prediction_service_grpc_transport_channel():
     channel = grpc.secure_channel("http://localhost/", grpc.local_channel_credentials())
 
     # Check that channel is used if provided.
-    transport = transports.FeaturestoreOnlineServingServiceGrpcTransport(
+    transport = transports.PredictionServiceGrpcTransport(
         host="squid.clam.whelk", channel=channel,
     )
     assert transport.grpc_channel == channel
@@ -1420,11 +1122,11 @@ def test_featurestore_online_serving_service_grpc_transport_channel():
     assert transport._ssl_channel_credentials == None
 
 
-def test_featurestore_online_serving_service_grpc_asyncio_transport_channel():
+def test_prediction_service_grpc_asyncio_transport_channel():
     channel = aio.secure_channel("http://localhost/", grpc.local_channel_credentials())
 
     # Check that channel is used if provided.
-    transport = transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(
+    transport = transports.PredictionServiceGrpcAsyncIOTransport(
         host="squid.clam.whelk", channel=channel,
     )
     assert transport.grpc_channel == channel
@@ -1437,11 +1139,11 @@ def test_featurestore_online_serving_service_grpc_asyncio_transport_channel():
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.FeaturestoreOnlineServingServiceGrpcTransport,
-        transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
+        transports.PredictionServiceGrpcTransport,
+        transports.PredictionServiceGrpcAsyncIOTransport,
     ],
 )
-def test_featurestore_online_serving_service_transport_channel_mtls_with_client_cert_source(
+def test_prediction_service_transport_channel_mtls_with_client_cert_source(
     transport_class,
 ):
     with mock.patch(
@@ -1491,13 +1193,11 @@ def test_featurestore_online_serving_service_transport_channel_mtls_with_client_
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.FeaturestoreOnlineServingServiceGrpcTransport,
-        transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
+        transports.PredictionServiceGrpcTransport,
+        transports.PredictionServiceGrpcAsyncIOTransport,
     ],
 )
-def test_featurestore_online_serving_service_transport_channel_mtls_with_adc(
-    transport_class,
-):
+def test_prediction_service_transport_channel_mtls_with_adc(transport_class):
     mock_ssl_cred = mock.Mock()
     with mock.patch.multiple(
         "google.auth.transport.grpc.SslCredentials",
@@ -1534,140 +1234,123 @@ def test_featurestore_online_serving_service_transport_channel_mtls_with_adc(
             assert transport.grpc_channel == mock_grpc_channel
 
 
-def test_entity_type_path():
+def test_endpoint_path():
     project = "squid"
     location = "clam"
-    featurestore = "whelk"
-    entity_type = "octopus"
-    expected = "projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}".format(
-        project=project,
-        location=location,
-        featurestore=featurestore,
-        entity_type=entity_type,
+    endpoint = "whelk"
+    expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
+        project=project, location=location, endpoint=endpoint,
     )
-    actual = FeaturestoreOnlineServingServiceClient.entity_type_path(
-        project, location, featurestore, entity_type
-    )
+    actual = PredictionServiceClient.endpoint_path(project, location, endpoint)
     assert expected == actual
 
 
-def test_parse_entity_type_path():
+def test_parse_endpoint_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
-        "featurestore": "cuttlefish",
-        "entity_type": "mussel",
+        "project": "octopus",
+        "location": "oyster",
+        "endpoint": "nudibranch",
     }
-    path = FeaturestoreOnlineServingServiceClient.entity_type_path(**expected)
+    path = PredictionServiceClient.endpoint_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = FeaturestoreOnlineServingServiceClient.parse_entity_type_path(path)
+    actual = PredictionServiceClient.parse_endpoint_path(path)
     assert expected == actual
 
 
 def test_common_billing_account_path():
-    billing_account = "winkle"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
-    actual = FeaturestoreOnlineServingServiceClient.common_billing_account_path(
-        billing_account
-    )
+    actual = PredictionServiceClient.common_billing_account_path(billing_account)
     assert expected == actual
 
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nautilus",
+        "billing_account": "mussel",
     }
-    path = FeaturestoreOnlineServingServiceClient.common_billing_account_path(
-        **expected
-    )
+    path = PredictionServiceClient.common_billing_account_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = FeaturestoreOnlineServingServiceClient.parse_common_billing_account_path(
-        path
-    )
+    actual = PredictionServiceClient.parse_common_billing_account_path(path)
     assert expected == actual
 
 
 def test_common_folder_path():
-    folder = "scallop"
+    folder = "winkle"
     expected = "folders/{folder}".format(folder=folder,)
-    actual = FeaturestoreOnlineServingServiceClient.common_folder_path(folder)
+    actual = PredictionServiceClient.common_folder_path(folder)
     assert expected == actual
 
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "abalone",
+        "folder": "nautilus",
     }
-    path = FeaturestoreOnlineServingServiceClient.common_folder_path(**expected)
+    path = PredictionServiceClient.common_folder_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = FeaturestoreOnlineServingServiceClient.parse_common_folder_path(path)
+    actual = PredictionServiceClient.parse_common_folder_path(path)
     assert expected == actual
 
 
 def test_common_organization_path():
-    organization = "squid"
+    organization = "scallop"
     expected = "organizations/{organization}".format(organization=organization,)
-    actual = FeaturestoreOnlineServingServiceClient.common_organization_path(
-        organization
-    )
+    actual = PredictionServiceClient.common_organization_path(organization)
     assert expected == actual
 
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "clam",
+        "organization": "abalone",
     }
-    path = FeaturestoreOnlineServingServiceClient.common_organization_path(**expected)
+    path = PredictionServiceClient.common_organization_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = FeaturestoreOnlineServingServiceClient.parse_common_organization_path(path)
+    actual = PredictionServiceClient.parse_common_organization_path(path)
     assert expected == actual
 
 
 def test_common_project_path():
-    project = "whelk"
+    project = "squid"
     expected = "projects/{project}".format(project=project,)
-    actual = FeaturestoreOnlineServingServiceClient.common_project_path(project)
+    actual = PredictionServiceClient.common_project_path(project)
     assert expected == actual
 
 
 def test_parse_common_project_path():
     expected = {
-        "project": "octopus",
+        "project": "clam",
     }
-    path = FeaturestoreOnlineServingServiceClient.common_project_path(**expected)
+    path = PredictionServiceClient.common_project_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = FeaturestoreOnlineServingServiceClient.parse_common_project_path(path)
+    actual = PredictionServiceClient.parse_common_project_path(path)
     assert expected == actual
 
 
 def test_common_location_path():
-    project = "oyster"
-    location = "nudibranch"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project, location=location,
     )
-    actual = FeaturestoreOnlineServingServiceClient.common_location_path(
-        project, location
-    )
+    actual = PredictionServiceClient.common_location_path(project, location)
     assert expected == actual
 
 
 def test_parse_common_location_path():
     expected = {
-        "project": "cuttlefish",
-        "location": "mussel",
+        "project": "oyster",
+        "location": "nudibranch",
     }
-    path = FeaturestoreOnlineServingServiceClient.common_location_path(**expected)
+    path = PredictionServiceClient.common_location_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = FeaturestoreOnlineServingServiceClient.parse_common_location_path(path)
+    actual = PredictionServiceClient.parse_common_location_path(path)
     assert expected == actual
 
 
@@ -1675,17 +1358,17 @@ def test_client_withDEFAULT_CLIENT_INFO():
     client_info = gapic_v1.client_info.ClientInfo()
 
     with mock.patch.object(
-        transports.FeaturestoreOnlineServingServiceTransport, "_prep_wrapped_messages"
+        transports.PredictionServiceTransport, "_prep_wrapped_messages"
     ) as prep:
-        client = FeaturestoreOnlineServingServiceClient(
+        client = PredictionServiceClient(
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
     with mock.patch.object(
-        transports.FeaturestoreOnlineServingServiceTransport, "_prep_wrapped_messages"
+        transports.PredictionServiceTransport, "_prep_wrapped_messages"
     ) as prep:
-        transport_class = FeaturestoreOnlineServingServiceClient.get_transport_class()
+        transport_class = PredictionServiceClient.get_transport_class()
         transport = transport_class(
             credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
