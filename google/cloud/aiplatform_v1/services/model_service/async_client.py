@@ -209,7 +209,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UploadModelRequest`):
                 The request object. Request message for
-                ``ModelService.UploadModel``.
+                [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel].
             parent (:class:`str`):
                 Required. The resource name of the Location into which
                 to upload the Model. Format:
@@ -237,7 +237,7 @@ class ModelServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.UploadModelResponse`
                 Response message of
-                ``ModelService.UploadModel``
+                [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel]
                 operation.
 
         """
@@ -303,7 +303,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelRequest`):
                 The request object. Request message for
-                ``ModelService.GetModel``.
+                [ModelService.GetModel][google.cloud.aiplatform.v1.ModelService.GetModel].
             name (:class:`str`):
                 Required. The name of the Model resource. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
@@ -374,7 +374,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelsRequest`):
                 The request object. Request message for
-                ``ModelService.ListModels``.
+                [ModelService.ListModels][google.cloud.aiplatform.v1.ModelService.ListModels].
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 Models from. Format:
@@ -393,7 +393,7 @@ class ModelServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelsAsyncPager:
                 Response message for
-                ``ModelService.ListModels``
+                [ModelService.ListModels][google.cloud.aiplatform.v1.ModelService.ListModels]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -458,7 +458,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateModelRequest`):
                 The request object. Request message for
-                ``ModelService.UpdateModel``.
+                [ModelService.UpdateModel][google.cloud.aiplatform.v1.ModelService.UpdateModel].
             model (:class:`google.cloud.aiplatform_v1.types.Model`):
                 Required. The Model which replaces
                 the resource on the server.
@@ -543,7 +543,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteModelRequest`):
                 The request object. Request message for
-                ``ModelService.DeleteModel``.
+                [ModelService.DeleteModel][google.cloud.aiplatform.v1.ModelService.DeleteModel].
             name (:class:`str`):
                 Required. The name of the Model resource to be deleted.
                 Format:
@@ -642,7 +642,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ExportModelRequest`):
                 The request object. Request message for
-                ``ModelService.ExportModel``.
+                [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel].
             name (:class:`str`):
                 Required. The resource name of the Model to export.
                 Format:
@@ -672,7 +672,7 @@ class ModelServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.ExportModelResponse`
                 Response message of
-                ``ModelService.ExportModel``
+                [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel]
                 operation.
 
         """
@@ -738,7 +738,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelEvaluationRequest`):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluation``.
+                [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1.ModelService.GetModelEvaluation].
             name (:class:`str`):
                 Required. The name of the ModelEvaluation resource.
                 Format:
@@ -815,7 +815,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelEvaluationsRequest`):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1.ModelService.ListModelEvaluations].
             parent (:class:`str`):
                 Required. The resource name of the Model to list the
                 ModelEvaluations from. Format:
@@ -834,7 +834,7 @@ class ModelServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelEvaluationsAsyncPager:
                 Response message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1.ModelService.ListModelEvaluations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -898,7 +898,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelEvaluationSliceRequest`):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluationSlice``.
+                [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1.ModelService.GetModelEvaluationSlice].
             name (:class:`str`):
                 Required. The name of the ModelEvaluationSlice resource.
                 Format:
@@ -975,7 +975,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelEvaluationSlicesRequest`):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices].
             parent (:class:`str`):
                 Required. The resource name of the ModelEvaluation to
                 list the ModelEvaluationSlices from. Format:
@@ -995,7 +995,7 @@ class ModelServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelEvaluationSlicesAsyncPager:
                 Response message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

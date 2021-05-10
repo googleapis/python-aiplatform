@@ -218,7 +218,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateMetadataStoreRequest`):
                 The request object. Request message for
-                ``MetadataService.CreateMetadataStore``.
+                [MetadataService.CreateMetadataStore][google.cloud.aiplatform.v1beta1.MetadataService.CreateMetadataStore].
             parent (:class:`str`):
                 Required. The resource name of the
                 Location where the MetadataStore should
@@ -291,7 +291,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.create_metadata_store,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -329,7 +329,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetMetadataStoreRequest`):
                 The request object. Request message for
-                ``MetadataService.GetMetadataStore``.
+                [MetadataService.GetMetadataStore][google.cloud.aiplatform.v1beta1.MetadataService.GetMetadataStore].
             name (:class:`str`):
                 Required. The resource name of the
                 MetadataStore to retrieve. Format:
@@ -374,7 +374,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_metadata_store,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -404,7 +404,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListMetadataStoresRequest`):
                 The request object. Request message for
-                ``MetadataService.ListMetadataStores``.
+                [MetadataService.ListMetadataStores][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataStores].
             parent (:class:`str`):
                 Required. The Location whose
                 MetadataStores should be listed. Format:
@@ -423,7 +423,7 @@ class MetadataServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.metadata_service.pagers.ListMetadataStoresAsyncPager:
                 Response message for
-                ``MetadataService.ListMetadataStores``.
+                [MetadataService.ListMetadataStores][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataStores].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -451,7 +451,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_metadata_stores,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -487,7 +487,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteMetadataStoreRequest`):
                 The request object. Request message for
-                ``MetadataService.DeleteMetadataStore``.
+                [MetadataService.DeleteMetadataStore][google.cloud.aiplatform.v1beta1.MetadataService.DeleteMetadataStore].
             name (:class:`str`):
                 Required. The resource name of the
                 MetadataStore to delete. Format:
@@ -544,7 +544,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_metadata_store,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -584,7 +584,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateArtifactRequest`):
                 The request object. Request message for
-                ``MetadataService.CreateArtifact``.
+                [MetadataService.CreateArtifact][google.cloud.aiplatform.v1beta1.MetadataService.CreateArtifact].
             parent (:class:`str`):
                 Required. The resource name of the
                 MetadataStore where the Artifact should
@@ -651,7 +651,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.create_artifact,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -681,7 +681,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetArtifactRequest`):
                 The request object. Request message for
-                ``MetadataService.GetArtifact``.
+                [MetadataService.GetArtifact][google.cloud.aiplatform.v1beta1.MetadataService.GetArtifact].
             name (:class:`str`):
                 Required. The resource name of the
                 Artifact to retrieve. Format:
@@ -723,7 +723,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_artifact,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -753,7 +753,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListArtifactsRequest`):
                 The request object. Request message for
-                ``MetadataService.ListArtifacts``.
+                [MetadataService.ListArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.ListArtifacts].
             parent (:class:`str`):
                 Required. The MetadataStore whose
                 Artifacts should be listed. Format:
@@ -772,7 +772,7 @@ class MetadataServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.metadata_service.pagers.ListArtifactsAsyncPager:
                 Response message for
-                ``MetadataService.ListArtifacts``.
+                [MetadataService.ListArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.ListArtifacts].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -800,7 +800,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_artifacts,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -837,11 +837,11 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateArtifactRequest`):
                 The request object. Request message for
-                ``MetadataService.UpdateArtifact``.
+                [MetadataService.UpdateArtifact][google.cloud.aiplatform.v1beta1.MetadataService.UpdateArtifact].
             artifact (:class:`google.cloud.aiplatform_v1beta1.types.Artifact`):
                 Required. The Artifact containing updates. The
                 Artifact's
-                ``Artifact.name``
+                [Artifact.name][google.cloud.aiplatform.v1beta1.Artifact.name]
                 field is used to identify the Artifact to be updated.
                 Format:
                 projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
@@ -891,7 +891,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.update_artifact,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -925,7 +925,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateContextRequest`):
                 The request object. Request message for
-                ``MetadataService.CreateContext``.
+                [MetadataService.CreateContext][google.cloud.aiplatform.v1beta1.MetadataService.CreateContext].
             parent (:class:`str`):
                 Required. The resource name of the
                 MetadataStore where the Context should
@@ -992,7 +992,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.create_context,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1022,7 +1022,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetContextRequest`):
                 The request object. Request message for
-                ``MetadataService.GetContext``.
+                [MetadataService.GetContext][google.cloud.aiplatform.v1beta1.MetadataService.GetContext].
             name (:class:`str`):
                 Required. The resource name of the
                 Context to retrieve. Format:
@@ -1064,7 +1064,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_context,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1094,7 +1094,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListContextsRequest`):
                 The request object. Request message for
-                ``MetadataService.ListContexts``
+                [MetadataService.ListContexts][google.cloud.aiplatform.v1beta1.MetadataService.ListContexts]
             parent (:class:`str`):
                 Required. The MetadataStore whose
                 Contexts should be listed. Format:
@@ -1113,7 +1113,7 @@ class MetadataServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.metadata_service.pagers.ListContextsAsyncPager:
                 Response message for
-                ``MetadataService.ListContexts``.
+                [MetadataService.ListContexts][google.cloud.aiplatform.v1beta1.MetadataService.ListContexts].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1141,7 +1141,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_contexts,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1178,10 +1178,10 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateContextRequest`):
                 The request object. Request message for
-                ``MetadataService.UpdateContext``.
+                [MetadataService.UpdateContext][google.cloud.aiplatform.v1beta1.MetadataService.UpdateContext].
             context (:class:`google.cloud.aiplatform_v1beta1.types.Context`):
                 Required. The Context containing updates. The Context's
-                ``Context.name``
+                [Context.name][google.cloud.aiplatform.v1beta1.Context.name]
                 field is used to identify the Context to be updated.
                 Format:
                 projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}
@@ -1231,7 +1231,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.update_context,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1263,7 +1263,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteContextRequest`):
                 The request object. Request message for
-                ``MetadataService.DeleteContext``.
+                [MetadataService.DeleteContext][google.cloud.aiplatform.v1beta1.MetadataService.DeleteContext].
             name (:class:`str`):
                 Required. The resource name of the
                 Context to retrieve. Format:
@@ -1320,7 +1320,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_context,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1362,7 +1362,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.AddContextArtifactsAndExecutionsRequest`):
                 The request object. Request message for
-                ``MetadataService.AddContextArtifactsAndExecutions``.
+                [MetadataService.AddContextArtifactsAndExecutions][google.cloud.aiplatform.v1beta1.MetadataService.AddContextArtifactsAndExecutions].
             context (:class:`str`):
                 Required. The resource name of the
                 Context that the Artifacts and
@@ -1396,7 +1396,7 @@ class MetadataServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.types.AddContextArtifactsAndExecutionsResponse:
                 Response message for
-                ``MetadataService.AddContextArtifactsAndExecutions``.
+                [MetadataService.AddContextArtifactsAndExecutions][google.cloud.aiplatform.v1beta1.MetadataService.AddContextArtifactsAndExecutions].
 
         """
         # Create or coerce a protobuf request object.
@@ -1426,7 +1426,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.add_context_artifacts_and_executions,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1461,7 +1461,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.AddContextChildrenRequest`):
                 The request object. Request message for
-                ``MetadataService.AddContextChildren``.
+                [MetadataService.AddContextChildren][google.cloud.aiplatform.v1beta1.MetadataService.AddContextChildren].
             context (:class:`str`):
                 Required. The resource name of the
                 parent Context. Format:
@@ -1487,7 +1487,7 @@ class MetadataServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.types.AddContextChildrenResponse:
                 Response message for
-                ``MetadataService.AddContextChildren``.
+                [MetadataService.AddContextChildren][google.cloud.aiplatform.v1beta1.MetadataService.AddContextChildren].
 
         """
         # Create or coerce a protobuf request object.
@@ -1515,7 +1515,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.add_context_children,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1547,7 +1547,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.QueryContextLineageSubgraphRequest`):
                 The request object. Request message for
-                ``MetadataService.QueryContextLineageSubgraph``.
+                [MetadataService.QueryContextLineageSubgraph][google.cloud.aiplatform.v1beta1.MetadataService.QueryContextLineageSubgraph].
             context (:class:`str`):
                 Required. The resource name of the Context whose
                 Artifacts and Executions should be retrieved as a
@@ -1598,7 +1598,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.query_context_lineage_subgraph,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1630,7 +1630,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateExecutionRequest`):
                 The request object. Request message for
-                ``MetadataService.CreateExecution``.
+                [MetadataService.CreateExecution][google.cloud.aiplatform.v1beta1.MetadataService.CreateExecution].
             parent (:class:`str`):
                 Required. The resource name of the
                 MetadataStore where the Execution should
@@ -1697,7 +1697,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.create_execution,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1727,7 +1727,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetExecutionRequest`):
                 The request object. Request message for
-                ``MetadataService.GetExecution``.
+                [MetadataService.GetExecution][google.cloud.aiplatform.v1beta1.MetadataService.GetExecution].
             name (:class:`str`):
                 Required. The resource name of the
                 Execution to retrieve. Format:
@@ -1769,7 +1769,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_execution,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1799,7 +1799,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListExecutionsRequest`):
                 The request object. Request message for
-                ``MetadataService.ListExecutions``.
+                [MetadataService.ListExecutions][google.cloud.aiplatform.v1beta1.MetadataService.ListExecutions].
             parent (:class:`str`):
                 Required. The MetadataStore whose
                 Executions should be listed. Format:
@@ -1818,7 +1818,7 @@ class MetadataServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.metadata_service.pagers.ListExecutionsAsyncPager:
                 Response message for
-                ``MetadataService.ListExecutions``.
+                [MetadataService.ListExecutions][google.cloud.aiplatform.v1beta1.MetadataService.ListExecutions].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1846,7 +1846,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_executions,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1883,11 +1883,11 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateExecutionRequest`):
                 The request object. Request message for
-                ``MetadataService.UpdateExecution``.
+                [MetadataService.UpdateExecution][google.cloud.aiplatform.v1beta1.MetadataService.UpdateExecution].
             execution (:class:`google.cloud.aiplatform_v1beta1.types.Execution`):
                 Required. The Execution containing updates. The
                 Execution's
-                ``Execution.name``
+                [Execution.name][google.cloud.aiplatform.v1beta1.Execution.name]
                 field is used to identify the Execution to be updated.
                 Format:
                 projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
@@ -1937,7 +1937,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.update_execution,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -1973,7 +1973,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.AddExecutionEventsRequest`):
                 The request object. Request message for
-                ``MetadataService.AddExecutionEvents``.
+                [MetadataService.AddExecutionEvents][google.cloud.aiplatform.v1beta1.MetadataService.AddExecutionEvents].
             execution (:class:`str`):
                 Required. The resource name of the
                 Execution that the Events connect
@@ -1998,7 +1998,7 @@ class MetadataServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.types.AddExecutionEventsResponse:
                 Response message for
-                ``MetadataService.AddExecutionEvents``.
+                [MetadataService.AddExecutionEvents][google.cloud.aiplatform.v1beta1.MetadataService.AddExecutionEvents].
 
         """
         # Create or coerce a protobuf request object.
@@ -2026,7 +2026,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.add_execution_events,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -2060,7 +2060,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.QueryExecutionInputsAndOutputsRequest`):
                 The request object. Request message for
-                ``MetadataService.QueryExecutionInputsAndOutputs``.
+                [MetadataService.QueryExecutionInputsAndOutputs][google.cloud.aiplatform.v1beta1.MetadataService.QueryExecutionInputsAndOutputs].
             execution (:class:`str`):
                 Required. The resource name of the
                 Execution whose input and output
@@ -2107,7 +2107,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.query_execution_inputs_and_outputs,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -2141,7 +2141,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateMetadataSchemaRequest`):
                 The request object. Request message for
-                ``MetadataService.CreateMetadataSchema``.
+                [MetadataService.CreateMetadataSchema][google.cloud.aiplatform.v1beta1.MetadataService.CreateMetadataSchema].
             parent (:class:`str`):
                 Required. The resource name of the
                 MetadataStore where the MetadataSchema
@@ -2210,7 +2210,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.create_metadata_schema,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -2240,7 +2240,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetMetadataSchemaRequest`):
                 The request object. Request message for
-                ``MetadataService.GetMetadataSchema``.
+                [MetadataService.GetMetadataSchema][google.cloud.aiplatform.v1beta1.MetadataService.GetMetadataSchema].
             name (:class:`str`):
                 Required. The resource name of the
                 MetadataSchema to retrieve. Format:
@@ -2282,7 +2282,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_metadata_schema,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -2312,7 +2312,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListMetadataSchemasRequest`):
                 The request object. Request message for
-                ``MetadataService.ListMetadataSchemas``.
+                [MetadataService.ListMetadataSchemas][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataSchemas].
             parent (:class:`str`):
                 Required. The MetadataStore whose
                 MetadataSchemas should be listed.
@@ -2332,7 +2332,7 @@ class MetadataServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.metadata_service.pagers.ListMetadataSchemasAsyncPager:
                 Response message for
-                ``MetadataService.ListMetadataSchemas``.
+                [MetadataService.ListMetadataSchemas][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataSchemas].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2360,7 +2360,7 @@ class MetadataServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_metadata_schemas,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -2398,7 +2398,7 @@ class MetadataServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.QueryArtifactLineageSubgraphRequest`):
                 The request object. Request message for
-                ``MetadataService.QueryArtifactLineageSubgraph``.
+                [MetadataService.QueryArtifactLineageSubgraph][google.cloud.aiplatform.v1beta1.MetadataService.QueryArtifactLineageSubgraph].
             artifact (:class:`str`):
                 Required. The resource name of the Artifact whose
                 Lineage needs to be retrieved as a LineageSubgraph.

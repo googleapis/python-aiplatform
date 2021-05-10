@@ -77,7 +77,7 @@ __protobuf__ = proto.module(
 
 class CreateFeaturestoreRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.CreateFeaturestore``.
+    [FeaturestoreService.CreateFeaturestore][google.cloud.aiplatform.v1beta1.FeaturestoreService.CreateFeaturestore].
 
     Attributes:
         parent (str):
@@ -108,7 +108,7 @@ class CreateFeaturestoreRequest(proto.Message):
 
 class GetFeaturestoreRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.GetFeaturestore``.
+    [FeaturestoreService.GetFeaturestore][google.cloud.aiplatform.v1beta1.FeaturestoreService.GetFeaturestore].
 
     Attributes:
         name (str):
@@ -121,7 +121,7 @@ class GetFeaturestoreRequest(proto.Message):
 
 class ListFeaturestoresRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.ListFeaturestores``.
+    [FeaturestoreService.ListFeaturestores][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeaturestores].
 
     Attributes:
         parent (str):
@@ -155,11 +155,11 @@ class ListFeaturestoresRequest(proto.Message):
             value greater than 100 will be coerced to 100.
         page_token (str):
             A page token, received from a previous
-            ``FeaturestoreService.ListFeaturestores``
+            [FeaturestoreService.ListFeaturestores][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeaturestores]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other parameters provided to
-            ``FeaturestoreService.ListFeaturestores``
+            [FeaturestoreService.ListFeaturestores][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeaturestores]
             must match the call that provided the page token.
         order_by (str):
             A comma-separated list of fields to order by, sorted in
@@ -189,14 +189,14 @@ class ListFeaturestoresRequest(proto.Message):
 
 class ListFeaturestoresResponse(proto.Message):
     r"""Response message for
-    ``FeaturestoreService.ListFeaturestores``.
+    [FeaturestoreService.ListFeaturestores][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeaturestores].
 
     Attributes:
         featurestores (Sequence[google.cloud.aiplatform_v1beta1.types.Featurestore]):
             The Featurestores matching the request.
         next_page_token (str):
             A token, which can be sent as
-            ``ListFeaturestoresRequest.page_token``
+            [ListFeaturestoresRequest.page_token][google.cloud.aiplatform.v1beta1.ListFeaturestoresRequest.page_token]
             to retrieve the next page. If this field is omitted, there
             are no subsequent pages.
     """
@@ -214,7 +214,7 @@ class ListFeaturestoresResponse(proto.Message):
 
 class UpdateFeaturestoreRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.UpdateFeaturestore``.
+    [FeaturestoreService.UpdateFeaturestore][google.cloud.aiplatform.v1beta1.FeaturestoreService.UpdateFeaturestore].
 
     Attributes:
         featurestore (google.cloud.aiplatform_v1beta1.types.Featurestore):
@@ -248,7 +248,7 @@ class UpdateFeaturestoreRequest(proto.Message):
 
 class DeleteFeaturestoreRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.DeleteFeaturestore``.
+    [FeaturestoreService.DeleteFeaturestore][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeaturestore].
 
     Attributes:
         name (str):
@@ -269,7 +269,7 @@ class DeleteFeaturestoreRequest(proto.Message):
 
 class ImportFeatureValuesRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.ImportFeatureValues``.
+    [FeaturestoreService.ImportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ImportFeatureValues].
 
     Attributes:
         avro_source (google.cloud.aiplatform_v1beta1.types.AvroSource):
@@ -368,7 +368,7 @@ class ImportFeatureValuesRequest(proto.Message):
 
 class ImportFeatureValuesResponse(proto.Message):
     r"""Response message for
-    ``FeaturestoreService.ImportFeatureValues``.
+    [FeaturestoreService.ImportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ImportFeatureValues].
 
     Attributes:
         imported_entity_count (int):
@@ -386,7 +386,8 @@ class ImportFeatureValuesResponse(proto.Message):
 
 class BatchReadFeatureValuesRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.BatchReadFeatureValues``.
+    [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchReadFeatureValues].
+    (- Next Id: 6 -)
 
     Attributes:
         csv_read_instances (google.cloud.aiplatform_v1beta1.types.CsvSource):
@@ -436,7 +437,7 @@ class BatchReadFeatureValuesRequest(proto.Message):
             entity_type_id (str):
                 Required. ID of the EntityType to select Features. The
                 EntityType id is the
-                ``entity_type_id``
+                [entity_type_id][google.cloud.aiplatform.v1beta1.CreateEntityTypeRequest.entity_type_id]
                 specified during EntityType creation.
             feature_selector (google.cloud.aiplatform_v1beta1.types.FeatureSelector):
                 Required. Selectors choosing which Feature
@@ -472,7 +473,7 @@ class BatchReadFeatureValuesRequest(proto.Message):
 
 class ExportFeatureValuesRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.ExportFeatureValues``.
+    [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ExportFeatureValues].
 
     Attributes:
         snapshot_export (google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesRequest.SnapshotExport):
@@ -551,9 +552,9 @@ class FeatureValueDestination(proto.Message):
     Attributes:
         bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
             Output in BigQuery format.
-            ``BigQueryDestination.output_uri``
+            [BigQueryDestination.output_uri][google.cloud.aiplatform.v1beta1.BigQueryDestination.output_uri]
             in
-            ``FeatureValueDestination.bigquery_destination``
+            [FeatureValueDestination.bigquery_destination][google.cloud.aiplatform.v1beta1.FeatureValueDestination.bigquery_destination]
             must refer to a table.
         tfrecord_destination (google.cloud.aiplatform_v1beta1.types.TFRecordDestination):
             Output in TFRecord format.
@@ -589,19 +590,19 @@ class FeatureValueDestination(proto.Message):
 
 class ExportFeatureValuesResponse(proto.Message):
     r"""Response message for
-    ``FeaturestoreService.ExportFeatureValues``.
+    [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ExportFeatureValues].
     """
 
 
 class BatchReadFeatureValuesResponse(proto.Message):
     r"""Response message for
-    ``FeaturestoreService.BatchReadFeatureValues``.
+    [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchReadFeatureValues].
     """
 
 
 class CreateEntityTypeRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.CreateEntityType``.
+    [FeaturestoreService.CreateEntityType][google.cloud.aiplatform.v1beta1.FeaturestoreService.CreateEntityType].
 
     Attributes:
         parent (str):
@@ -632,7 +633,7 @@ class CreateEntityTypeRequest(proto.Message):
 
 class GetEntityTypeRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.GetEntityType``.
+    [FeaturestoreService.GetEntityType][google.cloud.aiplatform.v1beta1.FeaturestoreService.GetEntityType].
 
     Attributes:
         name (str):
@@ -645,7 +646,7 @@ class GetEntityTypeRequest(proto.Message):
 
 class ListEntityTypesRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.ListEntityTypes``.
+    [FeaturestoreService.ListEntityTypes][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListEntityTypes].
 
     Attributes:
         parent (str):
@@ -681,11 +682,11 @@ class ListEntityTypesRequest(proto.Message):
             greater than 1000 will be coerced to 1000.
         page_token (str):
             A page token, received from a previous
-            ``FeaturestoreService.ListEntityTypes``
+            [FeaturestoreService.ListEntityTypes][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListEntityTypes]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other parameters provided to
-            ``FeaturestoreService.ListEntityTypes``
+            [FeaturestoreService.ListEntityTypes][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListEntityTypes]
             must match the call that provided the page token.
         order_by (str):
             A comma-separated list of fields to order by, sorted in
@@ -716,14 +717,14 @@ class ListEntityTypesRequest(proto.Message):
 
 class ListEntityTypesResponse(proto.Message):
     r"""Response message for
-    ``FeaturestoreService.ListEntityTypes``.
+    [FeaturestoreService.ListEntityTypes][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListEntityTypes].
 
     Attributes:
         entity_types (Sequence[google.cloud.aiplatform_v1beta1.types.EntityType]):
             The EntityTypes matching the request.
         next_page_token (str):
             A token, which can be sent as
-            ``ListEntityTypesRequest.page_token``
+            [ListEntityTypesRequest.page_token][google.cloud.aiplatform.v1beta1.ListEntityTypesRequest.page_token]
             to retrieve the next page. If this field is omitted, there
             are no subsequent pages.
     """
@@ -741,7 +742,7 @@ class ListEntityTypesResponse(proto.Message):
 
 class UpdateEntityTypeRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.UpdateEntityType``.
+    [FeaturestoreService.UpdateEntityType][google.cloud.aiplatform.v1beta1.FeaturestoreService.UpdateEntityType].
 
     Attributes:
         entity_type (google.cloud.aiplatform_v1beta1.types.EntityType):
@@ -794,7 +795,7 @@ class DeleteEntityTypeRequest(proto.Message):
 
 class CreateFeatureRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.CreateFeature``.
+    [FeaturestoreService.CreateFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.CreateFeature].
 
     Attributes:
         parent (str):
@@ -822,7 +823,7 @@ class CreateFeatureRequest(proto.Message):
 
 class BatchCreateFeaturesRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.BatchCreateFeatures``.
+    [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchCreateFeatures].
 
     Attributes:
         parent (str):
@@ -847,7 +848,7 @@ class BatchCreateFeaturesRequest(proto.Message):
 
 class BatchCreateFeaturesResponse(proto.Message):
     r"""Response message for
-    ``FeaturestoreService.BatchCreateFeatures``.
+    [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchCreateFeatures].
 
     Attributes:
         features (Sequence[google.cloud.aiplatform_v1beta1.types.Feature]):
@@ -861,7 +862,7 @@ class BatchCreateFeaturesResponse(proto.Message):
 
 class GetFeatureRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.GetFeature``.
+    [FeaturestoreService.GetFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.GetFeature].
 
     Attributes:
         name (str):
@@ -874,7 +875,7 @@ class GetFeatureRequest(proto.Message):
 
 class ListFeaturesRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.ListFeatures``.
+    [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures].
 
     Attributes:
         parent (str):
@@ -913,11 +914,11 @@ class ListFeaturesRequest(proto.Message):
             greater than 1000 will be coerced to 1000.
         page_token (str):
             A page token, received from a previous
-            ``FeaturestoreService.ListFeatures``
+            [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other parameters provided to
-            ``FeaturestoreService.ListFeatures``
+            [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures]
             must match the call that provided the page token.
         order_by (str):
             A comma-separated list of fields to order by, sorted in
@@ -932,10 +933,10 @@ class ListFeaturesRequest(proto.Message):
             Mask specifying which fields to read.
         latest_stats_count (int):
             If set, return the most recent
-            ``ListFeaturesRequest.latest_stats_count``
+            [ListFeaturesRequest.latest_stats_count][google.cloud.aiplatform.v1beta1.ListFeaturesRequest.latest_stats_count]
             of stats for each Feature in response. Valid value is [0,
             10]. If number of stats exists <
-            ``ListFeaturesRequest.latest_stats_count``,
+            [ListFeaturesRequest.latest_stats_count][google.cloud.aiplatform.v1beta1.ListFeaturesRequest.latest_stats_count],
             return all existing stats.
     """
 
@@ -956,14 +957,14 @@ class ListFeaturesRequest(proto.Message):
 
 class ListFeaturesResponse(proto.Message):
     r"""Response message for
-    ``FeaturestoreService.ListFeatures``.
+    [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures].
 
     Attributes:
         features (Sequence[google.cloud.aiplatform_v1beta1.types.Feature]):
             The Features matching the request.
         next_page_token (str):
             A token, which can be sent as
-            ``ListFeaturesRequest.page_token``
+            [ListFeaturesRequest.page_token][google.cloud.aiplatform.v1beta1.ListFeaturesRequest.page_token]
             to retrieve the next page. If this field is omitted, there
             are no subsequent pages.
     """
@@ -981,7 +982,7 @@ class ListFeaturesResponse(proto.Message):
 
 class SearchFeaturesRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.SearchFeatures``.
+    [FeaturestoreService.SearchFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.SearchFeatures].
 
     Attributes:
         location (str):
@@ -1065,11 +1066,11 @@ class SearchFeaturesRequest(proto.Message):
             greater than 100 will be coerced to 100.
         page_token (str):
             A page token, received from a previous
-            ``FeaturestoreService.SearchFeatures``
+            [FeaturestoreService.SearchFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.SearchFeatures]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other parameters provided to
-            ``FeaturestoreService.SearchFeatures``,
+            [FeaturestoreService.SearchFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.SearchFeatures],
             except ``page_size``, must match the call that provided the
             page token.
     """
@@ -1085,7 +1086,7 @@ class SearchFeaturesRequest(proto.Message):
 
 class SearchFeaturesResponse(proto.Message):
     r"""Response message for
-    ``FeaturestoreService.SearchFeatures``.
+    [FeaturestoreService.SearchFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.SearchFeatures].
 
     Attributes:
         features (Sequence[google.cloud.aiplatform_v1beta1.types.Feature]):
@@ -1100,7 +1101,7 @@ class SearchFeaturesResponse(proto.Message):
             -  ``update_time``
         next_page_token (str):
             A token, which can be sent as
-            ``SearchFeaturesRequest.page_token``
+            [SearchFeaturesRequest.page_token][google.cloud.aiplatform.v1beta1.SearchFeaturesRequest.page_token]
             to retrieve the next page. If this field is omitted, there
             are no subsequent pages.
     """
@@ -1118,7 +1119,7 @@ class SearchFeaturesResponse(proto.Message):
 
 class UpdateFeatureRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.UpdateFeature``.
+    [FeaturestoreService.UpdateFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.UpdateFeature].
 
     Attributes:
         feature (google.cloud.aiplatform_v1beta1.types.Feature):
@@ -1149,7 +1150,7 @@ class UpdateFeatureRequest(proto.Message):
 
 class DeleteFeatureRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreService.DeleteFeature``.
+    [FeaturestoreService.DeleteFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeature].
 
     Attributes:
         name (str):

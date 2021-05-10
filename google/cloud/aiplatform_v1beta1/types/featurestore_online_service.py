@@ -39,7 +39,7 @@ __protobuf__ = proto.module(
 
 class ReadFeatureValuesRequest(proto.Message):
     r"""Request message for
-    ``FeaturestoreOnlineServingService.ReadFeatureValues``.
+    [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
 
     Attributes:
         entity_type (str):
@@ -68,7 +68,7 @@ class ReadFeatureValuesRequest(proto.Message):
 
 class ReadFeatureValuesResponse(proto.Message):
     r"""Response message for
-    ``FeaturestoreOnlineServingService.ReadFeatureValues``.
+    [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
 
     Attributes:
         header (google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse.Header):
@@ -93,13 +93,13 @@ class ReadFeatureValuesResponse(proto.Message):
 
     class Header(proto.Message):
         r"""Response header with metadata for the requested
-        ``ReadFeatureValuesRequest.entity_type``
+        [ReadFeatureValuesRequest.entity_type][google.cloud.aiplatform.v1beta1.ReadFeatureValuesRequest.entity_type]
         and Features.
 
         Attributes:
             entity_type (str):
                 The resource name of the EntityType from the
-                ``ReadFeatureValuesRequest``.
+                [ReadFeatureValuesRequest][google.cloud.aiplatform.v1beta1.ReadFeatureValuesRequest].
                 Value format:
                 ``projects/{project}/locations/{location}/featurestores/ {featurestore}/entityTypes/{entityType}``.
             feature_descriptors (Sequence[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse.FeatureDescriptor]):
@@ -127,7 +127,7 @@ class ReadFeatureValuesResponse(proto.Message):
                 exist, the corresponding cell will be empty. This has the
                 same size and is in the same order as the features from the
                 header
-                ``ReadFeatureValuesResponse.header``.
+                [ReadFeatureValuesResponse.header][google.cloud.aiplatform.v1beta1.ReadFeatureValuesResponse.header].
         """
 
         class Data(proto.Message):

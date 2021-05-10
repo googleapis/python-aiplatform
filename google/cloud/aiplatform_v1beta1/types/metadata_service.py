@@ -73,7 +73,7 @@ __protobuf__ = proto.module(
 
 class CreateMetadataStoreRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.CreateMetadataStore``.
+    [MetadataService.CreateMetadataStore][google.cloud.aiplatform.v1beta1.MetadataService.CreateMetadataStore].
 
     Attributes:
         parent (str):
@@ -106,7 +106,7 @@ class CreateMetadataStoreRequest(proto.Message):
 
 class CreateMetadataStoreOperationMetadata(proto.Message):
     r"""Details of operations that perform
-    ``MetadataService.CreateMetadataStore``.
+    [MetadataService.CreateMetadataStore][google.cloud.aiplatform.v1beta1.MetadataService.CreateMetadataStore].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
@@ -121,7 +121,7 @@ class CreateMetadataStoreOperationMetadata(proto.Message):
 
 class GetMetadataStoreRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.GetMetadataStore``.
+    [MetadataService.GetMetadataStore][google.cloud.aiplatform.v1beta1.MetadataService.GetMetadataStore].
 
     Attributes:
         name (str):
@@ -135,7 +135,7 @@ class GetMetadataStoreRequest(proto.Message):
 
 class ListMetadataStoresRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.ListMetadataStores``.
+    [MetadataService.ListMetadataStores][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataStores].
 
     Attributes:
         parent (str):
@@ -149,7 +149,7 @@ class ListMetadataStoresRequest(proto.Message):
             100.
         page_token (str):
             A page token, received from a previous
-            ``MetadataService.ListMetadataStores``
+            [MetadataService.ListMetadataStores][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataStores]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other provided parameters must match
@@ -166,14 +166,14 @@ class ListMetadataStoresRequest(proto.Message):
 
 class ListMetadataStoresResponse(proto.Message):
     r"""Response message for
-    ``MetadataService.ListMetadataStores``.
+    [MetadataService.ListMetadataStores][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataStores].
 
     Attributes:
         metadata_stores (Sequence[google.cloud.aiplatform_v1beta1.types.MetadataStore]):
             The MetadataStores found for the Location.
         next_page_token (str):
             A token, which can be sent as
-            ``ListMetadataStoresRequest.page_token``
+            [ListMetadataStoresRequest.page_token][google.cloud.aiplatform.v1beta1.ListMetadataStoresRequest.page_token]
             to retrieve the next page. If this field is not populated,
             there are no subsequent pages.
     """
@@ -191,7 +191,7 @@ class ListMetadataStoresResponse(proto.Message):
 
 class DeleteMetadataStoreRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.DeleteMetadataStore``.
+    [MetadataService.DeleteMetadataStore][google.cloud.aiplatform.v1beta1.MetadataService.DeleteMetadataStore].
 
     Attributes:
         name (str):
@@ -212,7 +212,7 @@ class DeleteMetadataStoreRequest(proto.Message):
 
 class DeleteMetadataStoreOperationMetadata(proto.Message):
     r"""Details of operations that perform
-    ``MetadataService.DeleteMetadataStore``.
+    [MetadataService.DeleteMetadataStore][google.cloud.aiplatform.v1beta1.MetadataService.DeleteMetadataStore].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
@@ -227,7 +227,7 @@ class DeleteMetadataStoreOperationMetadata(proto.Message):
 
 class CreateArtifactRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.CreateArtifact``.
+    [MetadataService.CreateArtifact][google.cloud.aiplatform.v1beta1.MetadataService.CreateArtifact].
 
     Attributes:
         parent (str):
@@ -257,7 +257,7 @@ class CreateArtifactRequest(proto.Message):
 
 class GetArtifactRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.GetArtifact``.
+    [MetadataService.GetArtifact][google.cloud.aiplatform.v1beta1.MetadataService.GetArtifact].
 
     Attributes:
         name (str):
@@ -271,7 +271,7 @@ class GetArtifactRequest(proto.Message):
 
 class ListArtifactsRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.ListArtifacts``.
+    [MetadataService.ListArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.ListArtifacts].
 
     Attributes:
         parent (str):
@@ -284,7 +284,7 @@ class ListArtifactsRequest(proto.Message):
             1-1000, inclusive. Defaults to 100.
         page_token (str):
             A page token, received from a previous
-            ``MetadataService.ListArtifacts``
+            [MetadataService.ListArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.ListArtifacts]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other provided parameters must match
@@ -329,7 +329,7 @@ class ListArtifactsRequest(proto.Message):
 
 class ListArtifactsResponse(proto.Message):
     r"""Response message for
-    ``MetadataService.ListArtifacts``.
+    [MetadataService.ListArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.ListArtifacts].
 
     Attributes:
         artifacts (Sequence[google.cloud.aiplatform_v1beta1.types.Artifact]):
@@ -337,7 +337,7 @@ class ListArtifactsResponse(proto.Message):
             MetadataStore.
         next_page_token (str):
             A token, which can be sent as
-            ``ListArtifactsRequest.page_token``
+            [ListArtifactsRequest.page_token][google.cloud.aiplatform.v1beta1.ListArtifactsRequest.page_token]
             to retrieve the next page. If this field is not populated,
             there are no subsequent pages.
     """
@@ -355,12 +355,12 @@ class ListArtifactsResponse(proto.Message):
 
 class UpdateArtifactRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.UpdateArtifact``.
+    [MetadataService.UpdateArtifact][google.cloud.aiplatform.v1beta1.MetadataService.UpdateArtifact].
 
     Attributes:
         artifact (google.cloud.aiplatform_v1beta1.types.Artifact):
             Required. The Artifact containing updates. The Artifact's
-            ``Artifact.name``
+            [Artifact.name][google.cloud.aiplatform.v1beta1.Artifact.name]
             field is used to identify the Artifact to be updated.
             Format:
             projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
@@ -369,9 +369,9 @@ class UpdateArtifactRequest(proto.Message):
             should be updated.
         allow_missing (bool):
             If set to true, and the
-            ``Artifact`` is not
+            [Artifact][google.cloud.aiplatform.v1beta1.Artifact] is not
             found, a new
-            ``Artifact`` will be
+            [Artifact][google.cloud.aiplatform.v1beta1.Artifact] will be
             created. In this situation, ``update_mask`` is ignored.
     """
 
@@ -384,7 +384,7 @@ class UpdateArtifactRequest(proto.Message):
 
 class CreateContextRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.CreateContext``.
+    [MetadataService.CreateContext][google.cloud.aiplatform.v1beta1.MetadataService.CreateContext].
 
     Attributes:
         parent (str):
@@ -414,7 +414,7 @@ class CreateContextRequest(proto.Message):
 
 class GetContextRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.GetContext``.
+    [MetadataService.GetContext][google.cloud.aiplatform.v1beta1.MetadataService.GetContext].
 
     Attributes:
         name (str):
@@ -428,7 +428,7 @@ class GetContextRequest(proto.Message):
 
 class ListContextsRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.ListContexts``
+    [MetadataService.ListContexts][google.cloud.aiplatform.v1beta1.MetadataService.ListContexts]
 
     Attributes:
         parent (str):
@@ -441,7 +441,7 @@ class ListContextsRequest(proto.Message):
             1-1000, inclusive. Defaults to 100.
         page_token (str):
             A page token, received from a previous
-            ``MetadataService.ListContexts``
+            [MetadataService.ListContexts][google.cloud.aiplatform.v1beta1.MetadataService.ListContexts]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other provided parameters must match
@@ -462,7 +462,7 @@ class ListContextsRequest(proto.Message):
 
 class ListContextsResponse(proto.Message):
     r"""Response message for
-    ``MetadataService.ListContexts``.
+    [MetadataService.ListContexts][google.cloud.aiplatform.v1beta1.MetadataService.ListContexts].
 
     Attributes:
         contexts (Sequence[google.cloud.aiplatform_v1beta1.types.Context]):
@@ -470,7 +470,7 @@ class ListContextsResponse(proto.Message):
             MetadataStore.
         next_page_token (str):
             A token, which can be sent as
-            ``ListContextsRequest.page_token``
+            [ListContextsRequest.page_token][google.cloud.aiplatform.v1beta1.ListContextsRequest.page_token]
             to retrieve the next page. If this field is not populated,
             there are no subsequent pages.
     """
@@ -488,12 +488,12 @@ class ListContextsResponse(proto.Message):
 
 class UpdateContextRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.UpdateContext``.
+    [MetadataService.UpdateContext][google.cloud.aiplatform.v1beta1.MetadataService.UpdateContext].
 
     Attributes:
         context (google.cloud.aiplatform_v1beta1.types.Context):
             Required. The Context containing updates. The Context's
-            ``Context.name``
+            [Context.name][google.cloud.aiplatform.v1beta1.Context.name]
             field is used to identify the Context to be updated. Format:
             projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
@@ -501,9 +501,9 @@ class UpdateContextRequest(proto.Message):
             should be updated.
         allow_missing (bool):
             If set to true, and the
-            ``Context`` is not
+            [Context][google.cloud.aiplatform.v1beta1.Context] is not
             found, a new
-            ``Context`` will be
+            [Context][google.cloud.aiplatform.v1beta1.Context] will be
             created. In this situation, ``update_mask`` is ignored.
     """
 
@@ -516,7 +516,7 @@ class UpdateContextRequest(proto.Message):
 
 class DeleteContextRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.DeleteContext``.
+    [MetadataService.DeleteContext][google.cloud.aiplatform.v1beta1.MetadataService.DeleteContext].
 
     Attributes:
         name (str):
@@ -537,7 +537,7 @@ class DeleteContextRequest(proto.Message):
 
 class AddContextArtifactsAndExecutionsRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.AddContextArtifactsAndExecutions``.
+    [MetadataService.AddContextArtifactsAndExecutions][google.cloud.aiplatform.v1beta1.MetadataService.AddContextArtifactsAndExecutions].
 
     Attributes:
         context (str):
@@ -562,13 +562,13 @@ class AddContextArtifactsAndExecutionsRequest(proto.Message):
 
 class AddContextArtifactsAndExecutionsResponse(proto.Message):
     r"""Response message for
-    ``MetadataService.AddContextArtifactsAndExecutions``.
+    [MetadataService.AddContextArtifactsAndExecutions][google.cloud.aiplatform.v1beta1.MetadataService.AddContextArtifactsAndExecutions].
     """
 
 
 class AddContextChildrenRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.AddContextChildren``.
+    [MetadataService.AddContextChildren][google.cloud.aiplatform.v1beta1.MetadataService.AddContextChildren].
 
     Attributes:
         context (str):
@@ -586,13 +586,13 @@ class AddContextChildrenRequest(proto.Message):
 
 class AddContextChildrenResponse(proto.Message):
     r"""Response message for
-    ``MetadataService.AddContextChildren``.
+    [MetadataService.AddContextChildren][google.cloud.aiplatform.v1beta1.MetadataService.AddContextChildren].
     """
 
 
 class QueryContextLineageSubgraphRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.QueryContextLineageSubgraph``.
+    [MetadataService.QueryContextLineageSubgraph][google.cloud.aiplatform.v1beta1.MetadataService.QueryContextLineageSubgraph].
 
     Attributes:
         context (str):
@@ -611,7 +611,7 @@ class QueryContextLineageSubgraphRequest(proto.Message):
 
 class CreateExecutionRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.CreateExecution``.
+    [MetadataService.CreateExecution][google.cloud.aiplatform.v1beta1.MetadataService.CreateExecution].
 
     Attributes:
         parent (str):
@@ -642,7 +642,7 @@ class CreateExecutionRequest(proto.Message):
 
 class GetExecutionRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.GetExecution``.
+    [MetadataService.GetExecution][google.cloud.aiplatform.v1beta1.MetadataService.GetExecution].
 
     Attributes:
         name (str):
@@ -656,7 +656,7 @@ class GetExecutionRequest(proto.Message):
 
 class ListExecutionsRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.ListExecutions``.
+    [MetadataService.ListExecutions][google.cloud.aiplatform.v1beta1.MetadataService.ListExecutions].
 
     Attributes:
         parent (str):
@@ -669,7 +669,7 @@ class ListExecutionsRequest(proto.Message):
             1-1000, inclusive. Defaults to 100.
         page_token (str):
             A page token, received from a previous
-            ``MetadataService.ListExecutions``
+            [MetadataService.ListExecutions][google.cloud.aiplatform.v1beta1.MetadataService.ListExecutions]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other provided parameters must match
@@ -715,7 +715,7 @@ class ListExecutionsRequest(proto.Message):
 
 class ListExecutionsResponse(proto.Message):
     r"""Response message for
-    ``MetadataService.ListExecutions``.
+    [MetadataService.ListExecutions][google.cloud.aiplatform.v1beta1.MetadataService.ListExecutions].
 
     Attributes:
         executions (Sequence[google.cloud.aiplatform_v1beta1.types.Execution]):
@@ -723,7 +723,7 @@ class ListExecutionsResponse(proto.Message):
             MetadataStore.
         next_page_token (str):
             A token, which can be sent as
-            ``ListExecutionsRequest.page_token``
+            [ListExecutionsRequest.page_token][google.cloud.aiplatform.v1beta1.ListExecutionsRequest.page_token]
             to retrieve the next page. If this field is not populated,
             there are no subsequent pages.
     """
@@ -741,12 +741,12 @@ class ListExecutionsResponse(proto.Message):
 
 class UpdateExecutionRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.UpdateExecution``.
+    [MetadataService.UpdateExecution][google.cloud.aiplatform.v1beta1.MetadataService.UpdateExecution].
 
     Attributes:
         execution (google.cloud.aiplatform_v1beta1.types.Execution):
             Required. The Execution containing updates. The Execution's
-            ``Execution.name``
+            [Execution.name][google.cloud.aiplatform.v1beta1.Execution.name]
             field is used to identify the Execution to be updated.
             Format:
             projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
@@ -755,9 +755,9 @@ class UpdateExecutionRequest(proto.Message):
             should be updated.
         allow_missing (bool):
             If set to true, and the
-            ``Execution`` is
+            [Execution][google.cloud.aiplatform.v1beta1.Execution] is
             not found, a new
-            ``Execution`` will
+            [Execution][google.cloud.aiplatform.v1beta1.Execution] will
             be created. In this situation, ``update_mask`` is ignored.
     """
 
@@ -770,7 +770,7 @@ class UpdateExecutionRequest(proto.Message):
 
 class AddExecutionEventsRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.AddExecutionEvents``.
+    [MetadataService.AddExecutionEvents][google.cloud.aiplatform.v1beta1.MetadataService.AddExecutionEvents].
 
     Attributes:
         execution (str):
@@ -789,13 +789,13 @@ class AddExecutionEventsRequest(proto.Message):
 
 class AddExecutionEventsResponse(proto.Message):
     r"""Response message for
-    ``MetadataService.AddExecutionEvents``.
+    [MetadataService.AddExecutionEvents][google.cloud.aiplatform.v1beta1.MetadataService.AddExecutionEvents].
     """
 
 
 class QueryExecutionInputsAndOutputsRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.QueryExecutionInputsAndOutputs``.
+    [MetadataService.QueryExecutionInputsAndOutputs][google.cloud.aiplatform.v1beta1.MetadataService.QueryExecutionInputsAndOutputs].
 
     Attributes:
         execution (str):
@@ -810,7 +810,7 @@ class QueryExecutionInputsAndOutputsRequest(proto.Message):
 
 class CreateMetadataSchemaRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.CreateMetadataSchema``.
+    [MetadataService.CreateMetadataSchema][google.cloud.aiplatform.v1beta1.MetadataService.CreateMetadataSchema].
 
     Attributes:
         parent (str):
@@ -844,7 +844,7 @@ class CreateMetadataSchemaRequest(proto.Message):
 
 class GetMetadataSchemaRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.GetMetadataSchema``.
+    [MetadataService.GetMetadataSchema][google.cloud.aiplatform.v1beta1.MetadataService.GetMetadataSchema].
 
     Attributes:
         name (str):
@@ -858,7 +858,7 @@ class GetMetadataSchemaRequest(proto.Message):
 
 class ListMetadataSchemasRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.ListMetadataSchemas``.
+    [MetadataService.ListMetadataSchemas][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataSchemas].
 
     Attributes:
         parent (str):
@@ -872,7 +872,7 @@ class ListMetadataSchemasRequest(proto.Message):
             100.
         page_token (str):
             A page token, received from a previous
-            ``MetadataService.ListMetadataSchemas``
+            [MetadataService.ListMetadataSchemas][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataSchemas]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other provided parameters must match
@@ -894,7 +894,7 @@ class ListMetadataSchemasRequest(proto.Message):
 
 class ListMetadataSchemasResponse(proto.Message):
     r"""Response message for
-    ``MetadataService.ListMetadataSchemas``.
+    [MetadataService.ListMetadataSchemas][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataSchemas].
 
     Attributes:
         metadata_schemas (Sequence[google.cloud.aiplatform_v1beta1.types.MetadataSchema]):
@@ -902,7 +902,7 @@ class ListMetadataSchemasResponse(proto.Message):
             MetadataStore.
         next_page_token (str):
             A token, which can be sent as
-            ``ListMetadataSchemasRequest.page_token``
+            [ListMetadataSchemasRequest.page_token][google.cloud.aiplatform.v1beta1.ListMetadataSchemasRequest.page_token]
             to retrieve the next page. If this field is not populated,
             there are no subsequent pages.
     """
@@ -920,7 +920,7 @@ class ListMetadataSchemasResponse(proto.Message):
 
 class QueryArtifactLineageSubgraphRequest(proto.Message):
     r"""Request message for
-    ``MetadataService.QueryArtifactLineageSubgraph``.
+    [MetadataService.QueryArtifactLineageSubgraph][google.cloud.aiplatform.v1beta1.MetadataService.QueryArtifactLineageSubgraph].
 
     Attributes:
         artifact (str):

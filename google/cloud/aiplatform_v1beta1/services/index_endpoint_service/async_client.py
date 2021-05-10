@@ -197,7 +197,7 @@ class IndexEndpointServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateIndexEndpointRequest`):
                 The request object. Request message for
-                ``IndexEndpointService.CreateIndexEndpoint``.
+                [IndexEndpointService.CreateIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.CreateIndexEndpoint].
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the IndexEndpoint in. Format:
@@ -252,7 +252,7 @@ class IndexEndpointServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.create_index_endpoint,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -290,7 +290,7 @@ class IndexEndpointServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetIndexEndpointRequest`):
                 The request object. Request message for
-                ``IndexEndpointService.GetIndexEndpoint``
+                [IndexEndpointService.GetIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.GetIndexEndpoint]
             name (:class:`str`):
                 Required. The name of the IndexEndpoint resource.
                 Format:
@@ -335,7 +335,7 @@ class IndexEndpointServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_index_endpoint,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -365,7 +365,7 @@ class IndexEndpointServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListIndexEndpointsRequest`):
                 The request object. Request message for
-                ``IndexEndpointService.ListIndexEndpoints``.
+                [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1beta1.IndexEndpointService.ListIndexEndpoints].
             parent (:class:`str`):
                 Required. The resource name of the Location from which
                 to list the IndexEndpoints. Format:
@@ -384,7 +384,7 @@ class IndexEndpointServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.index_endpoint_service.pagers.ListIndexEndpointsAsyncPager:
                 Response message for
-                ``IndexEndpointService.ListIndexEndpoints``.
+                [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1beta1.IndexEndpointService.ListIndexEndpoints].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -412,7 +412,7 @@ class IndexEndpointServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_index_endpoints,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -449,7 +449,7 @@ class IndexEndpointServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateIndexEndpointRequest`):
                 The request object. Request message for
-                ``IndexEndpointService.UpdateIndexEndpoint``.
+                [IndexEndpointService.UpdateIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.UpdateIndexEndpoint].
             index_endpoint (:class:`google.cloud.aiplatform_v1beta1.types.IndexEndpoint`):
                 Required. The IndexEndpoint which
                 replaces the resource on the server.
@@ -502,7 +502,7 @@ class IndexEndpointServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.update_index_endpoint,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -534,7 +534,7 @@ class IndexEndpointServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteIndexEndpointRequest`):
                 The request object. Request message for
-                ``IndexEndpointService.DeleteIndexEndpoint``.
+                [IndexEndpointService.DeleteIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeleteIndexEndpoint].
             name (:class:`str`):
                 Required. The name of the IndexEndpoint resource to be
                 deleted. Format:
@@ -591,7 +591,7 @@ class IndexEndpointServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_index_endpoint,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -632,7 +632,7 @@ class IndexEndpointServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeployIndexRequest`):
                 The request object. Request message for
-                ``IndexEndpointService.DeployIndex``.
+                [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex].
             index_endpoint (:class:`str`):
                 Required. The name of the IndexEndpoint resource into
                 which to deploy an Index. Format:
@@ -662,7 +662,7 @@ class IndexEndpointServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.DeployIndexResponse`
                 Response message for
-                ``IndexEndpointService.DeployIndex``.
+                [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex].
 
         """
         # Create or coerce a protobuf request object.
@@ -689,7 +689,7 @@ class IndexEndpointServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.deploy_index,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -732,7 +732,7 @@ class IndexEndpointServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UndeployIndexRequest`):
                 The request object. Request message for
-                ``IndexEndpointService.UndeployIndex``.
+                [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.UndeployIndex].
             index_endpoint (:class:`str`):
                 Required. The name of the IndexEndpoint resource from
                 which to undeploy an Index. Format:
@@ -762,7 +762,7 @@ class IndexEndpointServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.UndeployIndexResponse`
                 Response message for
-                ``IndexEndpointService.UndeployIndex``.
+                [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.UndeployIndex].
 
         """
         # Create or coerce a protobuf request object.
@@ -789,7 +789,7 @@ class IndexEndpointServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.undeploy_index,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 

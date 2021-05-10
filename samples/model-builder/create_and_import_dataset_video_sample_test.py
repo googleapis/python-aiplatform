@@ -16,7 +16,6 @@
 from google.cloud.aiplatform import schema
 
 import create_and_import_dataset_video_sample
-
 import test_constants as constants
 
 

@@ -373,15 +373,15 @@ class JobServiceGrpcTransport(JobServiceTransport):
         Cancels a CustomJob. Starts asynchronous cancellation on the
         CustomJob. The server makes a best effort to cancel the job, but
         success is not guaranteed. Clients can use
-        ``JobService.GetCustomJob``
+        [JobService.GetCustomJob][google.cloud.aiplatform.v1beta1.JobService.GetCustomJob]
         or other methods to check whether the cancellation succeeded or
         whether the job completed despite cancellation. On successful
         cancellation, the CustomJob is not deleted; instead it becomes a
         job with a
-        ``CustomJob.error``
-        value with a ``google.rpc.Status.code`` of
+        [CustomJob.error][google.cloud.aiplatform.v1beta1.CustomJob.error]
+        value with a [google.rpc.Status.code][google.rpc.Status.code] of
         1, corresponding to ``Code.CANCELLED``, and
-        ``CustomJob.state``
+        [CustomJob.state][google.cloud.aiplatform.v1beta1.CustomJob.state]
         is set to ``CANCELLED``.
 
         Returns:
@@ -678,15 +678,15 @@ class JobServiceGrpcTransport(JobServiceTransport):
         cancellation on the HyperparameterTuningJob. The server makes a
         best effort to cancel the job, but success is not guaranteed.
         Clients can use
-        ``JobService.GetHyperparameterTuningJob``
+        [JobService.GetHyperparameterTuningJob][google.cloud.aiplatform.v1beta1.JobService.GetHyperparameterTuningJob]
         or other methods to check whether the cancellation succeeded or
         whether the job completed despite cancellation. On successful
         cancellation, the HyperparameterTuningJob is not deleted;
         instead it becomes a job with a
-        ``HyperparameterTuningJob.error``
-        value with a ``google.rpc.Status.code`` of
+        [HyperparameterTuningJob.error][google.cloud.aiplatform.v1beta1.HyperparameterTuningJob.error]
+        value with a [google.rpc.Status.code][google.rpc.Status.code] of
         1, corresponding to ``Code.CANCELLED``, and
-        ``HyperparameterTuningJob.state``
+        [HyperparameterTuningJob.state][google.cloud.aiplatform.v1beta1.HyperparameterTuningJob.state]
         is set to ``CANCELLED``.
 
         Returns:
@@ -835,11 +835,11 @@ class JobServiceGrpcTransport(JobServiceTransport):
         Starts asynchronous cancellation on the BatchPredictionJob. The
         server makes the best effort to cancel the job, but success is
         not guaranteed. Clients can use
-        ``JobService.GetBatchPredictionJob``
+        [JobService.GetBatchPredictionJob][google.cloud.aiplatform.v1beta1.JobService.GetBatchPredictionJob]
         or other methods to check whether the cancellation succeeded or
         whether the job completed despite cancellation. On a successful
         cancellation, the BatchPredictionJob is not deleted;instead its
-        ``BatchPredictionJob.state``
+        [BatchPredictionJob.state][google.cloud.aiplatform.v1beta1.BatchPredictionJob.state]
         is set to ``CANCELLED``. Any files already outputted by the job
         are not deleted.
 
@@ -1062,7 +1062,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
 
         Pauses a ModelDeploymentMonitoringJob. If the job is running,
         the server makes a best effort to cancel the job. Will mark
-        ``ModelDeploymentMonitoringJob.state``
+        [ModelDeploymentMonitoringJob.state][google.cloud.aiplatform.v1beta1.ModelDeploymentMonitoringJob.state]
         to 'PAUSED'.
 
         Returns:

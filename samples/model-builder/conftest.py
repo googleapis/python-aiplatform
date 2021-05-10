@@ -148,6 +148,18 @@ def mock_custom_training_job():
 
 
 @pytest.fixture
+def mock_custom_container_training_job():
+    mock = MagicMock(aiplatform.training_jobs.CustomContainerTrainingJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_custom_package_training_job():
+    mock = MagicMock(aiplatform.training_jobs.CustomPythonPackageTrainingJob)
+    yield mock
+
+
+@pytest.fixture
 def mock_image_training_job():
     mock = MagicMock(aiplatform.training_jobs.AutoMLImageTrainingJob)
     yield mock
@@ -198,15 +210,41 @@ def mock_run_automl_image_training_job(mock_image_training_job):
 
 
 @pytest.fixture
-def mock_init_custom_training_job():
-    with patch.object(aiplatform.training_jobs.CustomTrainingJob, "__init__") as mock:
-        mock.return_value = None
+def mock_get_custom_training_job(mock_custom_training_job):
+    with patch.object(aiplatform, "CustomTrainingJob") as mock:
+        mock.return_value = mock_custom_training_job
         yield mock
 
 
 @pytest.fixture
-def mock_run_custom_training_job():
-    with patch.object(aiplatform.training_jobs.CustomTrainingJob, "run") as mock:
+def mock_get_custom_container_training_job(mock_custom_container_training_job):
+    with patch.object(aiplatform, "CustomContainerTrainingJob") as mock:
+        mock.return_value = mock_custom_container_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_get_custom_package_training_job(mock_custom_package_training_job):
+    with patch.object(aiplatform, "CustomPythonPackageTrainingJob") as mock:
+        mock.return_value = mock_custom_package_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_training_job(mock_custom_training_job):
+    with patch.object(mock_custom_training_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_container_training_job(mock_custom_container_training_job):
+    with patch.object(mock_custom_container_training_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_run_custom_package_training_job(mock_custom_package_training_job):
+    with patch.object(mock_custom_package_training_job, "run") as mock:
         yield mock
 
 
@@ -237,8 +275,9 @@ def mock_batch_predict_model(mock_model):
 
 
 @pytest.fixture
-def mock_upload_model():
-    with patch.object(aiplatform.models.Model, "upload") as mock:
+def mock_upload_model(mock_model):
+    with patch.object(aiplatform.Model, "upload") as mock:
+        mock.return_value = mock_model
         yield mock
 
 
@@ -277,7 +316,7 @@ def mock_endpoint():
 
 @pytest.fixture
 def mock_create_endpoint():
-    with patch.object(aiplatform.Endpoint, "create") as mock:
+    with patch.object(aiplatform.models.Endpoint, "create") as mock:
         yield mock
 
 
@@ -286,3 +325,10 @@ def mock_get_endpoint(mock_endpoint):
     with patch.object(aiplatform, "Endpoint") as mock_get_endpoint:
         mock_get_endpoint.return_value = mock_endpoint
         yield mock_get_endpoint
+
+
+@pytest.fixture
+def mock_endpoint_explain(mock_endpoint):
+    with patch.object(mock_endpoint, "explain") as mock_endpoint_explain:
+        mock_get_endpoint.return_value = mock_endpoint
+        yield mock_endpoint_explain

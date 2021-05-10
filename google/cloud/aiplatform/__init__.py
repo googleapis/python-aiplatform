@@ -20,8 +20,8 @@ from google.cloud.aiplatform import explain
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.datasets import (
-    TabularDataset,
     ImageDataset,
+    TabularDataset,
     TextDataset,
     VideoDataset,
 )

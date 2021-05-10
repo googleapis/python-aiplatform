@@ -375,7 +375,7 @@ class FeaturestoreOnlineServingServiceClient(
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesRequest):
                 The request object. Request message for
-                ``FeaturestoreOnlineServingService.ReadFeatureValues``.
+                [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
             entity_type (str):
                 Required. The resource name of the EntityType for the
                 entity being read. Value format:
@@ -397,7 +397,7 @@ class FeaturestoreOnlineServingServiceClient(
         Returns:
             google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse:
                 Response message for
-                ``FeaturestoreOnlineServingService.ReadFeatureValues``.
+                [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -481,7 +481,7 @@ class FeaturestoreOnlineServingServiceClient(
         Returns:
             Iterable[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse]:
                 Response message for
-                ``FeaturestoreOnlineServingService.ReadFeatureValues``.
+                [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
 
         """
         # Create or coerce a protobuf request object.

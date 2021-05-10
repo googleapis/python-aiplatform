@@ -152,7 +152,7 @@ class CustomJobSpec(proto.Message):
             CustomJob or HyperparameterTuningJob. For
             HyperparameterTuningJob, the baseOutputDirectory of each
             child CustomJob backing a Trial is set to a subdirectory of
-            name ``id`` under
+            name [id][google.cloud.aiplatform.v1beta1.Trial.id] under
             its parent HyperparameterTuningJob's baseOutputDirectory.
 
             The following AI Platform environment variables will be
@@ -177,7 +177,7 @@ class CustomJobSpec(proto.Message):
                ``<base_output_directory>/<trial_id>/logs/``
         tensorboard (str):
             Optional. The name of an AI Platform
-            ``Tensorboard``
+            [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
             resource to which this CustomJob will upload Tensorboard
             logs. Format:
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``

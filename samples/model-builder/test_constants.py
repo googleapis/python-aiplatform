@@ -94,7 +94,7 @@ PREDICTION_TABULAR_REGRESSOIN_INSTANCE = [
 SCRIPT_PATH = "task.py"
 CONTAINER_URI = "gcr.io/my_project/my_image:latest"
 ARGS = ["--tfds", "tf_flowers:3.*.*"]
-REPLICA_COUNT = 0
+REPLICA_COUNT = 1
 MACHINE_TYPE = "n1-standard-4"
 ACCELERATOR_TYPE = "ACCELERATOR_TYPE_UNSPECIFIED"
 ACCELERATOR_COUNT = 0
@@ -131,15 +131,31 @@ EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
     inputs={
         "features": {
             "input_tensor_name": "dense_input",
-            "encoding": "BAG_OF_FEATURES",
+            # Input is tabular data
             "modality": "numeric",
-            "index_feature_mapping": ["abc", "def", "ghj"],
+            # Assign feature names to the inputs for explanation
+            "encoding": "BAG_OF_FEATURES",
+            "index_feature_mapping": [
+                "crim",
+                "zn",
+                "indus",
+                "chas",
+                "nox",
+                "rm",
+                "age",
+                "dis",
+                "rad",
+                "tax",
+                "ptratio",
+                "b",
+                "lstat",
+            ],
         }
     },
-    outputs={"medv": {"output_tensor_name": "dense_2"}},
+    outputs={"prediction": {"output_tensor_name": "dense_2"}},
 )
 EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
-    {"sampled_shapley_attribution": {"path_count": 10}}
+    {"xrai_attribution": {"step_count": 1}}
 )
 
 # Endpoint constants
@@ -148,4 +164,30 @@ TRAFFIC_PERCENTAGE = 80
 TRAFFIC_SPLIT = {"a": 99, "b": 1}
 MIN_REPLICA_COUNT = 1
 MAX_REPLICA_COUNT = 1
+ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
+ACCELERATOR_COUNT = 2
 ENDPOINT_DEPLOY_METADATA = ()
+PREDICTION_TABULAR_INSTANCE = {
+    "longitude": "-124.35",
+    "latitude": "40.54",
+    "housing_median_age": "52.0",
+    "total_rooms": "1820.0",
+    "total_bedrooms": "300.0",
+    "population": "806",
+    "households": "270.0",
+    "median_income": "3.014700",
+}
+MODEL_SERVING_CONTAINER_COMMAND = (["/usr/bin/tensorflow_model_server"],)
+MODEL_SERVING_CONTAINER_ARGS = (
+    [
+        f"--model_name={MODEL_NAME}",
+        "--model_base_path=$(AIP_STORAGE_URI)",
+        "--rest_api_port=8080",
+        "--port=8500",
+        "--file_system_poll_wait_seconds=31540000",
+    ],
+)
+PYTHON_PACKAGE_GCS_URI = (
+    "gs://bucket3/custom-training-python-package/my_app/trainer-0.1.tar.gz"
+)
+PYTHON_MODULE_NAME = "trainer.task"

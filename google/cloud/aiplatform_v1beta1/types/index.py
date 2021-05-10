@@ -56,7 +56,7 @@ class Index(proto.Message):
         metadata (google.protobuf.struct_pb2.Value):
             An additional information about the Index; the schema of the
             metadata can be found in
-            ``metadata_schema``.
+            [metadata_schema][google.cloud.aiplatform.v1beta1.Index.metadata_schema_uri].
         deployed_indexes (Sequence[google.cloud.aiplatform_v1beta1.types.DeployedIndexRef]):
             Output only. The pointers to DeployedIndexes
             created from this Index. An Index can be only

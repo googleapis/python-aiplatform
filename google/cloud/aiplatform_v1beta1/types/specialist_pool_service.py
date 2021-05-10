@@ -40,7 +40,7 @@ __protobuf__ = proto.module(
 
 class CreateSpecialistPoolRequest(proto.Message):
     r"""Request message for
-    ``SpecialistPoolService.CreateSpecialistPool``.
+    [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.CreateSpecialistPool].
 
     Attributes:
         parent (str):
@@ -60,7 +60,7 @@ class CreateSpecialistPoolRequest(proto.Message):
 
 class CreateSpecialistPoolOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``SpecialistPoolService.CreateSpecialistPool``.
+    [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.CreateSpecialistPool].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
@@ -74,7 +74,7 @@ class CreateSpecialistPoolOperationMetadata(proto.Message):
 
 class GetSpecialistPoolRequest(proto.Message):
     r"""Request message for
-    ``SpecialistPoolService.GetSpecialistPool``.
+    [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.GetSpecialistPool].
 
     Attributes:
         name (str):
@@ -88,7 +88,7 @@ class GetSpecialistPoolRequest(proto.Message):
 
 class ListSpecialistPoolsRequest(proto.Message):
     r"""Request message for
-    ``SpecialistPoolService.ListSpecialistPools``.
+    [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
 
     Attributes:
         parent (str):
@@ -98,9 +98,9 @@ class ListSpecialistPoolsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained by
-            ``ListSpecialistPoolsResponse.next_page_token``
+            [ListSpecialistPoolsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListSpecialistPoolsResponse.next_page_token]
             of the previous
-            ``SpecialistPoolService.ListSpecialistPools``
+            [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools]
             call. Return first page if empty.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
@@ -118,7 +118,7 @@ class ListSpecialistPoolsRequest(proto.Message):
 
 class ListSpecialistPoolsResponse(proto.Message):
     r"""Response message for
-    ``SpecialistPoolService.ListSpecialistPools``.
+    [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
 
     Attributes:
         specialist_pools (Sequence[google.cloud.aiplatform_v1beta1.types.SpecialistPool]):
@@ -141,7 +141,7 @@ class ListSpecialistPoolsResponse(proto.Message):
 
 class DeleteSpecialistPoolRequest(proto.Message):
     r"""Request message for
-    ``SpecialistPoolService.DeleteSpecialistPool``.
+    [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.DeleteSpecialistPool].
 
     Attributes:
         name (str):
@@ -162,7 +162,7 @@ class DeleteSpecialistPoolRequest(proto.Message):
 
 class UpdateSpecialistPoolRequest(proto.Message):
     r"""Request message for
-    ``SpecialistPoolService.UpdateSpecialistPool``.
+    [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.UpdateSpecialistPool].
 
     Attributes:
         specialist_pool (google.cloud.aiplatform_v1beta1.types.SpecialistPool):
@@ -182,7 +182,7 @@ class UpdateSpecialistPoolRequest(proto.Message):
 
 class UpdateSpecialistPoolOperationMetadata(proto.Message):
     r"""Runtime operation metadata for
-    ``SpecialistPoolService.UpdateSpecialistPool``.
+    [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.UpdateSpecialistPool].
 
     Attributes:
         specialist_pool (str):

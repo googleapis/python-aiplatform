@@ -451,7 +451,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateTensorboardRequest):
                 The request object. Request message for
-                ``TensorboardService.CreateTensorboard``.
+                [TensorboardService.CreateTensorboard][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboard].
             parent (str):
                 Required. The resource name of the Location to create
                 the Tensorboard in. Format:
@@ -545,7 +545,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetTensorboardRequest):
                 The request object. Request message for
-                ``TensorboardService.GetTensorboard``.
+                [TensorboardService.GetTensorboard][google.cloud.aiplatform.v1beta1.TensorboardService.GetTensorboard].
             name (str):
                 Required. The name of the Tensorboard resource. Format:
                 ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
@@ -624,7 +624,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateTensorboardRequest):
                 The request object. Request message for
-                ``TensorboardService.UpdateTensorboard``.
+                [TensorboardService.UpdateTensorboard][google.cloud.aiplatform.v1beta1.TensorboardService.UpdateTensorboard].
             tensorboard (google.cloud.aiplatform_v1beta1.types.Tensorboard):
                 Required. The Tensorboard's ``name`` field is used to
                 identify the Tensorboard to be updated. Format:
@@ -727,7 +727,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListTensorboardsRequest):
                 The request object. Request message for
-                ``TensorboardService.ListTensorboards``.
+                [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboards].
             parent (str):
                 Required. The resource name of the
                 Location to list Tensorboards. Format:
@@ -746,7 +746,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.tensorboard_service.pagers.ListTensorboardsPager:
                 Response message for
-                ``TensorboardService.ListTensorboards``.
+                [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboards].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -811,7 +811,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteTensorboardRequest):
                 The request object. Request message for
-                ``TensorboardService.DeleteTensorboard``.
+                [TensorboardService.DeleteTensorboard][google.cloud.aiplatform.v1beta1.TensorboardService.DeleteTensorboard].
             name (str):
                 Required. The name of the Tensorboard to be deleted.
                 Format:
@@ -909,7 +909,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateTensorboardExperimentRequest):
                 The request object. Request message for
-                ``TensorboardService.CreateTensorboardExperiment``.
+                [TensorboardService.CreateTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboardExperiment].
             parent (str):
                 Required. The resource name of the Tensorboard to create
                 the TensorboardExperiment in. Format:
@@ -1012,7 +1012,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetTensorboardExperimentRequest):
                 The request object. Request message for
-                ``TensorboardService.GetTensorboardExperiment``.
+                [TensorboardService.GetTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.GetTensorboardExperiment].
             name (str):
                 Required. The name of the TensorboardExperiment
                 resource. Format:
@@ -1092,7 +1092,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateTensorboardExperimentRequest):
                 The request object. Request message for
-                ``TensorboardService.UpdateTensorboardExperiment``.
+                [TensorboardService.UpdateTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.UpdateTensorboardExperiment].
             tensorboard_experiment (google.cloud.aiplatform_v1beta1.types.TensorboardExperiment):
                 Required. The TensorboardExperiment's ``name`` field is
                 used to identify the TensorboardExperiment to be
@@ -1190,7 +1190,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListTensorboardExperimentsRequest):
                 The request object. Request message for
-                ``TensorboardService.ListTensorboardExperiments``.
+                [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardExperiments].
             parent (str):
                 Required. The resource name of the
                 Tensorboard to list
@@ -1210,7 +1210,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.tensorboard_service.pagers.ListTensorboardExperimentsPager:
                 Response message for
-                ``TensorboardService.ListTensorboardExperiments``.
+                [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardExperiments].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1279,7 +1279,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteTensorboardExperimentRequest):
                 The request object. Request message for
-                ``TensorboardService.DeleteTensorboardExperiment``.
+                [TensorboardService.DeleteTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.DeleteTensorboardExperiment].
             name (str):
                 Required. The name of the TensorboardExperiment to be
                 deleted. Format:
@@ -1381,7 +1381,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateTensorboardRunRequest):
                 The request object. Request message for
-                ``TensorboardService.CreateTensorboardRun``.
+                [TensorboardService.CreateTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboardRun].
             parent (str):
                 Required. The resource name of the Tensorboard to create
                 the TensorboardRun in. Format:
@@ -1480,7 +1480,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetTensorboardRunRequest):
                 The request object. Request message for
-                ``TensorboardService.GetTensorboardRun``.
+                [TensorboardService.GetTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.GetTensorboardRun].
             name (str):
                 Required. The name of the TensorboardRun resource.
                 Format:
@@ -1558,7 +1558,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateTensorboardRunRequest):
                 The request object. Request message for
-                ``TensorboardService.UpdateTensorboardRun``.
+                [TensorboardService.UpdateTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.UpdateTensorboardRun].
             tensorboard_run (google.cloud.aiplatform_v1beta1.types.TensorboardRun):
                 Required. The TensorboardRun's ``name`` field is used to
                 identify the TensorboardRun to be updated. Format:
@@ -1651,7 +1651,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListTensorboardRunsRequest):
                 The request object. Request message for
-                ``TensorboardService.ListTensorboardRuns``.
+                [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardRuns].
             parent (str):
                 Required. The resource name of the
                 Tensorboard to list TensorboardRuns.
@@ -1671,7 +1671,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.tensorboard_service.pagers.ListTensorboardRunsPager:
                 Response message for
-                ``TensorboardService.ListTensorboardRuns``.
+                [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardRuns].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1736,7 +1736,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteTensorboardRunRequest):
                 The request object. Request message for
-                ``TensorboardService.DeleteTensorboardRun``.
+                [TensorboardService.DeleteTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.DeleteTensorboardRun].
             name (str):
                 Required. The name of the TensorboardRun to be deleted.
                 Format:
@@ -1833,7 +1833,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateTensorboardTimeSeriesRequest):
                 The request object. Request message for
-                ``TensorboardService.CreateTensorboardTimeSeries``.
+                [TensorboardService.CreateTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboardTimeSeries].
             parent (str):
                 Required. The resource name of the TensorboardRun to
                 create the TensorboardTimeSeries in. Format:
@@ -1921,7 +1921,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetTensorboardTimeSeriesRequest):
                 The request object. Request message for
-                ``TensorboardService.GetTensorboardTimeSeries``.
+                [TensorboardService.GetTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.GetTensorboardTimeSeries].
             name (str):
                 Required. The name of the TensorboardTimeSeries
                 resource. Format:
@@ -1999,7 +1999,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateTensorboardTimeSeriesRequest):
                 The request object. Request message for
-                ``TensorboardService.UpdateTensorboardTimeSeries``.
+                [TensorboardService.UpdateTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.UpdateTensorboardTimeSeries].
             tensorboard_time_series (google.cloud.aiplatform_v1beta1.types.TensorboardTimeSeries):
                 Required. The TensorboardTimeSeries' ``name`` field is
                 used to identify the TensorboardTimeSeries to be
@@ -2100,7 +2100,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListTensorboardTimeSeriesRequest):
                 The request object. Request message for
-                ``TensorboardService.ListTensorboardTimeSeries``.
+                [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardTimeSeries].
             parent (str):
                 Required. The resource name of the
                 TensorboardRun to list
@@ -2120,7 +2120,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.tensorboard_service.pagers.ListTensorboardTimeSeriesPager:
                 Response message for
-                ``TensorboardService.ListTensorboardTimeSeries``.
+                [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardTimeSeries].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2189,7 +2189,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteTensorboardTimeSeriesRequest):
                 The request object. Request message for
-                ``TensorboardService.DeleteTensorboardTimeSeries``.
+                [TensorboardService.DeleteTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.DeleteTensorboardTimeSeries].
             name (str):
                 Required. The name of the TensorboardTimeSeries to be
                 deleted. Format:
@@ -2294,7 +2294,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ReadTensorboardTimeSeriesDataRequest):
                 The request object. Request message for
-                ``TensorboardService.ReadTensorboardTimeSeriesData``.
+                [TensorboardService.ReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardTimeSeriesData].
             tensorboard_time_series (str):
                 Required. The resource name of the TensorboardTimeSeries
                 to read data from. Format:
@@ -2313,7 +2313,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.ReadTensorboardTimeSeriesDataResponse:
                 Response message for
-                ``TensorboardService.ReadTensorboardTimeSeriesData``.
+                [TensorboardService.ReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardTimeSeriesData].
 
         """
         # Create or coerce a protobuf request object.
@@ -2378,7 +2378,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ReadTensorboardBlobDataRequest):
                 The request object. Request message for
-                ``TensorboardService.ReadTensorboardBlobData``.
+                [TensorboardService.ReadTensorboardBlobData][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardBlobData].
             time_series (str):
                 Required. The resource name of the TensorboardTimeSeries
                 to list Blobs. Format:
@@ -2397,7 +2397,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Returns:
             Iterable[google.cloud.aiplatform_v1beta1.types.ReadTensorboardBlobDataResponse]:
                 Response message for
-                ``TensorboardService.ReadTensorboardBlobData``.
+                [TensorboardService.ReadTensorboardBlobData][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardBlobData].
 
         """
         # Create or coerce a protobuf request object.
@@ -2460,7 +2460,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataRequest):
                 The request object. Request message for
-                ``TensorboardService.WriteTensorboardRunData``.
+                [TensorboardService.WriteTensorboardRunData][google.cloud.aiplatform.v1beta1.TensorboardService.WriteTensorboardRunData].
             tensorboard_run (str):
                 Required. The resource name of the TensorboardRun to
                 write data to. Format:
@@ -2492,7 +2492,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataResponse:
                 Response message for
-                ``TensorboardService.WriteTensorboardRunData``.
+                [TensorboardService.WriteTensorboardRunData][google.cloud.aiplatform.v1beta1.TensorboardService.WriteTensorboardRunData].
 
         """
         # Create or coerce a protobuf request object.
@@ -2555,7 +2555,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ExportTensorboardTimeSeriesDataRequest):
                 The request object. Request message for
-                ``TensorboardService.ExportTensorboardTimeSeriesData``.
+                [TensorboardService.ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ExportTensorboardTimeSeriesData].
             tensorboard_time_series (str):
                 Required. The resource name of the TensorboardTimeSeries
                 to export data from. Format:
@@ -2574,7 +2574,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.tensorboard_service.pagers.ExportTensorboardTimeSeriesDataPager:
                 Response message for
-                ``TensorboardService.ExportTensorboardTimeSeriesData``.
+                [TensorboardService.ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ExportTensorboardTimeSeriesData].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

@@ -384,7 +384,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateIndexRequest):
                 The request object. Request message for
-                ``IndexService.CreateIndex``.
+                [IndexService.CreateIndex][google.cloud.aiplatform.v1beta1.IndexService.CreateIndex].
             parent (str):
                 Required. The resource name of the Location to create
                 the Index in. Format:
@@ -477,7 +477,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetIndexRequest):
                 The request object. Request message for
-                ``IndexService.GetIndex``
+                [IndexService.GetIndex][google.cloud.aiplatform.v1beta1.IndexService.GetIndex]
             name (str):
                 Required. The name of the Index resource. Format:
                 ``projects/{project}/locations/{location}/indexes/{index}``
@@ -553,7 +553,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListIndexesRequest):
                 The request object. Request message for
-                ``IndexService.ListIndexes``.
+                [IndexService.ListIndexes][google.cloud.aiplatform.v1beta1.IndexService.ListIndexes].
             parent (str):
                 Required. The resource name of the Location from which
                 to list the Indexes. Format:
@@ -572,7 +572,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.index_service.pagers.ListIndexesPager:
                 Response message for
-                ``IndexService.ListIndexes``.
+                [IndexService.ListIndexes][google.cloud.aiplatform.v1beta1.IndexService.ListIndexes].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -638,7 +638,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateIndexRequest):
                 The request object. Request message for
-                ``IndexService.UpdateIndex``.
+                [IndexService.UpdateIndex][google.cloud.aiplatform.v1beta1.IndexService.UpdateIndex].
             index (google.cloud.aiplatform_v1beta1.types.Index):
                 Required. The Index which updates the
                 resource on the server.
@@ -731,13 +731,13 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes an Index. An Index can only be deleted when all its
-        ``DeployedIndexes``
+        [DeployedIndexes][google.cloud.aiplatform.v1beta1.Index.deployed_indexes]
         had been undeployed.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteIndexRequest):
                 The request object. Request message for
-                ``IndexService.DeleteIndex``.
+                [IndexService.DeleteIndex][google.cloud.aiplatform.v1beta1.IndexService.DeleteIndex].
             name (str):
                 Required. The name of the Index resource to be deleted.
                 Format:

@@ -196,7 +196,7 @@ class IndexServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateIndexRequest`):
                 The request object. Request message for
-                ``IndexService.CreateIndex``.
+                [IndexService.CreateIndex][google.cloud.aiplatform.v1beta1.IndexService.CreateIndex].
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the Index in. Format:
@@ -250,7 +250,7 @@ class IndexServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.create_index,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -288,7 +288,7 @@ class IndexServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetIndexRequest`):
                 The request object. Request message for
-                ``IndexService.GetIndex``
+                [IndexService.GetIndex][google.cloud.aiplatform.v1beta1.IndexService.GetIndex]
             name (:class:`str`):
                 Required. The name of the Index resource. Format:
                 ``projects/{project}/locations/{location}/indexes/{index}``
@@ -333,7 +333,7 @@ class IndexServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_index,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -363,7 +363,7 @@ class IndexServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListIndexesRequest`):
                 The request object. Request message for
-                ``IndexService.ListIndexes``.
+                [IndexService.ListIndexes][google.cloud.aiplatform.v1beta1.IndexService.ListIndexes].
             parent (:class:`str`):
                 Required. The resource name of the Location from which
                 to list the Indexes. Format:
@@ -382,7 +382,7 @@ class IndexServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.index_service.pagers.ListIndexesAsyncPager:
                 Response message for
-                ``IndexService.ListIndexes``.
+                [IndexService.ListIndexes][google.cloud.aiplatform.v1beta1.IndexService.ListIndexes].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -410,7 +410,7 @@ class IndexServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_indexes,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -447,7 +447,7 @@ class IndexServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateIndexRequest`):
                 The request object. Request message for
-                ``IndexService.UpdateIndex``.
+                [IndexService.UpdateIndex][google.cloud.aiplatform.v1beta1.IndexService.UpdateIndex].
             index (:class:`google.cloud.aiplatform_v1beta1.types.Index`):
                 Required. The Index which updates the
                 resource on the server.
@@ -503,7 +503,7 @@ class IndexServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.update_index,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -539,13 +539,13 @@ class IndexServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes an Index. An Index can only be deleted when all its
-        ``DeployedIndexes``
+        [DeployedIndexes][google.cloud.aiplatform.v1beta1.Index.deployed_indexes]
         had been undeployed.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteIndexRequest`):
                 The request object. Request message for
-                ``IndexService.DeleteIndex``.
+                [IndexService.DeleteIndex][google.cloud.aiplatform.v1beta1.IndexService.DeleteIndex].
             name (:class:`str`):
                 Required. The name of the Index resource to be deleted.
                 Format:
@@ -602,7 +602,7 @@ class IndexServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_index,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 

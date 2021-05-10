@@ -373,7 +373,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateSpecialistPoolRequest):
                 The request object. Request message for
-                ``SpecialistPoolService.CreateSpecialistPool``.
+                [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.CreateSpecialistPool].
             parent (str):
                 Required. The parent Project name for the new
                 SpecialistPool. The form is
@@ -473,7 +473,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetSpecialistPoolRequest):
                 The request object. Request message for
-                ``SpecialistPoolService.GetSpecialistPool``.
+                [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.GetSpecialistPool].
             name (str):
                 Required. The name of the SpecialistPool resource. The
                 form is
@@ -557,7 +557,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsRequest):
                 The request object. Request message for
-                ``SpecialistPoolService.ListSpecialistPools``.
+                [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
             parent (str):
                 Required. The name of the SpecialistPool's parent
                 resource. Format:
@@ -576,7 +576,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.specialist_pool_service.pagers.ListSpecialistPoolsPager:
                 Response message for
-                ``SpecialistPoolService.ListSpecialistPools``.
+                [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -642,7 +642,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteSpecialistPoolRequest):
                 The request object. Request message for
-                ``SpecialistPoolService.DeleteSpecialistPool``.
+                [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.DeleteSpecialistPool].
             name (str):
                 Required. The resource name of the SpecialistPool to
                 delete. Format:
@@ -739,7 +739,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateSpecialistPoolRequest):
                 The request object. Request message for
-                ``SpecialistPoolService.UpdateSpecialistPool``.
+                [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.UpdateSpecialistPool].
             specialist_pool (google.cloud.aiplatform_v1beta1.types.SpecialistPool):
                 Required. The SpecialistPool which
                 replaces the resource on the server.

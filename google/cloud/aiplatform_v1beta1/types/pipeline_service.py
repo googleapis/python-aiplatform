@@ -46,7 +46,7 @@ __protobuf__ = proto.module(
 
 class CreateTrainingPipelineRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.CreateTrainingPipeline``.
+    [PipelineService.CreateTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.CreateTrainingPipeline].
 
     Attributes:
         parent (str):
@@ -66,7 +66,7 @@ class CreateTrainingPipelineRequest(proto.Message):
 
 class GetTrainingPipelineRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.GetTrainingPipeline``.
+    [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.GetTrainingPipeline].
 
     Attributes:
         name (str):
@@ -79,7 +79,7 @@ class GetTrainingPipelineRequest(proto.Message):
 
 class ListTrainingPipelinesRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.ListTrainingPipelines``.
+    [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines].
 
     Attributes:
         parent (str):
@@ -106,9 +106,9 @@ class ListTrainingPipelinesRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            ``ListTrainingPipelinesResponse.next_page_token``
+            [ListTrainingPipelinesResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListTrainingPipelinesResponse.next_page_token]
             of the previous
-            ``PipelineService.ListTrainingPipelines``
+            [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines]
             call.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
@@ -127,7 +127,7 @@ class ListTrainingPipelinesRequest(proto.Message):
 
 class ListTrainingPipelinesResponse(proto.Message):
     r"""Response message for
-    ``PipelineService.ListTrainingPipelines``
+    [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines]
 
     Attributes:
         training_pipelines (Sequence[google.cloud.aiplatform_v1beta1.types.TrainingPipeline]):
@@ -135,7 +135,7 @@ class ListTrainingPipelinesResponse(proto.Message):
             page.
         next_page_token (str):
             A token to retrieve the next page of results. Pass to
-            ``ListTrainingPipelinesRequest.page_token``
+            [ListTrainingPipelinesRequest.page_token][google.cloud.aiplatform.v1beta1.ListTrainingPipelinesRequest.page_token]
             to obtain that page.
     """
 
@@ -152,7 +152,7 @@ class ListTrainingPipelinesResponse(proto.Message):
 
 class DeleteTrainingPipelineRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.DeleteTrainingPipeline``.
+    [PipelineService.DeleteTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.DeleteTrainingPipeline].
 
     Attributes:
         name (str):
@@ -166,7 +166,7 @@ class DeleteTrainingPipelineRequest(proto.Message):
 
 class CancelTrainingPipelineRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.CancelTrainingPipeline``.
+    [PipelineService.CancelTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.CancelTrainingPipeline].
 
     Attributes:
         name (str):
@@ -180,7 +180,7 @@ class CancelTrainingPipelineRequest(proto.Message):
 
 class CreatePipelineJobRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.CreatePipelineJob``.
+    [PipelineService.CreatePipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.CreatePipelineJob].
 
     Attributes:
         parent (str):
@@ -209,7 +209,7 @@ class CreatePipelineJobRequest(proto.Message):
 
 class GetPipelineJobRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.GetPipelineJob``.
+    [PipelineService.GetPipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.GetPipelineJob].
 
     Attributes:
         name (str):
@@ -222,7 +222,7 @@ class GetPipelineJobRequest(proto.Message):
 
 class ListPipelineJobsRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.ListPipelineJobs``.
+    [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.ListPipelineJobs].
 
     Attributes:
         parent (str):
@@ -245,9 +245,9 @@ class ListPipelineJobsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            ``ListPipelineJobsResponse.next_page_token``
+            [ListPipelineJobsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListPipelineJobsResponse.next_page_token]
             of the previous
-            ``PipelineService.ListPipelineJobs``
+            [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.ListPipelineJobs]
             call.
     """
 
@@ -262,14 +262,14 @@ class ListPipelineJobsRequest(proto.Message):
 
 class ListPipelineJobsResponse(proto.Message):
     r"""Response message for
-    ``PipelineService.ListPipelineJobs``
+    [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.ListPipelineJobs]
 
     Attributes:
         pipeline_jobs (Sequence[google.cloud.aiplatform_v1beta1.types.PipelineJob]):
             List of PipelineJobs in the requested page.
         next_page_token (str):
             A token to retrieve the next page of results. Pass to
-            ``ListPipelineJobsRequest.page_token``
+            [ListPipelineJobsRequest.page_token][google.cloud.aiplatform.v1beta1.ListPipelineJobsRequest.page_token]
             to obtain that page.
     """
 
@@ -286,7 +286,7 @@ class ListPipelineJobsResponse(proto.Message):
 
 class DeletePipelineJobRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.DeletePipelineJob``.
+    [PipelineService.DeletePipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.DeletePipelineJob].
 
     Attributes:
         name (str):
@@ -300,7 +300,7 @@ class DeletePipelineJobRequest(proto.Message):
 
 class CancelPipelineJobRequest(proto.Message):
     r"""Request message for
-    ``PipelineService.CancelPipelineJob``.
+    [PipelineService.CancelPipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.CancelPipelineJob].
 
     Attributes:
         name (str):

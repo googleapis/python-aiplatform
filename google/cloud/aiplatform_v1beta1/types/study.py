@@ -486,9 +486,9 @@ class StudySpec(proto.Message):
         Attributes:
             use_elapsed_duration (bool):
                 True if
-                ``Measurement.elapsed_duration``
+                [Measurement.elapsed_duration][google.cloud.aiplatform.v1beta1.Measurement.elapsed_duration]
                 is used as the x-axis of each Trials Decay Curve. Otherwise,
-                ``Measurement.step_count``
+                [Measurement.step_count][google.cloud.aiplatform.v1beta1.Measurement.step_count]
                 will be used as the x-axis.
         """
 
@@ -505,7 +505,7 @@ class StudySpec(proto.Message):
         Attributes:
             use_elapsed_duration (bool):
                 True if median automated stopping rule applies on
-                ``Measurement.elapsed_duration``.
+                [Measurement.elapsed_duration][google.cloud.aiplatform.v1beta1.Measurement.elapsed_duration].
                 It means that elapsed_duration field of latest measurement
                 of current Trial is used to compute median objective value
                 for each completed Trials.

@@ -130,7 +130,6 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         super().__init__(project=project, location=location, credentials=credentials)
         self._display_name = display_name
-        self._project = project
         self._training_encryption_spec = initializer.global_config.get_encryption_spec(
             encryption_spec_key_name=training_encryption_spec_key_name
         )
@@ -1806,6 +1805,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
         replica_count: int = 0,
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
@@ -1881,6 +1881,13 @@ class CustomTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+
+                AI Platform sets the following environment variables when it runs your training code:
+
+                -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
+                -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
+                -  AIP_TENSORBOARD_LOG_DIR: a Cloud Storage URI of a directory intended for saving TensorBoard logs, i.e. <base_output_dir>/logs/
+
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
@@ -1901,6 +1908,16 @@ class CustomTrainingJob(_CustomTrainingJob):
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
+            environment_variables (Dict[str, str]):
+                Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
             replica_count (int):
                 The number of worker replicas. If replica count = 1 then one chief
                 replica will be provisioned. If replica_count > 1 the remainder will be
@@ -1961,6 +1978,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
             args=args,
+            environment_variables=environment_variables,
             base_output_dir=base_output_dir,
             service_account=service_account,
             bigquery_destination=bigquery_destination,
@@ -1987,6 +2005,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
@@ -2019,9 +2038,26 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Model proto if this script produces a Managed Model.
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
+            environment_variables (Dict[str, str]):
+                Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+
+                AI Platform sets the following environment variables when it runs your training code:
+
+                -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
+                -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
+                -  AIP_TENSORBOARD_LOG_DIR: a Cloud Storage URI of a directory intended for saving TensorBoard logs, i.e. <base_output_dir>/logs/
+
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
@@ -2083,6 +2119,9 @@ class CustomTrainingJob(_CustomTrainingJob):
 
             if args:
                 spec["pythonPackageSpec"]["args"] = args
+
+            if environment_variables:
+                spec["pythonPackageSpec"]["env"] = environment_variables
 
         (
             training_task_inputs,
@@ -2335,6 +2374,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
         replica_count: int = 0,
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
@@ -2403,6 +2443,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+
+                AI Platform sets the following environment variables when it runs your training code:
+
+                -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
+                -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
+                -  AIP_TENSORBOARD_LOG_DIR: a Cloud Storage URI of a directory intended for saving TensorBoard logs, i.e. <base_output_dir>/logs/
+
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
@@ -2423,6 +2470,16 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
+            environment_variables (Dict[str, str]):
+                Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
             replica_count (int):
                 The number of worker replicas. If replica count = 1 then one chief
                 replica will be provisioned. If replica_count > 1 the remainder will be
@@ -2482,6 +2539,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
             args=args,
+            environment_variables=environment_variables,
             base_output_dir=base_output_dir,
             service_account=service_account,
             bigquery_destination=bigquery_destination,
@@ -2507,6 +2565,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
@@ -2536,9 +2595,26 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Model proto if this script produces a Managed Model.
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
+            environment_variables (Dict[str, str]):
+                Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+
+                AI Platform sets the following environment variables when it runs your training code:
+
+                -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
+                -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
+                -  AIP_TENSORBOARD_LOG_DIR: a Cloud Storage URI of a directory intended for saving TensorBoard logs, i.e. <base_output_dir>/logs/
+
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
@@ -2593,6 +2669,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
             if args:
                 spec["containerSpec"]["args"] = args
+
+            if environment_variables:
+                spec["containerSpec"]["env"] = environment_variables
 
         (
             training_task_inputs,
@@ -2955,10 +3034,31 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         training_task_definition = schema.training_job.definition.automl_tabular
 
+        if self._column_transformations is None:
+            _LOGGER.info(
+                "No column transformations provided, so now retrieving columns from dataset in order to set default column transformations."
+            )
+
+            column_names = [
+                column_name
+                for column_name in dataset.column_names
+                if column_name != target_column
+            ]
+            column_transformations = [
+                {"auto": {"column_name": column_name}} for column_name in column_names
+            ]
+
+            _LOGGER.info(
+                "The column transformation of type 'auto' was set for the following columns: %s."
+                % column_names
+            )
+        else:
+            column_transformations = self._column_transformations
+
         training_task_inputs_dict = {
             # required inputs
             "targetColumn": target_column,
-            "transformations": self._column_transformations,
+            "transformations": column_transformations,
             "trainBudgetMilliNodeHours": budget_milli_node_hours,
             # optional inputs
             "weightColumnName": weight_column,
@@ -3605,6 +3705,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
         replica_count: int = 0,
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
@@ -3673,6 +3774,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+
+                AI Platform sets the following environment variables when it runs your training code:
+
+                -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
+                -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
+                -  AIP_TENSORBOARD_LOG_DIR: a Cloud Storage URI of a directory intended for saving TensorBoard logs, i.e. <base_output_dir>/logs/
+
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
@@ -3693,6 +3801,16 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
+            environment_variables (Dict[str, str]):
+                Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
             replica_count (int):
                 The number of worker replicas. If replica count = 1 then one chief
                 replica will be provisioned. If replica_count > 1 the remainder will be
@@ -3747,6 +3865,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
             args=args,
+            environment_variables=environment_variables,
             base_output_dir=base_output_dir,
             service_account=service_account,
             training_fraction_split=training_fraction_split,
@@ -3772,6 +3891,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         training_fraction_split: float = 0.8,
@@ -3802,9 +3922,26 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Model proto if this script produces a Managed Model.
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
+            environment_variables (Dict[str, str]):
+                Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+
+                AI Platform sets the following environment variables when it runs your training code:
+
+                -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
+                -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
+                -  AIP_TENSORBOARD_LOG_DIR: a Cloud Storage URI of a directory intended for saving TensorBoard logs, i.e. <base_output_dir>/logs/
+
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
@@ -3845,6 +3982,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
             if args:
                 spec["pythonPackageSpec"]["args"] = args
+
+            if environment_variables:
+                spec["pythonPackageSpec"]["env"] = environment_variables
 
         (
             training_task_inputs,

@@ -383,7 +383,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateEndpointRequest):
                 The request object. Request message for
-                ``EndpointService.CreateEndpoint``.
+                [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.CreateEndpoint].
             parent (str):
                 Required. The resource name of the Location to create
                 the Endpoint in. Format:
@@ -475,7 +475,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetEndpointRequest):
                 The request object. Request message for
-                ``EndpointService.GetEndpoint``
+                [EndpointService.GetEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.GetEndpoint]
             name (str):
                 Required. The name of the Endpoint resource. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
@@ -550,7 +550,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListEndpointsRequest):
                 The request object. Request message for
-                ``EndpointService.ListEndpoints``.
+                [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
             parent (str):
                 Required. The resource name of the Location from which
                 to list the Endpoints. Format:
@@ -569,7 +569,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.endpoint_service.pagers.ListEndpointsPager:
                 Response message for
-                ``EndpointService.ListEndpoints``.
+                [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -635,7 +635,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateEndpointRequest):
                 The request object. Request message for
-                ``EndpointService.UpdateEndpoint``.
+                [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpoint].
             endpoint (google.cloud.aiplatform_v1beta1.types.Endpoint):
                 Required. The Endpoint which replaces
                 the resource on the server.
@@ -721,7 +721,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteEndpointRequest):
                 The request object. Request message for
-                ``EndpointService.DeleteEndpoint``.
+                [EndpointService.DeleteEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.DeleteEndpoint].
             name (str):
                 Required. The name of the Endpoint resource to be
                 deleted. Format:
@@ -822,7 +822,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeployModelRequest):
                 The request object. Request message for
-                ``EndpointService.DeployModel``.
+                [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
             endpoint (str):
                 Required. The name of the Endpoint resource into which
                 to deploy a Model. Format:
@@ -834,10 +834,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             deployed_model (google.cloud.aiplatform_v1beta1.types.DeployedModel):
                 Required. The DeployedModel to be created within the
                 Endpoint. Note that
-                ``Endpoint.traffic_split``
+                [Endpoint.traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
                 must be updated for the DeployedModel to start receiving
                 traffic, either as part of this call, or via
-                ``EndpointService.UpdateEndpoint``.
+                [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpoint].
 
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -848,7 +848,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 DeployedModel.
 
                 If this field is non-empty, then the Endpoint's
-                ``traffic_split``
+                [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
                 will be overwritten with it. To refer to the ID of the
                 just being deployed Model, a "0" should be used, and the
                 actual ID of the new DeployedModel will be filled in its
@@ -856,7 +856,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 add up to 100.
 
                 If this field is empty, then the Endpoint's
-                ``traffic_split``
+                [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
                 is not updated.
 
                 This corresponds to the ``traffic_split`` field
@@ -876,7 +876,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.DeployModelResponse`
                 Response message for
-                ``EndpointService.DeployModel``.
+                [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
 
         """
         # Create or coerce a protobuf request object.
@@ -950,7 +950,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UndeployModelRequest):
                 The request object. Request message for
-                ``EndpointService.UndeployModel``.
+                [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
             endpoint (str):
                 Required. The name of the Endpoint resource from which
                 to undeploy a Model. Format:
@@ -968,7 +968,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 should not be set.
             traffic_split (Sequence[google.cloud.aiplatform_v1beta1.types.UndeployModelRequest.TrafficSplitEntry]):
                 If this field is provided, then the Endpoint's
-                ``traffic_split``
+                [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
                 will be overwritten with it. If last DeployedModel is
                 being undeployed from the Endpoint, the
                 [Endpoint.traffic_split] will always end up empty when
@@ -994,7 +994,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.UndeployModelResponse`
                 Response message for
-                ``EndpointService.UndeployModel``.
+                [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
 
         """
         # Create or coerce a protobuf request object.

@@ -120,7 +120,7 @@ class DataLabelingJob(proto.Message):
 
             -  "aiplatform.googleapis.com/schema": output only, its
                value is the
-               ``inputs_schema``'s
+               [inputs_schema][google.cloud.aiplatform.v1.DataLabelingJob.inputs_schema_uri]'s
                title.
         specialist_pools (Sequence[str]):
             The SpecialistPools' resource names

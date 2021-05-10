@@ -21,10 +21,12 @@ from google.cloud import aiplatform
 def create_training_pipeline_custom_job_sample(
     project: str,
     location: str,
+    staging_bucket: str,
     display_name: str,
     script_path: str,
     container_uri: str,
     model_serving_container_image_uri: str,
+    dataset_id: Optional[str] = None,
     model_display_name: Optional[str] = None,
     args: Optional[List[Union[str, float, int]]] = None,
     replica_count: int = 0,
@@ -36,7 +38,7 @@ def create_training_pipeline_custom_job_sample(
     test_fraction_split: float = 0.1,
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location)
+    aiplatform.init(project=project, location=location, staging_bucket=staging_bucket)
 
     job = aiplatform.CustomTrainingJob(
         display_name=display_name,
@@ -45,7 +47,11 @@ def create_training_pipeline_custom_job_sample(
         model_serving_container_image_uri=model_serving_container_image_uri,
     )
 
+    # This example uses an ImageDataset, but you can use another type
+    dataset = aiplatform.ImageDataset(dataset_id) if dataset_id else None
+
     model = job.run(
+        dataset=dataset,
         model_display_name=model_display_name,
         args=args,
         replica_count=replica_count,

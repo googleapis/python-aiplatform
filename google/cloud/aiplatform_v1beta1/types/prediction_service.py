@@ -35,7 +35,7 @@ __protobuf__ = proto.module(
 
 class PredictRequest(proto.Message):
     r"""Request message for
-    ``PredictionService.Predict``.
+    [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
 
     Attributes:
         endpoint (str):
@@ -53,14 +53,14 @@ class PredictRequest(proto.Message):
             DeployedModels'
             [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-            ``instance_schema_uri``.
+            [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
         parameters (google.protobuf.struct_pb2.Value):
             The parameters that govern the prediction. The schema of the
             parameters may be specified via Endpoint's DeployedModels'
             [Model's
             ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-            ``parameters_schema_uri``.
+            [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
     """
 
     endpoint = proto.Field(proto.STRING, number=1)
@@ -72,7 +72,7 @@ class PredictRequest(proto.Message):
 
 class PredictResponse(proto.Message):
     r"""Response message for
-    ``PredictionService.Predict``.
+    [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
 
     Attributes:
         predictions (Sequence[google.protobuf.struct_pb2.Value]):
@@ -81,7 +81,7 @@ class PredictResponse(proto.Message):
             Endpoint's DeployedModels' [Model's
             ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-            ``prediction_schema_uri``.
+            [prediction_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.prediction_schema_uri].
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that
             served this prediction.
@@ -94,7 +94,7 @@ class PredictResponse(proto.Message):
 
 class ExplainRequest(proto.Message):
     r"""Request message for
-    ``PredictionService.Explain``.
+    [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
 
     Attributes:
         endpoint (str):
@@ -112,17 +112,17 @@ class ExplainRequest(proto.Message):
             DeployedModels'
             [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-            ``instance_schema_uri``.
+            [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
         parameters (google.protobuf.struct_pb2.Value):
             The parameters that govern the prediction. The schema of the
             parameters may be specified via Endpoint's DeployedModels'
             [Model's
             ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-            ``parameters_schema_uri``.
+            [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
         explanation_spec_override (google.cloud.aiplatform_v1beta1.types.ExplanationSpecOverride):
             If specified, overrides the
-            ``explanation_spec``
+            [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
             of the DeployedModel. Can be used for explaining prediction
             results with different configurations, such as:
 
@@ -134,7 +134,7 @@ class ExplainRequest(proto.Message):
         deployed_model_id (str):
             If specified, this ExplainRequest will be served by the
             chosen DeployedModel, overriding
-            ``Endpoint.traffic_split``.
+            [Endpoint.traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split].
     """
 
     endpoint = proto.Field(proto.STRING, number=1)
@@ -152,15 +152,15 @@ class ExplainRequest(proto.Message):
 
 class ExplainResponse(proto.Message):
     r"""Response message for
-    ``PredictionService.Explain``.
+    [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
 
     Attributes:
         explanations (Sequence[google.cloud.aiplatform_v1beta1.types.Explanation]):
             The explanations of the Model's
-            ``PredictResponse.predictions``.
+            [PredictResponse.predictions][google.cloud.aiplatform.v1beta1.PredictResponse.predictions].
 
             It has the same number of elements as
-            ``instances``
+            [instances][google.cloud.aiplatform.v1beta1.ExplainRequest.instances]
             to be explained.
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that
@@ -168,7 +168,7 @@ class ExplainResponse(proto.Message):
         predictions (Sequence[google.protobuf.struct_pb2.Value]):
             The predictions that are the output of the predictions call.
             Same as
-            ``PredictResponse.predictions``.
+            [PredictResponse.predictions][google.cloud.aiplatform.v1beta1.PredictResponse.predictions].
     """
 
     explanations = proto.RepeatedField(

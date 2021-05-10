@@ -46,9 +46,9 @@ class Endpoint(proto.Message):
         deployed_models (Sequence[google.cloud.aiplatform_v1beta1.types.DeployedModel]):
             Output only. The models deployed in this Endpoint. To add or
             remove DeployedModels use
-            ``EndpointService.DeployModel``
+            [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel]
             and
-            ``EndpointService.UndeployModel``
+            [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel]
             respectively.
         traffic_split (Sequence[google.cloud.aiplatform_v1beta1.types.Endpoint.TrafficSplitEntry]):
             A map from a DeployedModel's ID to the
@@ -142,19 +142,19 @@ class DeployedModel(proto.Message):
             Explanation configuration for this DeployedModel.
 
             When deploying a Model using
-            ``EndpointService.DeployModel``,
+            [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel],
             this value overrides the value of
-            ``Model.explanation_spec``.
+            [Model.explanation_spec][google.cloud.aiplatform.v1beta1.Model.explanation_spec].
             All fields of
-            ``explanation_spec``
+            [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
             are optional in the request. If a field of
-            ``explanation_spec``
+            [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
             is not populated, the value of the same field of
-            ``Model.explanation_spec``
+            [Model.explanation_spec][google.cloud.aiplatform.v1beta1.Model.explanation_spec]
             is inherited. If the corresponding
-            ``Model.explanation_spec``
+            [Model.explanation_spec][google.cloud.aiplatform.v1beta1.Model.explanation_spec]
             is not populated, all fields of the
-            ``explanation_spec``
+            [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
             will be used for the explanation configuration.
         service_account (str):
             The service account that the DeployedModel's container runs
