@@ -109,6 +109,7 @@ _TEST_NAME = (
 )
 _TEST_ALT_PROJECT = "test-project-alt"
 _TEST_ALT_LOCATION = "europe-west4"
+_TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
 _TEST_MODEL_INSTANCE_SCHEMA_URI = "instance_schema_uri.yaml"
 _TEST_MODEL_PARAMETERS_SCHEMA_URI = "parameters_schema_uri.yaml"
@@ -598,6 +599,7 @@ class TestCustomTrainingJob:
             dataset=mock_tabular_dataset,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
             args=_TEST_RUN_ARGS,
             environment_variables=_TEST_ENVIRONMENT_VARIABLES,
             replica_count=1,
@@ -697,6 +699,7 @@ class TestCustomTrainingJob:
                     "workerPoolSpecs": [true_worker_pool_spec],
                     "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
                     "serviceAccount": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
                 },
                 struct_pb2.Value(),
             ),
@@ -2524,6 +2527,7 @@ class TestCustomContainerTrainingJob:
             annotation_schema_uri=_TEST_ANNOTATION_SCHEMA_URI,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
             args=_TEST_RUN_ARGS,
             replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
@@ -2606,6 +2610,7 @@ class TestCustomContainerTrainingJob:
                     "workerPoolSpecs": [true_worker_pool_spec],
                     "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
                     "serviceAccount": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
                 },
                 struct_pb2.Value(),
             ),
@@ -2955,6 +2960,7 @@ class TestCustomPythonPackageTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
             args=_TEST_RUN_ARGS,
             environment_variables=_TEST_ENVIRONMENT_VARIABLES,
             replica_count=1,
@@ -3047,6 +3053,7 @@ class TestCustomPythonPackageTrainingJob:
                     "workerPoolSpecs": [true_worker_pool_spec],
                     "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
                     "serviceAccount": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK
                 },
                 struct_pb2.Value(),
             ),

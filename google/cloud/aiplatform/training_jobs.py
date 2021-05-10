@@ -1526,6 +1526,7 @@ class _CustomTrainingJob(_TrainingJob):
         worker_pool_specs: _DistributedTrainingSpec,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
+        network: Optional[str] = None,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
 
@@ -1538,6 +1539,11 @@ class _CustomTrainingJob(_TrainingJob):
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
         Returns:
             Training task inputs and Output directory for custom job.
         """
@@ -1556,6 +1562,8 @@ class _CustomTrainingJob(_TrainingJob):
 
         if service_account:
             training_task_inputs["serviceAccount"] = service_account
+        if network:
+            training_task_inputs["network"] = network
 
         return training_task_inputs, base_output_dir
 
@@ -1803,6 +1811,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
+        network: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
@@ -1891,6 +1900,11 @@ class CustomTrainingJob(_CustomTrainingJob):
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -1981,6 +1995,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
             service_account=service_account,
+            network=network,
             bigquery_destination=bigquery_destination,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
@@ -2008,6 +2023,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
+        network: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -2061,6 +2077,11 @@ class CustomTrainingJob(_CustomTrainingJob):
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -2127,7 +2148,10 @@ class CustomTrainingJob(_CustomTrainingJob):
             training_task_inputs,
             base_output_dir,
         ) = self._prepare_training_task_inputs_and_output_dir(
-            worker_pool_specs, base_output_dir, service_account
+            worker_pool_specs=worker_pool_specs,
+            base_output_dir=base_output_dir,
+            service_account=service_account,
+            network=network
         )
 
         model = self._run_job(
@@ -2372,6 +2396,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
+        network: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
@@ -2453,6 +2478,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -2542,6 +2572,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
             service_account=service_account,
+            network=network,
             bigquery_destination=bigquery_destination,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
@@ -2568,6 +2599,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
+        network: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -2618,6 +2650,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
                 The BigQuery project location where the training data is to
                 be written to. In the given project a new dataset is created
@@ -2677,7 +2714,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             training_task_inputs,
             base_output_dir,
         ) = self._prepare_training_task_inputs_and_output_dir(
-            worker_pool_specs, base_output_dir, service_account
+            worker_pool_specs=worker_pool_specs,
+            base_output_dir=base_output_dir,
+            service_account=service_account,
+            network=network
         )
 
         model = self._run_job(
@@ -3703,6 +3743,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
+        network: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
@@ -3784,6 +3825,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -3868,6 +3914,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
             service_account=service_account,
+            network=network,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
@@ -3894,6 +3941,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
+        network: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -3945,6 +3993,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             service_account (str):
                 Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
             training_fraction_split (float):
                 The fraction of the input data that is to be
                 used to train the Model.
@@ -3990,7 +4043,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             training_task_inputs,
             base_output_dir,
         ) = self._prepare_training_task_inputs_and_output_dir(
-            worker_pool_specs, base_output_dir, service_account
+            worker_pool_specs=worker_pool_specs,
+            base_output_dir=base_output_dir,
+            service_account=service_account,
+            network=network,
         )
 
         model = self._run_job(
