@@ -2121,7 +2121,10 @@ class CustomTrainingJob(_CustomTrainingJob):
                 spec["pythonPackageSpec"]["args"] = args
 
             if environment_variables:
-                spec["pythonPackageSpec"]["env"] = environment_variables
+                spec["pythonPackageSpec"]["env"] = [
+                    {"name": key, "value": value}
+                    for key, value in environment_variables.items()
+                ]
 
         (
             training_task_inputs,
@@ -2671,7 +2674,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 spec["containerSpec"]["args"] = args
 
             if environment_variables:
-                spec["containerSpec"]["env"] = environment_variables
+                spec["containerSpec"]["env"] = [
+                    {"name": key, "value": value}
+                    for key, value in environment_variables.items()
+                ]
 
         (
             training_task_inputs,
@@ -3734,7 +3740,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset,]):
                 AI Platform to fit this training against. Custom training script should
-                retrieve datasets through passed in environement variables uris:
+                retrieve datasets through passed in environment variables uris:
 
                 os.environ["AIP_TRAINING_DATA_URI"]
                 os.environ["AIP_VALIDATION_DATA_URI"]
@@ -3984,7 +3990,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 spec["pythonPackageSpec"]["args"] = args
 
             if environment_variables:
-                spec["pythonPackageSpec"]["env"] = environment_variables
+                spec["pythonPackageSpec"]["env"] = [
+                    {"name": key, "value": value}
+                    for key, value in environment_variables.items()
+                ]
 
         (
             training_task_inputs,
