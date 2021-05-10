@@ -99,9 +99,9 @@ class ModelDeploymentMonitoringJob(proto.Message):
             collected predict requests.
         sample_predict_instance (google.protobuf.struct_pb2.Value):
             Sample Predict instance, same format as
-            ``PredictRequest.instances``,
+            [PredictRequest.instances][google.cloud.aiplatform.v1beta1.PredictRequest.instances],
             this can be set as a replacement of
-            ``ModelDeploymentMonitoringJob.predict_instance_schema_uri``.
+            [ModelDeploymentMonitoringJob.predict_instance_schema_uri][google.cloud.aiplatform.v1beta1.ModelDeploymentMonitoringJob.predict_instance_schema_uri].
             If not set, we will generate predict schema from collected
             predict requests.
         analysis_instance_schema_uri (str):
@@ -111,7 +111,7 @@ class ModelDeploymentMonitoringJob(proto.Message):
 
             If this field is empty, all the feature data types are
             inferred from
-            ``predict_instance_schema_uri``,
+            [predict_instance_schema_uri][google.cloud.aiplatform.v1beta1.ModelDeploymentMonitoringJob.predict_instance_schema_uri],
             meaning that TFDV will use the data in the exact format(data
             type) as prediction request/response. If there are any data
             type differences between predict instance and TFDV instance,

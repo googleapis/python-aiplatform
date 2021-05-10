@@ -203,7 +203,7 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesRequest`):
                 The request object. Request message for
-                ``FeaturestoreOnlineServingService.ReadFeatureValues``.
+                [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
             entity_type (:class:`str`):
                 Required. The resource name of the EntityType for the
                 entity being read. Value format:
@@ -225,7 +225,7 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse:
                 Response message for
-                ``FeaturestoreOnlineServingService.ReadFeatureValues``.
+                [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -250,7 +250,7 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.read_feature_values,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -308,7 +308,7 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         Returns:
             AsyncIterable[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse]:
                 Response message for
-                ``FeaturestoreOnlineServingService.ReadFeatureValues``.
+                [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.ReadFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -333,7 +333,7 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.streaming_read_feature_values,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 

@@ -387,7 +387,7 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
         suggested by AI Platform Vizier. Returns a long-running
         operation associated with the generation of Trial suggestions.
         When this long-running operation succeeds, it will contain a
-        ``SuggestTrialsResponse``.
+        [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
 
         Returns:
             Callable[[~.SuggestTrialsRequest],
@@ -577,7 +577,7 @@ class VizierServiceGrpcTransport(VizierServiceTransport):
         Checks whether a Trial should stop or not. Returns a
         long-running operation. When the operation is successful, it
         will contain a
-        ``CheckTrialEarlyStoppingStateResponse``.
+        [CheckTrialEarlyStoppingStateResponse][google.cloud.ml.v1.CheckTrialEarlyStoppingStateResponse].
 
         Returns:
             Callable[[~.CheckTrialEarlyStoppingStateRequest],

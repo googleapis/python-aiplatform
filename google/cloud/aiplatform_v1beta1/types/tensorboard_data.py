@@ -117,7 +117,7 @@ class TensorboardTensor(proto.Message):
             https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/tensor.proto
         version_number (int):
             Optional. Version number of TensorProto used to serialize
-            ``value``.
+            [value][google.cloud.aiplatform.v1beta1.TensorboardTensor.value].
     """
 
     value = proto.Field(proto.BYTES, number=1)

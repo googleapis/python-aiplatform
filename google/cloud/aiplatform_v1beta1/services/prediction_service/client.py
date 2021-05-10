@@ -362,7 +362,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.PredictRequest):
                 The request object. Request message for
-                ``PredictionService.Predict``.
+                [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
             endpoint (str):
                 Required. The name of the Endpoint requested to serve
                 the prediction. Format:
@@ -382,7 +382,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                ``instance_schema_uri``.
+                [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
 
                 This corresponds to the ``instances`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -393,7 +393,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 DeployedModels' [Model's
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                ``parameters_schema_uri``.
+                [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
 
                 This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -408,7 +408,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.PredictResponse:
                 Response message for
-                ``PredictionService.Predict``.
+                [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
 
         """
         # Create or coerce a protobuf request object.
@@ -469,20 +469,20 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         r"""Perform an online explanation.
 
         If
-        ``deployed_model_id``
+        [deployed_model_id][google.cloud.aiplatform.v1beta1.ExplainRequest.deployed_model_id]
         is specified, the corresponding DeployModel must have
-        ``explanation_spec``
+        [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
         populated. If
-        ``deployed_model_id``
+        [deployed_model_id][google.cloud.aiplatform.v1beta1.ExplainRequest.deployed_model_id]
         is not specified, all DeployedModels must have
-        ``explanation_spec``
+        [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
         populated. Only deployed AutoML tabular Models have
         explanation_spec.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ExplainRequest):
                 The request object. Request message for
-                ``PredictionService.Explain``.
+                [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
             endpoint (str):
                 Required. The name of the Endpoint requested to serve
                 the explanation. Format:
@@ -502,7 +502,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 specified via Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                ``instance_schema_uri``.
+                [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
 
                 This corresponds to the ``instances`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -513,7 +513,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 DeployedModels' [Model's
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                ``parameters_schema_uri``.
+                [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
 
                 This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -521,7 +521,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
             deployed_model_id (str):
                 If specified, this ExplainRequest will be served by the
                 chosen DeployedModel, overriding
-                ``Endpoint.traffic_split``.
+                [Endpoint.traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split].
 
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -536,7 +536,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.ExplainResponse:
                 Response message for
-                ``PredictionService.Explain``.
+                [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
 
         """
         # Create or coerce a protobuf request object.

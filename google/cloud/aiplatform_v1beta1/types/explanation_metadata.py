@@ -38,16 +38,16 @@ class ExplanationMetadata(proto.Message):
 
             An empty InputMetadata is valid. It describes a text feature
             which has the name specified as the key in
-            ``ExplanationMetadata.inputs``.
+            [ExplanationMetadata.inputs][google.cloud.aiplatform.v1beta1.ExplanationMetadata.inputs].
             The baseline of the empty feature is chosen by AI Platform.
 
             For AI Platform provided Tensorflow images, the key can be
             any friendly name of the feature. Once specified,
-            ``featureAttributions``
+            [featureAttributions][google.cloud.aiplatform.v1beta1.Attribution.feature_attributions]
             are keyed by this key (if not grouped with another feature).
 
             For custom images, the key must match with the key in
-            ``instance``.
+            [instance][google.cloud.aiplatform.v1beta1.ExplainRequest.instances].
         outputs (Sequence[google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.OutputsEntry]):
             Required. Map from output names to output
             metadata.
@@ -75,7 +75,7 @@ class ExplanationMetadata(proto.Message):
         r"""Metadata of the input of a feature.
 
         Fields other than
-        ``InputMetadata.input_baselines``
+        [InputMetadata.input_baselines][google.cloud.aiplatform.v1beta1.ExplanationMetadata.InputMetadata.input_baselines]
         are applicable only for Models that are using AI Platform-provided
         images for Tensorflow.
 
@@ -95,12 +95,12 @@ class ExplanationMetadata(proto.Message):
 
                 For custom images, the element of the baselines must be in
                 the same format as the feature's input in the
-                ``instance``[].
+                [instance][google.cloud.aiplatform.v1beta1.ExplainRequest.instances][].
                 The schema of any single instance may be specified via
                 Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                ``instance_schema_uri``.
+                [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
             input_tensor_name (str):
                 Name of the input tensor for this feature.
                 Required and is only applicable to AI Platform
@@ -128,7 +128,7 @@ class ExplanationMetadata(proto.Message):
             index_feature_mapping (Sequence[str]):
                 A list of feature names for each index in the input tensor.
                 Required when the input
-                ``InputMetadata.encoding``
+                [InputMetadata.encoding][google.cloud.aiplatform.v1beta1.ExplanationMetadata.InputMetadata.encoding]
                 is BAG_OF_FEATURES, BAG_OF_FEATURES_SPARSE, INDICATOR.
             encoded_tensor_name (str):
                 Encoded tensor is a transformation of the input tensor. Must
@@ -370,9 +370,9 @@ class ExplanationMetadata(proto.Message):
                 The shape of the value must be an n-dimensional array of
                 strings. The number of dimensions must match that of the
                 outputs to be explained. The
-                ``Attribution.output_display_name``
+                [Attribution.output_display_name][google.cloud.aiplatform.v1beta1.Attribution.output_display_name]
                 is populated by locating in the mapping with
-                ``Attribution.output_index``.
+                [Attribution.output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index].
             display_name_mapping_key (str):
                 Specify a field name in the prediction to look for the
                 display name.
@@ -382,7 +382,7 @@ class ExplanationMetadata(proto.Message):
 
                 The display names in the prediction must have the same shape
                 of the outputs, so that it can be located by
-                ``Attribution.output_index``
+                [Attribution.output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index]
                 for a specific output.
             output_tensor_name (str):
                 Name of the output tensor. Required and is

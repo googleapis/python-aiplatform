@@ -17,7 +17,6 @@ from google.cloud.aiplatform import schema
 import pytest
 
 import import_data_video_classification_sample
-
 import test_constants as constants
 
 

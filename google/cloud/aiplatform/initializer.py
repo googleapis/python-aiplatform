@@ -180,7 +180,7 @@ class _Config:
         if self._credentials:
             return self._credentials
         logger = logging.getLogger("google.auth._default")
-        logging_warning_filter = utils.LoggingWarningFilter()
+        logging_warning_filter = utils.LoggingFilter(logging.WARNING)
         logger.addFilter(logging_warning_filter)
         credentials, _ = google.auth.default()
         logger.removeFilter(logging_warning_filter)
@@ -269,7 +269,8 @@ class _Config:
             "google-cloud-aiplatform",
         ).version
         client_info = gapic_v1.client_info.ClientInfo(
-            gapic_version=gapic_version, user_agent=f"model-builder/{gapic_version}"
+            gapic_version=gapic_version,
+            user_agent=f"{constants.USER_AGENT_PRODUCT}/{gapic_version}",
         )
 
         kwargs = {

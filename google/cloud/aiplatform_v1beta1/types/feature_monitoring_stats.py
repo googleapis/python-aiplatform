@@ -43,9 +43,9 @@ class FeatureStatsAnomaly(proto.Message):
             Feature importance score, only populated when cross-feature
             monitoring is enabled. For now only used to represent
             feature attribution score within range [0, 1] for
-            ``ModelDeploymentMonitoringObjectiveType.FEATURE_ATTRIBUTION_SKEW``
+            [ModelDeploymentMonitoringObjectiveType.FEATURE_ATTRIBUTION_SKEW][google.cloud.aiplatform.v1beta1.ModelDeploymentMonitoringObjectiveType.FEATURE_ATTRIBUTION_SKEW]
             and
-            ``ModelDeploymentMonitoringObjectiveType.FEATURE_ATTRIBUTION_DRIFT``.
+            [ModelDeploymentMonitoringObjectiveType.FEATURE_ATTRIBUTION_DRIFT][google.cloud.aiplatform.v1beta1.ModelDeploymentMonitoringObjectiveType.FEATURE_ATTRIBUTION_DRIFT].
         stats_uri (str):
             Path of the stats file for current feature values in Cloud
             Storage bucket. Format:
@@ -74,7 +74,7 @@ class FeatureStatsAnomaly(proto.Message):
             This is the threshold used when detecting anomalies. The
             threshold can be changed by user, so this one might be
             different from
-            ``ThresholdConfig.value``.
+            [ThresholdConfig.value][google.cloud.aiplatform.v1beta1.ThresholdConfig.value].
         start_time (google.protobuf.timestamp_pb2.Timestamp):
             The start timestamp of window where stats were generated.
             For objectives where time window doesn't make sense (e.g.

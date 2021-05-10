@@ -41,7 +41,7 @@ __protobuf__ = proto.module(
 
 class SearchMigratableResourcesRequest(proto.Message):
     r"""Request message for
-    ``MigrationService.SearchMigratableResources``.
+    [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
 
     Attributes:
         parent (str):
@@ -85,7 +85,7 @@ class SearchMigratableResourcesRequest(proto.Message):
 
 class SearchMigratableResourcesResponse(proto.Message):
     r"""Response message for
-    ``MigrationService.SearchMigratableResources``.
+    [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
 
     Attributes:
         migratable_resources (Sequence[google.cloud.aiplatform_v1.types.MigratableResource]):
@@ -110,7 +110,7 @@ class SearchMigratableResourcesResponse(proto.Message):
 
 class BatchMigrateResourcesRequest(proto.Message):
     r"""Request message for
-    ``MigrationService.BatchMigrateResources``.
+    [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
 
     Attributes:
         parent (str):
@@ -288,7 +288,7 @@ class MigrateResourceRequest(proto.Message):
 
 class BatchMigrateResourcesResponse(proto.Message):
     r"""Response message for
-    ``MigrationService.BatchMigrateResources``.
+    [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
 
     Attributes:
         migrate_resource_responses (Sequence[google.cloud.aiplatform_v1.types.MigrateResourceResponse]):
@@ -325,7 +325,7 @@ class MigrateResourceResponse(proto.Message):
 
 class BatchMigrateResourcesOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``MigrationService.BatchMigrateResources``.
+    [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
@@ -337,7 +337,7 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
 
     class PartialResult(proto.Message):
         r"""Represents a partial result in batch migration operation for one
-        ``MigrateResourceRequest``.
+        [MigrateResourceRequest][google.cloud.aiplatform.v1.MigrateResourceRequest].
 
         Attributes:
             error (google.rpc.status_pb2.Status):

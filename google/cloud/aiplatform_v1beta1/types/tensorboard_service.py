@@ -74,7 +74,7 @@ __protobuf__ = proto.module(
 
 class CreateTensorboardRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.CreateTensorboard``.
+    [TensorboardService.CreateTensorboard][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboard].
 
     Attributes:
         parent (str):
@@ -94,7 +94,7 @@ class CreateTensorboardRequest(proto.Message):
 
 class GetTensorboardRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.GetTensorboard``.
+    [TensorboardService.GetTensorboard][google.cloud.aiplatform.v1beta1.TensorboardService.GetTensorboard].
 
     Attributes:
         name (str):
@@ -107,7 +107,7 @@ class GetTensorboardRequest(proto.Message):
 
 class ListTensorboardsRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.ListTensorboards``.
+    [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboards].
 
     Attributes:
         parent (str):
@@ -125,11 +125,11 @@ class ListTensorboardsRequest(proto.Message):
             100 will be coerced to 100.
         page_token (str):
             A page token, received from a previous
-            ``TensorboardService.ListTensorboards``
+            [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboards]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other parameters provided to
-            ``TensorboardService.ListTensorboards``
+            [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboards]
             must match the call that provided the page token.
         order_by (str):
             Field to use to sort the list.
@@ -152,14 +152,14 @@ class ListTensorboardsRequest(proto.Message):
 
 class ListTensorboardsResponse(proto.Message):
     r"""Response message for
-    ``TensorboardService.ListTensorboards``.
+    [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboards].
 
     Attributes:
         tensorboards (Sequence[google.cloud.aiplatform_v1beta1.types.Tensorboard]):
             The Tensorboards mathching the request.
         next_page_token (str):
             A token, which can be sent as
-            ``ListTensorboardsRequest.page_token``
+            [ListTensorboardsRequest.page_token][google.cloud.aiplatform.v1beta1.ListTensorboardsRequest.page_token]
             to retrieve the next page. If this field is omitted, there
             are no subsequent pages.
     """
@@ -177,7 +177,7 @@ class ListTensorboardsResponse(proto.Message):
 
 class UpdateTensorboardRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.UpdateTensorboard``.
+    [TensorboardService.UpdateTensorboard][google.cloud.aiplatform.v1beta1.TensorboardService.UpdateTensorboard].
 
     Attributes:
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
@@ -203,7 +203,7 @@ class UpdateTensorboardRequest(proto.Message):
 
 class DeleteTensorboardRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.DeleteTensorboard``.
+    [TensorboardService.DeleteTensorboard][google.cloud.aiplatform.v1beta1.TensorboardService.DeleteTensorboard].
 
     Attributes:
         name (str):
@@ -216,7 +216,7 @@ class DeleteTensorboardRequest(proto.Message):
 
 class CreateTensorboardExperimentRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.CreateTensorboardExperiment``.
+    [TensorboardService.CreateTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboardExperiment].
 
     Attributes:
         parent (str):
@@ -247,7 +247,7 @@ class CreateTensorboardExperimentRequest(proto.Message):
 
 class GetTensorboardExperimentRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.GetTensorboardExperiment``.
+    [TensorboardService.GetTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.GetTensorboardExperiment].
 
     Attributes:
         name (str):
@@ -261,7 +261,7 @@ class GetTensorboardExperimentRequest(proto.Message):
 
 class ListTensorboardExperimentsRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.ListTensorboardExperiments``.
+    [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardExperiments].
 
     Attributes:
         parent (str):
@@ -281,11 +281,11 @@ class ListTensorboardExperimentsRequest(proto.Message):
             coerced to 1000.
         page_token (str):
             A page token, received from a previous
-            ``TensorboardService.ListTensorboardExperiments``
+            [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardExperiments]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other parameters provided to
-            ``TensorboardService.ListTensorboardExperiments``
+            [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardExperiments]
             must match the call that provided the page token.
         order_by (str):
             Field to use to sort the list.
@@ -308,7 +308,7 @@ class ListTensorboardExperimentsRequest(proto.Message):
 
 class ListTensorboardExperimentsResponse(proto.Message):
     r"""Response message for
-    ``TensorboardService.ListTensorboardExperiments``.
+    [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardExperiments].
 
     Attributes:
         tensorboard_experiments (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardExperiment]):
@@ -316,7 +316,7 @@ class ListTensorboardExperimentsResponse(proto.Message):
             request.
         next_page_token (str):
             A token, which can be sent as
-            ``ListTensorboardExperimentsRequest.page_token``
+            [ListTensorboardExperimentsRequest.page_token][google.cloud.aiplatform.v1beta1.ListTensorboardExperimentsRequest.page_token]
             to retrieve the next page. If this field is omitted, there
             are no subsequent pages.
     """
@@ -336,7 +336,7 @@ class ListTensorboardExperimentsResponse(proto.Message):
 
 class UpdateTensorboardExperimentRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.UpdateTensorboardExperiment``.
+    [TensorboardService.UpdateTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.UpdateTensorboardExperiment].
 
     Attributes:
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
@@ -364,7 +364,7 @@ class UpdateTensorboardExperimentRequest(proto.Message):
 
 class DeleteTensorboardExperimentRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.DeleteTensorboardExperiment``.
+    [TensorboardService.DeleteTensorboardExperiment][google.cloud.aiplatform.v1beta1.TensorboardService.DeleteTensorboardExperiment].
 
     Attributes:
         name (str):
@@ -378,7 +378,7 @@ class DeleteTensorboardExperimentRequest(proto.Message):
 
 class CreateTensorboardRunRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.CreateTensorboardRun``.
+    [TensorboardService.CreateTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboardRun].
 
     Attributes:
         parent (str):
@@ -407,7 +407,7 @@ class CreateTensorboardRunRequest(proto.Message):
 
 class GetTensorboardRunRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.GetTensorboardRun``.
+    [TensorboardService.GetTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.GetTensorboardRun].
 
     Attributes:
         name (str):
@@ -420,7 +420,7 @@ class GetTensorboardRunRequest(proto.Message):
 
 class ReadTensorboardBlobDataRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.ReadTensorboardBlobData``.
+    [TensorboardService.ReadTensorboardBlobData][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardBlobData].
 
     Attributes:
         time_series (str):
@@ -438,7 +438,7 @@ class ReadTensorboardBlobDataRequest(proto.Message):
 
 class ReadTensorboardBlobDataResponse(proto.Message):
     r"""Response message for
-    ``TensorboardService.ReadTensorboardBlobData``.
+    [TensorboardService.ReadTensorboardBlobData][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardBlobData].
 
     Attributes:
         blobs (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardBlob]):
@@ -452,7 +452,7 @@ class ReadTensorboardBlobDataResponse(proto.Message):
 
 class ListTensorboardRunsRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.ListTensorboardRuns``.
+    [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardRuns].
 
     Attributes:
         parent (str):
@@ -471,11 +471,11 @@ class ListTensorboardRunsRequest(proto.Message):
             to 1000.
         page_token (str):
             A page token, received from a previous
-            ``TensorboardService.ListTensorboardRuns``
+            [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardRuns]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other parameters provided to
-            ``TensorboardService.ListTensorboardRuns``
+            [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardRuns]
             must match the call that provided the page token.
         order_by (str):
             Field to use to sort the list.
@@ -498,14 +498,14 @@ class ListTensorboardRunsRequest(proto.Message):
 
 class ListTensorboardRunsResponse(proto.Message):
     r"""Response message for
-    ``TensorboardService.ListTensorboardRuns``.
+    [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardRuns].
 
     Attributes:
         tensorboard_runs (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardRun]):
             The TensorboardRuns mathching the request.
         next_page_token (str):
             A token, which can be sent as
-            ``ListTensorboardRunsRequest.page_token``
+            [ListTensorboardRunsRequest.page_token][google.cloud.aiplatform.v1beta1.ListTensorboardRunsRequest.page_token]
             to retrieve the next page. If this field is omitted, there
             are no subsequent pages.
     """
@@ -523,7 +523,7 @@ class ListTensorboardRunsResponse(proto.Message):
 
 class UpdateTensorboardRunRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.UpdateTensorboardRun``.
+    [TensorboardService.UpdateTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.UpdateTensorboardRun].
 
     Attributes:
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
@@ -549,7 +549,7 @@ class UpdateTensorboardRunRequest(proto.Message):
 
 class DeleteTensorboardRunRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.DeleteTensorboardRun``.
+    [TensorboardService.DeleteTensorboardRun][google.cloud.aiplatform.v1beta1.TensorboardService.DeleteTensorboardRun].
 
     Attributes:
         name (str):
@@ -563,7 +563,7 @@ class DeleteTensorboardRunRequest(proto.Message):
 
 class CreateTensorboardTimeSeriesRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.CreateTensorboardTimeSeries``.
+    [TensorboardService.CreateTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.CreateTensorboardTimeSeries].
 
     Attributes:
         parent (str):
@@ -595,7 +595,7 @@ class CreateTensorboardTimeSeriesRequest(proto.Message):
 
 class GetTensorboardTimeSeriesRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.GetTensorboardTimeSeries``.
+    [TensorboardService.GetTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.GetTensorboardTimeSeries].
 
     Attributes:
         name (str):
@@ -609,7 +609,7 @@ class GetTensorboardTimeSeriesRequest(proto.Message):
 
 class ListTensorboardTimeSeriesRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.ListTensorboardTimeSeries``.
+    [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardTimeSeries].
 
     Attributes:
         parent (str):
@@ -629,11 +629,11 @@ class ListTensorboardTimeSeriesRequest(proto.Message):
             coerced to 1000.
         page_token (str):
             A page token, received from a previous
-            ``TensorboardService.ListTensorboardTimeSeries``
+            [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardTimeSeries]
             call. Provide this to retrieve the subsequent page.
 
             When paginating, all other parameters provided to
-            ``TensorboardService.ListTensorboardTimeSeries``
+            [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardTimeSeries]
             must match the call that provided the page token.
         order_by (str):
             Field to use to sort the list.
@@ -656,7 +656,7 @@ class ListTensorboardTimeSeriesRequest(proto.Message):
 
 class ListTensorboardTimeSeriesResponse(proto.Message):
     r"""Response message for
-    ``TensorboardService.ListTensorboardTimeSeries``.
+    [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardTimeSeries].
 
     Attributes:
         tensorboard_time_series (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardTimeSeries]):
@@ -664,7 +664,7 @@ class ListTensorboardTimeSeriesResponse(proto.Message):
             request.
         next_page_token (str):
             A token, which can be sent as
-            ``ListTensorboardTimeSeriesRequest.page_token``
+            [ListTensorboardTimeSeriesRequest.page_token][google.cloud.aiplatform.v1beta1.ListTensorboardTimeSeriesRequest.page_token]
             to retrieve the next page. If this field is omitted, there
             are no subsequent pages.
     """
@@ -684,7 +684,7 @@ class ListTensorboardTimeSeriesResponse(proto.Message):
 
 class UpdateTensorboardTimeSeriesRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.UpdateTensorboardTimeSeries``.
+    [TensorboardService.UpdateTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.UpdateTensorboardTimeSeries].
 
     Attributes:
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
@@ -712,7 +712,7 @@ class UpdateTensorboardTimeSeriesRequest(proto.Message):
 
 class DeleteTensorboardTimeSeriesRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.DeleteTensorboardTimeSeries``.
+    [TensorboardService.DeleteTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.DeleteTensorboardTimeSeries].
 
     Attributes:
         name (str):
@@ -726,7 +726,7 @@ class DeleteTensorboardTimeSeriesRequest(proto.Message):
 
 class ReadTensorboardTimeSeriesDataRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.ReadTensorboardTimeSeriesData``.
+    [TensorboardService.ReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardTimeSeriesData].
 
     Attributes:
         tensorboard_time_series (str):
@@ -752,7 +752,7 @@ class ReadTensorboardTimeSeriesDataRequest(proto.Message):
 
 class ReadTensorboardTimeSeriesDataResponse(proto.Message):
     r"""Response message for
-    ``TensorboardService.ReadTensorboardTimeSeriesData``.
+    [TensorboardService.ReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardTimeSeriesData].
 
     Attributes:
         time_series_data (google.cloud.aiplatform_v1beta1.types.TimeSeriesData):
@@ -766,7 +766,7 @@ class ReadTensorboardTimeSeriesDataResponse(proto.Message):
 
 class WriteTensorboardRunDataRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.WriteTensorboardRunData``.
+    [TensorboardService.WriteTensorboardRunData][google.cloud.aiplatform.v1beta1.TensorboardService.WriteTensorboardRunData].
 
     Attributes:
         tensorboard_run (str):
@@ -792,13 +792,13 @@ class WriteTensorboardRunDataRequest(proto.Message):
 
 class WriteTensorboardRunDataResponse(proto.Message):
     r"""Response message for
-    ``TensorboardService.WriteTensorboardRunData``.
+    [TensorboardService.WriteTensorboardRunData][google.cloud.aiplatform.v1beta1.TensorboardService.WriteTensorboardRunData].
     """
 
 
 class ExportTensorboardTimeSeriesDataRequest(proto.Message):
     r"""Request message for
-    ``TensorboardService.ExportTensorboardTimeSeriesData``.
+    [TensorboardService.ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ExportTensorboardTimeSeriesData].
 
     Attributes:
         tensorboard_time_series (str):
@@ -840,7 +840,7 @@ class ExportTensorboardTimeSeriesDataRequest(proto.Message):
 
 class ExportTensorboardTimeSeriesDataResponse(proto.Message):
     r"""Response message for
-    ``TensorboardService.ExportTensorboardTimeSeriesData``.
+    [TensorboardService.ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ExportTensorboardTimeSeriesData].
 
     Attributes:
         time_series_data_points (Sequence[google.cloud.aiplatform_v1beta1.types.TimeSeriesDataPoint]):

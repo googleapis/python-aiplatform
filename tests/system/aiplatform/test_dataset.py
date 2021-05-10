@@ -25,8 +25,8 @@ from google.protobuf import json_format
 from google.api_core import exceptions
 from google.api_core import client_options
 
-from google.cloud import storage
 from google.cloud import aiplatform
+from google.cloud import storage
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset

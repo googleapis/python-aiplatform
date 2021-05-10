@@ -123,7 +123,7 @@ class PipelineJob(proto.Message):
             parameters (Sequence[google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig.ParametersEntry]):
                 The runtime parameters of the PipelineJob. The parameters
                 will be passed into
-                ``PipelineJob.pipeline_spec``
+                [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec]
                 to replace the placeholders at runtime.
             gcs_output_directory (str):
                 Required. A path in a Cloud Storage bucket, which will be
@@ -314,14 +314,14 @@ class PipelineTaskExecutorDetail(proto.Message):
         Attributes:
             main_job (str):
                 Output only. The name of the
-                ``CustomJob`` for
+                [CustomJob][google.cloud.aiplatform.v1beta1.CustomJob] for
                 the main container execution.
             pre_caching_check_job (str):
                 Output only. The name of the
-                ``CustomJob`` for
+                [CustomJob][google.cloud.aiplatform.v1beta1.CustomJob] for
                 the pre-caching-check container execution. This job will be
                 available if the
-                ``PipelineJob.pipeline_spec``
+                [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec]
                 specifies the ``pre_caching_check`` hook in the lifecycle
                 events.
         """
@@ -336,7 +336,7 @@ class PipelineTaskExecutorDetail(proto.Message):
         Attributes:
             job (str):
                 Output only. The name of the
-                ``CustomJob``.
+                [CustomJob][google.cloud.aiplatform.v1beta1.CustomJob].
         """
 
         job = proto.Field(proto.STRING, number=1)

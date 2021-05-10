@@ -138,7 +138,7 @@ class DeployedIndex(proto.Message):
             Output only. Provides paths for users to send requests
             directly to the deployed index services running on Cloud via
             private services access. This field is populated if
-            ``network``
+            [network][google.cloud.aiplatform.v1beta1.IndexEndpoint.network]
             is configured.
         index_sync_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. The DeployedIndex may depend on various data on
@@ -147,13 +147,13 @@ class DeployedIndex(proto.Message):
             contains is being changed) the DeployedIndex may be
             asynchronously updated in the background to reflect this
             changes. If this timestamp's value is at least the
-            ``Index.update_time``
+            [Index.update_time][google.cloud.aiplatform.v1beta1.Index.update_time]
             of the original Index, it means that this DeployedIndex and
             the original Index are in sync. If this timestamp is older,
             then to see which updates this DeployedIndex already
             contains (and which not), one must
-            ``list`` ``Operations``
-            ``working`` on the original Index. Only the
+            [list][Operations.ListOperations] [Operations][Operation]
+            [working][Operation.name] on the original Index. Only the
             successfully completed Operations with
             [Operations.metadata.generic_metadata.update_time]
             [google.cloud.aiplatform.v1beta1.GenericOperationMetadata.update_time]

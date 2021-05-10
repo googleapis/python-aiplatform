@@ -2,10 +2,10 @@
 branch = True
 
 [report]
-fail_under = 99
+fail_under = 100
 show_missing = True
 omit =
-    .nox/*
+    google/cloud/aiplatform/v1/schema/trainingjob/definition/__init__.py
 exclude_lines =
     # Re-enable the standard pragma
     pragma: NO COVER

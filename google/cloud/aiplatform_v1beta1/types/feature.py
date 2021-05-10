@@ -87,7 +87,7 @@ class Feature(proto.Message):
             Output only. A list of historical [Snapshot
             Analysis][google.cloud.aiplatform.master.FeaturestoreMonitoringConfig.SnapshotAnalysis]
             stats requested by user, sorted by
-            ``FeatureStatsAnomaly.start_time``
+            [FeatureStatsAnomaly.start_time][google.cloud.aiplatform.v1beta1.FeatureStatsAnomaly.start_time]
             descending.
     """
 

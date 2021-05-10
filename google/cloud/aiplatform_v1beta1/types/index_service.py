@@ -41,7 +41,7 @@ __protobuf__ = proto.module(
 
 class CreateIndexRequest(proto.Message):
     r"""Request message for
-    ``IndexService.CreateIndex``.
+    [IndexService.CreateIndex][google.cloud.aiplatform.v1beta1.IndexService.CreateIndex].
 
     Attributes:
         parent (str):
@@ -59,7 +59,7 @@ class CreateIndexRequest(proto.Message):
 
 class CreateIndexOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``IndexService.CreateIndex``.
+    [IndexService.CreateIndex][google.cloud.aiplatform.v1beta1.IndexService.CreateIndex].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
@@ -80,7 +80,7 @@ class CreateIndexOperationMetadata(proto.Message):
 
 class GetIndexRequest(proto.Message):
     r"""Request message for
-    ``IndexService.GetIndex``
+    [IndexService.GetIndex][google.cloud.aiplatform.v1beta1.IndexService.GetIndex]
 
     Attributes:
         name (str):
@@ -93,7 +93,7 @@ class GetIndexRequest(proto.Message):
 
 class ListIndexesRequest(proto.Message):
     r"""Request message for
-    ``IndexService.ListIndexes``.
+    [IndexService.ListIndexes][google.cloud.aiplatform.v1beta1.IndexService.ListIndexes].
 
     Attributes:
         parent (str):
@@ -106,9 +106,9 @@ class ListIndexesRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            ``ListIndexesResponse.next_page_token``
+            [ListIndexesResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListIndexesResponse.next_page_token]
             of the previous
-            ``IndexService.ListIndexes``
+            [IndexService.ListIndexes][google.cloud.aiplatform.v1beta1.IndexService.ListIndexes]
             call.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
@@ -127,14 +127,14 @@ class ListIndexesRequest(proto.Message):
 
 class ListIndexesResponse(proto.Message):
     r"""Response message for
-    ``IndexService.ListIndexes``.
+    [IndexService.ListIndexes][google.cloud.aiplatform.v1beta1.IndexService.ListIndexes].
 
     Attributes:
         indexes (Sequence[google.cloud.aiplatform_v1beta1.types.Index]):
             List of indexes in the requested page.
         next_page_token (str):
             A token to retrieve next page of results. Pass to
-            ``ListIndexesRequest.page_token``
+            [ListIndexesRequest.page_token][google.cloud.aiplatform.v1beta1.ListIndexesRequest.page_token]
             to obtain that page.
     """
 
@@ -149,7 +149,7 @@ class ListIndexesResponse(proto.Message):
 
 class UpdateIndexRequest(proto.Message):
     r"""Request message for
-    ``IndexService.UpdateIndex``.
+    [IndexService.UpdateIndex][google.cloud.aiplatform.v1beta1.IndexService.UpdateIndex].
 
     Attributes:
         index (google.cloud.aiplatform_v1beta1.types.Index):
@@ -168,7 +168,7 @@ class UpdateIndexRequest(proto.Message):
 
 class UpdateIndexOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``IndexService.UpdateIndex``.
+    [IndexService.UpdateIndex][google.cloud.aiplatform.v1beta1.IndexService.UpdateIndex].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
@@ -189,7 +189,7 @@ class UpdateIndexOperationMetadata(proto.Message):
 
 class DeleteIndexRequest(proto.Message):
     r"""Request message for
-    ``IndexService.DeleteIndex``.
+    [IndexService.DeleteIndex][google.cloud.aiplatform.v1beta1.IndexService.DeleteIndex].
 
     Attributes:
         name (str):
@@ -210,7 +210,7 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
             The validation stats of the content (per file) to be
             inserted or updated on the Matching Engine Index resource.
             Populated if contentsDeltaUri is provided as part of
-            ``Index.metadata``.
+            [Index.metadata][google.cloud.aiplatform.v1beta1.Index.metadata].
             Please note that, currently for those files that are broken
             or has unsupported file format, we will not have the stats
             for those files.

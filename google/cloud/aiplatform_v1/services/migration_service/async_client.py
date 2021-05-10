@@ -206,7 +206,7 @@ class MigrationServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.SearchMigratableResourcesRequest`):
                 The request object. Request message for
-                ``MigrationService.SearchMigratableResources``.
+                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
             parent (:class:`str`):
                 Required. The location that the migratable resources
                 should be searched from. It's the AI Platform location
@@ -227,7 +227,7 @@ class MigrationServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.migration_service.pagers.SearchMigratableResourcesAsyncPager:
                 Response message for
-                ``MigrationService.SearchMigratableResources``.
+                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -296,7 +296,7 @@ class MigrationServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.BatchMigrateResourcesRequest`):
                 The request object. Request message for
-                ``MigrationService.BatchMigrateResources``.
+                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
             parent (:class:`str`):
                 Required. The location of the migrated resource will
                 live in. Format:
@@ -329,7 +329,7 @@ class MigrationServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.BatchMigrateResourcesResponse`
                 Response message for
-                ``MigrationService.BatchMigrateResources``.
+                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
 
         """
         # Create or coerce a protobuf request object.

@@ -219,42 +219,42 @@ class JobServiceTransport(abc.ABC):
             ),
             self.create_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
                 self.create_model_deployment_monitoring_job,
-                default_timeout=None,
+                default_timeout=60.0,
                 client_info=client_info,
             ),
             self.search_model_deployment_monitoring_stats_anomalies: gapic_v1.method.wrap_method(
                 self.search_model_deployment_monitoring_stats_anomalies,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.get_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
                 self.get_model_deployment_monitoring_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.list_model_deployment_monitoring_jobs: gapic_v1.method.wrap_method(
                 self.list_model_deployment_monitoring_jobs,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.update_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
                 self.update_model_deployment_monitoring_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.delete_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
                 self.delete_model_deployment_monitoring_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.pause_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
                 self.pause_model_deployment_monitoring_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
             self.resume_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
                 self.resume_model_deployment_monitoring_job,
-                default_timeout=None,
+                default_timeout=5.0,
                 client_info=client_info,
             ),
         }

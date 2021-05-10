@@ -420,7 +420,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateFeaturestoreRequest):
                 The request object. Request message for
-                ``FeaturestoreService.CreateFeaturestore``.
+                [FeaturestoreService.CreateFeaturestore][google.cloud.aiplatform.v1beta1.FeaturestoreService.CreateFeaturestore].
             parent (str):
                 Required. The resource name of the Location to create
                 Featurestores. Format:
@@ -514,7 +514,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetFeaturestoreRequest):
                 The request object. Request message for
-                ``FeaturestoreService.GetFeaturestore``.
+                [FeaturestoreService.GetFeaturestore][google.cloud.aiplatform.v1beta1.FeaturestoreService.GetFeaturestore].
             name (str):
                 Required. The name of the
                 Featurestore resource.
@@ -589,7 +589,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListFeaturestoresRequest):
                 The request object. Request message for
-                ``FeaturestoreService.ListFeaturestores``.
+                [FeaturestoreService.ListFeaturestores][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeaturestores].
             parent (str):
                 Required. The resource name of the Location to list
                 Featurestores. Format:
@@ -608,7 +608,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.featurestore_service.pagers.ListFeaturestoresPager:
                 Response message for
-                ``FeaturestoreService.ListFeaturestores``.
+                [FeaturestoreService.ListFeaturestores][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeaturestores].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -674,7 +674,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateFeaturestoreRequest):
                 The request object. Request message for
-                ``FeaturestoreService.UpdateFeaturestore``.
+                [FeaturestoreService.UpdateFeaturestore][google.cloud.aiplatform.v1beta1.FeaturestoreService.UpdateFeaturestore].
             featurestore (google.cloud.aiplatform_v1beta1.types.Featurestore):
                 Required. The Featurestore's ``name`` field is used to
                 identify the Featurestore to be updated. Format:
@@ -787,7 +787,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteFeaturestoreRequest):
                 The request object. Request message for
-                ``FeaturestoreService.DeleteFeaturestore``.
+                [FeaturestoreService.DeleteFeaturestore][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeaturestore].
             name (str):
                 Required. The name of the Featurestore to be deleted.
                 Format:
@@ -884,7 +884,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateEntityTypeRequest):
                 The request object. Request message for
-                ``FeaturestoreService.CreateEntityType``.
+                [FeaturestoreService.CreateEntityType][google.cloud.aiplatform.v1beta1.FeaturestoreService.CreateEntityType].
             parent (str):
                 Required. The resource name of the Featurestore to
                 create EntityTypes. Format:
@@ -978,7 +978,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetEntityTypeRequest):
                 The request object. Request message for
-                ``FeaturestoreService.GetEntityType``.
+                [FeaturestoreService.GetEntityType][google.cloud.aiplatform.v1beta1.FeaturestoreService.GetEntityType].
             name (str):
                 Required. The name of the EntityType resource. Format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
@@ -1056,7 +1056,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListEntityTypesRequest):
                 The request object. Request message for
-                ``FeaturestoreService.ListEntityTypes``.
+                [FeaturestoreService.ListEntityTypes][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListEntityTypes].
             parent (str):
                 Required. The resource name of the Featurestore to list
                 EntityTypes. Format:
@@ -1075,7 +1075,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.featurestore_service.pagers.ListEntityTypesPager:
                 Response message for
-                ``FeaturestoreService.ListEntityTypes``.
+                [FeaturestoreService.ListEntityTypes][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListEntityTypes].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1141,7 +1141,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateEntityTypeRequest):
                 The request object. Request message for
-                ``FeaturestoreService.UpdateEntityType``.
+                [FeaturestoreService.UpdateEntityType][google.cloud.aiplatform.v1beta1.FeaturestoreService.UpdateEntityType].
             entity_type (google.cloud.aiplatform_v1beta1.types.EntityType):
                 Required. The EntityType's ``name`` field is used to
                 identify the EntityType to be updated. Format:
@@ -1343,7 +1343,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest):
                 The request object. Request message for
-                ``FeaturestoreService.CreateFeature``.
+                [FeaturestoreService.CreateFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.CreateFeature].
             parent (str):
                 Required. The resource name of the EntityType to create
                 a Feature. Format:
@@ -1437,7 +1437,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.BatchCreateFeaturesRequest):
                 The request object. Request message for
-                ``FeaturestoreService.BatchCreateFeatures``.
+                [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchCreateFeatures].
             parent (str):
                 Required. The resource name of the EntityType to create
                 the batch of Features under. Format:
@@ -1471,7 +1471,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.BatchCreateFeaturesResponse`
                 Response message for
-                ``FeaturestoreService.BatchCreateFeatures``.
+                [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchCreateFeatures].
 
         """
         # Create or coerce a protobuf request object.
@@ -1537,7 +1537,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetFeatureRequest):
                 The request object. Request message for
-                ``FeaturestoreService.GetFeature``.
+                [FeaturestoreService.GetFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.GetFeature].
             name (str):
                 Required. The name of the Feature resource. Format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}``
@@ -1614,7 +1614,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListFeaturesRequest):
                 The request object. Request message for
-                ``FeaturestoreService.ListFeatures``.
+                [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures].
             parent (str):
                 Required. The resource name of the Location to list
                 Features. Format:
@@ -1633,7 +1633,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.featurestore_service.pagers.ListFeaturesPager:
                 Response message for
-                ``FeaturestoreService.ListFeatures``.
+                [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.ListFeatures].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1699,7 +1699,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateFeatureRequest):
                 The request object. Request message for
-                ``FeaturestoreService.UpdateFeature``.
+                [FeaturestoreService.UpdateFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.UpdateFeature].
             feature (google.cloud.aiplatform_v1beta1.types.Feature):
                 Required. The Feature's ``name`` field is used to
                 identify the Feature to be updated. Format:
@@ -1801,7 +1801,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteFeatureRequest):
                 The request object. Request message for
-                ``FeaturestoreService.DeleteFeature``.
+                [FeaturestoreService.DeleteFeature][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeature].
             name (str):
                 Required. The name of the Features to be deleted.
                 Format:
@@ -1917,7 +1917,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ImportFeatureValuesRequest):
                 The request object. Request message for
-                ``FeaturestoreService.ImportFeatureValues``.
+                [FeaturestoreService.ImportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ImportFeatureValues].
             entity_type (str):
                 Required. The resource name of the EntityType grouping
                 the Features for which values are being imported.
@@ -1941,7 +1941,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.ImportFeatureValuesResponse`
                 Response message for
-                ``FeaturestoreService.ImportFeatureValues``.
+                [FeaturestoreService.ImportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ImportFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -2012,7 +2012,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.BatchReadFeatureValuesRequest):
                 The request object. Request message for
-                ``FeaturestoreService.BatchReadFeatureValues``.
+                [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchReadFeatureValues].
+                (- Next Id: 6 -)
             featurestore (str):
                 Required. The resource name of the Featurestore from
                 which to query Feature values. Format:
@@ -2035,7 +2036,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.BatchReadFeatureValuesResponse`
                 Response message for
-                ``FeaturestoreService.BatchReadFeatureValues``.
+                [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.BatchReadFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -2104,7 +2105,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesRequest):
                 The request object. Request message for
-                ``FeaturestoreService.ExportFeatureValues``.
+                [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ExportFeatureValues].
             entity_type (str):
                 Required. The resource name of the EntityType from which
                 to export Feature values. Format:
@@ -2127,7 +2128,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.ExportFeatureValuesResponse`
                 Response message for
-                ``FeaturestoreService.ExportFeatureValues``.
+                [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.ExportFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -2194,7 +2195,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.SearchFeaturesRequest):
                 The request object. Request message for
-                ``FeaturestoreService.SearchFeatures``.
+                [FeaturestoreService.SearchFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.SearchFeatures].
             location (str):
                 Required. The resource name of the Location to search
                 Features. Format:
@@ -2213,7 +2214,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.featurestore_service.pagers.SearchFeaturesPager:
                 Response message for
-                ``FeaturestoreService.SearchFeatures``.
+                [FeaturestoreService.SearchFeatures][google.cloud.aiplatform.v1beta1.FeaturestoreService.SearchFeatures].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

@@ -45,7 +45,7 @@ __protobuf__ = proto.module(
 
 class CreateIndexEndpointRequest(proto.Message):
     r"""Request message for
-    ``IndexEndpointService.CreateIndexEndpoint``.
+    [IndexEndpointService.CreateIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.CreateIndexEndpoint].
 
     Attributes:
         parent (str):
@@ -65,7 +65,7 @@ class CreateIndexEndpointRequest(proto.Message):
 
 class CreateIndexEndpointOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``IndexEndpointService.CreateIndexEndpoint``.
+    [IndexEndpointService.CreateIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.CreateIndexEndpoint].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
@@ -79,7 +79,7 @@ class CreateIndexEndpointOperationMetadata(proto.Message):
 
 class GetIndexEndpointRequest(proto.Message):
     r"""Request message for
-    ``IndexEndpointService.GetIndexEndpoint``
+    [IndexEndpointService.GetIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.GetIndexEndpoint]
 
     Attributes:
         name (str):
@@ -92,7 +92,7 @@ class GetIndexEndpointRequest(proto.Message):
 
 class ListIndexEndpointsRequest(proto.Message):
     r"""Request message for
-    ``IndexEndpointService.ListIndexEndpoints``.
+    [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1beta1.IndexEndpointService.ListIndexEndpoints].
 
     Attributes:
         parent (str):
@@ -107,7 +107,7 @@ class ListIndexEndpointsRequest(proto.Message):
             -  ``index_endpoint`` supports = and !=. ``index_endpoint``
                represents the IndexEndpoint ID, ie. the last segment of
                the IndexEndpoint's
-               ``resourcename``.
+               [resourcename][google.cloud.aiplatform.v1beta1.IndexEndpoint.name].
             -  ``display_name`` supports =, != and regex() (uses
                `re2 <https://github.com/google/re2/wiki/Syntax>`__
                syntax)
@@ -128,9 +128,9 @@ class ListIndexEndpointsRequest(proto.Message):
         page_token (str):
             Optional. The standard list page token. Typically obtained
             via
-            ``ListIndexEndpointsResponse.next_page_token``
+            [ListIndexEndpointsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListIndexEndpointsResponse.next_page_token]
             of the previous
-            ``IndexEndpointService.ListIndexEndpoints``
+            [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1beta1.IndexEndpointService.ListIndexEndpoints]
             call.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Optional. Mask specifying which fields to
@@ -150,14 +150,14 @@ class ListIndexEndpointsRequest(proto.Message):
 
 class ListIndexEndpointsResponse(proto.Message):
     r"""Response message for
-    ``IndexEndpointService.ListIndexEndpoints``.
+    [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1beta1.IndexEndpointService.ListIndexEndpoints].
 
     Attributes:
         index_endpoints (Sequence[google.cloud.aiplatform_v1beta1.types.IndexEndpoint]):
             List of IndexEndpoints in the requested page.
         next_page_token (str):
             A token to retrieve next page of results. Pass to
-            ``ListIndexEndpointsRequest.page_token``
+            [ListIndexEndpointsRequest.page_token][google.cloud.aiplatform.v1beta1.ListIndexEndpointsRequest.page_token]
             to obtain that page.
     """
 
@@ -174,7 +174,7 @@ class ListIndexEndpointsResponse(proto.Message):
 
 class UpdateIndexEndpointRequest(proto.Message):
     r"""Request message for
-    ``IndexEndpointService.UpdateIndexEndpoint``.
+    [IndexEndpointService.UpdateIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.UpdateIndexEndpoint].
 
     Attributes:
         index_endpoint (google.cloud.aiplatform_v1beta1.types.IndexEndpoint):
@@ -194,7 +194,7 @@ class UpdateIndexEndpointRequest(proto.Message):
 
 class DeleteIndexEndpointRequest(proto.Message):
     r"""Request message for
-    ``IndexEndpointService.DeleteIndexEndpoint``.
+    [IndexEndpointService.DeleteIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeleteIndexEndpoint].
 
     Attributes:
         name (str):
@@ -208,7 +208,7 @@ class DeleteIndexEndpointRequest(proto.Message):
 
 class DeployIndexRequest(proto.Message):
     r"""Request message for
-    ``IndexEndpointService.DeployIndex``.
+    [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex].
 
     Attributes:
         index_endpoint (str):
@@ -229,7 +229,7 @@ class DeployIndexRequest(proto.Message):
 
 class DeployIndexResponse(proto.Message):
     r"""Response message for
-    ``IndexEndpointService.DeployIndex``.
+    [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex].
 
     Attributes:
         deployed_index (google.cloud.aiplatform_v1beta1.types.DeployedIndex):
@@ -244,7 +244,7 @@ class DeployIndexResponse(proto.Message):
 
 class DeployIndexOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``IndexEndpointService.DeployIndex``.
+    [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
@@ -258,7 +258,7 @@ class DeployIndexOperationMetadata(proto.Message):
 
 class UndeployIndexRequest(proto.Message):
     r"""Request message for
-    ``IndexEndpointService.UndeployIndex``.
+    [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.UndeployIndex].
 
     Attributes:
         index_endpoint (str):
@@ -277,13 +277,13 @@ class UndeployIndexRequest(proto.Message):
 
 class UndeployIndexResponse(proto.Message):
     r"""Response message for
-    ``IndexEndpointService.UndeployIndex``.
+    [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.UndeployIndex].
     """
 
 
 class UndeployIndexOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``IndexEndpointService.UndeployIndex``.
+    [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.UndeployIndex].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):

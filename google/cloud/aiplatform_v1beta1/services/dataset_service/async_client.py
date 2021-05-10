@@ -205,7 +205,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateDatasetRequest`):
                 The request object. Request message for
-                ``DatasetService.CreateDataset``.
+                [DatasetService.CreateDataset][google.cloud.aiplatform.v1beta1.DatasetService.CreateDataset].
             parent (:class:`str`):
                 Required. The resource name of the Location to create
                 the Dataset in. Format:
@@ -297,7 +297,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetDatasetRequest`):
                 The request object. Request message for
-                ``DatasetService.GetDataset``.
+                [DatasetService.GetDataset][google.cloud.aiplatform.v1beta1.DatasetService.GetDataset].
             name (:class:`str`):
                 Required. The name of the Dataset
                 resource.
@@ -371,7 +371,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateDatasetRequest`):
                 The request object. Request message for
-                ``DatasetService.UpdateDataset``.
+                [DatasetService.UpdateDataset][google.cloud.aiplatform.v1beta1.DatasetService.UpdateDataset].
             dataset (:class:`google.cloud.aiplatform_v1beta1.types.Dataset`):
                 Required. The Dataset which replaces
                 the resource on the server.
@@ -461,7 +461,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListDatasetsRequest`):
                 The request object. Request message for
-                ``DatasetService.ListDatasets``.
+                [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
             parent (:class:`str`):
                 Required. The name of the Dataset's parent resource.
                 Format: ``projects/{project}/locations/{location}``
@@ -479,7 +479,7 @@ class DatasetServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListDatasetsAsyncPager:
                 Response message for
-                ``DatasetService.ListDatasets``.
+                [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -543,7 +543,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteDatasetRequest`):
                 The request object. Request message for
-                ``DatasetService.DeleteDataset``.
+                [DatasetService.DeleteDataset][google.cloud.aiplatform.v1beta1.DatasetService.DeleteDataset].
             name (:class:`str`):
                 Required. The resource name of the Dataset to delete.
                 Format:
@@ -639,7 +639,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ImportDataRequest`):
                 The request object. Request message for
-                ``DatasetService.ImportData``.
+                [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
             name (:class:`str`):
                 Required. The name of the Dataset resource. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
@@ -669,7 +669,7 @@ class DatasetServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.ImportDataResponse`
                 Response message for
-                ``DatasetService.ImportData``.
+                [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
 
         """
         # Create or coerce a protobuf request object.
@@ -736,7 +736,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ExportDataRequest`):
                 The request object. Request message for
-                ``DatasetService.ExportData``.
+                [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
             name (:class:`str`):
                 Required. The name of the Dataset resource. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``
@@ -765,7 +765,7 @@ class DatasetServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.ExportDataResponse`
                 Response message for
-                ``DatasetService.ExportData``.
+                [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
 
         """
         # Create or coerce a protobuf request object.
@@ -830,7 +830,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListDataItemsRequest`):
                 The request object. Request message for
-                ``DatasetService.ListDataItems``.
+                [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
             parent (:class:`str`):
                 Required. The resource name of the Dataset to list
                 DataItems from. Format:
@@ -849,7 +849,7 @@ class DatasetServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListDataItemsAsyncPager:
                 Response message for
-                ``DatasetService.ListDataItems``.
+                [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -913,7 +913,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetAnnotationSpecRequest`):
                 The request object. Request message for
-                ``DatasetService.GetAnnotationSpec``.
+                [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1beta1.DatasetService.GetAnnotationSpec].
             name (:class:`str`):
                 Required. The name of the AnnotationSpec resource.
                 Format:
@@ -987,7 +987,7 @@ class DatasetServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListAnnotationsRequest`):
                 The request object. Request message for
-                ``DatasetService.ListAnnotations``.
+                [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
             parent (:class:`str`):
                 Required. The resource name of the DataItem to list
                 Annotations from. Format:
@@ -1006,7 +1006,7 @@ class DatasetServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListAnnotationsAsyncPager:
                 Response message for
-                ``DatasetService.ListAnnotations``.
+                [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

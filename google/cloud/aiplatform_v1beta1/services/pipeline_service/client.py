@@ -519,7 +519,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateTrainingPipelineRequest):
                 The request object. Request message for
-                ``PipelineService.CreateTrainingPipeline``.
+                [PipelineService.CreateTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.CreateTrainingPipeline].
             parent (str):
                 Required. The resource name of the Location to create
                 the TrainingPipeline in. Format:
@@ -548,7 +548,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                    always executes the training task, and optionally may
                    also export data from AI Platform's Dataset which
                    becomes the training input,
-                   ``upload``
+                   [upload][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
                    the Model to AI Platform, and evaluate the Model.
 
         """
@@ -607,7 +607,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetTrainingPipelineRequest):
                 The request object. Request message for
-                ``PipelineService.GetTrainingPipeline``.
+                [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.GetTrainingPipeline].
             name (str):
                 Required. The name of the TrainingPipeline resource.
                 Format:
@@ -629,7 +629,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                    always executes the training task, and optionally may
                    also export data from AI Platform's Dataset which
                    becomes the training input,
-                   ``upload``
+                   [upload][google.cloud.aiplatform.v1beta1.ModelService.UploadModel]
                    the Model to AI Platform, and evaluate the Model.
 
         """
@@ -686,7 +686,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesRequest):
                 The request object. Request message for
-                ``PipelineService.ListTrainingPipelines``.
+                [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines].
             parent (str):
                 Required. The resource name of the Location to list the
                 TrainingPipelines from. Format:
@@ -705,7 +705,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.pipeline_service.pagers.ListTrainingPipelinesPager:
                 Response message for
-                ``PipelineService.ListTrainingPipelines``
+                [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -770,7 +770,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteTrainingPipelineRequest):
                 The request object. Request message for
-                ``PipelineService.DeleteTrainingPipeline``.
+                [PipelineService.DeleteTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.DeleteTrainingPipeline].
             name (str):
                 Required. The name of the TrainingPipeline resource to
                 be deleted. Format:
@@ -864,21 +864,21 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         r"""Cancels a TrainingPipeline. Starts asynchronous cancellation on
         the TrainingPipeline. The server makes a best effort to cancel
         the pipeline, but success is not guaranteed. Clients can use
-        ``PipelineService.GetTrainingPipeline``
+        [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.GetTrainingPipeline]
         or other methods to check whether the cancellation succeeded or
         whether the pipeline completed despite cancellation. On
         successful cancellation, the TrainingPipeline is not deleted;
         instead it becomes a pipeline with a
-        ``TrainingPipeline.error``
-        value with a ``google.rpc.Status.code`` of
+        [TrainingPipeline.error][google.cloud.aiplatform.v1beta1.TrainingPipeline.error]
+        value with a [google.rpc.Status.code][google.rpc.Status.code] of
         1, corresponding to ``Code.CANCELLED``, and
-        ``TrainingPipeline.state``
+        [TrainingPipeline.state][google.cloud.aiplatform.v1beta1.TrainingPipeline.state]
         is set to ``CANCELLED``.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CancelTrainingPipelineRequest):
                 The request object. Request message for
-                ``PipelineService.CancelTrainingPipeline``.
+                [PipelineService.CancelTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.CancelTrainingPipeline].
             name (str):
                 Required. The name of the TrainingPipeline to cancel.
                 Format:
@@ -949,7 +949,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreatePipelineJobRequest):
                 The request object. Request message for
-                ``PipelineService.CreatePipelineJob``.
+                [PipelineService.CreatePipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.CreatePipelineJob].
             parent (str):
                 Required. The resource name of the Location to create
                 the PipelineJob in. Format:
@@ -1044,7 +1044,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetPipelineJobRequest):
                 The request object. Request message for
-                ``PipelineService.GetPipelineJob``.
+                [PipelineService.GetPipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.GetPipelineJob].
             name (str):
                 Required. The name of the PipelineJob resource. Format:
                 ``projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}``
@@ -1118,7 +1118,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListPipelineJobsRequest):
                 The request object. Request message for
-                ``PipelineService.ListPipelineJobs``.
+                [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.ListPipelineJobs].
             parent (str):
                 Required. The resource name of the Location to list the
                 PipelineJobs from. Format:
@@ -1137,7 +1137,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.pipeline_service.pagers.ListPipelineJobsPager:
                 Response message for
-                ``PipelineService.ListPipelineJobs``
+                [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.ListPipelineJobs]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1202,7 +1202,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeletePipelineJobRequest):
                 The request object. Request message for
-                ``PipelineService.DeletePipelineJob``.
+                [PipelineService.DeletePipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.DeletePipelineJob].
             name (str):
                 Required. The name of the PipelineJob resource to be
                 deleted. Format:
@@ -1296,21 +1296,21 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         r"""Cancels a PipelineJob. Starts asynchronous cancellation on the
         PipelineJob. The server makes a best effort to cancel the
         pipeline, but success is not guaranteed. Clients can use
-        ``PipelineService.GetPipelineJob``
+        [PipelineService.GetPipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.GetPipelineJob]
         or other methods to check whether the cancellation succeeded or
         whether the pipeline completed despite cancellation. On
         successful cancellation, the PipelineJob is not deleted; instead
         it becomes a pipeline with a
-        ``PipelineJob.error``
-        value with a ``google.rpc.Status.code`` of
+        [PipelineJob.error][google.cloud.aiplatform.v1beta1.PipelineJob.error]
+        value with a [google.rpc.Status.code][google.rpc.Status.code] of
         1, corresponding to ``Code.CANCELLED``, and
-        ``PipelineJob.state``
+        [PipelineJob.state][google.cloud.aiplatform.v1beta1.PipelineJob.state]
         is set to ``CANCELLED``.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CancelPipelineJobRequest):
                 The request object. Request message for
-                ``PipelineService.CancelPipelineJob``.
+                [PipelineService.CancelPipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.CancelPipelineJob].
             name (str):
                 Required. The name of the PipelineJob to cancel. Format:
                 ``projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}``

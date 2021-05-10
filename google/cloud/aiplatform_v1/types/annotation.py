@@ -38,17 +38,17 @@ class Annotation(proto.Message):
         payload_schema_uri (str):
             Required. Google Cloud Storage URI points to a YAML file
             describing
-            ``payload``.
+            [payload][google.cloud.aiplatform.v1.Annotation.payload].
             The schema is defined as an `OpenAPI 3.0.2 Schema
             Object <https://tinyurl.com/y538mdwt>`__. The schema files
             that can be used here are found in
             gs://google-cloud-aiplatform/schema/dataset/annotation/,
             note that the chosen schema must be consistent with the
             parent Dataset's
-            ``metadata``.
+            [metadata][google.cloud.aiplatform.v1.Dataset.metadata_schema_uri].
         payload (google.protobuf.struct_pb2.Value):
             Required. The schema of the payload can be found in
-            ``payload_schema``.
+            [payload_schema][google.cloud.aiplatform.v1.Annotation.payload_schema_uri].
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Annotation
             was created.

@@ -384,7 +384,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateIndexEndpointRequest):
                 The request object. Request message for
-                ``IndexEndpointService.CreateIndexEndpoint``.
+                [IndexEndpointService.CreateIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.CreateIndexEndpoint].
             parent (str):
                 Required. The resource name of the Location to create
                 the IndexEndpoint in. Format:
@@ -478,7 +478,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetIndexEndpointRequest):
                 The request object. Request message for
-                ``IndexEndpointService.GetIndexEndpoint``
+                [IndexEndpointService.GetIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.GetIndexEndpoint]
             name (str):
                 Required. The name of the IndexEndpoint resource.
                 Format:
@@ -554,7 +554,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListIndexEndpointsRequest):
                 The request object. Request message for
-                ``IndexEndpointService.ListIndexEndpoints``.
+                [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1beta1.IndexEndpointService.ListIndexEndpoints].
             parent (str):
                 Required. The resource name of the Location from which
                 to list the IndexEndpoints. Format:
@@ -573,7 +573,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.index_endpoint_service.pagers.ListIndexEndpointsPager:
                 Response message for
-                ``IndexEndpointService.ListIndexEndpoints``.
+                [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1beta1.IndexEndpointService.ListIndexEndpoints].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -639,7 +639,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateIndexEndpointRequest):
                 The request object. Request message for
-                ``IndexEndpointService.UpdateIndexEndpoint``.
+                [IndexEndpointService.UpdateIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.UpdateIndexEndpoint].
             index_endpoint (google.cloud.aiplatform_v1beta1.types.IndexEndpoint):
                 Required. The IndexEndpoint which
                 replaces the resource on the server.
@@ -725,7 +725,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteIndexEndpointRequest):
                 The request object. Request message for
-                ``IndexEndpointService.DeleteIndexEndpoint``.
+                [IndexEndpointService.DeleteIndexEndpoint][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeleteIndexEndpoint].
             name (str):
                 Required. The name of the IndexEndpoint resource to be
                 deleted. Format:
@@ -824,7 +824,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeployIndexRequest):
                 The request object. Request message for
-                ``IndexEndpointService.DeployIndex``.
+                [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex].
             index_endpoint (str):
                 Required. The name of the IndexEndpoint resource into
                 which to deploy an Index. Format:
@@ -854,7 +854,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.DeployIndexResponse`
                 Response message for
-                ``IndexEndpointService.DeployIndex``.
+                [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex].
 
         """
         # Create or coerce a protobuf request object.
@@ -925,7 +925,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UndeployIndexRequest):
                 The request object. Request message for
-                ``IndexEndpointService.UndeployIndex``.
+                [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.UndeployIndex].
             index_endpoint (str):
                 Required. The name of the IndexEndpoint resource from
                 which to undeploy an Index. Format:
@@ -955,7 +955,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.UndeployIndexResponse`
                 Response message for
-                ``IndexEndpointService.UndeployIndex``.
+                [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.UndeployIndex].
 
         """
         # Create or coerce a protobuf request object.

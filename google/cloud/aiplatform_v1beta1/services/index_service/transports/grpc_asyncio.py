@@ -359,7 +359,7 @@ class IndexServiceGrpcAsyncIOTransport(IndexServiceTransport):
         r"""Return a callable for the delete index method over gRPC.
 
         Deletes an Index. An Index can only be deleted when all its
-        ``DeployedIndexes``
+        [DeployedIndexes][google.cloud.aiplatform.v1beta1.Index.deployed_indexes]
         had been undeployed.
 
         Returns:
