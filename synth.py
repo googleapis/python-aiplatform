@@ -56,7 +56,6 @@ for version in versions:
             f"scripts/fixup_prediction_{version}_keywords.py",
             "google/cloud/aiplatform/__init__.py",
             f"google/cloud/aiplatform/{version}/schema/**/services/",
-            f"tests/unit/gapic/aiplatform_{version}/test_prediction_service.py",
             f"tests/unit/gapic/definition_{version}/",
             f"tests/unit/gapic/instance_{version}/",
             f"tests/unit/gapic/params_{version}/",
@@ -86,6 +85,24 @@ for version in versions:
 # Patch the library
 # ----------------------------------------------------------------------------
 
+# Fix assert with endpoint missing port
+# https://github.com/googleapis/gapic-generator-python/issues/872
+s.replace(
+    "tests/unit/gapic/**/*.py",
+    '''create_channel\.assert_called_with\(
+(\s+)"aiplatform\.googleapis\.com",''',
+    '''create_channel.assert_called_with(
+\g<1>"aiplatform.googleapis.com:443",'''
+)
+
+# Patch broken assert
+# https://github.com/googleapis/gapic-generator-python/issues/414
+s.replace(
+    "tests/unit/gapic/**/test_prediction_service.py",
+    """assert args\[0\]\.parameters == struct_pb2\.Value\(null_value=struct_pb2\.NullValue\.NULL_VALUE\)""",
+    """# https://github.com/googleapis/gapic-generator-python/issues/414
+        # assert args[0].parameters == struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)"""
+)
 
 # Generator adds a bad import statement to enhanced type;
 # need to fix in post-processing steps.

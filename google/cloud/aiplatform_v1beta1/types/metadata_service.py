@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import artifact as gca_artifact
 from google.cloud.aiplatform_v1beta1.types import context as gca_context
@@ -25,7 +22,7 @@ from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
 from google.cloud.aiplatform_v1beta1.types import metadata_schema as gca_metadata_schema
 from google.cloud.aiplatform_v1beta1.types import metadata_store as gca_metadata_store
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -95,13 +92,11 @@ class CreateMetadataStoreRequest(proto.Message):
             MetadataStore.)
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     metadata_store = proto.Field(
         proto.MESSAGE, number=2, message=gca_metadata_store.MetadataStore,
     )
-
-    metadata_store_id = proto.Field(proto.STRING, number=3)
+    metadata_store_id = proto.Field(proto.STRING, number=3,)
 
 
 class CreateMetadataStoreOperationMetadata(proto.Message):
@@ -130,7 +125,7 @@ class GetMetadataStoreRequest(proto.Message):
             projects/{project}/locations/{location}/metadataStores/{metadatastore}
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListMetadataStoresRequest(proto.Message):
@@ -157,11 +152,9 @@ class ListMetadataStoresRequest(proto.Message):
             request will fail with INVALID_ARGUMENT error.)
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    page_size = proto.Field(proto.INT32, number=2)
-
-    page_token = proto.Field(proto.STRING, number=3)
+    parent = proto.Field(proto.STRING, number=1,)
+    page_size = proto.Field(proto.INT32, number=2,)
+    page_token = proto.Field(proto.STRING, number=3,)
 
 
 class ListMetadataStoresResponse(proto.Message):
@@ -185,8 +178,7 @@ class ListMetadataStoresResponse(proto.Message):
     metadata_stores = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_metadata_store.MetadataStore,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class DeleteMetadataStoreRequest(proto.Message):
@@ -205,9 +197,8 @@ class DeleteMetadataStoreRequest(proto.Message):
             resources.)
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    force = proto.Field(proto.BOOL, number=2)
+    name = proto.Field(proto.STRING, number=1,)
+    force = proto.Field(proto.BOOL, number=2,)
 
 
 class DeleteMetadataStoreOperationMetadata(proto.Message):
@@ -248,11 +239,9 @@ class CreateArtifactRequest(proto.Message):
             if the caller can't view the preexisting Artifact.)
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     artifact = proto.Field(proto.MESSAGE, number=2, message=gca_artifact.Artifact,)
-
-    artifact_id = proto.Field(proto.STRING, number=3)
+    artifact_id = proto.Field(proto.STRING, number=3,)
 
 
 class GetArtifactRequest(proto.Message):
@@ -266,7 +255,7 @@ class GetArtifactRequest(proto.Message):
             projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListArtifactsRequest(proto.Message):
@@ -318,13 +307,10 @@ class ListArtifactsRequest(proto.Message):
             display_name = "test" AND metadata.field1.bool_value = true.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    page_size = proto.Field(proto.INT32, number=2)
-
-    page_token = proto.Field(proto.STRING, number=3)
-
-    filter = proto.Field(proto.STRING, number=4)
+    parent = proto.Field(proto.STRING, number=1,)
+    page_size = proto.Field(proto.INT32, number=2,)
+    page_token = proto.Field(proto.STRING, number=3,)
+    filter = proto.Field(proto.STRING, number=4,)
 
 
 class ListArtifactsResponse(proto.Message):
@@ -349,8 +335,7 @@ class ListArtifactsResponse(proto.Message):
     artifacts = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_artifact.Artifact,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class UpdateArtifactRequest(proto.Message):
@@ -376,10 +361,10 @@ class UpdateArtifactRequest(proto.Message):
     """
 
     artifact = proto.Field(proto.MESSAGE, number=1, message=gca_artifact.Artifact,)
-
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
-
-    allow_missing = proto.Field(proto.BOOL, number=3)
+    update_mask = proto.Field(
+        proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
+    )
+    allow_missing = proto.Field(proto.BOOL, number=3,)
 
 
 class CreateContextRequest(proto.Message):
@@ -405,11 +390,9 @@ class CreateContextRequest(proto.Message):
             caller can't view the preexisting Context.)
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     context = proto.Field(proto.MESSAGE, number=2, message=gca_context.Context,)
-
-    context_id = proto.Field(proto.STRING, number=3)
+    context_id = proto.Field(proto.STRING, number=3,)
 
 
 class GetContextRequest(proto.Message):
@@ -423,7 +406,7 @@ class GetContextRequest(proto.Message):
             projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListContextsRequest(proto.Message):
@@ -451,13 +434,10 @@ class ListContextsRequest(proto.Message):
 
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    page_size = proto.Field(proto.INT32, number=2)
-
-    page_token = proto.Field(proto.STRING, number=3)
-
-    filter = proto.Field(proto.STRING, number=4)
+    parent = proto.Field(proto.STRING, number=1,)
+    page_size = proto.Field(proto.INT32, number=2,)
+    page_token = proto.Field(proto.STRING, number=3,)
+    filter = proto.Field(proto.STRING, number=4,)
 
 
 class ListContextsResponse(proto.Message):
@@ -482,8 +462,7 @@ class ListContextsResponse(proto.Message):
     contexts = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_context.Context,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class UpdateContextRequest(proto.Message):
@@ -508,10 +487,10 @@ class UpdateContextRequest(proto.Message):
     """
 
     context = proto.Field(proto.MESSAGE, number=1, message=gca_context.Context,)
-
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
-
-    allow_missing = proto.Field(proto.BOOL, number=3)
+    update_mask = proto.Field(
+        proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
+    )
+    allow_missing = proto.Field(proto.BOOL, number=3,)
 
 
 class DeleteContextRequest(proto.Message):
@@ -530,9 +509,8 @@ class DeleteContextRequest(proto.Message):
             resources, such as another Context, Artifact, or Execution).
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    force = proto.Field(proto.BOOL, number=2)
+    name = proto.Field(proto.STRING, number=1,)
+    force = proto.Field(proto.BOOL, number=2,)
 
 
 class AddContextArtifactsAndExecutionsRequest(proto.Message):
@@ -553,17 +531,15 @@ class AddContextArtifactsAndExecutionsRequest(proto.Message):
             associate with the Context.
     """
 
-    context = proto.Field(proto.STRING, number=1)
-
-    artifacts = proto.RepeatedField(proto.STRING, number=2)
-
-    executions = proto.RepeatedField(proto.STRING, number=3)
+    context = proto.Field(proto.STRING, number=1,)
+    artifacts = proto.RepeatedField(proto.STRING, number=2,)
+    executions = proto.RepeatedField(proto.STRING, number=3,)
 
 
 class AddContextArtifactsAndExecutionsResponse(proto.Message):
     r"""Response message for
     [MetadataService.AddContextArtifactsAndExecutions][google.cloud.aiplatform.v1beta1.MetadataService.AddContextArtifactsAndExecutions].
-    """
+        """
 
 
 class AddContextChildrenRequest(proto.Message):
@@ -579,15 +555,14 @@ class AddContextChildrenRequest(proto.Message):
             The resource names of the child Contexts.
     """
 
-    context = proto.Field(proto.STRING, number=1)
-
-    child_contexts = proto.RepeatedField(proto.STRING, number=2)
+    context = proto.Field(proto.STRING, number=1,)
+    child_contexts = proto.RepeatedField(proto.STRING, number=2,)
 
 
 class AddContextChildrenResponse(proto.Message):
     r"""Response message for
     [MetadataService.AddContextChildren][google.cloud.aiplatform.v1beta1.MetadataService.AddContextChildren].
-    """
+        """
 
 
 class QueryContextLineageSubgraphRequest(proto.Message):
@@ -606,7 +581,7 @@ class QueryContextLineageSubgraphRequest(proto.Message):
             Events that would be returned for the Context exceeds 1000.
     """
 
-    context = proto.Field(proto.STRING, number=1)
+    context = proto.Field(proto.STRING, number=1,)
 
 
 class CreateExecutionRequest(proto.Message):
@@ -633,11 +608,9 @@ class CreateExecutionRequest(proto.Message):
             if the caller can't view the preexisting Execution.)
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     execution = proto.Field(proto.MESSAGE, number=2, message=gca_execution.Execution,)
-
-    execution_id = proto.Field(proto.STRING, number=3)
+    execution_id = proto.Field(proto.STRING, number=3,)
 
 
 class GetExecutionRequest(proto.Message):
@@ -651,7 +624,7 @@ class GetExecutionRequest(proto.Message):
             projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListExecutionsRequest(proto.Message):
@@ -704,13 +677,10 @@ class ListExecutionsRequest(proto.Message):
             "test" AND metadata.field1.bool_value = true.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    page_size = proto.Field(proto.INT32, number=2)
-
-    page_token = proto.Field(proto.STRING, number=3)
-
-    filter = proto.Field(proto.STRING, number=4)
+    parent = proto.Field(proto.STRING, number=1,)
+    page_size = proto.Field(proto.INT32, number=2,)
+    page_token = proto.Field(proto.STRING, number=3,)
+    filter = proto.Field(proto.STRING, number=4,)
 
 
 class ListExecutionsResponse(proto.Message):
@@ -735,8 +705,7 @@ class ListExecutionsResponse(proto.Message):
     executions = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_execution.Execution,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class UpdateExecutionRequest(proto.Message):
@@ -762,10 +731,10 @@ class UpdateExecutionRequest(proto.Message):
     """
 
     execution = proto.Field(proto.MESSAGE, number=1, message=gca_execution.Execution,)
-
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
-
-    allow_missing = proto.Field(proto.BOOL, number=3)
+    update_mask = proto.Field(
+        proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
+    )
+    allow_missing = proto.Field(proto.BOOL, number=3,)
 
 
 class AddExecutionEventsRequest(proto.Message):
@@ -782,15 +751,14 @@ class AddExecutionEventsRequest(proto.Message):
             The Events to create and add.
     """
 
-    execution = proto.Field(proto.STRING, number=1)
-
+    execution = proto.Field(proto.STRING, number=1,)
     events = proto.RepeatedField(proto.MESSAGE, number=2, message=event.Event,)
 
 
 class AddExecutionEventsResponse(proto.Message):
     r"""Response message for
     [MetadataService.AddExecutionEvents][google.cloud.aiplatform.v1beta1.MetadataService.AddExecutionEvents].
-    """
+        """
 
 
 class QueryExecutionInputsAndOutputsRequest(proto.Message):
@@ -805,7 +773,7 @@ class QueryExecutionInputsAndOutputsRequest(proto.Message):
             projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
     """
 
-    execution = proto.Field(proto.STRING, number=1)
+    execution = proto.Field(proto.STRING, number=1,)
 
 
 class CreateMetadataSchemaRequest(proto.Message):
@@ -833,13 +801,11 @@ class CreateMetadataSchemaRequest(proto.Message):
             MetadataSchema.)
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     metadata_schema = proto.Field(
         proto.MESSAGE, number=2, message=gca_metadata_schema.MetadataSchema,
     )
-
-    metadata_schema_id = proto.Field(proto.STRING, number=3)
+    metadata_schema_id = proto.Field(proto.STRING, number=3,)
 
 
 class GetMetadataSchemaRequest(proto.Message):
@@ -853,7 +819,7 @@ class GetMetadataSchemaRequest(proto.Message):
             projects/{project}/locations/{location}/metadataStores/{metadatastore}/metadataSchemas/{metadataschema}
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListMetadataSchemasRequest(proto.Message):
@@ -883,13 +849,10 @@ class ListMetadataSchemasRequest(proto.Message):
             for matching results.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    page_size = proto.Field(proto.INT32, number=2)
-
-    page_token = proto.Field(proto.STRING, number=3)
-
-    filter = proto.Field(proto.STRING, number=4)
+    parent = proto.Field(proto.STRING, number=1,)
+    page_size = proto.Field(proto.INT32, number=2,)
+    page_token = proto.Field(proto.STRING, number=3,)
+    filter = proto.Field(proto.STRING, number=4,)
 
 
 class ListMetadataSchemasResponse(proto.Message):
@@ -914,8 +877,7 @@ class ListMetadataSchemasResponse(proto.Message):
     metadata_schemas = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_metadata_schema.MetadataSchema,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class QueryArtifactLineageSubgraphRequest(proto.Message):
@@ -961,11 +923,9 @@ class QueryArtifactLineageSubgraphRequest(proto.Message):
             display_name = "test" AND metadata.field1.bool_value = true.
     """
 
-    artifact = proto.Field(proto.STRING, number=1)
-
-    max_hops = proto.Field(proto.INT32, number=2)
-
-    filter = proto.Field(proto.STRING, number=3)
+    artifact = proto.Field(proto.STRING, number=1,)
+    max_hops = proto.Field(proto.INT32, number=2,)
+    filter = proto.Field(proto.STRING, number=3,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

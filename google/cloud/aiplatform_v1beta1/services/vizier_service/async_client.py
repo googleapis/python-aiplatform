@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 import functools
 import re
@@ -22,10 +20,10 @@ from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation  # type: ignore
@@ -34,8 +32,7 @@ from google.cloud.aiplatform_v1beta1.services.vizier_service import pagers
 from google.cloud.aiplatform_v1beta1.types import study
 from google.cloud.aiplatform_v1beta1.types import study as gca_study
 from google.cloud.aiplatform_v1beta1.types import vizier_service
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import VizierServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import VizierServiceGrpcAsyncIOTransport
 from .client import VizierServiceClient
@@ -59,31 +56,26 @@ class VizierServiceAsyncClient:
     parse_study_path = staticmethod(VizierServiceClient.parse_study_path)
     trial_path = staticmethod(VizierServiceClient.trial_path)
     parse_trial_path = staticmethod(VizierServiceClient.parse_trial_path)
-
     common_billing_account_path = staticmethod(
         VizierServiceClient.common_billing_account_path
     )
     parse_common_billing_account_path = staticmethod(
         VizierServiceClient.parse_common_billing_account_path
     )
-
     common_folder_path = staticmethod(VizierServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(
         VizierServiceClient.parse_common_folder_path
     )
-
     common_organization_path = staticmethod(
         VizierServiceClient.common_organization_path
     )
     parse_common_organization_path = staticmethod(
         VizierServiceClient.parse_common_organization_path
     )
-
     common_project_path = staticmethod(VizierServiceClient.common_project_path)
     parse_common_project_path = staticmethod(
         VizierServiceClient.parse_common_project_path
     )
-
     common_location_path = staticmethod(VizierServiceClient.common_location_path)
     parse_common_location_path = staticmethod(
         VizierServiceClient.parse_common_location_path
@@ -137,7 +129,7 @@ class VizierServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         transport: Union[str, VizierServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -174,7 +166,6 @@ class VizierServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
-
         self._client = VizierServiceClient(
             credentials=credentials,
             transport=transport,
@@ -214,7 +205,6 @@ class VizierServiceAsyncClient:
                 This corresponds to the ``study`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -239,7 +229,6 @@ class VizierServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if study is not None:
@@ -287,7 +276,6 @@ class VizierServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -312,7 +300,6 @@ class VizierServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -360,7 +347,6 @@ class VizierServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -390,7 +376,6 @@ class VizierServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -443,7 +428,6 @@ class VizierServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -464,7 +448,6 @@ class VizierServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -511,7 +494,6 @@ class VizierServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -536,7 +518,6 @@ class VizierServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -578,7 +559,6 @@ class VizierServiceAsyncClient:
             request (:class:`google.cloud.aiplatform_v1beta1.types.SuggestTrialsRequest`):
                 The request object. Request message for
                 [VizierService.SuggestTrials][google.cloud.aiplatform.v1beta1.VizierService.SuggestTrials].
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -596,7 +576,6 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-
         request = vizier_service.SuggestTrialsRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
@@ -656,7 +635,6 @@ class VizierServiceAsyncClient:
                 This corresponds to the ``trial`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -686,7 +664,6 @@ class VizierServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if trial is not None:
@@ -734,7 +711,6 @@ class VizierServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -764,7 +740,6 @@ class VizierServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -811,7 +786,6 @@ class VizierServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -841,7 +815,6 @@ class VizierServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -887,7 +860,6 @@ class VizierServiceAsyncClient:
             request (:class:`google.cloud.aiplatform_v1beta1.types.AddTrialMeasurementRequest`):
                 The request object. Request message for
                 [VizierService.AddTrialMeasurement][google.cloud.aiplatform.v1beta1.VizierService.AddTrialMeasurement].
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -904,7 +876,6 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-
         request = vizier_service.AddTrialMeasurementRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
@@ -943,7 +914,6 @@ class VizierServiceAsyncClient:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CompleteTrialRequest`):
                 The request object. Request message for
                 [VizierService.CompleteTrial][google.cloud.aiplatform.v1beta1.VizierService.CompleteTrial].
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -960,7 +930,6 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-
         request = vizier_service.CompleteTrialRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
@@ -1005,7 +974,6 @@ class VizierServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1026,7 +994,6 @@ class VizierServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -1066,7 +1033,6 @@ class VizierServiceAsyncClient:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateRequest`):
                 The request object. Request message for
                 [VizierService.CheckTrialEarlyStoppingState][google.cloud.aiplatform.v1beta1.VizierService.CheckTrialEarlyStoppingState].
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1084,7 +1050,6 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-
         request = vizier_service.CheckTrialEarlyStoppingStateRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
@@ -1131,7 +1096,6 @@ class VizierServiceAsyncClient:
             request (:class:`google.cloud.aiplatform_v1beta1.types.StopTrialRequest`):
                 The request object. Request message for
                 [VizierService.StopTrial][google.cloud.aiplatform.v1beta1.VizierService.StopTrial].
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1148,7 +1112,6 @@ class VizierServiceAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-
         request = vizier_service.StopTrialRequest(request)
 
         # Wrap the RPC method; this adds retry and timeout information,
@@ -1196,7 +1159,6 @@ class VizierServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1223,7 +1185,6 @@ class VizierServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 

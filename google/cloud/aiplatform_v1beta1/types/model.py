@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import explanation
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -34,7 +31,6 @@ __protobuf__ = proto.module(
 
 class Model(proto.Message):
     r"""A trained machine learning Model.
-
     Attributes:
         name (str):
             The resource name of the Model.
@@ -293,58 +289,42 @@ class Model(proto.Message):
             ARTIFACT = 1
             IMAGE = 2
 
-        id = proto.Field(proto.STRING, number=1)
-
+        id = proto.Field(proto.STRING, number=1,)
         exportable_contents = proto.RepeatedField(
             proto.ENUM, number=2, enum="Model.ExportFormat.ExportableContent",
         )
 
-    name = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
-    description = proto.Field(proto.STRING, number=3)
-
+    name = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
+    description = proto.Field(proto.STRING, number=3,)
     predict_schemata = proto.Field(proto.MESSAGE, number=4, message="PredictSchemata",)
-
-    metadata_schema_uri = proto.Field(proto.STRING, number=5)
-
-    metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
-
+    metadata_schema_uri = proto.Field(proto.STRING, number=5,)
+    metadata = proto.Field(proto.MESSAGE, number=6, message=struct_pb2.Value,)
     supported_export_formats = proto.RepeatedField(
         proto.MESSAGE, number=20, message=ExportFormat,
     )
-
-    training_pipeline = proto.Field(proto.STRING, number=7)
-
+    training_pipeline = proto.Field(proto.STRING, number=7,)
     container_spec = proto.Field(proto.MESSAGE, number=9, message="ModelContainerSpec",)
-
-    artifact_uri = proto.Field(proto.STRING, number=26)
-
+    artifact_uri = proto.Field(proto.STRING, number=26,)
     supported_deployment_resources_types = proto.RepeatedField(
         proto.ENUM, number=10, enum=DeploymentResourcesType,
     )
-
-    supported_input_storage_formats = proto.RepeatedField(proto.STRING, number=11)
-
-    supported_output_storage_formats = proto.RepeatedField(proto.STRING, number=12)
-
-    create_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
-
-    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
-
+    supported_input_storage_formats = proto.RepeatedField(proto.STRING, number=11,)
+    supported_output_storage_formats = proto.RepeatedField(proto.STRING, number=12,)
+    create_time = proto.Field(
+        proto.MESSAGE, number=13, message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE, number=14, message=timestamp_pb2.Timestamp,
+    )
     deployed_models = proto.RepeatedField(
         proto.MESSAGE, number=15, message=deployed_model_ref.DeployedModelRef,
     )
-
     explanation_spec = proto.Field(
         proto.MESSAGE, number=23, message=explanation.ExplanationSpec,
     )
-
-    etag = proto.Field(proto.STRING, number=16)
-
-    labels = proto.MapField(proto.STRING, proto.STRING, number=17)
-
+    etag = proto.Field(proto.STRING, number=16,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=17,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=24, message=gca_encryption_spec.EncryptionSpec,
     )
@@ -407,11 +387,9 @@ class PredictSchemata(proto.Message):
             where the user only has a read access.
     """
 
-    instance_schema_uri = proto.Field(proto.STRING, number=1)
-
-    parameters_schema_uri = proto.Field(proto.STRING, number=2)
-
-    prediction_schema_uri = proto.Field(proto.STRING, number=3)
+    instance_schema_uri = proto.Field(proto.STRING, number=1,)
+    parameters_schema_uri = proto.Field(proto.STRING, number=2,)
+    prediction_schema_uri = proto.Field(proto.STRING, number=3,)
 
 
 class ModelContainerSpec(proto.Message):
@@ -649,24 +627,17 @@ class ModelContainerSpec(proto.Message):
                environment variable.)
     """
 
-    image_uri = proto.Field(proto.STRING, number=1)
-
-    command = proto.RepeatedField(proto.STRING, number=2)
-
-    args = proto.RepeatedField(proto.STRING, number=3)
-
+    image_uri = proto.Field(proto.STRING, number=1,)
+    command = proto.RepeatedField(proto.STRING, number=2,)
+    args = proto.RepeatedField(proto.STRING, number=3,)
     env = proto.RepeatedField(proto.MESSAGE, number=4, message=env_var.EnvVar,)
-
     ports = proto.RepeatedField(proto.MESSAGE, number=5, message="Port",)
-
-    predict_route = proto.Field(proto.STRING, number=6)
-
-    health_route = proto.Field(proto.STRING, number=7)
+    predict_route = proto.Field(proto.STRING, number=6,)
+    health_route = proto.Field(proto.STRING, number=7,)
 
 
 class Port(proto.Message):
     r"""Represents a network port in a container.
-
     Attributes:
         container_port (int):
             The number of the port to expose on the pod's
@@ -674,7 +645,7 @@ class Port(proto.Message):
             1 and 65535 inclusive.
     """
 
-    container_port = proto.Field(proto.INT32, number=3)
+    container_port = proto.Field(proto.INT32, number=3,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

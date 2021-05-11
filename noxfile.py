@@ -101,7 +101,7 @@ def default(session):
         "--cov-config=.coveragerc",
         "--cov-report=",
         "--cov-fail-under=0",
-        os.path.join("tests", "unit"),
+        os.path.join("tests", "unit", "gapic"),
         *session.posargs,
     )
 

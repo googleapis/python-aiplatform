@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
-
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -34,13 +31,6 @@ class Featurestore(proto.Message):
         name (str):
             Output only. Name of the Featurestore. Format:
             ``projects/{project}/locations/{location}/featurestores/{featurestore}``
-        display_name (str):
-            Required. The user-defined name of the
-            Featurestore. The name can be up to 128
-            characters long and can consist of any UTF-8
-            characters.
-            Display name of a Featurestore must be unique
-            within a single Project and Location Pair.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Featurestore
             was created.
@@ -90,24 +80,16 @@ class Featurestore(proto.Message):
                 providing different values when updating.
         """
 
-        fixed_node_count = proto.Field(proto.INT32, number=2)
+        fixed_node_count = proto.Field(proto.INT32, number=2,)
 
-    name = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
-    create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
-
-    update_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
-
-    etag = proto.Field(proto.STRING, number=5)
-
-    labels = proto.MapField(proto.STRING, proto.STRING, number=6)
-
+    name = proto.Field(proto.STRING, number=1,)
+    create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
+    etag = proto.Field(proto.STRING, number=5,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=6,)
     online_serving_config = proto.Field(
         proto.MESSAGE, number=7, message=OnlineServingConfig,
     )
-
     state = proto.Field(proto.ENUM, number=8, enum=State,)
 
 

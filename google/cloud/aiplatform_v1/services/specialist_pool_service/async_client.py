@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 import functools
 import re
@@ -22,10 +20,10 @@ from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
@@ -35,9 +33,8 @@ from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import specialist_pool
 from google.cloud.aiplatform_v1.types import specialist_pool as gca_specialist_pool
 from google.cloud.aiplatform_v1.types import specialist_pool_service
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 from .transports.base import SpecialistPoolServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import SpecialistPoolServiceGrpcAsyncIOTransport
 from .client import SpecialistPoolServiceClient
@@ -63,31 +60,26 @@ class SpecialistPoolServiceAsyncClient:
     parse_specialist_pool_path = staticmethod(
         SpecialistPoolServiceClient.parse_specialist_pool_path
     )
-
     common_billing_account_path = staticmethod(
         SpecialistPoolServiceClient.common_billing_account_path
     )
     parse_common_billing_account_path = staticmethod(
         SpecialistPoolServiceClient.parse_common_billing_account_path
     )
-
     common_folder_path = staticmethod(SpecialistPoolServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(
         SpecialistPoolServiceClient.parse_common_folder_path
     )
-
     common_organization_path = staticmethod(
         SpecialistPoolServiceClient.common_organization_path
     )
     parse_common_organization_path = staticmethod(
         SpecialistPoolServiceClient.parse_common_organization_path
     )
-
     common_project_path = staticmethod(SpecialistPoolServiceClient.common_project_path)
     parse_common_project_path = staticmethod(
         SpecialistPoolServiceClient.parse_common_project_path
     )
-
     common_location_path = staticmethod(
         SpecialistPoolServiceClient.common_location_path
     )
@@ -144,7 +136,7 @@ class SpecialistPoolServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         transport: Union[str, SpecialistPoolServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -181,7 +173,6 @@ class SpecialistPoolServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
-
         self._client = SpecialistPoolServiceClient(
             credentials=credentials,
             transport=transport,
@@ -220,7 +211,6 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``specialist_pool`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -255,7 +245,6 @@ class SpecialistPoolServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if specialist_pool is not None:
@@ -313,7 +302,6 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -349,7 +337,6 @@ class SpecialistPoolServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -396,7 +383,6 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -426,7 +412,6 @@ class SpecialistPoolServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -480,7 +465,6 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -520,7 +504,6 @@ class SpecialistPoolServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -545,7 +528,7 @@ class SpecialistPoolServiceAsyncClient:
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -557,7 +540,7 @@ class SpecialistPoolServiceAsyncClient:
         request: specialist_pool_service.UpdateSpecialistPoolRequest = None,
         *,
         specialist_pool: gca_specialist_pool.SpecialistPool = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -582,7 +565,6 @@ class SpecialistPoolServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -617,7 +599,6 @@ class SpecialistPoolServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if specialist_pool is not None:
             request.specialist_pool = specialist_pool
         if update_mask is not None:
