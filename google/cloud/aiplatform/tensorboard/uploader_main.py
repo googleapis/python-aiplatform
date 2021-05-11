@@ -129,8 +129,9 @@ def main(argv):
     tb_uploader.create_experiment()
 
     print(
-        "View your Tensorboard at https://{}/experiment/{}".format(
-            "tensorboard-gcp-prod.uc.r.appspot.com",
+        "View your Tensorboard at https://{}.{}/experiment/{}".format(
+            region,
+            "tensorboard.googleusercontent.com",
             tb_uploader.get_experiment_resource_name().replace("/", "+"),
         )
     )
