@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -23,16 +21,16 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import pagers
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
@@ -40,10 +38,9 @@ from google.cloud.aiplatform_v1beta1.types import endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import EndpointServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import EndpointServiceGrpcTransport
 from .transports.grpc_asyncio import EndpointServiceGrpcAsyncIOTransport
@@ -258,7 +255,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     def __init__(
         self,
         *,
-        credentials: Optional[credentials.Credentials] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, EndpointServiceTransport, None] = None,
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -377,13 +374,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Creates an Endpoint.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateEndpointRequest):
                 The request object. Request message for
-                ``EndpointService.CreateEndpoint``.
+                [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.CreateEndpoint].
             parent (str):
                 Required. The resource name of the Location to create
                 the Endpoint in. Format:
@@ -397,7 +394,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``endpoint`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -428,10 +424,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.CreateEndpointRequest):
             request = endpoint_service.CreateEndpointRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if endpoint is not None:
@@ -451,7 +445,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             gca_endpoint.Endpoint,
@@ -475,7 +469,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetEndpointRequest):
                 The request object. Request message for
-                ``EndpointService.GetEndpoint``
+                [EndpointService.GetEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.GetEndpoint]
             name (str):
                 Required. The name of the Endpoint resource. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
@@ -483,7 +477,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -513,10 +506,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.GetEndpointRequest):
             request = endpoint_service.GetEndpointRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -550,7 +541,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListEndpointsRequest):
                 The request object. Request message for
-                ``EndpointService.ListEndpoints``.
+                [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
             parent (str):
                 Required. The resource name of the Location from which
                 to list the Endpoints. Format:
@@ -559,7 +550,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -569,7 +559,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.endpoint_service.pagers.ListEndpointsPager:
                 Response message for
-                ``EndpointService.ListEndpoints``.
+                [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -591,10 +581,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.ListEndpointsRequest):
             request = endpoint_service.ListEndpointsRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -625,7 +613,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         request: endpoint_service.UpdateEndpointRequest = None,
         *,
         endpoint: gca_endpoint.Endpoint = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -635,7 +623,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateEndpointRequest):
                 The request object. Request message for
-                ``EndpointService.UpdateEndpoint``.
+                [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpoint].
             endpoint (google.cloud.aiplatform_v1beta1.types.Endpoint):
                 Required. The Endpoint which replaces
                 the resource on the server.
@@ -650,7 +638,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -680,10 +667,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.UpdateEndpointRequest):
             request = endpoint_service.UpdateEndpointRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if endpoint is not None:
                 request.endpoint = endpoint
             if update_mask is not None:
@@ -715,13 +700,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deletes an Endpoint.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteEndpointRequest):
                 The request object. Request message for
-                ``EndpointService.DeleteEndpoint``.
+                [EndpointService.DeleteEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.DeleteEndpoint].
             name (str):
                 Required. The name of the Endpoint resource to be
                 deleted. Format:
@@ -730,7 +715,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -772,10 +756,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.DeleteEndpointRequest):
             request = endpoint_service.DeleteEndpointRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -793,10 +775,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -815,14 +797,14 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deploys a Model into this Endpoint, creating a
         DeployedModel within it.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeployModelRequest):
                 The request object. Request message for
-                ``EndpointService.DeployModel``.
+                [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
             endpoint (str):
                 Required. The name of the Endpoint resource into which
                 to deploy a Model. Format:
@@ -834,10 +816,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             deployed_model (google.cloud.aiplatform_v1beta1.types.DeployedModel):
                 Required. The DeployedModel to be created within the
                 Endpoint. Note that
-                ``Endpoint.traffic_split``
+                [Endpoint.traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
                 must be updated for the DeployedModel to start receiving
                 traffic, either as part of this call, or via
-                ``EndpointService.UpdateEndpoint``.
+                [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpoint].
 
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -848,7 +830,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 DeployedModel.
 
                 If this field is non-empty, then the Endpoint's
-                ``traffic_split``
+                [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
                 will be overwritten with it. To refer to the ID of the
                 just being deployed Model, a "0" should be used, and the
                 actual ID of the new DeployedModel will be filled in its
@@ -856,13 +838,12 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 add up to 100.
 
                 If this field is empty, then the Endpoint's
-                ``traffic_split``
+                [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
                 is not updated.
 
                 This corresponds to the ``traffic_split`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -876,7 +857,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.DeployModelResponse`
                 Response message for
-                ``EndpointService.DeployModel``.
+                [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
 
         """
         # Create or coerce a protobuf request object.
@@ -895,10 +876,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.DeployModelRequest):
             request = endpoint_service.DeployModelRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if endpoint is not None:
                 request.endpoint = endpoint
             if deployed_model is not None:
@@ -920,7 +899,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             endpoint_service.DeployModelResponse,
@@ -942,7 +921,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Undeploys a Model from an Endpoint, removing a
         DeployedModel from it, and freeing all resources it's
         using.
@@ -950,7 +929,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UndeployModelRequest):
                 The request object. Request message for
-                ``EndpointService.UndeployModel``.
+                [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
             endpoint (str):
                 Required. The name of the Endpoint resource from which
                 to undeploy a Model. Format:
@@ -968,7 +947,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 should not be set.
             traffic_split (Sequence[google.cloud.aiplatform_v1beta1.types.UndeployModelRequest.TrafficSplitEntry]):
                 If this field is provided, then the Endpoint's
-                ``traffic_split``
+                [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
                 will be overwritten with it. If last DeployedModel is
                 being undeployed from the Endpoint, the
                 [Endpoint.traffic_split] will always end up empty when
@@ -980,7 +959,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``traffic_split`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -994,7 +972,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.UndeployModelResponse`
                 Response message for
-                ``EndpointService.UndeployModel``.
+                [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
 
         """
         # Create or coerce a protobuf request object.
@@ -1013,10 +991,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, endpoint_service.UndeployModelRequest):
             request = endpoint_service.UndeployModelRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if endpoint is not None:
                 request.endpoint = endpoint
             if deployed_model_id is not None:
@@ -1038,7 +1014,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             endpoint_service.UndeployModelResponse,

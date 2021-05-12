@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
-
-from google.protobuf import struct_pb2 as struct  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -38,16 +35,16 @@ class ExplanationMetadata(proto.Message):
 
             An empty InputMetadata is valid. It describes a text feature
             which has the name specified as the key in
-            ``ExplanationMetadata.inputs``.
+            [ExplanationMetadata.inputs][google.cloud.aiplatform.v1beta1.ExplanationMetadata.inputs].
             The baseline of the empty feature is chosen by AI Platform.
 
             For AI Platform provided Tensorflow images, the key can be
             any friendly name of the feature. Once specified,
-            ``featureAttributions``
+            [featureAttributions][google.cloud.aiplatform.v1beta1.Attribution.feature_attributions]
             are keyed by this key (if not grouped with another feature).
 
             For custom images, the key must match with the key in
-            ``instance``.
+            [instance][google.cloud.aiplatform.v1beta1.ExplainRequest.instances].
         outputs (Sequence[google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.OutputsEntry]):
             Required. Map from output names to output
             metadata.
@@ -75,7 +72,7 @@ class ExplanationMetadata(proto.Message):
         r"""Metadata of the input of a feature.
 
         Fields other than
-        ``InputMetadata.input_baselines``
+        [InputMetadata.input_baselines][google.cloud.aiplatform.v1beta1.ExplanationMetadata.InputMetadata.input_baselines]
         are applicable only for Models that are using AI Platform-provided
         images for Tensorflow.
 
@@ -95,12 +92,12 @@ class ExplanationMetadata(proto.Message):
 
                 For custom images, the element of the baselines must be in
                 the same format as the feature's input in the
-                ``instance``[].
+                [instance][google.cloud.aiplatform.v1beta1.ExplainRequest.instances][].
                 The schema of any single instance may be specified via
                 Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                ``instance_schema_uri``.
+                [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
             input_tensor_name (str):
                 Name of the input tensor for this feature.
                 Required and is only applicable to AI Platform
@@ -128,7 +125,7 @@ class ExplanationMetadata(proto.Message):
             index_feature_mapping (Sequence[str]):
                 A list of feature names for each index in the input tensor.
                 Required when the input
-                ``InputMetadata.encoding``
+                [InputMetadata.encoding][google.cloud.aiplatform.v1beta1.ExplanationMetadata.InputMetadata.encoding]
                 is BAG_OF_FEATURES, BAG_OF_FEATURES_SPARSE, INDICATOR.
             encoded_tensor_name (str):
                 Encoded tensor is a transformation of the input tensor. Must
@@ -199,17 +196,13 @@ class ExplanationMetadata(proto.Message):
                     deviation of the domain prior to normalization.
             """
 
-            min_value = proto.Field(proto.FLOAT, number=1)
-
-            max_value = proto.Field(proto.FLOAT, number=2)
-
-            original_mean = proto.Field(proto.FLOAT, number=3)
-
-            original_stddev = proto.Field(proto.FLOAT, number=4)
+            min_value = proto.Field(proto.FLOAT, number=1,)
+            max_value = proto.Field(proto.FLOAT, number=2,)
+            original_mean = proto.Field(proto.FLOAT, number=3,)
+            original_stddev = proto.Field(proto.FLOAT, number=4,)
 
         class Visualization(proto.Message):
             r"""Visualization configurations for image explanation.
-
             Attributes:
                 type_ (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Visualization.Type):
                     Type of the image visualization. Only applicable to
@@ -242,7 +235,7 @@ class ExplanationMetadata(proto.Message):
                 clip_percent_lowerbound (float):
                     Excludes attributions below the specified
                     percentile, from the highlighted areas. Defaults
-                    to 35.
+                    to 62.
                 overlay_type (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Visualization.OverlayType):
                     How the original image is displayed in the
                     visualization. Adjusting the overlay can help
@@ -292,23 +285,18 @@ class ExplanationMetadata(proto.Message):
                 number=1,
                 enum="ExplanationMetadata.InputMetadata.Visualization.Type",
             )
-
             polarity = proto.Field(
                 proto.ENUM,
                 number=2,
                 enum="ExplanationMetadata.InputMetadata.Visualization.Polarity",
             )
-
             color_map = proto.Field(
                 proto.ENUM,
                 number=3,
                 enum="ExplanationMetadata.InputMetadata.Visualization.ColorMap",
             )
-
-            clip_percent_upperbound = proto.Field(proto.FLOAT, number=4)
-
-            clip_percent_lowerbound = proto.Field(proto.FLOAT, number=5)
-
+            clip_percent_upperbound = proto.Field(proto.FLOAT, number=4,)
+            clip_percent_lowerbound = proto.Field(proto.FLOAT, number=5,)
             overlay_type = proto.Field(
                 proto.ENUM,
                 number=6,
@@ -316,46 +304,34 @@ class ExplanationMetadata(proto.Message):
             )
 
         input_baselines = proto.RepeatedField(
-            proto.MESSAGE, number=1, message=struct.Value,
+            proto.MESSAGE, number=1, message=struct_pb2.Value,
         )
-
-        input_tensor_name = proto.Field(proto.STRING, number=2)
-
+        input_tensor_name = proto.Field(proto.STRING, number=2,)
         encoding = proto.Field(
             proto.ENUM, number=3, enum="ExplanationMetadata.InputMetadata.Encoding",
         )
-
-        modality = proto.Field(proto.STRING, number=4)
-
+        modality = proto.Field(proto.STRING, number=4,)
         feature_value_domain = proto.Field(
             proto.MESSAGE,
             number=5,
             message="ExplanationMetadata.InputMetadata.FeatureValueDomain",
         )
-
-        indices_tensor_name = proto.Field(proto.STRING, number=6)
-
-        dense_shape_tensor_name = proto.Field(proto.STRING, number=7)
-
-        index_feature_mapping = proto.RepeatedField(proto.STRING, number=8)
-
-        encoded_tensor_name = proto.Field(proto.STRING, number=9)
-
+        indices_tensor_name = proto.Field(proto.STRING, number=6,)
+        dense_shape_tensor_name = proto.Field(proto.STRING, number=7,)
+        index_feature_mapping = proto.RepeatedField(proto.STRING, number=8,)
+        encoded_tensor_name = proto.Field(proto.STRING, number=9,)
         encoded_baselines = proto.RepeatedField(
-            proto.MESSAGE, number=10, message=struct.Value,
+            proto.MESSAGE, number=10, message=struct_pb2.Value,
         )
-
         visualization = proto.Field(
             proto.MESSAGE,
             number=11,
             message="ExplanationMetadata.InputMetadata.Visualization",
         )
-
-        group_name = proto.Field(proto.STRING, number=12)
+        group_name = proto.Field(proto.STRING, number=12,)
 
     class OutputMetadata(proto.Message):
         r"""Metadata of the prediction output to be explained.
-
         Attributes:
             index_display_name_mapping (google.protobuf.struct_pb2.Value):
                 Static mapping between the index and display name.
@@ -370,9 +346,9 @@ class ExplanationMetadata(proto.Message):
                 The shape of the value must be an n-dimensional array of
                 strings. The number of dimensions must match that of the
                 outputs to be explained. The
-                ``Attribution.output_display_name``
+                [Attribution.output_display_name][google.cloud.aiplatform.v1beta1.Attribution.output_display_name]
                 is populated by locating in the mapping with
-                ``Attribution.output_index``.
+                [Attribution.output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index].
             display_name_mapping_key (str):
                 Specify a field name in the prediction to look for the
                 display name.
@@ -382,7 +358,7 @@ class ExplanationMetadata(proto.Message):
 
                 The display names in the prediction must have the same shape
                 of the outputs, so that it can be located by
-                ``Attribution.output_index``
+                [Attribution.output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index]
                 for a specific output.
             output_tensor_name (str):
                 Name of the output tensor. Required and is
@@ -391,24 +367,23 @@ class ExplanationMetadata(proto.Message):
         """
 
         index_display_name_mapping = proto.Field(
-            proto.MESSAGE, number=1, oneof="display_name_mapping", message=struct.Value,
+            proto.MESSAGE,
+            number=1,
+            oneof="display_name_mapping",
+            message=struct_pb2.Value,
         )
-
         display_name_mapping_key = proto.Field(
-            proto.STRING, number=2, oneof="display_name_mapping"
+            proto.STRING, number=2, oneof="display_name_mapping",
         )
-
-        output_tensor_name = proto.Field(proto.STRING, number=3)
+        output_tensor_name = proto.Field(proto.STRING, number=3,)
 
     inputs = proto.MapField(
         proto.STRING, proto.MESSAGE, number=1, message=InputMetadata,
     )
-
     outputs = proto.MapField(
         proto.STRING, proto.MESSAGE, number=2, message=OutputMetadata,
     )
-
-    feature_attributions_schema_uri = proto.Field(proto.STRING, number=3)
+    feature_attributions_schema_uri = proto.Field(proto.STRING, number=3,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -130,7 +130,6 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
         super().__init__(project=project, location=location, credentials=credentials)
         self._display_name = display_name
-        self._project = project
         self._training_encryption_spec = initializer.global_config.get_encryption_spec(
             encryption_spec_key_name=training_encryption_spec_key_name
         )
@@ -143,7 +142,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
     @classmethod
     @abc.abstractmethod
     def _supported_training_schemas(cls) -> Tuple[str]:
-        """List of supported schemas for this training job"""
+        """List of supported schemas for this training job."""
 
         pass
 
@@ -211,7 +210,10 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
     @abc.abstractmethod
     def run(self) -> Optional[models.Model]:
-        """Runs the training job. Should call _run_job internally"""
+        """Runs the training job.
+
+        Should call _run_job internally
+        """
         pass
 
     @staticmethod
@@ -530,7 +532,8 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         return model
 
     def _is_waiting_to_run(self) -> bool:
-        """Returns True if the Job is pending on upstream tasks False otherwise."""
+        """Returns True if the Job is pending on upstream tasks False
+        otherwise."""
         self._raise_future_exception()
         if self._latest_future:
             _LOGGER.info(
@@ -563,7 +566,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             model: AI Platform Model produced by this training
 
         Raises:
-            RuntimeError if training failed or if a model was not produced by this training.
+            RuntimeError: If training failed or if a model was not produced by this training.
         """
 
         self._assert_has_run()
@@ -586,7 +589,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             model: AI Platform Model produced by this training
 
         Raises:
-            RuntimeError if training failed or if a model was not produced by this training.
+            RuntimeError: If training failed or if a model was not produced by this training.
         """
         model = self._get_model()
 
@@ -603,7 +606,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 Model. None otherwise.
 
         Raises:
-            RuntimeError if Training failed.
+            RuntimeError: If Training failed.
         """
         self._block_until_complete()
 
@@ -662,19 +665,24 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         """Helper method to raise failure if TrainingPipeline fails.
 
         Raises:
-            RuntimeError: If training failed."""
+            RuntimeError: If training failed.
+        """
 
         if self._gca_resource.error.code != code_pb2.OK:
             raise RuntimeError("Training failed with:\n%s" % self._gca_resource.error)
 
     @property
     def has_failed(self) -> bool:
-        """Returns True if training has failed. False otherwise."""
+        """Returns True if training has failed.
+
+        False otherwise.
+        """
         self._assert_has_run()
         return self.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED
 
     def _dashboard_uri(self) -> str:
-        """Helper method to compose the dashboard uri where training can be viewed."""
+        """Helper method to compose the dashboard uri where training can be
+        viewed."""
         fields = utils.extract_fields_from_resource_name(self.resource_name)
         url = f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/training/{fields.id}?project={fields.project}"
         return url
@@ -762,7 +770,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         becomes a job with state set to `CANCELLED`.
 
         Raises:
-            RuntimeError if this TrainingJob has not started running.
+            RuntimeError: If this TrainingJob has not started running.
         """
         if not self._has_run:
             raise RuntimeError(
@@ -838,10 +846,10 @@ def _timestamped_copy_to_gcs(
 def _get_python_executable() -> str:
     """Returns Python executable.
 
-    Raises:
-        EnvironmentError if Python executable is not found.
     Returns:
         Python executable to use for setuptools packaging.
+    Raises:
+        EnvironmentError: If Python executable is not found.
     """
 
     python_executable = sys.executable
@@ -852,7 +860,8 @@ def _get_python_executable() -> str:
 
 
 class _TrainingScriptPythonPackager:
-    """Converts a Python script into Python package suitable for aiplatform training.
+    """Converts a Python script into Python package suitable for aiplatform
+    training.
 
     Copies the script to specified location.
 
@@ -879,7 +888,6 @@ class _TrainingScriptPythonPackager:
 
     The package after installed can be executed as:
     python -m aiplatform_custom_trainer_script.task
-
     """
 
     _TRAINER_FOLDER = "trainer"
@@ -917,14 +925,15 @@ setup(
         self.requirements = requirements or []
 
     def make_package(self, package_directory: str) -> str:
-        """Converts script into a Python package suitable for python module execution.
+        """Converts script into a Python package suitable for python module
+        execution.
 
         Args:
             package_directory (str): Directory to build package in.
         Returns:
             source_distribution_path (str): Path to built package.
         Raises:
-            RunTimeError if package creation fails.
+            RunTimeError: If package creation fails.
         """
         # The root folder to builder the package in
         package_path = pathlib.Path(package_directory)
@@ -1126,7 +1135,6 @@ class _DistributedTrainingSpec(NamedTuple):
                 accelerator_type='NVIDIA_TESLA_K80'
                 )
     )
-
     """
 
     chief_spec: _MachineSpec = _MachineSpec()
@@ -1138,7 +1146,8 @@ class _DistributedTrainingSpec(NamedTuple):
     def pool_specs(
         self,
     ) -> List[Dict[str, Union[int, str, Dict[str, Union[int, str]]]]]:
-        """Return each pools spec in correct order for AI Platform as a list of dicts.
+        """Return each pools spec in correct order for AI Platform as a list of
+        dicts.
 
         Also removes specs if they are empty but leaves specs in if there unusual
         specifications to not break the ordering in AI Platform Training.
@@ -1186,7 +1195,7 @@ class _DistributedTrainingSpec(NamedTuple):
             accelerator_type (str):
                 Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
-                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
 
@@ -1215,8 +1224,7 @@ class _DistributedTrainingSpec(NamedTuple):
 
 
 class _CustomTrainingJob(_TrainingJob):
-    """ABC for Custom Training Pipelines..
-    """
+    """ABC for Custom Training Pipelines.."""
 
     _supported_training_schemas = (schema.training_job.definition.custom_task,)
 
@@ -1448,13 +1456,16 @@ class _CustomTrainingJob(_TrainingJob):
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
     ) -> Tuple[_DistributedTrainingSpec, Optional[gca_model.Model]]:
-        """Create worker pool specs and managed model as well validating the run.
+        """Create worker pool specs and managed model as well validating the
+        run.
 
         Args:
             model_display_name (str):
                 If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
             replica_count (int):
                 The number of worker replicas. If replica count = 1 then one chief
                 replica will be provisioned. If replica_count > 1 the remainder will be
@@ -1464,16 +1475,15 @@ class _CustomTrainingJob(_TrainingJob):
             accelerator_type (str):
                 Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
-                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
         Returns:
             Worker pools specs and managed model for run.
 
         Raises:
-            RuntimeError if Training job has already been run or model_display_name was
-            provided but required arguments were not provided in constructor.
-
+            RuntimeError: If Training job has already been run or model_display_name was
+                provided but required arguments were not provided in constructor.
         """
 
         if self._is_waiting_to_run():
@@ -1490,6 +1500,9 @@ class _CustomTrainingJob(_TrainingJob):
                 custom pipeline was constructed.
                 """
             )
+
+        if self._managed_model.container_spec.image_uri:
+            model_display_name = model_display_name or self._display_name + "-model"
 
         # validates args and will raise
         worker_pool_specs = _DistributedTrainingSpec.chief_worker_pool(
@@ -1512,6 +1525,7 @@ class _CustomTrainingJob(_TrainingJob):
         self,
         worker_pool_specs: _DistributedTrainingSpec,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
 
@@ -1521,6 +1535,9 @@ class _CustomTrainingJob(_TrainingJob):
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
         Returns:
             Training task inputs and Output directory for custom job.
         """
@@ -1536,6 +1553,9 @@ class _CustomTrainingJob(_TrainingJob):
             "workerPoolSpecs": worker_pool_specs,
             "baseOutputDirectory": {"output_uri_prefix": base_output_dir},
         }
+
+        if service_account:
+            training_task_inputs["serviceAccount"] = service_account
 
         return training_task_inputs, base_output_dir
 
@@ -1555,8 +1575,8 @@ class _CustomTrainingJob(_TrainingJob):
 class CustomTrainingJob(_CustomTrainingJob):
     """Class to launch a Custom Training Job in AI Platform using a script.
 
-    Takes a training implementation as a python script and executes that script
-    in Cloud AI Platform Training.
+    Takes a training implementation as a python script and executes that
+    script in Cloud AI Platform Training.
     """
 
     def __init__(
@@ -1782,8 +1802,10 @@ class CustomTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
         replica_count: int = 0,
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
@@ -1854,9 +1876,21 @@ class CustomTrainingJob(_CustomTrainingJob):
                 If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+
+                AI Platform sets the following environment variables when it runs your training code:
+
+                -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
+                -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
+                -  AIP_TENSORBOARD_LOG_DIR: a Cloud Storage URI of a directory intended for saving TensorBoard logs, i.e. <base_output_dir>/logs/
+
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -1874,6 +1908,16 @@ class CustomTrainingJob(_CustomTrainingJob):
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
+            environment_variables (Dict[str, str]):
+                Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
             replica_count (int):
                 The number of worker replicas. If replica count = 1 then one chief
                 replica will be provisioned. If replica_count > 1 the remainder will be
@@ -1883,7 +1927,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             accelerator_type (str):
                 Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
-                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
             training_fraction_split (float):
@@ -1934,7 +1978,9 @@ class CustomTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
             args=args,
+            environment_variables=environment_variables,
             base_output_dir=base_output_dir,
+            service_account=service_account,
             bigquery_destination=bigquery_destination,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
@@ -1959,7 +2005,9 @@ class CustomTrainingJob(_CustomTrainingJob):
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -1990,9 +2038,29 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Model proto if this script produces a Managed Model.
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
+            environment_variables (Dict[str, str]):
+                Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+
+                AI Platform sets the following environment variables when it runs your training code:
+
+                -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
+                -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
+                -  AIP_TENSORBOARD_LOG_DIR: a Cloud Storage URI of a directory intended for saving TensorBoard logs, i.e. <base_output_dir>/logs/
+
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -2052,11 +2120,17 @@ class CustomTrainingJob(_CustomTrainingJob):
             if args:
                 spec["pythonPackageSpec"]["args"] = args
 
+            if environment_variables:
+                spec["pythonPackageSpec"]["env"] = [
+                    {"name": key, "value": value}
+                    for key, value in environment_variables.items()
+                ]
+
         (
             training_task_inputs,
             base_output_dir,
         ) = self._prepare_training_task_inputs_and_output_dir(
-            worker_pool_specs, base_output_dir
+            worker_pool_specs, base_output_dir, service_account
         )
 
         model = self._run_job(
@@ -2077,7 +2151,8 @@ class CustomTrainingJob(_CustomTrainingJob):
 
 
 class CustomContainerTrainingJob(_CustomTrainingJob):
-    """Class to launch a Custom Training Job in AI Platform using a Container."""
+    """Class to launch a Custom Training Job in AI Platform using a
+    Container."""
 
     def __init__(
         self,
@@ -2299,8 +2374,10 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
         replica_count: int = 0,
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
@@ -2327,14 +2404,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (
-                Union[
-                    datasets.ImageDataset,
-                    datasets.TabularDataset,
-                    datasets.TextDataset,
-                    datasets.VideoDataset,
-                ]
-            ):
+            dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset]):
                 AI Platform to fit this training against. Custom training script should
                 retrieve datasets through passed in environment variables uris:
 
@@ -2371,9 +2441,21 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+
+                AI Platform sets the following environment variables when it runs your training code:
+
+                -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
+                -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
+                -  AIP_TENSORBOARD_LOG_DIR: a Cloud Storage URI of a directory intended for saving TensorBoard logs, i.e. <base_output_dir>/logs/
+
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -2391,6 +2473,16 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
+            environment_variables (Dict[str, str]):
+                Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
             replica_count (int):
                 The number of worker replicas. If replica count = 1 then one chief
                 replica will be provisioned. If replica_count > 1 the remainder will be
@@ -2400,7 +2492,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             accelerator_type (str):
                 Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
-                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
             training_fraction_split (float):
@@ -2432,7 +2524,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 produce an AI Platform Model.
 
         Raises:
-            RuntimeError if Training job has already been run, staging_bucket has not
+            RuntimeError: If Training job has already been run, staging_bucket has not
                 been set, or model_display_name was provided but required arguments
                 were not provided in constructor.
         """
@@ -2450,7 +2542,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
             args=args,
+            environment_variables=environment_variables,
             base_output_dir=base_output_dir,
+            service_account=service_account,
             bigquery_destination=bigquery_destination,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
@@ -2474,7 +2568,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
@@ -2502,9 +2598,29 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Model proto if this script produces a Managed Model.
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
+            environment_variables (Dict[str, str]):
+                Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+
+                AI Platform sets the following environment variables when it runs your training code:
+
+                -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
+                -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
+                -  AIP_TENSORBOARD_LOG_DIR: a Cloud Storage URI of a directory intended for saving TensorBoard logs, i.e. <base_output_dir>/logs/
+
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             bigquery_destination (str):
                 The BigQuery project location where the training data is to
                 be written to. In the given project a new dataset is created
@@ -2557,11 +2673,17 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             if args:
                 spec["containerSpec"]["args"] = args
 
+            if environment_variables:
+                spec["containerSpec"]["env"] = [
+                    {"name": key, "value": value}
+                    for key, value in environment_variables.items()
+                ]
+
         (
             training_task_inputs,
             base_output_dir,
         ) = self._prepare_training_task_inputs_and_output_dir(
-            worker_pool_specs, base_output_dir
+            worker_pool_specs, base_output_dir, service_account
         )
 
         model = self._run_job(
@@ -2800,7 +2922,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 produce an AI Platform Model.
 
         Raises:
-            RuntimeError if Training job has already been run or is waiting to run.
+            RuntimeError: If Training job has already been run or is waiting to run.
         """
 
         if self._is_waiting_to_run():
@@ -2918,10 +3040,31 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         training_task_definition = schema.training_job.definition.automl_tabular
 
+        if self._column_transformations is None:
+            _LOGGER.info(
+                "No column transformations provided, so now retrieving columns from dataset in order to set default column transformations."
+            )
+
+            column_names = [
+                column_name
+                for column_name in dataset.column_names
+                if column_name != target_column
+            ]
+            column_transformations = [
+                {"auto": {"column_name": column_name}} for column_name in column_names
+            ]
+
+            _LOGGER.info(
+                "The column transformation of type 'auto' was set for the following columns: %s."
+                % column_names
+            )
+        else:
+            column_transformations = self._column_transformations
+
         training_task_inputs_dict = {
             # required inputs
             "targetColumn": target_column,
-            "transformations": self._column_transformations,
+            "transformations": column_transformations,
             "trainBudgetMilliNodeHours": budget_milli_node_hours,
             # optional inputs
             "weightColumnName": weight_column,
@@ -3330,10 +3473,11 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
 
 class CustomPythonPackageTrainingJob(_CustomTrainingJob):
-    """Class to launch a Custom Training Job in AI Platform using a Python Package.
+    """Class to launch a Custom Training Job in AI Platform using a Python
+    Package.
 
-    Takes a training implementation as a python package and executes that package
-    in Cloud AI Platform Training.
+    Takes a training implementation as a python package and executes
+    that package in Cloud AI Platform Training.
     """
 
     def __init__(
@@ -3564,8 +3708,10 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
         replica_count: int = 0,
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
@@ -3592,16 +3738,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
-            dataset (
-                Union[
-                    datasets.ImageDataset,
-                    datasets.TabularDataset,
-                    datasets.TextDataset,
-                    datasets.VideoDataset,
-                ]
-            ):
+            dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset,]):
                 AI Platform to fit this training against. Custom training script should
-                retrieve datasets through passed in environement variables uris:
+                retrieve datasets through passed in environment variables uris:
 
                 os.environ["AIP_TRAINING_DATA_URI"]
                 os.environ["AIP_VALIDATION_DATA_URI"]
@@ -3636,9 +3775,21 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 If the script produces a managed AI Platform Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+
+                AI Platform sets the following environment variables when it runs your training code:
+
+                -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
+                -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
+                -  AIP_TENSORBOARD_LOG_DIR: a Cloud Storage URI of a directory intended for saving TensorBoard logs, i.e. <base_output_dir>/logs/
+
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -3656,6 +3807,16 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
+            environment_variables (Dict[str, str]):
+                Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
             replica_count (int):
                 The number of worker replicas. If replica count = 1 then one chief
                 replica will be provisioned. If replica_count > 1 the remainder will be
@@ -3665,7 +3826,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             accelerator_type (str):
                 Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
-                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_T4
             accelerator_count (int):
                 The number of accelerators to attach to a worker replica.
             training_fraction_split (float):
@@ -3710,7 +3871,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
             args=args,
+            environment_variables=environment_variables,
             base_output_dir=base_output_dir,
+            service_account=service_account,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
@@ -3734,7 +3897,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         worker_pool_specs: _DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
+        service_account: Optional[str] = None,
         training_fraction_split: float = 0.8,
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
@@ -3763,9 +3928,29 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Model proto if this script produces a Managed Model.
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
+            environment_variables (Dict[str, str]):
+                Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
+
+                AI Platform sets the following environment variables when it runs your training code:
+
+                -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
+                -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
+                -  AIP_TENSORBOARD_LOG_DIR: a Cloud Storage URI of a directory intended for saving TensorBoard logs, i.e. <base_output_dir>/logs/
+
+            service_account (str):
+                Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             training_fraction_split (float):
                 The fraction of the input data that is to be
                 used to train the Model.
@@ -3804,11 +3989,17 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             if args:
                 spec["pythonPackageSpec"]["args"] = args
 
+            if environment_variables:
+                spec["pythonPackageSpec"]["env"] = [
+                    {"name": key, "value": value}
+                    for key, value in environment_variables.items()
+                ]
+
         (
             training_task_inputs,
             base_output_dir,
         ) = self._prepare_training_task_inputs_and_output_dir(
-            worker_pool_specs, base_output_dir
+            worker_pool_specs, base_output_dir, service_account
         )
 
         model = self._run_job(
@@ -4263,7 +4454,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
             model: The trained AI Platform Model resource.
 
         Raises:
-            RuntimeError if Training job has already been run or is waiting to run.
+            RuntimeError: If Training job has already been run or is waiting to run.
         """
 
         if self._is_waiting_to_run():

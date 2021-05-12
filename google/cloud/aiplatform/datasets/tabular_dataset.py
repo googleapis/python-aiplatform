@@ -15,9 +15,15 @@
 # limitations under the License.
 #
 
-from typing import Optional, Sequence, Tuple, Union
+import csv
+import logging
+
+from typing import List, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
+
+from google.cloud import bigquery
+from google.cloud import storage
 
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform.datasets import _datasources
@@ -27,11 +33,162 @@ from google.cloud.aiplatform import utils
 
 
 class TabularDataset(datasets._Dataset):
-    """Managed tabular dataset resource for AI Platform"""
+    """Managed tabular dataset resource for AI Platform."""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
         schema.dataset.metadata.tabular,
     )
+
+    @property
+    def column_names(self) -> List[str]:
+        """Retrieve the columns for the dataset by extracting it from the Google Cloud Storage or
+        Google BigQuery source.
+
+        Returns:
+            List[str]
+                A list of columns names
+
+        Raises:
+            RuntimeError: When no valid source is found.
+        """
+
+        metadata = self._gca_resource.metadata
+
+        if metadata is None:
+            raise RuntimeError("No metadata found for dataset")
+
+        input_config = metadata.get("inputConfig")
+
+        if input_config is None:
+            raise RuntimeError("No inputConfig found for dataset")
+
+        gcs_source = input_config.get("gcsSource")
+        bq_source = input_config.get("bigquerySource")
+
+        if gcs_source:
+            gcs_source_uris = gcs_source.get("uri")
+
+            if gcs_source_uris and len(gcs_source_uris) > 0:
+                # Lexicographically sort the files
+                gcs_source_uris.sort()
+
+                # Get the first file in sorted list
+                return TabularDataset._retrieve_gcs_source_columns(
+                    self.project, gcs_source_uris[0]
+                )
+        elif bq_source:
+            bq_table_uri = bq_source.get("uri")
+            if bq_table_uri:
+                return TabularDataset._retrieve_bq_source_columns(
+                    self.project, bq_table_uri
+                )
+
+        raise RuntimeError("No valid CSV or BigQuery datasource found.")
+
+    @staticmethod
+    def _retrieve_gcs_source_columns(project: str, gcs_csv_file_path: str) -> List[str]:
+        """Retrieve the columns from a comma-delimited CSV file stored on Google Cloud Storage
+
+        Example Usage:
+
+            column_names = _retrieve_gcs_source_columns(
+                "project_id",
+                "gs://example-bucket/path/to/csv_file"
+            )
+
+            # column_names = ["column_1", "column_2"]
+
+        Args:
+            project (str):
+                Required. Project to initiate the Google Cloud Storage client with.
+            gcs_csv_file_path (str):
+                Required. A full path to a CSV files stored on Google Cloud Storage.
+                Must include "gs://" prefix.
+
+        Returns:
+            List[str]
+                A list of columns names in the CSV file.
+
+        Raises:
+            RuntimeError: When the retrieved CSV file is invalid.
+        """
+
+        gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(
+            gcs_csv_file_path
+        )
+        client = storage.Client(project=project)
+        bucket = client.bucket(gcs_bucket)
+        blob = bucket.blob(gcs_blob)
+
+        # Incrementally download the CSV file until the header is retrieved
+        first_new_line_index = -1
+        start_index = 0
+        increment = 1000
+        line = ""
+
+        try:
+            logger = logging.getLogger("google.resumable_media._helpers")
+            logging_warning_filter = utils.LoggingFilter(logging.INFO)
+            logger.addFilter(logging_warning_filter)
+
+            while first_new_line_index == -1:
+                line += blob.download_as_bytes(
+                    start=start_index, end=start_index + increment
+                ).decode("utf-8")
+                first_new_line_index = line.find("\n")
+                start_index += increment
+
+            header_line = line[:first_new_line_index]
+
+            # Split to make it an iterable
+            header_line = header_line.split("\n")[:1]
+
+            csv_reader = csv.reader(header_line, delimiter=",")
+        except (ValueError, RuntimeError) as err:
+            raise RuntimeError(
+                "There was a problem extracting the headers from the CSV file at '{}': {}".format(
+                    gcs_csv_file_path, err
+                )
+            )
+        finally:
+            logger.removeFilter(logging_warning_filter)
+
+        return next(csv_reader)
+
+    @staticmethod
+    def _retrieve_bq_source_columns(project: str, bq_table_uri: str) -> List[str]:
+        """Retrieve the columns from a table on Google BigQuery
+
+        Example Usage:
+
+            column_names = _retrieve_bq_source_columns(
+                "project_id",
+                "bq://project_id.dataset.table"
+            )
+
+            # column_names = ["column_1", "column_2"]
+
+        Args:
+            project (str):
+                Required. Project to initiate the BigQuery client with.
+            bq_table_uri (str):
+                Required. A URI to a BigQuery table.
+                Can include "bq://" prefix but not required.
+
+        Returns:
+            List[str]
+                A list of columns names in the BigQuery table.
+        """
+
+        # Remove bq:// prefix
+        prefix = "bq://"
+        if bq_table_uri.startswith(prefix):
+            bq_table_uri = bq_table_uri[len(prefix) :]
+
+        client = bigquery.Client(project=project)
+        table = client.get_table(bq_table_uri)
+        schema = table.schema
+        return [schema.name for schema in schema]
 
     @classmethod
     def create(
@@ -95,7 +252,6 @@ class TabularDataset(datasets._Dataset):
         Returns:
             tabular_dataset (TabularDataset):
                 Instantiated representation of the managed tabular dataset resource.
-
         """
 
         utils.validate_display_name(display_name)

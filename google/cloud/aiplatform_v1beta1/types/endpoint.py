@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import machine_resources
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -46,9 +43,9 @@ class Endpoint(proto.Message):
         deployed_models (Sequence[google.cloud.aiplatform_v1beta1.types.DeployedModel]):
             Output only. The models deployed in this Endpoint. To add or
             remove DeployedModels use
-            ``EndpointService.DeployModel``
+            [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel]
             and
-            ``EndpointService.UndeployModel``
+            [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel]
             respectively.
         traffic_split (Sequence[google.cloud.aiplatform_v1beta1.types.Endpoint.TrafficSplitEntry]):
             A map from a DeployedModel's ID to the
@@ -87,26 +84,17 @@ class Endpoint(proto.Message):
             this key.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
-    description = proto.Field(proto.STRING, number=3)
-
+    name = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
+    description = proto.Field(proto.STRING, number=3,)
     deployed_models = proto.RepeatedField(
         proto.MESSAGE, number=4, message="DeployedModel",
     )
-
-    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=5)
-
-    etag = proto.Field(proto.STRING, number=6)
-
-    labels = proto.MapField(proto.STRING, proto.STRING, number=7)
-
-    create_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
-
-    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
-
+    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=5,)
+    etag = proto.Field(proto.STRING, number=6,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=7,)
+    create_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp_pb2.Timestamp,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
     )
@@ -142,19 +130,19 @@ class DeployedModel(proto.Message):
             Explanation configuration for this DeployedModel.
 
             When deploying a Model using
-            ``EndpointService.DeployModel``,
+            [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel],
             this value overrides the value of
-            ``Model.explanation_spec``.
+            [Model.explanation_spec][google.cloud.aiplatform.v1beta1.Model.explanation_spec].
             All fields of
-            ``explanation_spec``
+            [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
             are optional in the request. If a field of
-            ``explanation_spec``
+            [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
             is not populated, the value of the same field of
-            ``Model.explanation_spec``
+            [Model.explanation_spec][google.cloud.aiplatform.v1beta1.Model.explanation_spec]
             is inherited. If the corresponding
-            ``Model.explanation_spec``
+            [Model.explanation_spec][google.cloud.aiplatform.v1beta1.Model.explanation_spec]
             is not populated, all fields of the
-            ``explanation_spec``
+            [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
             will be used for the explanation configuration.
         service_account (str):
             The service account that the DeployedModel's container runs
@@ -190,31 +178,22 @@ class DeployedModel(proto.Message):
         oneof="prediction_resources",
         message=machine_resources.DedicatedResources,
     )
-
     automatic_resources = proto.Field(
         proto.MESSAGE,
         number=8,
         oneof="prediction_resources",
         message=machine_resources.AutomaticResources,
     )
-
-    id = proto.Field(proto.STRING, number=1)
-
-    model = proto.Field(proto.STRING, number=2)
-
-    display_name = proto.Field(proto.STRING, number=3)
-
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
-
+    id = proto.Field(proto.STRING, number=1,)
+    model = proto.Field(proto.STRING, number=2,)
+    display_name = proto.Field(proto.STRING, number=3,)
+    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
     explanation_spec = proto.Field(
         proto.MESSAGE, number=9, message=explanation.ExplanationSpec,
     )
-
-    service_account = proto.Field(proto.STRING, number=11)
-
-    enable_container_logging = proto.Field(proto.BOOL, number=12)
-
-    enable_access_logging = proto.Field(proto.BOOL, number=13)
+    service_account = proto.Field(proto.STRING, number=11,)
+    enable_container_logging = proto.Field(proto.BOOL, number=12,)
+    enable_access_logging = proto.Field(proto.BOOL, number=13,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

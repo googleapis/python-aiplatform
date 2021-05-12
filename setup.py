@@ -21,7 +21,7 @@ import os
 import setuptools  # type: ignore
 
 name = "google-cloud-aiplatform"
-version = "0.7.1"
+version = "0.8.0"
 description = "Cloud AI Platform API client library"
 
 package_root = os.path.abspath(os.path.dirname(__file__))
@@ -45,7 +45,7 @@ setuptools.setup(
     install_requires=(
         "google-api-core[grpc] >= 1.22.2, < 2.0.0dev",
         "proto-plus >= 1.10.1",
-        "google-cloud-storage >= 1.26.0, < 2.0.0dev",
+        "google-cloud-storage >= 1.32.0, < 2.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
     ),
     python_requires=">=3.6",

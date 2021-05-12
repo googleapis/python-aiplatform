@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -23,16 +21,16 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.model_service import pagers
 from google.cloud.aiplatform_v1.types import deployed_model_ref
@@ -43,11 +41,10 @@ from google.cloud.aiplatform_v1.types import model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import ModelServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import ModelServiceGrpcTransport
 from .transports.grpc_asyncio import ModelServiceGrpcAsyncIOTransport
@@ -318,7 +315,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
     def __init__(
         self,
         *,
-        credentials: Optional[credentials.Credentials] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, ModelServiceTransport, None] = None,
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -437,13 +434,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Uploads a Model artifact into AI Platform.
 
         Args:
             request (google.cloud.aiplatform_v1.types.UploadModelRequest):
                 The request object. Request message for
-                ``ModelService.UploadModel``.
+                [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel].
             parent (str):
                 Required. The resource name of the Location into which
                 to upload the Model. Format:
@@ -457,7 +454,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -471,7 +467,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.UploadModelResponse`
                 Response message of
-                ``ModelService.UploadModel``
+                [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel]
                 operation.
 
         """
@@ -491,10 +487,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.UploadModelRequest):
             request = model_service.UploadModelRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if model is not None:
@@ -514,7 +508,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             model_service.UploadModelResponse,
@@ -538,7 +532,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.GetModelRequest):
                 The request object. Request message for
-                ``ModelService.GetModel``.
+                [ModelService.GetModel][google.cloud.aiplatform.v1.ModelService.GetModel].
             name (str):
                 Required. The name of the Model resource. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
@@ -546,7 +540,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -573,10 +566,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.GetModelRequest):
             request = model_service.GetModelRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -610,7 +601,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.ListModelsRequest):
                 The request object. Request message for
-                ``ModelService.ListModels``.
+                [ModelService.ListModels][google.cloud.aiplatform.v1.ModelService.ListModels].
             parent (str):
                 Required. The resource name of the Location to list the
                 Models from. Format:
@@ -619,7 +610,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -629,7 +619,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelsPager:
                 Response message for
-                ``ModelService.ListModels``
+                [ModelService.ListModels][google.cloud.aiplatform.v1.ModelService.ListModels]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -651,10 +641,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.ListModelsRequest):
             request = model_service.ListModelsRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -685,7 +673,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         request: model_service.UpdateModelRequest = None,
         *,
         model: gca_model.Model = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -695,7 +683,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.UpdateModelRequest):
                 The request object. Request message for
-                ``ModelService.UpdateModel``.
+                [ModelService.UpdateModel][google.cloud.aiplatform.v1.ModelService.UpdateModel].
             model (google.cloud.aiplatform_v1.types.Model):
                 Required. The Model which replaces
                 the resource on the server.
@@ -711,7 +699,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -738,10 +725,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.UpdateModelRequest):
             request = model_service.UpdateModelRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if model is not None:
                 request.model = model
             if update_mask is not None:
@@ -773,7 +758,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deletes a Model.
         Note: Model can only be deleted if there are no
         DeployedModels created from it.
@@ -781,7 +766,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.DeleteModelRequest):
                 The request object. Request message for
-                ``ModelService.DeleteModel``.
+                [ModelService.DeleteModel][google.cloud.aiplatform.v1.ModelService.DeleteModel].
             name (str):
                 Required. The name of the Model resource to be deleted.
                 Format:
@@ -790,7 +775,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -832,10 +816,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.DeleteModelRequest):
             request = model_service.DeleteModelRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -853,10 +835,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -872,7 +854,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Exports a trained, exportable, Model to a location specified by
         the user. A Model is considered to be exportable if it has at
         least one [supported export
@@ -881,7 +863,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.ExportModelRequest):
                 The request object. Request message for
-                ``ModelService.ExportModel``.
+                [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel].
             name (str):
                 Required. The resource name of the Model to export.
                 Format:
@@ -897,7 +879,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 This corresponds to the ``output_config`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -911,7 +892,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.ExportModelResponse`
                 Response message of
-                ``ModelService.ExportModel``
+                [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel]
                 operation.
 
         """
@@ -931,10 +912,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.ExportModelRequest):
             request = model_service.ExportModelRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
             if output_config is not None:
@@ -954,7 +933,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             model_service.ExportModelResponse,
@@ -978,7 +957,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.GetModelEvaluationRequest):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluation``.
+                [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1.ModelService.GetModelEvaluation].
             name (str):
                 Required. The name of the ModelEvaluation resource.
                 Format:
@@ -988,7 +967,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1019,10 +997,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.GetModelEvaluationRequest):
             request = model_service.GetModelEvaluationRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1056,7 +1032,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.ListModelEvaluationsRequest):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1.ModelService.ListModelEvaluations].
             parent (str):
                 Required. The resource name of the Model to list the
                 ModelEvaluations from. Format:
@@ -1065,7 +1041,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1075,7 +1050,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelEvaluationsPager:
                 Response message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1.ModelService.ListModelEvaluations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1097,10 +1072,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.ListModelEvaluationsRequest):
             request = model_service.ListModelEvaluationsRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -1140,7 +1113,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.GetModelEvaluationSliceRequest):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluationSlice``.
+                [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1.ModelService.GetModelEvaluationSlice].
             name (str):
                 Required. The name of the ModelEvaluationSlice resource.
                 Format:
@@ -1150,7 +1123,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1181,10 +1153,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.GetModelEvaluationSliceRequest):
             request = model_service.GetModelEvaluationSliceRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1220,7 +1190,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.ListModelEvaluationSlicesRequest):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices].
             parent (str):
                 Required. The resource name of the ModelEvaluation to
                 list the ModelEvaluationSlices from. Format:
@@ -1230,7 +1200,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1240,7 +1209,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelEvaluationSlicesPager:
                 Response message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1262,10 +1231,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, model_service.ListModelEvaluationSlicesRequest):
             request = model_service.ListModelEvaluationSlicesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 

@@ -18,7 +18,7 @@ import test_constants as constants
 
 
 def test_create_batch_prediction_job_sample(
-    mock_sdk_init, mock_init_model, mock_batch_predict_model
+    mock_sdk_init, mock_model, mock_init_model, mock_batch_predict_model
 ):
 
     create_batch_prediction_job_sample.create_batch_prediction_job_sample(

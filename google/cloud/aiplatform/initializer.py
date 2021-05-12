@@ -107,8 +107,9 @@ class _Config:
             gca_encryption_spec_v1beta1.EncryptionSpec,
         ]
     ]:
-        """Creates a gca_encryption_spec.EncryptionSpec instance from the given key name.
-        If the provided key name is None, it uses the default key name if provided.
+        """Creates a gca_encryption_spec.EncryptionSpec instance from the given
+        key name. If the provided key name is None, it uses the default key
+        name if provided.
 
         Args:
             encryption_spec_key_name (Optional[str]): The default encryption key name to use when creating resources.
@@ -169,7 +170,7 @@ class _Config:
         if self._credentials:
             return self._credentials
         logger = logging.getLogger("google.auth._default")
-        logging_warning_filter = utils.LoggingWarningFilter()
+        logging_warning_filter = utils.LoggingFilter(logging.WARNING)
         logger.addFilter(logging_warning_filter)
         credentials, _ = google.auth.default()
         logger.removeFilter(logging_warning_filter)
@@ -241,7 +242,8 @@ class _Config:
         location_override: Optional[str] = None,
         prediction_client: bool = False,
     ) -> utils.AiPlatformServiceClientWithOverride:
-        """Instantiates a given AiPlatformServiceClient with optional overrides.
+        """Instantiates a given AiPlatformServiceClient with optional
+        overrides.
 
         Args:
             client_class (utils.AiPlatformServiceClientWithOverride):
@@ -257,7 +259,8 @@ class _Config:
             "google-cloud-aiplatform",
         ).version
         client_info = gapic_v1.client_info.ClientInfo(
-            gapic_version=gapic_version, user_agent=f"model-builder/{gapic_version}"
+            gapic_version=gapic_version,
+            user_agent=f"{constants.USER_AGENT_PRODUCT}/{gapic_version}",
         )
 
         kwargs = {

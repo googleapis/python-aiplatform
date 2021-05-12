@@ -56,7 +56,6 @@ for version in versions:
             f"scripts/fixup_prediction_{version}_keywords.py",
             "google/cloud/aiplatform/__init__.py",
             f"google/cloud/aiplatform/{version}/schema/**/services/",
-            f"tests/unit/gapic/aiplatform_{version}/test_prediction_service.py",
             f"tests/unit/gapic/definition_{version}/",
             f"tests/unit/gapic/instance_{version}/",
             f"tests/unit/gapic/params_{version}/",
@@ -86,12 +85,24 @@ for version in versions:
 # Patch the library
 # ----------------------------------------------------------------------------
 
+# Fix assert with endpoint missing port
+# https://github.com/googleapis/gapic-generator-python/issues/872
 s.replace(
-    "**/client.py",
-    "client_options: ClientOptions = ",
-    "client_options: ClientOptions.ClientOptions = ",
+    "tests/unit/gapic/**/*.py",
+    '''create_channel\.assert_called_with\(
+(\s+)"aiplatform\.googleapis\.com",''',
+    '''create_channel.assert_called_with(
+\g<1>"aiplatform.googleapis.com:443",'''
 )
 
+# Patch broken assert
+# https://github.com/googleapis/gapic-generator-python/issues/414
+s.replace(
+    "tests/unit/gapic/**/test_prediction_service.py",
+    """assert args\[0\]\.parameters == struct_pb2\.Value\(null_value=struct_pb2\.NullValue\.NULL_VALUE\)""",
+    """# https://github.com/googleapis/gapic-generator-python/issues/414
+        # assert args[0].parameters == struct_pb2.Value(null_value=struct_pb2.NullValue.NULL_VALUE)"""
+)
 
 # Generator adds a bad import statement to enhanced type;
 # need to fix in post-processing steps.
@@ -106,56 +117,6 @@ s.replace(
 #    "message=TextSentimentPredictionInstance,")
 
 
-
-# post processing to fix the generated reference doc
-from synthtool import transforms as st
-import re
-
-# https://github.com/googleapis/gapic-generator-python/issues/479
-paths = st._filter_files(st._expand_paths("google/cloud/**/*.py", "."))
-
-pattern = r"(:\w+:``[^`]+``)"
-expr = re.compile(pattern, flags=re.MULTILINE)
-replaces = []
-for path in paths:
-    with path.open("r+") as fh:
-        content = fh.read()
-    matches = re.findall(expr, content)
-    if matches:
-        for match in matches:
-            before = match
-            after = match.replace("``", "`")
-            replaces.append((path, before, after))
-
-for path, before, after in replaces:
-    s.replace([path], before, after)
-
-
-# https://github.com/googleapis/gapic-generator-python/issues/483
-paths = st._filter_files(st._expand_paths("google/cloud/**/*.py", "."))
-pattern = r"(?P<full>\[(?P<first>[\w.]+)\]\[(?P<second>[\w.]+)\])"
-expr = re.compile(pattern, flags=re.MULTILINE)
-replaces = []
-for path in paths:
-    with path.open("r+") as fh:
-        content = fh.read()
-        for match in expr.finditer(content):
-            before = match.groupdict()["full"].replace("[", "\[").replace("]", "\]")
-            after = match.groupdict()["first"]
-            after = f"``{after}``"
-            replaces.append((path, before, after))
-
-for path, before, after in replaces:
-    s.replace([path], before, after)
-
-
-s.replace("google/cloud/**/*.py", "\]\(\n\n\s*", "](")
-
-s.replace("google/cloud/**/*.py", "\s*//\n\s*", "")
-
-s.replace("google/cloud/**/*.py", "https:[\n]*\s*//", "https://")
-
-s.replace("google/cloud/**/*.py", "[\n]*\s*//\s*/", "/")
 
 # ----------------------------------------------------------------------------
 # Add templated files

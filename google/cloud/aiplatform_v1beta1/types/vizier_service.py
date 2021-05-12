@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import study as gca_study
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -54,7 +51,7 @@ __protobuf__ = proto.module(
 
 class GetStudyRequest(proto.Message):
     r"""Request message for
-    ``VizierService.GetStudy``.
+    [VizierService.GetStudy][google.cloud.aiplatform.v1beta1.VizierService.GetStudy].
 
     Attributes:
         name (str):
@@ -62,12 +59,12 @@ class GetStudyRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CreateStudyRequest(proto.Message):
     r"""Request message for
-    ``VizierService.CreateStudy``.
+    [VizierService.CreateStudy][google.cloud.aiplatform.v1beta1.VizierService.CreateStudy].
 
     Attributes:
         parent (str):
@@ -79,14 +76,13 @@ class CreateStudyRequest(proto.Message):
             create the Study.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     study = proto.Field(proto.MESSAGE, number=2, message=gca_study.Study,)
 
 
 class ListStudiesRequest(proto.Message):
     r"""Request message for
-    ``VizierService.ListStudies``.
+    [VizierService.ListStudies][google.cloud.aiplatform.v1beta1.VizierService.ListStudies].
 
     Attributes:
         parent (str):
@@ -103,16 +99,14 @@ class ListStudiesRequest(proto.Message):
             service will pick an appropriate default.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    page_token = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
+    parent = proto.Field(proto.STRING, number=1,)
+    page_token = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
 
 
 class ListStudiesResponse(proto.Message):
     r"""Response message for
-    ``VizierService.ListStudies``.
+    [VizierService.ListStudies][google.cloud.aiplatform.v1beta1.VizierService.ListStudies].
 
     Attributes:
         studies (Sequence[google.cloud.aiplatform_v1beta1.types.Study]):
@@ -128,13 +122,12 @@ class ListStudiesResponse(proto.Message):
         return self
 
     studies = proto.RepeatedField(proto.MESSAGE, number=1, message=gca_study.Study,)
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class DeleteStudyRequest(proto.Message):
     r"""Request message for
-    ``VizierService.DeleteStudy``.
+    [VizierService.DeleteStudy][google.cloud.aiplatform.v1beta1.VizierService.DeleteStudy].
 
     Attributes:
         name (str):
@@ -143,12 +136,12 @@ class DeleteStudyRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class LookupStudyRequest(proto.Message):
     r"""Request message for
-    ``VizierService.LookupStudy``.
+    [VizierService.LookupStudy][google.cloud.aiplatform.v1beta1.VizierService.LookupStudy].
 
     Attributes:
         parent (str):
@@ -159,14 +152,13 @@ class LookupStudyRequest(proto.Message):
             the Study
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
+    parent = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
 
 
 class SuggestTrialsRequest(proto.Message):
     r"""Request message for
-    ``VizierService.SuggestTrials``.
+    [VizierService.SuggestTrials][google.cloud.aiplatform.v1beta1.VizierService.SuggestTrials].
 
     Attributes:
         parent (str):
@@ -186,16 +178,14 @@ class SuggestTrialsRequest(proto.Message):
             Trial if the last suggested Trial was completed.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    suggestion_count = proto.Field(proto.INT32, number=2)
-
-    client_id = proto.Field(proto.STRING, number=3)
+    parent = proto.Field(proto.STRING, number=1,)
+    suggestion_count = proto.Field(proto.INT32, number=2,)
+    client_id = proto.Field(proto.STRING, number=3,)
 
 
 class SuggestTrialsResponse(proto.Message):
     r"""Response message for
-    ``VizierService.SuggestTrials``.
+    [VizierService.SuggestTrials][google.cloud.aiplatform.v1beta1.VizierService.SuggestTrials].
 
     Attributes:
         trials (Sequence[google.cloud.aiplatform_v1beta1.types.Trial]):
@@ -210,17 +200,13 @@ class SuggestTrialsResponse(proto.Message):
     """
 
     trials = proto.RepeatedField(proto.MESSAGE, number=1, message=gca_study.Trial,)
-
     study_state = proto.Field(proto.ENUM, number=2, enum=gca_study.Study.State,)
-
-    start_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
-
-    end_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
+    start_time = proto.Field(proto.MESSAGE, number=3, message=timestamp_pb2.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
 
 
 class SuggestTrialsMetadata(proto.Message):
     r"""Details of operations that perform Trials suggestion.
-
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             Operation metadata for suggesting Trials.
@@ -237,13 +223,12 @@ class SuggestTrialsMetadata(proto.Message):
     generic_metadata = proto.Field(
         proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
-
-    client_id = proto.Field(proto.STRING, number=2)
+    client_id = proto.Field(proto.STRING, number=2,)
 
 
 class CreateTrialRequest(proto.Message):
     r"""Request message for
-    ``VizierService.CreateTrial``.
+    [VizierService.CreateTrial][google.cloud.aiplatform.v1beta1.VizierService.CreateTrial].
 
     Attributes:
         parent (str):
@@ -254,14 +239,13 @@ class CreateTrialRequest(proto.Message):
             Required. The Trial to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     trial = proto.Field(proto.MESSAGE, number=2, message=gca_study.Trial,)
 
 
 class GetTrialRequest(proto.Message):
     r"""Request message for
-    ``VizierService.GetTrial``.
+    [VizierService.GetTrial][google.cloud.aiplatform.v1beta1.VizierService.GetTrial].
 
     Attributes:
         name (str):
@@ -269,12 +253,12 @@ class GetTrialRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}/trials/{trial}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListTrialsRequest(proto.Message):
     r"""Request message for
-    ``VizierService.ListTrials``.
+    [VizierService.ListTrials][google.cloud.aiplatform.v1beta1.VizierService.ListTrials].
 
     Attributes:
         parent (str):
@@ -291,16 +275,14 @@ class ListTrialsRequest(proto.Message):
             service will pick an appropriate default.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    page_token = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
+    parent = proto.Field(proto.STRING, number=1,)
+    page_token = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
 
 
 class ListTrialsResponse(proto.Message):
     r"""Response message for
-    ``VizierService.ListTrials``.
+    [VizierService.ListTrials][google.cloud.aiplatform.v1beta1.VizierService.ListTrials].
 
     Attributes:
         trials (Sequence[google.cloud.aiplatform_v1beta1.types.Trial]):
@@ -316,13 +298,12 @@ class ListTrialsResponse(proto.Message):
         return self
 
     trials = proto.RepeatedField(proto.MESSAGE, number=1, message=gca_study.Trial,)
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class AddTrialMeasurementRequest(proto.Message):
     r"""Request message for
-    ``VizierService.AddTrialMeasurement``.
+    [VizierService.AddTrialMeasurement][google.cloud.aiplatform.v1beta1.VizierService.AddTrialMeasurement].
 
     Attributes:
         trial_name (str):
@@ -333,14 +314,13 @@ class AddTrialMeasurementRequest(proto.Message):
             Trial.
     """
 
-    trial_name = proto.Field(proto.STRING, number=1)
-
+    trial_name = proto.Field(proto.STRING, number=1,)
     measurement = proto.Field(proto.MESSAGE, number=3, message=gca_study.Measurement,)
 
 
 class CompleteTrialRequest(proto.Message):
     r"""Request message for
-    ``VizierService.CompleteTrial``.
+    [VizierService.CompleteTrial][google.cloud.aiplatform.v1beta1.VizierService.CompleteTrial].
 
     Attributes:
         name (str):
@@ -360,20 +340,17 @@ class CompleteTrialRequest(proto.Message):
             ``trial_infeasible`` is true.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
+    name = proto.Field(proto.STRING, number=1,)
     final_measurement = proto.Field(
         proto.MESSAGE, number=2, message=gca_study.Measurement,
     )
-
-    trial_infeasible = proto.Field(proto.BOOL, number=3)
-
-    infeasible_reason = proto.Field(proto.STRING, number=4)
+    trial_infeasible = proto.Field(proto.BOOL, number=3,)
+    infeasible_reason = proto.Field(proto.STRING, number=4,)
 
 
 class DeleteTrialRequest(proto.Message):
     r"""Request message for
-    ``VizierService.DeleteTrial``.
+    [VizierService.DeleteTrial][google.cloud.aiplatform.v1beta1.VizierService.DeleteTrial].
 
     Attributes:
         name (str):
@@ -381,12 +358,12 @@ class DeleteTrialRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}/trials/{trial}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CheckTrialEarlyStoppingStateRequest(proto.Message):
     r"""Request message for
-    ``VizierService.CheckTrialEarlyStoppingState``.
+    [VizierService.CheckTrialEarlyStoppingState][google.cloud.aiplatform.v1beta1.VizierService.CheckTrialEarlyStoppingState].
 
     Attributes:
         trial_name (str):
@@ -394,19 +371,19 @@ class CheckTrialEarlyStoppingStateRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}/trials/{trial}``
     """
 
-    trial_name = proto.Field(proto.STRING, number=1)
+    trial_name = proto.Field(proto.STRING, number=1,)
 
 
 class CheckTrialEarlyStoppingStateResponse(proto.Message):
     r"""Response message for
-    ``VizierService.CheckTrialEarlyStoppingState``.
+    [VizierService.CheckTrialEarlyStoppingState][google.cloud.aiplatform.v1beta1.VizierService.CheckTrialEarlyStoppingState].
 
     Attributes:
         should_stop (bool):
             True if the Trial should stop.
     """
 
-    should_stop = proto.Field(proto.BOOL, number=1)
+    should_stop = proto.Field(proto.BOOL, number=1,)
 
 
 class CheckTrialEarlyStoppingStateMetatdata(proto.Message):
@@ -427,15 +404,13 @@ class CheckTrialEarlyStoppingStateMetatdata(proto.Message):
     generic_metadata = proto.Field(
         proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
-
-    study = proto.Field(proto.STRING, number=2)
-
-    trial = proto.Field(proto.STRING, number=3)
+    study = proto.Field(proto.STRING, number=2,)
+    trial = proto.Field(proto.STRING, number=3,)
 
 
 class StopTrialRequest(proto.Message):
     r"""Request message for
-    ``VizierService.StopTrial``.
+    [VizierService.StopTrial][google.cloud.aiplatform.v1beta1.VizierService.StopTrial].
 
     Attributes:
         name (str):
@@ -443,12 +418,12 @@ class StopTrialRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}/trials/{trial}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListOptimalTrialsRequest(proto.Message):
     r"""Request message for
-    ``VizierService.ListOptimalTrials``.
+    [VizierService.ListOptimalTrials][google.cloud.aiplatform.v1beta1.VizierService.ListOptimalTrials].
 
     Attributes:
         parent (str):
@@ -456,12 +431,12 @@ class ListOptimalTrialsRequest(proto.Message):
             optimal Trial belongs to.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
+    parent = proto.Field(proto.STRING, number=1,)
 
 
 class ListOptimalTrialsResponse(proto.Message):
     r"""Response message for
-    ``VizierService.ListOptimalTrials``.
+    [VizierService.ListOptimalTrials][google.cloud.aiplatform.v1beta1.VizierService.ListOptimalTrials].
 
     Attributes:
         optimal_trials (Sequence[google.cloud.aiplatform_v1beta1.types.Trial]):
