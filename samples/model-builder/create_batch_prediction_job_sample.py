@@ -16,7 +16,9 @@ from typing import Sequence, Union
 
 from google.cloud import aiplatform
 
-
+#  [START aiplatform_sdk_create_batch_prediction_job_text_classification_sample]
+#  [START aiplatform_sdk_create_batch_prediction_job_text_entity_extraction_sample]
+#  [START aiplatform_sdk_create_batch_prediction_job_text_sentiment_analysis_sample]
 #  [START aiplatform_sdk_create_batch_prediction_job_sample]
 def create_batch_prediction_job_sample(
     project: str,
@@ -46,4 +48,7 @@ def create_batch_prediction_job_sample(
     return batch_prediction_job
 
 
+#  [END aiplatform_sdk_create_batch_prediction_job_text_sentiment_analysis_sample]
+#  [END aiplatform_sdk_create_batch_prediction_job_text_entity_extraction_sample]
+#  [END aiplatform_sdk_create_batch_prediction_job_text_classification_sample]
 #  [END aiplatform_sdk_create_batch_prediction_job_sample]

@@ -210,6 +210,19 @@ def mock_run_automl_image_training_job(mock_image_training_job):
 
 
 @pytest.fixture
+def mock_get_automl_text_training_job(mock_text_training_job):
+    with patch.object(aiplatform, "AutoMLTextTrainingJob") as mock:
+        mock.return_value = mock_text_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_automl_text_training_job(mock_text_training_job):
+    with patch.object(mock_text_training_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
 def mock_get_custom_training_job(mock_custom_training_job):
     with patch.object(aiplatform, "CustomTrainingJob") as mock:
         mock.return_value = mock_custom_training_job
