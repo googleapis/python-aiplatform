@@ -13,9 +13,8 @@
 # limitations under the License.
 
 
-import test_constants as constants
-
 import endpoint_predict_sample
+import test_constants as constants
 
 
 def test_endpoint_predict_sample(

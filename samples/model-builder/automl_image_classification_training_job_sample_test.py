@@ -13,9 +13,8 @@
 # limitations under the License.
 
 
-import test_constants as constants
-
 import automl_image_classification_training_job_sample
+import test_constants as constants
 
 
 def test_automl_image_classification_training_job_sample(

@@ -13,9 +13,8 @@
 # limitations under the License.
 
 
-import test_constants as constants
-
 import image_dataset_create_sample
+import test_constants as constants
 
 
 def test_image_dataset_create_sample(mock_sdk_init, mock_create_image_dataset):

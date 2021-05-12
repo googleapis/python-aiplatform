@@ -13,10 +13,11 @@
 # limitations under the License.
 
 
-import test_constants as constants
 from google.cloud.aiplatform import schema
 
 import image_dataset_create_object_detection_sample
+
+import test_constants as constants
 
 
 def test_image_dataset_create_object_detection_sample(

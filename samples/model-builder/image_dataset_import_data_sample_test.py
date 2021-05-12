@@ -13,10 +13,9 @@
 # limitations under the License.
 
 
-import pytest
-import test_constants as constants
-
 import image_dataset_import_data_sample
+
+import test_constants as constants
 
 
 def test_image_dataset_import_data_sample(

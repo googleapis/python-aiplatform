@@ -15,6 +15,7 @@
 
 from google.cloud import aiplatform
 
+
 #  [START aiplatform_sdk_custom_training_job_sample]
 def custom_training_job_sample(
     project: str,
