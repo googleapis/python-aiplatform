@@ -16,11 +16,9 @@
 from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_endpoint_predict_sample]
-def endpoint_predict_sample(project : str, 
-                            location : str, 
-                            instances : list, 
-                            endpoint : str
-                           ):
+def endpoint_predict_sample(
+    project: str, location: str, instances: list, endpoint: str
+):
     aiplatform.init(project=project, location=location)
 
     endpoint = aiplatform.Endpoint(endpoint)

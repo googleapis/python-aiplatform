@@ -17,10 +17,7 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_image_dataset_create_classification_sample]
 def image_dataset_create_classification_sample(
-    project: str, 
-    location: str, 
-    display_name: str, 
-    src_uris: list
+    project: str, location: str, display_name: str, src_uris: list
 ):
     aiplatform.init(project=project, location=location)
 

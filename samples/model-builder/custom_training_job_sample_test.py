@@ -19,7 +19,7 @@ import custom_training_job_sample
 
 
 def test_custom_training_job_sample(
-    mock_sdk_init, mock_init_custom_training_job, mock_run_custom_training_job
+    mock_sdk_init, mock_get_custom_training_job, mock_run_custom_training_job
 ):
     custom_training_job_sample.custom_training_job_sample(
         project=constants.PROJECT,
@@ -40,7 +40,7 @@ def test_custom_training_job_sample(
         staging_bucket=constants.STAGING_BUCKET,
     )
 
-    mock_init_custom_training_job.assert_called_once_with(
+    mock_get_custom_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
         container_uri=constants.TRAIN_IMAGE,
         model_serving_container_image_uri=constants.DEPLOY_IMAGE,

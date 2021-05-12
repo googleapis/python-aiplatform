@@ -22,7 +22,7 @@ def test_automl_image_classification_training_job_sample(
     mock_sdk_init,
     mock_image_dataset,
     mock_get_image_dataset,
-    mock_init_automl_image_training_job,
+    mock_get_automl_image_training_job,
     mock_run_automl_image_training_job,
 ):
     automl_image_classification_training_job_sample.automl_image_classification_training_job_sample(
@@ -38,7 +38,7 @@ def test_automl_image_classification_training_job_sample(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
-    mock_init_automl_image_training_job.assert_called_once_with(
+    mock_get_automl_image_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
         base_model=None,
         model_type="CLOUD",

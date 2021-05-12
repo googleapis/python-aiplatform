@@ -17,11 +17,7 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_image_dataset_import_data_sample]
 def image_dataset_import_data_sample(
-    project: str, 
-    location: str, 
-    src_uris: list, 
-    import_schema_uri: str, 
-    dataset_id: str
+    project: str, location: str, src_uris: list, import_schema_uri: str, dataset_id: str
 ):
     aiplatform.init(project=project, location=location)
 

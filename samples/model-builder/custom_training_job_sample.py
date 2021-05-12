@@ -17,16 +17,16 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_custom_training_job_sample]
 def custom_training_job_sample(
-    project : str,
-    location : str,
-    bucket : str,
-    display_name : str,
-    script_path : str,
-    script_args : str,
-    container_uri : str,
-    model_serving_container_image_uri : str,
-    requirements : str,
-    replica_count : int
+    project: str,
+    location: str,
+    bucket: str,
+    display_name: str,
+    script_path: str,
+    script_args: str,
+    container_uri: str,
+    model_serving_container_image_uri: str,
+    requirements: str,
+    replica_count: int,
 ):
     aiplatform.init(project=project, location=location, staging_bucket=bucket)
 
@@ -35,7 +35,7 @@ def custom_training_job_sample(
         script_path=script_path,
         container_uri=container_uri,
         requirements=requirements,
-        model_serving_container_image_uri=model_serving_container_image_uri
+        model_serving_container_image_uri=model_serving_container_image_uri,
     )
 
     model = job.run(
