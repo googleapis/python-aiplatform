@@ -24,6 +24,7 @@ def create_training_pipeline_text_classification_sample(
     display_name: str,
     dataset_id: int,
     model_display_name: Optional[str] = None,
+    multi_label: bool = False,
     training_fraction_split: float = 0.8,
     validation_fraction_split: float = 0.1,
     test_fraction_split: float = 0.1,
@@ -33,7 +34,11 @@ def create_training_pipeline_text_classification_sample(
 ):
     aiplatform.init(project=project, location=location)
 
-    job = aiplatform.AutoMLTextTrainingJob(display_name=display_name)
+    job = aiplatform.AutoMLTextTrainingJob(
+        display_name=display_name,
+        prediction_type="classification",
+        multi_label=multi_label,
+    )
 
     text_dataset = aiplatform.TextDataset(dataset_id)
 

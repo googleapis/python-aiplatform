@@ -24,6 +24,7 @@ def create_training_pipeline_text_sentiment_analysis_sample(
     display_name: str,
     dataset_id: int,
     model_display_name: Optional[str] = None,
+    sentiment_max: int = 10,
     training_fraction_split: float = 0.8,
     validation_fraction_split: float = 0.1,
     test_fraction_split: float = 0.1,
@@ -33,7 +34,11 @@ def create_training_pipeline_text_sentiment_analysis_sample(
 ):
     aiplatform.init(project=project, location=location)
 
-    job = aiplatform.AutoMLTextTrainingJob(display_name=display_name)
+    job = aiplatform.AutoMLTextTrainingJob(
+        display_name=display_name,
+        prediction_type="sentiment",
+        sentiment_max=sentiment_max,
+    )
 
     text_dataset = aiplatform.TextDataset(dataset_id)
 

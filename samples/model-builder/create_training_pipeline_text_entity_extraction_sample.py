@@ -33,7 +33,9 @@ def create_training_pipeline_text_entity_extraction_sample(
 ):
     aiplatform.init(project=project, location=location)
 
-    job = aiplatform.AutoMLTextTrainingJob(display_name=display_name)
+    job = aiplatform.AutoMLTextTrainingJob(
+        display_name=display_name, prediction_type="extraction"
+    )
 
     text_dataset = aiplatform.TextDataset(dataset_id)
 
