@@ -22,7 +22,6 @@ import sys
 import time
 import logging
 
-
 from google.cloud import storage
 from google.cloud import bigquery
 
@@ -34,8 +33,9 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import training_jobs
 from google.cloud.aiplatform import utils
+from  google.cloud.aiplatform.utils import source_utils
+from  google.cloud.aiplatform.utils import worker_spec_utils
 
 from google.cloud.aiplatform.compat.services import job_service_client
 from google.cloud.aiplatform.compat.types import (
@@ -823,23 +823,23 @@ class CustomJob(_Job):
 
     @classmethod
     def from_local_script(
-            cls,
-            display_name: str,
-            script_path: str,
-            container_uri: str,
-            args: Optional[List[Union[str, float, int]]] = None,
-            requirements: Optional[Sequence[str]] = None,
-            environment_variables: Optional[Dict[str, str]] = None,
-            replica_count: int = 1,
-            machine_type: str = "n1-standard-4",
-            accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
-            accelerator_count: int = 0,
-            project: Optional[str] = None,
-            location: Optional[str] = None,
-            staging_bucket: Optional[str]= None,
-            credentials: Optional[auth_credentials.Credentials] = None,
-            encryption_spec_key_name: Optional[str] = None,
-        ) -> 'CustomJob':
+        cls,
+        display_name: str,
+        script_path: str,
+        container_uri: str,
+        args: Optional[List[Union[str, float, int]]] = None,
+        requirements: Optional[Sequence[str]] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
+        replica_count: int = 1,
+        machine_type: str = "n1-standard-4",
+        accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
+        accelerator_count: int = 0,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        staging_bucket: Optional[str]= None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+    ) -> 'CustomJob':
 
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
@@ -851,7 +851,7 @@ class CustomJob(_Job):
                 "should be set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
 
-        worker_pool_specs = training_jobs._DistributedTrainingSpec.chief_worker_pool(
+        worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
             replica_count=replica_count,
             machine_type=machine_type,
             accelerator_count=accelerator_count,
@@ -859,7 +859,7 @@ class CustomJob(_Job):
         ).pool_specs
 
 
-        python_packager = training_jobs._TrainingScriptPythonPackager(
+        python_packager = source_utils._TrainingScriptPythonPackager(
                 script_path=script_path, requirements=requirements
             )
 
@@ -870,24 +870,24 @@ class CustomJob(_Job):
         )
 
         for spec in worker_pool_specs:
-            spec["pythonPackageSpec"] = {
-                "executorImageUri": container_uri,
-                "pythonModule": python_packager.module_name,
-                "packageUris": [package_gcs_uri],
+            spec["python_package_spec"] = {
+                "executor_image_uri": container_uri,
+                "python_module": python_packager.module_name,
+                "package_uris": [package_gcs_uri],
             }
 
             if args:
-                spec["pythonPackageSpec"]["args"] = args
+                spec["python_package_spec"]["args"] = args
 
             if environment_variables:
-                spec["pythonPackageSpec"]["env"] = [
+                spec["python_package_spec"]["env"] = [
                     {"name": key, "value": value}
                     for key, value in environment_variables.items()
                 ]
 
         return cls(
             display_name=display_name,
-            worker_pool_specs=worker_pool,
+            worker_pool_specs=worker_pool_specs,
             project=project,
             location=location,
             credentials=credentials,

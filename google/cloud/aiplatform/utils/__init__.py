@@ -17,6 +17,8 @@
 
 
 import abc
+import datetime
+import pathlib
 from collections import namedtuple
 import logging
 import re
@@ -25,6 +27,8 @@ from typing import Any, Match, Optional, Type, TypeVar, Tuple
 from google.api_core import client_options
 from google.api_core import gapic_v1
 from google.auth import credentials as auth_credentials
+from google.cloud import storage
+
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import initializer
@@ -499,3 +503,66 @@ class LoggingFilter(logging.Filter):
 
     def filter(self, record):
         return record.levelname == self._warning_level
+
+
+def _timestamped_gcs_dir(root_gcs_path: str, dir_name_prefix: str) -> str:
+    """Composes a timestamped GCS directory.
+
+    Args:
+        root_gcs_path: GCS path to put the timestamped directory.
+        dir_name_prefix: Prefix to add the timestamped directory.
+    Returns:
+        Timestamped gcs directory path in root_gcs_path.
+    """
+    timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
+    dir_name = "-".join([dir_name_prefix, timestamp])
+    if root_gcs_path.endswith("/"):
+        root_gcs_path = root_gcs_path[:-1]
+    gcs_path = "/".join([root_gcs_path, dir_name])
+    if not gcs_path.startswith("gs://"):
+        return "gs://" + gcs_path
+    return gcs_path
+
+
+def _timestamped_copy_to_gcs(
+    local_file_path: str,
+    gcs_dir: str,
+    project: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
+) -> str:
+    """Copies a local file to a GCS path.
+
+    The file copied to GCS is the name of the local file prepended with an
+    "aiplatform-{timestamp}-" string.
+
+    Args:
+        local_file_path (str): Required. Local file to copy to GCS.
+        gcs_dir (str):
+            Required. The GCS directory to copy to.
+        project (str):
+            Project that contains the staging bucket. Default will be used if not
+            provided. Model Builder callers should pass this in.
+        credentials (auth_credentials.Credentials):
+            Custom credentials to use with bucket. Model Builder callers should pass
+            this in.
+    Returns:
+        gcs_path (str): The path of the copied file in gcs.
+    """
+
+    gcs_bucket, gcs_blob_prefix = extract_bucket_and_prefix_from_gcs_path(gcs_dir)
+
+    local_file_name = pathlib.Path(local_file_path).name
+    timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
+    blob_path = "-".join(["aiplatform", timestamp, local_file_name])
+
+    if gcs_blob_prefix:
+        blob_path = "/".join([gcs_blob_prefix, blob_path])
+
+    # TODO(b/171202993) add user agent
+    client = storage.Client(project=project, credentials=credentials)
+    bucket = client.bucket(gcs_bucket)
+    blob = bucket.blob(blob_path)
+    blob.upload_from_filename(local_file_path)
+
+    gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
+    return gcs_path

@@ -19,6 +19,7 @@ import pytest
 
 from importlib import reload
 
+import google.cloud.aiplatform.utils.source_utils
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
@@ -212,7 +213,7 @@ class TestEndToEnd:
             },
             "pythonPackageSpec": {
                 "executorImageUri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
+                "pythonModule": google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager.module_name,
                 "packageUris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
@@ -393,7 +394,7 @@ class TestEndToEnd:
             },
             "pythonPackageSpec": {
                 "executorImageUri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
+                "pythonModule": google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager.module_name,
                 "packageUris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
