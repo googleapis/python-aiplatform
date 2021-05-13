@@ -27,7 +27,7 @@ from google.cloud.aiplatform.datasets import (
 )
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
-from google.cloud.aiplatform.jobs import BatchPredictionJob
+from google.cloud.aiplatform.jobs import BatchPredictionJob, CustomJob
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
     CustomContainerTrainingJob,
@@ -55,6 +55,7 @@ __all__ = (
     "AutoMLTextTrainingJob",
     "AutoMLVideoTrainingJob",
     "BatchPredictionJob",
+    "CustomJob",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",

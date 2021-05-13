@@ -22,29 +22,33 @@ import sys
 import time
 import logging
 
+
 from google.cloud import storage
 from google.cloud import bigquery
 
 from google.auth import credentials as auth_credentials
+from google.protobuf import duration_pb2  # type: ignore
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import constants
+from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import training_jobs
 from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform.compat.services import job_service_client
 from google.cloud.aiplatform.compat.types import (
-    io as gca_io_compat,
-    io_v1beta1 as gca_io_v1beta1,
-    job_state as gca_job_state,
     batch_prediction_job as gca_bp_job_compat,
     batch_prediction_job_v1 as gca_bp_job_v1,
     batch_prediction_job_v1beta1 as gca_bp_job_v1beta1,
+    custom_job as gca_custom_job_compat,
+    explanation_v1beta1 as gca_explanation_v1beta1,
+    io as gca_io_compat,
+    io_v1beta1 as gca_io_v1beta1,
+    job_state as gca_job_state,
     machine_resources as gca_machine_resources_compat,
     machine_resources_v1beta1 as gca_machine_resources_v1beta1,
-    explanation_v1beta1 as gca_explanation_v1beta1,
 )
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -173,7 +177,7 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
                     )
                 )
                 log_wait = min(log_wait * multiplier, max_wait)
-            previous_time = current_time
+                previous_time = current_time
             time.sleep(wait)
 
         _LOGGER.log_action_completed_against_resource("", "run", self)
@@ -776,6 +780,149 @@ class CustomJob(_Job):
     _delete_method = "delete_custom_job"
     _job_type = "training"
     pass
+
+    def __init__(self,
+        display_name: str,
+        worker_pool_specs: Union[Dict],
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        staging_bucket: Optional[str] = None):
+
+        base.AiPlatformResourceNounWithFutureManager.__init__(self,
+                project=project,
+                location=location,
+                credentials=credentials   
+        )
+
+        self._parent = aiplatform.initializer.global_config.common_location_path(
+                project=project,
+                location=location
+            )
+
+        staging_bucket = staging_bucket or initializer.global_config.staging_bucket
+
+        if not staging_bucket:
+            raise RuntimeError(
+                "staging_bucket should be passed to CustomJob constructor or "
+                "should be set using aiplatform.init(staging_bucket='gs://my-bucket')"
+            )
+
+        self._gca_resource  = gca_custom_job_compat.CustomJob(
+            display_name=display_name,
+            job_spec = gca_custom_job_compat.CustomJobSpec(
+                worker_pool_specs=worker_pool_specs,
+                base_output_directory=gca_io_compat.GcsDestination(output_uri_prefix=staging_bucket),
+                ),
+            encryption_spec= initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            )
+        )
+
+
+    @classmethod
+    def from_local_script(
+            cls,
+            display_name: str,
+            script_path: str,
+            container_uri: str,
+            args: Optional[List[Union[str, float, int]]] = None,
+            requirements: Optional[Sequence[str]] = None,
+            environment_variables: Optional[Dict[str, str]] = None,
+            replica_count: int = 1,
+            machine_type: str = "n1-standard-4",
+            accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
+            accelerator_count: int = 0,
+            project: Optional[str] = None,
+            location: Optional[str] = None,
+            staging_bucket: Optional[str]= None,
+            credentials: Optional[auth_credentials.Credentials] = None,
+            encryption_spec_key_name: Optional[str] = None,
+        ) -> 'CustomJob':
+
+        project = project or initializer.global_config.project
+        location = location or initializer.global_config.location
+        staging_bucket = staging_bucket or initializer.global_config.staging_bucket
+
+        if not staging_bucket:
+            raise RuntimeError(
+                "staging_bucket should be passed to CustomJob.from_local_script or "
+                "should be set using aiplatform.init(staging_bucket='gs://my-bucket')"
+            )
+
+        worker_pool_specs = training_jobs._DistributedTrainingSpec.chief_worker_pool(
+            replica_count=replica_count,
+            machine_type=machine_type,
+            accelerator_count=accelerator_count,
+            accelerator_type=accelerator_type,
+        ).pool_specs
+
+
+        python_packager = training_jobs._TrainingScriptPythonPackager(
+                script_path=script_path, requirements=requirements
+            )
+
+        package_gcs_uri = python_packager.package_and_copy_to_gcs(
+            gcs_staging_dir = staging_bucket,
+            project = project,
+            credentials = credentials,
+        )
+
+        for spec in worker_pool_specs:
+            spec["pythonPackageSpec"] = {
+                "executorImageUri": container_uri,
+                "pythonModule": python_packager.module_name,
+                "packageUris": [package_gcs_uri],
+            }
+
+            if args:
+                spec["pythonPackageSpec"]["args"] = args
+
+            if environment_variables:
+                spec["pythonPackageSpec"]["env"] = [
+                    {"name": key, "value": value}
+                    for key, value in environment_variables.items()
+                ]
+
+        return cls(
+            display_name=display_name,
+            worker_pool_specs=worker_pool,
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
+            staging_bucket=staging_bucket)
+
+
+    @base.optional_sync()
+    def run(
+        self,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        timeout: Optional[int] = None, # seconds
+        restart_job_on_worker_restart: bool=False,
+        sync: bool = True):
+
+        if service_account:
+            self._gca_resource.service_account = service_account
+
+        if network:
+            self._gca_resource.network = network
+
+
+        if timeout or restart_job_on_worker_restart:
+            timout = duration_pb2.Duration(seconds=timout) if timeout else None
+            self._gca_resource.job_spec.scheduling = gca_custom_job_compat.Scheduling(
+                    timeout=timeout, 
+                    restart_job_on_worker_restart=restart_job_on_worker_restart
+                )
+
+        self._gca_resource = self.api_client.create_custom_job(
+                parent=self._parent, custom_job=self._gca_resource
+            )
+
+        self._block_until_complete()
 
 
 class DataLabelingJob(_Job):
