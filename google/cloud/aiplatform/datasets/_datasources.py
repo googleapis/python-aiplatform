@@ -225,6 +225,11 @@ def create_datasource(
             raise ValueError("tabular dataset does not support data import.")
         return TabularDatasource(gcs_source, bq_source)
 
+    if metadata_schema_uri == schema.dataset.metadata.time_series:
+        if import_schema_uri:
+            raise ValueError("time series dataset does not support data import.")
+        return TabularDatasource(gcs_source, bq_source)
+
     if not import_schema_uri and not gcs_source:
         return NonTabularDatasource()
     elif import_schema_uri and gcs_source:

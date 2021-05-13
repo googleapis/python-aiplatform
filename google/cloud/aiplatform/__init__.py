@@ -23,6 +23,7 @@ from google.cloud.aiplatform.datasets import (
     ImageDataset,
     TabularDataset,
     TextDataset,
+    TimeSeriesDataset,
     VideoDataset,
 )
 from google.cloud.aiplatform.models import Endpoint
@@ -33,10 +34,12 @@ from google.cloud.aiplatform.training_jobs import (
     CustomContainerTrainingJob,
     CustomPythonPackageTrainingJob,
     AutoMLTabularTrainingJob,
+    AutoMLForecastingTrainingJob,
     AutoMLImageTrainingJob,
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
 )
+from google.cloud.aiplatform.metadata import metadata
 
 """
 Usage:
@@ -46,12 +49,25 @@ aiplatform.init(project='my_project')
 """
 init = initializer.global_config.init
 
+log_params = metadata.metadata_service.log_params
+log_metrics = metadata.metadata_service.log_metrics
+get_experiment_df = metadata.metadata_service.get_experiment_df
+get_pipeline_df = metadata.metadata_service.get_pipeline_df
+start_run = metadata.metadata_service.start_run
+
+
 __all__ = (
     "explain",
     "gapic",
     "init",
+    "log_params",
+    "log_metrics",
+    "get_experiment_df",
+    "get_pipeline_df",
+    "start_run",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
+    "AutoMLForecastingTrainingJob",
     "AutoMLTextTrainingJob",
     "AutoMLVideoTrainingJob",
     "BatchPredictionJob",
@@ -64,5 +80,6 @@ __all__ = (
     "Model",
     "TabularDataset",
     "TextDataset",
+    "TimeSeriesDataset",
     "VideoDataset",
 )

@@ -88,7 +88,7 @@ def default(session):
 
     session.install("mock", "pytest", "pytest-cov", "-c", constraints_path)
 
-    session.install("-e", ".", "-c", constraints_path)
+    session.install("-e", ".[testing]", "-c", constraints_path)
 
     # Run py.test against the unit tests.
     session.run(
