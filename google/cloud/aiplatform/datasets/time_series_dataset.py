@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Optional, Sequence, Dict, Tuple, Union
+from typing import Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
@@ -26,11 +26,11 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
 
-class TextDataset(datasets._Dataset):
-    """Managed text dataset resource for AI Platform."""
+class TimeSeriesDataset(datasets._Dataset):
+    """Managed time series dataset resource for AI Platform"""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
-        schema.dataset.metadata.text,
+        schema.dataset.metadata.time_series,
     )
 
     @classmethod
@@ -38,24 +38,15 @@ class TextDataset(datasets._Dataset):
         cls,
         display_name: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
-        import_schema_uri: Optional[str] = None,
-        data_item_labels: Optional[Dict] = None,
+        bq_source: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
-    ) -> "TextDataset":
-        """Creates a new text dataset and optionally imports data into dataset
-        when source and import_schema_uri are passed.
-
-        Example Usage:
-            ds = aiplatform.TextDataset.create(
-                    display_name='my-dataset',
-                    gcs_source='gs://my-bucket/dataset.csv',
-                    import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification
-                )
+    ) -> "TimeSeriesDataset":
+        """Creates a new tabular dataset.
 
         Args:
             display_name (str):
@@ -70,27 +61,10 @@ class TextDataset(datasets._Dataset):
                 examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
-            import_schema_uri (str):
-                Points to a YAML file stored on Google Cloud
-                Storage describing the import format. Validation will be
-                done against the schema. The schema is defined as an
-                `OpenAPI 3.0.2 Schema
-                Object <https://tinyurl.com/y538mdwt>`__.
-            data_item_labels (Dict):
-                Labels that will be applied to newly imported DataItems. If
-                an identical DataItem as one being imported already exists
-                in the Dataset, then these labels will be appended to these
-                of the already existing one, and if labels with identical
-                key is imported before, the old label value will be
-                overwritten. If two DataItems are identical in the same
-                import data operation, the labels will be combined and if
-                key collision happens in this case, one of the values will
-                be picked randomly. Two DataItems are considered identical
-                if their content bytes are identical (e.g. image bytes or
-                pdf bytes). These labels will be overridden by Annotation
-                labels specified inside index file refenced by
-                ``import_schema_uri``,
-                e.g. jsonl file.
+            bq_source (str):
+                BigQuery URI to the input table.
+                example:
+                    "bq://project.dataset.table_name"
             project (str):
                 Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -119,21 +93,21 @@ class TextDataset(datasets._Dataset):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            text_dataset (TextDataset):
-                Instantiated representation of the managed text dataset resource.
+            time_series_dataset (TimeSeriesDataset):
+                Instantiated representation of the managed time series dataset resource.
+
         """
 
         utils.validate_display_name(display_name)
 
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
-        metadata_schema_uri = schema.dataset.metadata.text
+        metadata_schema_uri = schema.dataset.metadata.time_series
 
         datasource = _datasources.create_datasource(
             metadata_schema_uri=metadata_schema_uri,
-            import_schema_uri=import_schema_uri,
             gcs_source=gcs_source,
-            data_item_labels=data_item_labels,
+            bq_source=bq_source,
         )
 
         return cls._create_and_import(
@@ -152,4 +126,9 @@ class TextDataset(datasets._Dataset):
                 encryption_spec_key_name=encryption_spec_key_name
             ),
             sync=sync,
+        )
+
+    def import_data(self):
+        raise NotImplementedError(
+            f"{self.__class__.__name__} class does not support 'import_data'"
         )

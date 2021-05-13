@@ -36,6 +36,8 @@ from google.cloud.aiplatform.compat.services import (
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
+    metadata_service_client_v1beta1,
+    tensorboard_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -59,6 +61,7 @@ AiPlatformServiceClient = TypeVar(
     prediction_service_client_v1beta1.PredictionServiceClient,
     pipeline_service_client_v1beta1.PipelineServiceClient,
     job_service_client_v1beta1.JobServiceClient,
+    metadata_service_client_v1beta1.MetadataServiceClient,
     # v1
     dataset_service_client_v1.DatasetServiceClient,
     endpoint_service_client_v1.EndpointServiceClient,
@@ -68,12 +71,10 @@ AiPlatformServiceClient = TypeVar(
     job_service_client_v1.JobServiceClient,
 )
 
-# TODO(b/170334193): Add support for resource names with non-integer IDs
-# TODO(b/170334098): Add support for resource names more than one level deep
 RESOURCE_NAME_PATTERN = re.compile(
-    r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>\w+)\/(?P<id>\d+)$"
+    r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>[\w\-\/]+)\/(?P<id>[\w-]+)$"
 )
-RESOURCE_ID_PATTERN = re.compile(r"^\d+$")
+RESOURCE_ID_PATTERN = re.compile(r"^[\w-]+$")
 
 Fields = namedtuple("Fields", ["project", "location", "resource", "id"],)
 
@@ -108,10 +109,12 @@ def extract_fields_from_resource_name(
             Required. A fully-qualified AI Platform (Unified) resource name
 
         resource_noun (str):
-            A plural resource noun to validate the resource name against.
+            A resource noun to validate the resource name against.
             For example, you would pass "datasets" to validate
             "projects/123/locations/us-central1/datasets/456".
-
+            In the case of deeper naming structures, e.g.,
+            "projects/123/locations/us-central1/metadataStores/123/contexts/456",
+            you would pass "metadataStores/123/contexts" as the resource_noun.
     Returns:
         fields (Fields):
             A named tuple containing four extracted fields from a resource name:
@@ -141,9 +144,12 @@ def full_resource_name(
             Required. A fully-qualified AI Platform (Unified) resource name or
             resource ID.
         resource_noun (str):
-            A plural resource noun to validate the resource name against.
+            A resource noun to validate the resource name against.
             For example, you would pass "datasets" to validate
             "projects/123/locations/us-central1/datasets/456".
+            In the case of deeper naming structures, e.g.,
+            "projects/123/locations/us-central1/metadataStores/123/contexts/456",
+            you would pass "metadataStores/123/contexts" as the resource_noun.
         project (str):
             Optional project to retrieve resource_noun from. If not set, project
             set in aiplatform.init will be used.
@@ -160,7 +166,8 @@ def full_resource_name(
             If resource name, resource ID or project ID not provided.
     """
     validate_resource_noun(resource_noun)
-    # Fully qualified resource name, i.e. "projects/.../locations/.../datasets/12345"
+    # Fully qualified resource name, e.g., "projects/.../locations/.../datasets/12345" or
+    # "projects/.../locations/.../metadataStores/.../contexts/12345"
     valid_name = extract_fields_from_resource_name(
         resource_name=resource_name, resource_noun=resource_noun
     )
@@ -457,6 +464,22 @@ class PredictionClientWithOverride(ClientWithOverride):
     )
 
 
+class MetadataClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (compat.V1BETA1, metadata_service_client_v1beta1.MetadataServiceClient),
+    )
+
+
+class TensorboardClientWithOverride(ClientWithOverride):
+    _is_temporary = False
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (compat.V1BETA1, tensorboard_service_client_v1beta1.TensorboardServiceClient),
+    )
+
+
 AiPlatformServiceClientWithOverride = TypeVar(
     "AiPlatformServiceClientWithOverride",
     DatasetClientWithOverride,
@@ -465,6 +488,8 @@ AiPlatformServiceClientWithOverride = TypeVar(
     ModelClientWithOverride,
     PipelineClientWithOverride,
     PredictionClientWithOverride,
+    MetadataClientWithOverride,
+    TensorboardClientWithOverride,
 )
 
 
