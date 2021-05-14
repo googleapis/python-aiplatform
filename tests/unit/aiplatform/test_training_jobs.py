@@ -31,8 +31,8 @@ from unittest.mock import patch
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import utils
-from utils import source_utils
-from utils import worker_spec_utils
+from google.cloud.aiplatform.utils import source_utils
+from google.cloud.aiplatform.utils import worker_spec_utils
 from google.cloud import aiplatform
 
 from google.cloud.aiplatform import datasets
