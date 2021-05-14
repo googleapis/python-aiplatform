@@ -18,6 +18,7 @@
 from typing import Iterable, Optional, Union, Sequence, Dict, List
 
 import abc
+import copy
 import sys
 import time
 import logging
@@ -33,6 +34,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform import utils
 from  google.cloud.aiplatform.utils import source_utils
 from  google.cloud.aiplatform.utils import worker_spec_utils
@@ -50,6 +52,7 @@ from google.cloud.aiplatform.compat.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
     machine_resources as gca_machine_resources_compat,
     machine_resources_v1beta1 as gca_machine_resources_v1beta1,
+    study as gca_study_compat
 )
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -181,7 +184,7 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
                 previous_time = current_time
             time.sleep(wait)
 
-        _LOGGER.log_action_completed_against_resource("", "run", self)
+        _LOGGER.log_action_completed_against_resource("run", "completed", self)
 
         # Error is only populated when the job state is
         # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
@@ -903,7 +906,7 @@ class CustomJob(_Job):
         network: Optional[str] = None,
         timeout: Optional[int] = None, # seconds
         restart_job_on_worker_restart: bool=False,
-        sync: bool = True):
+        sync: bool = True) -> None:
 
         if service_account:
             self._gca_resource.service_account = service_account
@@ -919,16 +922,24 @@ class CustomJob(_Job):
                     restart_job_on_worker_restart=restart_job_on_worker_restart
                 )
 
+        _LOGGER.log_create_with_lro(self.__class__)
+
         self._gca_resource = self.api_client.create_custom_job(
                 parent=self._parent, custom_job=self._gca_resource
             )
+
+        _LOGGER.log_create_complete(self.__class__, self._gca_resource, "custom_job")
+
+        _LOGGER.info(
+            "View Custom Job:\n%s" % self._dashboard_uri()
+        )
 
         self._block_until_complete()
 
 
     @property
-    def worker_pool_specs(self):
-        return self._gca_resource.job_spec.worker_pool_specs
+    def job_spec(self):
+        return self._gca_resource.job_spec
     
 
 
@@ -943,102 +954,122 @@ class DataLabelingJob(_Job):
     pass
 
 
-# class HyperparameterTuningJob(_Job):
-#     _resource_noun = "hyperparameterTuningJobs"
-#     _getter_method = "get_hyperparameter_tuning_job"
-#     _list_method = "list_hyperparameter_tuning_jobs"
-#     _cancel_method = "cancel_hyperparameter_tuning_job"
-#     _delete_method = "delete_hyperparameter_tuning_job"
+_search_algorithm_to_proto_value = {
+    'random': gca_study_compat.StudySpec.Algorithm.RANDOM_SEARCH,
+    'grid': gca_study_compat.StudySpec.Algorithm.GRID_SEARCH
+
+}
+
+_measurement_selection_to_proto_value = {
+    'best': gca_study_compat.StudySpec.MeasurementSelectionType.BEST_MEASUREMENT,
+    'last': gca_study_compat.StudySpec.MeasurementSelectionType.LAST_MEASUREMENT
+}
+
+class HyperparameterTuningJob(_Job):
+    _resource_noun = "hyperparameterTuningJobs"
+    _getter_method = "get_hyperparameter_tuning_job"
+    _list_method = "list_hyperparameter_tuning_jobs"
+    _cancel_method = "cancel_hyperparameter_tuning_job"
+    _delete_method = "delete_hyperparameter_tuning_job"
+    _job_type = "training"
     
 
-#     def __init__(self,
-#         display_name: str,
-#         custom_job: CustomJob,
-#         metric_spec: Dict[str, str],
-#         parameter_spec: dict[str, hyperparameter_tuning_job.Parameter],
-#         max_trial_count: int,
-#         parallel_trial_count: int,
-#         max_failed_trials_count: int = 0,
-#         observation_noise: Optional[str] = 'low',
-#         algorithm: Optional[str] = 'random',
-#         measurement_selection: Optional[str] = 'best',
-#         # project: Optional[str] = None,
-#         # location: Optional[str] = None,
-#         # credentials: Optional[auth_credentials.Credentials] = None,
-#         encryption_spec_key_name: Optional[str] = None,
-#         # staging_bucket: Optional[str] = None
-#     ):
-#         base.AiPlatformResourceNounWithFutureManager.__init__(self,
-#                 project=custom_job.project,
-#                 location=custom_job.location,
-#                 credentials=custom_job.credentials   
-#         )
+    def __init__(self,
+        display_name: str,
+        custom_job: CustomJob,
+        metric_spec: Dict[str, str],
+        parameter_spec: Dict[str, hyperparameter_tuning._ParameterSpec],
+        max_trial_count: int,
+        parallel_trial_count: int,
+        max_failed_trial_count: int = 0,
+        search_algorithm: Optional[str] = 'random',
+        # observation_noise: Optional[str] = 'low',
+        measurement_selection: Optional[str] = 'best',
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        # staging_bucket: Optional[str] = None
+    ):
+        base.AiPlatformResourceNounWithFutureManager.__init__(self,
+                project=project,
+                location=location,
+                credentials=credentials, 
+        )
 
-#         metrics = [
-#             gca_study.StudySpec.MetricSpec(metric_id=metric_id, goal=goal.upper())
-#             for metric_id, goal in metric_spec_dict.items()
-#         ]
+        self._parent = aiplatform.initializer.global_config.common_location_path(
+                project=project,
+                location=location
+            )
 
-#         parameters = [
-#             parameter.to_parameter_spec(parameter_id=parameter_id)
-#             for parameter_id, parameter in parameter_spec.items()
-#         ]
+        metrics = [
+            gca_study_compat.StudySpec.MetricSpec(metric_id=metric_id, goal=goal.upper())
+            for metric_id, goal in metric_spec.items()
+        ]
 
-#         study_spec = gca_study_compat.StudySpec(
-#             metrics = metrics,
-#             parameters = p
-#             algorithm
+        parameters = [
+            parameter._to_parameter_spec(parameter_id=parameter_id)
+            for parameter_id, parameter in parameter_spec.items()
+        ]
+
+        study_spec = gca_study_compat.StudySpec(
+            metrics = metrics,
+            parameters = parameters,
+            algorithm = _search_algorithm_to_proto_value[search_algorithm],
+            # observation_noise = observation_noise.upper(),
+            measurement_selection_type = _measurement_selection_to_proto_value[measurement_selection]
+        )
+
+        self._gca_resource = gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
+                display_name=display_name,
+                study_spec=study_spec,
+                max_trial_count=max_trial_count,
+                parallel_trial_count=parallel_trial_count,
+                max_failed_trial_count=max_failed_trial_count,
+                trial_job_spec=copy.deepcopy(custom_job.job_spec),
+                encryption_spec= initializer.global_config.get_encryption_spec(
+                    encryption_spec_key_name = encryption_spec_key_name
+                )
+        )
+
+    @base.optional_sync()
+    def run(
+        self,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        timeout: Optional[int] = None, # seconds
+        restart_job_on_worker_restart: bool=False,
+        sync: bool = True) -> None:
+
+        if service_account:
+            self._gca_resource.trial_job_spec.service_account = service_account
+
+        if network:
+            self._gca_resource.trial_job_spec.network = network
 
 
-#         )
+        if timeout or restart_job_on_worker_restart:
+            timout = duration_pb2.Duration(seconds=timout) if timeout else None
+            self._gca_resource.trial_job_spec.scheduling = gca_custom_job_compat.Scheduling(
+                    timeout=timeout, 
+                    restart_job_on_worker_restart=restart_job_on_worker_restart
+                )
 
-#         self._gca_resource = gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
-#                 display_name=display_name,
-#                 study_spec=,
-#                 max_trial_count=max_trial_count,
-#                 parallel_trial_count=parallel_trial_count,
-#                 max_failed_trial_count=max_failed_trial_count,
-#                 trial_job_spec=custom_job.job_spec._gca_resource.copy(),
-#                 encryption_spec= initializer.global_config.get_encryption_spec(
-#                     encryption_spec_key_name = encryption_spec_key_name
-#                 )
-#         )
+        _LOGGER.log_create_with_lro(self.__class__)
 
-#     @staticmethod
-#     def _convert_metric_spec_dict_to_metric_spec(
-#         metric_spec_dict: Dict[str, str]) -> gca_study_compat.StudySpec.MetricSpec:
-#         return 
+        self._gca_resource = self.api_client.create_hyperparameter_tuning_job(
+                parent=self._parent, 
+                hyperparameter_tuning_job=self._gca_resource
+            )
 
+        _LOGGER.log_create_complete(self.__class__, self._gca_resource, "hpt_job")
 
-#     @base.optional_sync()
-#     def run(
-#         self,
-#         service_account: Optional[str] = None,
-#         network: Optional[str] = None,
-#         timeout: Optional[int] = None, # seconds
-#         restart_job_on_worker_restart: bool=False,
-#         sync: bool = True):
-
-#         if service_account:
-#             self._gca_resource.trial_job_spec.service_account = service_account
-
-#         if network:
-#             self._gca_resource.trial_job_spec.network = network
+        _LOGGER.info(
+            "View HyperparameterTuningJob:\n%s" % self._dashboard_uri()
+        )
 
 
-#         if timeout or restart_job_on_worker_restart:
-#             timout = duration_pb2.Duration(seconds=timout) if timeout else None
-#             self._gca_resource.trial_job_spec.scheduling = gca_custom_job_compat.Scheduling(
-#                     timeout=timeout, 
-#                     restart_job_on_worker_restart=restart_job_on_worker_restart
-#                 )
-
-#         self._gca_resource = self.api_client.create_hyperparameter_tuning_job(
-#                 parent=self._parent, 
-#                 hyperparameter_tuning_job=self._gca_resource
-#             )
-
-#         self._block_until_complete()
+        self._block_until_complete()
 
 
 
