@@ -47,6 +47,7 @@ from google.cloud.aiplatform.compat.types import (
     io as gca_io_compat,
     io_v1beta1 as gca_io_v1beta1,
     job_state as gca_job_state,
+    hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
     machine_resources as gca_machine_resources_compat,
     machine_resources_v1beta1 as gca_machine_resources_v1beta1,
 )
@@ -925,6 +926,13 @@ class CustomJob(_Job):
         self._block_until_complete()
 
 
+    @property
+    def worker_pool_specs(self):
+        return self._gca_resource.job_spec.worker_pool_specs
+    
+
+
+
 class DataLabelingJob(_Job):
     _resource_noun = "dataLabelingJobs"
     _getter_method = "get_data_labeling_job"
@@ -935,10 +943,102 @@ class DataLabelingJob(_Job):
     pass
 
 
-class HyperparameterTuningJob(_Job):
-    _resource_noun = "hyperparameterTuningJobs"
-    _getter_method = "get_hyperparameter_tuning_job"
-    _list_method = "list_hyperparameter_tuning_jobs"
-    _cancel_method = "cancel_hyperparameter_tuning_job"
-    _delete_method = "delete_hyperparameter_tuning_job"
-    pass
+# class HyperparameterTuningJob(_Job):
+#     _resource_noun = "hyperparameterTuningJobs"
+#     _getter_method = "get_hyperparameter_tuning_job"
+#     _list_method = "list_hyperparameter_tuning_jobs"
+#     _cancel_method = "cancel_hyperparameter_tuning_job"
+#     _delete_method = "delete_hyperparameter_tuning_job"
+    
+
+#     def __init__(self,
+#         display_name: str,
+#         custom_job: CustomJob,
+#         metric_spec: Dict[str, str],
+#         parameter_spec: dict[str, hyperparameter_tuning_job.Parameter],
+#         max_trial_count: int,
+#         parallel_trial_count: int,
+#         max_failed_trials_count: int = 0,
+#         observation_noise: Optional[str] = 'low',
+#         algorithm: Optional[str] = 'random',
+#         measurement_selection: Optional[str] = 'best',
+#         # project: Optional[str] = None,
+#         # location: Optional[str] = None,
+#         # credentials: Optional[auth_credentials.Credentials] = None,
+#         encryption_spec_key_name: Optional[str] = None,
+#         # staging_bucket: Optional[str] = None
+#     ):
+#         base.AiPlatformResourceNounWithFutureManager.__init__(self,
+#                 project=custom_job.project,
+#                 location=custom_job.location,
+#                 credentials=custom_job.credentials   
+#         )
+
+#         metrics = [
+#             gca_study.StudySpec.MetricSpec(metric_id=metric_id, goal=goal.upper())
+#             for metric_id, goal in metric_spec_dict.items()
+#         ]
+
+#         parameters = [
+#             parameter.to_parameter_spec(parameter_id=parameter_id)
+#             for parameter_id, parameter in parameter_spec.items()
+#         ]
+
+#         study_spec = gca_study_compat.StudySpec(
+#             metrics = metrics,
+#             parameters = p
+#             algorithm
+
+
+#         )
+
+#         self._gca_resource = gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
+#                 display_name=display_name,
+#                 study_spec=,
+#                 max_trial_count=max_trial_count,
+#                 parallel_trial_count=parallel_trial_count,
+#                 max_failed_trial_count=max_failed_trial_count,
+#                 trial_job_spec=custom_job.job_spec._gca_resource.copy(),
+#                 encryption_spec= initializer.global_config.get_encryption_spec(
+#                     encryption_spec_key_name = encryption_spec_key_name
+#                 )
+#         )
+
+#     @staticmethod
+#     def _convert_metric_spec_dict_to_metric_spec(
+#         metric_spec_dict: Dict[str, str]) -> gca_study_compat.StudySpec.MetricSpec:
+#         return 
+
+
+#     @base.optional_sync()
+#     def run(
+#         self,
+#         service_account: Optional[str] = None,
+#         network: Optional[str] = None,
+#         timeout: Optional[int] = None, # seconds
+#         restart_job_on_worker_restart: bool=False,
+#         sync: bool = True):
+
+#         if service_account:
+#             self._gca_resource.trial_job_spec.service_account = service_account
+
+#         if network:
+#             self._gca_resource.trial_job_spec.network = network
+
+
+#         if timeout or restart_job_on_worker_restart:
+#             timout = duration_pb2.Duration(seconds=timout) if timeout else None
+#             self._gca_resource.trial_job_spec.scheduling = gca_custom_job_compat.Scheduling(
+#                     timeout=timeout, 
+#                     restart_job_on_worker_restart=restart_job_on_worker_restart
+#                 )
+
+#         self._gca_resource = self.api_client.create_hyperparameter_tuning_job(
+#                 parent=self._parent, 
+#                 hyperparameter_tuning_job=self._gca_resource
+#             )
+
+#         self._block_until_complete()
+
+
+
