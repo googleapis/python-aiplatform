@@ -30,7 +30,7 @@ with io.open(readme_filename, encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
 tensorboard_extra_require = [
-    "tensorflow-cpu >= 2.3.0, <=2.5.0rc",
+    "tensorflow-cpu>=2.3.0, <=2.5.0",
     "grpcio~=1.34.0",
     "six~=1.16.0",
 ]
