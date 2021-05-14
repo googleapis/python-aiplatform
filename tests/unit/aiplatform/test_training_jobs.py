@@ -30,9 +30,9 @@ from unittest.mock import patch
 
 from google.auth import credentials as auth_credentials
 
-import google.cloud.aiplatform.utils
-import google.cloud.aiplatform.utils.source_utils
-import google.cloud.aiplatform.utils.worker_spec_utils
+from google.cloud.aiplatform import utils
+from utils import source_utils
+from utils import worker_spec_utils
 from google.cloud import aiplatform
 
 from google.cloud.aiplatform import datasets
@@ -237,7 +237,7 @@ class TestTrainingScriptPythonPackagerHelpers:
 
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        gcs_path = google.cloud.aiplatform.utils._timestamped_copy_to_gcs(
+        gcs_path = utils._timestamped_copy_to_gcs(
             local_file_path=_TEST_LOCAL_SCRIPT_FILE_PATH,
             gcs_dir=_TEST_BUCKET_NAME,
             project=_TEST_PROJECT,
@@ -264,7 +264,7 @@ class TestTrainingScriptPythonPackagerHelpers:
 
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        gcs_path = google.cloud.aiplatform.utils._timestamped_copy_to_gcs(
+        gcs_path = utils._timestamped_copy_to_gcs(
             local_file_path=_TEST_LOCAL_SCRIPT_FILE_PATH,
             gcs_dir=_TEST_GCS_PATH_WITH_TRAILING_SLASH,
             project=_TEST_PROJECT,
@@ -292,7 +292,7 @@ class TestTrainingScriptPythonPackagerHelpers:
 
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        gcs_path = google.cloud.aiplatform.utils._timestamped_copy_to_gcs(
+        gcs_path = utils._timestamped_copy_to_gcs(
             local_file_path=_TEST_LOCAL_SCRIPT_FILE_PATH,
             gcs_dir=_TEST_GCS_PATH,
             project=_TEST_PROJECT,
@@ -318,7 +318,7 @@ class TestTrainingScriptPythonPackagerHelpers:
 
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        gcs_path = google.cloud.aiplatform.utils._timestamped_copy_to_gcs(
+        gcs_path = utils._timestamped_copy_to_gcs(
             local_file_path=_TEST_LOCAL_SCRIPT_FILE_PATH,
             gcs_dir=_TEST_BUCKET_NAME,
             project=_TEST_PROJECT,
@@ -335,10 +335,10 @@ class TestTrainingScriptPythonPackagerHelpers:
     def test_get_python_executable_raises_if_None(self):
         with patch.object(sys, "executable", new=None):
             with pytest.raises(EnvironmentError):
-                google.cloud.aiplatform.utils.source_utils._get_python_executable()
+                source_utils._get_python_executable()
 
     def test_get_python_executable_returns_python_executable(self):
-        assert "python" in google.cloud.aiplatform.utils.source_utils._get_python_executable().lower()
+        assert "python" in source_utils._get_python_executable().lower()
 
 
 class TestTrainingScriptPythonPackager:
@@ -350,7 +350,7 @@ class TestTrainingScriptPythonPackager:
 
     def teardown_method(self):
         pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_NAME).unlink()
-        python_package_file = f"{google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}.tar.gz"
+        python_package_file = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}.tar.gz"
         if pathlib.Path(python_package_file).is_file():
             pathlib.Path(python_package_file).unlink()
         subprocess.check_output(
@@ -358,34 +358,34 @@ class TestTrainingScriptPythonPackager:
                 "pip3",
                 "uninstall",
                 "-y",
-                google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager._ROOT_MODULE,
+                source_utils._TrainingScriptPythonPackager._ROOT_MODULE,
             ]
         )
 
     def test_packager_creates_and_copies_python_package(self):
-        tsp = google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
         tsp.package_and_copy(copy_method=local_copy_method)
         assert pathlib.Path(
             f"{tsp._ROOT_MODULE}-{tsp._SETUP_PY_VERSION}.tar.gz"
         ).is_file()
 
     def test_created_package_module_is_installable_and_can_be_run(self):
-        tsp = google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
         source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
         subprocess.check_output(["pip3", "install", source_dist_path])
         module_output = subprocess.check_output(
-            [google.cloud.aiplatform.utils.source_utils._get_python_executable(), "-m", tsp.module_name]
+            [source_utils._get_python_executable(), "-m", tsp.module_name]
         )
         assert "hello world" in module_output.decode()
 
     def test_requirements_are_in_package(self):
-        tsp = google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager(
+        tsp = source_utils._TrainingScriptPythonPackager(
             _TEST_LOCAL_SCRIPT_FILE_NAME, requirements=_TEST_REQUIREMENTS
         )
         source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
         with tarfile.open(source_dist_path) as tf:
             with tempfile.TemporaryDirectory() as tmpdirname:
-                setup_py_path = f"{google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}/setup.py"
+                setup_py_path = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}/setup.py"
                 tf.extract(setup_py_path, path=tmpdirname)
                 setup_py = core.run_setup(
                     pathlib.Path(tmpdirname, setup_py_path), stop_after="init"
@@ -398,7 +398,7 @@ class TestTrainingScriptPythonPackager:
             mock_subprocess.communicate.return_value = (b"", b"")
             mock_subprocess.returncode = 1
             mock_popen.return_value = mock_subprocess
-            tsp = google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager(
+            tsp = source_utils._TrainingScriptPythonPackager(
                 _TEST_LOCAL_SCRIPT_FILE_NAME
             )
             with pytest.raises(RuntimeError):
@@ -407,7 +407,7 @@ class TestTrainingScriptPythonPackager:
     def test_package_and_copy_to_gcs_copies_to_gcs(self, mock_client_bucket):
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        tsp = google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
 
         gcs_path = tsp.package_and_copy_to_gcs(
             gcs_staging_dir=_TEST_BUCKET_NAME, project=_TEST_PROJECT
@@ -515,7 +515,7 @@ def mock_model_service_get():
 @pytest.fixture
 def mock_python_package_to_gcs():
     with mock.patch.object(
-            google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager, "package_and_copy_to_gcs"
+            source_utils._TrainingScriptPythonPackager, "package_and_copy_to_gcs"
     ) as mock_package_to_copy_gcs:
         mock_package_to_copy_gcs.return_value = _TEST_OUTPUT_PYTHON_PACKAGE_PATH
         yield mock_package_to_copy_gcs
@@ -641,7 +641,7 @@ class TestCustomTrainingJob:
             },
             "pythonPackageSpec": {
                 "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager.module_name,
+                "pythonModule": source_utils._TrainingScriptPythonPackager.module_name,
                 "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
@@ -800,7 +800,7 @@ class TestCustomTrainingJob:
             },
             "pythonPackageSpec": {
                 "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager.module_name,
+                "pythonModule": source_utils._TrainingScriptPythonPackager.module_name,
                 "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
@@ -1075,7 +1075,7 @@ class TestCustomTrainingJob:
             },
             "pythonPackageSpec": {
                 "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager.module_name,
+                "pythonModule": source_utils._TrainingScriptPythonPackager.module_name,
                 "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
@@ -1327,7 +1327,7 @@ class TestCustomTrainingJob:
                 },
                 "pythonPackageSpec": {
                     "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "pythonModule": google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager.module_name,
+                    "pythonModule": source_utils._TrainingScriptPythonPackager.module_name,
                     "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
@@ -1342,7 +1342,7 @@ class TestCustomTrainingJob:
                 },
                 "pythonPackageSpec": {
                     "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "pythonModule": google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager.module_name,
+                    "pythonModule": source_utils._TrainingScriptPythonPackager.module_name,
                     "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
@@ -1555,7 +1555,7 @@ class TestCustomTrainingJob:
             },
             "pythonPackageSpec": {
                 "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": google.cloud.aiplatform.utils.source_utils._TrainingScriptPythonPackager.module_name,
+                "pythonModule": source_utils._TrainingScriptPythonPackager.module_name,
                 "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
@@ -2692,7 +2692,7 @@ class TestCustomContainerTrainingJob:
 
 class Test_MachineSpec:
     def test_machine_spec_return_spec_dict(self):
-        test_spec = google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._MachineSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2711,7 +2711,7 @@ class Test_MachineSpec:
         assert test_spec.spec_dict == true_spec_dict
 
     def test_machine_spec_return_spec_dict_with_no_accelerator(self):
-        test_spec = google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._MachineSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=0,
@@ -2726,7 +2726,7 @@ class Test_MachineSpec:
         assert test_spec.spec_dict == true_spec_dict
 
     def test_machine_spec_spec_dict_raises_invalid_accelerator(self):
-        test_spec = google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._MachineSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2737,7 +2737,7 @@ class Test_MachineSpec:
             test_spec.spec_dict
 
     def test_machine_spec_spec_dict_is_empty(self):
-        test_spec = google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._MachineSpec(
             replica_count=0,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2747,7 +2747,7 @@ class Test_MachineSpec:
         assert test_spec.is_empty
 
     def test_machine_spec_spec_dict_is_not_empty(self):
-        test_spec = google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(
+        test_spec = worker_spec_utils._MachineSpec(
             replica_count=_TEST_REPLICA_COUNT,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2760,26 +2760,26 @@ class Test_MachineSpec:
 class Test_DistributedTrainingSpec:
     def test_machine_spec_returns_pool_spec(self):
 
-        spec = google.cloud.aiplatform.utils.worker_spec_utils._DistributedTrainingSpec(
-            chief_spec=google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(
+        spec = worker_spec_utils._DistributedTrainingSpec(
+            chief_spec=worker_spec_utils._MachineSpec(
                 replica_count=1,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            worker_spec=google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(
+            worker_spec=worker_spec_utils._MachineSpec(
                 replica_count=10,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            parameter_server_spec=google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(
+            parameter_server_spec=worker_spec_utils._MachineSpec(
                 replica_count=3,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            evaluator_spec=google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(
+            evaluator_spec=worker_spec_utils._MachineSpec(
                 replica_count=1,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2826,7 +2826,7 @@ class Test_DistributedTrainingSpec:
 
     def test_chief_worker_pool_returns_spec(self):
 
-        chief_worker_spec = google.cloud.aiplatform.utils.worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+        chief_worker_spec = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
             replica_count=10,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2856,7 +2856,7 @@ class Test_DistributedTrainingSpec:
 
     def test_chief_worker_pool_returns_just_chief(self):
 
-        chief_worker_spec = google.cloud.aiplatform.utils.worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+        chief_worker_spec = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
             replica_count=1,
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2878,8 +2878,8 @@ class Test_DistributedTrainingSpec:
 
     def test_machine_spec_raise_with_more_than_one_chief_replica(self):
 
-        spec = google.cloud.aiplatform.utils.worker_spec_utils._DistributedTrainingSpec(
-            chief_spec=google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(
+        spec = worker_spec_utils._DistributedTrainingSpec(
+            chief_spec=worker_spec_utils._MachineSpec(
                 replica_count=2,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
@@ -2892,21 +2892,21 @@ class Test_DistributedTrainingSpec:
 
     def test_machine_spec_handles_missing_pools(self):
 
-        spec = google.cloud.aiplatform.utils.worker_spec_utils._DistributedTrainingSpec(
-            chief_spec=google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(
+        spec = worker_spec_utils._DistributedTrainingSpec(
+            chief_spec=worker_spec_utils._MachineSpec(
                 replica_count=1,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            worker_spec=google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(replica_count=0),
-            parameter_server_spec=google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(
+            worker_spec=worker_spec_utils._MachineSpec(replica_count=0),
+            parameter_server_spec=worker_spec_utils._MachineSpec(
                 replica_count=3,
                 machine_type=_TEST_MACHINE_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
             ),
-            evaluator_spec=google.cloud.aiplatform.utils.worker_spec_utils._MachineSpec(replica_count=0),
+            evaluator_spec=worker_spec_utils._MachineSpec(replica_count=0),
         )
 
         true_pool_spec = [
