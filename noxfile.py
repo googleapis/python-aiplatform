@@ -88,7 +88,7 @@ def default(session):
 
     session.install("mock", "pytest", "pytest-cov", "-c", constraints_path)
 
-    session.install("-e", ".", "-c", constraints_path)
+    session.install("-e", ".[testing]", "-c", constraints_path)
 
     # Run py.test against the unit tests.
     session.run(
@@ -101,7 +101,7 @@ def default(session):
         "--cov-config=.coveragerc",
         "--cov-report=",
         "--cov-fail-under=0",
-        os.path.join("tests", "unit", "gapic"),
+        os.path.join("tests", "unit"),
         *session.posargs,
     )
 
