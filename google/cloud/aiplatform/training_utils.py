@@ -169,7 +169,7 @@ class _HyperparameterTuningJobReporterSingleton:
         cls._dump_metrics_to_file()
 
 
-def report_hyperparameter_tuning_metric(
+def report_hyperparameter_tuning_metrics(
         metrics: Dict[str, float],
         global_step: Optional[int] = None,
         checkpoint_path=''
