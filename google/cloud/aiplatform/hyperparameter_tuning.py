@@ -15,7 +15,7 @@ _scale_type_map = {
 class _ParameterSpec(metaclass=abc.ABCMeta):
     def __init__(
         self,
-        conditional_parameter_spec: Optional[Dict[str, "_Parameter"]] = None,
+        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
         parent_values: Optional[List[Union[float, int, str]]] = None,
     ):
 
@@ -80,7 +80,7 @@ class DoubleParameterSpec(_ParameterSpec):
         min: float,
         max: float,
         scale: str,
-        conditional_parameter_spec: Optional[Dict[str, "_Parameter"]] = None,
+        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
         parent_values: Optional[List[Union[float, int, str]]] = None,
     ):
 
@@ -107,7 +107,7 @@ class IntegerParameterSpec(_ParameterSpec):
         min: int,
         max: int,
         scale: str,
-        conditional_parameter_spec: Optional[Dict[str, "_Parameter"]] = None,
+        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
         parent_values: Optional[List[Union[float, int, str]]] = None,
     ):
 
@@ -132,7 +132,7 @@ class CategoricalValueSpec(_ParameterSpec):
     def __init__(
         self,
         values: List[str],
-        conditional_parameter_spec: Optional[Dict[str, "_Parameter"]] = None,
+        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
         parent_values: Optional[List[Union[float, int, str]]] = None,
     ):
 
@@ -156,7 +156,7 @@ class DiscreteValueSpec(_ParameterSpec):
         self,
         values: List[float],
         scale: str,
-        conditional_parameter_spec: Optional[Dict[str, "_Parameter"]] = None,
+        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
         parent_values: Optional[List[Union[float, int, str]]] = None,
     ):
 

@@ -777,12 +777,22 @@ class BatchPredictionJob(_Job):
 
 
 class _RunnableJob(_Job):
+    """ABC to interface job as a runnable training class."""
+
     def __init__(
         self,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
+        """Initializes job with project, location, and api_client.
+
+        Args:
+            project(str): Project of the resource noun.
+            location(str): The location of the resource noun.
+            credentials(google.auth.crendentials.Crendentials): Optional custom
+                credentials to use when accessing interacting with resource noun.
+        """
 
         base.AiPlatformResourceNounWithFutureManager.__init__(
             self, project=project, location=location, credentials=credentials
@@ -798,10 +808,16 @@ class _RunnableJob(_Job):
 
     @property
     def _has_run(self) -> bool:
+        """Property returns true if this class has a resource name."""
         return bool(getattr(self._gca_resource, "name"))
 
     @property
     def state(self) -> gca_job_state.JobState:
+        """Current state of job.
+
+        Raises:
+            RuntimeError if job run has not been called.
+        """
         if not self._has_run:
             raise RuntimeError("Job has not run. No state available.")
 
@@ -845,25 +861,93 @@ class _RunnableJob(_Job):
         return self
 
 
+class DataLabelingJob(_Job):
+    _resource_noun = "dataLabelingJobs"
+    _getter_method = "get_data_labeling_job"
+    _list_method = "list_data_labeling_jobs"
+    _cancel_method = "cancel_data_labeling_job"
+    _delete_method = "delete_data_labeling_job"
+    _job_type = "labeling-tasks"
+    pass
+
+
 class CustomJob(_RunnableJob):
+    """Creates an AI Platform (Unified) Custom Job."""
+    
     _resource_noun = "customJobs"
     _getter_method = "get_custom_job"
     _list_method = "list_custom_job"
     _cancel_method = "cancel_custom_job"
     _delete_method = "delete_custom_job"
     _job_type = "training"
-    pass
 
+    
     def __init__(
         self,
         display_name: str,
-        worker_pool_specs: Union[Dict],
+        worker_pool_specs: Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]],
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
     ):
+        """Cosntruct a Custom Job with Worker Pool Specs.
+
+        Example usage:
+        worker_pool_specs = [
+                {
+                    "machine_spec": {
+                        "machine_type": "n1-standard-4",
+                        "accelerator_type": "NVIDIA_TESLA_K80",
+                        "accelerator_count": 1,
+                    },
+                    "replica_count": 1,
+                    "container_spec": {
+                        "image_uri": container_image_uri,
+                        "command": [],
+                        "args": [],
+                    },
+                }
+            ]
+
+        my_job = aiplatform.CustomJob(
+            display_name='my_job',
+            worker_pool_specs=worker_pool_specs
+        )
+        
+        my_job.run()
+
+
+        For more information on configuring worker pool specs please visit: 
+        https://cloud.google.com/ai-platform-unified/docs/training/create-custom-job
+
+
+        Args:
+            display_name (str): Required. The user-defined name of this Custom Job.
+            worker_pool_specs (Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]]): 
+                Required. The spec of the worker pools including machine type and Docker image.
+                Can provided as a list of dictionaries or list of WorkerPoolSpec proto messages.
+            project (str):
+                Project to run the custom job in. Overrides project set in aiplatform.init.
+            location (str):
+                Location to run the custom job in. Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to run call custom job service. Overrides
+                credentials set in aiplatform.init.
+            encryption_spec_key_name (str):
+                Customer-managed encryption key name for a
+                CustomJob. If this is set, then all resources
+                created by the CustomJob will be encrypted with
+                the provided encryption key.
+            staging_bucket (str):
+                Bucket for produced custom job artifacts. Overrides
+                staging_bucket set in aiplatform.init.
+
+        Raises:
+            RuntimeError is not staging bucket was set using aiplatfrom.init and a staging
+            bucket was not passed in.
+        """
 
         super().__init__(project=project, location=location, credentials=credentials)
 
@@ -907,6 +991,9 @@ class CustomJob(_RunnableJob):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
     ) -> "CustomJob":
+        """Configures a custom job from a local script.
+
+        """
 
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
@@ -976,7 +1063,7 @@ class CustomJob(_RunnableJob):
             self._gca_resource.network = network
 
         if timeout or restart_job_on_worker_restart:
-            timout = duration_pb2.Duration(seconds=timout) if timeout else None
+            timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
             self._gca_resource.job_spec.scheduling = gca_custom_job_compat.Scheduling(
                 timeout=timeout,
                 restart_job_on_worker_restart=restart_job_on_worker_restart,
@@ -999,16 +1086,6 @@ class CustomJob(_RunnableJob):
         return self._gca_resource.job_spec
 
 
-class DataLabelingJob(_Job):
-    _resource_noun = "dataLabelingJobs"
-    _getter_method = "get_data_labeling_job"
-    _list_method = "list_data_labeling_jobs"
-    _cancel_method = "cancel_data_labeling_job"
-    _delete_method = "delete_data_labeling_job"
-    _job_type = "labeling-tasks"
-    pass
-
-
 _SEARCH_ALGORITHM_TO_PROTO_VALUE = {
     "random": gca_study_compat.StudySpec.Algorithm.RANDOM_SEARCH,
     "grid": gca_study_compat.StudySpec.Algorithm.GRID_SEARCH,
@@ -1018,6 +1095,7 @@ _MEASUREMENT_SELECTION_TO_PROTO_VALUE = {
     "best": gca_study_compat.StudySpec.MeasurementSelectionType.BEST_MEASUREMENT,
     "last": gca_study_compat.StudySpec.MeasurementSelectionType.LAST_MEASUREMENT,
 }
+
 
 
 class HyperparameterTuningJob(_RunnableJob):
@@ -1096,7 +1174,7 @@ class HyperparameterTuningJob(_RunnableJob):
             self._gca_resource.trial_job_spec.network = network
 
         if timeout or restart_job_on_worker_restart:
-            timout = duration_pb2.Duration(seconds=timout) if timeout else None
+            timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
             self._gca_resource.trial_job_spec.scheduling = gca_custom_job_compat.Scheduling(
                 timeout=timeout,
                 restart_job_on_worker_restart=restart_job_on_worker_restart,

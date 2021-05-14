@@ -24,7 +24,6 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
-from google.cloud.aiplatform import training_jobs
 
 from google.cloud.aiplatform_v1.types import (
     dataset as gca_dataset,
