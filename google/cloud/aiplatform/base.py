@@ -543,6 +543,11 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         self._sync_gca_resource()
         return self._gca_resource.update_time
 
+    @property
+    def gca_resource(self) -> proto.Message:
+        """The underlying resource proto represenation."""
+        return self._gca_resource
+
     def __repr__(self) -> str:
         return f"{object.__repr__(self)} \nresource name: {self.resource_name}"
 

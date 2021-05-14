@@ -106,8 +106,8 @@ class EnvironmentVariables:
             return None
 
 
-_DEFAULT_HYPERPARAMETER_METRIC_TAG = 'training/hptuning/metric'
-_DEFAULT_METRIC_PATH = '/tmp/hypertune/output.metrics'
+_DEFAULT_HYPERPARAMETER_METRIC_TAG = "training/hptuning/metric"
+_DEFAULT_METRIC_PATH = "/tmp/hypertune/output.metrics"
 # TODO(0olwzo0): consider to make it configurable
 _MAX_NUM_METRIC_ENTRIES_TO_PRESERVE = 100
 
@@ -122,29 +122,33 @@ class _HyperparameterTuningJobReporterSingleton:
         if cls.initialized:
             return
 
-        cls.metric_path = os.environ.get('CLOUD_ML_HP_METRIC_FILE',
-                                          _DEFAULT_METRIC_PATH)
+        cls.metric_path = os.environ.get(
+            "CLOUD_ML_HP_METRIC_FILE", _DEFAULT_METRIC_PATH
+        )
         if not os.path.exists(os.path.dirname(cls.metric_path)):
             os.makedirs(os.path.dirname(cls.metric_path))
 
-        cls.trial_id = os.environ.get('CLOUD_ML_TRIAL_ID', 0)
+        cls.trial_id = os.environ.get("CLOUD_ML_TRIAL_ID", 0)
         cls.metrics_queue = collections.deque(
-            maxlen=_MAX_NUM_METRIC_ENTRIES_TO_PRESERVE)
+            maxlen=_MAX_NUM_METRIC_ENTRIES_TO_PRESERVE
+        )
 
         cls.initialized = True
 
     @classmethod
     def _dump_metrics_to_file(cls):
-        with open(cls.metric_path, 'w') as metric_file:
+        with open(cls.metric_path, "w") as metric_file:
             for metric in cls.metrics_queue:
-                metric_file.write(json.dumps(metric, sort_keys=True) + '\n')
+                metric_file.write(json.dumps(metric, sort_keys=True) + "\n")
 
     @classmethod
-    def report_hyperparameter_tuning_metric(cls,
-                                            hyperparameter_metric_tag,
-                                            metric_value,
-                                            global_step=None,
-                                            checkpoint_path=''):
+    def report_hyperparameter_tuning_metric(
+        cls,
+        hyperparameter_metric_tag,
+        metric_value,
+        global_step=None,
+        checkpoint_path="",
+    ):
         """Method to report hyperparameter tuning metric.
         Args:
           hyperparameter_metric_tag: The hyperparameter metric name this metric
@@ -159,33 +163,25 @@ class _HyperparameterTuningJobReporterSingleton:
         if hyperparameter_metric_tag:
             metric_tag = hyperparameter_metric_tag
         metric_body = {
-            'timestamp': time.time(),
-            'trial': str(cls.trial_id),
+            "timestamp": time.time(),
+            "trial": str(cls.trial_id),
             metric_tag: str(metric_value),
-            'global_step': str(int(global_step) if global_step else 0),
-            'checkpoint_path': checkpoint_path
+            "global_step": str(int(global_step) if global_step else 0),
+            "checkpoint_path": checkpoint_path,
         }
         cls.metrics_queue.append(metric_body)
         cls._dump_metrics_to_file()
 
 
 def report_hyperparameter_tuning_metrics(
-        metrics: Dict[str, float],
-        global_step: Optional[int] = None,
-        checkpoint_path=''
-    ):
-        _HyperparameterTuningJobReporterSingleton.initialize()
-        
-        for hyperparameter_metric_tag, metric_value in metrics.items():
-            _HyperparameterTuningJobReporterSingleton.report_hyperparameter_tuning_metric(
-                    hyperparameter_metric_tag=hyperparameter_metric_tag,
-                    metric_value=metric_value,
-                    global_step=global_step,
-                    checkpoint_path=checkpoint_path
-                )
+    metrics: Dict[str, float], global_step: Optional[int] = None, checkpoint_path=""
+):
+    _HyperparameterTuningJobReporterSingleton.initialize()
 
-    
-
-
-
-
+    for hyperparameter_metric_tag, metric_value in metrics.items():
+        _HyperparameterTuningJobReporterSingleton.report_hyperparameter_tuning_metric(
+            hyperparameter_metric_tag=hyperparameter_metric_tag,
+            metric_value=metric_value,
+            global_step=global_step,
+            checkpoint_path=checkpoint_path,
+        )

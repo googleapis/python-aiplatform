@@ -1,7 +1,9 @@
 from typing import NamedTuple, Optional, Dict, Union, List
 
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import accelerator_type as gca_accelerator_type_compat
+from google.cloud.aiplatform.compat.types import (
+    accelerator_type as gca_accelerator_type_compat,
+)
 
 
 class _MachineSpec(NamedTuple):

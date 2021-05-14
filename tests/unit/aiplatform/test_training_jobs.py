@@ -515,7 +515,7 @@ def mock_model_service_get():
 @pytest.fixture
 def mock_python_package_to_gcs():
     with mock.patch.object(
-            source_utils._TrainingScriptPythonPackager, "package_and_copy_to_gcs"
+        source_utils._TrainingScriptPythonPackager, "package_and_copy_to_gcs"
     ) as mock_package_to_copy_gcs:
         mock_package_to_copy_gcs.return_value = _TEST_OUTPUT_PYTHON_PACKAGE_PATH
         yield mock_package_to_copy_gcs
@@ -633,16 +633,16 @@ class TestCustomTrainingJob:
         ]
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
-            "pythonPackageSpec": {
-                "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": source_utils._TrainingScriptPythonPackager.module_name,
-                "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
             },
@@ -702,9 +702,11 @@ class TestCustomTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
-                    "serviceAccount": _TEST_SERVICE_ACCOUNT,
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
+                    "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
                 },
                 struct_pb2.Value(),
@@ -792,16 +794,16 @@ class TestCustomTrainingJob:
         ]
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
-            "pythonPackageSpec": {
-                "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": source_utils._TrainingScriptPythonPackager.module_name,
-                "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
             },
@@ -861,8 +863,10 @@ class TestCustomTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -1067,16 +1071,16 @@ class TestCustomTrainingJob:
         ]
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
-            "pythonPackageSpec": {
-                "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": source_utils._TrainingScriptPythonPackager.module_name,
-                "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
             },
@@ -1097,8 +1101,10 @@ class TestCustomTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -1319,31 +1325,31 @@ class TestCustomTrainingJob:
 
         true_worker_pool_spec = [
             {
-                "replicaCount": 1,
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "replica_count": 1,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "pythonPackageSpec": {
-                    "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "pythonModule": source_utils._TrainingScriptPythonPackager.module_name,
-                    "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "python_package_spec": {
+                    "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                    "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                    "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
                 },
             },
             {
-                "replicaCount": 9,
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "replica_count": 9,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "pythonPackageSpec": {
-                    "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "pythonModule": source_utils._TrainingScriptPythonPackager.module_name,
-                    "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "python_package_spec": {
+                    "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                    "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                    "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
                 },
@@ -1385,8 +1391,10 @@ class TestCustomTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": true_worker_pool_spec,
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": true_worker_pool_spec,
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -1547,16 +1555,16 @@ class TestCustomTrainingJob:
         true_args = _TEST_RUN_ARGS
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
-            "pythonPackageSpec": {
-                "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": source_utils._TrainingScriptPythonPackager.module_name,
-                "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
         }
@@ -1612,8 +1620,10 @@ class TestCustomTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -1787,11 +1797,11 @@ class TestCustomContainerTrainingJob:
         ]
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -1855,8 +1865,10 @@ class TestCustomContainerTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -1935,11 +1947,11 @@ class TestCustomContainerTrainingJob:
         true_args = _TEST_RUN_ARGS
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -2002,8 +2014,10 @@ class TestCustomContainerTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -2192,11 +2206,11 @@ class TestCustomContainerTrainingJob:
         true_args = _TEST_RUN_ARGS
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -2220,8 +2234,10 @@ class TestCustomContainerTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -2421,11 +2437,11 @@ class TestCustomContainerTrainingJob:
 
         true_worker_pool_spec = [
             {
-                "replicaCount": 1,
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "replica_count": 1,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "containerSpec": {
                     "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -2434,11 +2450,11 @@ class TestCustomContainerTrainingJob:
                 },
             },
             {
-                "replicaCount": 9,
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "replica_count": 9,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
                 "containerSpec": {
                     "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -2483,8 +2499,10 @@ class TestCustomContainerTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": true_worker_pool_spec,
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": true_worker_pool_spec,
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -2561,11 +2579,11 @@ class TestCustomContainerTrainingJob:
         true_args = _TEST_RUN_ARGS
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
             "containerSpec": {
                 "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
@@ -2625,9 +2643,11 @@ class TestCustomContainerTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
-                    "serviceAccount": _TEST_SERVICE_ACCOUNT,
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
+                    "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
                 },
                 struct_pb2.Value(),
@@ -2700,12 +2720,12 @@ class Test_MachineSpec:
         )
 
         true_spec_dict = {
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
-            "replicaCount": _TEST_REPLICA_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
         }
 
         assert test_spec.spec_dict == true_spec_dict
@@ -2719,8 +2739,8 @@ class Test_MachineSpec:
         )
 
         true_spec_dict = {
-            "machineSpec": {"machineType": _TEST_MACHINE_TYPE},
-            "replicaCount": _TEST_REPLICA_COUNT,
+            "machine_spec": {"machine_type": _TEST_MACHINE_TYPE},
+            "replica_count": _TEST_REPLICA_COUNT,
         }
 
         assert test_spec.spec_dict == true_spec_dict
@@ -2789,36 +2809,36 @@ class Test_DistributedTrainingSpec:
 
         true_pool_spec = [
             {
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "replicaCount": 1,
+                "replica_count": 1,
             },
             {
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "replicaCount": 10,
+                "replica_count": 10,
             },
             {
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "replicaCount": 3,
+                "replica_count": 3,
             },
             {
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "replicaCount": 1,
+                "replica_count": 1,
             },
         ]
 
@@ -2835,20 +2855,20 @@ class Test_DistributedTrainingSpec:
 
         true_pool_spec = [
             {
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "replicaCount": 1,
+                "replica_count": 1,
             },
             {
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "replicaCount": 9,
+                "replica_count": 9,
             },
         ]
 
@@ -2865,12 +2885,12 @@ class Test_DistributedTrainingSpec:
 
         true_pool_spec = [
             {
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "replicaCount": 1,
+                "replica_count": 1,
             }
         ]
 
@@ -2911,21 +2931,21 @@ class Test_DistributedTrainingSpec:
 
         true_pool_spec = [
             {
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "replicaCount": 1,
+                "replica_count": 1,
             },
-            {"machineSpec": {"machineType": "n1-standard-4"}, "replicaCount": 0},
+            {"machine_spec": {"machine_type": "n1-standard-4"}, "replica_count": 0},
             {
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "replicaCount": 3,
+                "replica_count": 3,
             },
         ]
 
@@ -3002,16 +3022,16 @@ class TestCustomPythonPackageTrainingJob:
         ]
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
-            "pythonPackageSpec": {
-                "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": _TEST_PYTHON_MODULE_NAME,
-                "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": _TEST_PYTHON_MODULE_NAME,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
             },
@@ -3071,9 +3091,11 @@ class TestCustomPythonPackageTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
-                    "serviceAccount": _TEST_SERVICE_ACCOUNT,
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
+                    "service_account": _TEST_SERVICE_ACCOUNT,
                     "network": _TEST_NETWORK,
                 },
                 struct_pb2.Value(),
@@ -3155,16 +3177,16 @@ class TestCustomPythonPackageTrainingJob:
         true_args = _TEST_RUN_ARGS
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
-            "pythonPackageSpec": {
-                "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": _TEST_PYTHON_MODULE_NAME,
-                "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": _TEST_PYTHON_MODULE_NAME,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
         }
@@ -3223,8 +3245,10 @@ class TestCustomPythonPackageTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -3304,16 +3328,16 @@ class TestCustomPythonPackageTrainingJob:
         true_args = _TEST_RUN_ARGS
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
-            "pythonPackageSpec": {
-                "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": _TEST_PYTHON_MODULE_NAME,
-                "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": _TEST_PYTHON_MODULE_NAME,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
         }
@@ -3372,8 +3396,10 @@ class TestCustomPythonPackageTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -3566,16 +3592,16 @@ class TestCustomPythonPackageTrainingJob:
         true_args = _TEST_RUN_ARGS
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
-            "pythonPackageSpec": {
-                "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": _TEST_PYTHON_MODULE_NAME,
-                "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": _TEST_PYTHON_MODULE_NAME,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
         }
@@ -3595,8 +3621,10 @@ class TestCustomPythonPackageTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -3802,30 +3830,30 @@ class TestCustomPythonPackageTrainingJob:
 
         true_worker_pool_spec = [
             {
-                "replicaCount": 1,
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "replica_count": 1,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "pythonPackageSpec": {
-                    "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "pythonModule": _TEST_PYTHON_MODULE_NAME,
-                    "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "python_package_spec": {
+                    "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                    "python_module": _TEST_PYTHON_MODULE_NAME,
+                    "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                 },
             },
             {
-                "replicaCount": 9,
-                "machineSpec": {
-                    "machineType": _TEST_MACHINE_TYPE,
-                    "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                    "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+                "replica_count": 9,
+                "machine_spec": {
+                    "machine_type": _TEST_MACHINE_TYPE,
+                    "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                    "accelerator_count": _TEST_ACCELERATOR_COUNT,
                 },
-                "pythonPackageSpec": {
-                    "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "pythonModule": _TEST_PYTHON_MODULE_NAME,
-                    "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "python_package_spec": {
+                    "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                    "python_module": _TEST_PYTHON_MODULE_NAME,
+                    "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                 },
             },
@@ -3866,8 +3894,10 @@ class TestCustomPythonPackageTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": true_worker_pool_spec,
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": true_worker_pool_spec,
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),
@@ -3943,16 +3973,16 @@ class TestCustomPythonPackageTrainingJob:
         true_args = _TEST_RUN_ARGS
 
         true_worker_pool_spec = {
-            "replicaCount": _TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": _TEST_MACHINE_TYPE,
-                "acceleratorType": _TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": _TEST_ACCELERATOR_COUNT,
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
             },
-            "pythonPackageSpec": {
-                "executorImageUri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": _TEST_PYTHON_MODULE_NAME,
-                "packageUris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": _TEST_PYTHON_MODULE_NAME,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
         }
@@ -4008,8 +4038,10 @@ class TestCustomPythonPackageTrainingJob:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {"output_uri_prefix": _TEST_BASE_OUTPUT_DIR},
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
                 },
                 struct_pb2.Value(),
             ),

@@ -38,8 +38,8 @@ from google.cloud.aiplatform.compat.types import (
     training_pipeline as gca_training_pipeline,
 )
 from google.cloud.aiplatform.utils import _timestamped_gcs_dir
-from google.cloud.aiplatform.utils.source_utils import _TrainingScriptPythonPackager
-from google.cloud.aiplatform.utils.worker_spec_utils import _DistributedTrainingSpec
+from google.cloud.aiplatform.utils import source_utils
+from google.cloud.aiplatform.utils import worker_spec_utils
 
 from google.cloud.aiplatform.v1.schema.trainingjob import (
     definition_v1 as training_job_inputs,
@@ -1005,7 +1005,7 @@ class _CustomTrainingJob(_TrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
-    ) -> Tuple[_DistributedTrainingSpec, Optional[gca_model.Model]]:
+    ) -> Tuple[worker_spec_utils._DistributedTrainingSpec, Optional[gca_model.Model]]:
         """Create worker pool specs and managed model as well validating the
         run.
 
@@ -1055,7 +1055,7 @@ class _CustomTrainingJob(_TrainingJob):
             model_display_name = model_display_name or self._display_name + "-model"
 
         # validates args and will raise
-        worker_pool_specs = _DistributedTrainingSpec.chief_worker_pool(
+        worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
             replica_count=replica_count,
             machine_type=machine_type,
             accelerator_count=accelerator_count,
@@ -1073,7 +1073,7 @@ class _CustomTrainingJob(_TrainingJob):
 
     def _prepare_training_task_inputs_and_output_dir(
         self,
-        worker_pool_specs: _DistributedTrainingSpec,
+        worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
@@ -1081,7 +1081,7 @@ class _CustomTrainingJob(_TrainingJob):
         """Prepares training task inputs and output directory for custom job.
 
         Args:
-            worker_pools_spec (_DistributedTrainingSpec):
+            worker_pools_spec (worker_spec_utils._DistributedTrainingSpec):
                 Worker pools pecs required to run job.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
@@ -1106,12 +1106,12 @@ class _CustomTrainingJob(_TrainingJob):
         _LOGGER.info("Training Output directory:\n%s " % base_output_dir)
 
         training_task_inputs = {
-            "workerPoolSpecs": worker_pool_specs,
-            "baseOutputDirectory": {"output_uri_prefix": base_output_dir},
+            "worker_pool_specs": worker_pool_specs,
+            "base_output_directory": {"output_uri_prefix": base_output_dir},
         }
 
         if service_account:
-            training_task_inputs["serviceAccount"] = service_account
+            training_task_inputs["service_account"] = service_account
         if network:
             training_task_inputs["network"] = network
 
@@ -1531,7 +1531,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         )
 
         # make and copy package
-        python_packager = _TrainingScriptPythonPackager(
+        python_packager = source_utils._TrainingScriptPythonPackager(
             script_path=self._script_path, requirements=self._requirements
         )
 
@@ -1557,7 +1557,7 @@ class CustomTrainingJob(_CustomTrainingJob):
     @base.optional_sync(construct_object_on_arg="managed_model")
     def _run(
         self,
-        python_packager: _TrainingScriptPythonPackager,
+        python_packager: source_utils._TrainingScriptPythonPackager,
         dataset: Optional[
             Union[
                 datasets.ImageDataset,
@@ -1567,7 +1567,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             ]
         ],
         annotation_schema_uri: Optional[str],
-        worker_pool_specs: _DistributedTrainingSpec,
+        worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
@@ -1584,7 +1584,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         """Packages local script and launches training_job.
 
         Args:
-            python_packager (_TrainingScriptPythonPackager):
+            python_packager (source_utils._TrainingScriptPythonPackager):
                 Required. Python Packager pointing to training script locally.
             dataset (
                 Union[
@@ -1598,7 +1598,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema.
-            worker_pools_spec (_DistributedTrainingSpec):
+            worker_pools_spec (worker_spec_utils._DistributedTrainingSpec):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
                 Model proto if this script produces a Managed Model.
@@ -1682,17 +1682,17 @@ class CustomTrainingJob(_CustomTrainingJob):
         )
 
         for spec in worker_pool_specs:
-            spec["pythonPackageSpec"] = {
-                "executorImageUri": self._container_uri,
-                "pythonModule": python_packager.module_name,
-                "packageUris": [package_gcs_uri],
+            spec["python_package_spec"] = {
+                "executor_image_uri": self._container_uri,
+                "python_module": python_packager.module_name,
+                "package_uris": [package_gcs_uri],
             }
 
             if args:
-                spec["pythonPackageSpec"]["args"] = args
+                spec["python_package_spec"]["args"] = args
 
             if environment_variables:
-                spec["pythonPackageSpec"]["env"] = [
+                spec["python_package_spec"]["env"] = [
                     {"name": key, "value": value}
                     for key, value in environment_variables.items()
                 ]
@@ -2146,7 +2146,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             ]
         ],
         annotation_schema_uri: Optional[str],
-        worker_pool_specs: _DistributedTrainingSpec,
+        worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
@@ -2174,7 +2174,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema.
-            worker_pools_spec (_DistributedTrainingSpec):
+            worker_pools_spec (worker_spec_utils._DistributedTrainingSpec):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
                 Model proto if this script produces a Managed Model.
@@ -3943,7 +3943,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             ]
         ],
         annotation_schema_uri: Optional[str],
-        worker_pool_specs: _DistributedTrainingSpec,
+        worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
@@ -3972,7 +3972,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema.
-            worker_pools_spec (_DistributedTrainingSpec):
+            worker_pools_spec (worker_spec_utils._DistributedTrainingSpec):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
                 Model proto if this script produces a Managed Model.
@@ -4035,17 +4035,17 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 produce an AI Platform Model.
         """
         for spec in worker_pool_specs:
-            spec["pythonPackageSpec"] = {
-                "executorImageUri": self._container_uri,
-                "pythonModule": self._python_module,
-                "packageUris": [self._package_gcs_uri],
+            spec["python_package_spec"] = {
+                "executor_image_uri": self._container_uri,
+                "python_module": self._python_module,
+                "package_uris": [self._package_gcs_uri],
             }
 
             if args:
-                spec["pythonPackageSpec"]["args"] = args
+                spec["python_package_spec"]["args"] = args
 
             if environment_variables:
-                spec["pythonPackageSpec"]["env"] = [
+                spec["python_package_spec"]["env"] = [
                     {"name": key, "value": value}
                     for key, value in environment_variables.items()
                 ]

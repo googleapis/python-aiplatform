@@ -30,7 +30,11 @@ from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
-from google.cloud.aiplatform.jobs import BatchPredictionJob, CustomJob, HyperparameterTuningJob
+from google.cloud.aiplatform.jobs import (
+    BatchPredictionJob,
+    CustomJob,
+    HyperparameterTuningJob,
+)
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
     CustomContainerTrainingJob,
@@ -62,8 +66,7 @@ __all__ = (
     "explain",
     "gapic",
     "init",
-    "hyperparameter_tuning"
-    "log_params",
+    "hyperparameter_tuning" "log_params",
     "log_metrics",
     "get_experiment_df",
     "get_pipeline_df",
