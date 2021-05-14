@@ -929,19 +929,19 @@ class CustomJob(_RunnableJob):
                 Required. The spec of the worker pools including machine type and Docker image.
                 Can provided as a list of dictionaries or list of WorkerPoolSpec proto messages.
             project (str):
-                Project to run the custom job in. Overrides project set in aiplatform.init.
+                Optional.Project to run the custom job in. Overrides project set in aiplatform.init.
             location (str):
-                Location to run the custom job in. Overrides location set in aiplatform.init.
+                Optional.Location to run the custom job in. Overrides location set in aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to run call custom job service. Overrides
+                Optional.Custom credentials to use to run call custom job service. Overrides
                 credentials set in aiplatform.init.
             encryption_spec_key_name (str):
-                Customer-managed encryption key name for a
+                Optional.Customer-managed encryption key name for a
                 CustomJob. If this is set, then all resources
                 created by the CustomJob will be encrypted with
                 the provided encryption key.
             staging_bucket (str):
-                Bucket for produced custom job artifacts. Overrides
+                Optional. Bucket for produced custom job artifacts. Overrides
                 staging_bucket set in aiplatform.init.
 
         Raises:
@@ -987,13 +987,62 @@ class CustomJob(_RunnableJob):
         accelerator_count: int = 0,
         project: Optional[str] = None,
         location: Optional[str] = None,
-        staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
+        staging_bucket: Optional[str] = None,
     ) -> "CustomJob":
         """Configures a custom job from a local script.
 
-        """
+        Args:
+            display_name (str):
+                Required. The user-defined name of this CustomJob.
+            script_path (str): Required. Local path to training script.
+            container_uri (str):
+                Required: Uri of the training container image to use for custom job.
+            requirements (Sequence[str]):
+                Optional. List of python packages dependencies of script.
+            environment_variables (Dict[str, str]):
+                Optional. Environment variables to be passed to the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+                At most 10 environment variables can be specified.
+                The Name of the environment variable must be unique.
+
+                environment_variables = {
+                    'MY_KEY': 'MY_VALUE'
+                }
+            replica_count (int):
+                Optional. The number of worker replicas. If replica count = 1 then one chief
+                replica will be provisioned. If replica_count > 1 the remainder will be
+                provisioned as a worker replica pool.
+            machine_type (str):
+                Optional. The type of machine to use for training.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
+                NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
+                NVIDIA_TESLA_T4
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
+            project (str):
+                Optional. Project to run the custom job in. Overrides project set in aiplatform.init.
+            location (str):
+                Optional. Location to run the custom job in. Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to run call custom job service. Overrides
+                credentials set in aiplatform.init.
+            encryption_spec_key_name (str):
+                Optional. Customer-managed encryption key name for a
+                CustomJob. If this is set, then all resources
+                created by the CustomJob will be encrypted with
+                the provided encryption key.
+            staging_bucket (str):
+                Optional. Bucket for produced custom job artifacts. Overrides
+                staging_bucket set in aiplatform.init.
+
+        Raises:
+            RuntimeError is not staging bucket was set using aiplatfrom.init and a staging
+            bucket was not passed in.
+        """ 
 
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
@@ -1055,6 +1104,28 @@ class CustomJob(_RunnableJob):
         restart_job_on_worker_restart: bool = False,
         sync: bool = True,
     ) -> None:
+        """Run this configured CustomJob.
+
+        Args:
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                Optional. The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will unblock and it will be executed in a concurrent Future.    
+        """
 
         if service_account:
             self._gca_resource.service_account = service_account
