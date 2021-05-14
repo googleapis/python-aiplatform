@@ -17,7 +17,7 @@ import create_training_pipeline_text_sentiment_analysis_sample
 import test_constants as constants
 
 
-def test_create_training_pipeline_text_clentity_extraction_sample(
+def test_create_training_pipeline_text_sentiment_analysis_sample(
     mock_sdk_init,
     mock_text_dataset,
     mock_get_automl_text_training_job,
@@ -44,7 +44,9 @@ def test_create_training_pipeline_text_clentity_extraction_sample(
         project=constants.PROJECT, location=constants.LOCATION
     )
     mock_get_automl_text_training_job.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME
+        display_name=constants.DISPLAY_NAME,
+        prediction_type="sentiment",
+        sentiment_max=10,
     )
     mock_run_automl_text_training_job.assert_called_once_with(
         dataset=mock_text_dataset,

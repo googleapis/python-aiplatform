@@ -44,7 +44,9 @@ def test_create_training_pipeline_text_classification_sample(
         project=constants.PROJECT, location=constants.LOCATION
     )
     mock_get_automl_text_training_job.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME
+        display_name=constants.DISPLAY_NAME,
+        multi_label=False,
+        prediction_type="classification",
     )
     mock_run_automl_text_training_job.assert_called_once_with(
         dataset=mock_text_dataset,
