@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_image_classification import (
     AutoMlImageClassification,
