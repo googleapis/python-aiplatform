@@ -1183,7 +1183,7 @@ _MEASUREMENT_SELECTION_TO_PROTO_VALUE = {
 
 
 class HyperparameterTuningJob(_RunnableJob):
-    """AI Pltatform(Unified) HyperparameterTuning Job"""
+    """AI Pltaform (Unified) Hyperparameter Tuning Job."""
 
     _resource_noun = "hyperparameterTuningJobs"
     _getter_method = "get_hyperparameter_tuning_job"
@@ -1396,7 +1396,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             timeout (int):
-                The maximum job running time in seconds. The default is 7 days.
+                Optional. The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):
                 Restarts the entire CustomJob if a worker
                 gets restarted. This feature can be used by
@@ -1414,9 +1414,9 @@ class HyperparameterTuningJob(_RunnableJob):
             self._gca_resource.trial_job_spec.network = network
 
         if timeout or restart_job_on_worker_restart:
-            timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
+            duration = duration_pb2.Duration(seconds=timeout) if timeout else None
             self._gca_resource.trial_job_spec.scheduling = gca_custom_job_compat.Scheduling(
-                timeout=timeout,
+                timeout=duration,
                 restart_job_on_worker_restart=restart_job_on_worker_restart,
             )
 

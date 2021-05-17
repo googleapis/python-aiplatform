@@ -46,7 +46,7 @@ class _ParameterSpec(metaclass=abc.ABCMeta):
     @classmethod
     @abc.abstractmethod
     def _proto_parameter_value_class(self) -> proto.Message:
-        """The proto represenation of this parameter."""
+        """The proto representation of this parameter."""
         pass
 
     @property
