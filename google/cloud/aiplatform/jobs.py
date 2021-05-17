@@ -901,6 +901,7 @@ class CustomJob(_RunnableJob):
     ):
         """Cosntruct a Custom Job with Worker Pool Specs.
 
+        ```
         Example usage:
         worker_pool_specs = [
                 {
@@ -924,6 +925,7 @@ class CustomJob(_RunnableJob):
         )
         
         my_job.run()
+        ```
 
 
         For more information on configuring worker pool specs please visit: 
@@ -1208,6 +1210,58 @@ class HyperparameterTuningJob(_RunnableJob):
     ):
         """
         Configures a HyperparameterTuning Job.
+
+        Example usage:
+
+        ```
+        from google.cloud.aiplatform import hyperparamter_tuning as hpt
+
+        worker_pool_specs = [
+                {
+                    "machine_spec": {
+                        "machine_type": "n1-standard-4",
+                        "accelerator_type": "NVIDIA_TESLA_K80",
+                        "accelerator_count": 1,
+                    },
+                    "replica_count": 1,
+                    "container_spec": {
+                        "image_uri": container_image_uri,
+                        "command": [],
+                        "args": [],
+                    },
+                }
+            ]
+
+        custom_job = aiplatform.CustomJob(
+            display_name='my_job',
+            worker_pool_specs=worker_pool_specs
+        )
+        
+
+        hp_job = aiplatform.HyperparameterTuningJob(
+            display_name='hp-test',
+            custom_job=job,
+            metric_spec={
+                'loss': 'minimize',
+            },
+            parameter_spec={
+                'lr': hpt.DoubleParameterSpec(min=0.001, max=0.1, scale='log'),
+                'units': hpt.IntegerParameterSpec(min=4, max=128, scale='linear'),
+                'activation': hpt.CategoricalParameterSpec(values=['relu', 'selu']),
+                'batch_size': hpt.DiscreteParameterSpec(values=[128, 256], scale='linear')
+            },
+            max_trial_count=128,
+            parallel_trial_count=8,    
+            )
+
+        hp_job.run()
+
+        print(hp_job.trials)
+        ```
+
+
+        For more information on using hyperparameter tuning please visit:
+        https://cloud.google.com/ai-platform-unified/docs/training/using-hyperparameter-tuning
 
         Args:
             display_name (str):
