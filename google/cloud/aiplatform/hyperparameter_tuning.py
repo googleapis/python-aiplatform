@@ -101,12 +101,7 @@ class DoubleParameterSpec(_ParameterSpec):
     _parameter_spec_value_key = "double_value_spec"
 
     def __init__(
-        self,
-        min: float,
-        max: float,
-        scale: str,
-        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
-        parent_values: Optional[List[Union[float, int, str]]] = None,
+        self, min: float, max: float, scale: str,
     ):
         """
         Value specification for a parameter in ``DOUBLE`` type.
@@ -124,10 +119,7 @@ class DoubleParameterSpec(_ParameterSpec):
                 Accepts: 'linear', 'log', 'reverse_log'
         """
 
-        super().__init__(
-            conditional_parameter_spec=conditional_parameter_spec,
-            parent_values=parent_values,
-        )
+        super().__init__()
 
         self.min = min
         self.max = max
@@ -143,12 +135,7 @@ class IntegerParameterSpec(_ParameterSpec):
     _parameter_spec_value_key = "integer_value_spec"
 
     def __init__(
-        self,
-        min: int,
-        max: int,
-        scale: str,
-        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
-        parent_values: Optional[List[Union[float, int, str]]] = None,
+        self, min: int, max: int, scale: str,
     ):
         """
         Value specification for a parameter in ``INTEGER`` type.
@@ -166,10 +153,7 @@ class IntegerParameterSpec(_ParameterSpec):
                 Accepts: 'linear', 'log', 'reverse_log'
         """
 
-        super().__init__(
-            conditional_parameter_spec=conditional_parameter_spec,
-            parent_values=parent_values,
-        )
+        super().__init__()
 
         self.min = min
         self.max = max
@@ -185,10 +169,7 @@ class CategoricalParameterSpec(_ParameterSpec):
     _parameter_spec_value_key = "categorical_value_spec"
 
     def __init__(
-        self,
-        values: Sequence[str],
-        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
-        parent_values: Optional[List[Union[float, int, str]]] = None,
+        self, values: Sequence[str],
     ):
         """Value specification for a parameter in ``CATEGORICAL`` type.
 
@@ -197,10 +178,7 @@ class CategoricalParameterSpec(_ParameterSpec):
                 Required. The list of possible categories.
         """
 
-        super().__init__(
-            conditional_parameter_spec=conditional_parameter_spec,
-            parent_values=parent_values,
-        )
+        super().__init__()
 
         self.values = values
 
@@ -214,11 +192,7 @@ class DiscreteParameterSpec(_ParameterSpec):
     _parameter_spec_value_key = "discrete_value_spec"
 
     def __init__(
-        self,
-        values: Sequence[float],
-        scale: str,
-        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
-        parent_values: Optional[List[Union[float, int, str]]] = None,
+        self, values: Sequence[float], scale: str,
     ):
         """Value specification for a parameter in ``DISCRETE`` type.
 
@@ -235,10 +209,7 @@ class DiscreteParameterSpec(_ParameterSpec):
                 Accepts: 'linear', 'log', 'reverse_log'
         """
 
-        super().__init__(
-            conditional_parameter_spec=conditional_parameter_spec,
-            parent_values=parent_values,
-        )
+        super().__init__()
 
         self.values = values
         self.scale = scale
