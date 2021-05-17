@@ -45,7 +45,6 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
 )
-from google.cloud.aiplatform import training_utils
 
 """
 Usage:
@@ -72,7 +71,6 @@ __all__ = (
     "get_experiment_df",
     "get_pipeline_df",
     "start_run",
-    "training_utils",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
     "AutoMLForecastingTrainingJob",
