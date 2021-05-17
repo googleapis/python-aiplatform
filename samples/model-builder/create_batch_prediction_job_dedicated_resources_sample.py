@@ -27,7 +27,7 @@ def create_batch_prediction_job_dedicated_resources_sample(
     gcs_destination: str,
     machine_type: str = "n1-standard-2",
     accelerator_count: int = 1,
-    accelerator_type: aiplatform_v1.AcceleratorType = aiplatform.gapic.AcceleratorType.NVIDIA_TESLA_K80,
+    accelerator_type: Union[str, aiplatform_v1.AcceleratorType] = "NVIDIA_TESLA_K80",
     starting_replica_count: int = 1,
     max_replica_count: int = 1,
     sync: bool = True,
