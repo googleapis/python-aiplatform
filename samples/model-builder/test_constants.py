@@ -16,7 +16,7 @@ from random import randint
 from uuid import uuid4
 
 from google.auth import credentials
-from google.cloud import aiplatform
+from google.cloud import aiplatform, aiplatform_v1
 
 PROJECT = "abc"
 LOCATION = "us-central1"
@@ -170,6 +170,7 @@ TRAFFIC_SPLIT = {"a": 99, "b": 1}
 MIN_REPLICA_COUNT = 1
 MAX_REPLICA_COUNT = 1
 ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
+ACCELERATOR_TYPE_ENUM = aiplatform_v1.AcceleratorType.NVIDIA_TESLA_K80
 ACCELERATOR_COUNT = 2
 ENDPOINT_DEPLOY_METADATA = ()
 PREDICTION_TABULAR_INSTANCE = {
