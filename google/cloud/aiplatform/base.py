@@ -101,6 +101,29 @@ class Logger:
             f"{variable_name} = aiplatform.{cls.__name__}('{resource.name}')"
         )
 
+    def log_create_complete_with_getter(
+        self,
+        cls: Type["AiPlatformResourceNoun"],
+        resource: proto.Message,
+        variable_name: str,
+    ):
+        """Logs create event is complete.
+
+        Will also include code snippet to instantiate resource in SDK.
+
+        Args:
+            cls (AiPlatformResourceNoun):
+                AI Platform Resource Noun class that is being created.
+            resource (proto.Message):
+                AI Platform Resourc proto.Message
+            variable_name (str): Name of variable to use for code snippet
+        """
+        self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
+        self._logger.info(f"To use this {cls.__name__} in another session:")
+        self._logger.info(
+            f"{variable_name} = aiplatform.{cls.__name__}.get('{resource.name}')"
+        )
+
     def log_action_start_against_resource(
         self, action: str, noun: str, resource_noun_obj: "AiPlatformResourceNoun"
     ):
