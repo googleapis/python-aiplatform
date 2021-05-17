@@ -923,12 +923,12 @@ class CustomJob(_RunnableJob):
             display_name='my_job',
             worker_pool_specs=worker_pool_specs
         )
-        
+
         my_job.run()
         ```
 
 
-        For more information on configuring worker pool specs please visit: 
+        For more information on configuring worker pool specs please visit:
         https://cloud.google.com/ai-platform-unified/docs/training/create-custom-job
 
 
@@ -937,7 +937,7 @@ class CustomJob(_RunnableJob):
                 Required. The user-defined name of the HyperparameterTuningJob.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
-            worker_pool_specs (Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]]): 
+            worker_pool_specs (Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]]):
                 Required. The spec of the worker pools including machine type and Docker image.
                 Can provided as a list of dictionaries or list of WorkerPoolSpec proto messages.
             project (str):
@@ -1136,7 +1136,7 @@ class CustomJob(_RunnableJob):
                 to workers leaving and joining a job.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
-                will unblock and it will be executed in a concurrent Future.    
+                will unblock and it will be executed in a concurrent Future.
         """
 
         if service_account:
@@ -1236,7 +1236,7 @@ class HyperparameterTuningJob(_RunnableJob):
             display_name='my_job',
             worker_pool_specs=worker_pool_specs
         )
-        
+
 
         hp_job = aiplatform.HyperparameterTuningJob(
             display_name='hp-test',
@@ -1251,7 +1251,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 'batch_size': hpt.DiscreteParameterSpec(values=[128, 256], scale='linear')
             },
             max_trial_count=128,
-            parallel_trial_count=8,    
+            parallel_trial_count=8,
             )
 
         hp_job.run()
@@ -1273,7 +1273,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 applies to the CustomJobs created in all the trials.
             metric_spec: Dict[str, str]
                 Required. Dicionary representing metrics to optimize. The dictionary key is the metric_id,
-                which is reported by your training job, and the dictionary value is the 
+                which is reported by your training job, and the dictionary value is the
                 optimization goal of the metric('minimize' or 'maximize'). example:
 
                 metric_spec = {'loss': 'minimize', 'accuracy': 'maximize'}
@@ -1283,15 +1283,15 @@ class HyperparameterTuningJob(_RunnableJob):
                 which is passed into your training job as a command line key word arguemnt, and the
                 dictionary value is the parameter specification of the metric.
 
-                
+
                 from google.cloud.aiplatform import hyperparameter_tuning as hpt
-                
+
                 parameter_spec={
                     'decay': hpt.DoubleParameterSpec(min=1e-7, max=1, scale='linear'),
                     'learning_rate': hpt.DoubleParameterSpec(min=1e-7, max=1, scale='linear')
                     'batch_size': hpt.DiscreteParamterSpec(values=[4, 8, 16, 32, 64, 128], scale='linear')
                 }
-                
+
                 Supported parameter specifications can be found until aiplatform.hyperparameter_tuning.
                 These parameter specification are currently supported:
                 DoubleParameterSpec, IntegerParameterSpec, CategoricalParameterSpace, DiscreteParameterSpec
@@ -1338,7 +1338,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 HyperparameterTuningJob. If this is set, then
                 all resources created by the
                 HyperparameterTuningJob will be encrypted with
-                the provided encryption key.              
+                the provided encryption key.
         """
         super().__init__(project=project, location=location, credentials=credentials)
 
@@ -1404,7 +1404,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 to workers leaving and joining a job.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
-                will unblock and it will be executed in a concurrent Future.    
+                will unblock and it will be executed in a concurrent Future.
         """
 
         if service_account:

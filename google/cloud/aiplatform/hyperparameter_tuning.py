@@ -113,7 +113,7 @@ class DoubleParameterSpec(_ParameterSpec):
             max (float):
                 Required. Inclusive maximum value of the
                 parameter.
-            scale (str): 
+            scale (str):
                 Required. The type of scaling that should be applied to this parameter.
 
                 Accepts: 'linear', 'log', 'reverse_log'
@@ -147,7 +147,7 @@ class IntegerParameterSpec(_ParameterSpec):
             max (float):
                 Required. Inclusive maximum value of the
                 parameter.
-            scale (str): 
+            scale (str):
                 Required. The type of scaling that should be applied to this parameter.
 
                 Accepts: 'linear', 'log', 'reverse_log'
@@ -174,7 +174,7 @@ class CategoricalParameterSpec(_ParameterSpec):
         """Value specification for a parameter in ``CATEGORICAL`` type.
 
         Args:
-            values (Sequence[str]): 
+            values (Sequence[str]):
                 Required. The list of possible categories.
         """
 
@@ -203,7 +203,7 @@ class DiscreteParameterSpec(_ParameterSpec):
             might have possible settings of 1.5, 2.5, and
             4.0. This list should not contain more than
             1,000 values.
-        scale (str): 
+        scale (str):
                 Required. The type of scaling that should be applied to this parameter.
 
                 Accepts: 'linear', 'log', 'reverse_log'

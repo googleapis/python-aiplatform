@@ -25,7 +25,7 @@ from google.protobuf import duration_pb2  # type: ignore
 from google.rpc import status_pb2
 
 import test_training_jobs
-from test_training_jobs import mock_python_package_to_gcs
+from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.compat.types import custom_job as gca_custom_job_compat
@@ -260,7 +260,7 @@ class TestCustomJob:
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
         with pytest.raises(RuntimeError):
-            job = aiplatform.CustomJob(
+            job = aiplatform.CustomJob(  # noqa: F841
                 display_name=_TEST_DISPLAY_NAME,
                 worker_pool_specs=_TEST_WORKER_POOL_SPEC,
             )
@@ -316,7 +316,7 @@ class TestCustomJob:
         with pytest.raises(RuntimeError):
 
             # configuration on this is tested in test_training_jobs.py
-            job = aiplatform.CustomJob.from_local_script(
+            job = aiplatform.CustomJob.from_local_script(  # noqa: F841
                 display_name=_TEST_DISPLAY_NAME,
                 script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
                 container_uri=_TEST_TRAINING_CONTAINER_IMAGE,

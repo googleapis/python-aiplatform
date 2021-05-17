@@ -21,7 +21,6 @@ from importlib import reload
 from unittest import mock
 from unittest.mock import patch
 
-from google.protobuf import duration_pb2  # type: ignore
 from google.rpc import status_pb2
 
 from google.cloud import aiplatform
