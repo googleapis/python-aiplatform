@@ -1168,7 +1168,8 @@ class CustomJob(_RunnableJob):
                 AIP_TENSORBOARD_LOG_DIR
 
                 `service_account` is required with provided `tensorboard`.
-                (TODO: add documentation when released)
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will unblock and it will be executed in a concurrent Future.
@@ -1475,7 +1476,8 @@ class HyperparameterTuningJob(_RunnableJob):
                 AIP_TENSORBOARD_LOG_DIR
 
                 `service_account` is required with provided `tensorboard`.
-                (TODO: add documentation when released)
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will unblock and it will be executed in a concurrent Future.
