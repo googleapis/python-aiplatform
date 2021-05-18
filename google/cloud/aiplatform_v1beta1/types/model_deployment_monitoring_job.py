@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.cloud.aiplatform_v1beta1.types import feature_monitoring_stats
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import model_monitoring
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+from google.protobuf import duration_pb2 as duration  # type: ignore
+from google.protobuf import struct_pb2 as struct  # type: ignore
+from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -162,42 +165,56 @@ class ModelDeploymentMonitoringJob(proto.Message):
         OFFLINE = 2
         RUNNING = 3
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    endpoint = proto.Field(proto.STRING, number=3,)
+    name = proto.Field(proto.STRING, number=1)
+
+    display_name = proto.Field(proto.STRING, number=2)
+
+    endpoint = proto.Field(proto.STRING, number=3)
+
     state = proto.Field(proto.ENUM, number=4, enum=job_state.JobState,)
+
     schedule_state = proto.Field(proto.ENUM, number=5, enum=MonitoringScheduleState,)
+
     model_deployment_monitoring_objective_configs = proto.RepeatedField(
         proto.MESSAGE, number=6, message="ModelDeploymentMonitoringObjectiveConfig",
     )
+
     model_deployment_monitoring_schedule_config = proto.Field(
         proto.MESSAGE, number=7, message="ModelDeploymentMonitoringScheduleConfig",
     )
+
     logging_sampling_strategy = proto.Field(
         proto.MESSAGE, number=8, message=model_monitoring.SamplingStrategy,
     )
+
     model_monitoring_alert_config = proto.Field(
         proto.MESSAGE, number=15, message=model_monitoring.ModelMonitoringAlertConfig,
     )
-    predict_instance_schema_uri = proto.Field(proto.STRING, number=9,)
+
+    predict_instance_schema_uri = proto.Field(proto.STRING, number=9)
+
     sample_predict_instance = proto.Field(
-        proto.MESSAGE, number=19, message=struct_pb2.Value,
+        proto.MESSAGE, number=19, message=struct.Value,
     )
-    analysis_instance_schema_uri = proto.Field(proto.STRING, number=16,)
+
+    analysis_instance_schema_uri = proto.Field(proto.STRING, number=16)
+
     bigquery_tables = proto.RepeatedField(
         proto.MESSAGE, number=10, message="ModelDeploymentMonitoringBigQueryTable",
     )
-    log_ttl = proto.Field(proto.MESSAGE, number=17, message=duration_pb2.Duration,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=11,)
-    create_time = proto.Field(
-        proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,
-    )
-    update_time = proto.Field(
-        proto.MESSAGE, number=13, message=timestamp_pb2.Timestamp,
-    )
+
+    log_ttl = proto.Field(proto.MESSAGE, number=17, message=duration.Duration,)
+
+    labels = proto.MapField(proto.STRING, proto.STRING, number=11)
+
+    create_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
+
+    update_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
+
     next_schedule_time = proto.Field(
-        proto.MESSAGE, number=14, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE, number=14, message=timestamp.Timestamp,
     )
+
     stats_anomalies_base_directory = proto.Field(
         proto.MESSAGE, number=20, message=io.GcsDestination,
     )
@@ -232,8 +249,10 @@ class ModelDeploymentMonitoringBigQueryTable(proto.Message):
         EXPLAIN = 2
 
     log_source = proto.Field(proto.ENUM, number=1, enum=LogSource,)
+
     log_type = proto.Field(proto.ENUM, number=2, enum=LogType,)
-    bigquery_table_path = proto.Field(proto.STRING, number=3,)
+
+    bigquery_table_path = proto.Field(proto.STRING, number=3)
 
 
 class ModelDeploymentMonitoringObjectiveConfig(proto.Message):
@@ -248,7 +267,8 @@ class ModelDeploymentMonitoringObjectiveConfig(proto.Message):
             modelmonitoring job of this deployed model.
     """
 
-    deployed_model_id = proto.Field(proto.STRING, number=1,)
+    deployed_model_id = proto.Field(proto.STRING, number=1)
+
     objective_config = proto.Field(
         proto.MESSAGE,
         number=2,
@@ -258,6 +278,7 @@ class ModelDeploymentMonitoringObjectiveConfig(proto.Message):
 
 class ModelDeploymentMonitoringScheduleConfig(proto.Message):
     r"""The config for scheduling monitoring job.
+
     Attributes:
         monitor_interval (google.protobuf.duration_pb2.Duration):
             Required. The model monitoring job running
@@ -265,13 +286,12 @@ class ModelDeploymentMonitoringScheduleConfig(proto.Message):
             hour.
     """
 
-    monitor_interval = proto.Field(
-        proto.MESSAGE, number=1, message=duration_pb2.Duration,
-    )
+    monitor_interval = proto.Field(proto.MESSAGE, number=1, message=duration.Duration,)
 
 
 class ModelMonitoringStatsAnomalies(proto.Message):
     r"""Statistics and anomalies generated by Model Monitoring.
+
     Attributes:
         objective (google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringObjectiveType):
             Model Monitoring Objective those stats and
@@ -287,6 +307,7 @@ class ModelMonitoringStatsAnomalies(proto.Message):
 
     class FeatureHistoricStatsAnomalies(proto.Message):
         r"""Historical Stats (and Anomalies) for a specific Feature.
+
         Attributes:
             feature_display_name (str):
                 Display Name of the Feature.
@@ -299,15 +320,18 @@ class ModelMonitoringStatsAnomalies(proto.Message):
                 different time window's Prediction Dataset.
         """
 
-        feature_display_name = proto.Field(proto.STRING, number=1,)
+        feature_display_name = proto.Field(proto.STRING, number=1)
+
         threshold = proto.Field(
             proto.MESSAGE, number=3, message=model_monitoring.ThresholdConfig,
         )
+
         training_stats = proto.Field(
             proto.MESSAGE,
             number=4,
             message=feature_monitoring_stats.FeatureStatsAnomaly,
         )
+
         prediction_stats = proto.RepeatedField(
             proto.MESSAGE,
             number=5,
@@ -317,8 +341,11 @@ class ModelMonitoringStatsAnomalies(proto.Message):
     objective = proto.Field(
         proto.ENUM, number=1, enum="ModelDeploymentMonitoringObjectiveType",
     )
-    deployed_model_id = proto.Field(proto.STRING, number=2,)
-    anomaly_count = proto.Field(proto.INT32, number=3,)
+
+    deployed_model_id = proto.Field(proto.STRING, number=2)
+
+    anomaly_count = proto.Field(proto.INT32, number=3)
+
     feature_stats = proto.RepeatedField(
         proto.MESSAGE, number=4, message=FeatureHistoricStatsAnomalies,
     )

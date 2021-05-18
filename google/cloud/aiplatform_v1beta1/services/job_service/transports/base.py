@@ -41,6 +41,10 @@ from google.cloud.aiplatform_v1beta1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
 )
 from google.cloud.aiplatform_v1beta1.types import job_service
+from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
+from google.cloud.aiplatform_v1beta1.types import (
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
+)
 from google.longrunning import operations_pb2 as operations  # type: ignore
 from google.protobuf import empty_pb2 as empty  # type: ignore
 
@@ -210,6 +214,46 @@ class JobServiceTransport(abc.ABC):
             ),
             self.cancel_batch_prediction_job: gapic_v1.method.wrap_method(
                 self.cancel_batch_prediction_job,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.create_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.create_model_deployment_monitoring_job,
+                default_timeout=60.0,
+                client_info=client_info,
+            ),
+            self.search_model_deployment_monitoring_stats_anomalies: gapic_v1.method.wrap_method(
+                self.search_model_deployment_monitoring_stats_anomalies,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.get_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.get_model_deployment_monitoring_job,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.list_model_deployment_monitoring_jobs: gapic_v1.method.wrap_method(
+                self.list_model_deployment_monitoring_jobs,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.update_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.update_model_deployment_monitoring_job,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.delete_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.delete_model_deployment_monitoring_job,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.pause_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.pause_model_deployment_monitoring_job,
+                default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.resume_model_deployment_monitoring_job: gapic_v1.method.wrap_method(
+                self.resume_model_deployment_monitoring_job,
                 default_timeout=5.0,
                 client_info=client_info,
             ),
@@ -428,6 +472,96 @@ class JobServiceTransport(abc.ABC):
         self,
     ) -> typing.Callable[
         [job_service.CancelBatchPredictionJobRequest],
+        typing.Union[empty.Empty, typing.Awaitable[empty.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def create_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.CreateModelDeploymentMonitoringJobRequest],
+        typing.Union[
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+            typing.Awaitable[
+                gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+            ],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def search_model_deployment_monitoring_stats_anomalies(
+        self,
+    ) -> typing.Callable[
+        [job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest],
+        typing.Union[
+            job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse,
+            typing.Awaitable[
+                job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse
+            ],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.GetModelDeploymentMonitoringJobRequest],
+        typing.Union[
+            model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
+            typing.Awaitable[
+                model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+            ],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_model_deployment_monitoring_jobs(
+        self,
+    ) -> typing.Callable[
+        [job_service.ListModelDeploymentMonitoringJobsRequest],
+        typing.Union[
+            job_service.ListModelDeploymentMonitoringJobsResponse,
+            typing.Awaitable[job_service.ListModelDeploymentMonitoringJobsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.UpdateModelDeploymentMonitoringJobRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.DeleteModelDeploymentMonitoringJobRequest],
+        typing.Union[operations.Operation, typing.Awaitable[operations.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def pause_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.PauseModelDeploymentMonitoringJobRequest],
+        typing.Union[empty.Empty, typing.Awaitable[empty.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def resume_model_deployment_monitoring_job(
+        self,
+    ) -> typing.Callable[
+        [job_service.ResumeModelDeploymentMonitoringJobRequest],
         typing.Union[empty.Empty, typing.Awaitable[empty.Empty]],
     ]:
         raise NotImplementedError()

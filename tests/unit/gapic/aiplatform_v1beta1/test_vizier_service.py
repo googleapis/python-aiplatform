@@ -46,6 +46,7 @@ from google.cloud.aiplatform_v1beta1.types import study as gca_study
 from google.cloud.aiplatform_v1beta1.types import vizier_service
 from google.longrunning import operations_pb2
 from google.oauth2 import service_account
+from google.protobuf import duration_pb2 as duration  # type: ignore
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
@@ -1819,6 +1820,8 @@ def test_create_trial(
             name="name_value",
             id="id_value",
             state=study.Trial.State.REQUESTED,
+            client_id="client_id_value",
+            infeasible_reason="infeasible_reason_value",
             custom_job="custom_job_value",
         )
 
@@ -1839,6 +1842,10 @@ def test_create_trial(
     assert response.id == "id_value"
 
     assert response.state == study.Trial.State.REQUESTED
+
+    assert response.client_id == "client_id_value"
+
+    assert response.infeasible_reason == "infeasible_reason_value"
 
     assert response.custom_job == "custom_job_value"
 
@@ -1883,6 +1890,8 @@ async def test_create_trial_async(
                 name="name_value",
                 id="id_value",
                 state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
                 custom_job="custom_job_value",
             )
         )
@@ -1903,6 +1912,10 @@ async def test_create_trial_async(
     assert response.id == "id_value"
 
     assert response.state == study.Trial.State.REQUESTED
+
+    assert response.client_id == "client_id_value"
+
+    assert response.infeasible_reason == "infeasible_reason_value"
 
     assert response.custom_job == "custom_job_value"
 
@@ -2056,6 +2069,8 @@ def test_get_trial(
             name="name_value",
             id="id_value",
             state=study.Trial.State.REQUESTED,
+            client_id="client_id_value",
+            infeasible_reason="infeasible_reason_value",
             custom_job="custom_job_value",
         )
 
@@ -2076,6 +2091,10 @@ def test_get_trial(
     assert response.id == "id_value"
 
     assert response.state == study.Trial.State.REQUESTED
+
+    assert response.client_id == "client_id_value"
+
+    assert response.infeasible_reason == "infeasible_reason_value"
 
     assert response.custom_job == "custom_job_value"
 
@@ -2120,6 +2139,8 @@ async def test_get_trial_async(
                 name="name_value",
                 id="id_value",
                 state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
                 custom_job="custom_job_value",
             )
         )
@@ -2140,6 +2161,10 @@ async def test_get_trial_async(
     assert response.id == "id_value"
 
     assert response.state == study.Trial.State.REQUESTED
+
+    assert response.client_id == "client_id_value"
+
+    assert response.infeasible_reason == "infeasible_reason_value"
 
     assert response.custom_job == "custom_job_value"
 
@@ -2606,6 +2631,8 @@ def test_add_trial_measurement(
             name="name_value",
             id="id_value",
             state=study.Trial.State.REQUESTED,
+            client_id="client_id_value",
+            infeasible_reason="infeasible_reason_value",
             custom_job="custom_job_value",
         )
 
@@ -2626,6 +2653,10 @@ def test_add_trial_measurement(
     assert response.id == "id_value"
 
     assert response.state == study.Trial.State.REQUESTED
+
+    assert response.client_id == "client_id_value"
+
+    assert response.infeasible_reason == "infeasible_reason_value"
 
     assert response.custom_job == "custom_job_value"
 
@@ -2675,6 +2706,8 @@ async def test_add_trial_measurement_async(
                 name="name_value",
                 id="id_value",
                 state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
                 custom_job="custom_job_value",
             )
         )
@@ -2695,6 +2728,10 @@ async def test_add_trial_measurement_async(
     assert response.id == "id_value"
 
     assert response.state == study.Trial.State.REQUESTED
+
+    assert response.client_id == "client_id_value"
+
+    assert response.infeasible_reason == "infeasible_reason_value"
 
     assert response.custom_job == "custom_job_value"
 
@@ -2775,6 +2812,8 @@ def test_complete_trial(
             name="name_value",
             id="id_value",
             state=study.Trial.State.REQUESTED,
+            client_id="client_id_value",
+            infeasible_reason="infeasible_reason_value",
             custom_job="custom_job_value",
         )
 
@@ -2795,6 +2834,10 @@ def test_complete_trial(
     assert response.id == "id_value"
 
     assert response.state == study.Trial.State.REQUESTED
+
+    assert response.client_id == "client_id_value"
+
+    assert response.infeasible_reason == "infeasible_reason_value"
 
     assert response.custom_job == "custom_job_value"
 
@@ -2839,6 +2882,8 @@ async def test_complete_trial_async(
                 name="name_value",
                 id="id_value",
                 state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
                 custom_job="custom_job_value",
             )
         )
@@ -2859,6 +2904,10 @@ async def test_complete_trial_async(
     assert response.id == "id_value"
 
     assert response.state == study.Trial.State.REQUESTED
+
+    assert response.client_id == "client_id_value"
+
+    assert response.infeasible_reason == "infeasible_reason_value"
 
     assert response.custom_job == "custom_job_value"
 
@@ -3278,6 +3327,8 @@ def test_stop_trial(
             name="name_value",
             id="id_value",
             state=study.Trial.State.REQUESTED,
+            client_id="client_id_value",
+            infeasible_reason="infeasible_reason_value",
             custom_job="custom_job_value",
         )
 
@@ -3298,6 +3349,10 @@ def test_stop_trial(
     assert response.id == "id_value"
 
     assert response.state == study.Trial.State.REQUESTED
+
+    assert response.client_id == "client_id_value"
+
+    assert response.infeasible_reason == "infeasible_reason_value"
 
     assert response.custom_job == "custom_job_value"
 
@@ -3342,6 +3397,8 @@ async def test_stop_trial_async(
                 name="name_value",
                 id="id_value",
                 state=study.Trial.State.REQUESTED,
+                client_id="client_id_value",
+                infeasible_reason="infeasible_reason_value",
                 custom_job="custom_job_value",
             )
         )
@@ -3362,6 +3419,10 @@ async def test_stop_trial_async(
     assert response.id == "id_value"
 
     assert response.state == study.Trial.State.REQUESTED
+
+    assert response.client_id == "client_id_value"
+
+    assert response.infeasible_reason == "infeasible_reason_value"
 
     assert response.custom_job == "custom_job_value"
 
