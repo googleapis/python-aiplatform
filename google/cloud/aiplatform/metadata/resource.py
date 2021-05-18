@@ -34,7 +34,7 @@ from google.cloud.aiplatform_v1beta1 import Execution as GapicExecution
 
 
 class _Resource(base.AiPlatformResourceNounWithFutureManager, abc.ABC):
-    """Metadata Resource for AI Platform"""
+    """Metadata Resource for Vertex AI"""
 
     client_class = utils.MetadataClientWithOverride
     _is_client_prediction_client = False

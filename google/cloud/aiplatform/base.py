@@ -67,7 +67,7 @@ class Logger:
 
         Args:
             cls (AiPlatformResourceNoune):
-                AI Platform Resource Noun class that is being created.
+                Vertex AI Resource Noun class that is being created.
             lro (operation.Operation):
                 Optional. Backing LRO for creation.
         """
@@ -90,9 +90,9 @@ class Logger:
 
         Args:
             cls (AiPlatformResourceNoun):
-                AI Platform Resource Noun class that is being created.
+                Vertex AI Resource Noun class that is being created.
             resource (proto.Message):
-                AI Platform Resourc proto.Message
+                Vertex AI Resourc proto.Message
             variable_name (str): Name of variable to use for code snippet
         """
         self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
@@ -113,9 +113,9 @@ class Logger:
 
         Args:
             cls (AiPlatformResourceNoun):
-                AI Platform Resource Noun class that is being created.
+                Vertex AI Resource Noun class that is being created.
             resource (proto.Message):
-                AI Platform Resourc proto.Message
+                Vertex AI Resourc proto.Message
             variable_name (str): Name of variable to use for code snippet
         """
         self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
@@ -386,7 +386,7 @@ class FutureManager(metaclass=abc.ABCMeta):
 
 
 class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
-    """Base class the AI Platform resource nouns.
+    """Base class the Vertex AI resource nouns.
 
     Subclasses require two class attributes:
 
@@ -715,7 +715,7 @@ def optional_sync(
 
 
 class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureManager):
-    """Allows optional asynchronous calls to this AI Platform Resource
+    """Allows optional asynchronous calls to this Vertex AI Resource
     Nouns."""
 
     def __init__(
@@ -816,7 +816,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
 
         Args:
             gapic_resource (proto.Message):
-                A GAPIC representation of an AI Platform resource, usually
+                A GAPIC representation of an Vertex AI resource, usually
                 retrieved by a get_* or in a list_* API call.
             project (str):
                 Optional. Project to construct SDK object from. If not set,
@@ -850,7 +850,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List[AiPlatformResourceNoun]:
-        """Private method to list all instances of this AI Platform Resource,
+        """Private method to list all instances of this Vertex AI Resource,
         takes a `cls_filter` arg to filter to a particular SDK resource
         subclass.
 
@@ -919,7 +919,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List[AiPlatformResourceNoun]:
-        """Private method to list all instances of this AI Platform Resource,
+        """Private method to list all instances of this Vertex AI Resource,
         takes a `cls_filter` arg to filter to a particular SDK resource
         subclass. Provides client-side sorting when a list API doesn't support
         `order_by`.
@@ -981,7 +981,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List[AiPlatformResourceNoun]:
-        """List all instances of this AI Platform Resource.
+        """List all instances of this Vertex AI Resource.
 
         Example Usage:
 
@@ -1023,7 +1023,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
 
     @optional_sync()
     def delete(self, sync: bool = True) -> None:
-        """Deletes this AI Platform resource. WARNING: This deletion is
+        """Deletes this Vertex AI resource. WARNING: This deletion is
         permament.
 
         Args:

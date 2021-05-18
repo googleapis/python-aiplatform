@@ -87,7 +87,7 @@ class _MachineSpec(NamedTuple):
 class _DistributedTrainingSpec(NamedTuple):
     """Configuration for distributed training worker pool specs.
 
-    AI Platform Training expects configuration in this order:
+    Vertex AI Training expects configuration in this order:
     [
         chief spec, # can only have one replica
         worker spec,
@@ -122,15 +122,15 @@ class _DistributedTrainingSpec(NamedTuple):
     def pool_specs(
         self,
     ) -> List[Dict[str, Union[int, str, Dict[str, Union[int, str]]]]]:
-        """Return each pools spec in correct order for AI Platform as a list of
+        """Return each pools spec in correct order for Vertex AI as a list of
         dicts.
 
         Also removes specs if they are empty but leaves specs in if there unusual
-        specifications to not break the ordering in AI Platform Training.
+        specifications to not break the ordering in Vertex AI Training.
         ie. 0 chief replica, 10 worker replica, 3 ps replica
 
         Returns:
-            Order list of worker pool specs suitable for AI Platform Training.
+            Order list of worker pool specs suitable for Vertex AI Training.
         """
         if self.chief_spec.replica_count > 1:
             raise ValueError("Chief spec replica count cannot be greater than 1.")

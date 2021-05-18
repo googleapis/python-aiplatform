@@ -28,7 +28,7 @@ from google.cloud.aiplatform_v1beta1.types import metadata_store as gca_metadata
 
 
 class _MetadataStore(base.AiPlatformResourceNounWithFutureManager):
-    """Managed MetadataStore resource for AI Platform"""
+    """Managed MetadataStore resource for Vertex AI"""
 
     client_class = utils.MetadataClientWithOverride
     _is_client_prediction_client = False

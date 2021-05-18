@@ -257,13 +257,13 @@ class _Config:
 
         Args:
             client_class (utils.AiPlatformServiceClientWithOverride):
-                (Required) An AI Platform Service Client with optional overrides.
+                (Required) An Vertex AI Service Client with optional overrides.
             credentials (auth_credentials.Credentials):
                 Custom auth credentials. If not provided will use the current config.
             location_override (str): Optional location override.
             prediction_client (str): Optional flag to use a prediction endpoint.
         Returns:
-            client: Instantiated AI Platform Service client with optional overrides
+            client: Instantiated Vertex AI Service client with optional overrides
         """
         gapic_version = pkg_resources.get_distribution(
             "google-cloud-aiplatform",

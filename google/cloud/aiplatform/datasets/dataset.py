@@ -36,7 +36,7 @@ _LOGGER = base.Logger(__name__)
 
 
 class _Dataset(base.AiPlatformResourceNounWithFutureManager):
-    """Managed dataset resource for AI Platform."""
+    """Managed dataset resource for Vertex AI."""
 
     client_class = utils.DatasetClientWithOverride
     _is_client_prediction_client = False
@@ -264,7 +264,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
                 that can be used here are found in gs://google-cloud-
                 aiplatform/schema/dataset/metadata/.
             datasource (_datasources.Datasource):
-                Required. Datasource for creating a dataset for AI Platform.
+                Required. Datasource for creating a dataset for Vertex AI.
             project (str):
                 Required. Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -368,7 +368,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
                 that can be used here are found in gs://google-cloud-
                 aiplatform/schema/dataset/metadata/.
             datasource (_datasources.Datasource):
-                Required. Datasource for creating a dataset for AI Platform.
+                Required. Datasource for creating a dataset for Vertex AI.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the create_dataset
                 request as metadata. Usually to specify special dataset config.
@@ -401,7 +401,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
 
         Args:
             datasource (_datasources.DatasourceImportable):
-                Required. Datasource for importing data to an existing dataset for AI Platform.
+                Required. Datasource for importing data to an existing dataset for Vertex AI.
 
         Returns:
             operation (Operation):

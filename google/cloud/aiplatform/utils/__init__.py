@@ -110,7 +110,7 @@ def extract_fields_from_resource_name(
 
     Args:
         resource_name (str):
-            Required. A fully-qualified AI Platform (Unified) resource name
+            Required. A fully-qualified Vertex AI resource name
 
         resource_noun (str):
             A resource noun to validate the resource name against.
@@ -145,7 +145,7 @@ def full_resource_name(
 
     Args:
         resource_name (str):
-            Required. A fully-qualified AI Platform (Unified) resource name or
+            Required. A fully-qualified Vertex AI resource name or
             resource ID.
         resource_noun (str):
             A resource noun to validate the resource name against.
@@ -163,7 +163,7 @@ def full_resource_name(
 
     Returns:
         resource_name (str):
-            A fully-qualified AI Platform (Unified) resource name.
+            A fully-qualified Vertex AI resource name.
 
     Raises:
         ValueError:
@@ -257,7 +257,7 @@ def validate_region(region: str) -> bool:
     region = region.lower()
     if region not in constants.SUPPORTED_REGIONS:
         raise ValueError(
-            f"Unsupported region for AI Platform, select from {constants.SUPPORTED_REGIONS}"
+            f"Unsupported region for Vertex AI, select from {constants.SUPPORTED_REGIONS}"
         )
 
     return True

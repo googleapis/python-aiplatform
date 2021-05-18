@@ -27,7 +27,7 @@ from google.cloud.aiplatform import utils
 
 
 class VideoDataset(datasets._Dataset):
-    """Managed video dataset resource for AI Platform."""
+    """Managed video dataset resource for Vertex AI."""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
         schema.dataset.metadata.video,

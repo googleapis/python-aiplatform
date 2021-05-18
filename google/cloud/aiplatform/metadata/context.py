@@ -26,7 +26,7 @@ from google.cloud.aiplatform_v1beta1.types import context as gca_context
 
 
 class _Context(_Resource):
-    """Metadata Context resource for AI Platform"""
+    """Metadata Context resource for Vertex AI"""
 
     _resource_noun = "contexts"
     _getter_method = "get_context"
