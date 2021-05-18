@@ -1,4 +1,4 @@
-Python Client for Vertex AI
+Vertex SDK for Python
 =================================================
 
 |beta| |pypi| |versions|
