@@ -1130,7 +1130,7 @@ class CustomJob(_RunnableJob):
         self,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
-        timeout: Optional[int] = None,  # seconds
+        timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
         sync: bool = True,
     ) -> None:
