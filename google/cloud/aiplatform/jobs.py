@@ -1232,7 +1232,7 @@ class HyperparameterTuningJob(_RunnableJob):
         Example usage:
 
         ```
-        from google.cloud.aiplatform import hyperparamter_tuning as hpt
+        from google.cloud.aiplatform import hyperparameter_tuning as hpt
 
         worker_pool_specs = [
                 {
