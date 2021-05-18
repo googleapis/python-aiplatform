@@ -15,15 +15,6 @@
 # limitations under the License.
 #
 
-from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_forecasting import (
-    AutoMlForecasting,
-)
-from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_forecasting import (
-    AutoMlForecastingInputs,
-)
-from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_forecasting import (
-    AutoMlForecastingMetadata,
-)
 from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_image_classification import (
     AutoMlImageClassification,
 )
@@ -77,6 +68,15 @@ from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types
 )
 from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_text_sentiment import (
     AutoMlTextSentimentInputs,
+)
+from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_time_series_forecasting import (
+    AutoMlForecasting,
+)
+from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_time_series_forecasting import (
+    AutoMlForecastingInputs,
+)
+from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_time_series_forecasting import (
+    AutoMlForecastingMetadata,
 )
 from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.automl_video_action_recognition import (
     AutoMlVideoActionRecognition,
