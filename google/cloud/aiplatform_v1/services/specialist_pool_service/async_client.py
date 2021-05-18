@@ -95,8 +95,36 @@ class SpecialistPoolServiceAsyncClient:
         SpecialistPoolServiceClient.parse_common_location_path
     )
 
-    from_service_account_info = SpecialistPoolServiceClient.from_service_account_info
-    from_service_account_file = SpecialistPoolServiceClient.from_service_account_file
+    @classmethod
+    def from_service_account_info(cls, info: dict, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials info.
+
+        Args:
+            info (dict): The service account private key info.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            SpecialistPoolServiceAsyncClient: The constructed client.
+        """
+        return SpecialistPoolServiceClient.from_service_account_info.__func__(SpecialistPoolServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+
+    @classmethod
+    def from_service_account_file(cls, filename: str, *args, **kwargs):
+        """Creates an instance of this client using the provided credentials
+        file.
+
+        Args:
+            filename (str): The path to the service account private key json
+                file.
+            args: Additional arguments to pass to the constructor.
+            kwargs: Additional arguments to pass to the constructor.
+
+        Returns:
+            SpecialistPoolServiceAsyncClient: The constructed client.
+        """
+        return SpecialistPoolServiceClient.from_service_account_file.__func__(SpecialistPoolServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+
     from_service_account_json = from_service_account_file
 
     @property
