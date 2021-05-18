@@ -355,7 +355,7 @@ class BatchPredictionJob(proto.Message):
     start_time = proto.Field(proto.MESSAGE, number=16, message=timestamp.Timestamp,)
     end_time = proto.Field(proto.MESSAGE, number=17, message=timestamp.Timestamp,)
     update_time = proto.Field(proto.MESSAGE, number=18, message=timestamp.Timestamp,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=19,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=19)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=24, message=gca_encryption_spec.EncryptionSpec,
     )

@@ -457,7 +457,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
             parent (str):
                 Required. The location that the migratable resources
@@ -547,7 +548,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
             parent (str):
                 Required. The location of the migrated resource will

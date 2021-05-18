@@ -175,7 +175,8 @@ class PredictionServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.PredictRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
             endpoint (:class:`str`):
                 Required. The name of the Endpoint requested to serve
