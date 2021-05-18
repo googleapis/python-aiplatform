@@ -23,7 +23,7 @@ Overview
 ~~~~~~~~
 Importing
 ^^^^^^^^^^^^^^^^^^^^
-All SDK functionality can be used from the root of the package:
+SDK functionality can be used from the root of the package:
 
 .. code-block:: Python
 
