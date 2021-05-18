@@ -29,12 +29,18 @@ from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.compat.types import custom_job as gca_custom_job_compat
+from google.cloud.aiplatform.compat.types import (
+    custom_job_v1beta1 as gca_custom_job_v1beta1,
+)
 from google.cloud.aiplatform.compat.types import io as gca_io_compat
 from google.cloud.aiplatform.compat.types import job_state as gca_job_state_compat
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
 )
 from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
+from google.cloud.aiplatform_v1beta1.services.job_service import (
+    client as job_service_client_v1beta1,
+)
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -44,6 +50,7 @@ _TEST_DISPLAY_NAME = "my_job_1234"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 
 _TEST_CUSTOM_JOB_NAME = f"{_TEST_PARENT}/customJobs/{_TEST_ID}"
+_TEST_TENSORBOARD_NAME = f"{_TEST_PARENT}/tensorboards/{_TEST_ID}"
 
 _TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
 
@@ -97,11 +104,20 @@ _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job_compat.CustomJob(
 )
 
 
-def _get_custom_job_proto(state=None, name=None, error=None):
+def _get_custom_job_proto(state=None, name=None, error=None, version="v1"):
     custom_job_proto = copy.deepcopy(_TEST_BASE_CUSTOM_JOB_PROTO)
     custom_job_proto.name = name
     custom_job_proto.state = state
     custom_job_proto.error = error
+
+    if version == "v1beta1":
+        v1beta1_custom_job_proto = gca_custom_job_v1beta1.CustomJob()
+        v1beta1_custom_job_proto._pb.MergeFromString(
+            custom_job_proto._pb.SerializeToString()
+        )
+        custom_job_proto = v1beta1_custom_job_proto
+        custom_job_proto.job_spec.tensorboard = _TEST_TENSORBOARD_NAME
+
     return custom_job_proto
 
 
@@ -158,6 +174,19 @@ def create_custom_job_mock():
         create_custom_job_mock.return_value = _get_custom_job_proto(
             name=_TEST_CUSTOM_JOB_NAME,
             state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+        )
+        yield create_custom_job_mock
+
+
+@pytest.fixture
+def create_custom_job_v1beta1_mock():
+    with mock.patch.object(
+        job_service_client_v1beta1.JobServiceClient, "create_custom_job"
+    ) as create_custom_job_mock:
+        create_custom_job_mock.return_value = _get_custom_job_proto(
+            name=_TEST_CUSTOM_JOB_NAME,
+            state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            version="v1beta1",
         )
         yield create_custom_job_mock
 
@@ -321,3 +350,43 @@ class TestCustomJob:
                 script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
                 container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_custom_job_with_tensorboard(
+        self, create_custom_job_v1beta1_mock, get_custom_job_mock, sync
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME, worker_pool_specs=_TEST_WORKER_POOL_SPEC
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            tensorboard=_TEST_TENSORBOARD_NAME,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            sync=sync,
+        )
+
+        job.wait()
+
+        expected_custom_job = _get_custom_job_proto(version="v1beta1")
+
+        create_custom_job_v1beta1_mock.assert_called_once_with(
+            parent=_TEST_PARENT, custom_job=expected_custom_job
+        )
+
+        expected_custom_job = _get_custom_job_proto()
+
+        assert job.job_spec == expected_custom_job.job_spec
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )

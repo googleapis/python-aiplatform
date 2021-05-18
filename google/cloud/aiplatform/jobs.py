@@ -45,11 +45,13 @@ from google.cloud.aiplatform.compat.types import (
     batch_prediction_job_v1 as gca_bp_job_v1,
     batch_prediction_job_v1beta1 as gca_bp_job_v1beta1,
     custom_job as gca_custom_job_compat,
+    custom_job_v1beta1 as gca_custom_job_v1beta1,
     explanation_v1beta1 as gca_explanation_v1beta1,
     io as gca_io_compat,
     io_v1beta1 as gca_io_v1beta1,
     job_state as gca_job_state,
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
+    hyperparameter_tuning_job_v1beta1 as gca_hyperparameter_tuning_job_v1beta1,
     machine_resources as gca_machine_resources_compat,
     machine_resources_v1beta1 as gca_machine_resources_v1beta1,
     study as gca_study_compat,
@@ -1132,6 +1134,7 @@ class CustomJob(_RunnableJob):
         network: Optional[str] = None,
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
+        tensorboard: Optional[str] = None,
         sync: bool = True,
     ) -> None:
         """Run this configured CustomJob.
@@ -1152,6 +1155,20 @@ class CustomJob(_RunnableJob):
                 gets restarted. This feature can be used by
                 distributed training jobs that are not resilient
                 to workers leaving and joining a job.
+            tensorboard (str):
+                Optional. The name of an AI Platform
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following AI Platform environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                (TODO: add documentation when released)
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will unblock and it will be executed in a concurrent Future.
@@ -1170,9 +1187,18 @@ class CustomJob(_RunnableJob):
                 restart_job_on_worker_restart=restart_job_on_worker_restart,
             )
 
+        if tensorboard:
+            v1beta1_gca_resource = gca_custom_job_v1beta1.CustomJob()
+            v1beta1_gca_resource._pb.MergeFromString(
+                self._gca_resource._pb.SerializeToString()
+            )
+            self._gca_resource = v1beta1_gca_resource
+            self._gca_resource.job_spec.tensorboard = tensorboard
+
         _LOGGER.log_create_with_lro(self.__class__)
 
-        self._gca_resource = self.api_client.create_custom_job(
+        version = "v1beta1" if tensorboard else "v1"
+        self._gca_resource = self.api_client.select_version(version).create_custom_job(
             parent=self._parent, custom_job=self._gca_resource
         )
 
@@ -1415,6 +1441,7 @@ class HyperparameterTuningJob(_RunnableJob):
         network: Optional[str] = None,
         timeout: Optional[int] = None,  # seconds
         restart_job_on_worker_restart: bool = False,
+        tensorboard: Optional[str] = None,
         sync: bool = True,
     ) -> None:
         """Run this configured CustomJob.
@@ -1435,6 +1462,20 @@ class HyperparameterTuningJob(_RunnableJob):
                 gets restarted. This feature can be used by
                 distributed training jobs that are not resilient
                 to workers leaving and joining a job.
+            tensorboard (str):
+                Optional. The name of an AI Platform
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following AI Platform environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                (TODO: add documentation when released)
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will unblock and it will be executed in a concurrent Future.
@@ -1453,9 +1494,22 @@ class HyperparameterTuningJob(_RunnableJob):
                 restart_job_on_worker_restart=restart_job_on_worker_restart,
             )
 
+        if tensorboard:
+            v1beta1_gca_resource = (
+                gca_hyperparameter_tuning_job_v1beta1.HyperparameterTuningJob()
+            )
+            v1beta1_gca_resource._pb.MergeFromString(
+                self._gca_resource._pb.SerializeToString()
+            )
+            self._gca_resource = v1beta1_gca_resource
+            self._gca_resource.trial_job_spec.tensorboard = tensorboard
+
         _LOGGER.log_create_with_lro(self.__class__)
 
-        self._gca_resource = self.api_client.create_hyperparameter_tuning_job(
+        version = "v1beta1" if tensorboard else "v1"
+        self._gca_resource = self.api_client.select_version(
+            version
+        ).create_hyperparameter_tuning_job(
             parent=self._parent, hyperparameter_tuning_job=self._gca_resource
         )
 
