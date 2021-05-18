@@ -73,8 +73,8 @@ _JOB_ERROR_STATES = (
 )
 
 
-class _Job(base.VertexAIResourceNounWithFutureManager):
-    """Class that represents a general Job resource in Vertex AI.
+class _Job(base.AiPlatformResourceNounWithFutureManager):
+    """Class that represents a general Job resource in AI Platform (Unified).
     Cannot be directly instantiated.
 
     Serves as base class to specific Job types, i.e. BatchPredictionJob or
@@ -130,7 +130,7 @@ class _Job(base.VertexAIResourceNounWithFutureManager):
 
         Returns:
             state (job_state.JobState):
-                Enum that describes the state of a Vertex AI job.
+                Enum that describes the state of a AI Platform job.
         """
 
         # Fetch the Job again for most up-to-date job state
@@ -209,7 +209,7 @@ class _Job(base.VertexAIResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List[base.VertexAiResourceNoun]:
+    ) -> List[base.AiPlatformResourceNoun]:
         """List all instances of this Job Resource.
 
         Example Usage:
@@ -237,7 +237,7 @@ class _Job(base.VertexAIResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[VertexAiResourceNoun] - A list of Job resource objects
+            List[AiPlatformResourceNoun] - A list of Job resource objects
         """
 
         return cls._list_with_local_order(
@@ -347,7 +347,7 @@ class BatchPredictionJob(_Job):
                 or "file-list". Default is "jsonl" when using `gcs_source`. If a
                 `bigquery_source` is provided, this is overriden to "bigquery".
             predictions_format (str):
-                Required. The format in which Vertex AI gives the
+                Required. The format in which AI Platform gives the
                 predictions, must be one of "jsonl", "csv", or "bigquery".
                 Default is "jsonl" when using `gcs_destination_prefix`. If a
                 `bigquery_destination_prefix` is provided, this is overriden to
@@ -417,7 +417,7 @@ class BatchPredictionJob(_Job):
                 `machine_type`. Only used if `machine_type` is set.
             starting_replica_count (Optional[int]):
                 The number of machine replicas used at the start of the batch
-                operation. If not set, Vertex AI decides starting number, not
+                operation. If not set, AI Platform decides starting number, not
                 greater than `max_replica_count`. Only used if `machine_type` is
                 set.
             max_replica_count (Optional[int]):
@@ -647,7 +647,7 @@ class BatchPredictionJob(_Job):
                 Required. An instance of DatasetServiceClient with the correct api_endpoint
                 already set based on user's preferences.
             batch_prediction_job (gca_bp_job.BatchPredictionJob):
-                Required. a batch prediction job proto for creating a batch prediction job on Vertex AI.
+                Required. a batch prediction job proto for creating a batch prediction job on AI Platform.
             generate_explanation (bool):
                 Required. Generate explanation along with the batch prediction
                 results.
@@ -673,7 +673,7 @@ class BatchPredictionJob(_Job):
             ValueError:
                 If no or multiple source or destinations are provided. Also, if
                 provided instances_format or predictions_format are not supported
-                by Vertex AI.
+                by AI Platform.
         """
         # select v1beta1 if explain else use default v1
         if generate_explanation:
@@ -804,7 +804,7 @@ class _RunnableJob(_Job):
                 credentials to use when accessing interacting with resource noun.
         """
 
-        base.VertexAIResourceNounWithFutureManager.__init__(
+        base.AiPlatformResourceNounWithFutureManager.__init__(
             self, project=project, location=location, credentials=credentials
         )
 
@@ -841,7 +841,7 @@ class _RunnableJob(_Job):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "_RunnableJob":
-        """Get an Vertex AI Job for the given resource_name.
+        """Get an AI Platform Job for the given resource_name.
 
         Args:
             resource_name (str):
@@ -857,7 +857,7 @@ class _RunnableJob(_Job):
                 credentials set in aiplatform.init.
 
         Returns:
-            An Vertex AI Job.
+            An AI Platform Job.
         """
         self = cls._empty_constructor(
             project=project,
@@ -882,7 +882,7 @@ class DataLabelingJob(_Job):
 
 
 class CustomJob(_RunnableJob):
-    """Vertex AI Custom Job."""
+    """AI Platform (Unified) Custom Job."""
 
     _resource_noun = "customJobs"
     _getter_method = "get_custom_job"
@@ -1156,19 +1156,20 @@ class CustomJob(_RunnableJob):
                 distributed training jobs that are not resilient
                 to workers leaving and joining a job.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of an AI Platform
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
                 ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
 
-                The training script should write Tensorboard to following Vertex AI environment
+                The training script should write Tensorboard to following AI Platform environment
                 variable:
 
                 AIP_TENSORBOARD_LOG_DIR
 
                 `service_account` is required with provided `tensorboard`.
-                (TODO: add documentation when released)
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will unblock and it will be executed in a concurrent Future.
@@ -1228,7 +1229,7 @@ _MEASUREMENT_SELECTION_TO_PROTO_VALUE = {
 
 
 class HyperparameterTuningJob(_RunnableJob):
-    """Vertex AI Hyperparameter Tuning Job."""
+    """AI Platform (Unified) Hyperparameter Tuning Job."""
 
     _resource_noun = "hyperparameterTuningJobs"
     _getter_method = "get_hyperparameter_tuning_job"
@@ -1348,13 +1349,13 @@ class HyperparameterTuningJob(_RunnableJob):
             max_failed_trial_count (int):
                 Optional. The number of failed Trials that need to be
                 seen before failing the HyperparameterTuningJob.
-                If set to 0, Vertex AI decides how many Trials
+                If set to 0, AI Platform decides how many Trials
                 must fail before the whole job fails.
             search_algorithm (str):
                 The search algorithm specified for the Study.
                 Accepts one of the following:
                     `None` - If you do not specify an algorithm, your job uses
-                    the default Vertex AI algorithm. The default algorithm
+                    the default AI Platform algorithm. The default algorithm
                     applies Bayesian optimization to arrive at the optimal
                     solution with a more effective search over the parameter space.
 
@@ -1362,7 +1363,7 @@ class HyperparameterTuningJob(_RunnableJob):
                     option is particularly useful if you want to specify a quantity
                     of trials that is greater than the number of points in the
                     feasible space. In such cases, if you do not specify a grid
-                    search, the Vertex AI default algorithm may generate duplicate
+                    search, the AI Platform default algorithm may generate duplicate
                     suggestions. To use grid search, all parameter specs must be
                     of type `IntegerParameterSpec`, `CategoricalParameterSpace`,
                     or `DiscreteParameterSpec`.
@@ -1463,19 +1464,20 @@ class HyperparameterTuningJob(_RunnableJob):
                 distributed training jobs that are not resilient
                 to workers leaving and joining a job.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of an AI Platform
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
                 ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
 
-                The training script should write Tensorboard to following Vertex AI environment
+                The training script should write Tensorboard to following AI Platform environment
                 variable:
 
                 AIP_TENSORBOARD_LOG_DIR
 
                 `service_account` is required with provided `tensorboard`.
-                (TODO: add documentation when released)
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will unblock and it will be executed in a concurrent Future.
