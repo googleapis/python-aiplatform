@@ -1220,7 +1220,7 @@ class HyperparameterTuningJob(_RunnableJob):
         max_trial_count: int,
         parallel_trial_count: int,
         max_failed_trial_count: int = 0,
-        search_algorithm: Optional[str] = "random",
+        search_algorithm: Optional[str] = None,
         measurement_selection: Optional[str] = "best",
         project: Optional[str] = None,
         location: Optional[str] = None,
