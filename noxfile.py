@@ -88,7 +88,7 @@ def default(session):
 
     session.install("mock", "pytest", "pytest-cov", "-c", constraints_path)
 
-    session.install("-e", ".", "-c", constraints_path)
+    session.install("-e", ".[testing]", "-c", constraints_path)
 
     # Run py.test against the unit tests.
     session.run(
@@ -169,7 +169,7 @@ def cover(session):
     test runs (not system test runs), and then erases coverage data.
     """
     session.install("coverage", "pytest-cov")
-    session.run("coverage", "report", "--show-missing", "--fail-under=99")
+    session.run("coverage", "report", "--show-missing", "--fail-under=95")
 
     session.run("coverage", "erase")
 
