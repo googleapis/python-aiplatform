@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
-
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -77,7 +74,6 @@ class TensorboardTimeSeries(proto.Message):
 
     class Metadata(proto.Message):
         r"""Describes metadata for a TensorboardTimeSeries.
-
         Attributes:
             max_step (int):
                 Output only. Max step index of all data
@@ -91,32 +87,21 @@ class TensorboardTimeSeries(proto.Message):
                 ValueType is BLOB_SEQUENCE.
         """
 
-        max_step = proto.Field(proto.INT64, number=1)
-
+        max_step = proto.Field(proto.INT64, number=1,)
         max_wall_time = proto.Field(
-            proto.MESSAGE, number=2, message=timestamp.Timestamp,
+            proto.MESSAGE, number=2, message=timestamp_pb2.Timestamp,
         )
+        max_blob_sequence_length = proto.Field(proto.INT64, number=3,)
 
-        max_blob_sequence_length = proto.Field(proto.INT64, number=3)
-
-    name = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
-    description = proto.Field(proto.STRING, number=3)
-
+    name = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
+    description = proto.Field(proto.STRING, number=3,)
     value_type = proto.Field(proto.ENUM, number=4, enum=ValueType,)
-
-    create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
-
-    update_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
-
-    etag = proto.Field(proto.STRING, number=7)
-
-    plugin_name = proto.Field(proto.STRING, number=8)
-
-    plugin_data = proto.Field(proto.BYTES, number=9)
-
+    create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
+    etag = proto.Field(proto.STRING, number=7,)
+    plugin_name = proto.Field(proto.STRING, number=8,)
+    plugin_data = proto.Field(proto.BYTES, number=9,)
     metadata = proto.Field(proto.MESSAGE, number=10, message=Metadata,)
 
 

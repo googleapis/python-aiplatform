@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 import functools
 import re
@@ -22,10 +20,10 @@ from typing import Dict, AsyncIterable, Awaitable, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
@@ -47,10 +45,9 @@ from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1beta1.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import TensorboardServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import TensorboardServiceGrpcAsyncIOTransport
 from .client import TensorboardServiceClient
@@ -84,31 +81,26 @@ class TensorboardServiceAsyncClient:
     parse_tensorboard_time_series_path = staticmethod(
         TensorboardServiceClient.parse_tensorboard_time_series_path
     )
-
     common_billing_account_path = staticmethod(
         TensorboardServiceClient.common_billing_account_path
     )
     parse_common_billing_account_path = staticmethod(
         TensorboardServiceClient.parse_common_billing_account_path
     )
-
     common_folder_path = staticmethod(TensorboardServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(
         TensorboardServiceClient.parse_common_folder_path
     )
-
     common_organization_path = staticmethod(
         TensorboardServiceClient.common_organization_path
     )
     parse_common_organization_path = staticmethod(
         TensorboardServiceClient.parse_common_organization_path
     )
-
     common_project_path = staticmethod(TensorboardServiceClient.common_project_path)
     parse_common_project_path = staticmethod(
         TensorboardServiceClient.parse_common_project_path
     )
-
     common_location_path = staticmethod(TensorboardServiceClient.common_location_path)
     parse_common_location_path = staticmethod(
         TensorboardServiceClient.parse_common_location_path
@@ -163,7 +155,7 @@ class TensorboardServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         transport: Union[str, TensorboardServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -200,7 +192,6 @@ class TensorboardServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
-
         self._client = TensorboardServiceClient(
             credentials=credentials,
             transport=transport,
@@ -237,7 +228,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -268,7 +258,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if tensorboard is not None:
@@ -324,7 +313,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -355,7 +343,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -384,7 +371,7 @@ class TensorboardServiceAsyncClient:
         request: tensorboard_service.UpdateTensorboardRequest = None,
         *,
         tensorboard: gca_tensorboard.Tensorboard = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -415,7 +402,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -446,7 +432,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if tensorboard is not None:
             request.tensorboard = tensorboard
         if update_mask is not None:
@@ -505,7 +490,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -535,7 +519,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -588,7 +571,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -628,7 +610,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -653,7 +634,7 @@ class TensorboardServiceAsyncClient:
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -701,7 +682,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard_experiment_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -732,7 +712,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if tensorboard_experiment is not None:
@@ -783,7 +762,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -812,7 +790,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -841,7 +818,7 @@ class TensorboardServiceAsyncClient:
         request: tensorboard_service.UpdateTensorboardExperimentRequest = None,
         *,
         tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -873,7 +850,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -902,7 +878,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if tensorboard_experiment is not None:
             request.tensorboard_experiment = tensorboard_experiment
         if update_mask is not None:
@@ -954,7 +929,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -984,7 +958,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -1037,7 +1010,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1077,7 +1049,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -1102,7 +1073,7 @@ class TensorboardServiceAsyncClient:
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -1152,7 +1123,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard_run_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1181,7 +1151,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if tensorboard_run is not None:
@@ -1232,7 +1201,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1261,7 +1229,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -1290,7 +1257,7 @@ class TensorboardServiceAsyncClient:
         request: tensorboard_service.UpdateTensorboardRunRequest = None,
         *,
         tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -1321,7 +1288,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1350,7 +1316,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if tensorboard_run is not None:
             request.tensorboard_run = tensorboard_run
         if update_mask is not None:
@@ -1402,7 +1367,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1432,7 +1396,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -1485,7 +1448,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1525,7 +1487,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -1550,7 +1511,7 @@ class TensorboardServiceAsyncClient:
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -1588,7 +1549,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard_time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1615,7 +1575,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if tensorboard_time_series is not None:
@@ -1664,7 +1623,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1691,7 +1649,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -1720,7 +1677,7 @@ class TensorboardServiceAsyncClient:
         request: tensorboard_service.UpdateTensorboardTimeSeriesRequest = None,
         *,
         tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -1752,7 +1709,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1779,7 +1735,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if tensorboard_time_series is not None:
             request.tensorboard_time_series = tensorboard_time_series
         if update_mask is not None:
@@ -1836,7 +1791,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1866,7 +1820,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -1919,7 +1872,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1959,7 +1911,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -1984,7 +1935,7 @@ class TensorboardServiceAsyncClient:
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -2019,7 +1970,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard_time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2046,7 +1996,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if tensorboard_time_series is not None:
             request.tensorboard_time_series = tensorboard_time_series
 
@@ -2098,7 +2047,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2125,7 +2073,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if time_series is not None:
             request.time_series = time_series
 
@@ -2190,7 +2137,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``time_series_data`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2217,10 +2163,8 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if tensorboard_run is not None:
             request.tensorboard_run = tensorboard_run
-
         if time_series_data:
             request.time_series_data.extend(time_series_data)
 
@@ -2270,7 +2214,6 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard_time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2300,7 +2243,6 @@ class TensorboardServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if tensorboard_time_series is not None:
             request.tensorboard_time_series = tensorboard_time_series
 

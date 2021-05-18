@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
-
-from google.protobuf import struct_pb2 as struct  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -199,17 +196,13 @@ class ExplanationMetadata(proto.Message):
                     deviation of the domain prior to normalization.
             """
 
-            min_value = proto.Field(proto.FLOAT, number=1)
-
-            max_value = proto.Field(proto.FLOAT, number=2)
-
-            original_mean = proto.Field(proto.FLOAT, number=3)
-
-            original_stddev = proto.Field(proto.FLOAT, number=4)
+            min_value = proto.Field(proto.FLOAT, number=1,)
+            max_value = proto.Field(proto.FLOAT, number=2,)
+            original_mean = proto.Field(proto.FLOAT, number=3,)
+            original_stddev = proto.Field(proto.FLOAT, number=4,)
 
         class Visualization(proto.Message):
             r"""Visualization configurations for image explanation.
-
             Attributes:
                 type_ (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Visualization.Type):
                     Type of the image visualization. Only applicable to
@@ -292,23 +285,18 @@ class ExplanationMetadata(proto.Message):
                 number=1,
                 enum="ExplanationMetadata.InputMetadata.Visualization.Type",
             )
-
             polarity = proto.Field(
                 proto.ENUM,
                 number=2,
                 enum="ExplanationMetadata.InputMetadata.Visualization.Polarity",
             )
-
             color_map = proto.Field(
                 proto.ENUM,
                 number=3,
                 enum="ExplanationMetadata.InputMetadata.Visualization.ColorMap",
             )
-
-            clip_percent_upperbound = proto.Field(proto.FLOAT, number=4)
-
-            clip_percent_lowerbound = proto.Field(proto.FLOAT, number=5)
-
+            clip_percent_upperbound = proto.Field(proto.FLOAT, number=4,)
+            clip_percent_lowerbound = proto.Field(proto.FLOAT, number=5,)
             overlay_type = proto.Field(
                 proto.ENUM,
                 number=6,
@@ -316,46 +304,34 @@ class ExplanationMetadata(proto.Message):
             )
 
         input_baselines = proto.RepeatedField(
-            proto.MESSAGE, number=1, message=struct.Value,
+            proto.MESSAGE, number=1, message=struct_pb2.Value,
         )
-
-        input_tensor_name = proto.Field(proto.STRING, number=2)
-
+        input_tensor_name = proto.Field(proto.STRING, number=2,)
         encoding = proto.Field(
             proto.ENUM, number=3, enum="ExplanationMetadata.InputMetadata.Encoding",
         )
-
-        modality = proto.Field(proto.STRING, number=4)
-
+        modality = proto.Field(proto.STRING, number=4,)
         feature_value_domain = proto.Field(
             proto.MESSAGE,
             number=5,
             message="ExplanationMetadata.InputMetadata.FeatureValueDomain",
         )
-
-        indices_tensor_name = proto.Field(proto.STRING, number=6)
-
-        dense_shape_tensor_name = proto.Field(proto.STRING, number=7)
-
-        index_feature_mapping = proto.RepeatedField(proto.STRING, number=8)
-
-        encoded_tensor_name = proto.Field(proto.STRING, number=9)
-
+        indices_tensor_name = proto.Field(proto.STRING, number=6,)
+        dense_shape_tensor_name = proto.Field(proto.STRING, number=7,)
+        index_feature_mapping = proto.RepeatedField(proto.STRING, number=8,)
+        encoded_tensor_name = proto.Field(proto.STRING, number=9,)
         encoded_baselines = proto.RepeatedField(
-            proto.MESSAGE, number=10, message=struct.Value,
+            proto.MESSAGE, number=10, message=struct_pb2.Value,
         )
-
         visualization = proto.Field(
             proto.MESSAGE,
             number=11,
             message="ExplanationMetadata.InputMetadata.Visualization",
         )
-
-        group_name = proto.Field(proto.STRING, number=12)
+        group_name = proto.Field(proto.STRING, number=12,)
 
     class OutputMetadata(proto.Message):
         r"""Metadata of the prediction output to be explained.
-
         Attributes:
             index_display_name_mapping (google.protobuf.struct_pb2.Value):
                 Static mapping between the index and display name.
@@ -391,24 +367,23 @@ class ExplanationMetadata(proto.Message):
         """
 
         index_display_name_mapping = proto.Field(
-            proto.MESSAGE, number=1, oneof="display_name_mapping", message=struct.Value,
+            proto.MESSAGE,
+            number=1,
+            oneof="display_name_mapping",
+            message=struct_pb2.Value,
         )
-
         display_name_mapping_key = proto.Field(
-            proto.STRING, number=2, oneof="display_name_mapping"
+            proto.STRING, number=2, oneof="display_name_mapping",
         )
-
-        output_tensor_name = proto.Field(proto.STRING, number=3)
+        output_tensor_name = proto.Field(proto.STRING, number=3,)
 
     inputs = proto.MapField(
         proto.STRING, proto.MESSAGE, number=1, message=InputMetadata,
     )
-
     outputs = proto.MapField(
         proto.STRING, proto.MESSAGE, number=2, message=OutputMetadata,
     )
-
-    feature_attributions_schema_uri = proto.Field(proto.STRING, number=3)
+    feature_attributions_schema_uri = proto.Field(proto.STRING, number=3,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
