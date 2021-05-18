@@ -217,8 +217,8 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
                 time to time, your code should check against error_type as
                 the source of truth.
             source_gcs_uri (str):
-                GCS uri pointing to the original file in
-                user's bucket.
+                Cloud Storage URI pointing to the original
+                file in user's bucket.
             embedding_id (str):
                 Empty if the embedding id is failed to parse.
             raw_record (str):
@@ -250,8 +250,8 @@ class NearestNeighborSearchOperationMetadata(proto.Message):
         r"""
         Attributes:
             source_gcs_uri (str):
-                GCS uri pointing to the original file in
-                user's bucket.
+                Cloud Storage URI pointing to the original
+                file in user's bucket.
             valid_record_count (int):
                 Number of records in this file that were
                 successfully processed.
