@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -37,7 +35,6 @@ from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.migration_service import pagers
 from google.cloud.aiplatform_v1.types import migratable_resource
 from google.cloud.aiplatform_v1.types import migration_service
-
 from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import MigrationServiceGrpcTransport
 from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
@@ -460,7 +457,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.SearchMigratableResourcesRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
             parent (str):
                 Required. The location that the migratable resources
@@ -472,7 +470,6 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -504,10 +501,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, migration_service.SearchMigratableResourcesRequest):
             request = migration_service.SearchMigratableResourcesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -553,7 +548,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.BatchMigrateResourcesRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
             parent (str):
                 Required. The location of the migrated resource will
@@ -573,7 +569,6 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 This corresponds to the ``migrate_resource_requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -606,10 +601,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, migration_service.BatchMigrateResourcesRequest):
             request = migration_service.BatchMigrateResourcesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if migrate_resource_requests is not None:
