@@ -19,91 +19,6 @@ Vertex SDK for Python
 .. _Client Library Documentation: https://googleapis.dev/python/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
-Overview
-~~~~~~~~
-Importing
-^^^^^^^^^^^^^^^^^^^^
-SDK functionality can be used from the root of the package:
-
-.. code-block:: Python
-
-    from google.cloud import aiplatform
-
-
-Initialization
-^^^^^^^^^^^^^^^^^^^^
-Initialize the SDK to store common configurations that will be used throughout the SDK.
-
-.. code-block:: Python
-
-    aiplatform.init(
-        # your GCP project ID or number
-        # environment default used is not set
-        project='my-project',
-
-        # the Vertex AI region you will use
-        # defaults to us-central1
-        location='us-central1',
-
-        # bucket in same region as location
-        # used to stage artifacts
-        staging_bucket='gs://my_staging_bucket',
-
-        # custom google.auth.credentials.Credentials
-        # environment default creds used if not set
-        credentials=my_credentials,
-
-        # customer managed encryption key resource name
-        # will be applied to all AI Platform resources if set
-        encryption_spec_key_name=my_encryption_key_name
-    )
-
-Datasets
-^^^^^^^^
-AI Platform provides managed Tabular, Text, Image, and Video datasets. In the SDK, Datasets can be used downstream to
-train models.
-
-To create a Tabular dataset:
-
-.. code-block:: Python
-
-    my_dataset = aiplatform.TabularDataset.create(
-        display_name="my-dataset", gcs_source=['gs://path/to/my/dataset.csv'])
-
-You can also create and import a dataset in separate steps:
-
-.. code-block:: Python
-
-    from google.cloud import aiplatform
-
-    my_dataset = aiplatform.TextDataset.create(
-        display_name="my-dataset")
-
-    my_dataset.import(
-        gcs_source=['gs://path/to/my/dataset.csv']
-        import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification
-    )
-
-AI Platform supports a variety of dataset schemas. References to these schemas are available under the
-:code:`aiplatform.schema.dataset` namespace. For more information on the supported dataset schemas please refer to the
-`Preparing data docs`_.
-
-.. _Preparing data docs: https://cloud.google.com/ai-platform-unified/docs/datasets/prepare
-
-Training
-^^^^^^^^
-The AI Platform SDK allows you train Custom and AutoML Models.
-
-Custom models can be trained using a custom Python script, custom Python package, or container.
-
-Preparing Your Custom Code
---------------------------
-AI Platform custom training enables you to train on AI Platform Datasets and produce AI Platform Models. To do so your
-script must adhere to the following contract:
-
-1. It must read dataset from the given environment variables:
-
-
 Quick Start
 -----------
 
@@ -153,6 +68,135 @@ Windows
     virtualenv <your-env>
     <your-env>\Scripts\activate
     <your-env>\Scripts\pip.exe install google-cloud-aiplatform
+
+
+Overview
+~~~~~~~~
+Importing
+^^^^^^^^^^^^^^^^^^^^
+SDK functionality can be used from the root of the package:
+
+.. code-block:: Python
+
+    from google.cloud import aiplatform
+
+
+Initialization
+^^^^^^^^^^^^^^^^^^^^
+Initialize the SDK to store common configurations that will be used throughout the SDK.
+
+.. code-block:: Python
+
+    aiplatform.init(
+        # your GCP project ID or number
+        # environment default used is not set
+        project='my-project',
+
+        # the Vertex AI region you will use
+        # defaults to us-central1
+        location='us-central1',
+
+        # bucket in same region as location
+        # used to stage artifacts
+        staging_bucket='gs://my_staging_bucket',
+
+        # custom google.auth.credentials.Credentials
+        # environment default creds used if not set
+        credentials=my_credentials,
+
+        # customer managed encryption key resource name
+        # will be applied to all AI Platform resources if set
+        encryption_spec_key_name=my_encryption_key_name,
+
+        # the name of the experiment to use to track
+        # logged metrics and parameters
+        experiment='my-experiment',
+
+        # description of the experiment above
+        experiment_description='my experiment decsription' 
+    )
+
+Datasets
+^^^^^^^^
+AI Platform provides managed Tabular, Text, Image, and Video datasets. In the SDK, Datasets can be used downstream to
+train models.
+
+To create a Tabular dataset:
+
+.. code-block:: Python
+
+    my_dataset = aiplatform.TabularDataset.create(
+        display_name="my-dataset", gcs_source=['gs://path/to/my/dataset.csv'])
+
+You can also create and import a dataset in separate steps:
+
+.. code-block:: Python
+
+    from google.cloud import aiplatform
+
+    my_dataset = aiplatform.TextDataset.create(
+        display_name="my-dataset")
+
+    my_dataset.import(
+        gcs_source=['gs://path/to/my/dataset.csv']
+        import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification
+    )
+
+Vertex AI supports a variety of dataset schemas. References to these schemas are available under the
+:code:`aiplatform.schema.dataset` namespace. For more information on the supported dataset schemas please refer to the
+`Preparing data docs`_.
+
+.. _Preparing data docs: https://cloud.google.com/ai-platform-unified/docs/datasets/prepare
+
+Training
+^^^^^^^^
+The Vertex SDK allows you train Custom and AutoML Models.
+
+Custom models can be trained using a custom Python script, custom Python package, or container.
+
+Preparing Your Custom Code
+--------------------------
+Vertex AI custom training enables you to train on AI Platform Datasets and produce AI Platform Models. To do so your
+script must adhere to the following contract:
+
+1. It must read dataset from the environment variables populated by the training service:
+
+.. code-block:: Python
+
+  os.environ['AIP_DATA_FORMAT']  # provides format of data  
+  os.environ['AIP_TRAINING_DATA_URI']  # uri to training split
+  os.environ['AIP_VALIDATION_DATA_URI']  # uri to validation split
+  os.environ['AIP_TEST_DATA_URI']  # uri to test split
+
+Please visit `Using a managed dataset in a custom training application`_ for a detailed overview information.
+
+.. _Using a managed dataset in a custom training application: https://cloud.google.com/vertex-ai/docs/training/using-managed-datasets
+
+2. It must write the model artifact to the environment variable populated by the traing service:
+
+.. code-block:: Python 
+
+  os.environ['AIP_MODEL_DIR']
+
+Running Training
+----------------
+
+.. code-block:: Python
+
+  job = aiplatform.CustomTrainingJob(
+      display_name="my-training-job",
+      script_path="training_script.py",
+      container_uri="gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest",
+      requirements=["gcsfs==0.7.1"],
+      model_serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-2:latest",
+  )
+
+  model = job.run(my_dataset, replica_count=1)
+
+In the code block above my_dataset is managed dataset created in the `Datasets` section above. `model` is a Managed Vertex AI Model that the be deployed or exported.
+
+
+
 
 Next Steps
 ~~~~~~~~~~
