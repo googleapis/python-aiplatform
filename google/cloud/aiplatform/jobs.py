@@ -1008,9 +1008,12 @@ class CustomJob(_RunnableJob):
         Args:
             display_name (str):
                 Required. The user-defined name of this CustomJob.
-            script_path (str): Required. Local path to training script.
+            script_path (str):
+                Required. Local path to training script.
             container_uri (str):
                 Required: Uri of the training container image to use for custom job.
+            args (Optional[List[Union[str, float, int]]]):
+                Optional. Command line arguments to be passed to the Python task.
             requirements (Sequence[str]):
                 Optional. List of python packages dependencies of script.
             environment_variables (Dict[str, str]):
