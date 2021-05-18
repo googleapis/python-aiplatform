@@ -61,7 +61,7 @@ _PIPELINE_COMPLETE_STATES = set(
 )
 
 
-class _TrainingJob(base.VertexAIResourceNounWithFutureManager):
+class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.PipelineClientWithOverride
     _is_client_prediction_client = False

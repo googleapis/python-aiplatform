@@ -35,7 +35,7 @@ from google.cloud.aiplatform.datasets import _datasources
 _LOGGER = base.Logger(__name__)
 
 
-class _Dataset(base.VertexAIResourceNounWithFutureManager):
+class _Dataset(base.VertexAiResourceNounWithFutureManager):
     """Managed dataset resource for Vertex AI."""
 
     client_class = utils.DatasetClientWithOverride

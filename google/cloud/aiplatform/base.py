@@ -580,7 +580,7 @@ def optional_sync(
     return_input_arg: Optional[str] = None,
     bind_future_to_self: bool = True,
 ):
-    """Decorator for VertexAIResourceNounWithFutureManager with optional sync
+    """Decorator for VertexAiResourceNounWithFutureManager with optional sync
     support.
 
     Methods with this decorator should include a "sync" argument that defaults to
@@ -714,7 +714,7 @@ def optional_sync(
     return optional_run_in_thread
 
 
-class VertexAIResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager):
+class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager):
     """Allows optional asynchronous calls to this Vertex AI Resource
     Nouns."""
 
@@ -751,7 +751,7 @@ class VertexAIResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         resource_name: Optional[str] = None,
-    ) -> "VertexAIResourceNounWithFutureManager":
+    ) -> "VertexAiResourceNounWithFutureManager":
         """Initializes with all attributes set to None.
 
         The attributes should be populated after a future is complete. This allows
@@ -780,12 +780,12 @@ class VertexAIResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         return self
 
     def _sync_object_with_future_result(
-        self, result: "VertexAIResourceNounWithFutureManager"
+        self, result: "VertexAiResourceNounWithFutureManager"
     ):
         """Populates attributes from a Future result to this object.
 
         Args:
-            result: VertexAIResourceNounWithFutureManager
+            result: VertexAiResourceNounWithFutureManager
                 Required. Result of future with same type as this object.
         """
         sync_attributes = [
