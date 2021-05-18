@@ -73,7 +73,7 @@ _JOB_ERROR_STATES = (
 )
 
 
-class _Job(base.AiPlatformResourceNounWithFutureManager):
+class _Job(base.VertexAIResourceNounWithFutureManager):
     """Class that represents a general Job resource in Vertex AI.
     Cannot be directly instantiated.
 
@@ -209,7 +209,7 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List[base.AiPlatformResourceNoun]:
+    ) -> List[base.VertexAiResourceNoun]:
         """List all instances of this Job Resource.
 
         Example Usage:
@@ -237,7 +237,7 @@ class _Job(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[AiPlatformResourceNoun] - A list of Job resource objects
+            List[VertexAiResourceNoun] - A list of Job resource objects
         """
 
         return cls._list_with_local_order(
@@ -804,7 +804,7 @@ class _RunnableJob(_Job):
                 credentials to use when accessing interacting with resource noun.
         """
 
-        base.AiPlatformResourceNounWithFutureManager.__init__(
+        base.VertexAIResourceNounWithFutureManager.__init__(
             self, project=project, location=location, credentials=credentials
         )
 

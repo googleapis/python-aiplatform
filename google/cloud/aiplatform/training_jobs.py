@@ -61,7 +61,7 @@ _PIPELINE_COMPLETE_STATES = set(
 )
 
 
-class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
+class _TrainingJob(base.VertexAIResourceNounWithFutureManager):
 
     client_class = utils.PipelineClientWithOverride
     _is_client_prediction_client = False
@@ -709,7 +709,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List["base.AiPlatformResourceNoune"]:
+    ) -> List["base.VertexAiResourceNoun"]:
         """List all instances of this TrainingJob resource.
 
         Example Usage:
@@ -738,7 +738,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[AiPlatformResourceNoun] - A list of TrainingJob resource objects
+            List[VertexAiResourceNoun] - A list of TrainingJob resource objects
         """
 
         training_job_subclass_filter = (

@@ -35,7 +35,7 @@ from google.cloud.aiplatform.datasets import _datasources
 _LOGGER = base.Logger(__name__)
 
 
-class _Dataset(base.AiPlatformResourceNounWithFutureManager):
+class _Dataset(base.VertexAIResourceNounWithFutureManager):
     """Managed dataset resource for Vertex AI."""
 
     client_class = utils.DatasetClientWithOverride
@@ -528,7 +528,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List[base.AiPlatformResourceNoun]:
+    ) -> List[base.VertexAiResourceNoun]:
         """List all instances of this Dataset resource.
 
         Example Usage:
@@ -557,7 +557,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[base.AiPlatformResourceNoun] - A list of Dataset resource objects
+            List[base.VertexAiResourceNoun] - A list of Dataset resource objects
         """
 
         dataset_subclass_filter = (

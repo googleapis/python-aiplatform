@@ -1,10 +1,10 @@
-Python Client for Cloud AI Platform
+Python Client for Vertex AI
 =================================================
 
 |beta| |pypi| |versions|
 
 
-`Cloud AI Platform`_: Google Cloud AI Platform is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.
+`Vertex AI`_: Google Vertex AI is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.
 
 - `Client Library Documentation`_
 - `Product Documentation`_
@@ -15,7 +15,7 @@ Python Client for Cloud AI Platform
    :target: https://pypi.org/project/google-cloud-aiplatform/
 .. |versions| image:: https://img.shields.io/pypi/pyversions/google-cloud-aiplatform.svg
    :target: https://pypi.org/project/google-cloud-aiplatform/
-.. _Cloud AI Platform: https://cloud.google.com/ai-platform-unified/docs
+.. _Vertex AI: https://cloud.google.com/ai-platform-unified/docs
 .. _Client Library Documentation: https://googleapis.dev/python/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/ai-platform-unified/docs
 
@@ -26,12 +26,12 @@ In order to use this library, you first need to go through the following steps:
 
 1. `Select or create a Cloud Platform project.`_
 2. `Enable billing for your project.`_
-3. `Enable the Cloud AI Platform API.`_
+3. `Enable the Vertex AI API.`_
 4. `Setup Authentication.`_
 
 .. _Select or create a Cloud Platform project.: https://console.cloud.google.com/project
 .. _Enable billing for your project.: https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project
-.. _Enable the Cloud AI Platform API.:  https://cloud.google.com/ai-platform/docs
+.. _Enable the Vertex AI API.:  https://cloud.google.com/ai-platform/docs
 .. _Setup Authentication.: https://googleapis.dev/python/google-api-core/latest/auth.html
 
 Installation
@@ -72,12 +72,12 @@ Windows
 Next Steps
 ~~~~~~~~~~
 
--  Read the `Client Library Documentation`_ for Cloud AI Platform
+-  Read the `Client Library Documentation`_ for Vertex AI
    API to see other available methods on the client.
--  Read the `Cloud AI Platform API Product documentation`_ to learn
+-  Read the `Vertex AI API Product documentation`_ to learn
    more about the product and see How-to Guides.
 -  View this `README`_ to see the full list of Cloud
    APIs that we cover.
 
-.. _Cloud AI Platform API Product documentation:  https://cloud.google.com/ai-platform-unified/docs
+.. _Vertex AI API Product documentation:  https://cloud.google.com/ai-platform-unified/docs
 .. _README: https://github.com/googleapis/google-cloud-python/blob/master/README.rst

@@ -73,7 +73,7 @@ class Prediction(NamedTuple):
     explanations: Optional[Sequence[gca_explanation_v1beta1.Explanation]] = None
 
 
-class Endpoint(base.AiPlatformResourceNounWithFutureManager):
+class Endpoint(base.VertexAIResourceNounWithFutureManager):
 
     client_class = utils.EndpointClientWithOverride
     _is_client_prediction_client = False
@@ -1201,7 +1201,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         super().delete(sync=sync)
 
 
-class Model(base.AiPlatformResourceNounWithFutureManager):
+class Model(base.VertexAIResourceNounWithFutureManager):
 
     client_class = utils.ModelClientWithOverride
     _is_client_prediction_client = False

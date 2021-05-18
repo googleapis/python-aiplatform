@@ -60,13 +60,13 @@ class Logger:
 
     def log_create_with_lro(
         self,
-        cls: Type["AiPlatformResourceNoun"],
+        cls: Type["VertexAiResourceNoun"],
         lro: Optional[operation.Operation] = None,
     ):
         """Logs create event with LRO.
 
         Args:
-            cls (AiPlatformResourceNoune):
+            cls (VertexAiResourceNoun):
                 Vertex AI Resource Noun class that is being created.
             lro (operation.Operation):
                 Optional. Backing LRO for creation.
@@ -80,7 +80,7 @@ class Logger:
 
     def log_create_complete(
         self,
-        cls: Type["AiPlatformResourceNoun"],
+        cls: Type["VertexAiResourceNoun"],
         resource: proto.Message,
         variable_name: str,
     ):
@@ -89,7 +89,7 @@ class Logger:
         Will also include code snippet to instantiate resource in SDK.
 
         Args:
-            cls (AiPlatformResourceNoun):
+            cls (VertexAiResourceNoun):
                 Vertex AI Resource Noun class that is being created.
             resource (proto.Message):
                 Vertex AI Resourc proto.Message
@@ -103,7 +103,7 @@ class Logger:
 
     def log_create_complete_with_getter(
         self,
-        cls: Type["AiPlatformResourceNoun"],
+        cls: Type["VertexAiResourceNoun"],
         resource: proto.Message,
         variable_name: str,
     ):
@@ -112,7 +112,7 @@ class Logger:
         Will also include code snippet to instantiate resource in SDK.
 
         Args:
-            cls (AiPlatformResourceNoun):
+            cls (VertexAiResourceNoun):
                 Vertex AI Resource Noun class that is being created.
             resource (proto.Message):
                 Vertex AI Resourc proto.Message
@@ -125,14 +125,14 @@ class Logger:
         )
 
     def log_action_start_against_resource(
-        self, action: str, noun: str, resource_noun_obj: "AiPlatformResourceNoun"
+        self, action: str, noun: str, resource_noun_obj: "VertexAiResourceNoun"
     ):
         """Logs intention to start an action against a resource.
 
         Args:
             action (str): Action to complete against the resource ie: "Deploying". Can be empty string.
             noun (str): Noun the action acts on against the resource. Can be empty string.
-            resource_noun_obj (AiPlatformResourceNoun):
+            resource_noun_obj (VertexAiResourceNoun):
                 Resource noun object the action is acting against.
         """
         self._logger.info(
@@ -143,7 +143,7 @@ class Logger:
         self,
         action: str,
         noun: str,
-        cls: Type["AiPlatformResourceNoun"],
+        cls: Type["VertexAiResourceNoun"],
         lro: operation.Operation,
     ):
         """Logs an action started against a resource with lro.
@@ -151,7 +151,7 @@ class Logger:
         Args:
             action (str): Action started against resource. ie: "Deploy". Can be empty string.
             noun (str): Noun the action acts on against the resource. Can be empty string.
-            cls (AiPlatformResourceNoun):
+            cls (VertexAiResourceNoun):
                 Resource noun object the action is acting against.
             lro (operation.Operation): Backing LRO for action.
         """
@@ -160,14 +160,14 @@ class Logger:
         )
 
     def log_action_completed_against_resource(
-        self, noun: str, action: str, resource_noun_obj: "AiPlatformResourceNoun"
+        self, noun: str, action: str, resource_noun_obj: "VertexAiResourceNoun"
     ):
         """Logs action completed against resource.
 
         Args:
             noun (str): Noun the action acts on against the resource. Can be empty string.
             action (str): Action started against resource. ie: "Deployed". Can be empty string.
-            resource_noun_obj (AiPlatformResourceNoun):
+            resource_noun_obj (VertexAiResourceNoun):
                 Resource noun object the action is acting against
         """
         self._logger.info(
@@ -385,7 +385,7 @@ class FutureManager(metaclass=abc.ABCMeta):
         return object.__repr__(self)
 
 
-class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
+class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     """Base class the Vertex AI resource nouns.
 
     Subclasses require two class attributes:
@@ -400,7 +400,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
     @property
     @classmethod
     @abc.abstractmethod
-    def client_class(cls) -> Type[utils.AiPlatformServiceClientWithOverride]:
+    def client_class(cls) -> Type[utils.VertexAiServiceClientWithOverride]:
         """Client class required to interact with resource with optional
         overrides."""
         pass
@@ -464,7 +464,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
         cls,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> utils.AiPlatformServiceClientWithOverride:
+    ) -> utils.VertexAiServiceClientWithOverride:
         """Helper method to instantiate service client for resource noun.
 
         Args:
@@ -473,7 +473,7 @@ class AiPlatformResourceNoun(metaclass=abc.ABCMeta):
                 Optional custom credentials to use when accessing interacting with
                 resource noun.
         Returns:
-            client (utils.AiPlatformServiceClientWithOverride):
+            client (utils.VertexAiServiceClientWithOverride):
                 Initialized service client for this service noun with optional overrides.
         """
         return initializer.global_config.create_client(
@@ -580,7 +580,7 @@ def optional_sync(
     return_input_arg: Optional[str] = None,
     bind_future_to_self: bool = True,
 ):
-    """Decorator for AiPlatformResourceNounWithFutureManager with optional sync
+    """Decorator for VertexAIResourceNounWithFutureManager with optional sync
     support.
 
     Methods with this decorator should include a "sync" argument that defaults to
@@ -714,7 +714,7 @@ def optional_sync(
     return optional_run_in_thread
 
 
-class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureManager):
+class VertexAIResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager):
     """Allows optional asynchronous calls to this Vertex AI Resource
     Nouns."""
 
@@ -735,7 +735,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
                 resource noun.
             resource_name(str): A fully-qualified resource name or ID.
         """
-        AiPlatformResourceNoun.__init__(
+        VertexAiResourceNoun.__init__(
             self,
             project=project,
             location=location,
@@ -751,7 +751,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         resource_name: Optional[str] = None,
-    ) -> "AiPlatformResourceNounWithFutureManager":
+    ) -> "VertexAIResourceNounWithFutureManager":
         """Initializes with all attributes set to None.
 
         The attributes should be populated after a future is complete. This allows
@@ -768,7 +768,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
             An instance of this class with attributes set to None.
         """
         self = cls.__new__(cls)
-        AiPlatformResourceNoun.__init__(
+        VertexAiResourceNoun.__init__(
             self,
             project=project,
             location=location,
@@ -780,12 +780,12 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         return self
 
     def _sync_object_with_future_result(
-        self, result: "AiPlatformResourceNounWithFutureManager"
+        self, result: "VertexAIResourceNounWithFutureManager"
     ):
         """Populates attributes from a Future result to this object.
 
         Args:
-            result: AiPlatformResourceNounWithFutureManager
+            result: VertexAIResourceNounWithFutureManager
                 Required. Result of future with same type as this object.
         """
         sync_attributes = [
@@ -811,7 +811,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> AiPlatformResourceNoun:
+    ) -> VertexAiResourceNoun:
         """Given a GAPIC resource object, return the SDK representation.
 
         Args:
@@ -829,7 +829,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
                 Overrides credentials set in aiplatform.init.
 
         Returns:
-            AiPlatformResourceNoun:
+            VertexAiResourceNoun:
                 An initialized SDK object that represents GAPIC type.
         """
         sdk_resource = self._empty_constructor(
@@ -849,7 +849,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List[AiPlatformResourceNoun]:
+    ) -> List[VertexAiResourceNoun]:
         """Private method to list all instances of this Vertex AI Resource,
         takes a `cls_filter` arg to filter to a particular SDK resource
         subclass.
@@ -878,7 +878,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
                 credentials set in aiplatform.init.
 
         Returns:
-            List[AiPlatformResourceNoun] - A list of SDK resource objects
+            List[VertexAiResourceNoun] - A list of SDK resource objects
         """
         self = cls._empty_constructor(
             project=project, location=location, credentials=credentials
@@ -918,7 +918,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List[AiPlatformResourceNoun]:
+    ) -> List[VertexAiResourceNoun]:
         """Private method to list all instances of this Vertex AI Resource,
         takes a `cls_filter` arg to filter to a particular SDK resource
         subclass. Provides client-side sorting when a list API doesn't support
@@ -948,7 +948,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
                 credentials set in aiplatform.init.
 
         Returns:
-            List[AiPlatformResourceNoun] - A list of SDK resource objects
+            List[VertexAiResourceNoun] - A list of SDK resource objects
         """
 
         li = cls._list(
@@ -980,7 +980,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List[AiPlatformResourceNoun]:
+    ) -> List[VertexAiResourceNoun]:
         """List all instances of this Vertex AI Resource.
 
         Example Usage:
@@ -1010,7 +1010,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
                 credentials set in aiplatform.init.
 
         Returns:
-            List[AiPlatformResourceNoun] - A list of SDK resource objects
+            List[VertexAiResourceNoun] - A list of SDK resource objects
         """
 
         return cls._list(
@@ -1042,7 +1042,7 @@ class AiPlatformResourceNounWithFutureManager(AiPlatformResourceNoun, FutureMana
 
     def __repr__(self) -> str:
         if self._gca_resource:
-            return AiPlatformResourceNoun.__repr__(self)
+            return VertexAiResourceNoun.__repr__(self)
 
         return FutureManager.__repr__(self)
 

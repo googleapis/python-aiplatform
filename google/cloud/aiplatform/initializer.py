@@ -247,16 +247,16 @@ class _Config:
 
     def create_client(
         self,
-        client_class: Type[utils.AiPlatformServiceClientWithOverride],
+        client_class: Type[utils.VertexAiServiceClientWithOverride],
         credentials: Optional[auth_credentials.Credentials] = None,
         location_override: Optional[str] = None,
         prediction_client: bool = False,
-    ) -> utils.AiPlatformServiceClientWithOverride:
-        """Instantiates a given AiPlatformServiceClient with optional
+    ) -> utils.VertexAiServiceClientWithOverride:
+        """Instantiates a given VertexAiServiceClient with optional
         overrides.
 
         Args:
-            client_class (utils.AiPlatformServiceClientWithOverride):
+            client_class (utils.VertexAiServiceClientWithOverride):
                 (Required) An Vertex AI Service Client with optional overrides.
             credentials (auth_credentials.Credentials):
                 Custom auth credentials. If not provided will use the current config.
