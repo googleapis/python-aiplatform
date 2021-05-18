@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import os
 import mock
-import packaging.version
 
 import grpc
 from grpc.experimental import aio
 import math
 import pytest
 from proto.marshal.rules.dates import DurationRule, TimestampRule
-
 
 from google import auth
 from google.api_core import client_options
@@ -41,12 +41,6 @@ from google.cloud.aiplatform_v1.services.pipeline_service import (
 from google.cloud.aiplatform_v1.services.pipeline_service import PipelineServiceClient
 from google.cloud.aiplatform_v1.services.pipeline_service import pagers
 from google.cloud.aiplatform_v1.services.pipeline_service import transports
-from google.cloud.aiplatform_v1.services.pipeline_service.transports.base import (
-    _API_CORE_VERSION,
-)
-from google.cloud.aiplatform_v1.services.pipeline_service.transports.base import (
-    _GOOGLE_AUTH_VERSION,
-)
 from google.cloud.aiplatform_v1.types import deployed_model_ref
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import env_var
@@ -64,29 +58,6 @@ from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 from google.rpc import status_pb2 as status  # type: ignore
-
-
-# TODO(busunkim): Once google-api-core >= 1.26.0 is required:
-# - Delete all the api-core and auth "less than" test cases
-# - Delete these pytest markers (Make the "greater than or equal to" tests the default).
-requires_google_auth_lt_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) >= packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth < 1.25.0",
-)
-requires_google_auth_gte_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) < packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth >= 1.25.0",
-)
-
-requires_api_core_lt_1_26_0 = pytest.mark.skipif(
-    packaging.version.parse(_API_CORE_VERSION) >= packaging.version.parse("1.26.0"),
-    reason="This test requires google-api-core < 1.26.0",
-)
-
-requires_api_core_gte_1_26_0 = pytest.mark.skipif(
-    packaging.version.parse(_API_CORE_VERSION) < packaging.version.parse("1.26.0"),
-    reason="This test requires google-api-core >= 1.26.0",
-)
 
 
 def client_cert_source_callback():
@@ -523,18 +494,25 @@ def test_create_training_pipeline(
             training_task_definition="training_task_definition_value",
             state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
         )
+
         response = client.create_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.CreateTrainingPipelineRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, gca_training_pipeline.TrainingPipeline)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.training_task_definition == "training_task_definition_value"
+
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
 
 
@@ -556,6 +534,7 @@ def test_create_training_pipeline_empty_call():
         client.create_training_pipeline()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.CreateTrainingPipelineRequest()
 
 
@@ -585,18 +564,24 @@ async def test_create_training_pipeline_async(
                 state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
             )
         )
+
         response = await client.create_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.CreateTrainingPipelineRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_training_pipeline.TrainingPipeline)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.training_task_definition == "training_task_definition_value"
+
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
 
 
@@ -611,7 +596,6 @@ def test_create_training_pipeline_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CreateTrainingPipelineRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -619,6 +603,7 @@ def test_create_training_pipeline_field_headers():
         type(client.transport.create_training_pipeline), "__call__"
     ) as call:
         call.return_value = gca_training_pipeline.TrainingPipeline()
+
         client.create_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -638,7 +623,6 @@ async def test_create_training_pipeline_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CreateTrainingPipelineRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -648,6 +632,7 @@ async def test_create_training_pipeline_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             gca_training_pipeline.TrainingPipeline()
         )
+
         await client.create_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -669,6 +654,7 @@ def test_create_training_pipeline_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_training_pipeline.TrainingPipeline()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_training_pipeline(
@@ -680,7 +666,9 @@ def test_create_training_pipeline_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
+
         assert args[0].training_pipeline == gca_training_pipeline.TrainingPipeline(
             name="name_value"
         )
@@ -724,7 +712,9 @@ async def test_create_training_pipeline_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
+
         assert args[0].training_pipeline == gca_training_pipeline.TrainingPipeline(
             name="name_value"
         )
@@ -766,18 +756,25 @@ def test_get_training_pipeline(
             training_task_definition="training_task_definition_value",
             state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
         )
+
         response = client.get_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.GetTrainingPipelineRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, training_pipeline.TrainingPipeline)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.training_task_definition == "training_task_definition_value"
+
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
 
 
@@ -799,6 +796,7 @@ def test_get_training_pipeline_empty_call():
         client.get_training_pipeline()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.GetTrainingPipelineRequest()
 
 
@@ -828,18 +826,24 @@ async def test_get_training_pipeline_async(
                 state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
             )
         )
+
         response = await client.get_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.GetTrainingPipelineRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, training_pipeline.TrainingPipeline)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.training_task_definition == "training_task_definition_value"
+
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
 
 
@@ -854,7 +858,6 @@ def test_get_training_pipeline_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.GetTrainingPipelineRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -862,6 +865,7 @@ def test_get_training_pipeline_field_headers():
         type(client.transport.get_training_pipeline), "__call__"
     ) as call:
         call.return_value = training_pipeline.TrainingPipeline()
+
         client.get_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -881,7 +885,6 @@ async def test_get_training_pipeline_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.GetTrainingPipelineRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -891,6 +894,7 @@ async def test_get_training_pipeline_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             training_pipeline.TrainingPipeline()
         )
+
         await client.get_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -912,6 +916,7 @@ def test_get_training_pipeline_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = training_pipeline.TrainingPipeline()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.get_training_pipeline(name="name_value",)
@@ -920,6 +925,7 @@ def test_get_training_pipeline_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -956,6 +962,7 @@ async def test_get_training_pipeline_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -990,15 +997,19 @@ def test_list_training_pipelines(
         call.return_value = pipeline_service.ListTrainingPipelinesResponse(
             next_page_token="next_page_token_value",
         )
+
         response = client.list_training_pipelines(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.ListTrainingPipelinesRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, pagers.ListTrainingPipelinesPager)
+
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -1020,6 +1031,7 @@ def test_list_training_pipelines_empty_call():
         client.list_training_pipelines()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.ListTrainingPipelinesRequest()
 
 
@@ -1046,15 +1058,18 @@ async def test_list_training_pipelines_async(
                 next_page_token="next_page_token_value",
             )
         )
+
         response = await client.list_training_pipelines(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.ListTrainingPipelinesRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTrainingPipelinesAsyncPager)
+
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -1069,7 +1084,6 @@ def test_list_training_pipelines_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.ListTrainingPipelinesRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1077,6 +1091,7 @@ def test_list_training_pipelines_field_headers():
         type(client.transport.list_training_pipelines), "__call__"
     ) as call:
         call.return_value = pipeline_service.ListTrainingPipelinesResponse()
+
         client.list_training_pipelines(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1096,7 +1111,6 @@ async def test_list_training_pipelines_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.ListTrainingPipelinesRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1106,6 +1120,7 @@ async def test_list_training_pipelines_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             pipeline_service.ListTrainingPipelinesResponse()
         )
+
         await client.list_training_pipelines(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1127,6 +1142,7 @@ def test_list_training_pipelines_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = pipeline_service.ListTrainingPipelinesResponse()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_training_pipelines(parent="parent_value",)
@@ -1135,6 +1151,7 @@ def test_list_training_pipelines_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
 
 
@@ -1171,6 +1188,7 @@ async def test_list_training_pipelines_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
 
 
@@ -1373,11 +1391,13 @@ def test_delete_training_pipeline(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/spam")
+
         response = client.delete_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.DeleteTrainingPipelineRequest()
 
     # Establish that the response is the type that we expect.
@@ -1402,6 +1422,7 @@ def test_delete_training_pipeline_empty_call():
         client.delete_training_pipeline()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.DeleteTrainingPipelineRequest()
 
 
@@ -1426,11 +1447,13 @@ async def test_delete_training_pipeline_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
+
         response = await client.delete_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.DeleteTrainingPipelineRequest()
 
     # Establish that the response is the type that we expect.
@@ -1448,7 +1471,6 @@ def test_delete_training_pipeline_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.DeleteTrainingPipelineRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1456,6 +1478,7 @@ def test_delete_training_pipeline_field_headers():
         type(client.transport.delete_training_pipeline), "__call__"
     ) as call:
         call.return_value = operations_pb2.Operation(name="operations/op")
+
         client.delete_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1475,7 +1498,6 @@ async def test_delete_training_pipeline_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.DeleteTrainingPipelineRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1485,6 +1507,7 @@ async def test_delete_training_pipeline_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/op")
         )
+
         await client.delete_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1506,6 +1529,7 @@ def test_delete_training_pipeline_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.delete_training_pipeline(name="name_value",)
@@ -1514,6 +1538,7 @@ def test_delete_training_pipeline_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -1550,6 +1575,7 @@ async def test_delete_training_pipeline_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -1582,11 +1608,13 @@ def test_cancel_training_pipeline(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
+
         response = client.cancel_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.CancelTrainingPipelineRequest()
 
     # Establish that the response is the type that we expect.
@@ -1611,6 +1639,7 @@ def test_cancel_training_pipeline_empty_call():
         client.cancel_training_pipeline()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.CancelTrainingPipelineRequest()
 
 
@@ -1633,11 +1662,13 @@ async def test_cancel_training_pipeline_async(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+
         response = await client.cancel_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == pipeline_service.CancelTrainingPipelineRequest()
 
     # Establish that the response is the type that we expect.
@@ -1655,7 +1686,6 @@ def test_cancel_training_pipeline_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CancelTrainingPipelineRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1663,6 +1693,7 @@ def test_cancel_training_pipeline_field_headers():
         type(client.transport.cancel_training_pipeline), "__call__"
     ) as call:
         call.return_value = None
+
         client.cancel_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1682,7 +1713,6 @@ async def test_cancel_training_pipeline_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CancelTrainingPipelineRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1690,6 +1720,7 @@ async def test_cancel_training_pipeline_field_headers_async():
         type(client.transport.cancel_training_pipeline), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+
         await client.cancel_training_pipeline(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1711,6 +1742,7 @@ def test_cancel_training_pipeline_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.cancel_training_pipeline(name="name_value",)
@@ -1719,6 +1751,7 @@ def test_cancel_training_pipeline_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -1753,6 +1786,7 @@ async def test_cancel_training_pipeline_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -1881,32 +1915,10 @@ def test_pipeline_service_base_transport():
         transport.operations_client
 
 
-@requires_google_auth_gte_1_25_0
 def test_pipeline_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
-        auth, "load_credentials_from_file", autospec=True
-    ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1.services.pipeline_service.transports.PipelineServiceTransport._prep_wrapped_messages"
-    ) as Transport:
-        Transport.return_value = None
-        load_creds.return_value = (credentials.AnonymousCredentials(), None)
-        transport = transports.PipelineServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
-        )
-        load_creds.assert_called_once_with(
-            "credentials.json",
-            scopes=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
-        )
-
-
-@requires_google_auth_lt_1_25_0
-def test_pipeline_service_base_transport_with_credentials_file_old_google_auth():
-    # Instantiate the base transport with a credentials file
-    with mock.patch.object(
-        auth, "load_credentials_from_file", autospec=True
+        auth, "load_credentials_from_file"
     ) as load_creds, mock.patch(
         "google.cloud.aiplatform_v1.services.pipeline_service.transports.PipelineServiceTransport._prep_wrapped_messages"
     ) as Transport:
@@ -1924,7 +1936,7 @@ def test_pipeline_service_base_transport_with_credentials_file_old_google_auth()
 
 def test_pipeline_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch(
+    with mock.patch.object(auth, "default") as adc, mock.patch(
         "google.cloud.aiplatform_v1.services.pipeline_service.transports.PipelineServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
@@ -1933,23 +1945,9 @@ def test_pipeline_service_base_transport_with_adc():
         adc.assert_called_once()
 
 
-@requires_google_auth_gte_1_25_0
 def test_pipeline_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
-        PipelineServiceClient()
-        adc.assert_called_once_with(
-            scopes=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id=None,
-        )
-
-
-@requires_google_auth_lt_1_25_0
-def test_pipeline_service_auth_adc_old_google_auth():
-    # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
+    with mock.patch.object(auth, "default") as adc:
         adc.return_value = (credentials.AnonymousCredentials(), None)
         PipelineServiceClient()
         adc.assert_called_once_with(
@@ -1958,147 +1956,17 @@ def test_pipeline_service_auth_adc_old_google_auth():
         )
 
 
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.PipelineServiceGrpcTransport,
-        transports.PipelineServiceGrpcAsyncIOTransport,
-    ],
-)
-@requires_google_auth_gte_1_25_0
-def test_pipeline_service_transport_auth_adc(transport_class):
+def test_pipeline_service_transport_auth_adc():
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
+    with mock.patch.object(auth, "default") as adc:
         adc.return_value = (credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus", scopes=["1", "2"])
-        adc.assert_called_once_with(
-            scopes=["1", "2"],
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
+        transports.PipelineServiceGrpcTransport(
+            host="squid.clam.whelk", quota_project_id="octopus"
         )
-
-
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.PipelineServiceGrpcTransport,
-        transports.PipelineServiceGrpcAsyncIOTransport,
-    ],
-)
-@requires_google_auth_lt_1_25_0
-def test_pipeline_service_transport_auth_adc_old_google_auth(transport_class):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus")
         adc.assert_called_once_with(
             scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.PipelineServiceGrpcTransport, grpc_helpers),
-        (transports.PipelineServiceGrpcAsyncIOTransport, grpc_helpers_async),
-    ],
-)
-@requires_api_core_gte_1_26_0
-def test_pipeline_service_transport_create_channel(transport_class, grpc_helpers):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-        transport_class(quota_project_id="octopus", scopes=["1", "2"])
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com:443",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            scopes=["1", "2"],
-            default_host="aiplatform.googleapis.com",
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.PipelineServiceGrpcTransport, grpc_helpers),
-        (transports.PipelineServiceGrpcAsyncIOTransport, grpc_helpers_async),
-    ],
-)
-@requires_api_core_lt_1_26_0
-def test_pipeline_service_transport_create_channel_old_api_core(
-    transport_class, grpc_helpers
-):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-        transport_class(quota_project_id="octopus")
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com:443",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.PipelineServiceGrpcTransport, grpc_helpers),
-        (transports.PipelineServiceGrpcAsyncIOTransport, grpc_helpers_async),
-    ],
-)
-@requires_api_core_lt_1_26_0
-def test_pipeline_service_transport_create_channel_user_scopes(
-    transport_class, grpc_helpers
-):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-
-        transport_class(quota_project_id="octopus", scopes=["1", "2"])
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com:443",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            scopes=["1", "2"],
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
         )
 
 
@@ -2321,6 +2189,7 @@ def test_endpoint_path():
     project = "squid"
     location = "clam"
     endpoint = "whelk"
+
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
         project=project, location=location, endpoint=endpoint,
     )
@@ -2345,6 +2214,7 @@ def test_model_path():
     project = "cuttlefish"
     location = "mussel"
     model = "winkle"
+
     expected = "projects/{project}/locations/{location}/models/{model}".format(
         project=project, location=location, model=model,
     )
@@ -2369,6 +2239,7 @@ def test_training_pipeline_path():
     project = "squid"
     location = "clam"
     training_pipeline = "whelk"
+
     expected = "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
         project=project, location=location, training_pipeline=training_pipeline,
     )
@@ -2393,6 +2264,7 @@ def test_parse_training_pipeline_path():
 
 def test_common_billing_account_path():
     billing_account = "cuttlefish"
+
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -2413,6 +2285,7 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "winkle"
+
     expected = "folders/{folder}".format(folder=folder,)
     actual = PipelineServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -2431,6 +2304,7 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "scallop"
+
     expected = "organizations/{organization}".format(organization=organization,)
     actual = PipelineServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -2449,6 +2323,7 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "squid"
+
     expected = "projects/{project}".format(project=project,)
     actual = PipelineServiceClient.common_project_path(project)
     assert expected == actual
@@ -2468,6 +2343,7 @@ def test_parse_common_project_path():
 def test_common_location_path():
     project = "whelk"
     location = "octopus"
+
     expected = "projects/{project}/locations/{location}".format(
         project=project, location=location,
     )
