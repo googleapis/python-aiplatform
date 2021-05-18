@@ -26,6 +26,7 @@ from .types.video_classification import VideoClassificationPredictionInstance
 from .types.video_object_tracking import VideoObjectTrackingPredictionInstance
 
 __all__ = (
+    "ImageClassificationPredictionInstance",
     "ImageObjectDetectionPredictionInstance",
     "ImageSegmentationPredictionInstance",
     "TextClassificationPredictionInstance",
@@ -34,5 +35,4 @@ __all__ = (
     "VideoActionRecognitionPredictionInstance",
     "VideoClassificationPredictionInstance",
     "VideoObjectTrackingPredictionInstance",
-    "ImageClassificationPredictionInstance",
 )

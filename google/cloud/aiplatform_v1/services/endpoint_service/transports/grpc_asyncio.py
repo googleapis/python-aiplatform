@@ -250,9 +250,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     ) -> Callable[
         [endpoint_service.CreateEndpointRequest], Awaitable[operations.Operation]
     ]:
-        r"""Return a callable for the
-        create endpoint
-          method over gRPC.
+        r"""Return a callable for the create endpoint method over gRPC.
 
         Creates an Endpoint.
 
@@ -278,9 +276,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     def get_endpoint(
         self,
     ) -> Callable[[endpoint_service.GetEndpointRequest], Awaitable[endpoint.Endpoint]]:
-        r"""Return a callable for the
-        get endpoint
-          method over gRPC.
+        r"""Return a callable for the get endpoint method over gRPC.
 
         Gets an Endpoint.
 
@@ -309,9 +305,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
         [endpoint_service.ListEndpointsRequest],
         Awaitable[endpoint_service.ListEndpointsResponse],
     ]:
-        r"""Return a callable for the
-        list endpoints
-          method over gRPC.
+        r"""Return a callable for the list endpoints method over gRPC.
 
         Lists Endpoints in a Location.
 
@@ -339,9 +333,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     ) -> Callable[
         [endpoint_service.UpdateEndpointRequest], Awaitable[gca_endpoint.Endpoint]
     ]:
-        r"""Return a callable for the
-        update endpoint
-          method over gRPC.
+        r"""Return a callable for the update endpoint method over gRPC.
 
         Updates an Endpoint.
 
@@ -369,9 +361,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     ) -> Callable[
         [endpoint_service.DeleteEndpointRequest], Awaitable[operations.Operation]
     ]:
-        r"""Return a callable for the
-        delete endpoint
-          method over gRPC.
+        r"""Return a callable for the delete endpoint method over gRPC.
 
         Deletes an Endpoint.
 
@@ -399,9 +389,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     ) -> Callable[
         [endpoint_service.DeployModelRequest], Awaitable[operations.Operation]
     ]:
-        r"""Return a callable for the
-        deploy model
-          method over gRPC.
+        r"""Return a callable for the deploy model method over gRPC.
 
         Deploys a Model into this Endpoint, creating a
         DeployedModel within it.
@@ -430,9 +418,7 @@ class EndpointServiceGrpcAsyncIOTransport(EndpointServiceTransport):
     ) -> Callable[
         [endpoint_service.UndeployModelRequest], Awaitable[operations.Operation]
     ]:
-        r"""Return a callable for the
-        undeploy model
-          method over gRPC.
+        r"""Return a callable for the undeploy model method over gRPC.
 
         Undeploys a Model from an Endpoint, removing a
         DeployedModel from it, and freeing all resources it's

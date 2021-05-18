@@ -199,8 +199,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UploadModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel].
             parent (:class:`str`):
                 Required. The resource name of the Location into which
@@ -292,8 +291,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.GetModel][google.cloud.aiplatform.v1.ModelService.GetModel].
             name (:class:`str`):
                 Required. The name of the Model resource. Format:
@@ -362,8 +360,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.ListModels][google.cloud.aiplatform.v1.ModelService.ListModels].
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
@@ -445,8 +442,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.UpdateModel][google.cloud.aiplatform.v1.ModelService.UpdateModel].
             model (:class:`google.cloud.aiplatform_v1.types.Model`):
                 Required. The Model which replaces
@@ -529,8 +525,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.DeleteModel][google.cloud.aiplatform.v1.ModelService.DeleteModel].
             name (:class:`str`):
                 Required. The name of the Model resource to be deleted.
@@ -627,8 +622,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ExportModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel].
             name (:class:`str`):
                 Required. The resource name of the Model to export.
@@ -722,8 +716,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelEvaluationRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1.ModelService.GetModelEvaluation].
             name (:class:`str`):
                 Required. The name of the ModelEvaluation resource.
@@ -798,8 +791,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelEvaluationsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1.ModelService.ListModelEvaluations].
             parent (:class:`str`):
                 Required. The resource name of the Model to list the
@@ -880,8 +872,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelEvaluationSliceRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1.ModelService.GetModelEvaluationSlice].
             name (:class:`str`):
                 Required. The name of the ModelEvaluationSlice resource.
@@ -956,8 +947,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelEvaluationSlicesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices].
             parent (:class:`str`):
                 Required. The resource name of the ModelEvaluation to

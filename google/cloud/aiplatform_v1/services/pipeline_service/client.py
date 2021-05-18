@@ -401,8 +401,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.CreateTrainingPipelineRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [PipelineService.CreateTrainingPipeline][google.cloud.aiplatform.v1.PipelineService.CreateTrainingPipeline].
             parent (str):
                 Required. The resource name of the Location to create
@@ -487,8 +486,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.GetTrainingPipelineRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1.PipelineService.GetTrainingPipeline].
             name (str):
                 Required. The name of the TrainingPipeline resource.
@@ -565,8 +563,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.ListTrainingPipelinesRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1.PipelineService.ListTrainingPipelines].
             parent (str):
                 Required. The resource name of the Location to list the
@@ -647,8 +644,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.DeleteTrainingPipelineRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [PipelineService.DeleteTrainingPipeline][google.cloud.aiplatform.v1.PipelineService.DeleteTrainingPipeline].
             name (str):
                 Required. The name of the TrainingPipeline resource to
@@ -754,8 +750,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.CancelTrainingPipelineRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [PipelineService.CancelTrainingPipeline][google.cloud.aiplatform.v1.PipelineService.CancelTrainingPipeline].
             name (str):
                 Required. The name of the TrainingPipeline to cancel.

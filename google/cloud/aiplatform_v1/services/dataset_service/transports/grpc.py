@@ -243,9 +243,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def create_dataset(
         self,
     ) -> Callable[[dataset_service.CreateDatasetRequest], operations.Operation]:
-        r"""Return a callable for the
-        create dataset
-          method over gRPC.
+        r"""Return a callable for the create dataset method over gRPC.
 
         Creates a Dataset.
 
@@ -271,9 +269,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def get_dataset(
         self,
     ) -> Callable[[dataset_service.GetDatasetRequest], dataset.Dataset]:
-        r"""Return a callable for the
-        get dataset
-          method over gRPC.
+        r"""Return a callable for the get dataset method over gRPC.
 
         Gets a Dataset.
 
@@ -299,9 +295,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def update_dataset(
         self,
     ) -> Callable[[dataset_service.UpdateDatasetRequest], gca_dataset.Dataset]:
-        r"""Return a callable for the
-        update dataset
-          method over gRPC.
+        r"""Return a callable for the update dataset method over gRPC.
 
         Updates a Dataset.
 
@@ -329,9 +323,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     ) -> Callable[
         [dataset_service.ListDatasetsRequest], dataset_service.ListDatasetsResponse
     ]:
-        r"""Return a callable for the
-        list datasets
-          method over gRPC.
+        r"""Return a callable for the list datasets method over gRPC.
 
         Lists Datasets in a Location.
 
@@ -357,9 +349,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def delete_dataset(
         self,
     ) -> Callable[[dataset_service.DeleteDatasetRequest], operations.Operation]:
-        r"""Return a callable for the
-        delete dataset
-          method over gRPC.
+        r"""Return a callable for the delete dataset method over gRPC.
 
         Deletes a Dataset.
 
@@ -385,9 +375,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def import_data(
         self,
     ) -> Callable[[dataset_service.ImportDataRequest], operations.Operation]:
-        r"""Return a callable for the
-        import data
-          method over gRPC.
+        r"""Return a callable for the import data method over gRPC.
 
         Imports data into a Dataset.
 
@@ -413,9 +401,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def export_data(
         self,
     ) -> Callable[[dataset_service.ExportDataRequest], operations.Operation]:
-        r"""Return a callable for the
-        export data
-          method over gRPC.
+        r"""Return a callable for the export data method over gRPC.
 
         Exports data from a Dataset.
 
@@ -443,9 +429,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     ) -> Callable[
         [dataset_service.ListDataItemsRequest], dataset_service.ListDataItemsResponse
     ]:
-        r"""Return a callable for the
-        list data items
-          method over gRPC.
+        r"""Return a callable for the list data items method over gRPC.
 
         Lists DataItems in a Dataset.
 
@@ -473,9 +457,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     ) -> Callable[
         [dataset_service.GetAnnotationSpecRequest], annotation_spec.AnnotationSpec
     ]:
-        r"""Return a callable for the
-        get annotation spec
-          method over gRPC.
+        r"""Return a callable for the get annotation spec method over gRPC.
 
         Gets an AnnotationSpec.
 
@@ -504,9 +486,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
         [dataset_service.ListAnnotationsRequest],
         dataset_service.ListAnnotationsResponse,
     ]:
-        r"""Return a callable for the
-        list annotations
-          method over gRPC.
+        r"""Return a callable for the list annotations method over gRPC.
 
         Lists Annotations belongs to a dataitem
 

@@ -140,7 +140,7 @@ class DataLabelingJob(proto.Message):
     name = proto.Field(proto.STRING, number=1,)
     display_name = proto.Field(proto.STRING, number=2,)
     datasets = proto.RepeatedField(proto.STRING, number=3,)
-    annotation_labels = proto.MapField(proto.STRING, proto.STRING, number=12)
+    annotation_labels = proto.MapField(proto.STRING, proto.STRING, number=12,)
     labeler_count = proto.Field(proto.INT32, number=4,)
     instruction_uri = proto.Field(proto.STRING, number=5,)
     inputs_schema_uri = proto.Field(proto.STRING, number=6,)
@@ -151,7 +151,7 @@ class DataLabelingJob(proto.Message):
     create_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
     update_time = proto.Field(proto.MESSAGE, number=10, message=timestamp.Timestamp,)
     error = proto.Field(proto.MESSAGE, number=22, message=status.Status,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=11)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=11,)
     specialist_pools = proto.RepeatedField(proto.STRING, number=16,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=20, message=gca_encryption_spec.EncryptionSpec,
