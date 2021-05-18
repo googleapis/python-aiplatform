@@ -141,8 +141,16 @@ def main(argv):
         tb_uploader.start_uploading()
 
 
+def flags_parser(args):
+    # Plumbs the flags defined in this file to the main module, mostly for the
+    # console script wrapper tb-gcp-uploader.
+    for flag in set(flags.FLAGS.get_key_flags_for_module(__name__)):
+        flags.FLAGS.register_flag_by_module(args[0], flag)
+    return app.parse_flags_with_usage(args)
+
+
 def run_main():
-    app.run(main)
+    app.run(main, flags_parser=flags_parser)
 
 
 if __name__ == "__main__":
