@@ -15,9 +15,9 @@ Python Client for Vertex AI
    :target: https://pypi.org/project/google-cloud-aiplatform/
 .. |versions| image:: https://img.shields.io/pypi/pyversions/google-cloud-aiplatform.svg
    :target: https://pypi.org/project/google-cloud-aiplatform/
-.. _Vertex AI: https://cloud.google.com/ai-platform-unified/docs
+.. _Vertex AI: https://cloud.google.com/vertex-ai/docs
 .. _Client Library Documentation: https://googleapis.dev/python/aiplatform/latest
-.. _Product Documentation:  https://cloud.google.com/ai-platform-unified/docs
+.. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
 Quick Start
 -----------
@@ -79,5 +79,5 @@ Next Steps
 -  View this `README`_ to see the full list of Cloud
    APIs that we cover.
 
-.. _Vertex AI API Product documentation:  https://cloud.google.com/ai-platform-unified/docs
+.. _Vertex AI API Product documentation:  https://cloud.google.com/vertex-ai/docs
 .. _README: https://github.com/googleapis/google-cloud-python/blob/master/README.rst
