@@ -41,7 +41,7 @@ Initialize the SDK to store common configurations that will be used throughout t
         # environment default used is not set
         project='my-project',
 
-        # the AI platform region you will use
+        # the Vertex AI region you will use
         # defaults to us-central1
         location='us-central1',
 
