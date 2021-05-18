@@ -1005,6 +1005,21 @@ class CustomJob(_RunnableJob):
     ) -> "CustomJob":
         """Configures a custom job from a local script.
 
+        Example usage:
+        ```
+        job = aiplatform.CustomJob.from_local_script(
+            display_name="my-custom-job",
+            script_path="training_script.py",
+            container_uri="gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest",
+            requirements=["gcsfs==0.7.1"],
+            replica_count=1,
+            args=['--dataset', 'gs://my-bucket/my-dataset',
+            '--model_output_uri', 'gs://my-bucket/model']
+        )
+
+        job.run()
+        ```
+
         Args:
             display_name (str):
                 Required. The user-defined name of this CustomJob.
