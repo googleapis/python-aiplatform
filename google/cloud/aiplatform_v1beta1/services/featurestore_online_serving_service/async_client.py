@@ -84,7 +84,8 @@ class FeaturestoreOnlineServingServiceAsyncClient:
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -99,7 +100,7 @@ class FeaturestoreOnlineServingServiceAsyncClient:
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -116,7 +117,7 @@ class FeaturestoreOnlineServingServiceAsyncClient:
 
     @property
     def transport(self) -> FeaturestoreOnlineServingServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
             FeaturestoreOnlineServingServiceTransport: The transport used by the client instance.
@@ -138,7 +139,7 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the featurestore online serving service client.
+        """Instantiates the featurestore online serving service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
