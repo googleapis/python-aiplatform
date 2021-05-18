@@ -204,9 +204,9 @@ class DiscreteParameterSpec(_ParameterSpec):
             4.0. This list should not contain more than
             1,000 values.
         scale (str):
-                Required. The type of scaling that should be applied to this parameter.
+            Required. The type of scaling that should be applied to this parameter.
 
-                Accepts: 'linear', 'log', 'reverse_log'
+            Accepts: 'linear', 'log', 'reverse_log'
         """
 
         super().__init__()
