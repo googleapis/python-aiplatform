@@ -1325,7 +1325,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 If set to 0, AI Platform decides how many Trials
                 must fail before the whole job fails.
             search_algorithm (str):
-                The search algorithm specified for the Study. 
+                The search algorithm specified for the Study.
                 Accepts one of the following:
                     `None` - If you do not specify an algorithm, your job uses
                     the default AI Platform algorithm. The default algorithm
