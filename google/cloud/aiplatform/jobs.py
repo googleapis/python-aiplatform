@@ -1192,6 +1192,7 @@ class CustomJob(_RunnableJob):
 _SEARCH_ALGORITHM_TO_PROTO_VALUE = {
     "random": gca_study_compat.StudySpec.Algorithm.RANDOM_SEARCH,
     "grid": gca_study_compat.StudySpec.Algorithm.GRID_SEARCH,
+    None: gca_study_compat.StudySpec.Algorithm.ALGORITHM_UNSPECIFIED,
 }
 
 _MEASUREMENT_SELECTION_TO_PROTO_VALUE = {
