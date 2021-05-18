@@ -1324,9 +1324,23 @@ class HyperparameterTuningJob(_RunnableJob):
                 If set to 0, AI Platform decides how many Trials
                 must fail before the whole job fails.
             search_algorithm (str):
-                The search algorithm specified for the Study.
+                The search algorithm specified for the Study. 
+                Accepts one of the following:
+                    `None` - If you do not specify an algorithm, your job uses
+                    the default AI Platform algorithm. The default algorithm
+                    applies Bayesian optimization to arrive at the optimal
+                    solution with a more effective search over the parameter space.
 
-                Accepts: 'random', 'grid'
+                    'grid' - A simple grid search within the feasible space. This
+                    option is particularly useful if you want to specify a quantity
+                    of trials that is greater than the number of points in the
+                    feasible space. In such cases, if you do not specify a grid
+                    search, the AI Platform default algorithm may generate duplicate
+                    suggestions. To use grid search, all parameter specs must be
+                    of type `IntegerParameterSpec`, `CategoricalParameterSpace`,
+                    or `DiscreteParameterSpec`.
+
+                    'random' - A simple random search within the feasible space.
             measurement_selection (str):
                 This indicates which measurement to use if/when the service
                 automatically selects the final measurement from previously reported
