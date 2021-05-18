@@ -17,6 +17,7 @@
 import proto
 from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
+from google.api_core import operation
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
@@ -35,9 +36,11 @@ from google.cloud.aiplatform.compat.types import (
     endpoint_v1 as gca_endpoint_v1,
     endpoint_v1beta1 as gca_endpoint_v1beta1,
     explanation_v1beta1 as gca_explanation_v1beta1,
+    io as gca_io_compat,
     machine_resources as gca_machine_resources_compat,
     machine_resources_v1beta1 as gca_machine_resources_v1beta1,
     model as gca_model_compat,
+    model_service as gca_model_service_compat,
     model_v1beta1 as gca_model_v1beta1,
     env_var as gca_env_var_compat,
     env_var_v1beta1 as gca_env_var_v1beta1,
@@ -70,7 +73,7 @@ class Prediction(NamedTuple):
     explanations: Optional[Sequence[gca_explanation_v1beta1.Explanation]] = None
 
 
-class Endpoint(base.AiPlatformResourceNounWithFutureManager):
+class Endpoint(base.VertexAIResourceNounWithFutureManager):
 
     client_class = utils.EndpointClientWithOverride
     _is_client_prediction_client = False
@@ -217,8 +220,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
         sync=True,
     ) -> "Endpoint":
-        """
-        Creates a new endpoint by calling the API client.
+        """Creates a new endpoint by calling the API client.
+
         Args:
             api_client (EndpointServiceClient):
                 Required. An instance of EndpointServiceClient with the correct
@@ -296,9 +299,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     def _allocate_traffic(
         traffic_split: Dict[str, int], traffic_percentage: int,
     ) -> Dict[str, int]:
-        """
-        Allocates desired traffic to new deployed model and scales traffic of
-        older deployed models.
+        """Allocates desired traffic to new deployed model and scales traffic
+        of older deployed models.
 
         Args:
             traffic_split (Dict[str, int]):
@@ -333,9 +335,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
     def _unallocate_traffic(
         traffic_split: Dict[str, int], deployed_model_id: str,
     ) -> Dict[str, int]:
-        """
-        Sets deployed model id's traffic to 0 and scales the traffic of other
-        deployed models.
+        """Sets deployed model id's traffic to 0 and scales the traffic of
+        other deployed models.
 
         Args:
             traffic_split (Dict[str, int]):
@@ -402,7 +403,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             accelerator_type (str):
                 Required. Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
                 NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
-                NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_T4
             deployed_model_display_name (str):
                 Required. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
@@ -431,11 +432,11 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
 
         Raises:
-            ValueError if Min or Max replica is negative. Traffic percentage > 100 or
-            < 0. Or if traffic_split does not sum to 100.
+            ValueError: if Min or Max replica is negative. Traffic percentage > 100 or
+                < 0. Or if traffic_split does not sum to 100.
 
-            ValueError if either explanation_metadata or explanation_parameters
-            but not both are specified.
+            ValueError: if either explanation_metadata or explanation_parameters
+                but not both are specified.
         """
         if min_replica_count < 0:
             raise ValueError("Min replica cannot be negative.")
@@ -477,13 +478,13 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        service_account: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
-        """
-        Deploys a Model to the Endpoint.
+        """Deploys a Model to the Endpoint.
 
         Args:
             model (aiplatform.Model):
@@ -528,9 +529,16 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_count if used.
                 One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
-                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
             explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
@@ -569,6 +577,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            service_account=service_account,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             metadata=metadata,
@@ -583,17 +592,17 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
         machine_type: Optional[str] = None,
-        min_replica_count: Optional[int] = 1,
-        max_replica_count: Optional[int] = 1,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        service_account: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
     ) -> None:
-        """
-        Deploys a Model to the Endpoint.
+        """Deploys a Model to the Endpoint.
 
         Args:
             model (aiplatform.Model):
@@ -638,9 +647,16 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_count if used.
                 One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
-                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
             explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
@@ -677,6 +693,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            service_account=service_account,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             metadata=metadata,
@@ -697,10 +714,11 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
         machine_type: Optional[str] = None,
-        min_replica_count: Optional[int] = 1,
-        max_replica_count: Optional[int] = 1,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        service_account: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
@@ -753,6 +771,13 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 is not provided, the larger value of min_replica_count or 1 will
                 be used. If value provided is smaller than min_replica_count, it
                 will automatically be increased to be min_replica_count.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
             explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
@@ -769,9 +794,9 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Raises:
-            ValueError if there is not current traffic split and traffic percentage
+            ValueError: If there is not current traffic split and traffic percentage
                 is not 0 or 100.
-            ValueError if only `explanation_metadata` or `explanation_parameters`
+            ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
         """
 
@@ -788,6 +813,12 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
             gca_endpoint = gca_endpoint_v1beta1
             gca_machine_resources = gca_machine_resources_v1beta1
 
+        deployed_model = gca_endpoint.DeployedModel(
+            model=model_resource_name,
+            display_name=deployed_model_display_name,
+            service_account=service_account,
+        )
+
         if machine_type:
             machine_spec = gca_machine_resources.MachineSpec(machine_type=machine_type)
 
@@ -796,25 +827,16 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 machine_spec.accelerator_type = accelerator_type
                 machine_spec.accelerator_count = accelerator_count
 
-            dedicated_resources = gca_machine_resources.DedicatedResources(
+            deployed_model.dedicated_resources = gca_machine_resources.DedicatedResources(
                 machine_spec=machine_spec,
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
             )
-            deployed_model = gca_endpoint.DeployedModel(
-                dedicated_resources=dedicated_resources,
-                model=model_resource_name,
-                display_name=deployed_model_display_name,
-            )
+
         else:
-            automatic_resources = gca_machine_resources.AutomaticResources(
+            deployed_model.automatic_resources = gca_machine_resources.AutomaticResources(
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
-            )
-            deployed_model = gca_endpoint.DeployedModel(
-                automatic_resources=automatic_resources,
-                model=model_resource_name,
-                display_name=deployed_model_display_name,
             )
 
         # Service will throw error if both metadata and parameters are not provided
@@ -964,7 +986,8 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> utils.PredictionClientWithOverride:
 
-        """Helper method to instantiates prediction client with optional overrides for this endpoint.
+        """Helper method to instantiates prediction client with optional
+        overrides for this endpoint.
 
         Args:
             location (str): The location of this endpoint.
@@ -1007,7 +1030,6 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
                 ``parameters_schema_uri``.
         Returns:
             prediction: Prediction with returned predictions and Model Id.
-
         """
         self.wait()
 
@@ -1159,7 +1181,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         return self
 
     def delete(self, force: bool = False, sync: bool = True) -> None:
-        """Deletes this AI Platform Endpoint resource. If force is set to True,
+        """Deletes this Vertex AI Endpoint resource. If force is set to True,
         all models on this Endpoint will be undeployed prior to deletion.
 
         Args:
@@ -1179,7 +1201,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         super().delete(sync=sync)
 
 
-class Model(base.AiPlatformResourceNounWithFutureManager):
+class Model(base.VertexAIResourceNounWithFutureManager):
 
     client_class = utils.ModelClientWithOverride
     _is_client_prediction_client = False
@@ -1197,6 +1219,26 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
     def description(self):
         """Description of the model."""
         return self._gca_resource.description
+
+    @property
+    def supported_export_formats(
+        self,
+    ) -> Dict[str, List[gca_model_compat.Model.ExportFormat.ExportableContent]]:
+        """The formats and content types in which this Model may be exported.
+        If empty, this Model is not available for export.
+
+        For example, if this model can be exported as a Tensorflow SavedModel and
+        have the artifacts written to Cloud Storage, the expected value would be:
+
+            {'tf-saved-model': [<ExportableContent.ARTIFACT: 1>]}
+        """
+        return {
+            export_format.id: [
+                gca_model_compat.Model.ExportFormat.ExportableContent(content)
+                for content in export_format.exportable_contents
+            ]
+            for export_format in self._gca_resource.supported_export_formats
+        }
 
     def __init__(
         self,
@@ -1259,7 +1301,8 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
     ) -> "Model":
-        """Uploads a model and returns a Model representing the uploaded Model resource.
+        """Uploads a model and returns a Model representing the uploaded Model
+        resource.
 
         Example usage:
 
@@ -1282,11 +1325,11 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             serving_container_predict_route (str):
                 Optional. An HTTP path to send prediction requests to the container, and
                 which must be supported by it. If not specified a default HTTP path will
-                be used by AI Platform.
+                be used by Vertex AI.
             serving_container_health_route (str):
                 Optional. An HTTP path to send health check requests to the container, and which
                 must be supported by it. If not specified a standard HTTP path will be
-                used by AI Platform.
+                used by Vertex AI.
             description (str):
                 The description of the model.
             serving_container_command: Optional[Sequence[str]]=None,
@@ -1310,7 +1353,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 and values are environment variable values for those names.
             serving_container_ports: Optional[Sequence[int]]=None,
                 Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives AI Platform information about the
+                primarily informational, it gives Vertex AI information about the
                 network connections the container uses. Listing or not a port here has
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
@@ -1392,7 +1435,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:
-            ValueError if only `explanation_metadata` or `explanation_parameters`
+            ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
         """
         utils.validate_display_name(display_name)
@@ -1489,18 +1532,18 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
         machine_type: Optional[str] = None,
-        min_replica_count: Optional[int] = 1,
-        max_replica_count: Optional[int] = 1,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        service_account: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
     ) -> Endpoint:
-        """
-        Deploys model to endpoint. Endpoint will be created if unspecified.
+        """Deploys model to endpoint. Endpoint will be created if unspecified.
 
         Args:
             endpoint ("Endpoint"):
@@ -1545,9 +1588,16 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_count if used.
                 One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
-                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
             explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
@@ -1577,7 +1627,6 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
-
         """
 
         Endpoint._validate_deploy_args(
@@ -1601,6 +1650,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            service_account=service_account,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             metadata=metadata,
@@ -1617,18 +1667,18 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         traffic_percentage: Optional[int] = 0,
         traffic_split: Optional[Dict[str, int]] = None,
         machine_type: Optional[str] = None,
-        min_replica_count: Optional[int] = 1,
-        max_replica_count: Optional[int] = 1,
+        min_replica_count: int = 1,
+        max_replica_count: int = 1,
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
+        service_account: Optional[str] = None,
         explanation_metadata: Optional[explain.ExplanationMetadata] = None,
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> Endpoint:
-        """
-        Deploys model to endpoint. Endpoint will be created if unspecified.
+        """Deploys model to endpoint. Endpoint will be created if unspecified.
 
         Args:
             endpoint ("Endpoint"):
@@ -1673,9 +1723,16 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             accelerator_type (str):
                 Optional. Hardware accelerator type. Must also set accelerator_count if used.
                 One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
-                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4, TPU_V2, TPU_V3
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
             accelerator_count (int):
                 Optional. The number of accelerators to attach to a worker replica.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
             explanation_metadata (explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 Both `explanation_metadata` and `explanation_parameters` must be
@@ -1732,6 +1789,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             max_replica_count=max_replica_count,
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
+            service_account=service_account,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
             metadata=metadata,
@@ -1766,9 +1824,10 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> jobs.BatchPredictionJob:
-        """Creates a batch prediction job using this Model and outputs prediction
-        results to the provided destination prefix in the specified
-        `predictions_format`. One source and one destination prefix are required.
+        """Creates a batch prediction job using this Model and outputs
+        prediction results to the provided destination prefix in the specified
+        `predictions_format`. One source and one destination prefix are
+        required.
 
         Example usage:
 
@@ -1839,7 +1898,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 ```google.rpc.Status`` <Status>`__ represented as a STRUCT,
                 and containing only ``code`` and ``message``.
             predictions_format: str = "jsonl"
-                Required. The format in which AI Platform gives the
+                Required. The format in which Vertex AI gives the
                 predictions, must be one of "jsonl", "csv", or "bigquery".
                 Default is "jsonl" when using `gcs_destination_prefix`. If a
                 `bigquery_destination_prefix` is provided, this is overriden to
@@ -1860,7 +1919,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 `machine_type`. Only used if `machine_type` is set.
             starting_replica_count: Optional[int] = None
                 The number of machine replicas used at the start of the batch
-                operation. If not set, AI Platform decides starting number, not
+                operation. If not set, Vertex AI decides starting number, not
                 greater than `max_replica_count`. Only used if `machine_type` is
                 set.
             max_replica_count: Optional[int] = None
@@ -1919,7 +1978,6 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
-
         """
         self.wait()
 
@@ -1995,3 +2053,142 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             location=location,
             credentials=credentials,
         )
+
+    @base.optional_sync()
+    def _wait_on_export(self, operation_future: operation.Operation, sync=True) -> None:
+        operation_future.result()
+
+    def export_model(
+        self,
+        export_format_id: str,
+        artifact_destination: Optional[str] = None,
+        image_destination: Optional[str] = None,
+        sync: bool = True,
+    ) -> Dict[str, str]:
+        """Exports a trained, exportable Model to a location specified by the user.
+        A Model is considered to be exportable if it has at least one `supported_export_formats`.
+        Either `artifact_destination` or `image_destination` must be provided.
+
+        Usage:
+            my_model.export(
+                export_format_id='tf-saved-model'
+                artifact_destination='gs://my-bucket/models/'
+            )
+
+            or
+
+            my_model.export(
+                export_format_id='custom-model'
+                image_destination='us-central1-docker.pkg.dev/projectId/repo/image'
+            )
+
+        Args:
+            export_format_id (str):
+                Required. The ID of the format in which the Model must be exported.
+                The list of export formats that this Model supports can be found
+                by calling `Model.supported_export_formats`.
+            artifact_destination (str):
+                The Cloud Storage location where the Model artifact is to be
+                written to. Under the directory given as the destination a
+                new one with name
+                "``model-export-<model-display-name>-<timestamp-of-export-call>``",
+                where timestamp is in YYYY-MM-DDThh:mm:ss.sssZ ISO-8601
+                format, will be created. Inside, the Model and any of its
+                supporting files will be written.
+
+                This field should only be set when, in [Model.supported_export_formats],
+                the value for the key given in `export_format_id` contains ``ARTIFACT``.
+            image_destination (str):
+                The Google Container Registry or Artifact Registry URI where
+                the Model container image will be copied to. Accepted forms:
+
+                -  Google Container Registry path. For example:
+                ``gcr.io/projectId/imageName:tag``.
+
+                -  Artifact Registry path. For example:
+                ``us-central1-docker.pkg.dev/projectId/repoName/imageName:tag``.
+
+                This field should only be set when, in [Model.supported_export_formats],
+                the value for the key given in `export_format_id` contains ``IMAGE``.
+            sync (bool):
+                Whether to execute this export synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Returns:
+            output_info (Dict[str, str]):
+                Details of the completed export with output destination paths to
+                the artifacts or container image.
+        Raises:
+            ValueError if model does not support exporting.
+
+            ValueError if invalid arguments or export formats are provided.
+        """
+
+        # Model does not support exporting
+        if not self.supported_export_formats:
+            raise ValueError(f"The model `{self.resource_name}` is not exportable.")
+
+        # No destination provided
+        if not any((artifact_destination, image_destination)):
+            raise ValueError(
+                "Please provide an `artifact_destination` or `image_destination`."
+            )
+
+        export_format_id = export_format_id.lower()
+
+        # Unsupported export type
+        if export_format_id not in self.supported_export_formats:
+            raise ValueError(
+                f"'{export_format_id}' is not a supported export format for this model. "
+                f"Choose one of the following: {self.supported_export_formats}"
+            )
+
+        content_types = gca_model_compat.Model.ExportFormat.ExportableContent
+        supported_content_types = self.supported_export_formats[export_format_id]
+
+        if (
+            artifact_destination
+            and content_types.ARTIFACT not in supported_content_types
+        ):
+            raise ValueError(
+                "This model can not be exported as an artifact in '{export_format_id}' format. "
+                "Try exporting as a container image by passing the `image_destination` argument."
+            )
+
+        if image_destination and content_types.IMAGE not in supported_content_types:
+            raise ValueError(
+                "This model can not be exported as a container image in '{export_format_id}' format. "
+                "Try exporting the model artifacts by passing a `artifact_destination` argument."
+            )
+
+        # Construct request payload
+        output_config = gca_model_service_compat.ExportModelRequest.OutputConfig(
+            export_format_id=export_format_id
+        )
+
+        if artifact_destination:
+            output_config.artifact_destination = gca_io_compat.GcsDestination(
+                output_uri_prefix=artifact_destination
+            )
+
+        if image_destination:
+            output_config.image_destination = gca_io_compat.ContainerRegistryDestination(
+                output_uri=image_destination
+            )
+
+        _LOGGER.log_action_start_against_resource("Exporting", "model", self)
+
+        operation_future = self.api_client.export_model(
+            name=self.resource_name, output_config=output_config
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Export", "model", self.__class__, operation_future
+        )
+
+        # Block before returning
+        self._wait_on_export(operation_future=operation_future, sync=sync)
+
+        _LOGGER.log_action_completed_against_resource("model", "exported", self)
+
+        return json_format.MessageToDict(operation_future.metadata.output_info._pb)

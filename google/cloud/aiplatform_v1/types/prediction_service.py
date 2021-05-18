@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
-
-from google.protobuf import struct_pb2 as struct  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -29,7 +26,7 @@ __protobuf__ = proto.module(
 
 class PredictRequest(proto.Message):
     r"""Request message for
-    ``PredictionService.Predict``.
+    [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
 
     Attributes:
         endpoint (str):
@@ -47,25 +44,23 @@ class PredictRequest(proto.Message):
             DeployedModels'
             [Model's][google.cloud.aiplatform.v1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-            ``instance_schema_uri``.
+            [instance_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.instance_schema_uri].
         parameters (google.protobuf.struct_pb2.Value):
             The parameters that govern the prediction. The schema of the
             parameters may be specified via Endpoint's DeployedModels'
             [Model's ][google.cloud.aiplatform.v1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-            ``parameters_schema_uri``.
+            [parameters_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri].
     """
 
-    endpoint = proto.Field(proto.STRING, number=1)
-
-    instances = proto.RepeatedField(proto.MESSAGE, number=2, message=struct.Value,)
-
-    parameters = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
+    endpoint = proto.Field(proto.STRING, number=1,)
+    instances = proto.RepeatedField(proto.MESSAGE, number=2, message=struct_pb2.Value,)
+    parameters = proto.Field(proto.MESSAGE, number=3, message=struct_pb2.Value,)
 
 
 class PredictResponse(proto.Message):
     r"""Response message for
-    ``PredictionService.Predict``.
+    [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
 
     Attributes:
         predictions (Sequence[google.protobuf.struct_pb2.Value]):
@@ -74,15 +69,16 @@ class PredictResponse(proto.Message):
             Endpoint's DeployedModels' [Model's
             ][google.cloud.aiplatform.v1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
-            ``prediction_schema_uri``.
+            [prediction_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.prediction_schema_uri].
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that
             served this prediction.
     """
 
-    predictions = proto.RepeatedField(proto.MESSAGE, number=1, message=struct.Value,)
-
-    deployed_model_id = proto.Field(proto.STRING, number=2)
+    predictions = proto.RepeatedField(
+        proto.MESSAGE, number=1, message=struct_pb2.Value,
+    )
+    deployed_model_id = proto.Field(proto.STRING, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

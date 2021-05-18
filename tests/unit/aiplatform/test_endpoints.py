@@ -85,6 +85,7 @@ _TEST_MODEL_ID = "1028944691210842416"
 _TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
 _TEST_INSTANCES = [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
 
 _TEST_DEPLOYED_MODELS = [
     gca_endpoint.DeployedModel(id=_TEST_ID, display_name=_TEST_DISPLAY_NAME),
@@ -667,6 +668,7 @@ class TestEndpoint:
             machine_type=_TEST_MACHINE_TYPE,
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
             sync=sync,
         )
 
@@ -687,6 +689,7 @@ class TestEndpoint:
             dedicated_resources=expected_dedicated_resources,
             model=test_model.resource_name,
             display_name=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
         deploy_model_mock.assert_called_once_with(
             endpoint=test_endpoint.resource_name,

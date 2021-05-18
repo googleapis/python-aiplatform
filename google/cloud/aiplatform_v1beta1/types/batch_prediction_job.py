@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import (
     completion_stats as gca_completion_stats,
@@ -29,9 +26,9 @@ from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters,
 )
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -41,7 +38,7 @@ __protobuf__ = proto.module(
 
 class BatchPredictionJob(proto.Message):
     r"""A job that uses a
-    ``Model`` to
+    [Model][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model] to
     produce predictions on multiple [input
     instances][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
     If predictions for significant portion of the instances fail, the
@@ -67,33 +64,33 @@ class BatchPredictionJob(proto.Message):
             may be specified via the
             [Model's][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-            ``instance_schema_uri``.
+            [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
         model_parameters (google.protobuf.struct_pb2.Value):
             The parameters that govern the predictions. The schema of
             the parameters may be specified via the
             [Model's][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-            ``parameters_schema_uri``.
+            [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
         output_config (google.cloud.aiplatform_v1beta1.types.BatchPredictionJob.OutputConfig):
             Required. The Configuration specifying where output
             predictions should be written. The schema of any single
             prediction may be specified as a concatenation of
             [Model's][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-            ``instance_schema_uri``
+            [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri]
             and
-            ``prediction_schema_uri``.
+            [prediction_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.prediction_schema_uri].
         dedicated_resources (google.cloud.aiplatform_v1beta1.types.BatchDedicatedResources):
             The config of resources used by the Model during the batch
             prediction. If the Model
-            ``supports``
+            [supports][google.cloud.aiplatform.v1beta1.Model.supported_deployment_resources_types]
             DEDICATED_RESOURCES this config may be provided (and the job
             will use these resources), if the Model doesn't support
             AUTOMATIC_RESOURCES, this config must be provided.
         manual_batch_tuning_parameters (google.cloud.aiplatform_v1beta1.types.ManualBatchTuningParameters):
             Immutable. Parameters configuring the batch behavior.
             Currently only applicable when
-            ``dedicated_resources``
+            [dedicated_resources][google.cloud.aiplatform.v1beta1.BatchPredictionJob.dedicated_resources]
             are used (in other cases AI Platform does the tuning
             itself).
         generate_explanation (bool):
@@ -101,41 +98,41 @@ class BatchPredictionJob(proto.Message):
 
             When set to ``true``, the batch prediction output changes
             based on the ``predictions_format`` field of the
-            ``BatchPredictionJob.output_config``
+            [BatchPredictionJob.output_config][google.cloud.aiplatform.v1beta1.BatchPredictionJob.output_config]
             object:
 
             -  ``bigquery``: output includes a column named
                ``explanation``. The value is a struct that conforms to
                the
-               ``Explanation``
+               [Explanation][google.cloud.aiplatform.v1beta1.Explanation]
                object.
             -  ``jsonl``: The JSON objects on each line include an
                additional entry keyed ``explanation``. The value of the
                entry is a JSON object that conforms to the
-               ``Explanation``
+               [Explanation][google.cloud.aiplatform.v1beta1.Explanation]
                object.
             -  ``csv``: Generating explanations for CSV format is not
                supported.
 
             If this field is set to true, either the
-            ``Model.explanation_spec``
+            [Model.explanation_spec][google.cloud.aiplatform.v1beta1.Model.explanation_spec]
             or
-            ``explanation_spec``
+            [explanation_spec][google.cloud.aiplatform.v1beta1.BatchPredictionJob.explanation_spec]
             must be populated.
         explanation_spec (google.cloud.aiplatform_v1beta1.types.ExplanationSpec):
             Explanation configuration for this BatchPredictionJob. Can
             be specified only if
-            ``generate_explanation``
+            [generate_explanation][google.cloud.aiplatform.v1beta1.BatchPredictionJob.generate_explanation]
             is set to ``true``.
 
             This value overrides the value of
-            ``Model.explanation_spec``.
+            [Model.explanation_spec][google.cloud.aiplatform.v1beta1.Model.explanation_spec].
             All fields of
-            ``explanation_spec``
+            [explanation_spec][google.cloud.aiplatform.v1beta1.BatchPredictionJob.explanation_spec]
             are optional in the request. If a field of the
-            ``explanation_spec``
+            [explanation_spec][google.cloud.aiplatform.v1beta1.BatchPredictionJob.explanation_spec]
             object is not populated, the corresponding field of the
-            ``Model.explanation_spec``
+            [Model.explanation_spec][google.cloud.aiplatform.v1beta1.Model.explanation_spec]
             object is inherited.
         output_info (google.cloud.aiplatform_v1beta1.types.BatchPredictionJob.OutputInfo):
             Output only. Information further describing
@@ -194,9 +191,9 @@ class BatchPredictionJob(proto.Message):
 
     class InputConfig(proto.Message):
         r"""Configures the input to
-        ``BatchPredictionJob``.
+        [BatchPredictionJob][google.cloud.aiplatform.v1beta1.BatchPredictionJob].
         See
-        ``Model.supported_input_storage_formats``
+        [Model.supported_input_storage_formats][google.cloud.aiplatform.v1beta1.Model.supported_input_storage_formats]
         for Model's supported input formats, and how instances should be
         expressed via any of them.
 
@@ -215,24 +212,22 @@ class BatchPredictionJob(proto.Message):
                 Required. The format in which instances are given, must be
                 one of the
                 [Model's][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
-                ``supported_input_storage_formats``.
+                [supported_input_storage_formats][google.cloud.aiplatform.v1beta1.Model.supported_input_storage_formats].
         """
 
         gcs_source = proto.Field(
             proto.MESSAGE, number=2, oneof="source", message=io.GcsSource,
         )
-
         bigquery_source = proto.Field(
             proto.MESSAGE, number=3, oneof="source", message=io.BigQuerySource,
         )
-
-        instances_format = proto.Field(proto.STRING, number=1)
+        instances_format = proto.Field(proto.STRING, number=1,)
 
     class OutputConfig(proto.Message):
         r"""Configures the output of
-        ``BatchPredictionJob``.
+        [BatchPredictionJob][google.cloud.aiplatform.v1beta1.BatchPredictionJob].
         See
-        ``Model.supported_output_storage_formats``
+        [Model.supported_output_storage_formats][google.cloud.aiplatform.v1beta1.Model.supported_output_storage_formats]
         for supported output formats, and how predictions are expressed via
         any of them.
 
@@ -247,15 +242,15 @@ class BatchPredictionJob(proto.Message):
                 ``predictions_0002.<extension>``, ...,
                 ``predictions_N.<extension>`` are created where
                 ``<extension>`` depends on chosen
-                ``predictions_format``,
+                [predictions_format][google.cloud.aiplatform.v1beta1.BatchPredictionJob.OutputConfig.predictions_format],
                 and N may equal 0001 and depends on the total number of
                 successfully predicted instances. If the Model has both
-                ``instance``
+                [instance][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri]
                 and
-                ``prediction``
+                [prediction][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri]
                 schemata defined then each such file contains predictions as
                 per the
-                ``predictions_format``.
+                [predictions_format][google.cloud.aiplatform.v1beta1.BatchPredictionJob.OutputConfig.predictions_format].
                 If prediction for any instance failed (partially or
                 completely), then an additional ``errors_0001.<extension>``,
                 ``errors_0002.<extension>``,..., ``errors_N.<extension>``
@@ -265,18 +260,18 @@ class BatchPredictionJob(proto.Message):
                 which as value has ```google.rpc.Status`` <Status>`__
                 containing only ``code`` and ``message`` fields.
             bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
-                The BigQuery project location where the output is to be
-                written to. In the given project a new dataset is created
-                with name
+                The BigQuery project or dataset location where the output is
+                to be written to. If project is provided, a new dataset is
+                created with name
                 ``prediction_<model-display-name>_<job-create-time>`` where
                 is made BigQuery-dataset-name compatible (for example, most
                 special characters become underscores), and timestamp is in
                 YYYY_MM_DDThh_mm_ss_sssZ "based on ISO-8601" format. In the
                 dataset two tables will be created, ``predictions``, and
                 ``errors``. If the Model has both
-                ``instance``
+                [instance][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri]
                 and
-                ``prediction``
+                [prediction][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri]
                 schemata defined then the tables have columns as follows:
                 The ``predictions`` table contains instances for which the
                 prediction succeeded, it has columns as per a concatenation
@@ -290,25 +285,23 @@ class BatchPredictionJob(proto.Message):
                 Required. The format in which AI Platform gives the
                 predictions, must be one of the
                 [Model's][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
-                ``supported_output_storage_formats``.
+                [supported_output_storage_formats][google.cloud.aiplatform.v1beta1.Model.supported_output_storage_formats].
         """
 
         gcs_destination = proto.Field(
             proto.MESSAGE, number=2, oneof="destination", message=io.GcsDestination,
         )
-
         bigquery_destination = proto.Field(
             proto.MESSAGE,
             number=3,
             oneof="destination",
             message=io.BigQueryDestination,
         )
-
-        predictions_format = proto.Field(proto.STRING, number=1)
+        predictions_format = proto.Field(proto.STRING, number=1,)
 
     class OutputInfo(proto.Message):
         r"""Further describes this job's output. Supplements
-        ``output_config``.
+        [output_config][google.cloud.aiplatform.v1beta1.BatchPredictionJob.output_config].
 
         Attributes:
             gcs_output_directory (str):
@@ -322,69 +315,51 @@ class BatchPredictionJob(proto.Message):
         """
 
         gcs_output_directory = proto.Field(
-            proto.STRING, number=1, oneof="output_location"
+            proto.STRING, number=1, oneof="output_location",
         )
-
         bigquery_output_dataset = proto.Field(
-            proto.STRING, number=2, oneof="output_location"
+            proto.STRING, number=2, oneof="output_location",
         )
 
-    name = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
-    model = proto.Field(proto.STRING, number=3)
-
+    name = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
+    model = proto.Field(proto.STRING, number=3,)
     input_config = proto.Field(proto.MESSAGE, number=4, message=InputConfig,)
-
-    model_parameters = proto.Field(proto.MESSAGE, number=5, message=struct.Value,)
-
+    model_parameters = proto.Field(proto.MESSAGE, number=5, message=struct_pb2.Value,)
     output_config = proto.Field(proto.MESSAGE, number=6, message=OutputConfig,)
-
     dedicated_resources = proto.Field(
         proto.MESSAGE, number=7, message=machine_resources.BatchDedicatedResources,
     )
-
     manual_batch_tuning_parameters = proto.Field(
         proto.MESSAGE,
         number=8,
         message=gca_manual_batch_tuning_parameters.ManualBatchTuningParameters,
     )
-
-    generate_explanation = proto.Field(proto.BOOL, number=23)
-
+    generate_explanation = proto.Field(proto.BOOL, number=23,)
     explanation_spec = proto.Field(
         proto.MESSAGE, number=25, message=explanation.ExplanationSpec,
     )
-
     output_info = proto.Field(proto.MESSAGE, number=9, message=OutputInfo,)
-
     state = proto.Field(proto.ENUM, number=10, enum=job_state.JobState,)
-
-    error = proto.Field(proto.MESSAGE, number=11, message=status.Status,)
-
+    error = proto.Field(proto.MESSAGE, number=11, message=status_pb2.Status,)
     partial_failures = proto.RepeatedField(
-        proto.MESSAGE, number=12, message=status.Status,
+        proto.MESSAGE, number=12, message=status_pb2.Status,
     )
-
     resources_consumed = proto.Field(
         proto.MESSAGE, number=13, message=machine_resources.ResourcesConsumed,
     )
-
     completion_stats = proto.Field(
         proto.MESSAGE, number=14, message=gca_completion_stats.CompletionStats,
     )
-
-    create_time = proto.Field(proto.MESSAGE, number=15, message=timestamp.Timestamp,)
-
-    start_time = proto.Field(proto.MESSAGE, number=16, message=timestamp.Timestamp,)
-
-    end_time = proto.Field(proto.MESSAGE, number=17, message=timestamp.Timestamp,)
-
-    update_time = proto.Field(proto.MESSAGE, number=18, message=timestamp.Timestamp,)
-
-    labels = proto.MapField(proto.STRING, proto.STRING, number=19)
-
+    create_time = proto.Field(
+        proto.MESSAGE, number=15, message=timestamp_pb2.Timestamp,
+    )
+    start_time = proto.Field(proto.MESSAGE, number=16, message=timestamp_pb2.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=17, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE, number=18, message=timestamp_pb2.Timestamp,
+    )
+    labels = proto.MapField(proto.STRING, proto.STRING, number=19,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=24, message=gca_encryption_spec.EncryptionSpec,
     )

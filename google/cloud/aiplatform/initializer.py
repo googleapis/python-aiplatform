@@ -31,6 +31,7 @@ from google.auth.exceptions import GoogleAuthError
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.metadata import metadata
 
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
@@ -44,7 +45,6 @@ class _Config:
 
     def __init__(self):
         self._project = None
-        self._experiment = None
         self._location = None
         self._staging_bucket = None
         self._credentials = None
@@ -56,21 +56,23 @@ class _Config:
         project: Optional[str] = None,
         location: Optional[str] = None,
         experiment: Optional[str] = None,
+        experiment_description: Optional[str] = None,
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
     ):
-        """Updates common initalization parameters with provided options.
+        """Updates common initialization parameters with provided options.
 
         Args:
             project (str): The default project to use when making API calls.
             location (str): The default location to use when making API calls. If not
-                set defaults to us-central-1
-            experiment (str): The experiment to assign
+                set defaults to us-central-1.
+            experiment (str): The experiment name.
+            experiment_description (str): The description of the experiment.
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
-            credentials (google.auth.crendentials.Credentials): The default custom
-                credentials to use when making API calls. If not provided crendentials
+            credentials (google.auth.credentials.Credentials): The default custom
+                credentials to use when making API calls. If not provided credentials
                 will be ascertained from the environment.
             encryption_spec_key_name (Optional[str]):
                 Optional. The Cloud KMS resource identifier of the customer
@@ -82,14 +84,27 @@ class _Config:
 
                 If set, this resource and all sub-resources will be secured by this key.
         """
+
+        # reset metadata_service config if project or location is updated.
+        if (project and project != self._project) or (
+            location and location != self._location
+        ):
+            if metadata.metadata_service.experiment_name:
+                logging.info("project/location updated, reset Metadata config.")
+            metadata.metadata_service.reset()
         if project:
             self._project = project
         if location:
             utils.validate_region(location)
             self._location = location
         if experiment:
-            logging.warning("Experiments currently not supported.")
-            self._experiment = experiment
+            metadata.metadata_service.set_experiment(
+                experiment=experiment, description=experiment_description
+            )
+        if experiment_description and experiment is None:
+            raise ValueError(
+                "Experiment name needs to be set in `init` in order to add experiment descriptions."
+            )
         if staging_bucket:
             self._staging_bucket = staging_bucket
         if credentials:
@@ -107,8 +122,9 @@ class _Config:
             gca_encryption_spec_v1beta1.EncryptionSpec,
         ]
     ]:
-        """Creates a gca_encryption_spec.EncryptionSpec instance from the given key name.
-        If the provided key name is None, it uses the default key name if provided.
+        """Creates a gca_encryption_spec.EncryptionSpec instance from the given
+        key name. If the provided key name is None, it uses the default key
+        name if provided.
 
         Args:
             encryption_spec_key_name (Optional[str]): The default encryption key name to use when creating resources.
@@ -154,11 +170,6 @@ class _Config:
         return self._location or constants.DEFAULT_REGION
 
     @property
-    def experiment(self) -> Optional[str]:
-        """Default experiment, if provided."""
-        return self._experiment
-
-    @property
     def staging_bucket(self) -> Optional[str]:
         """Default staging bucket, if provided."""
         return self._staging_bucket
@@ -169,7 +180,7 @@ class _Config:
         if self._credentials:
             return self._credentials
         logger = logging.getLogger("google.auth._default")
-        logging_warning_filter = utils.LoggingWarningFilter()
+        logging_warning_filter = utils.LoggingFilter(logging.WARNING)
         logger.addFilter(logging_warning_filter)
         credentials, _ = google.auth.default()
         logger.removeFilter(logging_warning_filter)
@@ -236,28 +247,30 @@ class _Config:
 
     def create_client(
         self,
-        client_class: Type[utils.AiPlatformServiceClientWithOverride],
+        client_class: Type[utils.VertexAiServiceClientWithOverride],
         credentials: Optional[auth_credentials.Credentials] = None,
         location_override: Optional[str] = None,
         prediction_client: bool = False,
-    ) -> utils.AiPlatformServiceClientWithOverride:
-        """Instantiates a given AiPlatformServiceClient with optional overrides.
+    ) -> utils.VertexAiServiceClientWithOverride:
+        """Instantiates a given VertexAiServiceClient with optional
+        overrides.
 
         Args:
-            client_class (utils.AiPlatformServiceClientWithOverride):
-                (Required) An AI Platform Service Client with optional overrides.
+            client_class (utils.VertexAiServiceClientWithOverride):
+                (Required) An Vertex AI Service Client with optional overrides.
             credentials (auth_credentials.Credentials):
                 Custom auth credentials. If not provided will use the current config.
             location_override (str): Optional location override.
             prediction_client (str): Optional flag to use a prediction endpoint.
         Returns:
-            client: Instantiated AI Platform Service client with optional overrides
+            client: Instantiated Vertex AI Service client with optional overrides
         """
         gapic_version = pkg_resources.get_distribution(
             "google-cloud-aiplatform",
         ).version
         client_info = gapic_v1.client_info.ClientInfo(
-            gapic_version=gapic_version, user_agent=f"model-builder/{gapic_version}"
+            gapic_version=gapic_version,
+            user_agent=f"{constants.USER_AGENT_PRODUCT}/{gapic_version}",
         )
 
         kwargs = {

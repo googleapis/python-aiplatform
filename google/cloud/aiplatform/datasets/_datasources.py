@@ -26,7 +26,7 @@ from google.cloud.aiplatform.compat.types import (
 
 
 class Datasource(abc.ABC):
-    """An abstract class that sets dataset_metadata"""
+    """An abstract class that sets dataset_metadata."""
 
     @property
     @abc.abstractmethod
@@ -36,7 +36,7 @@ class Datasource(abc.ABC):
 
 
 class DatasourceImportable(abc.ABC):
-    """An abstract class that sets import_data_config"""
+    """An abstract class that sets import_data_config."""
 
     @property
     @abc.abstractmethod
@@ -46,14 +46,14 @@ class DatasourceImportable(abc.ABC):
 
 
 class TabularDatasource(Datasource):
-    """Datasource for creating a tabular dataset for AI Platform"""
+    """Datasource for creating a tabular dataset for Vertex AI."""
 
     def __init__(
         self,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
     ):
-        """Creates a tabular datasource
+        """Creates a tabular datasource.
 
         Args:
             gcs_source (Union[str, Sequence[str]]):
@@ -86,9 +86,9 @@ class TabularDatasource(Datasource):
             raise ValueError("One of gcs_source or bq_source must be set.")
 
         if gcs_source:
-            dataset_metadata = {"input_config": {"gcs_source": {"uri": gcs_source}}}
+            dataset_metadata = {"inputConfig": {"gcsSource": {"uri": gcs_source}}}
         elif bq_source:
-            dataset_metadata = {"input_config": {"bigquery_source": {"uri": bq_source}}}
+            dataset_metadata = {"inputConfig": {"bigquerySource": {"uri": bq_source}}}
 
         self._dataset_metadata = dataset_metadata
 
@@ -99,7 +99,7 @@ class TabularDatasource(Datasource):
 
 
 class NonTabularDatasource(Datasource):
-    """Datasource for creating an empty non-tabular dataset for AI Platform"""
+    """Datasource for creating an empty non-tabular dataset for Vertex AI."""
 
     @property
     def dataset_metadata(self) -> Optional[Dict]:
@@ -107,7 +107,8 @@ class NonTabularDatasource(Datasource):
 
 
 class NonTabularDatasourceImportable(NonTabularDatasource, DatasourceImportable):
-    """Datasource for creating a non-tabular dataset for AI Platform and importing data to the dataset"""
+    """Datasource for creating a non-tabular dataset for Vertex AI and
+    importing data to the dataset."""
 
     def __init__(
         self,
@@ -115,7 +116,7 @@ class NonTabularDatasourceImportable(NonTabularDatasource, DatasourceImportable)
         import_schema_uri: str,
         data_item_labels: Optional[Dict] = None,
     ):
-        """Creates a non-tabular datasource
+        """Creates a non-tabular datasource.
 
         Args:
             gcs_source (Union[str, Sequence[str]]):
@@ -222,6 +223,11 @@ def create_datasource(
     if metadata_schema_uri == schema.dataset.metadata.tabular:
         if import_schema_uri:
             raise ValueError("tabular dataset does not support data import.")
+        return TabularDatasource(gcs_source, bq_source)
+
+    if metadata_schema_uri == schema.dataset.metadata.time_series:
+        if import_schema_uri:
+            raise ValueError("time series dataset does not support data import.")
         return TabularDatasource(gcs_source, bq_source)
 
     if not import_schema_uri and not gcs_source:

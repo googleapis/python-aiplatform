@@ -17,6 +17,8 @@
 
 
 import abc
+import datetime
+import pathlib
 from collections import namedtuple
 import logging
 import re
@@ -25,6 +27,8 @@ from typing import Any, Match, Optional, Type, TypeVar, Tuple
 from google.api_core import client_options
 from google.api_core import gapic_v1
 from google.auth import credentials as auth_credentials
+from google.cloud import storage
+
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import initializer
@@ -36,6 +40,8 @@ from google.cloud.aiplatform.compat.services import (
     model_service_client_v1beta1,
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
+    metadata_service_client_v1beta1,
+    tensorboard_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -50,8 +56,8 @@ from google.cloud.aiplatform.compat.types import (
     accelerator_type as gca_accelerator_type,
 )
 
-AiPlatformServiceClient = TypeVar(
-    "AiPlatformServiceClient",
+VertexAiServiceClient = TypeVar(
+    "VertexAiServiceClient",
     # v1beta1
     dataset_service_client_v1beta1.DatasetServiceClient,
     endpoint_service_client_v1beta1.EndpointServiceClient,
@@ -59,6 +65,7 @@ AiPlatformServiceClient = TypeVar(
     prediction_service_client_v1beta1.PredictionServiceClient,
     pipeline_service_client_v1beta1.PipelineServiceClient,
     job_service_client_v1beta1.JobServiceClient,
+    metadata_service_client_v1beta1.MetadataServiceClient,
     # v1
     dataset_service_client_v1.DatasetServiceClient,
     endpoint_service_client_v1.EndpointServiceClient,
@@ -68,18 +75,17 @@ AiPlatformServiceClient = TypeVar(
     job_service_client_v1.JobServiceClient,
 )
 
-# TODO(b/170334193): Add support for resource names with non-integer IDs
-# TODO(b/170334098): Add support for resource names more than one level deep
 RESOURCE_NAME_PATTERN = re.compile(
-    r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>\w+)\/(?P<id>\d+)$"
+    r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/(?P<resource>[\w\-\/]+)\/(?P<id>[\w-]+)$"
 )
-RESOURCE_ID_PATTERN = re.compile(r"^\d+$")
+RESOURCE_ID_PATTERN = re.compile(r"^[\w-]+$")
 
 Fields = namedtuple("Fields", ["project", "location", "resource", "id"],)
 
 
 def _match_to_fields(match: Match) -> Optional[Fields]:
-    """Normalize RegEx groups from resource name pattern Match to class Fields"""
+    """Normalize RegEx groups from resource name pattern Match to class
+    Fields."""
     if not match:
         return None
 
@@ -92,25 +98,27 @@ def _match_to_fields(match: Match) -> Optional[Fields]:
 
 
 def validate_id(resource_id: str) -> bool:
-    """Validate int64 resource ID number"""
+    """Validate int64 resource ID number."""
     return bool(RESOURCE_ID_PATTERN.match(resource_id))
 
 
 def extract_fields_from_resource_name(
     resource_name: str, resource_noun: Optional[str] = None
 ) -> Optional[Fields]:
-    """Validates and returns extracted fields from a fully-qualified resource name.
-    Returns None if name is invalid.
+    """Validates and returns extracted fields from a fully-qualified resource
+    name. Returns None if name is invalid.
 
     Args:
         resource_name (str):
-            Required. A fully-qualified AI Platform (Unified) resource name
+            Required. A fully-qualified Vertex AI resource name
 
         resource_noun (str):
-            A plural resource noun to validate the resource name against.
+            A resource noun to validate the resource name against.
             For example, you would pass "datasets" to validate
             "projects/123/locations/us-central1/datasets/456".
-
+            In the case of deeper naming structures, e.g.,
+            "projects/123/locations/us-central1/metadataStores/123/contexts/456",
+            you would pass "metadataStores/123/contexts" as the resource_noun.
     Returns:
         fields (Fields):
             A named tuple containing four extracted fields from a resource name:
@@ -133,17 +141,19 @@ def full_resource_name(
     project: Optional[str] = None,
     location: Optional[str] = None,
 ) -> str:
-    """
-    Returns fully qualified resource name.
+    """Returns fully qualified resource name.
 
     Args:
         resource_name (str):
-            Required. A fully-qualified AI Platform (Unified) resource name or
+            Required. A fully-qualified Vertex AI resource name or
             resource ID.
         resource_noun (str):
-            A plural resource noun to validate the resource name against.
+            A resource noun to validate the resource name against.
             For example, you would pass "datasets" to validate
             "projects/123/locations/us-central1/datasets/456".
+            In the case of deeper naming structures, e.g.,
+            "projects/123/locations/us-central1/metadataStores/123/contexts/456",
+            you would pass "metadataStores/123/contexts" as the resource_noun.
         project (str):
             Optional project to retrieve resource_noun from. If not set, project
             set in aiplatform.init will be used.
@@ -153,14 +163,15 @@ def full_resource_name(
 
     Returns:
         resource_name (str):
-            A fully-qualified AI Platform (Unified) resource name.
+            A fully-qualified Vertex AI resource name.
 
     Raises:
         ValueError:
             If resource name, resource ID or project ID not provided.
     """
     validate_resource_noun(resource_noun)
-    # Fully qualified resource name, i.e. "projects/.../locations/.../datasets/12345"
+    # Fully qualified resource name, e.g., "projects/.../locations/.../datasets/12345" or
+    # "projects/.../locations/.../metadataStores/.../contexts/12345"
     valid_name = extract_fields_from_resource_name(
         resource_name=resource_name, resource_noun=resource_noun
     )
@@ -217,7 +228,7 @@ def validate_project(project: str) -> bool:
 
 # TODO(b/172932277) verify display name only contains utf-8 chars
 def validate_display_name(display_name: str):
-    """Verify display name is at most 128 chars
+    """Verify display name is at most 128 chars.
 
     Args:
         display_name: display name to verify
@@ -246,14 +257,15 @@ def validate_region(region: str) -> bool:
     region = region.lower()
     if region not in constants.SUPPORTED_REGIONS:
         raise ValueError(
-            f"Unsupported region for AI Platform, select from {constants.SUPPORTED_REGIONS}"
+            f"Unsupported region for Vertex AI, select from {constants.SUPPORTED_REGIONS}"
         )
 
     return True
 
 
 def validate_accelerator_type(accelerator_type: str) -> bool:
-    """Validates user provided accelerator_type string for training and prediction
+    """Validates user provided accelerator_type string for training and
+    prediction.
 
     Args:
         accelerator_type (str):
@@ -307,25 +319,27 @@ def extract_bucket_and_prefix_from_gcs_path(gcs_path: str) -> Tuple[str, Optiona
 
 class ClientWithOverride:
     class WrappedClient:
-        """Wrapper class for client that creates client at API invocation time."""
+        """Wrapper class for client that creates client at API invocation
+        time."""
 
         def __init__(
             self,
-            client_class: Type[AiPlatformServiceClient],
+            client_class: Type[VertexAiServiceClient],
             client_options: client_options.ClientOptions,
             client_info: gapic_v1.client_info.ClientInfo,
             credentials: Optional[auth_credentials.Credentials] = None,
         ):
             """Stores parameters needed to instantiate client.
 
-            client_class (AiPlatformServiceClient):
-                Required. Class of the client to use.
-            client_options (client_options.ClientOptions):
-                Required. Client options to pass to client.
-            client_info (gapic_v1.client_info.ClientInfo):
-                Required. Client info to pass to client.
-            credentials (auth_credentials.credentials):
-                Optional. Client credentials to pass to client.
+            Args:
+                client_class (VertexAiServiceClient):
+                    Required. Class of the client to use.
+                client_options (client_options.ClientOptions):
+                    Required. Client options to pass to client.
+                client_info (gapic_v1.client_info.ClientInfo):
+                    Required. Client info to pass to client.
+                credentials (auth_credentials.credentials):
+                    Optional. Client credentials to pass to client.
             """
 
             self._client_class = client_class
@@ -367,12 +381,13 @@ class ClientWithOverride:
     ):
         """Stores parameters needed to instantiate client.
 
-        client_options (client_options.ClientOptions):
-            Required. Client options to pass to client.
-        client_info (gapic_v1.client_info.ClientInfo):
-            Required. Client info to pass to client.
-        credentials (auth_credentials.credentials):
-            Optional. Client credentials to pass to client.
+        Args:
+            client_options (client_options.ClientOptions):
+                Required. Client options to pass to client.
+            client_info (gapic_v1.client_info.ClientInfo):
+                Required. Client info to pass to client.
+            credentials (auth_credentials.credentials):
+                Optional. Client credentials to pass to client.
         """
 
         self._clients = {
@@ -395,7 +410,7 @@ class ClientWithOverride:
         """Instantiates client and returns attribute of the client."""
         return getattr(self._clients[self._default_version], name)
 
-    def select_version(self, version: str) -> AiPlatformServiceClient:
+    def select_version(self, version: str) -> VertexAiServiceClient:
         return self._clients[version]
 
 
@@ -417,7 +432,7 @@ class EndpointClientWithOverride(ClientWithOverride):
     )
 
 
-class JobpointClientWithOverride(ClientWithOverride):
+class JobClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.DEFAULT_VERSION
     _version_map = (
@@ -453,17 +468,101 @@ class PredictionClientWithOverride(ClientWithOverride):
     )
 
 
-AiPlatformServiceClientWithOverride = TypeVar(
-    "AiPlatformServiceClientWithOverride",
+class MetadataClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (compat.V1BETA1, metadata_service_client_v1beta1.MetadataServiceClient),
+    )
+
+
+class TensorboardClientWithOverride(ClientWithOverride):
+    _is_temporary = False
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (compat.V1BETA1, tensorboard_service_client_v1beta1.TensorboardServiceClient),
+    )
+
+
+VertexAiServiceClientWithOverride = TypeVar(
+    "VertexAiServiceClientWithOverride",
     DatasetClientWithOverride,
     EndpointClientWithOverride,
-    JobpointClientWithOverride,
+    JobClientWithOverride,
     ModelClientWithOverride,
     PipelineClientWithOverride,
     PredictionClientWithOverride,
+    MetadataClientWithOverride,
+    TensorboardClientWithOverride,
 )
 
 
-class LoggingWarningFilter(logging.Filter):
+class LoggingFilter(logging.Filter):
+    def __init__(self, warning_level: int):
+        self._warning_level = warning_level
+
     def filter(self, record):
-        return record.levelname == logging.WARNING
+        return record.levelname == self._warning_level
+
+
+def _timestamped_gcs_dir(root_gcs_path: str, dir_name_prefix: str) -> str:
+    """Composes a timestamped GCS directory.
+
+    Args:
+        root_gcs_path: GCS path to put the timestamped directory.
+        dir_name_prefix: Prefix to add the timestamped directory.
+    Returns:
+        Timestamped gcs directory path in root_gcs_path.
+    """
+    timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
+    dir_name = "-".join([dir_name_prefix, timestamp])
+    if root_gcs_path.endswith("/"):
+        root_gcs_path = root_gcs_path[:-1]
+    gcs_path = "/".join([root_gcs_path, dir_name])
+    if not gcs_path.startswith("gs://"):
+        return "gs://" + gcs_path
+    return gcs_path
+
+
+def _timestamped_copy_to_gcs(
+    local_file_path: str,
+    gcs_dir: str,
+    project: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
+) -> str:
+    """Copies a local file to a GCS path.
+
+    The file copied to GCS is the name of the local file prepended with an
+    "aiplatform-{timestamp}-" string.
+
+    Args:
+        local_file_path (str): Required. Local file to copy to GCS.
+        gcs_dir (str):
+            Required. The GCS directory to copy to.
+        project (str):
+            Project that contains the staging bucket. Default will be used if not
+            provided. Model Builder callers should pass this in.
+        credentials (auth_credentials.Credentials):
+            Custom credentials to use with bucket. Model Builder callers should pass
+            this in.
+    Returns:
+        gcs_path (str): The path of the copied file in gcs.
+    """
+
+    gcs_bucket, gcs_blob_prefix = extract_bucket_and_prefix_from_gcs_path(gcs_dir)
+
+    local_file_name = pathlib.Path(local_file_path).name
+    timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
+    blob_path = "-".join(["aiplatform", timestamp, local_file_name])
+
+    if gcs_blob_prefix:
+        blob_path = "/".join([gcs_blob_prefix, blob_path])
+
+    # TODO(b/171202993) add user agent
+    client = storage.Client(project=project, credentials=credentials)
+    bucket = client.bucket(gcs_bucket)
+    blob = bucket.blob(blob_path)
+    blob.upload_from_filename(local_file_path)
+
+    gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
+    return gcs_path

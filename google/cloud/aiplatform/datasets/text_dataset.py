@@ -27,7 +27,7 @@ from google.cloud.aiplatform import utils
 
 
 class TextDataset(datasets._Dataset):
-    """Managed text dataset resource for AI Platform"""
+    """Managed text dataset resource for Vertex AI."""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
         schema.dataset.metadata.text,
@@ -47,8 +47,8 @@ class TextDataset(datasets._Dataset):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "TextDataset":
-        """Creates a new text dataset and optionally imports data into dataset when
-        source and import_schema_uri are passed.
+        """Creates a new text dataset and optionally imports data into dataset
+        when source and import_schema_uri are passed.
 
         Example Usage:
             ds = aiplatform.TextDataset.create(
@@ -89,7 +89,7 @@ class TextDataset(datasets._Dataset):
                 if their content bytes are identical (e.g. image bytes or
                 pdf bytes). These labels will be overridden by Annotation
                 labels specified inside index file refenced by
-                [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
+                ``import_schema_uri``,
                 e.g. jsonl file.
             project (str):
                 Project to upload this model to. Overrides project set in
@@ -121,7 +121,6 @@ class TextDataset(datasets._Dataset):
         Returns:
             text_dataset (TextDataset):
                 Instantiated representation of the managed text dataset resource.
-
         """
 
         utils.validate_display_name(display_name)

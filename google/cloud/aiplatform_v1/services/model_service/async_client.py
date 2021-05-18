@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 import functools
 import re
@@ -22,13 +20,13 @@ from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.model_service import pagers
 from google.cloud.aiplatform_v1.types import deployed_model_ref
@@ -39,11 +37,10 @@ from google.cloud.aiplatform_v1.types import model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import ModelServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import ModelServiceGrpcAsyncIOTransport
 from .client import ModelServiceClient
@@ -75,27 +72,22 @@ class ModelServiceAsyncClient:
     parse_training_pipeline_path = staticmethod(
         ModelServiceClient.parse_training_pipeline_path
     )
-
     common_billing_account_path = staticmethod(
         ModelServiceClient.common_billing_account_path
     )
     parse_common_billing_account_path = staticmethod(
         ModelServiceClient.parse_common_billing_account_path
     )
-
     common_folder_path = staticmethod(ModelServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(ModelServiceClient.parse_common_folder_path)
-
     common_organization_path = staticmethod(ModelServiceClient.common_organization_path)
     parse_common_organization_path = staticmethod(
         ModelServiceClient.parse_common_organization_path
     )
-
     common_project_path = staticmethod(ModelServiceClient.common_project_path)
     parse_common_project_path = staticmethod(
         ModelServiceClient.parse_common_project_path
     )
-
     common_location_path = staticmethod(ModelServiceClient.common_location_path)
     parse_common_location_path = staticmethod(
         ModelServiceClient.parse_common_location_path
@@ -149,7 +141,7 @@ class ModelServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         transport: Union[str, ModelServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -186,7 +178,6 @@ class ModelServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
-
         self._client = ModelServiceClient(
             credentials=credentials,
             transport=transport,
@@ -209,7 +200,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UploadModelRequest`):
                 The request object. Request message for
-                ``ModelService.UploadModel``.
+                [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel].
             parent (:class:`str`):
                 Required. The resource name of the Location into which
                 to upload the Model. Format:
@@ -223,7 +214,6 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -237,7 +227,7 @@ class ModelServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.UploadModelResponse`
                 Response message of
-                ``ModelService.UploadModel``
+                [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel]
                 operation.
 
         """
@@ -255,7 +245,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
         if model is not None:
@@ -265,7 +254,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.upload_model,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -303,7 +292,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelRequest`):
                 The request object. Request message for
-                ``ModelService.GetModel``.
+                [ModelService.GetModel][google.cloud.aiplatform.v1.ModelService.GetModel].
             name (:class:`str`):
                 Required. The name of the Model resource. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
@@ -311,7 +300,6 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -336,7 +324,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -344,7 +331,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_model,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -374,7 +361,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelsRequest`):
                 The request object. Request message for
-                ``ModelService.ListModels``.
+                [ModelService.ListModels][google.cloud.aiplatform.v1.ModelService.ListModels].
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
                 Models from. Format:
@@ -383,7 +370,6 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -393,7 +379,7 @@ class ModelServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelsAsyncPager:
                 Response message for
-                ``ModelService.ListModels``
+                [ModelService.ListModels][google.cloud.aiplatform.v1.ModelService.ListModels]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -413,7 +399,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -421,7 +406,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_models,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -448,7 +433,7 @@ class ModelServiceAsyncClient:
         request: model_service.UpdateModelRequest = None,
         *,
         model: gca_model.Model = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -458,7 +443,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateModelRequest`):
                 The request object. Request message for
-                ``ModelService.UpdateModel``.
+                [ModelService.UpdateModel][google.cloud.aiplatform.v1.ModelService.UpdateModel].
             model (:class:`google.cloud.aiplatform_v1.types.Model`):
                 Required. The Model which replaces
                 the resource on the server.
@@ -474,7 +459,6 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -499,7 +483,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if model is not None:
             request.model = model
         if update_mask is not None:
@@ -509,7 +492,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.update_model,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -543,7 +526,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteModelRequest`):
                 The request object. Request message for
-                ``ModelService.DeleteModel``.
+                [ModelService.DeleteModel][google.cloud.aiplatform.v1.ModelService.DeleteModel].
             name (:class:`str`):
                 Required. The name of the Model resource to be deleted.
                 Format:
@@ -552,7 +535,6 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -592,7 +574,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -600,7 +581,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.delete_model,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -617,7 +598,7 @@ class ModelServiceAsyncClient:
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -642,7 +623,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ExportModelRequest`):
                 The request object. Request message for
-                ``ModelService.ExportModel``.
+                [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel].
             name (:class:`str`):
                 Required. The resource name of the Model to export.
                 Format:
@@ -658,7 +639,6 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``output_config`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -672,7 +652,7 @@ class ModelServiceAsyncClient:
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1.types.ExportModelResponse`
                 Response message of
-                ``ModelService.ExportModel``
+                [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel]
                 operation.
 
         """
@@ -690,7 +670,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
         if output_config is not None:
@@ -700,7 +679,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.export_model,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -738,7 +717,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelEvaluationRequest`):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluation``.
+                [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1.ModelService.GetModelEvaluation].
             name (:class:`str`):
                 Required. The name of the ModelEvaluation resource.
                 Format:
@@ -748,7 +727,6 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -777,7 +755,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -785,7 +762,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_model_evaluation,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -815,7 +792,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelEvaluationsRequest`):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1.ModelService.ListModelEvaluations].
             parent (:class:`str`):
                 Required. The resource name of the Model to list the
                 ModelEvaluations from. Format:
@@ -824,7 +801,6 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -834,7 +810,7 @@ class ModelServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelEvaluationsAsyncPager:
                 Response message for
-                ``ModelService.ListModelEvaluations``.
+                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1.ModelService.ListModelEvaluations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -854,7 +830,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -862,7 +837,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_model_evaluations,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -898,7 +873,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetModelEvaluationSliceRequest`):
                 The request object. Request message for
-                ``ModelService.GetModelEvaluationSlice``.
+                [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1.ModelService.GetModelEvaluationSlice].
             name (:class:`str`):
                 Required. The name of the ModelEvaluationSlice resource.
                 Format:
@@ -908,7 +883,6 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -937,7 +911,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if name is not None:
             request.name = name
 
@@ -945,7 +918,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.get_model_evaluation_slice,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 
@@ -975,7 +948,7 @@ class ModelServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListModelEvaluationSlicesRequest`):
                 The request object. Request message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices].
             parent (:class:`str`):
                 Required. The resource name of the ModelEvaluation to
                 list the ModelEvaluationSlices from. Format:
@@ -985,7 +958,6 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -995,7 +967,7 @@ class ModelServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelEvaluationSlicesAsyncPager:
                 Response message for
-                ``ModelService.ListModelEvaluationSlices``.
+                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1015,7 +987,6 @@ class ModelServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
-
         if parent is not None:
             request.parent = parent
 
@@ -1023,7 +994,7 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.list_model_evaluation_slices,
-            default_timeout=None,
+            default_timeout=5.0,
             client_info=DEFAULT_CLIENT_INFO,
         )
 

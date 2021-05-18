@@ -5,7 +5,6 @@ ModelService
     :members:
     :inherited-members:
 
-
 .. automodule:: google.cloud.aiplatform_v1beta1.services.model_service.pagers
     :members:
     :inherited-members:

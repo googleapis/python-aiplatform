@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import annotation
 from google.cloud.aiplatform_v1beta1.types import data_item
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -52,7 +49,7 @@ __protobuf__ = proto.module(
 
 class CreateDatasetRequest(proto.Message):
     r"""Request message for
-    ``DatasetService.CreateDataset``.
+    [DatasetService.CreateDataset][google.cloud.aiplatform.v1beta1.DatasetService.CreateDataset].
 
     Attributes:
         parent (str):
@@ -63,14 +60,13 @@ class CreateDatasetRequest(proto.Message):
             Required. The Dataset to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     dataset = proto.Field(proto.MESSAGE, number=2, message=gca_dataset.Dataset,)
 
 
 class CreateDatasetOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``DatasetService.CreateDataset``.
+    [DatasetService.CreateDataset][google.cloud.aiplatform.v1beta1.DatasetService.CreateDataset].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
@@ -84,7 +80,7 @@ class CreateDatasetOperationMetadata(proto.Message):
 
 class GetDatasetRequest(proto.Message):
     r"""Request message for
-    ``DatasetService.GetDataset``.
+    [DatasetService.GetDataset][google.cloud.aiplatform.v1beta1.DatasetService.GetDataset].
 
     Attributes:
         name (str):
@@ -93,14 +89,13 @@ class GetDatasetRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    read_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    name = proto.Field(proto.STRING, number=1,)
+    read_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,)
 
 
 class UpdateDatasetRequest(proto.Message):
     r"""Request message for
-    ``DatasetService.UpdateDataset``.
+    [DatasetService.UpdateDataset][google.cloud.aiplatform.v1beta1.DatasetService.UpdateDataset].
 
     Attributes:
         dataset (google.cloud.aiplatform_v1beta1.types.Dataset):
@@ -118,13 +113,14 @@ class UpdateDatasetRequest(proto.Message):
     """
 
     dataset = proto.Field(proto.MESSAGE, number=1, message=gca_dataset.Dataset,)
-
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(
+        proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
+    )
 
 
 class ListDatasetsRequest(proto.Message):
     r"""Request message for
-    ``DatasetService.ListDatasets``.
+    [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
 
     Attributes:
         parent (str):
@@ -163,22 +159,17 @@ class ListDatasetsRequest(proto.Message):
             -  ``update_time``
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
-
-    order_by = proto.Field(proto.STRING, number=6)
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
+    order_by = proto.Field(proto.STRING, number=6,)
 
 
 class ListDatasetsResponse(proto.Message):
     r"""Response message for
-    ``DatasetService.ListDatasets``.
+    [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
 
     Attributes:
         datasets (Sequence[google.cloud.aiplatform_v1beta1.types.Dataset]):
@@ -195,13 +186,12 @@ class ListDatasetsResponse(proto.Message):
     datasets = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_dataset.Dataset,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class DeleteDatasetRequest(proto.Message):
     r"""Request message for
-    ``DatasetService.DeleteDataset``.
+    [DatasetService.DeleteDataset][google.cloud.aiplatform.v1beta1.DatasetService.DeleteDataset].
 
     Attributes:
         name (str):
@@ -210,12 +200,12 @@ class DeleteDatasetRequest(proto.Message):
             ``projects/{project}/locations/{location}/datasets/{dataset}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ImportDataRequest(proto.Message):
     r"""Request message for
-    ``DatasetService.ImportData``.
+    [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
 
     Attributes:
         name (str):
@@ -227,8 +217,7 @@ class ImportDataRequest(proto.Message):
             in one batch.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
+    name = proto.Field(proto.STRING, number=1,)
     import_configs = proto.RepeatedField(
         proto.MESSAGE, number=2, message=gca_dataset.ImportDataConfig,
     )
@@ -236,13 +225,13 @@ class ImportDataRequest(proto.Message):
 
 class ImportDataResponse(proto.Message):
     r"""Response message for
-    ``DatasetService.ImportData``.
-    """
+    [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
+        """
 
 
 class ImportDataOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``DatasetService.ImportData``.
+    [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
@@ -256,7 +245,7 @@ class ImportDataOperationMetadata(proto.Message):
 
 class ExportDataRequest(proto.Message):
     r"""Request message for
-    ``DatasetService.ExportData``.
+    [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
 
     Attributes:
         name (str):
@@ -266,8 +255,7 @@ class ExportDataRequest(proto.Message):
             Required. The desired output location.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
+    name = proto.Field(proto.STRING, number=1,)
     export_config = proto.Field(
         proto.MESSAGE, number=2, message=gca_dataset.ExportDataConfig,
     )
@@ -275,7 +263,7 @@ class ExportDataRequest(proto.Message):
 
 class ExportDataResponse(proto.Message):
     r"""Response message for
-    ``DatasetService.ExportData``.
+    [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
 
     Attributes:
         exported_files (Sequence[str]):
@@ -283,12 +271,12 @@ class ExportDataResponse(proto.Message):
             export operation.
     """
 
-    exported_files = proto.RepeatedField(proto.STRING, number=1)
+    exported_files = proto.RepeatedField(proto.STRING, number=1,)
 
 
 class ExportDataOperationMetadata(proto.Message):
     r"""Runtime operation information for
-    ``DatasetService.ExportData``.
+    [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
 
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
@@ -302,13 +290,12 @@ class ExportDataOperationMetadata(proto.Message):
     generic_metadata = proto.Field(
         proto.MESSAGE, number=1, message=operation.GenericOperationMetadata,
     )
-
-    gcs_output_directory = proto.Field(proto.STRING, number=2)
+    gcs_output_directory = proto.Field(proto.STRING, number=2,)
 
 
 class ListDataItemsRequest(proto.Message):
     r"""Request message for
-    ``DatasetService.ListDataItems``.
+    [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
 
     Attributes:
         parent (str):
@@ -329,22 +316,17 @@ class ListDataItemsRequest(proto.Message):
             field name for descending.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
-
-    order_by = proto.Field(proto.STRING, number=6)
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
+    order_by = proto.Field(proto.STRING, number=6,)
 
 
 class ListDataItemsResponse(proto.Message):
     r"""Response message for
-    ``DatasetService.ListDataItems``.
+    [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
 
     Attributes:
         data_items (Sequence[google.cloud.aiplatform_v1beta1.types.DataItem]):
@@ -361,13 +343,12 @@ class ListDataItemsResponse(proto.Message):
     data_items = proto.RepeatedField(
         proto.MESSAGE, number=1, message=data_item.DataItem,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class GetAnnotationSpecRequest(proto.Message):
     r"""Request message for
-    ``DatasetService.GetAnnotationSpec``.
+    [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1beta1.DatasetService.GetAnnotationSpec].
 
     Attributes:
         name (str):
@@ -377,14 +358,13 @@ class GetAnnotationSpecRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    read_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    name = proto.Field(proto.STRING, number=1,)
+    read_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,)
 
 
 class ListAnnotationsRequest(proto.Message):
     r"""Request message for
-    ``DatasetService.ListAnnotations``.
+    [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
 
     Attributes:
         parent (str):
@@ -405,22 +385,17 @@ class ListAnnotationsRequest(proto.Message):
             field name for descending.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
-
-    order_by = proto.Field(proto.STRING, number=6)
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
+    order_by = proto.Field(proto.STRING, number=6,)
 
 
 class ListAnnotationsResponse(proto.Message):
     r"""Response message for
-    ``DatasetService.ListAnnotations``.
+    [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
 
     Attributes:
         annotations (Sequence[google.cloud.aiplatform_v1beta1.types.Annotation]):
@@ -437,8 +412,7 @@ class ListAnnotationsResponse(proto.Message):
     annotations = proto.RepeatedField(
         proto.MESSAGE, number=1, message=annotation.Annotation,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

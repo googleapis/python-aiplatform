@@ -27,7 +27,7 @@ from google.cloud.aiplatform import utils
 
 
 class VideoDataset(datasets._Dataset):
-    """Managed video dataset resource for AI Platform"""
+    """Managed video dataset resource for Vertex AI."""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
         schema.dataset.metadata.video,
@@ -47,8 +47,8 @@ class VideoDataset(datasets._Dataset):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "VideoDataset":
-        """Creates a new video dataset and optionally imports data into dataset when
-        source and import_schema_uri are passed.
+        """Creates a new video dataset and optionally imports data into dataset
+        when source and import_schema_uri are passed.
 
         Args:
             display_name (str):
@@ -82,7 +82,7 @@ class VideoDataset(datasets._Dataset):
                 if their content bytes are identical (e.g. image bytes or
                 pdf bytes). These labels will be overridden by Annotation
                 labels specified inside index file refenced by
-                [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
+                ``import_schema_uri``,
                 e.g. jsonl file.
             project (str):
                 Project to upload this model to. Overrides project set in
@@ -114,7 +114,6 @@ class VideoDataset(datasets._Dataset):
         Returns:
             video_dataset (VideoDataset):
                 Instantiated representation of the managed video dataset resource.
-
         """
 
         utils.validate_display_name(display_name)

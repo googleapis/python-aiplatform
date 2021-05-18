@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import io
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -32,7 +29,6 @@ __protobuf__ = proto.module(
 
 class Dataset(proto.Message):
     r"""A collection of DataItems and Annotations on them.
-
     Attributes:
         name (str):
             Output only. The resource name of the
@@ -88,22 +84,14 @@ class Dataset(proto.Message):
             this key.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
-    metadata_schema_uri = proto.Field(proto.STRING, number=3)
-
-    metadata = proto.Field(proto.MESSAGE, number=8, message=struct.Value,)
-
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
-
-    update_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
-
-    etag = proto.Field(proto.STRING, number=6)
-
-    labels = proto.MapField(proto.STRING, proto.STRING, number=7)
-
+    name = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
+    metadata_schema_uri = proto.Field(proto.STRING, number=3,)
+    metadata = proto.Field(proto.MESSAGE, number=8, message=struct_pb2.Value,)
+    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=5, message=timestamp_pb2.Timestamp,)
+    etag = proto.Field(proto.STRING, number=6,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=7,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=11, message=gca_encryption_spec.EncryptionSpec,
     )
@@ -131,7 +119,7 @@ class ImportDataConfig(proto.Message):
             if their content bytes are identical (e.g. image bytes or
             pdf bytes). These labels will be overridden by Annotation
             labels specified inside index file referenced by
-            ``import_schema_uri``,
+            [import_schema_uri][google.cloud.aiplatform.v1.ImportDataConfig.import_schema_uri],
             e.g. jsonl file.
         import_schema_uri (str):
             Required. Points to a YAML file stored on Google Cloud
@@ -144,10 +132,8 @@ class ImportDataConfig(proto.Message):
     gcs_source = proto.Field(
         proto.MESSAGE, number=1, oneof="source", message=io.GcsSource,
     )
-
-    data_item_labels = proto.MapField(proto.STRING, proto.STRING, number=2)
-
-    import_schema_uri = proto.Field(proto.STRING, number=4)
+    data_item_labels = proto.MapField(proto.STRING, proto.STRING, number=2,)
+    import_schema_uri = proto.Field(proto.STRING, number=4,)
 
 
 class ExportDataConfig(proto.Message):
@@ -172,14 +158,13 @@ class ExportDataConfig(proto.Message):
             to-be-exported DataItems(specified by [data_items_filter][])
             that match this filter will be exported. The filter syntax
             is the same as in
-            ``ListAnnotations``.
+            [ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
     """
 
     gcs_destination = proto.Field(
         proto.MESSAGE, number=1, oneof="destination", message=io.GcsDestination,
     )
-
-    annotations_filter = proto.Field(proto.STRING, number=2)
+    annotations_filter = proto.Field(proto.STRING, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

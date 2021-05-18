@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
-
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -39,35 +36,31 @@ class ModelEvaluation(proto.Message):
         metrics_schema_uri (str):
             Output only. Points to a YAML file stored on Google Cloud
             Storage describing the
-            ``metrics``
+            [metrics][google.cloud.aiplatform.v1.ModelEvaluation.metrics]
             of this ModelEvaluation. The schema is defined as an OpenAPI
             3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
         metrics (google.protobuf.struct_pb2.Value):
             Output only. Evaluation metrics of the Model. The schema of
             the metrics is stored in
-            ``metrics_schema_uri``
+            [metrics_schema_uri][google.cloud.aiplatform.v1.ModelEvaluation.metrics_schema_uri]
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             ModelEvaluation was created.
         slice_dimensions (Sequence[str]):
             Output only. All possible
-            ``dimensions`` of
+            [dimensions][ModelEvaluationSlice.slice.dimension] of
             ModelEvaluationSlices. The dimensions can be used as the
             filter of the
-            ``ModelService.ListModelEvaluationSlices``
+            [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices]
             request, in the form of ``slice.dimension = <dimension>``.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    metrics_schema_uri = proto.Field(proto.STRING, number=2)
-
-    metrics = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
-
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
-
-    slice_dimensions = proto.RepeatedField(proto.STRING, number=5)
+    name = proto.Field(proto.STRING, number=1,)
+    metrics_schema_uri = proto.Field(proto.STRING, number=2,)
+    metrics = proto.Field(proto.MESSAGE, number=3, message=struct_pb2.Value,)
+    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
+    slice_dimensions = proto.RepeatedField(proto.STRING, number=5,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

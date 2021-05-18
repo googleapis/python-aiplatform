@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -23,10 +21,10 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
@@ -34,8 +32,7 @@ from google.oauth2 import service_account  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import prediction_service
-from google.protobuf import struct_pb2 as struct  # type: ignore
-
+from google.protobuf import struct_pb2  # type: ignore
 from .transports.base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import PredictionServiceGrpcTransport
 from .transports.grpc_asyncio import PredictionServiceGrpcAsyncIOTransport
@@ -236,7 +233,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
     def __init__(
         self,
         *,
-        credentials: Optional[credentials.Credentials] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, PredictionServiceTransport, None] = None,
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -351,8 +348,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         request: prediction_service.PredictRequest = None,
         *,
         endpoint: str = None,
-        instances: Sequence[struct.Value] = None,
-        parameters: struct.Value = None,
+        instances: Sequence[struct_pb2.Value] = None,
+        parameters: struct_pb2.Value = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -362,7 +359,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.PredictRequest):
                 The request object. Request message for
-                ``PredictionService.Predict``.
+                [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
             endpoint (str):
                 Required. The name of the Endpoint requested to serve
                 the prediction. Format:
@@ -382,7 +379,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                ``instance_schema_uri``.
+                [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
 
                 This corresponds to the ``instances`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -393,12 +390,11 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 DeployedModels' [Model's
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                ``parameters_schema_uri``.
+                [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
 
                 This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -408,7 +404,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.PredictResponse:
                 Response message for
-                ``PredictionService.Predict``.
+                [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
 
         """
         # Create or coerce a protobuf request object.
@@ -427,10 +423,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, prediction_service.PredictRequest):
             request = prediction_service.PredictRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if endpoint is not None:
                 request.endpoint = endpoint
             if instances is not None:
@@ -459,8 +453,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         request: prediction_service.ExplainRequest = None,
         *,
         endpoint: str = None,
-        instances: Sequence[struct.Value] = None,
-        parameters: struct.Value = None,
+        instances: Sequence[struct_pb2.Value] = None,
+        parameters: struct_pb2.Value = None,
         deployed_model_id: str = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
@@ -469,20 +463,20 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         r"""Perform an online explanation.
 
         If
-        ``deployed_model_id``
+        [deployed_model_id][google.cloud.aiplatform.v1beta1.ExplainRequest.deployed_model_id]
         is specified, the corresponding DeployModel must have
-        ``explanation_spec``
+        [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
         populated. If
-        ``deployed_model_id``
+        [deployed_model_id][google.cloud.aiplatform.v1beta1.ExplainRequest.deployed_model_id]
         is not specified, all DeployedModels must have
-        ``explanation_spec``
+        [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
         populated. Only deployed AutoML tabular Models have
         explanation_spec.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ExplainRequest):
                 The request object. Request message for
-                ``PredictionService.Explain``.
+                [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
             endpoint (str):
                 Required. The name of the Endpoint requested to serve
                 the explanation. Format:
@@ -502,7 +496,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 specified via Endpoint's DeployedModels'
                 [Model's][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                ``instance_schema_uri``.
+                [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
 
                 This corresponds to the ``instances`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -513,7 +507,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
                 DeployedModels' [Model's
                 ][google.cloud.aiplatform.v1beta1.DeployedModel.model]
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
-                ``parameters_schema_uri``.
+                [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
 
                 This corresponds to the ``parameters`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -521,12 +515,11 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
             deployed_model_id (str):
                 If specified, this ExplainRequest will be served by the
                 chosen DeployedModel, overriding
-                ``Endpoint.traffic_split``.
+                [Endpoint.traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split].
 
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -536,7 +529,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.ExplainResponse:
                 Response message for
-                ``PredictionService.Explain``.
+                [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
 
         """
         # Create or coerce a protobuf request object.
@@ -555,10 +548,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, prediction_service.ExplainRequest):
             request = prediction_service.ExplainRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if endpoint is not None:
                 request.endpoint = endpoint
             if instances is not None:

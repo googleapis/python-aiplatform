@@ -19,11 +19,11 @@ import pytest
 
 from importlib import reload
 
+from google.cloud.aiplatform.utils import source_utils
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
-from google.cloud.aiplatform import training_jobs
 
 from google.cloud.aiplatform_v1.types import (
     dataset as gca_dataset,
@@ -204,16 +204,16 @@ class TestEndToEnd:
         true_args = test_training_jobs._TEST_RUN_ARGS
 
         true_worker_pool_spec = {
-            "replicaCount": test_training_jobs._TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": test_training_jobs._TEST_MACHINE_TYPE,
-                "acceleratorType": test_training_jobs._TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": test_training_jobs._TEST_ACCELERATOR_COUNT,
+            "replica_count": test_training_jobs._TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": test_training_jobs._TEST_MACHINE_TYPE,
+                "accelerator_type": test_training_jobs._TEST_ACCELERATOR_TYPE,
+                "accelerator_count": test_training_jobs._TEST_ACCELERATOR_COUNT,
             },
-            "pythonPackageSpec": {
-                "executorImageUri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
-                "packageUris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+            "python_package_spec": {
+                "executor_image_uri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "package_uris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
         }
@@ -248,8 +248,8 @@ class TestEndToEnd:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
                         "output_uri_prefix": test_training_jobs._TEST_BASE_OUTPUT_DIR
                     },
                 },
@@ -385,16 +385,16 @@ class TestEndToEnd:
         true_args = test_training_jobs._TEST_RUN_ARGS
 
         true_worker_pool_spec = {
-            "replicaCount": test_training_jobs._TEST_REPLICA_COUNT,
-            "machineSpec": {
-                "machineType": test_training_jobs._TEST_MACHINE_TYPE,
-                "acceleratorType": test_training_jobs._TEST_ACCELERATOR_TYPE,
-                "acceleratorCount": test_training_jobs._TEST_ACCELERATOR_COUNT,
+            "replica_count": test_training_jobs._TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": test_training_jobs._TEST_MACHINE_TYPE,
+                "accelerator_type": test_training_jobs._TEST_ACCELERATOR_TYPE,
+                "accelerator_count": test_training_jobs._TEST_ACCELERATOR_COUNT,
             },
-            "pythonPackageSpec": {
-                "executorImageUri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-                "pythonModule": training_jobs._TrainingScriptPythonPackager.module_name,
-                "packageUris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+            "python_package_spec": {
+                "executor_image_uri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": source_utils._TrainingScriptPythonPackager.module_name,
+                "package_uris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },
         }
@@ -430,8 +430,8 @@ class TestEndToEnd:
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
-                    "workerPoolSpecs": [true_worker_pool_spec],
-                    "baseOutputDirectory": {
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
                         "output_uri_prefix": test_training_jobs._TEST_BASE_OUTPUT_DIR
                     },
                 },

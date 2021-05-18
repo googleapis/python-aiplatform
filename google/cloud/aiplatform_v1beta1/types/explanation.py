@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
-
 from google.cloud.aiplatform_v1beta1.types import explanation_metadata
-from google.protobuf import struct_pb2 as struct  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -43,9 +40,9 @@ __protobuf__ = proto.module(
 
 class Explanation(proto.Message):
     r"""Explanation of a prediction (provided in
-    ``PredictResponse.predictions``)
+    [PredictResponse.predictions][google.cloud.aiplatform.v1beta1.PredictResponse.predictions])
     produced by the Model on a given
-    ``instance``.
+    [instance][google.cloud.aiplatform.v1beta1.ExplainRequest.instances].
 
     Attributes:
         attributions (Sequence[google.cloud.aiplatform_v1beta1.types.Attribution]):
@@ -58,18 +55,18 @@ class Explanation(proto.Message):
             that predict multiple outputs, such as multiclass Models
             that predict multiple classes, each element explains one
             specific item.
-            ``Attribution.output_index``
+            [Attribution.output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index]
             can be used to identify which output this attribution is
             explaining.
 
             If users set
-            ``ExplanationParameters.top_k``,
+            [ExplanationParameters.top_k][google.cloud.aiplatform.v1beta1.ExplanationParameters.top_k],
             the attributions are sorted by
-            ``instance_output_value``
+            [instance_output_value][Attributions.instance_output_value]
             in descending order. If
-            ``ExplanationParameters.output_indices``
+            [ExplanationParameters.output_indices][google.cloud.aiplatform.v1beta1.ExplanationParameters.output_indices]
             is specified, the attributions are stored by
-            ``Attribution.output_index``
+            [Attribution.output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index]
             in the same order as they appear in the output_indices.
     """
 
@@ -92,21 +89,21 @@ class ModelExplanation(proto.Message):
             that predict multiple outputs, such as multiclass Models
             that predict multiple classes, each element explains one
             specific item.
-            ``Attribution.output_index``
+            [Attribution.output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index]
             can be used to identify which output this attribution is
             explaining.
 
             The
-            ``baselineOutputValue``,
-            ``instanceOutputValue``
+            [baselineOutputValue][google.cloud.aiplatform.v1beta1.Attribution.baseline_output_value],
+            [instanceOutputValue][google.cloud.aiplatform.v1beta1.Attribution.instance_output_value]
             and
-            ``featureAttributions``
+            [featureAttributions][google.cloud.aiplatform.v1beta1.Attribution.feature_attributions]
             fields are averaged over the test data.
 
             NOTE: Currently AutoML tabular classification Models produce
             only one attribution, which averages attributions over all
             the classes it predicts.
-            ``Attribution.approximation_error``
+            [Attribution.approximation_error][google.cloud.aiplatform.v1beta1.Attribution.approximation_error]
             is not populated.
     """
 
@@ -117,19 +114,18 @@ class ModelExplanation(proto.Message):
 
 class Attribution(proto.Message):
     r"""Attribution that explains a particular prediction output.
-
     Attributes:
         baseline_output_value (float):
             Output only. Model predicted output if the input instance is
             constructed from the baselines of all the features defined
             in
-            ``ExplanationMetadata.inputs``.
+            [ExplanationMetadata.inputs][google.cloud.aiplatform.v1beta1.ExplanationMetadata.inputs].
             The field name of the output is determined by the key in
-            ``ExplanationMetadata.outputs``.
+            [ExplanationMetadata.outputs][google.cloud.aiplatform.v1beta1.ExplanationMetadata.outputs].
 
             If the Model's predicted output has multiple dimensions
             (rank > 1), this is the value in the output located by
-            ``output_index``.
+            [output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index].
 
             If there are multiple baselines, their output values are
             averaged.
@@ -137,11 +133,11 @@ class Attribution(proto.Message):
             Output only. Model predicted output on the corresponding
             [explanation instance][ExplainRequest.instances]. The field
             name of the output is determined by the key in
-            ``ExplanationMetadata.outputs``.
+            [ExplanationMetadata.outputs][google.cloud.aiplatform.v1beta1.ExplanationMetadata.outputs].
 
             If the Model predicted output has multiple dimensions, this
             is the value in the output located by
-            ``output_index``.
+            [output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index].
         feature_attributions (google.protobuf.struct_pb2.Value):
             Output only. Attributions of each explained feature.
             Features are extracted from the [prediction
@@ -151,7 +147,7 @@ class Attribution(proto.Message):
 
             The value is a struct, whose keys are the name of the
             feature. The values are how much the feature in the
-            ``instance``
+            [instance][google.cloud.aiplatform.v1beta1.ExplainRequest.instances]
             contributed to the predicted result.
 
             The format of the value is determined by the feature's input
@@ -163,21 +159,21 @@ class Attribution(proto.Message):
 
             -  If the feature is an array of scalar values, the
                attribution value is an
-               ``array``.
+               [array][google.protobuf.Value.list_value].
 
             -  If the feature is a struct, the attribution value is a
-               ``struct``. The keys in
+               [struct][google.protobuf.Value.struct_value]. The keys in
                the attribution value struct are the same as the keys in
                the feature struct. The formats of the values in the
                attribution struct are determined by the formats of the
                values in the feature struct.
 
             The
-            ``ExplanationMetadata.feature_attributions_schema_uri``
+            [ExplanationMetadata.feature_attributions_schema_uri][google.cloud.aiplatform.v1beta1.ExplanationMetadata.feature_attributions_schema_uri]
             field, pointed to by the
-            ``ExplanationSpec``
+            [ExplanationSpec][google.cloud.aiplatform.v1beta1.ExplanationSpec]
             field of the
-            ``Endpoint.deployed_models``
+            [Endpoint.deployed_models][google.cloud.aiplatform.v1beta1.Endpoint.deployed_models]
             object, points to the schema file that describes the
             features and their attribution values (if it is populated).
         output_index (Sequence[int]):
@@ -192,7 +188,7 @@ class Attribution(proto.Message):
             of the output vector. Indices start from 0.
         output_display_name (str):
             Output only. The display name of the output identified by
-            ``output_index``.
+            [output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index].
             For example, the predicted class name by a
             multi-classification Model.
 
@@ -202,24 +198,24 @@ class Attribution(proto.Message):
             explained output, and can be located using output_index.
         approximation_error (float):
             Output only. Error of
-            ``feature_attributions``
+            [feature_attributions][google.cloud.aiplatform.v1beta1.Attribution.feature_attributions]
             caused by approximation used in the explanation method.
             Lower value means more precise attributions.
 
             -  For Sampled Shapley
-               ``attribution``,
+               [attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.sampled_shapley_attribution],
                increasing
-               ``path_count``
+               [path_count][google.cloud.aiplatform.v1beta1.SampledShapleyAttribution.path_count]
                might reduce the error.
             -  For Integrated Gradients
-               ``attribution``,
+               [attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.integrated_gradients_attribution],
                increasing
-               ``step_count``
+               [step_count][google.cloud.aiplatform.v1beta1.IntegratedGradientsAttribution.step_count]
                might reduce the error.
             -  For [XRAI
                attribution][google.cloud.aiplatform.v1beta1.ExplanationParameters.xrai_attribution],
                increasing
-               ``step_count``
+               [step_count][google.cloud.aiplatform.v1beta1.XraiAttribution.step_count]
                might reduce the error.
 
             See `this
@@ -228,27 +224,22 @@ class Attribution(proto.Message):
         output_name (str):
             Output only. Name of the explain output. Specified as the
             key in
-            ``ExplanationMetadata.outputs``.
+            [ExplanationMetadata.outputs][google.cloud.aiplatform.v1beta1.ExplanationMetadata.outputs].
     """
 
-    baseline_output_value = proto.Field(proto.DOUBLE, number=1)
-
-    instance_output_value = proto.Field(proto.DOUBLE, number=2)
-
-    feature_attributions = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
-
-    output_index = proto.RepeatedField(proto.INT32, number=4)
-
-    output_display_name = proto.Field(proto.STRING, number=5)
-
-    approximation_error = proto.Field(proto.DOUBLE, number=6)
-
-    output_name = proto.Field(proto.STRING, number=7)
+    baseline_output_value = proto.Field(proto.DOUBLE, number=1,)
+    instance_output_value = proto.Field(proto.DOUBLE, number=2,)
+    feature_attributions = proto.Field(
+        proto.MESSAGE, number=3, message=struct_pb2.Value,
+    )
+    output_index = proto.RepeatedField(proto.INT32, number=4,)
+    output_display_name = proto.Field(proto.STRING, number=5,)
+    approximation_error = proto.Field(proto.DOUBLE, number=6,)
+    output_name = proto.Field(proto.STRING, number=7,)
 
 
 class ExplanationSpec(proto.Message):
     r"""Specification of Model explanation.
-
     Attributes:
         parameters (google.cloud.aiplatform_v1beta1.types.ExplanationParameters):
             Required. Parameters that configure
@@ -259,7 +250,6 @@ class ExplanationSpec(proto.Message):
     """
 
     parameters = proto.Field(proto.MESSAGE, number=1, message="ExplanationParameters",)
-
     metadata = proto.Field(
         proto.MESSAGE, number=2, message=explanation_metadata.ExplanationMetadata,
     )
@@ -267,7 +257,6 @@ class ExplanationSpec(proto.Message):
 
 class ExplanationParameters(proto.Message):
     r"""Parameters to configure explaining for Model's predictions.
-
     Attributes:
         sampled_shapley_attribution (google.cloud.aiplatform_v1beta1.types.SampledShapleyAttribution):
             An attribution method that approximates
@@ -305,12 +294,12 @@ class ExplanationParameters(proto.Message):
             returns explanations for all outputs.
         output_indices (google.protobuf.struct_pb2.ListValue):
             If populated, only returns attributions that have
-            ``output_index``
+            [output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index]
             contained in output_indices. It must be an ndarray of
             integers, with the same shape of the output it's explaining.
 
             If not populated, returns attributions for
-            ``top_k``
+            [top_k][google.cloud.aiplatform.v1beta1.ExplanationParameters.top_k]
             indices of outputs. If neither top_k nor output_indeices is
             populated, returns the argmax index of the outputs.
 
@@ -321,21 +310,17 @@ class ExplanationParameters(proto.Message):
     sampled_shapley_attribution = proto.Field(
         proto.MESSAGE, number=1, oneof="method", message="SampledShapleyAttribution",
     )
-
     integrated_gradients_attribution = proto.Field(
         proto.MESSAGE,
         number=2,
         oneof="method",
         message="IntegratedGradientsAttribution",
     )
-
     xrai_attribution = proto.Field(
         proto.MESSAGE, number=3, oneof="method", message="XraiAttribution",
     )
-
-    top_k = proto.Field(proto.INT32, number=4)
-
-    output_indices = proto.Field(proto.MESSAGE, number=5, message=struct.ListValue,)
+    top_k = proto.Field(proto.INT32, number=4,)
+    output_indices = proto.Field(proto.MESSAGE, number=5, message=struct_pb2.ListValue,)
 
 
 class SampledShapleyAttribution(proto.Message):
@@ -352,7 +337,7 @@ class SampledShapleyAttribution(proto.Message):
             Valid range of its value is [1, 50], inclusively.
     """
 
-    path_count = proto.Field(proto.INT32, number=1)
+    path_count = proto.Field(proto.INT32, number=1,)
 
 
 class IntegratedGradientsAttribution(proto.Message):
@@ -380,8 +365,7 @@ class IntegratedGradientsAttribution(proto.Message):
             https://arxiv.org/pdf/1706.03825.pdf
     """
 
-    step_count = proto.Field(proto.INT32, number=1)
-
+    step_count = proto.Field(proto.INT32, number=1,)
     smooth_grad_config = proto.Field(
         proto.MESSAGE, number=2, message="SmoothGradConfig",
     )
@@ -414,8 +398,7 @@ class XraiAttribution(proto.Message):
             https://arxiv.org/pdf/1706.03825.pdf
     """
 
-    step_count = proto.Field(proto.INT32, number=1)
-
+    step_count = proto.Field(proto.INT32, number=1,)
     smooth_grad_config = proto.Field(
         proto.MESSAGE, number=2, message="SmoothGradConfig",
     )
@@ -444,16 +427,16 @@ class SmoothGradConfig(proto.Message):
             https://arxiv.org/pdf/1706.03825.pdf. Defaults to 0.1.
 
             If the distribution is different per feature, set
-            ``feature_noise_sigma``
+            [feature_noise_sigma][google.cloud.aiplatform.v1beta1.SmoothGradConfig.feature_noise_sigma]
             instead for each feature.
         feature_noise_sigma (google.cloud.aiplatform_v1beta1.types.FeatureNoiseSigma):
             This is similar to
-            ``noise_sigma``,
+            [noise_sigma][google.cloud.aiplatform.v1beta1.SmoothGradConfig.noise_sigma],
             but provides additional flexibility. A separate noise sigma
             can be provided for each feature, which is useful if their
             distributions are different. No noise is added to features
             that are not set. If this field is unset,
-            ``noise_sigma``
+            [noise_sigma][google.cloud.aiplatform.v1beta1.SmoothGradConfig.noise_sigma]
             will be used for all features.
         noisy_sample_count (int):
             The number of gradient samples to use for approximation. The
@@ -462,16 +445,14 @@ class SmoothGradConfig(proto.Message):
             Valid range of its value is [1, 50]. Defaults to 3.
     """
 
-    noise_sigma = proto.Field(proto.FLOAT, number=1, oneof="GradientNoiseSigma")
-
+    noise_sigma = proto.Field(proto.FLOAT, number=1, oneof="GradientNoiseSigma",)
     feature_noise_sigma = proto.Field(
         proto.MESSAGE,
         number=2,
         oneof="GradientNoiseSigma",
         message="FeatureNoiseSigma",
     )
-
-    noisy_sample_count = proto.Field(proto.INT32, number=3)
+    noisy_sample_count = proto.Field(proto.INT32, number=3,)
 
 
 class FeatureNoiseSigma(proto.Message):
@@ -487,7 +468,6 @@ class FeatureNoiseSigma(proto.Message):
 
     class NoiseSigmaForFeature(proto.Message):
         r"""Noise sigma for a single feature.
-
         Attributes:
             name (str):
                 The name of the input feature for which noise sigma is
@@ -497,14 +477,13 @@ class FeatureNoiseSigma(proto.Message):
                 This represents the standard deviation of the Gaussian
                 kernel that will be used to add noise to the feature prior
                 to computing gradients. Similar to
-                ``noise_sigma``
+                [noise_sigma][google.cloud.aiplatform.v1beta1.SmoothGradConfig.noise_sigma]
                 but represents the noise added to the current feature.
                 Defaults to 0.1.
         """
 
-        name = proto.Field(proto.STRING, number=1)
-
-        sigma = proto.Field(proto.FLOAT, number=2)
+        name = proto.Field(proto.STRING, number=1,)
+        sigma = proto.Field(proto.FLOAT, number=2,)
 
     noise_sigma = proto.RepeatedField(
         proto.MESSAGE, number=1, message=NoiseSigmaForFeature,
@@ -513,15 +492,15 @@ class FeatureNoiseSigma(proto.Message):
 
 class ExplanationSpecOverride(proto.Message):
     r"""The
-    ``ExplanationSpec``
+    [ExplanationSpec][google.cloud.aiplatform.v1beta1.ExplanationSpec]
     entries that can be overridden at [online
-    explanation]``PredictionService.Explain``
+    explanation][PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain]
     time.
 
     Attributes:
         parameters (google.cloud.aiplatform_v1beta1.types.ExplanationParameters):
             The parameters to be overridden. Note that the
-            ``method``
+            [method][google.cloud.aiplatform.v1beta1.ExplanationParameters.method]
             cannot be changed. If not specified, no parameter is
             overridden.
         metadata (google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride):
@@ -530,7 +509,6 @@ class ExplanationSpecOverride(proto.Message):
     """
 
     parameters = proto.Field(proto.MESSAGE, number=1, message="ExplanationParameters",)
-
     metadata = proto.Field(
         proto.MESSAGE, number=2, message="ExplanationMetadataOverride",
     )
@@ -538,7 +516,7 @@ class ExplanationSpecOverride(proto.Message):
 
 class ExplanationMetadataOverride(proto.Message):
     r"""The
-    ``ExplanationMetadata``
+    [ExplanationMetadata][google.cloud.aiplatform.v1beta1.ExplanationMetadata]
     entries that can be overridden at [online
     explanation][google.cloud.aiplatform.v1beta1.PredictionService.Explain]
     time.
@@ -564,14 +542,14 @@ class ExplanationMetadataOverride(proto.Message):
                 Baseline inputs for this feature.
 
                 This overrides the ``input_baseline`` field of the
-                ``ExplanationMetadata.InputMetadata``
+                [ExplanationMetadata.InputMetadata][google.cloud.aiplatform.v1beta1.ExplanationMetadata.InputMetadata]
                 object of the corresponding feature's input metadata. If
                 it's not specified, the original baselines are not
                 overridden.
         """
 
         input_baselines = proto.RepeatedField(
-            proto.MESSAGE, number=1, message=struct.Value,
+            proto.MESSAGE, number=1, message=struct_pb2.Value,
         )
 
     inputs = proto.MapField(

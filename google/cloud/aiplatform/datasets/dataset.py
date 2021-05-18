@@ -35,8 +35,8 @@ from google.cloud.aiplatform.datasets import _datasources
 _LOGGER = base.Logger(__name__)
 
 
-class _Dataset(base.AiPlatformResourceNounWithFutureManager):
-    """Managed dataset resource for AI Platform"""
+class _Dataset(base.VertexAIResourceNounWithFutureManager):
+    """Managed dataset resource for Vertex AI."""
 
     client_class = utils.DatasetClientWithOverride
     _is_client_prediction_client = False
@@ -70,7 +70,6 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-
         """
 
         super().__init__(
@@ -163,7 +162,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
                 if their content bytes are identical (e.g. image bytes or
                 pdf bytes). These labels will be overridden by Annotation
                 labels specified inside index file refenced by
-                [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
+                ``import_schema_uri``,
                 e.g. jsonl file.
             project (str):
                 Project to upload this model to. Overrides project set in
@@ -195,7 +194,6 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
         Returns:
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
-
         """
 
         utils.validate_display_name(display_name)
@@ -266,7 +264,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
                 that can be used here are found in gs://google-cloud-
                 aiplatform/schema/dataset/metadata/.
             datasource (_datasources.Datasource):
-                Required. Datasource for creating a dataset for AI Platform.
+                Required. Datasource for creating a dataset for Vertex AI.
             project (str):
                 Required. Project to upload this model to. Overrides project set in
                 aiplatform.init.
@@ -370,7 +368,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
                 that can be used here are found in gs://google-cloud-
                 aiplatform/schema/dataset/metadata/.
             datasource (_datasources.Datasource):
-                Required. Datasource for creating a dataset for AI Platform.
+                Required. Datasource for creating a dataset for Vertex AI.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the create_dataset
                 request as metadata. Usually to specify special dataset config.
@@ -403,7 +401,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
 
         Args:
             datasource (_datasources.DatasourceImportable):
-                Required. Datasource for importing data to an existing dataset for AI Platform.
+                Required. Datasource for importing data to an existing dataset for Vertex AI.
 
         Returns:
             operation (Operation):
@@ -451,7 +449,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
                 if their content bytes are identical (e.g. image bytes or
                 pdf bytes). These labels will be overridden by Annotation
                 labels specified inside index file refenced by
-                [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
+                ``import_schema_uri``,
                 e.g. jsonl file.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -530,7 +528,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List[base.AiPlatformResourceNoun]:
+    ) -> List[base.VertexAiResourceNoun]:
         """List all instances of this Dataset resource.
 
         Example Usage:
@@ -559,7 +557,7 @@ class _Dataset(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[base.AiPlatformResourceNoun] - A list of Dataset resource objects
+            List[base.VertexAiResourceNoun] - A list of Dataset resource objects
         """
 
         dataset_subclass_filter = (

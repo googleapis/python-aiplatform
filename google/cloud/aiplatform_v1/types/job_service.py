@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1.types import (
     batch_prediction_job as gca_batch_prediction_job,
@@ -26,7 +23,7 @@ from google.cloud.aiplatform_v1.types import data_labeling_job as gca_data_label
 from google.cloud.aiplatform_v1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
 )
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -62,7 +59,7 @@ __protobuf__ = proto.module(
 
 class CreateCustomJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.CreateCustomJob``.
+    [JobService.CreateCustomJob][google.cloud.aiplatform.v1.JobService.CreateCustomJob].
 
     Attributes:
         parent (str):
@@ -73,14 +70,13 @@ class CreateCustomJobRequest(proto.Message):
             Required. The CustomJob to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     custom_job = proto.Field(proto.MESSAGE, number=2, message=gca_custom_job.CustomJob,)
 
 
 class GetCustomJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.GetCustomJob``.
+    [JobService.GetCustomJob][google.cloud.aiplatform.v1.JobService.GetCustomJob].
 
     Attributes:
         name (str):
@@ -88,12 +84,12 @@ class GetCustomJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/customJobs/{custom_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListCustomJobsRequest(proto.Message):
     r"""Request message for
-    ``JobService.ListCustomJobs``.
+    [JobService.ListCustomJobs][google.cloud.aiplatform.v1.JobService.ListCustomJobs].
 
     Attributes:
         parent (str):
@@ -122,35 +118,31 @@ class ListCustomJobsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            ``ListCustomJobsResponse.next_page_token``
+            [ListCustomJobsResponse.next_page_token][google.cloud.aiplatform.v1.ListCustomJobsResponse.next_page_token]
             of the previous
-            ``JobService.ListCustomJobs``
+            [JobService.ListCustomJobs][google.cloud.aiplatform.v1.JobService.ListCustomJobs]
             call.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
 
 
 class ListCustomJobsResponse(proto.Message):
     r"""Response message for
-    ``JobService.ListCustomJobs``
+    [JobService.ListCustomJobs][google.cloud.aiplatform.v1.JobService.ListCustomJobs]
 
     Attributes:
         custom_jobs (Sequence[google.cloud.aiplatform_v1.types.CustomJob]):
             List of CustomJobs in the requested page.
         next_page_token (str):
             A token to retrieve the next page of results. Pass to
-            ``ListCustomJobsRequest.page_token``
+            [ListCustomJobsRequest.page_token][google.cloud.aiplatform.v1.ListCustomJobsRequest.page_token]
             to obtain that page.
     """
 
@@ -161,13 +153,12 @@ class ListCustomJobsResponse(proto.Message):
     custom_jobs = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_custom_job.CustomJob,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class DeleteCustomJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.DeleteCustomJob``.
+    [JobService.DeleteCustomJob][google.cloud.aiplatform.v1.JobService.DeleteCustomJob].
 
     Attributes:
         name (str):
@@ -176,12 +167,12 @@ class DeleteCustomJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/customJobs/{custom_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CancelCustomJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.CancelCustomJob``.
+    [JobService.CancelCustomJob][google.cloud.aiplatform.v1.JobService.CancelCustomJob].
 
     Attributes:
         name (str):
@@ -189,7 +180,7 @@ class CancelCustomJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/customJobs/{custom_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CreateDataLabelingJobRequest(proto.Message):
@@ -204,8 +195,7 @@ class CreateDataLabelingJobRequest(proto.Message):
             Required. The DataLabelingJob to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     data_labeling_job = proto.Field(
         proto.MESSAGE, number=2, message=gca_data_labeling_job.DataLabelingJob,
     )
@@ -213,7 +203,6 @@ class CreateDataLabelingJobRequest(proto.Message):
 
 class GetDataLabelingJobRequest(proto.Message):
     r"""Request message for [DataLabelingJobService.GetDataLabelingJob][].
-
     Attributes:
         name (str):
             Required. The name of the DataLabelingJob. Format:
@@ -221,12 +210,11 @@ class GetDataLabelingJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListDataLabelingJobsRequest(proto.Message):
     r"""Request message for [DataLabelingJobService.ListDataLabelingJobs][].
-
     Attributes:
         parent (str):
             Required. The parent of the DataLabelingJob. Format:
@@ -265,22 +253,17 @@ class ListDataLabelingJobsRequest(proto.Message):
             for descending.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
-
-    order_by = proto.Field(proto.STRING, number=6)
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
+    order_by = proto.Field(proto.STRING, number=6,)
 
 
 class ListDataLabelingJobsResponse(proto.Message):
     r"""Response message for
-    ``JobService.ListDataLabelingJobs``.
+    [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1.JobService.ListDataLabelingJobs].
 
     Attributes:
         data_labeling_jobs (Sequence[google.cloud.aiplatform_v1.types.DataLabelingJob]):
@@ -297,13 +280,12 @@ class ListDataLabelingJobsResponse(proto.Message):
     data_labeling_jobs = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_data_labeling_job.DataLabelingJob,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class DeleteDataLabelingJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.DeleteDataLabelingJob``.
+    [JobService.DeleteDataLabelingJob][google.cloud.aiplatform.v1.JobService.DeleteDataLabelingJob].
 
     Attributes:
         name (str):
@@ -313,7 +295,7 @@ class DeleteDataLabelingJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CancelDataLabelingJobRequest(proto.Message):
@@ -327,12 +309,12 @@ class CancelDataLabelingJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CreateHyperparameterTuningJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.CreateHyperparameterTuningJob``.
+    [JobService.CreateHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.CreateHyperparameterTuningJob].
 
     Attributes:
         parent (str):
@@ -344,8 +326,7 @@ class CreateHyperparameterTuningJobRequest(proto.Message):
             create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     hyperparameter_tuning_job = proto.Field(
         proto.MESSAGE,
         number=2,
@@ -355,7 +336,7 @@ class CreateHyperparameterTuningJobRequest(proto.Message):
 
 class GetHyperparameterTuningJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.GetHyperparameterTuningJob``.
+    [JobService.GetHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.GetHyperparameterTuningJob].
 
     Attributes:
         name (str):
@@ -365,12 +346,12 @@ class GetHyperparameterTuningJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListHyperparameterTuningJobsRequest(proto.Message):
     r"""Request message for
-    ``JobService.ListHyperparameterTuningJobs``.
+    [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1.JobService.ListHyperparameterTuningJobs].
 
     Attributes:
         parent (str):
@@ -399,37 +380,33 @@ class ListHyperparameterTuningJobsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            ``ListHyperparameterTuningJobsResponse.next_page_token``
+            [ListHyperparameterTuningJobsResponse.next_page_token][google.cloud.aiplatform.v1.ListHyperparameterTuningJobsResponse.next_page_token]
             of the previous
-            ``JobService.ListHyperparameterTuningJobs``
+            [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1.JobService.ListHyperparameterTuningJobs]
             call.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
 
 
 class ListHyperparameterTuningJobsResponse(proto.Message):
     r"""Response message for
-    ``JobService.ListHyperparameterTuningJobs``
+    [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1.JobService.ListHyperparameterTuningJobs]
 
     Attributes:
         hyperparameter_tuning_jobs (Sequence[google.cloud.aiplatform_v1.types.HyperparameterTuningJob]):
             List of HyperparameterTuningJobs in the requested page.
-            ``HyperparameterTuningJob.trials``
+            [HyperparameterTuningJob.trials][google.cloud.aiplatform.v1.HyperparameterTuningJob.trials]
             of the jobs will be not be returned.
         next_page_token (str):
             A token to retrieve the next page of results. Pass to
-            ``ListHyperparameterTuningJobsRequest.page_token``
+            [ListHyperparameterTuningJobsRequest.page_token][google.cloud.aiplatform.v1.ListHyperparameterTuningJobsRequest.page_token]
             to obtain that page.
     """
 
@@ -442,13 +419,12 @@ class ListHyperparameterTuningJobsResponse(proto.Message):
         number=1,
         message=gca_hyperparameter_tuning_job.HyperparameterTuningJob,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class DeleteHyperparameterTuningJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.DeleteHyperparameterTuningJob``.
+    [JobService.DeleteHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.DeleteHyperparameterTuningJob].
 
     Attributes:
         name (str):
@@ -458,12 +434,12 @@ class DeleteHyperparameterTuningJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CancelHyperparameterTuningJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.CancelHyperparameterTuningJob``.
+    [JobService.CancelHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.CancelHyperparameterTuningJob].
 
     Attributes:
         name (str):
@@ -473,12 +449,12 @@ class CancelHyperparameterTuningJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CreateBatchPredictionJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.CreateBatchPredictionJob``.
+    [JobService.CreateBatchPredictionJob][google.cloud.aiplatform.v1.JobService.CreateBatchPredictionJob].
 
     Attributes:
         parent (str):
@@ -489,8 +465,7 @@ class CreateBatchPredictionJobRequest(proto.Message):
             Required. The BatchPredictionJob to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     batch_prediction_job = proto.Field(
         proto.MESSAGE, number=2, message=gca_batch_prediction_job.BatchPredictionJob,
     )
@@ -498,7 +473,7 @@ class CreateBatchPredictionJobRequest(proto.Message):
 
 class GetBatchPredictionJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.GetBatchPredictionJob``.
+    [JobService.GetBatchPredictionJob][google.cloud.aiplatform.v1.JobService.GetBatchPredictionJob].
 
     Attributes:
         name (str):
@@ -508,12 +483,12 @@ class GetBatchPredictionJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListBatchPredictionJobsRequest(proto.Message):
     r"""Request message for
-    ``JobService.ListBatchPredictionJobs``.
+    [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1.JobService.ListBatchPredictionJobs].
 
     Attributes:
         parent (str):
@@ -542,28 +517,24 @@ class ListBatchPredictionJobsRequest(proto.Message):
             The standard list page size.
         page_token (str):
             The standard list page token. Typically obtained via
-            ``ListBatchPredictionJobsResponse.next_page_token``
+            [ListBatchPredictionJobsResponse.next_page_token][google.cloud.aiplatform.v1.ListBatchPredictionJobsResponse.next_page_token]
             of the previous
-            ``JobService.ListBatchPredictionJobs``
+            [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1.JobService.ListBatchPredictionJobs]
             call.
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
 
 
 class ListBatchPredictionJobsResponse(proto.Message):
     r"""Response message for
-    ``JobService.ListBatchPredictionJobs``
+    [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1.JobService.ListBatchPredictionJobs]
 
     Attributes:
         batch_prediction_jobs (Sequence[google.cloud.aiplatform_v1.types.BatchPredictionJob]):
@@ -571,7 +542,7 @@ class ListBatchPredictionJobsResponse(proto.Message):
             page.
         next_page_token (str):
             A token to retrieve the next page of results. Pass to
-            ``ListBatchPredictionJobsRequest.page_token``
+            [ListBatchPredictionJobsRequest.page_token][google.cloud.aiplatform.v1.ListBatchPredictionJobsRequest.page_token]
             to obtain that page.
     """
 
@@ -582,13 +553,12 @@ class ListBatchPredictionJobsResponse(proto.Message):
     batch_prediction_jobs = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_batch_prediction_job.BatchPredictionJob,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class DeleteBatchPredictionJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.DeleteBatchPredictionJob``.
+    [JobService.DeleteBatchPredictionJob][google.cloud.aiplatform.v1.JobService.DeleteBatchPredictionJob].
 
     Attributes:
         name (str):
@@ -598,12 +568,12 @@ class DeleteBatchPredictionJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CancelBatchPredictionJobRequest(proto.Message):
     r"""Request message for
-    ``JobService.CancelBatchPredictionJob``.
+    [JobService.CancelBatchPredictionJob][google.cloud.aiplatform.v1.JobService.CancelBatchPredictionJob].
 
     Attributes:
         name (str):
@@ -613,7 +583,7 @@ class CancelBatchPredictionJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
