@@ -1183,7 +1183,7 @@ _MEASUREMENT_SELECTION_TO_PROTO_VALUE = {
 
 
 class HyperparameterTuningJob(_RunnableJob):
-    """AI Pltaform (Unified) Hyperparameter Tuning Job."""
+    """AI Platform (Unified) Hyperparameter Tuning Job."""
 
     _resource_noun = "hyperparameterTuningJobs"
     _getter_method = "get_hyperparameter_tuning_job"
