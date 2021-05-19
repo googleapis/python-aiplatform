@@ -72,9 +72,9 @@ Windows
 
 Overview
 ~~~~~~~~
-This section provides a brief overview of the Vertex SDK for Python. You can also reference the notebooks in `vertex-samples`_ for examples.
+This section provides a brief overview of the Vertex SDK for Python. You can also reference the notebooks in `vertex-ai-samples`_ for examples.
 
-.. _vertex-samples: https://github.com/GoogleCloudPlatform/ai-platform-samples/tree/master/ai-platform-unified/notebooks/unofficial/sdk
+.. _vertex-ai-samples: https://github.com/GoogleCloudPlatform/ai-platform-samples/tree/master/ai-platform-unified/notebooks/unofficial/sdk
 
 Importing
 ^^^^^^^^^
@@ -87,12 +87,12 @@ SDK functionality can be used from the root of the package:
 
 Initialization
 ^^^^^^^^^^^^^^
-Initialize the SDK to store common configurations that will be used throughout the SDK.
+Initialize the SDK to store common configurations that you use with the SDK.
 
 .. code-block:: Python
 
     aiplatform.init(
-        # your GCP project ID or number
+        # your Google Cloud Project ID or number
         # environment default used is not set
         project='my-project',
 
@@ -100,7 +100,7 @@ Initialize the SDK to store common configurations that will be used throughout t
         # defaults to us-central1
         location='us-central1',
 
-        # bucket in same region as location
+        # Googlge Cloud Stoage bucket in same region as location
         # used to stage artifacts
         staging_bucket='gs://my_staging_bucket',
 
@@ -109,7 +109,7 @@ Initialize the SDK to store common configurations that will be used throughout t
         credentials=my_credentials,
 
         # customer managed encryption key resource name
-        # will be applied to all AI Platform resources if set
+        # will be applied to all Vertex AI resources if set
         encryption_spec_key_name=my_encryption_key_name,
 
         # the name of the experiment to use to track
@@ -122,10 +122,10 @@ Initialize the SDK to store common configurations that will be used throughout t
 
 Datasets
 ^^^^^^^^
-AI Platform provides managed Tabular, Text, Image, and Video datasets. In the SDK, Datasets can be used downstream to
+Vertex AI provides managed tabular, text, image, and video datasets. In the SDK, datasets can be used downstream to
 train models.
 
-To create a Tabular dataset:
+To create a tabular dataset:
 
 .. code-block:: Python
 
@@ -160,16 +160,16 @@ Vertex AI supports a variety of dataset schemas. References to these schemas are
 
 Training
 ^^^^^^^^
-The Vertex SDK allows you train Custom and AutoML Models.
+The Vertex SDK for Python allows you train Custom and AutoML Models.
 
-Custom models can be trained using a custom Python script, custom Python package, or container.
+You can train custom models using a custom Python script, custom Python package, or container.
 
-Preparing Your Custom Code
---------------------------
-Vertex AI custom training enables you to train on AI Platform Datasets and produce AI Platform Models. To do so your
+**Preparing Your Custom Code**
+
+Vertex AI custom training enables you to train on Vertex AI datasets and produce Vertex AI models. To do so your
 script must adhere to the following contract:
 
-1. It must read dataset from the environment variables populated by the training service:
+It must read datasets from the environment variables populated by the training service:
 
 .. code-block:: Python
 
@@ -182,14 +182,13 @@ Please visit `Using a managed dataset in a custom training application`_ for a d
 
 .. _Using a managed dataset in a custom training application: https://cloud.google.com/vertex-ai/docs/training/using-managed-datasets
 
-2. It must write the model artifact to the environment variable populated by the traing service:
+It must write the model artifact to the environment variable populated by the traing service:
 
 .. code-block:: Python 
 
   os.environ['AIP_MODEL_DIR']
 
-Running Training
-----------------
+**Running Training**
 
 .. code-block:: Python
 
@@ -207,14 +206,14 @@ Running Training
                   accelerator_type='NVIDIA_TESLA_K80',
                   accelerator_count=1)
 
-In the code block above my_dataset is managed dataset created in the `Datasets` section above. `model` is a Managed Vertex AI Model that the be deployed or exported.
+In the code block above `my_dataset` is managed dataset created in the `Dataset` section above. The `model` variable is a managed Vertex AI model that can be deployed or exported.
 
 
 AutoMLs
 -------
-The Vertex SDK for Python supports AutoML Tabular, Image, Text, Video, and Forecasting.
+The Vertex SDK for Python supports AutoML tabular, image, text, video, and forecasting.
 
-To train an AutoML Tabular model:
+To train an AutoML tabular model:
 
 .. code-block:: Python
 
@@ -254,7 +253,7 @@ To deploy a model:
                           accelerator_count=1)
 
 
-To upload a Model:
+To upload a model:
 
 .. code-block:: Python
 
@@ -264,7 +263,7 @@ To upload a Model:
       serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-2:latest",
   )
 
-To get a Model:
+To get a model:
 
 .. code-block:: Python
 
@@ -285,13 +284,13 @@ To get predictions from endpoints:
   endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
 
 
-To create an Endpoint
+To create an endpoint
 
 .. code-block:: Python
 
   endpoint = endpoint.create(display_name='my-endpoint')
 
-To deploy a Model to a created Endpoint:
+To deploy a model to a created endpoint:
 
 .. code-block:: Python
 
@@ -304,13 +303,13 @@ To deploy a Model to a created Endpoint:
                   accelerator_type='NVIDIA_TESLA_K80',
                   accelerator_count=1)
 
-To undeploy models from an Endpoint:
+To undeploy models from an endpoint:
 
 .. code-block:: Python
 
   endpoint.undeploy_all()
 
-To delete an Endpoint:
+To delete an endpoint:
 
 .. code-block:: Python
   
