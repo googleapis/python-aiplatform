@@ -45,7 +45,7 @@ With `virtualenv`_, it's possible to install this library without needing system
 install permissions, and without clashing with the installed system
 dependencies.
 
-.. _`virtualenv`: https://virtualenv.pypa.io/en/latest/
+.. _virtualenv: https://virtualenv.pypa.io/en/latest/
 
 
 Mac/Linux
@@ -72,8 +72,12 @@ Windows
 
 Overview
 ~~~~~~~~
+This section provides a brief overview of the Vertex SDK for Python. You can also reference the notebooks in `vertex-samples`_ for examples.
+
+.. _vertex-samples: https://github.com/GoogleCloudPlatform/ai-platform-samples/tree/master/ai-platform-unified/notebooks/unofficial/sdk
+
 Importing
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^
 SDK functionality can be used from the root of the package:
 
 .. code-block:: Python
@@ -82,7 +86,7 @@ SDK functionality can be used from the root of the package:
 
 
 Initialization
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
 Initialize the SDK to store common configurations that will be used throughout the SDK.
 
 .. code-block:: Python
@@ -142,6 +146,12 @@ You can also create and import a dataset in separate steps:
         import_schema_uri=aiplatform.schema.dataset.ioformat.text.multi_label_classification
     )
 
+To get a previously created Dataset:
+
+.. code-block:: Python
+  
+  dataset = aiplatform.ImageDataset('projects/my-project/location/us-central1/datasets/{DATASET_ID}')
+
 Vertex AI supports a variety of dataset schemas. References to these schemas are available under the
 :code:`aiplatform.schema.dataset` namespace. For more information on the supported dataset schemas please refer to the
 `Preparing data docs`_.
@@ -168,7 +178,7 @@ script must adhere to the following contract:
   os.environ['AIP_VALIDATION_DATA_URI']  # uri to validation split
   os.environ['AIP_TEST_DATA_URI']  # uri to test split
 
-Please visit `Using a managed dataset in a custom training application`_ for a detailed overview information.
+Please visit `Using a managed dataset in a custom training application`_ for a detailed overview.
 
 .. _Using a managed dataset in a custom training application: https://cloud.google.com/vertex-ai/docs/training/using-managed-datasets
 
@@ -191,11 +201,120 @@ Running Training
       model_serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-2:latest",
   )
 
-  model = job.run(my_dataset, replica_count=1)
+  model = job.run(my_dataset,
+                  replica_count=1,
+                  machine_type="n1-standard-4",
+                  accelerator_type='NVIDIA_TESLA_K80',
+                  accelerator_count=1)
 
 In the code block above my_dataset is managed dataset created in the `Datasets` section above. `model` is a Managed Vertex AI Model that the be deployed or exported.
 
 
+AutoMLs
+-------
+The Vertex SDK for Python supports AutoML Tabular, Image, Text, Video, and Forecasting.
+
+To train an AutoML Tabular model:
+
+.. code-block:: Python
+
+  dataset = aiplatform.TabularDataset('projects/my-project/location/us-central1/datasets/{DATASET_ID}')
+
+  job = aiplatform.AutoMLTabularTrainingJob(
+    display_name="train-automl",
+    optimization_prediction_type="regression",
+    optimization_objective="minimize-rmse",
+  )
+
+  model = job.run(
+      dataset=dataset,
+      target_column="target_column_name",
+      training_fraction_split=0.6,
+      validation_fraction_split=0.2,
+      test_fraction_split=0.2,
+      budget_milli_node_hours=1000,
+      model_display_name="my-automl-model",
+      disable_early_stopping=False,
+  )
+
+
+Models
+------
+
+To deploy a model:
+
+
+.. code-block:: Python
+
+  endpoint = model.deploy(machine_type="n1-standard-4",
+                          min_replica_count=1,
+                          max_replica_count=5
+                          machine_type='n1-standard-4',
+                          accelerator_type='NVIDIA_TESLA_K80',
+                          accelerator_count=1)
+
+
+To upload a Model:
+
+.. code-block:: Python
+
+  model = aiplatform.Model.upload(
+      display_name='my-model',
+      artifact_uri="gs://python/to/my/model/dir",
+      serving_container_image_uri="gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-2:latest",
+  )
+
+To get a Model:
+
+.. code-block:: Python
+
+  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+
+Please visit `Importing models to Vertex AI`_ for a detailed overview:
+
+.. _Importing models to Vertex AI: https://cloud.google.com/vertex-ai/docs/general/import-model
+
+
+Endpoints
+---------
+
+To get predictions from endpoints:
+
+.. code-block:: Python
+
+  endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
+
+
+To create an Endpoint
+
+.. code-block:: Python
+
+  endpoint = endpoint.create(display_name='my-endpoint')
+
+To deploy a Model to a created Endpoint:
+
+.. code-block:: Python
+
+  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+  
+  endpoint.deploy(model,
+                  min_replica_count=1,
+                  max_replica_count=5
+                  machine_type='n1-standard-4',
+                  accelerator_type='NVIDIA_TESLA_K80',
+                  accelerator_count=1)
+
+To undeploy models from an Endpoint:
+
+.. code-block:: Python
+
+  endpoint.undeploy_all()
+
+To delete an Endpoint:
+
+.. code-block:: Python
+  
+  endpoint.delete()
 
 
 Next Steps
