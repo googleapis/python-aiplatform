@@ -73,7 +73,7 @@ _JOB_ERROR_STATES = (
 )
 
 
-class _Job(base.VertexAIResourceNounWithFutureManager):
+class _Job(base.VertexAiResourceNounWithFutureManager):
     """Class that represents a general Job resource in Vertex AI.
     Cannot be directly instantiated.
 
@@ -804,7 +804,7 @@ class _RunnableJob(_Job):
                 credentials to use when accessing interacting with resource noun.
         """
 
-        base.VertexAIResourceNounWithFutureManager.__init__(
+        base.VertexAiResourceNounWithFutureManager.__init__(
             self, project=project, location=location, credentials=credentials
         )
 
@@ -1168,7 +1168,8 @@ class CustomJob(_RunnableJob):
                 AIP_TENSORBOARD_LOG_DIR
 
                 `service_account` is required with provided `tensorboard`.
-                (TODO: add documentation when released)
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will unblock and it will be executed in a concurrent Future.
@@ -1475,7 +1476,8 @@ class HyperparameterTuningJob(_RunnableJob):
                 AIP_TENSORBOARD_LOG_DIR
 
                 `service_account` is required with provided `tensorboard`.
-                (TODO: add documentation when released)
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will unblock and it will be executed in a concurrent Future.

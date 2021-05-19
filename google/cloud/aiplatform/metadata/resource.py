@@ -33,7 +33,7 @@ from google.cloud.aiplatform_v1beta1 import Context as GapicContext
 from google.cloud.aiplatform_v1beta1 import Execution as GapicExecution
 
 
-class _Resource(base.VertexAIResourceNounWithFutureManager, abc.ABC):
+class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     """Metadata Resource for Vertex AI"""
 
     client_class = utils.MetadataClientWithOverride
