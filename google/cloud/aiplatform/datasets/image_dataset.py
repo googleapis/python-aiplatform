@@ -27,7 +27,7 @@ from google.cloud.aiplatform import utils
 
 
 class ImageDataset(datasets._Dataset):
-    """Managed image dataset resource for AI Platform."""
+    """Managed image dataset resource for Vertex AI."""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
         schema.dataset.metadata.image,

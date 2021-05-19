@@ -73,7 +73,7 @@ class Prediction(NamedTuple):
     explanations: Optional[Sequence[gca_explanation_v1beta1.Explanation]] = None
 
 
-class Endpoint(base.AiPlatformResourceNounWithFutureManager):
+class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.EndpointClientWithOverride
     _is_client_prediction_client = False
@@ -1181,7 +1181,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         return self
 
     def delete(self, force: bool = False, sync: bool = True) -> None:
-        """Deletes this AI Platform Endpoint resource. If force is set to True,
+        """Deletes this Vertex AI Endpoint resource. If force is set to True,
         all models on this Endpoint will be undeployed prior to deletion.
 
         Args:
@@ -1201,7 +1201,7 @@ class Endpoint(base.AiPlatformResourceNounWithFutureManager):
         super().delete(sync=sync)
 
 
-class Model(base.AiPlatformResourceNounWithFutureManager):
+class Model(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.ModelClientWithOverride
     _is_client_prediction_client = False
@@ -1325,11 +1325,11 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
             serving_container_predict_route (str):
                 Optional. An HTTP path to send prediction requests to the container, and
                 which must be supported by it. If not specified a default HTTP path will
-                be used by AI Platform.
+                be used by Vertex AI.
             serving_container_health_route (str):
                 Optional. An HTTP path to send health check requests to the container, and which
                 must be supported by it. If not specified a standard HTTP path will be
-                used by AI Platform.
+                used by Vertex AI.
             description (str):
                 The description of the model.
             serving_container_command: Optional[Sequence[str]]=None,
@@ -1353,7 +1353,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 and values are environment variable values for those names.
             serving_container_ports: Optional[Sequence[int]]=None,
                 Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives AI Platform information about the
+                primarily informational, it gives Vertex AI information about the
                 network connections the container uses. Listing or not a port here has
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
@@ -1898,7 +1898,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 ```google.rpc.Status`` <Status>`__ represented as a STRUCT,
                 and containing only ``code`` and ``message``.
             predictions_format: str = "jsonl"
-                Required. The format in which AI Platform gives the
+                Required. The format in which Vertex AI gives the
                 predictions, must be one of "jsonl", "csv", or "bigquery".
                 Default is "jsonl" when using `gcs_destination_prefix`. If a
                 `bigquery_destination_prefix` is provided, this is overriden to
@@ -1919,7 +1919,7 @@ class Model(base.AiPlatformResourceNounWithFutureManager):
                 `machine_type`. Only used if `machine_type` is set.
             starting_replica_count: Optional[int] = None
                 The number of machine replicas used at the start of the batch
-                operation. If not set, AI Platform decides starting number, not
+                operation. If not set, Vertex AI decides starting number, not
                 greater than `max_replica_count`. Only used if `machine_type` is
                 set.
             max_replica_count: Optional[int] = None

@@ -27,7 +27,7 @@ from google.cloud.aiplatform import utils
 
 
 class TextDataset(datasets._Dataset):
-    """Managed text dataset resource for AI Platform."""
+    """Managed text dataset resource for Vertex AI."""
 
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
         schema.dataset.metadata.text,

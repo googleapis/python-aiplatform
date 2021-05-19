@@ -26,7 +26,7 @@ from google.cloud.aiplatform_v1beta1.types import artifact as gca_artifact
 
 
 class _Artifact(_Resource):
-    """Metadata Artifact resource for AI Platform"""
+    """Metadata Artifact resource for Vertex AI"""
 
     _resource_noun = "artifacts"
     _getter_method = "get_artifact"

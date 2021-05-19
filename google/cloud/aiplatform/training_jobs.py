@@ -61,7 +61,7 @@ _PIPELINE_COMPLETE_STATES = set(
 )
 
 
-class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
+class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.PipelineClientWithOverride
     _is_client_prediction_client = False
@@ -166,7 +166,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 doesn't match the custom training task definition.
 
         Returns:
-            An AI Platform Training Job
+            An Vertex AI Training Job
         """
 
         # Create job with dummy parameters
@@ -277,7 +277,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             gcs_destination_uri_prefix (str):
                 Optional. The Google Cloud Storage location.
 
-                The AI Platform environment variables representing Google
+                The Vertex AI environment variables representing Google
                 Cloud Storage data URIs will always be represented in the
                 Google Cloud Storage wildcard format to support sharded
                 data.
@@ -449,14 +449,14 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 does not support uploading a Model as part of the pipeline.
                 When the Pipeline's state becomes
                 ``PIPELINE_STATE_SUCCEEDED`` and the trained Model had been
-                uploaded into AI Platform, then the model_to_upload's
+                uploaded into Vertex AI, then the model_to_upload's
                 resource ``name``
                 is populated. The Model is always uploaded into the Project
                 and Location in which this pipeline is.
             gcs_destination_uri_prefix (str):
                 Optional. The Google Cloud Storage location.
 
-                The AI Platform environment variables representing Google
+                The Vertex AI environment variables representing Google
                 Cloud Storage data URIs will always be represented in the
                 Google Cloud Storage wildcard format to support sharded
                 data.
@@ -546,7 +546,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         return self._gca_resource.state
 
     def get_model(self, sync=True) -> models.Model:
-        """AI Platform Model produced by this training, if one was produced.
+        """Vertex AI Model produced by this training, if one was produced.
 
         Args:
             sync (bool):
@@ -555,7 +555,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: AI Platform Model produced by this training
+            model: Vertex AI Model produced by this training
 
         Raises:
             RuntimeError: If training failed or if a model was not produced by this training.
@@ -569,7 +569,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
     @base.optional_sync()
     def _force_get_model(self, sync: bool = True) -> models.Model:
-        """AI Platform Model produced by this training, if one was produced.
+        """Vertex AI Model produced by this training, if one was produced.
 
         Args:
             sync (bool):
@@ -578,7 +578,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: AI Platform Model produced by this training
+            model: Vertex AI Model produced by this training
 
         Raises:
             RuntimeError: If training failed or if a model was not produced by this training.
@@ -594,7 +594,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         """Helper method to get and instantiate the Model to Upload.
 
         Returns:
-            model: AI Platform Model if training succeeded and produced an AI Platform
+            model: Vertex AI Model if training succeeded and produced an Vertex AI
                 Model. None otherwise.
 
         Raises:
@@ -709,7 +709,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List["base.AiPlatformResourceNoune"]:
+    ) -> List["base.VertexAiResourceNoun"]:
         """List all instances of this TrainingJob resource.
 
         Example Usage:
@@ -738,7 +738,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[AiPlatformResourceNoun] - A list of TrainingJob resource objects
+            List[VertexAiResourceNoun] - A list of TrainingJob resource objects
         """
 
         training_job_subclass_filter = (
@@ -806,15 +806,15 @@ class _CustomTrainingJob(_TrainingJob):
             container_uri (str):
                 Required: Uri of the training container image in the GCR.
             model_serving_container_image_uri (str):
-                If the training produces a managed AI Platform Model, the URI of the
+                If the training produces a managed Vertex AI Model, the URI of the
                 Model serving container suitable for serving the model produced by the
                 training script.
             model_serving_container_predict_route (str):
-                If the training produces a managed AI Platform Model, An HTTP path to
+                If the training produces a managed Vertex AI Model, An HTTP path to
                 send prediction requests to the container, and which must be supported
-                by it. If not specified a default HTTP path will be used by AI Platform.
+                by it. If not specified a default HTTP path will be used by Vertex AI.
             model_serving_container_health_route (str):
-                If the training produces a managed AI Platform Model, an HTTP path to
+                If the training produces a managed Vertex AI Model, an HTTP path to
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
@@ -839,7 +839,7 @@ class _CustomTrainingJob(_TrainingJob):
                 and values are environment variable values for those names.
             model_serving_container_ports (Sequence[int]):
                 Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives AI Platform information about the
+                primarily informational, it gives Vertex AI information about the
                 network connections the container uses. Listing or not a port here has
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
@@ -1010,7 +1010,7 @@ class _CustomTrainingJob(_TrainingJob):
 
         Args:
             model_display_name (str):
-                If the script produces a managed AI Platform Model. The display name of
+                If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -1130,10 +1130,10 @@ class _CustomTrainingJob(_TrainingJob):
 
 # TODO(b/172368325) add scheduling, custom_job.Scheduling
 class CustomTrainingJob(_CustomTrainingJob):
-    """Class to launch a Custom Training Job in AI Platform using a script.
+    """Class to launch a Custom Training Job in Vertex AI using a script.
 
     Takes a training implementation as a python script and executes that
-    script in Cloud AI Platform Training.
+    script in Cloud Vertex AI Training.
     """
 
     def __init__(
@@ -1184,7 +1184,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
 
         TODO(b/169782082) add documentation about traning utilities
-        To ensure your model gets saved in AI Platform, write your saved model to
+        To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
 
 
@@ -1197,15 +1197,15 @@ class CustomTrainingJob(_CustomTrainingJob):
             requirements (Sequence[str]):
                 List of python packages dependencies of script.
             model_serving_container_image_uri (str):
-                If the training produces a managed AI Platform Model, the URI of the
+                If the training produces a managed Vertex AI Model, the URI of the
                 Model serving container suitable for serving the model produced by the
                 training script.
             model_serving_container_predict_route (str):
-                If the training produces a managed AI Platform Model, An HTTP path to
+                If the training produces a managed Vertex AI Model, An HTTP path to
                 send prediction requests to the container, and which must be supported
-                by it. If not specified a default HTTP path will be used by AI Platform.
+                by it. If not specified a default HTTP path will be used by Vertex AI.
             model_serving_container_health_route (str):
-                If the training produces a managed AI Platform Model, an HTTP path to
+                If the training produces a managed Vertex AI Model, an HTTP path to
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
@@ -1230,7 +1230,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 and values are environment variable values for those names.
             model_serving_container_ports (Sequence[int]):
                 Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives AI Platform information about the
+                primarily informational, it gives Vertex AI information about the
                 network connections the container uses. Listing or not a port here has
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
@@ -1386,7 +1386,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform.If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI.If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -1398,7 +1398,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                     datasets.VideoDataset,
                 ]
             ):
-                AI Platform to fit this training against. Custom training script should
+                Vertex AI to fit this training against. Custom training script should
                 retrieve datasets through passed in environment variables uris:
 
                 os.environ["AIP_TRAINING_DATA_URI"]
@@ -1431,7 +1431,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 and
                 ``annotation_schema_uri``.
             model_display_name (str):
-                If the script produces a managed AI Platform Model. The display name of
+                If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -1440,7 +1440,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
 
-                AI Platform sets the following environment variables when it runs your training code:
+                Vertex AI sets the following environment variables when it runs your training code:
 
                 -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
                 -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
@@ -1518,8 +1518,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -1593,7 +1593,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                     datasets.VideoDataset,
                 ]
             ):
-                AI Platform to fit this training against.
+                Vertex AI to fit this training against.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema.
@@ -1617,7 +1617,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
 
-                AI Platform sets the following environment variables when it runs your training code:
+                Vertex AI sets the following environment variables when it runs your training code:
 
                 -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
                 -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
@@ -1671,8 +1671,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
         package_gcs_uri = python_packager.package_and_copy_to_gcs(
             gcs_staging_dir=self._staging_bucket,
@@ -1724,7 +1724,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
 
 class CustomContainerTrainingJob(_CustomTrainingJob):
-    """Class to launch a Custom Training Job in AI Platform using a
+    """Class to launch a Custom Training Job in Vertex AI using a
     Container."""
 
     def __init__(
@@ -1773,7 +1773,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
 
         TODO(b/169782082) add documentation about traning utilities
-        To ensure your model gets saved in AI Platform, write your saved model to
+        To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
 
 
@@ -1786,15 +1786,15 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 The command to be invoked when the container is started.
                 It overrides the entrypoint instruction in Dockerfile when provided
             model_serving_container_image_uri (str):
-                If the training produces a managed AI Platform Model, the URI of the
+                If the training produces a managed Vertex AI Model, the URI of the
                 Model serving container suitable for serving the model produced by the
                 training script.
             model_serving_container_predict_route (str):
-                If the training produces a managed AI Platform Model, An HTTP path to
+                If the training produces a managed Vertex AI Model, An HTTP path to
                 send prediction requests to the container, and which must be supported
-                by it. If not specified a default HTTP path will be used by AI Platform.
+                by it. If not specified a default HTTP path will be used by Vertex AI.
             model_serving_container_health_route (str):
-                If the training produces a managed AI Platform Model, an HTTP path to
+                If the training produces a managed Vertex AI Model, an HTTP path to
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
@@ -1819,7 +1819,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 and values are environment variable values for those names.
             model_serving_container_ports (Sequence[int]):
                 Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives AI Platform information about the
+                primarily informational, it gives Vertex AI information about the
                 network connections the container uses. Listing or not a port here has
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
@@ -1974,12 +1974,12 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset]):
-                AI Platform to fit this training against. Custom training script should
+                Vertex AI to fit this training against. Custom training script should
                 retrieve datasets through passed in environment variables uris:
 
                 os.environ["AIP_TRAINING_DATA_URI"]
@@ -2012,7 +2012,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 and
                 ``annotation_schema_uri``.
             model_display_name (str):
-                If the script produces a managed AI Platform Model. The display name of
+                If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -2021,7 +2021,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
 
-                AI Platform sets the following environment variables when it runs your training code:
+                Vertex AI sets the following environment variables when it runs your training code:
 
                 -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
                 -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
@@ -2099,8 +2099,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run, staging_bucket has not
@@ -2169,7 +2169,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                     datasets.VideoDataset,
                 ]
             ):
-                AI Platform to fit this training against.
+                Vertex AI to fit this training against.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema.
@@ -2193,7 +2193,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
 
-                AI Platform sets the following environment variables when it runs your training code:
+                Vertex AI sets the following environment variables when it runs your training code:
 
                 -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
                 -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
@@ -2246,8 +2246,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
 
         for spec in worker_pool_specs:
@@ -2440,7 +2440,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -2491,7 +2491,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
-                Optional. If the script produces a managed AI Platform Model. The display name of
+                Optional. If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -2507,8 +2507,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -2555,7 +2555,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -2606,7 +2606,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
-                Optional. If the script produces a managed AI Platform Model. The display name of
+                Optional. If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -2623,8 +2623,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
 
         training_task_definition = schema.training_job.definition.automl_tabular
@@ -2883,7 +2883,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
-                Optional. If the script produces a managed AI Platform Model. The display name of
+                Optional. If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -2893,8 +2893,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
 
         Raises:
             RuntimeError if Training job has already been run or is waiting to run.
@@ -3068,7 +3068,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
-                Optional. If the script produces a managed AI Platform Model. The display name of
+                Optional. If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -3078,8 +3078,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
 
         training_task_definition = schema.training_job.definition.automl_forecasting
@@ -3311,7 +3311,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -3345,7 +3345,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
-                Optional. The display name of the managed AI Platform Model. The name
+                Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
                 characters. If not provided upon creation, the job's display_name is used.
             disable_early_stopping: bool = False
@@ -3359,8 +3359,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -3403,7 +3403,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -3443,7 +3443,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
-                Optional. The display name of the managed AI Platform Model. The name
+                Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
                 characters. If a `base_model` was provided, the display_name in the
                 base_model will be overritten with this value. If not provided upon
@@ -3460,8 +3460,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
 
         # Retrieve the objective-specific training task schema based on prediction_type
@@ -3491,7 +3491,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             model_tbt.description = getattr(base_model._gca_resource, "description")
             model_tbt.labels = getattr(base_model._gca_resource, "labels")
 
-            # Set ID of AI Platform Model to base this training job off of
+            # Set ID of Vertex AI Model to base this training job off of
             training_task_inputs_dict["baseModelId"] = base_model.name
 
         return self._run_job(
@@ -3514,11 +3514,11 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
 
 class CustomPythonPackageTrainingJob(_CustomTrainingJob):
-    """Class to launch a Custom Training Job in AI Platform using a Python
+    """Class to launch a Custom Training Job in Vertex AI using a Python
     Package.
 
     Takes a training implementation as a python package and executes
-    that package in Cloud AI Platform Training.
+    that package in Cloud Vertex AI Training.
     """
 
     def __init__(
@@ -3576,7 +3576,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 model_display_name='my-trained-model'
             )
 
-        To ensure your model gets saved in AI Platform, write your saved model to
+        To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
 
         Args:
@@ -3589,15 +3589,15 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             container_uri (str):
                 Required: Uri of the training container image in the GCR.
             model_serving_container_image_uri (str):
-                If the training produces a managed AI Platform Model, the URI of the
+                If the training produces a managed Vertex AI Model, the URI of the
                 Model serving container suitable for serving the model produced by the
                 training script.
             model_serving_container_predict_route (str):
-                If the training produces a managed AI Platform Model, An HTTP path to
+                If the training produces a managed Vertex AI Model, An HTTP path to
                 send prediction requests to the container, and which must be supported
-                by it. If not specified a default HTTP path will be used by AI Platform.
+                by it. If not specified a default HTTP path will be used by Vertex AI.
             model_serving_container_health_route (str):
-                If the training produces a managed AI Platform Model, an HTTP path to
+                If the training produces a managed Vertex AI Model, an HTTP path to
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
@@ -3622,7 +3622,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 and values are environment variable values for those names.
             model_serving_container_ports (Sequence[int]):
                 Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives AI Platform information about the
+                primarily informational, it gives Vertex AI information about the
                 network connections the container uses. Listing or not a port here has
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
@@ -3776,12 +3776,12 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform.If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI.If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset,]):
-                AI Platform to fit this training against. Custom training script should
+                Vertex AI to fit this training against. Custom training script should
                 retrieve datasets through passed in environment variables uris:
 
                 os.environ["AIP_TRAINING_DATA_URI"]
@@ -3814,7 +3814,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 and
                 ``annotation_schema_uri``.
             model_display_name (str):
-                If the script produces a managed AI Platform Model. The display name of
+                If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -3823,7 +3823,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
 
-                AI Platform sets the following environment variables when it runs your training code:
+                Vertex AI sets the following environment variables when it runs your training code:
 
                 -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
                 -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
@@ -3901,8 +3901,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -3967,7 +3967,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                     datasets.VideoDataset,
                 ]
             ):
-                AI Platform to fit this training against.
+                Vertex AI to fit this training against.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema.
@@ -3991,7 +3991,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
 
-                AI Platform sets the following environment variables when it runs your training code:
+                Vertex AI sets the following environment variables when it runs your training code:
 
                 -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
                 -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
@@ -4030,8 +4030,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
         for spec in worker_pool_specs:
             spec["python_package_spec"] = {
@@ -4228,7 +4228,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
             model_display_name (str):
-                Optional. The display name of the managed AI Platform Model. The name
+                Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
                 characters. If not provided upon creation, the job's display_name is used.
             sync: bool = True
@@ -4236,8 +4236,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -4289,7 +4289,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
             model_display_name (str):
-                Optional. The display name of the managed AI Platform Model. The name
+                Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
                 characters. If a `base_model` was provided, the display_name in the
                 base_model will be overritten with this value. If not provided upon
@@ -4300,8 +4300,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
 
         # Retrieve the objective-specific training task schema based on prediction_type
@@ -4364,7 +4364,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 The type of prediction the Model is to produce, one of:
                     "classification" - A classification model analyzes text data and
                         returns a list of categories that apply to the text found in the data.
-                        AI Platform offers both single-label and multi-label text classification models.
+                        Vertex AI offers both single-label and multi-label text classification models.
                     "extraction" - An entity extraction model inspects text data
                         for known entities referenced in the data and
                         labels those entities in the text.
@@ -4478,7 +4478,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -4498,7 +4498,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
             model_display_name (str):
-                Optional. The display name of the managed AI Platform Model.
+                Optional. The display name of the managed Vertex AI Model.
                 The name can be up to 128 characters long and can consist
                 of any UTF-8 characters.
 
@@ -4508,7 +4508,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource.
+            model: The trained Vertex AI Model resource.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -4545,7 +4545,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -4567,7 +4567,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
             model_display_name (str):
-                Optional. If the script produces a managed AI Platform Model. The display name of
+                Optional. If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -4578,8 +4578,8 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
 
         if model_display_name is None:

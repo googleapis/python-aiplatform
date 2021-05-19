@@ -56,8 +56,8 @@ from google.cloud.aiplatform.compat.types import (
     accelerator_type as gca_accelerator_type,
 )
 
-AiPlatformServiceClient = TypeVar(
-    "AiPlatformServiceClient",
+VertexAiServiceClient = TypeVar(
+    "VertexAiServiceClient",
     # v1beta1
     dataset_service_client_v1beta1.DatasetServiceClient,
     endpoint_service_client_v1beta1.EndpointServiceClient,
@@ -110,7 +110,7 @@ def extract_fields_from_resource_name(
 
     Args:
         resource_name (str):
-            Required. A fully-qualified AI Platform (Unified) resource name
+            Required. A fully-qualified Vertex AI resource name
 
         resource_noun (str):
             A resource noun to validate the resource name against.
@@ -145,7 +145,7 @@ def full_resource_name(
 
     Args:
         resource_name (str):
-            Required. A fully-qualified AI Platform (Unified) resource name or
+            Required. A fully-qualified Vertex AI resource name or
             resource ID.
         resource_noun (str):
             A resource noun to validate the resource name against.
@@ -163,7 +163,7 @@ def full_resource_name(
 
     Returns:
         resource_name (str):
-            A fully-qualified AI Platform (Unified) resource name.
+            A fully-qualified Vertex AI resource name.
 
     Raises:
         ValueError:
@@ -257,7 +257,7 @@ def validate_region(region: str) -> bool:
     region = region.lower()
     if region not in constants.SUPPORTED_REGIONS:
         raise ValueError(
-            f"Unsupported region for AI Platform, select from {constants.SUPPORTED_REGIONS}"
+            f"Unsupported region for Vertex AI, select from {constants.SUPPORTED_REGIONS}"
         )
 
     return True
@@ -324,7 +324,7 @@ class ClientWithOverride:
 
         def __init__(
             self,
-            client_class: Type[AiPlatformServiceClient],
+            client_class: Type[VertexAiServiceClient],
             client_options: client_options.ClientOptions,
             client_info: gapic_v1.client_info.ClientInfo,
             credentials: Optional[auth_credentials.Credentials] = None,
@@ -332,7 +332,7 @@ class ClientWithOverride:
             """Stores parameters needed to instantiate client.
 
             Args:
-                client_class (AiPlatformServiceClient):
+                client_class (VertexAiServiceClient):
                     Required. Class of the client to use.
                 client_options (client_options.ClientOptions):
                     Required. Client options to pass to client.
@@ -410,7 +410,7 @@ class ClientWithOverride:
         """Instantiates client and returns attribute of the client."""
         return getattr(self._clients[self._default_version], name)
 
-    def select_version(self, version: str) -> AiPlatformServiceClient:
+    def select_version(self, version: str) -> VertexAiServiceClient:
         return self._clients[version]
 
 
@@ -484,8 +484,8 @@ class TensorboardClientWithOverride(ClientWithOverride):
     )
 
 
-AiPlatformServiceClientWithOverride = TypeVar(
-    "AiPlatformServiceClientWithOverride",
+VertexAiServiceClientWithOverride = TypeVar(
+    "VertexAiServiceClientWithOverride",
     DatasetClientWithOverride,
     EndpointClientWithOverride,
     JobClientWithOverride,
