@@ -406,12 +406,14 @@ class TestDataset:
 
         ds = datasets.TabularDataset(dataset_name=_TEST_NAME)
 
-        assert ds.api_client._clients['v1']._client_options.api_endpoint == f'{_TEST_LOCATION}-{aiplatform.constants.API_BASE_PATH}'
+        assert (
+            ds.api_client._clients["v1"]._client_options.api_endpoint
+            == f"{_TEST_LOCATION}-{aiplatform.constants.API_BASE_PATH}"
+        )
 
         assert _TEST_ALT_LOCATION != _TEST_LOCATION
 
         get_dataset_tabular_gcs_mock.assert_called_once_with(name=_TEST_NAME)
-
 
     def test_init_dataset_with_project_and_alt_location(self):
         aiplatform.init(project=_TEST_PROJECT)
