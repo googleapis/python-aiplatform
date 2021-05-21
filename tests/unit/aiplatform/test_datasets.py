@@ -31,6 +31,7 @@ from google.cloud import aiplatform
 from google.cloud import bigquery
 from google.cloud import storage
 
+from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
@@ -407,7 +408,7 @@ class TestDataset:
         ds = datasets.TabularDataset(dataset_name=_TEST_NAME)
 
         assert (
-            ds.api_client._clients["v1"]._client_options.api_endpoint
+            ds.api_client._clients[compat.DEFAULT_VERSION]._client_options.api_endpoint
             == f"{_TEST_LOCATION}-{aiplatform.constants.API_BASE_PATH}"
         )
 
