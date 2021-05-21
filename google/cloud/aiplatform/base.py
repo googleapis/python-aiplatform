@@ -501,9 +501,6 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             RuntimeError if location is different from resource location
         """
 
-        if not project and not location:
-            return project, location
-
         fields = utils.extract_fields_from_resource_name(
             resource_name, self._resource_noun
         )

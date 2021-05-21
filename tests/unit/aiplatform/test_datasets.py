@@ -31,6 +31,7 @@ from google.cloud import aiplatform
 from google.cloud import bigquery
 from google.cloud import storage
 
+from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
@@ -400,6 +401,20 @@ class TestDataset:
             dataset_name=_TEST_NAME, project=_TEST_ALT_PROJECT, location=_TEST_LOCATION
         )
         get_dataset_mock.assert_called_once_with(name=_TEST_NAME)
+
+    def test_init_dataset_with_alt_location(self, get_dataset_tabular_gcs_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_ALT_LOCATION)
+
+        ds = datasets.TabularDataset(dataset_name=_TEST_NAME)
+
+        assert (
+            ds.api_client._clients[compat.DEFAULT_VERSION]._client_options.api_endpoint
+            == f"{_TEST_LOCATION}-{aiplatform.constants.API_BASE_PATH}"
+        )
+
+        assert _TEST_ALT_LOCATION != _TEST_LOCATION
+
+        get_dataset_tabular_gcs_mock.assert_called_once_with(name=_TEST_NAME)
 
     def test_init_dataset_with_project_and_alt_location(self):
         aiplatform.init(project=_TEST_PROJECT)
