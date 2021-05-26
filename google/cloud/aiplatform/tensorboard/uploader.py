@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 """Uploads a TensorBoard logdir to TensorBoard.gcp."""
+import abc
 import contextlib
 import functools
 import json
@@ -671,7 +672,7 @@ class _TimeSeriesResourceManager(object):
         return time_series
 
 
-class _ScalarBatchedRequestSender(object):
+class _NumericBatchedRequestSender(object):
     """Helper class for building requests that fit under a size limit.
 
     This class accumulates a current request.  `add_event(...)` may or may not
@@ -690,7 +691,7 @@ class _ScalarBatchedRequestSender(object):
         max_request_size: int,
         tracker: upload_tracker.UploadTracker,
     ):
-        """Constructer for _ScalarBatchedRequestSender.
+        """Constructer for _NumericBatchedRequestSender.
 
         Args:
           run_resource_id: The resource id for the run with the following format
@@ -777,7 +778,7 @@ class _ScalarBatchedRequestSender(object):
         self._rpc_rate_limiter.tick()
 
         with _request_logger(request):
-            with self._tracker.scalars_tracker(self._num_values):
+            with self._get_tracker():
                 try:
                     self._api.write_tensorboard_run_data(
                         tensorboard_run=self._run_resource_id,
@@ -813,12 +814,12 @@ class _ScalarBatchedRequestSender(object):
                 tag_name,
                 lambda: tensorboard_time_series.TensorboardTimeSeries(
                     display_name=tag_name,
-                    value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+                    value_type=self._get_value_type(),
                     plugin_name=metadata.plugin_data.plugin_name,
                     plugin_data=metadata.plugin_data.content,
                 ),
             ).name.split("/")[-1],
-            value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+            value_type=self._get_value_type(),
         )
 
         self._request.time_series_data.extend([time_series_data_proto])
@@ -837,23 +838,17 @@ class _ScalarBatchedRequestSender(object):
         Args:
           time_series_proto: TimeSeriesData proto to which to add a point.
           event: Enclosing `Event` proto with the step and wall time data.
-          value: Scalar `Summary.Value` proto with the actual scalar data.
+          value: `Summary.Value` proto.
 
         Raises:
           _OutOfSpaceError: If adding the point would exceed the remaining
             request budget.
         """
-        scalar_proto = tensorboard_data.Scalar(
-            value=tensor_util.make_ndarray(value.tensor).item()
-        )
-        point = tensorboard_data.TimeSeriesDataPoint(
-            step=event.step,
-            scalar=scalar_proto,
-            wall_time=timestamp.Timestamp(
-                seconds=int(event.wall_time),
-                nanos=int(round((event.wall_time % 1) * 10 ** 9)),
-            ),
-        )
+        point = self._create_data_point(event, value)
+
+        if not self._validate(point, event, value):
+            return
+
         time_series_proto.values.extend([point])
         try:
             self._byte_budget_manager.add_point(point)
@@ -861,8 +856,100 @@ class _ScalarBatchedRequestSender(object):
             time_series_proto.values.pop()
             raise
 
+    @abc.abstractmethod
+    def _get_tracker(self):
+        """
+        :return: tracker function from upload_tracker.UploadTracker
+        """
+        pass
 
-class _TensorBatchedRequestSender(object):
+    @abc.abstractmethod
+    def _get_value_type(
+        self,
+    ) -> tensorboard_time_series.TensorboardTimeSeries.ValueType:
+        """
+        :return: Value type of the time series.
+        """
+        pass
+
+    @abc.abstractmethod
+    def _create_data_point(
+        self, event: tf.compat.v1.Event, value: tf.compat.v1.Summary.Value
+    ) -> tensorboard_data.TimeSeriesDataPoint:
+        """
+        Creates data point protos for sending to the OnePlatform API.
+        """
+        pass
+
+    def _validate(
+        self,
+        point: tensorboard_data.TimeSeriesDataPoint,
+        event: tf.compat.v1.Event,
+        value: tf.compat.v1.Summary.Value,
+    ):
+        """
+        Validations performed before including the data point to be sent to the
+        OnePlatform API.
+        """
+        return True
+
+
+class _ScalarBatchedRequestSender(_NumericBatchedRequestSender):
+    """Helper class for building requests that fit under a size limit.
+
+    This class accumulates a current request.  `add_event(...)` may or may not
+    send the request (and start a new one).  After all `add_event(...)` calls
+    are complete, a final call to `flush()` is needed to send the final request.
+
+    This class is not threadsafe. Use external synchronization if calling its
+    methods concurrently.
+    """
+
+    def __init__(
+        self,
+        run_resource_id: str,
+        api: TensorboardServiceClient,
+        rpc_rate_limiter: util.RateLimiter,
+        max_request_size: int,
+        tracker: upload_tracker.UploadTracker,
+    ):
+        """Constructer for _ScalarBatchedRequestSender.
+
+        Args:
+          run_resource_id: The resource id for the run with the following format
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}
+          api: TensorboardServiceStub
+          rpc_rate_limiter: until.RateLimiter to limit rate of this request sender
+          max_request_size: max number of bytes to send
+          tracker:
+        """
+        super().__init__(
+            run_resource_id, api, rpc_rate_limiter, max_request_size, tracker
+        )
+
+    def _get_tracker(self):
+        return self._tracker.scalars_tracker(self._num_values)
+
+    def _get_value_type(self):
+        return tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR
+
+    def _create_data_point(
+        self, event: tf.compat.v1.Event, value: tf.compat.v1.Summary.Value
+    ):
+        scalar_proto = tensorboard_data.Scalar(
+            value=tensor_util.make_ndarray(value.tensor).item()
+        )
+        return tensorboard_data.TimeSeriesDataPoint(
+            step=event.step,
+            scalar=scalar_proto,
+            wall_time=timestamp.Timestamp(
+                seconds=int(event.wall_time),
+                nanos=int(round((event.wall_time % 1) * 10 ** 9)),
+            ),
+        )
+
+
+class _TensorBatchedRequestSender(_NumericBatchedRequestSender):
     """Helper class for building WriteTensor() requests that fit under a size limit.
 
     This class accumulates a current request.  `add_event(...)` may or may not
@@ -891,153 +978,34 @@ class _TensorBatchedRequestSender(object):
           max_request_size: max number of bytes to send
           tracker:
         """
-        self._run_resource_id = run_resource_id
-        self._api = api
-        self._rpc_rate_limiter = rpc_rate_limiter
-        self._byte_budget_manager = _ByteBudgetManager(max_request_size)
-        self._max_tensor_point_size = max_tensor_point_size
-        self._tracker = tracker
-
-        # cache: map from Tensorboard tag to TimeSeriesData
-        # cleared whenever a new request is created
-        self._tag_to_time_series_data: Dict[str, tensorboard_data.TimeSeriesData] = {}
-
-        self._time_series_resource_manager = _TimeSeriesResourceManager(
-            run_resource_id, api
+        super().__init__(
+            run_resource_id, api, rpc_rate_limiter, max_request_size, tracker
         )
-        self._new_request()
+        self._max_tensor_point_size = max_tensor_point_size
 
     def _new_request(self):
         """Allocates a new request and refreshes the budget."""
-        self._request = tensorboard_service.WriteTensorboardRunDataRequest()
-        self._tag_to_time_series_data.clear()
-        self._num_values = 0
-        self._request.tensorboard_run = self._run_resource_id
-        self._byte_budget_manager.reset(self._request)
+        super()._new_request()
         self._num_values = 0
         self._num_values_skipped = 0
         self._tensor_bytes = 0
         self._tensor_bytes_skipped = 0
 
-    def add_event(
-        self,
-        event: tf.compat.v1.Event,
-        value: tf.compat.v1.Summary.Value,
-        metadata: tf.compat.v1.SummaryMetadata,
-    ):
-        """Attempts to add the given event to the current request.
-
-          If the event cannot be added to the current request because the byte
-          budget is exhausted, the request is flushed, and the event is added
-          to the next request.
-        """
-        try:
-            self._add_event_internal(event, value, metadata)
-        except _OutOfSpaceError:
-            self.flush()
-            # Try again.  This attempt should never produce OutOfSpaceError
-            # because we just flushed.
-            try:
-                self._add_event_internal(event, value, metadata)
-            except _OutOfSpaceError:
-                raise RuntimeError("add_event failed despite flush")
-
-    def _add_event_internal(
-        self,
-        event: tf.compat.v1.Event,
-        value: tf.compat.v1.Summary.Value,
-        metadata: tf.compat.v1.SummaryMetadata,
-    ):
-        self._num_values += 1
-        time_series_data_proto = self._tag_to_time_series_data.get(value.tag)
-        if time_series_data_proto is None:
-            time_series_data_proto = self._create_time_series_data(value.tag, metadata)
-        self._create_point(time_series_data_proto, event, value)
-
-    def flush(self):
-        """Sends the active request after removing empty runs and tags.
-
-        Starts a new, empty active request.
-        """
-        request = self._request
-        request.time_series_data = list(self._tag_to_time_series_data.values())
-        _prune_empty_time_series(request)
-        if not request.time_series_data:
-            return
-
-        self._rpc_rate_limiter.tick()
-
-        with _request_logger(request):
-            with self._tracker.tensors_tracker(
-                self._num_values,
-                self._num_values_skipped,
-                self._tensor_bytes,
-                self._tensor_bytes_skipped,
-            ):
-                try:
-                    self._api.write_tensorboard_run_data(
-                        tensorboard_run=self._run_resource_id,
-                        time_series_data=request.time_series_data,
-                    )
-                except grpc.RpcError as e:
-                    if e.code() == grpc.StatusCode.NOT_FOUND:
-                        raise ExperimentNotFoundError()
-                    logger.error("Upload call failed with error %s", e)
-
-        self._new_request()
-
-    def _create_time_series_data(
-        self, tag_name: str, metadata: tf.compat.v1.SummaryMetadata
-    ) -> tensorboard_data.TimeSeriesData:
-        """Adds a time_series for the tag_name, if there's space.
-
-        Args:
-          tag_name: String name of the tag to add (as `value.tag`).
-          metadata: SummaryMetadata of the event.
-
-        Returns:
-          The TimeSeriesData in _request proto with the given tag name.
-
-        Raises:
-          _OutOfSpaceError: If adding the tag would exceed the remaining
-            request budget.
-        """
-        time_series_data_proto = tensorboard_data.TimeSeriesData(
-            tensorboard_time_series_id=self._time_series_resource_manager.get_or_create(
-                tag_name,
-                lambda: tensorboard_time_series.TensorboardTimeSeries(
-                    display_name=tag_name,
-                    value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.TENSOR,
-                    plugin_name=metadata.plugin_data.plugin_name,
-                    plugin_data=metadata.plugin_data.content,
-                ),
-            ).name.split("/")[-1],
-            value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.TENSOR,
+    def _get_tracker(self):
+        return self._tracker.tensors_tracker(
+            self._num_values,
+            self._num_values_skipped,
+            self._tensor_bytes,
+            self._tensor_bytes_skipped,
         )
 
-        self._request.time_series_data.extend([time_series_data_proto])
-        self._byte_budget_manager.add_time_series(time_series_data_proto)
-        self._tag_to_time_series_data[tag_name] = time_series_data_proto
-        return time_series_data_proto
+    def _get_value_type(self):
+        return tensorboard_time_series.TensorboardTimeSeries.ValueType.TENSOR
 
-    def _create_point(
-        self,
-        time_series_proto: tensorboard_data.TimeSeriesData,
-        event: tf.compat.v1.Event,
-        value: tf.compat.v1.Summary.Value,
+    def _create_data_point(
+        self, event: tf.compat.v1.Event, value: tf.compat.v1.Summary.Value
     ):
-        """Adds a tensor point to the given tag, if there's space.
-
-        Args:
-          tag_proto: `WriteTensorRequest.Tag` proto to which to add a point.
-          event: Enclosing `Event` proto with the step and wall time data.
-          value: Tensor `Summary.Value` proto with the actual tensor data.
-
-        Raises:
-          _OutOfSpaceError: If adding the point would exceed the remaining
-            request budget.
-        """
-        point = tensorboard_data.TimeSeriesDataPoint(
+        return tensorboard_data.TimeSeriesDataPoint(
             step=event.step,
             tensor=tensorboard_data.TensorboardTensor(
                 value=value.tensor.SerializeToString()
@@ -1048,6 +1016,12 @@ class _TensorBatchedRequestSender(object):
             ),
         )
 
+    def _validate(
+        self,
+        point: tensorboard_data.TimeSeriesDataPoint,
+        event: tf.compat.v1.Event,
+        value: tf.compat.v1.Summary.Value,
+    ):
         self._num_values += 1
         tensor_size = len(point.tensor.value)
         self._tensor_bytes += tensor_size
@@ -1059,32 +1033,19 @@ class _TensorBatchedRequestSender(object):
             )
             self._num_values_skipped += 1
             self._tensor_bytes_skipped += tensor_size
-            return
-
-        self._validate_tensor_value(
-            value.tensor, value.tag, event.step, event.wall_time
-        )
-
-        time_series_proto.values.extend([point])
+            return False
 
         try:
-            self._byte_budget_manager.add_point(point)
-        except _OutOfSpaceError:
-            time_series_proto.values.pop()
-            raise
-
-    def _validate_tensor_value(self, tensor_proto, tag, step, wall_time):
-        """Validate a TensorProto by attempting to parse it."""
-        try:
-            tensor_util.make_ndarray(tensor_proto)
+            tensor_util.make_ndarray(value.tensor)
         except ValueError as error:
             raise ValueError(
                 "The uploader failed to upload a tensor. This seems to be "
                 "due to a malformation in the tensor, which may be caused by "
                 "a bug in the process that wrote the tensor.\n\n"
                 "The tensor has tag '%s' and is at step %d and wall_time %.6f.\n\n"
-                "Original error:\n%s" % (tag, step, wall_time, error)
+                "Original error:\n%s" % (value.tag, event.step, event.wall_time, error)
             )
+        return True
 
 
 class _ByteBudgetManager(object):
