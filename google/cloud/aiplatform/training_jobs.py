@@ -2420,6 +2420,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             optimization_objective_precision_value
         )
 
+        self._additional_experiments = []
+
     def run(
         self,
         dataset: datasets.TabularDataset,
@@ -2664,6 +2666,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             "optimizationObjectivePrecisionValue": self._optimization_objective_precision_value,
         }
 
+        if self._additional_experiments:
+            training_task_inputs_dict[
+                "additionalExperiments"
+            ] = self._additional_experiments
+
         if model_display_name is None:
             model_display_name = self._display_name
 
@@ -2690,6 +2697,14 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             f"Training Pipeline {self.resource_name} is not configured to upload a "
             "Model."
         )
+
+    def _add_additional_experiments(self, additional_experiments: List[str]):
+        """Add experiment flags to the training job.
+        Args:
+            additional_experiments (List[str]):
+                Experiment flags that can enable some experimental training features.
+        """
+        self._additional_experiments.extend(additional_experiments)
 
 
 class AutoMLForecastingTrainingJob(_TrainingJob):
@@ -2746,6 +2761,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         )
         self._column_transformations = column_transformations
         self._optimization_objective = optimization_objective
+        self._additional_experiments = []
 
     def run(
         self,
@@ -3119,6 +3135,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 "overrideExistingTable": export_evaluated_data_items_override_destination,
             }
 
+        if self._additional_experiments:
+            training_task_inputs_dict[
+                "additionalExperiments"
+            ] = self._additional_experiments
+
         if model_display_name is None:
             model_display_name = self._display_name
 
@@ -3142,6 +3163,14 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             f"Training Pipeline {self.resource_name} is not configured to upload a "
             "Model."
         )
+
+    def _add_additional_experiments(self, additional_experiments: List[str]):
+        """Add experiment flags to the training job.
+        Args:
+            additional_experiments (List[str]):
+                Experiment flags that can enable some experimental training features.
+        """
+        self._additional_experiments.extend(additional_experiments)
 
 
 class AutoMLImageTrainingJob(_TrainingJob):
