@@ -87,4 +87,11 @@ s.move(
 # Don't treat docs warnings as errors
 s.replace("noxfile.py", """["']-W["'],  # warnings as errors""", "")
 
+# Replacement to install extra testing dependencies
+s.replace(
+    "noxfile.py",
+    """session.install\("-e", ".", "-c", constraints_path\)""",
+    """session.install("-e", ".[testing]", "-c", constraints_path)"""
+)
+
 s.shell.run(["nox", "-s", "blacken"], hide_output=False)
