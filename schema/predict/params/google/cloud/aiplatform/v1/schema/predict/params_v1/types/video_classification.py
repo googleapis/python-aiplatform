@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -28,7 +26,6 @@ __protobuf__ = proto.module(
 
 class VideoClassificationPredictionParams(proto.Message):
     r"""Prediction model parameters for Video Classification.
-
     Attributes:
         confidence_threshold (float):
             The Model only returns predictions with at
@@ -73,15 +70,26 @@ class VideoClassificationPredictionParams(proto.Message):
             is false
     """
 
-    confidence_threshold = proto.Field(proto.FLOAT, number=1)
-
-    max_predictions = proto.Field(proto.INT32, number=2)
-
-    segment_classification = proto.Field(proto.BOOL, number=3)
-
-    shot_classification = proto.Field(proto.BOOL, number=4)
-
-    one_sec_interval_classification = proto.Field(proto.BOOL, number=5)
+    confidence_threshold = proto.Field(
+        proto.FLOAT,
+        number=1,
+    )
+    max_predictions = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+    segment_classification = proto.Field(
+        proto.BOOL,
+        number=3,
+    )
+    shot_classification = proto.Field(
+        proto.BOOL,
+        number=4,
+    )
+    one_sec_interval_classification = proto.Field(
+        proto.BOOL,
+        number=5,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

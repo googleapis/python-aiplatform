@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import specialist_pool as gca_specialist_pool
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -51,8 +48,7 @@ class CreateSpecialistPoolRequest(proto.Message):
             Required. The SpecialistPool to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     specialist_pool = proto.Field(
         proto.MESSAGE, number=2, message=gca_specialist_pool.SpecialistPool,
     )
@@ -80,11 +76,10 @@ class GetSpecialistPoolRequest(proto.Message):
         name (str):
             Required. The name of the SpecialistPool resource. The form
             is
-
             ``projects/{project}/locations/{location}/specialistPools/{specialist_pool}``.
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListSpecialistPoolsRequest(proto.Message):
@@ -108,13 +103,10 @@ class ListSpecialistPoolsRequest(proto.Message):
             FieldMask represents a set of
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    page_size = proto.Field(proto.INT32, number=2)
-
-    page_token = proto.Field(proto.STRING, number=3)
-
-    read_mask = proto.Field(proto.MESSAGE, number=4, message=field_mask.FieldMask,)
+    parent = proto.Field(proto.STRING, number=1,)
+    page_size = proto.Field(proto.INT32, number=2,)
+    page_token = proto.Field(proto.STRING, number=3,)
+    read_mask = proto.Field(proto.MESSAGE, number=4, message=field_mask_pb2.FieldMask,)
 
 
 class ListSpecialistPoolsResponse(proto.Message):
@@ -136,8 +128,7 @@ class ListSpecialistPoolsResponse(proto.Message):
     specialist_pools = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_specialist_pool.SpecialistPool,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class DeleteSpecialistPoolRequest(proto.Message):
@@ -156,9 +147,8 @@ class DeleteSpecialistPoolRequest(proto.Message):
             SpecialistPool has no specialist managers.)
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    force = proto.Field(proto.BOOL, number=2)
+    name = proto.Field(proto.STRING, number=1,)
+    force = proto.Field(proto.BOOL, number=2,)
 
 
 class UpdateSpecialistPoolRequest(proto.Message):
@@ -177,8 +167,9 @@ class UpdateSpecialistPoolRequest(proto.Message):
     specialist_pool = proto.Field(
         proto.MESSAGE, number=1, message=gca_specialist_pool.SpecialistPool,
     )
-
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(
+        proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
+    )
 
 
 class UpdateSpecialistPoolOperationMetadata(proto.Message):
@@ -189,14 +180,12 @@ class UpdateSpecialistPoolOperationMetadata(proto.Message):
         specialist_pool (str):
             Output only. The name of the SpecialistPool to which the
             specialists are being added. Format:
-
             ``projects/{project_id}/locations/{location_id}/specialistPools/{specialist_pool}``
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The operation generic information.
     """
 
-    specialist_pool = proto.Field(proto.STRING, number=1)
-
+    specialist_pool = proto.Field(proto.STRING, number=1,)
     generic_metadata = proto.Field(
         proto.MESSAGE, number=2, message=operation.GenericOperationMetadata,
     )

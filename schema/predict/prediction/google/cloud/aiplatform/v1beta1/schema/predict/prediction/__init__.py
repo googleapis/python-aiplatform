@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,7 @@
 # limitations under the License.
 #
 
+
 from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.classification import ClassificationPredictionResult
 from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.image_object_detection import ImageObjectDetectionPredictionResult
 from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.image_segmentation import ImageSegmentationPredictionResult
@@ -27,8 +27,7 @@ from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.vid
 from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.video_classification import VideoClassificationPredictionResult
 from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.video_object_tracking import VideoObjectTrackingPredictionResult
 
-__all__ = (
-    'ClassificationPredictionResult',
+__all__ = ('ClassificationPredictionResult',
     'ImageObjectDetectionPredictionResult',
     'ImageSegmentationPredictionResult',
     'TabularClassificationPredictionResult',

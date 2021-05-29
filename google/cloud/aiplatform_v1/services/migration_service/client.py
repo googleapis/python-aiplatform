@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -23,10 +21,10 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
@@ -37,7 +35,6 @@ from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.migration_service import pagers
 from google.cloud.aiplatform_v1.types import migratable_resource
 from google.cloud.aiplatform_v1.types import migration_service
-
 from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import MigrationServiceGrpcTransport
 from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
@@ -58,7 +55,7 @@ class MigrationServiceClientMeta(type):
     _transport_registry["grpc_asyncio"] = MigrationServiceGrpcAsyncIOTransport
 
     def get_transport_class(cls, label: str = None,) -> Type[MigrationServiceTransport]:
-        """Return an appropriate transport class.
+        """Returns an appropriate transport class.
 
         Args:
             label: The name of the desired transport. If none is
@@ -78,13 +75,13 @@ class MigrationServiceClientMeta(type):
 
 class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     """A service that migrates resources from automl.googleapis.com,
-    datalabeling.googleapis.com and ml.googleapis.com to AI
-    Platform.
+    datalabeling.googleapis.com and ml.googleapis.com to Vertex AI.
     """
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
-        """Convert api endpoint to mTLS endpoint.
+        """Converts api endpoint to mTLS endpoint.
+
         Convert "*.sandbox.googleapis.com" and "*.googleapis.com" to
         "*.mtls.sandbox.googleapis.com" and "*.mtls.googleapis.com" respectively.
         Args:
@@ -118,7 +115,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -135,7 +133,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -154,10 +152,11 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     @property
     def transport(self) -> MigrationServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
-            MigrationServiceTransport: The transport used by the client instance.
+            MigrationServiceTransport: The transport used by the client
+                instance.
         """
         return self._transport
 
@@ -165,14 +164,14 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     def annotated_dataset_path(
         project: str, dataset: str, annotated_dataset: str,
     ) -> str:
-        """Return a fully-qualified annotated_dataset string."""
+        """Returns a fully-qualified annotated_dataset string."""
         return "projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}".format(
             project=project, dataset=dataset, annotated_dataset=annotated_dataset,
         )
 
     @staticmethod
     def parse_annotated_dataset_path(path: str) -> Dict[str, str]:
-        """Parse a annotated_dataset path into its component segments."""
+        """Parses a annotated_dataset path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)/annotatedDatasets/(?P<annotated_dataset>.+?)$",
             path,
@@ -181,14 +180,30 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     @staticmethod
     def dataset_path(project: str, location: str, dataset: str,) -> str:
-        """Return a fully-qualified dataset string."""
+        """Returns a fully-qualified dataset string."""
         return "projects/{project}/locations/{location}/datasets/{dataset}".format(
             project=project, location=location, dataset=dataset,
         )
 
     @staticmethod
     def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parse a dataset path into its component segments."""
+        """Parses a dataset path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def dataset_path(project: str, location: str, dataset: str,) -> str:
+        """Returns a fully-qualified dataset string."""
+        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+            project=project, location=location, dataset=dataset,
+        )
+
+    @staticmethod
+    def parse_dataset_path(path: str) -> Dict[str, str]:
+        """Parses a dataset path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
             path,
@@ -197,43 +212,27 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     @staticmethod
     def dataset_path(project: str, dataset: str,) -> str:
-        """Return a fully-qualified dataset string."""
+        """Returns a fully-qualified dataset string."""
         return "projects/{project}/datasets/{dataset}".format(
             project=project, dataset=dataset,
         )
 
     @staticmethod
     def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parse a dataset path into its component segments."""
+        """Parses a dataset path into its component segments."""
         m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
-    def dataset_path(project: str, location: str, dataset: str,) -> str:
-        """Return a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project, location=location, dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parse a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
     def model_path(project: str, location: str, model: str,) -> str:
-        """Return a fully-qualified model string."""
+        """Returns a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
             project=project, location=location, model=model,
         )
 
     @staticmethod
     def parse_model_path(path: str) -> Dict[str, str]:
-        """Parse a model path into its component segments."""
+        """Parses a model path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
             path,
@@ -242,14 +241,14 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     @staticmethod
     def model_path(project: str, location: str, model: str,) -> str:
-        """Return a fully-qualified model string."""
+        """Returns a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
             project=project, location=location, model=model,
         )
 
     @staticmethod
     def parse_model_path(path: str) -> Dict[str, str]:
-        """Parse a model path into its component segments."""
+        """Parses a model path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
             path,
@@ -258,14 +257,14 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     @staticmethod
     def version_path(project: str, model: str, version: str,) -> str:
-        """Return a fully-qualified version string."""
+        """Returns a fully-qualified version string."""
         return "projects/{project}/models/{model}/versions/{version}".format(
             project=project, model=model, version=version,
         )
 
     @staticmethod
     def parse_version_path(path: str) -> Dict[str, str]:
-        """Parse a version path into its component segments."""
+        """Parses a version path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/models/(?P<model>.+?)/versions/(?P<version>.+?)$",
             path,
@@ -274,7 +273,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     @staticmethod
     def common_billing_account_path(billing_account: str,) -> str:
-        """Return a fully-qualified billing_account string."""
+        """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
         )
@@ -287,7 +286,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     @staticmethod
     def common_folder_path(folder: str,) -> str:
-        """Return a fully-qualified folder string."""
+        """Returns a fully-qualified folder string."""
         return "folders/{folder}".format(folder=folder,)
 
     @staticmethod
@@ -298,7 +297,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     @staticmethod
     def common_organization_path(organization: str,) -> str:
-        """Return a fully-qualified organization string."""
+        """Returns a fully-qualified organization string."""
         return "organizations/{organization}".format(organization=organization,)
 
     @staticmethod
@@ -309,7 +308,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     @staticmethod
     def common_project_path(project: str,) -> str:
-        """Return a fully-qualified project string."""
+        """Returns a fully-qualified project string."""
         return "projects/{project}".format(project=project,)
 
     @staticmethod
@@ -320,7 +319,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
     @staticmethod
     def common_location_path(project: str, location: str,) -> str:
-        """Return a fully-qualified location string."""
+        """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
             project=project, location=location,
         )
@@ -334,12 +333,12 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     def __init__(
         self,
         *,
-        credentials: Optional[credentials.Credentials] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, MigrationServiceTransport, None] = None,
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the migration service client.
+        """Instantiates the migration service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -394,9 +393,10 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 client_cert_source_func = client_options.client_cert_source
             else:
                 is_mtls = mtls.has_default_client_cert_source()
-                client_cert_source_func = (
-                    mtls.default_client_cert_source() if is_mtls else None
-                )
+                if is_mtls:
+                    client_cert_source_func = mtls.default_client_cert_source()
+                else:
+                    client_cert_source_func = None
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -408,12 +408,14 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             elif use_mtls_env == "always":
                 api_endpoint = self.DEFAULT_MTLS_ENDPOINT
             elif use_mtls_env == "auto":
-                api_endpoint = (
-                    self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
-                )
+                if is_mtls:
+                    api_endpoint = self.DEFAULT_MTLS_ENDPOINT
+                else:
+                    api_endpoint = self.DEFAULT_ENDPOINT
             else:
                 raise MutualTLSChannelError(
-                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted values: never, auto, always"
+                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted "
+                    "values: never, auto, always"
                 )
 
         # Save or instantiate the transport.
@@ -428,8 +430,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 )
             if client_options.scopes:
                 raise ValueError(
-                    "When providing a transport instance, "
-                    "provide its scopes directly."
+                    "When providing a transport instance, provide its scopes "
+                    "directly."
                 )
             self._transport = transport
         else:
@@ -455,7 +457,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     ) -> pagers.SearchMigratableResourcesPager:
         r"""Searches all of the resources in
         automl.googleapis.com, datalabeling.googleapis.com and
-        ml.googleapis.com that can be migrated to AI Platform's
+        ml.googleapis.com that can be migrated to Vertex AI's
         given location.
 
         Args:
@@ -464,7 +466,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
             parent (str):
                 Required. The location that the migratable resources
-                should be searched from. It's the AI Platform location
+                should be searched from. It's the Vertex AI location
                 that the resources can be migrated to, not the
                 resources' original location. Format:
                 ``projects/{project}/locations/{location}``
@@ -472,7 +474,6 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -504,10 +505,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, migration_service.SearchMigratableResourcesRequest):
             request = migration_service.SearchMigratableResourcesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -549,7 +548,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     ) -> operation.Operation:
         r"""Batch migrates resources from ml.googleapis.com,
         automl.googleapis.com, and datalabeling.googleapis.com
-        to AI Platform (Unified).
+        to Vertex AI.
 
         Args:
             request (google.cloud.aiplatform_v1.types.BatchMigrateResourcesRequest):
@@ -573,7 +572,6 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 This corresponds to the ``migrate_resource_requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -606,15 +604,12 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, migration_service.BatchMigrateResourcesRequest):
             request = migration_service.BatchMigrateResourcesRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
-
-            if migrate_resource_requests:
-                request.migrate_resource_requests.extend(migrate_resource_requests)
+            if migrate_resource_requests is not None:
+                request.migrate_resource_requests = migrate_resource_requests
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.

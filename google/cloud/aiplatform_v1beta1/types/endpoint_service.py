@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -56,8 +53,7 @@ class CreateEndpointRequest(proto.Message):
             Required. The Endpoint to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     endpoint = proto.Field(proto.MESSAGE, number=2, message=gca_endpoint.Endpoint,)
 
 
@@ -85,7 +81,7 @@ class GetEndpointRequest(proto.Message):
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListEndpointsRequest(proto.Message):
@@ -133,15 +129,11 @@ class ListEndpointsRequest(proto.Message):
             read.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
 
 
 class ListEndpointsResponse(proto.Message):
@@ -152,7 +144,7 @@ class ListEndpointsResponse(proto.Message):
         endpoints (Sequence[google.cloud.aiplatform_v1beta1.types.Endpoint]):
             List of Endpoints in the requested page.
         next_page_token (str):
-            A token to retrieve next page of results. Pass to
+            A token to retrieve the next page of results. Pass to
             [ListEndpointsRequest.page_token][google.cloud.aiplatform.v1beta1.ListEndpointsRequest.page_token]
             to obtain that page.
     """
@@ -164,8 +156,7 @@ class ListEndpointsResponse(proto.Message):
     endpoints = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_endpoint.Endpoint,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class UpdateEndpointRequest(proto.Message):
@@ -178,12 +169,13 @@ class UpdateEndpointRequest(proto.Message):
             resource on the server.
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Required. The update mask applies to the resource. See
-            `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+            [google.protobuf.FieldMask][google.protobuf.FieldMask].
     """
 
     endpoint = proto.Field(proto.MESSAGE, number=1, message=gca_endpoint.Endpoint,)
-
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(
+        proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
+    )
 
 
 class DeleteEndpointRequest(proto.Message):
@@ -197,7 +189,7 @@ class DeleteEndpointRequest(proto.Message):
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class DeployModelRequest(proto.Message):
@@ -234,13 +226,11 @@ class DeployModelRequest(proto.Message):
             is not updated.
     """
 
-    endpoint = proto.Field(proto.STRING, number=1)
-
+    endpoint = proto.Field(proto.STRING, number=1,)
     deployed_model = proto.Field(
         proto.MESSAGE, number=2, message=gca_endpoint.DeployedModel,
     )
-
-    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3)
+    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3,)
 
 
 class DeployModelResponse(proto.Message):
@@ -295,17 +285,15 @@ class UndeployModelRequest(proto.Message):
             executes, or if this field unassigns any traffic to it.
     """
 
-    endpoint = proto.Field(proto.STRING, number=1)
-
-    deployed_model_id = proto.Field(proto.STRING, number=2)
-
-    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3)
+    endpoint = proto.Field(proto.STRING, number=1,)
+    deployed_model_id = proto.Field(proto.STRING, number=2,)
+    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3,)
 
 
 class UndeployModelResponse(proto.Message):
     r"""Response message for
     [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
-    """
+        """
 
 
 class UndeployModelOperationMetadata(proto.Message):

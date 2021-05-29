@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1.types import accelerator_type as gca_accelerator_type
 
@@ -36,14 +33,15 @@ __protobuf__ = proto.module(
 
 class MachineSpec(proto.Message):
     r"""Specification of a single machine.
-
     Attributes:
         machine_type (str):
-            Immutable. The type of the machine. For the machine types
-            supported for prediction, see
-            https://tinyurl.com/aip-docs/predictions/machine-types. For
-            machine types supported for creating a custom training job,
-            see https://tinyurl.com/aip-docs/training/configure-compute.
+            Immutable. The type of the machine.
+
+            See the `list of machine types supported for
+            prediction <https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types>`__
+
+            See the `list of machine types supported for custom
+            training <https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types>`__.
 
             For
             [DeployedModel][google.cloud.aiplatform.v1.DeployedModel]
@@ -62,13 +60,11 @@ class MachineSpec(proto.Message):
             machine.
     """
 
-    machine_type = proto.Field(proto.STRING, number=1)
-
+    machine_type = proto.Field(proto.STRING, number=1,)
     accelerator_type = proto.Field(
         proto.ENUM, number=2, enum=gca_accelerator_type.AcceleratorType,
     )
-
-    accelerator_count = proto.Field(proto.INT32, number=3)
+    accelerator_count = proto.Field(proto.INT32, number=3,)
 
 
 class DedicatedResources(proto.Message):
@@ -105,15 +101,13 @@ class DedicatedResources(proto.Message):
     """
 
     machine_spec = proto.Field(proto.MESSAGE, number=1, message="MachineSpec",)
-
-    min_replica_count = proto.Field(proto.INT32, number=2)
-
-    max_replica_count = proto.Field(proto.INT32, number=3)
+    min_replica_count = proto.Field(proto.INT32, number=2,)
+    max_replica_count = proto.Field(proto.INT32, number=3,)
 
 
 class AutomaticResources(proto.Message):
     r"""A description of resources that to large degree are decided
-    by AI Platform, and require only a modest additional
+    by Vertex AI, and require only a modest additional
     configuration. Each Model supporting these resources documents
     its specific guidelines.
 
@@ -138,14 +132,13 @@ class AutomaticResources(proto.Message):
             its replicas at maximum may handle, a portion of
             the traffic will be dropped. If this value is
             not provided, a no upper bound for scaling under
-            heavy traffic will be assume, though AI Platform
+            heavy traffic will be assume, though Vertex AI
             may be unable to scale beyond certain replica
             number.
     """
 
-    min_replica_count = proto.Field(proto.INT32, number=1)
-
-    max_replica_count = proto.Field(proto.INT32, number=2)
+    min_replica_count = proto.Field(proto.INT32, number=1,)
+    max_replica_count = proto.Field(proto.INT32, number=2,)
 
 
 class BatchDedicatedResources(proto.Message):
@@ -159,7 +152,7 @@ class BatchDedicatedResources(proto.Message):
             single machine.
         starting_replica_count (int):
             Immutable. The number of machine replicas used at the start
-            of the batch operation. If not set, AI Platform decides
+            of the batch operation. If not set, Vertex AI decides
             starting number, not greater than
             [max_replica_count][google.cloud.aiplatform.v1.BatchDedicatedResources.max_replica_count]
         max_replica_count (int):
@@ -169,15 +162,12 @@ class BatchDedicatedResources(proto.Message):
     """
 
     machine_spec = proto.Field(proto.MESSAGE, number=1, message="MachineSpec",)
-
-    starting_replica_count = proto.Field(proto.INT32, number=2)
-
-    max_replica_count = proto.Field(proto.INT32, number=3)
+    starting_replica_count = proto.Field(proto.INT32, number=2,)
+    max_replica_count = proto.Field(proto.INT32, number=3,)
 
 
 class ResourcesConsumed(proto.Message):
     r"""Statistics information about resource consumption.
-
     Attributes:
         replica_hours (float):
             Output only. The number of replica hours
@@ -187,12 +177,11 @@ class ResourcesConsumed(proto.Message):
             not strictly related to wall time.
     """
 
-    replica_hours = proto.Field(proto.DOUBLE, number=1)
+    replica_hours = proto.Field(proto.DOUBLE, number=1,)
 
 
 class DiskSpec(proto.Message):
     r"""Represents the spec of disk options.
-
     Attributes:
         boot_disk_type (str):
             Type of the boot disk (default is "pd-ssd").
@@ -204,9 +193,8 @@ class DiskSpec(proto.Message):
             100GB).
     """
 
-    boot_disk_type = proto.Field(proto.STRING, number=1)
-
-    boot_disk_size_gb = proto.Field(proto.INT32, number=2)
+    boot_disk_type = proto.Field(proto.STRING, number=1,)
+    boot_disk_size_gb = proto.Field(proto.INT32, number=2,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

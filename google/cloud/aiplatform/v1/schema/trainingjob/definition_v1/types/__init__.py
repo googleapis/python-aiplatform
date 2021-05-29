@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from .automl_image_classification import (
     AutoMlImageClassification,
     AutoMlImageClassificationInputs,
@@ -30,7 +28,6 @@ from .automl_image_segmentation import (
     AutoMlImageSegmentationInputs,
     AutoMlImageSegmentationMetadata,
 )
-from .export_evaluated_data_items_config import ExportEvaluatedDataItemsConfig
 from .automl_tables import (
     AutoMlTables,
     AutoMlTablesInputs,
@@ -60,6 +57,7 @@ from .automl_video_object_tracking import (
     AutoMlVideoObjectTracking,
     AutoMlVideoObjectTrackingInputs,
 )
+from .export_evaluated_data_items_config import ExportEvaluatedDataItemsConfig
 
 __all__ = (
     "AutoMlImageClassification",
@@ -71,7 +69,6 @@ __all__ = (
     "AutoMlImageSegmentation",
     "AutoMlImageSegmentationInputs",
     "AutoMlImageSegmentationMetadata",
-    "ExportEvaluatedDataItemsConfig",
     "AutoMlTables",
     "AutoMlTablesInputs",
     "AutoMlTablesMetadata",
@@ -87,4 +84,5 @@ __all__ = (
     "AutoMlVideoClassificationInputs",
     "AutoMlVideoObjectTracking",
     "AutoMlVideoObjectTrackingInputs",
+    "ExportEvaluatedDataItemsConfig",
 )

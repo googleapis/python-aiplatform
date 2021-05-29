@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import pipeline_state
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -43,9 +40,9 @@ __protobuf__ = proto.module(
 class TrainingPipeline(proto.Message):
     r"""The TrainingPipeline orchestrates tasks associated with training a
     Model. It always executes the training task, and optionally may also
-    export data from AI Platform's Dataset which becomes the training
+    export data from Vertex AI's Dataset which becomes the training
     input, [upload][google.cloud.aiplatform.v1.ModelService.UploadModel]
-    the Model to AI Platform, and evaluate the Model.
+    the Model to Vertex AI, and evaluate the Model.
 
     Attributes:
         name (str):
@@ -55,7 +52,7 @@ class TrainingPipeline(proto.Message):
             Required. The user-defined name of this
             TrainingPipeline.
         input_data_config (google.cloud.aiplatform_v1.types.InputDataConfig):
-            Specifies AI Platform owned input data that may be used for
+            Specifies Vertex AI owned input data that may be used for
             training the Model. The TrainingPipeline's
             [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition]
             should make clear whether this config is used and if there
@@ -107,10 +104,10 @@ class TrainingPipeline(proto.Message):
             does not support uploading a Model as part of the pipeline.
             When the Pipeline's state becomes
             ``PIPELINE_STATE_SUCCEEDED`` and the trained Model had been
-            uploaded into AI Platform, then the model_to_upload's
-            resource [name][google.cloud.aiplatform.v1.Model.name] is
-            populated. The Model is always uploaded into the Project and
-            Location in which this pipeline is.
+            uploaded into Vertex AI, then the model_to_upload's resource
+            [name][google.cloud.aiplatform.v1.Model.name] is populated.
+            The Model is always uploaded into the Project and Location
+            in which this pipeline is.
         state (google.cloud.aiplatform_v1.types.PipelineState):
             Output only. The detailed state of the
             pipeline.
@@ -150,42 +147,36 @@ class TrainingPipeline(proto.Message):
             is not set separately.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
+    name = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
     input_data_config = proto.Field(proto.MESSAGE, number=3, message="InputDataConfig",)
-
-    training_task_definition = proto.Field(proto.STRING, number=4)
-
-    training_task_inputs = proto.Field(proto.MESSAGE, number=5, message=struct.Value,)
-
-    training_task_metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
-
+    training_task_definition = proto.Field(proto.STRING, number=4,)
+    training_task_inputs = proto.Field(
+        proto.MESSAGE, number=5, message=struct_pb2.Value,
+    )
+    training_task_metadata = proto.Field(
+        proto.MESSAGE, number=6, message=struct_pb2.Value,
+    )
     model_to_upload = proto.Field(proto.MESSAGE, number=7, message=model.Model,)
-
     state = proto.Field(proto.ENUM, number=9, enum=pipeline_state.PipelineState,)
-
-    error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
-
-    create_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
-
-    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
-
-    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
-
-    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
-
-    labels = proto.MapField(proto.STRING, proto.STRING, number=15)
-
+    error = proto.Field(proto.MESSAGE, number=10, message=status_pb2.Status,)
+    create_time = proto.Field(
+        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
+    )
+    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE, number=14, message=timestamp_pb2.Timestamp,
+    )
+    labels = proto.MapField(proto.STRING, proto.STRING, number=15,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=18, message=gca_encryption_spec.EncryptionSpec,
     )
 
 
 class InputDataConfig(proto.Message):
-    r"""Specifies AI Platform owned input data to be used for
-    training, and possibly evaluating, the Model.
+    r"""Specifies Vertex AI owned input data to be used for training,
+    and possibly evaluating, the Model.
 
     Attributes:
         fraction_split (google.cloud.aiplatform_v1.types.FractionSplit):
@@ -210,24 +201,22 @@ class InputDataConfig(proto.Message):
             format. All training input data is written into that
             directory.
 
-            The AI Platform environment variables representing Cloud
+            The Vertex AI environment variables representing Cloud
             Storage data URIs are represented in the Cloud Storage
             wildcard format to support sharded data. e.g.:
             "gs://.../training-*.jsonl"
 
             -  AIP_DATA_FORMAT = "jsonl" for non-tabular data, "csv" for
                tabular data
-            -  AIP_TRAINING_DATA_URI =
 
-            "gcs_destination/dataset---/training-*.${AIP_DATA_FORMAT}"
+            -  AIP_TRAINING_DATA_URI =
+               "gcs_destination/dataset---/training-*.${AIP_DATA_FORMAT}"
 
             -  AIP_VALIDATION_DATA_URI =
-
-            "gcs_destination/dataset---/validation-*.${AIP_DATA_FORMAT}"
+               "gcs_destination/dataset---/validation-*.${AIP_DATA_FORMAT}"
 
             -  AIP_TEST_DATA_URI =
-
-            "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
+               "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
         bigquery_destination (google.cloud.aiplatform_v1.types.BigQueryDestination):
             Only applicable to custom training with tabular Dataset with
             BigQuery source.
@@ -242,13 +231,12 @@ class InputDataConfig(proto.Message):
             ``validation`` and ``test``.
 
             -  AIP_DATA_FORMAT = "bigquery".
-            -  AIP_TRAINING_DATA_URI =
 
-            "bigquery_destination.dataset\_\ **\ .training"
+            -  AIP_TRAINING_DATA_URI =
+               "bigquery_destination.dataset\_\ **\ .training"
 
             -  AIP_VALIDATION_DATA_URI =
-
-            "bigquery_destination.dataset\_\ **\ .validation"
+               "bigquery_destination.dataset\_\ **\ .validation"
 
             -  AIP_TEST_DATA_URI =
                "bigquery_destination.dataset\_\ **\ .test".
@@ -270,8 +258,8 @@ class InputDataConfig(proto.Message):
             ignored by the split method are used in respectively
             training, validation or test role, depending on the role of
             the DataItem they are on (for the auto-assigned that role is
-            decided by AI Platform). A filter with same syntax as the
-            one used in
+            decided by Vertex AI). A filter with same syntax as the one
+            used in
             [ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations]
             may be used, but note here it filters across all Annotations
             of the Dataset, and not just within a single DataItem.
@@ -282,8 +270,8 @@ class InputDataConfig(proto.Message):
             Cloud Storage URI that points to a YAML file describing the
             annotation schema. The schema is defined as an OpenAPI 3.0.2
             `Schema
-            Object <https://tinyurl.com/y538mdwt#schema-object>`__. The
-            schema files that can be used here are found in
+            Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
+            The schema files that can be used here are found in
             gs://google-cloud-aiplatform/schema/dataset/annotation/ ,
             note that the chosen schema must be consistent with
             [metadata][google.cloud.aiplatform.v1.Dataset.metadata_schema_uri]
@@ -306,32 +294,24 @@ class InputDataConfig(proto.Message):
     fraction_split = proto.Field(
         proto.MESSAGE, number=2, oneof="split", message="FractionSplit",
     )
-
     filter_split = proto.Field(
         proto.MESSAGE, number=3, oneof="split", message="FilterSplit",
     )
-
     predefined_split = proto.Field(
         proto.MESSAGE, number=4, oneof="split", message="PredefinedSplit",
     )
-
     timestamp_split = proto.Field(
         proto.MESSAGE, number=5, oneof="split", message="TimestampSplit",
     )
-
     gcs_destination = proto.Field(
         proto.MESSAGE, number=8, oneof="destination", message=io.GcsDestination,
     )
-
     bigquery_destination = proto.Field(
         proto.MESSAGE, number=10, oneof="destination", message=io.BigQueryDestination,
     )
-
-    dataset_id = proto.Field(proto.STRING, number=1)
-
-    annotations_filter = proto.Field(proto.STRING, number=6)
-
-    annotation_schema_uri = proto.Field(proto.STRING, number=9)
+    dataset_id = proto.Field(proto.STRING, number=1,)
+    annotations_filter = proto.Field(proto.STRING, number=6,)
+    annotation_schema_uri = proto.Field(proto.STRING, number=9,)
 
 
 class FractionSplit(proto.Message):
@@ -339,7 +319,7 @@ class FractionSplit(proto.Message):
     the given fractions. Any of ``training_fraction``,
     ``validation_fraction`` and ``test_fraction`` may optionally be
     provided, they must sum to up to 1. If the provided ones sum to less
-    than 1, the remainder is assigned to sets as decided by AI Platform.
+    than 1, the remainder is assigned to sets as decided by Vertex AI.
     If none of the fractions are set, by default roughly 80% of data is
     used for training, 10% for validation, and 10% for test.
 
@@ -355,11 +335,9 @@ class FractionSplit(proto.Message):
             used to evaluate the Model.
     """
 
-    training_fraction = proto.Field(proto.DOUBLE, number=1)
-
-    validation_fraction = proto.Field(proto.DOUBLE, number=2)
-
-    test_fraction = proto.Field(proto.DOUBLE, number=3)
+    training_fraction = proto.Field(proto.DOUBLE, number=1,)
+    validation_fraction = proto.Field(proto.DOUBLE, number=2,)
+    test_fraction = proto.Field(proto.DOUBLE, number=3,)
 
 
 class FilterSplit(proto.Message):
@@ -402,11 +380,9 @@ class FilterSplit(proto.Message):
             test order.
     """
 
-    training_filter = proto.Field(proto.STRING, number=1)
-
-    validation_filter = proto.Field(proto.STRING, number=2)
-
-    test_filter = proto.Field(proto.STRING, number=3)
+    training_filter = proto.Field(proto.STRING, number=1,)
+    validation_filter = proto.Field(proto.STRING, number=2,)
+    test_filter = proto.Field(proto.STRING, number=3,)
 
 
 class PredefinedSplit(proto.Message):
@@ -426,7 +402,7 @@ class PredefinedSplit(proto.Message):
             ignored by the pipeline.
     """
 
-    key = proto.Field(proto.STRING, number=1)
+    key = proto.Field(proto.STRING, number=1,)
 
 
 class TimestampSplit(proto.Message):
@@ -455,13 +431,10 @@ class TimestampSplit(proto.Message):
             value, that piece is ignored by the pipeline.
     """
 
-    training_fraction = proto.Field(proto.DOUBLE, number=1)
-
-    validation_fraction = proto.Field(proto.DOUBLE, number=2)
-
-    test_fraction = proto.Field(proto.DOUBLE, number=3)
-
-    key = proto.Field(proto.STRING, number=4)
+    training_fraction = proto.Field(proto.DOUBLE, number=1,)
+    validation_fraction = proto.Field(proto.DOUBLE, number=2,)
+    test_fraction = proto.Field(proto.DOUBLE, number=3,)
+    key = proto.Field(proto.STRING, number=4,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

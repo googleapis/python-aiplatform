@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1beta1.types import custom_job
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import study
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -56,7 +53,7 @@ class HyperparameterTuningJob(proto.Message):
         max_failed_trial_count (int):
             The number of failed Trials that need to be
             seen before failing the HyperparameterTuningJob.
-            If set to 0, AI Platform decides how many Trials
+            If set to 0, Vertex AI decides how many Trials
             must fail before the whole job fails.
         trial_job_spec (google.cloud.aiplatform_v1beta1.types.CustomJobSpec):
             Required. The spec of a trial job. The same
@@ -102,38 +99,27 @@ class HyperparameterTuningJob(proto.Message):
             the provided encryption key.
     """
 
-    name = proto.Field(proto.STRING, number=1)
-
-    display_name = proto.Field(proto.STRING, number=2)
-
+    name = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
     study_spec = proto.Field(proto.MESSAGE, number=4, message=study.StudySpec,)
-
-    max_trial_count = proto.Field(proto.INT32, number=5)
-
-    parallel_trial_count = proto.Field(proto.INT32, number=6)
-
-    max_failed_trial_count = proto.Field(proto.INT32, number=7)
-
+    max_trial_count = proto.Field(proto.INT32, number=5,)
+    parallel_trial_count = proto.Field(proto.INT32, number=6,)
+    max_failed_trial_count = proto.Field(proto.INT32, number=7,)
     trial_job_spec = proto.Field(
         proto.MESSAGE, number=8, message=custom_job.CustomJobSpec,
     )
-
     trials = proto.RepeatedField(proto.MESSAGE, number=9, message=study.Trial,)
-
     state = proto.Field(proto.ENUM, number=10, enum=job_state.JobState,)
-
-    create_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
-
-    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
-
-    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
-
-    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
-
-    error = proto.Field(proto.MESSAGE, number=15, message=status.Status,)
-
-    labels = proto.MapField(proto.STRING, proto.STRING, number=16)
-
+    create_time = proto.Field(
+        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
+    )
+    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE, number=14, message=timestamp_pb2.Timestamp,
+    )
+    error = proto.Field(proto.MESSAGE, number=15, message=status_pb2.Status,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=16,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=17, message=gca_encryption_spec.EncryptionSpec,
     )

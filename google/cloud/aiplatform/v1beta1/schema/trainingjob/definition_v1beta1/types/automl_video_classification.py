@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -40,7 +38,6 @@ class AutoMlVideoClassification(proto.Message):
 
 class AutoMlVideoClassificationInputs(proto.Message):
     r"""
-
     Attributes:
         model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoClassificationInputs.ModelType):
 
@@ -51,6 +48,7 @@ class AutoMlVideoClassificationInputs(proto.Message):
         MODEL_TYPE_UNSPECIFIED = 0
         CLOUD = 1
         MOBILE_VERSATILE_1 = 2
+        MOBILE_JETSON_VERSATILE_1 = 3
 
     model_type = proto.Field(proto.ENUM, number=1, enum=ModelType,)
 

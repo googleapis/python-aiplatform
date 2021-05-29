@@ -667,7 +667,7 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
         of the child Contexts have already been added to the parent
         Context, they are simply skipped. If this call would create a
         cycle or cause any Context to have more than 10 parents, the
-        request will fail with INVALID_ARGUMENT error.
+        request will fail with an INVALID_ARGUMENT error.
 
         Returns:
             Callable[[~.AddContextChildrenRequest],
@@ -842,10 +842,11 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
     ]:
         r"""Return a callable for the add execution events method over gRPC.
 
-        Adds Events for denoting whether each Artifact was an
-        input or output for a given Execution. If any Events
-        already exist between the Execution and any of the
-        specified Artifacts they are simply skipped.
+        Adds Events to the specified Execution. An Event
+        indicates whether an Artifact was used as an input or
+        output for an Execution. If an Event already exists
+        between the Execution and the Artifact, the Event is
+        skipped.
 
         Returns:
             Callable[[~.AddExecutionEventsRequest],
@@ -908,7 +909,7 @@ class MetadataServiceGrpcAsyncIOTransport(MetadataServiceTransport):
     ]:
         r"""Return a callable for the create metadata schema method over gRPC.
 
-        Creates an MetadataSchema.
+        Creates a MetadataSchema.
 
         Returns:
             Callable[[~.CreateMetadataSchemaRequest],

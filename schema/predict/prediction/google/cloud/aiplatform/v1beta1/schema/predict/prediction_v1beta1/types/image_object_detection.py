@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
-
-from google.protobuf import struct_pb2 as struct  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -31,7 +28,6 @@ __protobuf__ = proto.module(
 
 class ImageObjectDetectionPredictionResult(proto.Message):
     r"""Prediction output format for Image Object Detection.
-
     Attributes:
         ids (Sequence[int]):
             The resource IDs of the AnnotationSpecs that
@@ -54,14 +50,22 @@ class ImageObjectDetectionPredictionResult(proto.Message):
             image.
     """
 
-    ids = proto.RepeatedField(proto.INT64, number=1)
-
-    display_names = proto.RepeatedField(proto.STRING, number=2)
-
-    confidences = proto.RepeatedField(proto.FLOAT, number=3)
-
-    bboxes = proto.RepeatedField(proto.MESSAGE, number=4,
-        message=struct.ListValue,
+    ids = proto.RepeatedField(
+        proto.INT64,
+        number=1,
+    )
+    display_names = proto.RepeatedField(
+        proto.STRING,
+        number=2,
+    )
+    confidences = proto.RepeatedField(
+        proto.FLOAT,
+        number=3,
+    )
+    bboxes = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=struct_pb2.ListValue,
     )
 
 

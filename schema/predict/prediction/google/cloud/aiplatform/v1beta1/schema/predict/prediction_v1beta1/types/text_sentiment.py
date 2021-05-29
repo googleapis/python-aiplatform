@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
-
-from google.cloud.aiplatform.v1beta1.schema.predict.instance import text_sentiment_pb2 as gcaspi_text_sentiment  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -30,39 +25,22 @@ __protobuf__ = proto.module(
 
 
 class TextSentimentPredictionResult(proto.Message):
-    r"""Represents a line of JSONL in the text sentiment batch
-    prediction output file. This is a hack to allow printing of
-    integer values.
-
+    r"""Prediction output format for Text Sentiment
     Attributes:
-        instance (google.cloud.aiplatform.v1beta1.schema.predict.instance.text_sentiment_pb2.TextSentimentPredictionInstance):
-            User's input instance.
-        prediction (google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.TextSentimentPredictionResult.Prediction):
-            The prediction result.
+        sentiment (int):
+            The integer sentiment labels between 0
+            (inclusive) and sentimentMax label (inclusive),
+            while 0 maps to the least positive sentiment and
+            sentimentMax maps to the most positive one. The
+            higher the score is, the more positive the
+            sentiment in the text snippet is. Note:
+            sentimentMax is an integer value between 1
+            (inclusive) and 10 (inclusive).
     """
-    class Prediction(proto.Message):
-        r"""Prediction output format for Text Sentiment.
 
-        Attributes:
-            sentiment (int):
-                The integer sentiment labels between 0
-                (inclusive) and sentimentMax label (inclusive),
-                while 0 maps to the least positive sentiment and
-                sentimentMax maps to the most positive one. The
-                higher the score is, the more positive the
-                sentiment in the text snippet is. Note:
-                sentimentMax is an integer value between 1
-                (inclusive) and 10 (inclusive).
-        """
-
-        sentiment = proto.Field(proto.INT32, number=1)
-
-    instance = proto.Field(proto.MESSAGE, number=1,
-        message=gcaspi_text_sentiment.TextSentimentPredictionInstance,
-    )
-
-    prediction = proto.Field(proto.MESSAGE, number=2,
-        message=Prediction,
+    sentiment = proto.Field(
+        proto.INT32,
+        number=1,
     )
 
 

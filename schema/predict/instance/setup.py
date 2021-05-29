@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+import io
+import os
 import setuptools  # type: ignore
 
+version = '0.1.0'
+
+package_root = os.path.abspath(os.path.dirname(__file__))
+
+readme_filename = os.path.join(package_root, 'README.rst')
+with io.open(readme_filename, encoding='utf-8') as readme_file:
+    readme = readme_file.read()
 
 setuptools.setup(
     name='google-cloud-aiplatform-v1-schema-predict-instance',
-    version='0.0.1',
+    version=version,
+    long_description=readme,
     packages=setuptools.PEP420PackageFinder.find(),
     namespace_packages=('google', 'google.cloud', 'google.cloud.aiplatform', 'google.cloud.aiplatform.v1', 'google.cloud.aiplatform.v1.schema', 'google.cloud.aiplatform.v1.schema.predict'),
     platforms='Posix; MacOS X; Windows',
@@ -28,12 +36,9 @@ setuptools.setup(
     install_requires=(
         'google-api-core[grpc] >= 1.22.2, < 2.0.0dev',
         'libcst >= 0.2.5',
-        'proto-plus >= 1.4.0',
-    ),
+        'proto-plus >= 1.15.0',
+        'packaging >= 14.3',    ),
     python_requires='>=3.6',
-    scripts=[
-        'scripts/fixup_instance_v1_keywords.py',
-    ],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

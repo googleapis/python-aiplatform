@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -23,25 +21,24 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as ga_operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.specialist_pool_service import pagers
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import specialist_pool
 from google.cloud.aiplatform_v1.types import specialist_pool as gca_specialist_pool
 from google.cloud.aiplatform_v1.types import specialist_pool_service
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 from .transports.base import SpecialistPoolServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import SpecialistPoolServiceGrpcTransport
 from .transports.grpc_asyncio import SpecialistPoolServiceGrpcAsyncIOTransport
@@ -64,7 +61,7 @@ class SpecialistPoolServiceClientMeta(type):
     def get_transport_class(
         cls, label: str = None,
     ) -> Type[SpecialistPoolServiceTransport]:
-        """Return an appropriate transport class.
+        """Returns an appropriate transport class.
 
         Args:
             label: The name of the desired transport. If none is
@@ -93,7 +90,8 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
-        """Convert api endpoint to mTLS endpoint.
+        """Converts api endpoint to mTLS endpoint.
+
         Convert "*.sandbox.googleapis.com" and "*.googleapis.com" to
         "*.mtls.sandbox.googleapis.com" and "*.mtls.googleapis.com" respectively.
         Args:
@@ -127,7 +125,8 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -144,7 +143,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -163,23 +162,24 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     @property
     def transport(self) -> SpecialistPoolServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
-            SpecialistPoolServiceTransport: The transport used by the client instance.
+            SpecialistPoolServiceTransport: The transport used by the client
+                instance.
         """
         return self._transport
 
     @staticmethod
     def specialist_pool_path(project: str, location: str, specialist_pool: str,) -> str:
-        """Return a fully-qualified specialist_pool string."""
+        """Returns a fully-qualified specialist_pool string."""
         return "projects/{project}/locations/{location}/specialistPools/{specialist_pool}".format(
             project=project, location=location, specialist_pool=specialist_pool,
         )
 
     @staticmethod
     def parse_specialist_pool_path(path: str) -> Dict[str, str]:
-        """Parse a specialist_pool path into its component segments."""
+        """Parses a specialist_pool path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/specialistPools/(?P<specialist_pool>.+?)$",
             path,
@@ -188,7 +188,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     @staticmethod
     def common_billing_account_path(billing_account: str,) -> str:
-        """Return a fully-qualified billing_account string."""
+        """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
         )
@@ -201,7 +201,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     @staticmethod
     def common_folder_path(folder: str,) -> str:
-        """Return a fully-qualified folder string."""
+        """Returns a fully-qualified folder string."""
         return "folders/{folder}".format(folder=folder,)
 
     @staticmethod
@@ -212,7 +212,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     @staticmethod
     def common_organization_path(organization: str,) -> str:
-        """Return a fully-qualified organization string."""
+        """Returns a fully-qualified organization string."""
         return "organizations/{organization}".format(organization=organization,)
 
     @staticmethod
@@ -223,7 +223,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     @staticmethod
     def common_project_path(project: str,) -> str:
-        """Return a fully-qualified project string."""
+        """Returns a fully-qualified project string."""
         return "projects/{project}".format(project=project,)
 
     @staticmethod
@@ -234,7 +234,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
     @staticmethod
     def common_location_path(project: str, location: str,) -> str:
-        """Return a fully-qualified location string."""
+        """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
             project=project, location=location,
         )
@@ -248,12 +248,12 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
     def __init__(
         self,
         *,
-        credentials: Optional[credentials.Credentials] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, SpecialistPoolServiceTransport, None] = None,
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the specialist pool service client.
+        """Instantiates the specialist pool service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -308,9 +308,10 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 client_cert_source_func = client_options.client_cert_source
             else:
                 is_mtls = mtls.has_default_client_cert_source()
-                client_cert_source_func = (
-                    mtls.default_client_cert_source() if is_mtls else None
-                )
+                if is_mtls:
+                    client_cert_source_func = mtls.default_client_cert_source()
+                else:
+                    client_cert_source_func = None
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -322,12 +323,14 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
             elif use_mtls_env == "always":
                 api_endpoint = self.DEFAULT_MTLS_ENDPOINT
             elif use_mtls_env == "auto":
-                api_endpoint = (
-                    self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
-                )
+                if is_mtls:
+                    api_endpoint = self.DEFAULT_MTLS_ENDPOINT
+                else:
+                    api_endpoint = self.DEFAULT_ENDPOINT
             else:
                 raise MutualTLSChannelError(
-                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted values: never, auto, always"
+                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted "
+                    "values: never, auto, always"
                 )
 
         # Save or instantiate the transport.
@@ -342,8 +345,8 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 )
             if client_options.scopes:
                 raise ValueError(
-                    "When providing a transport instance, "
-                    "provide its scopes directly."
+                    "When providing a transport instance, provide its scopes "
+                    "directly."
                 )
             self._transport = transport
         else:
@@ -367,7 +370,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Creates a SpecialistPool.
 
         Args:
@@ -389,7 +392,6 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 This corresponds to the ``specialist_pool`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -426,10 +428,8 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, specialist_pool_service.CreateSpecialistPoolRequest):
             request = specialist_pool_service.CreateSpecialistPoolRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if specialist_pool is not None:
@@ -449,7 +449,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             gca_specialist_pool.SpecialistPool,
@@ -477,13 +477,11 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
             name (str):
                 Required. The name of the SpecialistPool resource. The
                 form is
-
                 ``projects/{project}/locations/{location}/specialistPools/{specialist_pool}``.
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -521,10 +519,8 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, specialist_pool_service.GetSpecialistPoolRequest):
             request = specialist_pool_service.GetSpecialistPoolRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -567,7 +563,6 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -599,10 +594,8 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, specialist_pool_service.ListSpecialistPoolsRequest):
             request = specialist_pool_service.ListSpecialistPoolsRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -636,7 +629,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Deletes a SpecialistPool as well as all Specialists
         in the pool.
 
@@ -652,7 +645,6 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -694,10 +686,8 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, specialist_pool_service.DeleteSpecialistPoolRequest):
             request = specialist_pool_service.DeleteSpecialistPoolRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -715,10 +705,10 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -730,11 +720,11 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         request: specialist_pool_service.UpdateSpecialistPoolRequest = None,
         *,
         specialist_pool: gca_specialist_pool.SpecialistPool = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> ga_operation.Operation:
+    ) -> gac_operation.Operation:
         r"""Updates a SpecialistPool.
 
         Args:
@@ -755,7 +745,6 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -792,10 +781,8 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, specialist_pool_service.UpdateSpecialistPoolRequest):
             request = specialist_pool_service.UpdateSpecialistPoolRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if specialist_pool is not None:
                 request.specialist_pool = specialist_pool
             if update_mask is not None:
@@ -817,7 +804,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = ga_operation.from_gapic(
+        response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
             gca_specialist_pool.SpecialistPool,
