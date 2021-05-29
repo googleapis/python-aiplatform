@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-"""Namespaced AI Platform Schemas."""
+"""Namespaced Vertex AI Schemas."""
 
 
 class training_job:

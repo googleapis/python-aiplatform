@@ -49,13 +49,23 @@ flags.DEFINE_string(
 flags.DEFINE_integer(
     "event_file_inactive_secs",
     None,
-    "Age in seconds of last write after which an event file is considered " "inactive.",
+    "Age in seconds of last write after which an event file is considered inactive.",
 )
 flags.DEFINE_string(
     "run_name_prefix",
     None,
     "If present, all runs created by this invocation will have their name "
     "prefixed by this value.",
+)
+flags.DEFINE_string(
+    "api_uri",
+    "aiplatform.googleapis.com",
+    "The API URI for fetching Tensorboard metadata.",
+)
+flags.DEFINE_string(
+    "web_server_uri",
+    "tensorboard.googleusercontent.com",
+    "The API URI for accessing the Tensorboard UI.",
 )
 
 flags.DEFINE_multi_string(
@@ -79,6 +89,7 @@ def main(argv):
     if len(argv) > 1:
         raise app.UsageError("Too many command-line arguments.")
 
+    aiplatform.constants.API_BASE_PATH = FLAGS.api_uri
     m = re.match(
         "projects/(.*)/locations/(.*)/tensorboards/.*", FLAGS.tensorboard_resource_name
     )
@@ -131,7 +142,7 @@ def main(argv):
     print(
         "View your Tensorboard at https://{}.{}/experiment/{}".format(
             region,
-            "tensorboard.googleusercontent.com",
+            FLAGS.web_server_uri,
             tb_uploader.get_experiment_resource_name().replace("/", "+"),
         )
     )
@@ -141,8 +152,16 @@ def main(argv):
         tb_uploader.start_uploading()
 
 
+def flags_parser(args):
+    # Plumbs the flags defined in this file to the main module, mostly for the
+    # console script wrapper tb-gcp-uploader.
+    for flag in set(flags.FLAGS.get_key_flags_for_module(__name__)):
+        flags.FLAGS.register_flag_by_module(args[0], flag)
+    return app.parse_flags_with_usage(args)
+
+
 def run_main():
-    app.run(main)
+    app.run(main, flags_parser=flags_parser)
 
 
 if __name__ == "__main__":

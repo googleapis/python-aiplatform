@@ -46,7 +46,7 @@ class DatasourceImportable(abc.ABC):
 
 
 class TabularDatasource(Datasource):
-    """Datasource for creating a tabular dataset for AI Platform."""
+    """Datasource for creating a tabular dataset for Vertex AI."""
 
     def __init__(
         self,
@@ -99,7 +99,7 @@ class TabularDatasource(Datasource):
 
 
 class NonTabularDatasource(Datasource):
-    """Datasource for creating an empty non-tabular dataset for AI Platform."""
+    """Datasource for creating an empty non-tabular dataset for Vertex AI."""
 
     @property
     def dataset_metadata(self) -> Optional[Dict]:
@@ -107,7 +107,7 @@ class NonTabularDatasource(Datasource):
 
 
 class NonTabularDatasourceImportable(NonTabularDatasource, DatasourceImportable):
-    """Datasource for creating a non-tabular dataset for AI Platform and
+    """Datasource for creating a non-tabular dataset for Vertex AI and
     importing data to the dataset."""
 
     def __init__(

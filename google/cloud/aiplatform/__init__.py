@@ -26,9 +26,15 @@ from google.cloud.aiplatform.datasets import (
     TimeSeriesDataset,
     VideoDataset,
 )
+from google.cloud.aiplatform import hyperparameter_tuning
+from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
-from google.cloud.aiplatform.jobs import BatchPredictionJob
+from google.cloud.aiplatform.jobs import (
+    BatchPredictionJob,
+    CustomJob,
+    HyperparameterTuningJob,
+)
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
     CustomContainerTrainingJob,
@@ -39,7 +45,6 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
 )
-from google.cloud.aiplatform.metadata import metadata
 
 """
 Usage:
@@ -60,6 +65,7 @@ __all__ = (
     "explain",
     "gapic",
     "init",
+    "hyperparameter_tuning",
     "log_params",
     "log_metrics",
     "get_experiment_df",
@@ -71,11 +77,13 @@ __all__ = (
     "AutoMLTextTrainingJob",
     "AutoMLVideoTrainingJob",
     "BatchPredictionJob",
+    "CustomJob",
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",
     "Endpoint",
     "ImageDataset",
+    "HyperparameterTuningJob",
     "Model",
     "TabularDataset",
     "TextDataset",

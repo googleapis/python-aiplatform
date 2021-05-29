@@ -49,6 +49,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     prediction_service as prediction_service_v1beta1,
     specialist_pool as specialist_pool_v1beta1,
     specialist_pool_service as specialist_pool_service_v1beta1,
+    study as study_v1beta1,
     training_pipeline as training_pipeline_v1beta1,
     metadata_service as metadata_service_v1beta1,
     tensorboard_service as tensorboard_service_v1beta1,
@@ -90,6 +91,7 @@ from google.cloud.aiplatform_v1.types import (
     prediction_service as prediction_service_v1,
     specialist_pool as specialist_pool_v1,
     specialist_pool_service as specialist_pool_service_v1,
+    study as study_v1,
     training_pipeline as training_pipeline_v1,
 )
 

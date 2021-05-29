@@ -15,16 +15,8 @@
 # limitations under the License.
 #
 
-import datetime
-import functools
-import logging
-import pathlib
-import shutil
-import subprocess
-import sys
-import tempfile
 import time
-from typing import Callable, Dict, List, Optional, NamedTuple, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import abc
 
@@ -38,25 +30,25 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform.compat.types import (
-    accelerator_type as gca_accelerator_type,
     env_var as gca_env_var,
     io as gca_io,
     model as gca_model,
     pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
 )
+from google.cloud.aiplatform.utils import _timestamped_gcs_dir
+from google.cloud.aiplatform.utils import source_utils
+from google.cloud.aiplatform.utils import worker_spec_utils
 
 from google.cloud.aiplatform.v1.schema.trainingjob import (
     definition_v1 as training_job_inputs,
 )
 
-from google.cloud import storage
 from google.rpc import code_pb2
 
 import proto
 
 
-logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 _LOGGER = base.Logger(__name__)
 
 _PIPELINE_COMPLETE_STATES = set(
@@ -69,7 +61,7 @@ _PIPELINE_COMPLETE_STATES = set(
 )
 
 
-class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
+class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.PipelineClientWithOverride
     _is_client_prediction_client = False
@@ -174,7 +166,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 doesn't match the custom training task definition.
 
         Returns:
-            An AI Platform Training Job
+            An Vertex AI Training Job
         """
 
         # Create job with dummy parameters
@@ -285,7 +277,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
             gcs_destination_uri_prefix (str):
                 Optional. The Google Cloud Storage location.
 
-                The AI Platform environment variables representing Google
+                The Vertex AI environment variables representing Google
                 Cloud Storage data URIs will always be represented in the
                 Google Cloud Storage wildcard format to support sharded
                 data.
@@ -457,14 +449,14 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 does not support uploading a Model as part of the pipeline.
                 When the Pipeline's state becomes
                 ``PIPELINE_STATE_SUCCEEDED`` and the trained Model had been
-                uploaded into AI Platform, then the model_to_upload's
+                uploaded into Vertex AI, then the model_to_upload's
                 resource ``name``
                 is populated. The Model is always uploaded into the Project
                 and Location in which this pipeline is.
             gcs_destination_uri_prefix (str):
                 Optional. The Google Cloud Storage location.
 
-                The AI Platform environment variables representing Google
+                The Vertex AI environment variables representing Google
                 Cloud Storage data URIs will always be represented in the
                 Google Cloud Storage wildcard format to support sharded
                 data.
@@ -554,7 +546,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         return self._gca_resource.state
 
     def get_model(self, sync=True) -> models.Model:
-        """AI Platform Model produced by this training, if one was produced.
+        """Vertex AI Model produced by this training, if one was produced.
 
         Args:
             sync (bool):
@@ -563,7 +555,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: AI Platform Model produced by this training
+            model: Vertex AI Model produced by this training
 
         Raises:
             RuntimeError: If training failed or if a model was not produced by this training.
@@ -577,7 +569,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
 
     @base.optional_sync()
     def _force_get_model(self, sync: bool = True) -> models.Model:
-        """AI Platform Model produced by this training, if one was produced.
+        """Vertex AI Model produced by this training, if one was produced.
 
         Args:
             sync (bool):
@@ -586,7 +578,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: AI Platform Model produced by this training
+            model: Vertex AI Model produced by this training
 
         Raises:
             RuntimeError: If training failed or if a model was not produced by this training.
@@ -602,7 +594,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         """Helper method to get and instantiate the Model to Upload.
 
         Returns:
-            model: AI Platform Model if training succeeded and produced an AI Platform
+            model: Vertex AI Model if training succeeded and produced an Vertex AI
                 Model. None otherwise.
 
         Raises:
@@ -717,7 +709,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> List["base.AiPlatformResourceNoune"]:
+    ) -> List["base.VertexAiResourceNoun"]:
         """List all instances of this TrainingJob resource.
 
         Example Usage:
@@ -746,7 +738,7 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[AiPlatformResourceNoun] - A list of TrainingJob resource objects
+            List[VertexAiResourceNoun] - A list of TrainingJob resource objects
         """
 
         training_job_subclass_filter = (
@@ -778,449 +770,6 @@ class _TrainingJob(base.AiPlatformResourceNounWithFutureManager):
                 "to start. `cancel()` can only be called on a job that is running."
             )
         self.api_client.cancel_training_pipeline(name=self.resource_name)
-
-
-def _timestamped_gcs_dir(root_gcs_path: str, dir_name_prefix: str) -> str:
-    """Composes a timestamped GCS directory.
-
-    Args:
-        root_gcs_path: GCS path to put the timestamped directory.
-        dir_name_prefix: Prefix to add the timestamped directory.
-    Returns:
-        Timestamped gcs directory path in root_gcs_path.
-    """
-    timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
-    dir_name = "-".join([dir_name_prefix, timestamp])
-    if root_gcs_path.endswith("/"):
-        root_gcs_path = root_gcs_path[:-1]
-    gcs_path = "/".join([root_gcs_path, dir_name])
-    if not gcs_path.startswith("gs://"):
-        return "gs://" + gcs_path
-    return gcs_path
-
-
-def _timestamped_copy_to_gcs(
-    local_file_path: str,
-    gcs_dir: str,
-    project: Optional[str] = None,
-    credentials: Optional[auth_credentials.Credentials] = None,
-) -> str:
-    """Copies a local file to a GCS path.
-
-    The file copied to GCS is the name of the local file prepended with an
-    "aiplatform-{timestamp}-" string.
-
-    Args:
-        local_file_path (str): Required. Local file to copy to GCS.
-        gcs_dir (str):
-            Required. The GCS directory to copy to.
-        project (str):
-            Project that contains the staging bucket. Default will be used if not
-            provided. Model Builder callers should pass this in.
-        credentials (auth_credentials.Credentials):
-            Custom credentials to use with bucket. Model Builder callers should pass
-            this in.
-    Returns:
-        gcs_path (str): The path of the copied file in gcs.
-    """
-
-    gcs_bucket, gcs_blob_prefix = utils.extract_bucket_and_prefix_from_gcs_path(gcs_dir)
-
-    local_file_name = pathlib.Path(local_file_path).name
-    timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
-    blob_path = "-".join(["aiplatform", timestamp, local_file_name])
-
-    if gcs_blob_prefix:
-        blob_path = "/".join([gcs_blob_prefix, blob_path])
-
-    # TODO(b/171202993) add user agent
-    client = storage.Client(project=project, credentials=credentials)
-    bucket = client.bucket(gcs_bucket)
-    blob = bucket.blob(blob_path)
-    blob.upload_from_filename(local_file_path)
-
-    gcs_path = "".join(["gs://", "/".join([blob.bucket.name, blob.name])])
-    return gcs_path
-
-
-def _get_python_executable() -> str:
-    """Returns Python executable.
-
-    Returns:
-        Python executable to use for setuptools packaging.
-    Raises:
-        EnvironmentError: If Python executable is not found.
-    """
-
-    python_executable = sys.executable
-
-    if not python_executable:
-        raise EnvironmentError("Cannot find Python executable for packaging.")
-    return python_executable
-
-
-class _TrainingScriptPythonPackager:
-    """Converts a Python script into Python package suitable for aiplatform
-    training.
-
-    Copies the script to specified location.
-
-    Class Attributes:
-        _TRAINER_FOLDER: Constant folder name to build package.
-        _ROOT_MODULE: Constant root name of module.
-        _TEST_MODULE_NAME: Constant name of module that will store script.
-        _SETUP_PY_VERSION: Constant version of this created python package.
-        _SETUP_PY_TEMPLATE: Constant template used to generate setup.py file.
-        _SETUP_PY_SOURCE_DISTRIBUTION_CMD:
-            Constant command to generate the source distribution package.
-
-    Attributes:
-        script_path: local path of script to package
-        requirements: list of Python dependencies to add to package
-
-    Usage:
-
-    packager = TrainingScriptPythonPackager('my_script.py', ['pandas', 'pytorch'])
-    gcs_path = packager.package_and_copy_to_gcs(
-        gcs_staging_dir='my-bucket',
-        project='my-prject')
-    module_name = packager.module_name
-
-    The package after installed can be executed as:
-    python -m aiplatform_custom_trainer_script.task
-    """
-
-    _TRAINER_FOLDER = "trainer"
-    _ROOT_MODULE = "aiplatform_custom_trainer_script"
-    _TASK_MODULE_NAME = "task"
-    _SETUP_PY_VERSION = "0.1"
-
-    _SETUP_PY_TEMPLATE = """from setuptools import find_packages
-from setuptools import setup
-
-setup(
-    name='{name}',
-    version='{version}',
-    packages=find_packages(),
-    install_requires=({requirements}),
-    include_package_data=True,
-    description='My training application.'
-)"""
-
-    _SETUP_PY_SOURCE_DISTRIBUTION_CMD = "setup.py sdist --formats=gztar"
-
-    # Module name that can be executed during training. ie. python -m
-    module_name = f"{_ROOT_MODULE}.{_TASK_MODULE_NAME}"
-
-    def __init__(self, script_path: str, requirements: Optional[Sequence[str]] = None):
-        """Initializes packager.
-
-        Args:
-            script_path (str): Required. Local path to script.
-            requirements (Sequence[str]):
-                List of python packages dependencies of script.
-        """
-
-        self.script_path = script_path
-        self.requirements = requirements or []
-
-    def make_package(self, package_directory: str) -> str:
-        """Converts script into a Python package suitable for python module
-        execution.
-
-        Args:
-            package_directory (str): Directory to build package in.
-        Returns:
-            source_distribution_path (str): Path to built package.
-        Raises:
-            RunTimeError: If package creation fails.
-        """
-        # The root folder to builder the package in
-        package_path = pathlib.Path(package_directory)
-
-        # Root directory of the package
-        trainer_root_path = package_path / self._TRAINER_FOLDER
-
-        # The root module of the python package
-        trainer_path = trainer_root_path / self._ROOT_MODULE
-
-        # __init__.py path in root module
-        init_path = trainer_path / "__init__.py"
-
-        # The module that will contain the script
-        script_out_path = trainer_path / f"{self._TASK_MODULE_NAME}.py"
-
-        # The path to setup.py in the package.
-        setup_py_path = trainer_root_path / "setup.py"
-
-        # The path to the generated source distribution.
-        source_distribution_path = (
-            trainer_root_path
-            / "dist"
-            / f"{self._ROOT_MODULE}-{self._SETUP_PY_VERSION}.tar.gz"
-        )
-
-        trainer_root_path.mkdir()
-        trainer_path.mkdir()
-
-        # Make empty __init__.py
-        with init_path.open("w"):
-            pass
-
-        # Format the setup.py file.
-        setup_py_output = self._SETUP_PY_TEMPLATE.format(
-            name=self._ROOT_MODULE,
-            requirements=",".join(f'"{r}"' for r in self.requirements),
-            version=self._SETUP_PY_VERSION,
-        )
-
-        # Write setup.py
-        with setup_py_path.open("w") as fp:
-            fp.write(setup_py_output)
-
-        # Copy script as module of python package.
-        shutil.copy(self.script_path, script_out_path)
-
-        # Run setup.py to create the source distribution.
-        setup_cmd = [
-            _get_python_executable()
-        ] + self._SETUP_PY_SOURCE_DISTRIBUTION_CMD.split()
-
-        p = subprocess.Popen(
-            args=setup_cmd,
-            cwd=trainer_root_path,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        output, error = p.communicate()
-
-        # Raise informative error if packaging fails.
-        if p.returncode != 0:
-            raise RuntimeError(
-                "Packaging of training script failed with code %d\n%s \n%s"
-                % (p.returncode, output.decode(), error.decode())
-            )
-
-        return str(source_distribution_path)
-
-    def package_and_copy(self, copy_method: Callable[[str], str]) -> str:
-        """Packages the script and executes copy with given copy_method.
-
-        Args:
-            copy_method Callable[[str], str]
-                Takes a string path, copies to a desired location, and returns the
-                output path location.
-        Returns:
-            output_path str: Location of copied package.
-        """
-
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            source_distribution_path = self.make_package(tmpdirname)
-            output_location = copy_method(source_distribution_path)
-            _LOGGER.info("Training script copied to:\n%s." % output_location)
-            return output_location
-
-    def package_and_copy_to_gcs(
-        self,
-        gcs_staging_dir: str,
-        project: str = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> str:
-        """Packages script in Python package and copies package to GCS bucket.
-
-        Args
-            gcs_staging_dir (str): Required. GCS Staging directory.
-            project (str): Required. Project where GCS Staging bucket is located.
-            credentials (auth_credentials.Credentials):
-                Optional credentials used with GCS client.
-        Returns:
-            GCS location of Python package.
-        """
-
-        copy_method = functools.partial(
-            _timestamped_copy_to_gcs,
-            gcs_dir=gcs_staging_dir,
-            project=project,
-            credentials=credentials,
-        )
-        return self.package_and_copy(copy_method=copy_method)
-
-
-class _MachineSpec(NamedTuple):
-    """Specification container for Machine specs used for distributed training.
-
-    Usage:
-
-    spec = _MachineSpec(
-                replica_count=10,
-                machine_type='n1-standard-4',
-                accelerator_count=2,
-                accelerator_type='NVIDIA_TESLA_K80')
-
-    Note that container and python package specs are not stored with this spec.
-    """
-
-    replica_count: int = 0
-    machine_type: str = "n1-standard-4"
-    accelerator_count: int = 0
-    accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED"
-
-    def _get_accelerator_type(self) -> Optional[str]:
-        """Validates accelerator_type and returns the name of the accelerator.
-
-        Returns:
-            None if no accelerator or valid accelerator name.
-
-        Raise:
-            ValueError if accelerator type is invalid.
-        """
-
-        # Raises ValueError if invalid accelerator_type
-        utils.validate_accelerator_type(self.accelerator_type)
-
-        accelerator_enum = getattr(
-            gca_accelerator_type.AcceleratorType, self.accelerator_type
-        )
-
-        if (
-            accelerator_enum
-            != gca_accelerator_type.AcceleratorType.ACCELERATOR_TYPE_UNSPECIFIED
-        ):
-            return self.accelerator_type
-
-    @property
-    def spec_dict(self) -> Dict[str, Union[int, str, Dict[str, Union[int, str]]]]:
-        """Return specification as a Dict."""
-        spec = {
-            "machineSpec": {"machineType": self.machine_type},
-            "replicaCount": self.replica_count,
-        }
-        accelerator_type = self._get_accelerator_type()
-        if accelerator_type and self.accelerator_count:
-            spec["machineSpec"]["acceleratorType"] = accelerator_type
-            spec["machineSpec"]["acceleratorCount"] = self.accelerator_count
-
-        return spec
-
-    @property
-    def is_empty(self) -> bool:
-        """Returns True is replica_count > 0 False otherwise."""
-        return self.replica_count <= 0
-
-
-class _DistributedTrainingSpec(NamedTuple):
-    """Configuration for distributed training worker pool specs.
-
-    AI Platform Training expects configuration in this order:
-    [
-        chief spec, # can only have one replica
-        worker spec,
-        parameter server spec,
-        evaluator spec
-    ]
-
-    Usage:
-
-    dist_training_spec = _DistributedTrainingSpec(
-        chief_spec = _MachineSpec(
-                replica_count=1,
-                machine_type='n1-standard-4',
-                accelerator_count=2,
-                accelerator_type='NVIDIA_TESLA_K80'
-                ),
-        worker_spec = _MachineSpec(
-                replica_count=10,
-                machine_type='n1-standard-4',
-                accelerator_count=2,
-                accelerator_type='NVIDIA_TESLA_K80'
-                )
-    )
-    """
-
-    chief_spec: _MachineSpec = _MachineSpec()
-    worker_spec: _MachineSpec = _MachineSpec()
-    parameter_server_spec: _MachineSpec = _MachineSpec()
-    evaluator_spec: _MachineSpec = _MachineSpec()
-
-    @property
-    def pool_specs(
-        self,
-    ) -> List[Dict[str, Union[int, str, Dict[str, Union[int, str]]]]]:
-        """Return each pools spec in correct order for AI Platform as a list of
-        dicts.
-
-        Also removes specs if they are empty but leaves specs in if there unusual
-        specifications to not break the ordering in AI Platform Training.
-        ie. 0 chief replica, 10 worker replica, 3 ps replica
-
-        Returns:
-            Order list of worker pool specs suitable for AI Platform Training.
-        """
-        if self.chief_spec.replica_count > 1:
-            raise ValueError("Chief spec replica count cannot be greater than 1.")
-
-        spec_order = [
-            self.chief_spec,
-            self.worker_spec,
-            self.parameter_server_spec,
-            self.evaluator_spec,
-        ]
-        specs = [s.spec_dict for s in spec_order]
-        for i in reversed(range(len(spec_order))):
-            if spec_order[i].is_empty:
-                specs.pop()
-            else:
-                break
-        return specs
-
-    @classmethod
-    def chief_worker_pool(
-        cls,
-        replica_count: int = 0,
-        machine_type: str = "n1-standard-4",
-        accelerator_count: int = 0,
-        accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
-    ) -> "_DistributedTrainingSpec":
-        """Parameterizes Config to support only chief with worker replicas.
-
-        For replica is assigned to chief and the remainder to workers. All spec have the
-        same machine type, accelerator count, and accelerator type.
-
-        Args:
-            replica_count (int):
-                The number of worker replicas. Assigns 1 chief replica and
-                replica_count - 1 worker replicas.
-            machine_type (str):
-                The type of machine to use for training.
-            accelerator_type (str):
-                Hardware accelerator type. One of ACCELERATOR_TYPE_UNSPECIFIED,
-                NVIDIA_TESLA_K80, NVIDIA_TESLA_P100, NVIDIA_TESLA_V100, NVIDIA_TESLA_P4,
-                NVIDIA_TESLA_T4
-            accelerator_count (int):
-                The number of accelerators to attach to a worker replica.
-
-        Returns:
-            _DistributedTrainingSpec representing one chief and n workers all of same
-            type. If replica_count <= 0 then an empty spec is returned.
-        """
-        if replica_count <= 0:
-            return cls()
-
-        chief_spec = _MachineSpec(
-            replica_count=1,
-            machine_type=machine_type,
-            accelerator_count=accelerator_count,
-            accelerator_type=accelerator_type,
-        )
-
-        worker_spec = _MachineSpec(
-            replica_count=replica_count - 1,
-            machine_type=machine_type,
-            accelerator_count=accelerator_count,
-            accelerator_type=accelerator_type,
-        )
-
-        return cls(chief_spec=chief_spec, worker_spec=worker_spec)
 
 
 class _CustomTrainingJob(_TrainingJob):
@@ -1257,15 +806,15 @@ class _CustomTrainingJob(_TrainingJob):
             container_uri (str):
                 Required: Uri of the training container image in the GCR.
             model_serving_container_image_uri (str):
-                If the training produces a managed AI Platform Model, the URI of the
+                If the training produces a managed Vertex AI Model, the URI of the
                 Model serving container suitable for serving the model produced by the
                 training script.
             model_serving_container_predict_route (str):
-                If the training produces a managed AI Platform Model, An HTTP path to
+                If the training produces a managed Vertex AI Model, An HTTP path to
                 send prediction requests to the container, and which must be supported
-                by it. If not specified a default HTTP path will be used by AI Platform.
+                by it. If not specified a default HTTP path will be used by Vertex AI.
             model_serving_container_health_route (str):
-                If the training produces a managed AI Platform Model, an HTTP path to
+                If the training produces a managed Vertex AI Model, an HTTP path to
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
@@ -1290,7 +839,7 @@ class _CustomTrainingJob(_TrainingJob):
                 and values are environment variable values for those names.
             model_serving_container_ports (Sequence[int]):
                 Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives AI Platform information about the
+                primarily informational, it gives Vertex AI information about the
                 network connections the container uses. Listing or not a port here has
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
@@ -1455,13 +1004,13 @@ class _CustomTrainingJob(_TrainingJob):
         machine_type: str = "n1-standard-4",
         accelerator_type: str = "ACCELERATOR_TYPE_UNSPECIFIED",
         accelerator_count: int = 0,
-    ) -> Tuple[_DistributedTrainingSpec, Optional[gca_model.Model]]:
+    ) -> Tuple[worker_spec_utils._DistributedTrainingSpec, Optional[gca_model.Model]]:
         """Create worker pool specs and managed model as well validating the
         run.
 
         Args:
             model_display_name (str):
-                If the script produces a managed AI Platform Model. The display name of
+                If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -1505,7 +1054,7 @@ class _CustomTrainingJob(_TrainingJob):
             model_display_name = model_display_name or self._display_name + "-model"
 
         # validates args and will raise
-        worker_pool_specs = _DistributedTrainingSpec.chief_worker_pool(
+        worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
             replica_count=replica_count,
             machine_type=machine_type,
             accelerator_count=accelerator_count,
@@ -1523,7 +1072,7 @@ class _CustomTrainingJob(_TrainingJob):
 
     def _prepare_training_task_inputs_and_output_dir(
         self,
-        worker_pool_specs: _DistributedTrainingSpec,
+        worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
@@ -1531,7 +1080,7 @@ class _CustomTrainingJob(_TrainingJob):
         """Prepares training task inputs and output directory for custom job.
 
         Args:
-            worker_pools_spec (_DistributedTrainingSpec):
+            worker_pools_spec (worker_spec_utils._DistributedTrainingSpec):
                 Worker pools pecs required to run job.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
@@ -1556,12 +1105,12 @@ class _CustomTrainingJob(_TrainingJob):
         _LOGGER.info("Training Output directory:\n%s " % base_output_dir)
 
         training_task_inputs = {
-            "workerPoolSpecs": worker_pool_specs,
-            "baseOutputDirectory": {"output_uri_prefix": base_output_dir},
+            "worker_pool_specs": worker_pool_specs,
+            "base_output_directory": {"output_uri_prefix": base_output_dir},
         }
 
         if service_account:
-            training_task_inputs["serviceAccount"] = service_account
+            training_task_inputs["service_account"] = service_account
         if network:
             training_task_inputs["network"] = network
 
@@ -1581,10 +1130,10 @@ class _CustomTrainingJob(_TrainingJob):
 
 # TODO(b/172368325) add scheduling, custom_job.Scheduling
 class CustomTrainingJob(_CustomTrainingJob):
-    """Class to launch a Custom Training Job in AI Platform using a script.
+    """Class to launch a Custom Training Job in Vertex AI using a script.
 
     Takes a training implementation as a python script and executes that
-    script in Cloud AI Platform Training.
+    script in Cloud Vertex AI Training.
     """
 
     def __init__(
@@ -1635,7 +1184,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
 
         TODO(b/169782082) add documentation about traning utilities
-        To ensure your model gets saved in AI Platform, write your saved model to
+        To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
 
 
@@ -1648,15 +1197,15 @@ class CustomTrainingJob(_CustomTrainingJob):
             requirements (Sequence[str]):
                 List of python packages dependencies of script.
             model_serving_container_image_uri (str):
-                If the training produces a managed AI Platform Model, the URI of the
+                If the training produces a managed Vertex AI Model, the URI of the
                 Model serving container suitable for serving the model produced by the
                 training script.
             model_serving_container_predict_route (str):
-                If the training produces a managed AI Platform Model, An HTTP path to
+                If the training produces a managed Vertex AI Model, An HTTP path to
                 send prediction requests to the container, and which must be supported
-                by it. If not specified a default HTTP path will be used by AI Platform.
+                by it. If not specified a default HTTP path will be used by Vertex AI.
             model_serving_container_health_route (str):
-                If the training produces a managed AI Platform Model, an HTTP path to
+                If the training produces a managed Vertex AI Model, an HTTP path to
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
@@ -1681,7 +1230,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 and values are environment variable values for those names.
             model_serving_container_ports (Sequence[int]):
                 Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives AI Platform information about the
+                primarily informational, it gives Vertex AI information about the
                 network connections the container uses. Listing or not a port here has
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
@@ -1837,7 +1386,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform.If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI.If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -1849,7 +1398,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                     datasets.VideoDataset,
                 ]
             ):
-                AI Platform to fit this training against. Custom training script should
+                Vertex AI to fit this training against. Custom training script should
                 retrieve datasets through passed in environment variables uris:
 
                 os.environ["AIP_TRAINING_DATA_URI"]
@@ -1882,7 +1431,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 and
                 ``annotation_schema_uri``.
             model_display_name (str):
-                If the script produces a managed AI Platform Model. The display name of
+                If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -1891,7 +1440,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
 
-                AI Platform sets the following environment variables when it runs your training code:
+                Vertex AI sets the following environment variables when it runs your training code:
 
                 -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
                 -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
@@ -1969,8 +1518,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -1981,7 +1530,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         )
 
         # make and copy package
-        python_packager = _TrainingScriptPythonPackager(
+        python_packager = source_utils._TrainingScriptPythonPackager(
             script_path=self._script_path, requirements=self._requirements
         )
 
@@ -2007,7 +1556,7 @@ class CustomTrainingJob(_CustomTrainingJob):
     @base.optional_sync(construct_object_on_arg="managed_model")
     def _run(
         self,
-        python_packager: _TrainingScriptPythonPackager,
+        python_packager: source_utils._TrainingScriptPythonPackager,
         dataset: Optional[
             Union[
                 datasets.ImageDataset,
@@ -2017,7 +1566,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             ]
         ],
         annotation_schema_uri: Optional[str],
-        worker_pool_specs: _DistributedTrainingSpec,
+        worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
@@ -2034,7 +1583,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         """Packages local script and launches training_job.
 
         Args:
-            python_packager (_TrainingScriptPythonPackager):
+            python_packager (source_utils._TrainingScriptPythonPackager):
                 Required. Python Packager pointing to training script locally.
             dataset (
                 Union[
@@ -2044,11 +1593,11 @@ class CustomTrainingJob(_CustomTrainingJob):
                     datasets.VideoDataset,
                 ]
             ):
-                AI Platform to fit this training against.
+                Vertex AI to fit this training against.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema.
-            worker_pools_spec (_DistributedTrainingSpec):
+            worker_pools_spec (worker_spec_utils._DistributedTrainingSpec):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
                 Model proto if this script produces a Managed Model.
@@ -2068,7 +1617,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
 
-                AI Platform sets the following environment variables when it runs your training code:
+                Vertex AI sets the following environment variables when it runs your training code:
 
                 -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
                 -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
@@ -2122,8 +1671,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
         package_gcs_uri = python_packager.package_and_copy_to_gcs(
             gcs_staging_dir=self._staging_bucket,
@@ -2132,17 +1681,17 @@ class CustomTrainingJob(_CustomTrainingJob):
         )
 
         for spec in worker_pool_specs:
-            spec["pythonPackageSpec"] = {
-                "executorImageUri": self._container_uri,
-                "pythonModule": python_packager.module_name,
-                "packageUris": [package_gcs_uri],
+            spec["python_package_spec"] = {
+                "executor_image_uri": self._container_uri,
+                "python_module": python_packager.module_name,
+                "package_uris": [package_gcs_uri],
             }
 
             if args:
-                spec["pythonPackageSpec"]["args"] = args
+                spec["python_package_spec"]["args"] = args
 
             if environment_variables:
-                spec["pythonPackageSpec"]["env"] = [
+                spec["python_package_spec"]["env"] = [
                     {"name": key, "value": value}
                     for key, value in environment_variables.items()
                 ]
@@ -2175,7 +1724,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
 
 class CustomContainerTrainingJob(_CustomTrainingJob):
-    """Class to launch a Custom Training Job in AI Platform using a
+    """Class to launch a Custom Training Job in Vertex AI using a
     Container."""
 
     def __init__(
@@ -2224,7 +1773,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
 
         TODO(b/169782082) add documentation about traning utilities
-        To ensure your model gets saved in AI Platform, write your saved model to
+        To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
 
 
@@ -2237,15 +1786,15 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 The command to be invoked when the container is started.
                 It overrides the entrypoint instruction in Dockerfile when provided
             model_serving_container_image_uri (str):
-                If the training produces a managed AI Platform Model, the URI of the
+                If the training produces a managed Vertex AI Model, the URI of the
                 Model serving container suitable for serving the model produced by the
                 training script.
             model_serving_container_predict_route (str):
-                If the training produces a managed AI Platform Model, An HTTP path to
+                If the training produces a managed Vertex AI Model, An HTTP path to
                 send prediction requests to the container, and which must be supported
-                by it. If not specified a default HTTP path will be used by AI Platform.
+                by it. If not specified a default HTTP path will be used by Vertex AI.
             model_serving_container_health_route (str):
-                If the training produces a managed AI Platform Model, an HTTP path to
+                If the training produces a managed Vertex AI Model, an HTTP path to
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
@@ -2270,7 +1819,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 and values are environment variable values for those names.
             model_serving_container_ports (Sequence[int]):
                 Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives AI Platform information about the
+                primarily informational, it gives Vertex AI information about the
                 network connections the container uses. Listing or not a port here has
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
@@ -2425,12 +1974,12 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset]):
-                AI Platform to fit this training against. Custom training script should
+                Vertex AI to fit this training against. Custom training script should
                 retrieve datasets through passed in environment variables uris:
 
                 os.environ["AIP_TRAINING_DATA_URI"]
@@ -2463,7 +2012,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 and
                 ``annotation_schema_uri``.
             model_display_name (str):
-                If the script produces a managed AI Platform Model. The display name of
+                If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -2472,7 +2021,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
 
-                AI Platform sets the following environment variables when it runs your training code:
+                Vertex AI sets the following environment variables when it runs your training code:
 
                 -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
                 -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
@@ -2550,8 +2099,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run, staging_bucket has not
@@ -2596,7 +2145,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             ]
         ],
         annotation_schema_uri: Optional[str],
-        worker_pool_specs: _DistributedTrainingSpec,
+        worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
@@ -2620,11 +2169,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                     datasets.VideoDataset,
                 ]
             ):
-                AI Platform to fit this training against.
+                Vertex AI to fit this training against.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema.
-            worker_pools_spec (_DistributedTrainingSpec):
+            worker_pools_spec (worker_spec_utils._DistributedTrainingSpec):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
                 Model proto if this script produces a Managed Model.
@@ -2644,7 +2193,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
 
-                AI Platform sets the following environment variables when it runs your training code:
+                Vertex AI sets the following environment variables when it runs your training code:
 
                 -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
                 -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
@@ -2697,8 +2246,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
 
         for spec in worker_pool_specs:
@@ -2891,7 +2440,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -2942,7 +2491,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
-                Optional. If the script produces a managed AI Platform Model. The display name of
+                Optional. If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -2958,8 +2507,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -3006,7 +2555,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -3057,7 +2606,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
-                Optional. If the script produces a managed AI Platform Model. The display name of
+                Optional. If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -3074,8 +2623,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
 
         training_task_definition = schema.training_job.definition.automl_tabular
@@ -3334,7 +2883,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
-                Optional. If the script produces a managed AI Platform Model. The display name of
+                Optional. If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -3344,8 +2893,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
 
         Raises:
             RuntimeError if Training job has already been run or is waiting to run.
@@ -3519,7 +3068,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
-                Optional. If the script produces a managed AI Platform Model. The display name of
+                Optional. If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -3529,8 +3078,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
 
         training_task_definition = schema.training_job.definition.automl_forecasting
@@ -3762,7 +3311,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -3796,7 +3345,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
-                Optional. The display name of the managed AI Platform Model. The name
+                Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
                 characters. If not provided upon creation, the job's display_name is used.
             disable_early_stopping: bool = False
@@ -3810,8 +3359,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -3854,7 +3403,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -3894,7 +3443,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 will error.
                 The minimum value is 1000 and the maximum is 72000.
             model_display_name (str):
-                Optional. The display name of the managed AI Platform Model. The name
+                Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
                 characters. If a `base_model` was provided, the display_name in the
                 base_model will be overritten with this value. If not provided upon
@@ -3911,8 +3460,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
 
         # Retrieve the objective-specific training task schema based on prediction_type
@@ -3942,7 +3491,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
             model_tbt.description = getattr(base_model._gca_resource, "description")
             model_tbt.labels = getattr(base_model._gca_resource, "labels")
 
-            # Set ID of AI Platform Model to base this training job off of
+            # Set ID of Vertex AI Model to base this training job off of
             training_task_inputs_dict["baseModelId"] = base_model.name
 
         return self._run_job(
@@ -3965,11 +3514,11 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
 
 class CustomPythonPackageTrainingJob(_CustomTrainingJob):
-    """Class to launch a Custom Training Job in AI Platform using a Python
+    """Class to launch a Custom Training Job in Vertex AI using a Python
     Package.
 
     Takes a training implementation as a python package and executes
-    that package in Cloud AI Platform Training.
+    that package in Cloud Vertex AI Training.
     """
 
     def __init__(
@@ -4027,7 +3576,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 model_display_name='my-trained-model'
             )
 
-        To ensure your model gets saved in AI Platform, write your saved model to
+        To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
 
         Args:
@@ -4040,15 +3589,15 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             container_uri (str):
                 Required: Uri of the training container image in the GCR.
             model_serving_container_image_uri (str):
-                If the training produces a managed AI Platform Model, the URI of the
+                If the training produces a managed Vertex AI Model, the URI of the
                 Model serving container suitable for serving the model produced by the
                 training script.
             model_serving_container_predict_route (str):
-                If the training produces a managed AI Platform Model, An HTTP path to
+                If the training produces a managed Vertex AI Model, An HTTP path to
                 send prediction requests to the container, and which must be supported
-                by it. If not specified a default HTTP path will be used by AI Platform.
+                by it. If not specified a default HTTP path will be used by Vertex AI.
             model_serving_container_health_route (str):
-                If the training produces a managed AI Platform Model, an HTTP path to
+                If the training produces a managed Vertex AI Model, an HTTP path to
                 send health check requests to the container, and which must be supported
                 by it. If not specified a standard HTTP path will be used by AI
                 Platform.
@@ -4073,7 +3622,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 and values are environment variable values for those names.
             model_serving_container_ports (Sequence[int]):
                 Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives AI Platform information about the
+                primarily informational, it gives Vertex AI information about the
                 network connections the container uses. Listing or not a port here has
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
@@ -4227,12 +3776,12 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform.If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI.If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
             dataset (Union[datasets.ImageDataset,datasets.TabularDataset,datasets.TextDataset,datasets.VideoDataset,]):
-                AI Platform to fit this training against. Custom training script should
+                Vertex AI to fit this training against. Custom training script should
                 retrieve datasets through passed in environment variables uris:
 
                 os.environ["AIP_TRAINING_DATA_URI"]
@@ -4265,7 +3814,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 and
                 ``annotation_schema_uri``.
             model_display_name (str):
-                If the script produces a managed AI Platform Model. The display name of
+                If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -4274,7 +3823,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
 
-                AI Platform sets the following environment variables when it runs your training code:
+                Vertex AI sets the following environment variables when it runs your training code:
 
                 -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
                 -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
@@ -4352,8 +3901,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -4393,7 +3942,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             ]
         ],
         annotation_schema_uri: Optional[str],
-        worker_pool_specs: _DistributedTrainingSpec,
+        worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
@@ -4418,11 +3967,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                     datasets.VideoDataset,
                 ]
             ):
-                AI Platform to fit this training against.
+                Vertex AI to fit this training against.
             annotation_schema_uri (str):
                 Google Cloud Storage URI points to a YAML file describing
                 annotation schema.
-            worker_pools_spec (_DistributedTrainingSpec):
+            worker_pools_spec (worker_spec_utils._DistributedTrainingSpec):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
                 Model proto if this script produces a Managed Model.
@@ -4442,7 +3991,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
 
-                AI Platform sets the following environment variables when it runs your training code:
+                Vertex AI sets the following environment variables when it runs your training code:
 
                 -  AIP_MODEL_DIR: a Cloud Storage URI of a directory intended for saving model artifacts, i.e. <base_output_dir>/model/
                 -  AIP_CHECKPOINT_DIR: a Cloud Storage URI of a directory intended for saving checkpoints, i.e. <base_output_dir>/checkpoints/
@@ -4481,21 +4030,21 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
         for spec in worker_pool_specs:
-            spec["pythonPackageSpec"] = {
-                "executorImageUri": self._container_uri,
-                "pythonModule": self._python_module,
-                "packageUris": [self._package_gcs_uri],
+            spec["python_package_spec"] = {
+                "executor_image_uri": self._container_uri,
+                "python_module": self._python_module,
+                "package_uris": [self._package_gcs_uri],
             }
 
             if args:
-                spec["pythonPackageSpec"]["args"] = args
+                spec["python_package_spec"]["args"] = args
 
             if environment_variables:
-                spec["pythonPackageSpec"]["env"] = [
+                spec["python_package_spec"]["env"] = [
                     {"name": key, "value": value}
                     for key, value in environment_variables.items()
                 ]
@@ -4679,7 +4228,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
             model_display_name (str):
-                Optional. The display name of the managed AI Platform Model. The name
+                Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
                 characters. If not provided upon creation, the job's display_name is used.
             sync: bool = True
@@ -4687,8 +4236,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -4740,7 +4289,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
             model_display_name (str):
-                Optional. The display name of the managed AI Platform Model. The name
+                Optional. The display name of the managed Vertex AI Model. The name
                 can be up to 128 characters long and can be consist of any UTF-8
                 characters. If a `base_model` was provided, the display_name in the
                 base_model will be overritten with this value. If not provided upon
@@ -4751,8 +4300,8 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
 
         # Retrieve the objective-specific training task schema based on prediction_type
@@ -4815,7 +4364,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 The type of prediction the Model is to produce, one of:
                     "classification" - A classification model analyzes text data and
                         returns a list of categories that apply to the text found in the data.
-                        AI Platform offers both single-label and multi-label text classification models.
+                        Vertex AI offers both single-label and multi-label text classification models.
                     "extraction" - An entity extraction model inspects text data
                         for known entities referenced in the data and
                         labels those entities in the text.
@@ -4929,7 +4478,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -4949,7 +4498,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
             model_display_name (str):
-                Optional. The display name of the managed AI Platform Model.
+                Optional. The display name of the managed Vertex AI Model.
                 The name can be up to 128 characters long and can consist
                 of any UTF-8 characters.
 
@@ -4959,7 +4508,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
         Returns:
-            model: The trained AI Platform Model resource.
+            model: The trained Vertex AI Model resource.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -4996,7 +4545,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
         Any of ``training_fraction_split``, ``validation_fraction_split`` and
         ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
         the provided ones sum to less than 1, the remainder is assigned to sets as
-        decided by AI Platform. If none of the fractions are set, by default roughly 80%
+        decided by Vertex AI. If none of the fractions are set, by default roughly 80%
         of data will be used for training, 10% for validation, and 10% for test.
 
         Args:
@@ -5018,7 +4567,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 Required. The fraction of the input data that is to be
                 used to evaluate the Model. This is ignored if Dataset is not provided.
             model_display_name (str):
-                Optional. If the script produces a managed AI Platform Model. The display name of
+                Optional. If the script produces a managed Vertex AI Model. The display name of
                 the Model. The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
 
@@ -5029,8 +4578,8 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            model: The trained AI Platform Model resource or None if training did not
-                produce an AI Platform Model.
+            model: The trained Vertex AI Model resource or None if training did not
+                produce an Vertex AI Model.
         """
 
         if model_display_name is None:

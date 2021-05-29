@@ -29,7 +29,7 @@ from google.cloud.aiplatform_v1beta1.types.metadata_service import ListExecution
 
 
 class _Execution(_Resource):
-    """Metadata Execution resource for AI Platform"""
+    """Metadata Execution resource for Vertex AI"""
 
     _resource_noun = "executions"
     _getter_method = "get_execution"
