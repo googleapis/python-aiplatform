@@ -187,6 +187,14 @@ from .types.training_pipeline import TrainingPipeline
 from .types.user_action_reference import UserActionReference
 
 __all__ = (
+    "DatasetServiceAsyncClient",
+    "EndpointServiceAsyncClient",
+    "JobServiceAsyncClient",
+    "MigrationServiceAsyncClient",
+    "ModelServiceAsyncClient",
+    "PipelineServiceAsyncClient",
+    "PredictionServiceAsyncClient",
+    "SpecialistPoolServiceAsyncClient",
     "AcceleratorType",
     "ActiveLearningConfig",
     "Annotation",
