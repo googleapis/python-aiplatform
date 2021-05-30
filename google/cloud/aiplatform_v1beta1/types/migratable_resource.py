@@ -44,10 +44,10 @@ class MigratableResource(proto.Message):
             Output only. Represents one Dataset in
             datalabeling.googleapis.com.
         last_migrate_time (google.protobuf.timestamp_pb2.Timestamp):
-            Output only. Timestamp when last migrate
-            attempt on this MigratableResource started. Will
-            not be set if there's no migrate attempt on this
-            MigratableResource.
+            Output only. Timestamp when the last
+            migration attempt on this MigratableResource
+            started. Will not be set if there's no migration
+            attempt on this MigratableResource.
         last_update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             MigratableResource was last updated.
@@ -130,7 +130,6 @@ class MigratableResource(proto.Message):
                 annotated_dataset (str):
                     Full resource name of data labeling AnnotatedDataset.
                     Format:
-
                     ``projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}``.
                 annotated_dataset_display_name (str):
                     The AnnotatedDataset's display name in

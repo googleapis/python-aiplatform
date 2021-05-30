@@ -56,7 +56,7 @@ class Annotation(proto.Message):
             Output only. Timestamp when this Annotation
             was last updated.
         etag (str):
-            Optional. Used to perform a consistent read-
+            Optional. Used to perform consistent read-
             odify-write updates. If not set, a blind
             "overwrite" update happens.
         annotation_source (google.cloud.aiplatform_v1beta1.types.UserActionReference):
@@ -78,7 +78,7 @@ class Annotation(proto.Message):
 
             -  "aiplatform.googleapis.com/annotation_set_name":
                optional, name of the UI's annotation set this Annotation
-               belongs to. If not set the Annotation is not visible in
+               belongs to. If not set, the Annotation is not visible in
                the UI.
 
             -  "aiplatform.googleapis.com/payload_schema": output only,

@@ -218,17 +218,15 @@ class InputDataConfig(proto.Message):
 
             -  AIP_DATA_FORMAT = "jsonl" for non-tabular data, "csv" for
                tabular data
-            -  AIP_TRAINING_DATA_URI =
 
-            "gcs_destination/dataset---/training-*.${AIP_DATA_FORMAT}"
+            -  AIP_TRAINING_DATA_URI =
+               "gcs_destination/dataset---/training-*.${AIP_DATA_FORMAT}"
 
             -  AIP_VALIDATION_DATA_URI =
-
-            "gcs_destination/dataset---/validation-*.${AIP_DATA_FORMAT}"
+               "gcs_destination/dataset---/validation-*.${AIP_DATA_FORMAT}"
 
             -  AIP_TEST_DATA_URI =
-
-            "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
+               "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
         bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
             Only applicable to custom training with tabular Dataset with
             BigQuery source.
@@ -243,13 +241,12 @@ class InputDataConfig(proto.Message):
             ``validation`` and ``test``.
 
             -  AIP_DATA_FORMAT = "bigquery".
-            -  AIP_TRAINING_DATA_URI =
 
-            "bigquery_destination.dataset\_\ **\ .training"
+            -  AIP_TRAINING_DATA_URI =
+               "bigquery_destination.dataset\_\ **\ .training"
 
             -  AIP_VALIDATION_DATA_URI =
-
-            "bigquery_destination.dataset\_\ **\ .validation"
+               "bigquery_destination.dataset\_\ **\ .validation"
 
             -  AIP_TEST_DATA_URI =
                "bigquery_destination.dataset\_\ **\ .test".
