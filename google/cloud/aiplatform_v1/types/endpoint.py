@@ -89,9 +89,9 @@ class Endpoint(proto.Message):
     deployed_models = proto.RepeatedField(
         proto.MESSAGE, number=4, message="DeployedModel",
     )
-    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=5)
+    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=5,)
     etag = proto.Field(proto.STRING, number=6,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=7)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=7,)
     create_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
     update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
     encryption_spec = proto.Field(

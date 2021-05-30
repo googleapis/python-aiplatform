@@ -185,8 +185,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateEndpointRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1.EndpointService.CreateEndpoint].
             parent (:class:`str`):
                 Required. The resource name of the Location to create
@@ -275,8 +274,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetEndpointRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.GetEndpoint][google.cloud.aiplatform.v1.EndpointService.GetEndpoint]
             name (:class:`str`):
                 Required. The name of the Endpoint resource. Format:
@@ -348,8 +346,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListEndpointsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.ListEndpoints][google.cloud.aiplatform.v1.EndpointService.ListEndpoints].
             parent (:class:`str`):
                 Required. The resource name of the Location from which
@@ -431,8 +428,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateEndpointRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1.EndpointService.UpdateEndpoint].
             endpoint (:class:`google.cloud.aiplatform_v1.types.Endpoint`):
                 Required. The Endpoint which replaces
@@ -515,8 +511,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteEndpointRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.DeleteEndpoint][google.cloud.aiplatform.v1.EndpointService.DeleteEndpoint].
             name (:class:`str`):
                 Required. The name of the Endpoint resource to be
@@ -614,8 +609,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeployModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.DeployModel][google.cloud.aiplatform.v1.EndpointService.DeployModel].
             endpoint (:class:`str`):
                 Required. The name of the Endpoint resource into which
@@ -741,8 +735,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UndeployModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.UndeployModel][google.cloud.aiplatform.v1.EndpointService.UndeployModel].
             endpoint (:class:`str`):
                 Required. The name of the Endpoint resource from which

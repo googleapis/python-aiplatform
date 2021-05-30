@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_image_classification import (
     AutoMlImageClassification,
 )
