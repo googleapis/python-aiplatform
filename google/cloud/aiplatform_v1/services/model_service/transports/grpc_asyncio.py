@@ -39,7 +39,7 @@ from .grpc import ModelServiceGrpcTransport
 class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     """gRPC AsyncIO backend transport for ModelService.
 
-    A service for managing AI Platform's machine learning Models.
+    A service for managing Vertex AI's machine learning Models.
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
@@ -255,7 +255,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     ]:
         r"""Return a callable for the upload model method over gRPC.
 
-        Uploads a Model artifact into AI Platform.
+        Uploads a Model artifact into Vertex AI.
 
         Returns:
             Callable[[~.UploadModelRequest],

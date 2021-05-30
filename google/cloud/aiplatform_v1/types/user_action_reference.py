@@ -35,11 +35,11 @@ class UserActionReference(proto.Message):
         data_labeling_job (str):
             For API calls that start a LabelingJob. Resource name of the
             LabelingJob. Format:
-
             'projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}'
         method (str):
-            The method name of the API call. For example,
-            "/google.cloud.aiplatform.v1alpha1.DatasetService.CreateDataset".
+            The method name of the API RPC call. For
+            example,
+            "/google.cloud.aiplatform.{apiVersion}.DatasetService.CreateDataset".
     """
 
     operation = proto.Field(proto.STRING, number=1, oneof="reference",)

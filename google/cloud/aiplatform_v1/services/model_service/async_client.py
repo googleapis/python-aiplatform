@@ -47,7 +47,7 @@ from .client import ModelServiceClient
 
 
 class ModelServiceAsyncClient:
-    """A service for managing AI Platform's machine learning Models."""
+    """A service for managing Vertex AI's machine learning Models."""
 
     _client: ModelServiceClient
 
@@ -196,7 +196,7 @@ class ModelServiceAsyncClient:
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
-        r"""Uploads a Model artifact into AI Platform.
+        r"""Uploads a Model artifact into Vertex AI.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UploadModelRequest`):
@@ -455,7 +455,7 @@ class ModelServiceAsyncClient:
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Required. The update mask applies to the resource. For
                 the ``FieldMask`` definition, see
-                `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -722,7 +722,6 @@ class ModelServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the ModelEvaluation resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
 
                 This corresponds to the ``name`` field
@@ -878,7 +877,6 @@ class ModelServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the ModelEvaluationSlice resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}``
 
                 This corresponds to the ``name`` field
@@ -953,7 +951,6 @@ class ModelServiceAsyncClient:
             parent (:class:`str`):
                 Required. The resource name of the ModelEvaluation to
                 list the ModelEvaluationSlices from. Format:
-
                 ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
 
                 This corresponds to the ``parent`` field
