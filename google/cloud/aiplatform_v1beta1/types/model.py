@@ -320,7 +320,7 @@ class Model(proto.Message):
         proto.MESSAGE, number=23, message=explanation.ExplanationSpec,
     )
     etag = proto.Field(proto.STRING, number=16,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=17,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=17)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=24, message=gca_encryption_spec.EncryptionSpec,
     )

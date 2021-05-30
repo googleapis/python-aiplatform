@@ -358,7 +358,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.PredictRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
             endpoint (str):
                 Required. The name of the Endpoint requested to serve
@@ -475,7 +476,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ExplainRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
             endpoint (str):
                 Required. The name of the Endpoint requested to serve

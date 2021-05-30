@@ -42,7 +42,6 @@ from .types.automl_video_object_tracking import AutoMlVideoObjectTrackingInputs
 from .types.export_evaluated_data_items_config import ExportEvaluatedDataItemsConfig
 
 __all__ = (
-    "AutoMlImageClassification",
     "AutoMlImageClassificationInputs",
     "AutoMlImageClassificationMetadata",
     "AutoMlImageObjectDetection",
@@ -67,4 +66,5 @@ __all__ = (
     "AutoMlVideoObjectTracking",
     "AutoMlVideoObjectTrackingInputs",
     "ExportEvaluatedDataItemsConfig",
+    "AutoMlImageClassification",
 )
