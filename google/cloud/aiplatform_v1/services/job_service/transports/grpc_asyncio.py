@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import warnings
-from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple
 
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import grpc_helpers_async  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google.auth import credentials as ga_credentials  # type: ignore
+from google import auth  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-import packaging.version
 
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
@@ -39,8 +41,9 @@ from google.cloud.aiplatform_v1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
 )
 from google.cloud.aiplatform_v1.types import job_service
-from google.longrunning import operations_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
+from google.longrunning import operations_pb2 as operations  # type: ignore
+from google.protobuf import empty_pb2 as empty  # type: ignore
+
 from .base import JobServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import JobServiceGrpcTransport
 
@@ -65,7 +68,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -73,7 +76,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
     ) -> aio.Channel:
         """Create and return a gRPC AsyncIO channel object.
         Args:
-            host (Optional[str]): The host for the channel to use.
+            address (Optional[str]): The host for the channel to use.
             credentials (Optional[~.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify this application to the service. If
@@ -92,15 +95,13 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         Returns:
             aio.Channel: A gRPC AsyncIO channel object.
         """
-
-        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
-
+        scopes = scopes or cls.AUTH_SCOPES
         return grpc_helpers_async.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
+            scopes=scopes,
             quota_project_id=quota_project_id,
-            **self_signed_jwt_kwargs,
             **kwargs,
         )
 
@@ -108,7 +109,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         channel: aio.Channel = None,
@@ -122,8 +123,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]):
-                 The hostname to connect to.
+            host (Optional[str]): The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -154,10 +154,10 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
-            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
-                The client info used to send a user-agent string along with
-                API requests. If ``None``, then default info will be used.
-                Generally, you only need to set this if you're developing
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo):	
+                The client info used to send a user-agent string along with	
+                API requests. If ``None``, then default info will be used.	
+                Generally, you only need to set this if you're developing	
                 your own client library.
 
         Raises:
@@ -166,10 +166,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
           google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-        self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
-        self._stubs: Dict[str, Callable] = {}
-        self._operations_client = None
 
         if api_mtls_endpoint:
             warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
@@ -177,49 +174,70 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
             warnings.warn("client_cert_source is deprecated", DeprecationWarning)
 
         if channel:
-            # Ignore credentials if a channel was passed.
+            # Sanity check: Ensure that channel and credentials are not both
+            # provided.
             credentials = False
+
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
-        else:
-            if api_mtls_endpoint:
-                host = api_mtls_endpoint
+        elif api_mtls_endpoint:
+            host = (
+                api_mtls_endpoint
+                if ":" in api_mtls_endpoint
+                else api_mtls_endpoint + ":443"
+            )
 
-                # Create SSL credentials with client_cert_source or application
-                # default SSL credentials.
-                if client_cert_source:
-                    cert, key = client_cert_source()
-                    self._ssl_channel_credentials = grpc.ssl_channel_credentials(
-                        certificate_chain=cert, private_key=key
-                    )
-                else:
-                    self._ssl_channel_credentials = SslCredentials().ssl_credentials
+            if credentials is None:
+                credentials, _ = auth.default(
+                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
+                )
 
+            # Create SSL credentials with client_cert_source or application
+            # default SSL credentials.
+            if client_cert_source:
+                cert, key = client_cert_source()
+                ssl_credentials = grpc.ssl_channel_credentials(
+                    certificate_chain=cert, private_key=key
+                )
             else:
-                if client_cert_source_for_mtls and not ssl_channel_credentials:
-                    cert, key = client_cert_source_for_mtls()
-                    self._ssl_channel_credentials = grpc.ssl_channel_credentials(
-                        certificate_chain=cert, private_key=key
-                    )
+                ssl_credentials = SslCredentials().ssl_credentials
 
-        # The base transport sets the host, credentials and scopes
-        super().__init__(
-            host=host,
-            credentials=credentials,
-            credentials_file=credentials_file,
-            scopes=scopes,
-            quota_project_id=quota_project_id,
-            client_info=client_info,
-        )
-
-        if not self._grpc_channel:
+            # create a new channel. The provided one is ignored.
             self._grpc_channel = type(self).create_channel(
-                self._host,
-                credentials=self._credentials,
+                host,
+                credentials=credentials,
                 credentials_file=credentials_file,
-                scopes=self._scopes,
+                ssl_credentials=ssl_credentials,
+                scopes=scopes or self.AUTH_SCOPES,
+                quota_project_id=quota_project_id,
+                options=[
+                    ("grpc.max_send_message_length", -1),
+                    ("grpc.max_receive_message_length", -1),
+                ],
+            )
+            self._ssl_channel_credentials = ssl_credentials
+        else:
+            host = host if ":" in host else host + ":443"
+
+            if credentials is None:
+                credentials, _ = auth.default(
+                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
+                )
+
+            if client_cert_source_for_mtls and not ssl_channel_credentials:
+                cert, key = client_cert_source_for_mtls()
+                self._ssl_channel_credentials = grpc.ssl_channel_credentials(
+                    certificate_chain=cert, private_key=key
+                )
+
+            # create a new channel. The provided one is ignored.
+            self._grpc_channel = type(self).create_channel(
+                host,
+                credentials=credentials,
+                credentials_file=credentials_file,
                 ssl_credentials=self._ssl_channel_credentials,
+                scopes=scopes or self.AUTH_SCOPES,
                 quota_project_id=quota_project_id,
                 options=[
                     ("grpc.max_send_message_length", -1),
@@ -227,8 +245,18 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 ],
             )
 
-        # Wrap messages. This must be done after self._grpc_channel exists
-        self._prep_wrapped_messages(client_info)
+        # Run the base constructor.
+        super().__init__(
+            host=host,
+            credentials=credentials,
+            credentials_file=credentials_file,
+            scopes=scopes or self.AUTH_SCOPES,
+            quota_project_id=quota_project_id,
+            client_info=client_info,
+        )
+
+        self._stubs = {}
+        self._operations_client = None
 
     @property
     def grpc_channel(self) -> aio.Channel:
@@ -344,7 +372,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
     def delete_custom_job(
         self,
     ) -> Callable[
-        [job_service.DeleteCustomJobRequest], Awaitable[operations_pb2.Operation]
+        [job_service.DeleteCustomJobRequest], Awaitable[operations.Operation]
     ]:
         r"""Return a callable for the delete custom job method over gRPC.
 
@@ -364,14 +392,14 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
             self._stubs["delete_custom_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteCustomJob",
                 request_serializer=job_service.DeleteCustomJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_custom_job"]
 
     @property
     def cancel_custom_job(
         self,
-    ) -> Callable[[job_service.CancelCustomJobRequest], Awaitable[empty_pb2.Empty]]:
+    ) -> Callable[[job_service.CancelCustomJobRequest], Awaitable[empty.Empty]]:
         r"""Return a callable for the cancel custom job method over gRPC.
 
         Cancels a CustomJob. Starts asynchronous cancellation on the
@@ -402,7 +430,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
             self._stubs["cancel_custom_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelCustomJob",
                 request_serializer=job_service.CancelCustomJobRequest.serialize,
-                response_deserializer=empty_pb2.Empty.FromString,
+                response_deserializer=empty.Empty.FromString,
             )
         return self._stubs["cancel_custom_job"]
 
@@ -497,7 +525,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
     def delete_data_labeling_job(
         self,
     ) -> Callable[
-        [job_service.DeleteDataLabelingJobRequest], Awaitable[operations_pb2.Operation]
+        [job_service.DeleteDataLabelingJobRequest], Awaitable[operations.Operation]
     ]:
         r"""Return a callable for the delete data labeling job method over gRPC.
 
@@ -517,16 +545,14 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
             self._stubs["delete_data_labeling_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteDataLabelingJob",
                 request_serializer=job_service.DeleteDataLabelingJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_data_labeling_job"]
 
     @property
     def cancel_data_labeling_job(
         self,
-    ) -> Callable[
-        [job_service.CancelDataLabelingJobRequest], Awaitable[empty_pb2.Empty]
-    ]:
+    ) -> Callable[[job_service.CancelDataLabelingJobRequest], Awaitable[empty.Empty]]:
         r"""Return a callable for the cancel data labeling job method over gRPC.
 
         Cancels a DataLabelingJob. Success of cancellation is
@@ -546,7 +572,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
             self._stubs["cancel_data_labeling_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelDataLabelingJob",
                 request_serializer=job_service.CancelDataLabelingJobRequest.serialize,
-                response_deserializer=empty_pb2.Empty.FromString,
+                response_deserializer=empty.Empty.FromString,
             )
         return self._stubs["cancel_data_labeling_job"]
 
@@ -650,7 +676,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
         self,
     ) -> Callable[
         [job_service.DeleteHyperparameterTuningJobRequest],
-        Awaitable[operations_pb2.Operation],
+        Awaitable[operations.Operation],
     ]:
         r"""Return a callable for the delete hyperparameter tuning
         job method over gRPC.
@@ -673,7 +699,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
             ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteHyperparameterTuningJob",
                 request_serializer=job_service.DeleteHyperparameterTuningJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_hyperparameter_tuning_job"]
 
@@ -681,7 +707,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
     def cancel_hyperparameter_tuning_job(
         self,
     ) -> Callable[
-        [job_service.CancelHyperparameterTuningJobRequest], Awaitable[empty_pb2.Empty]
+        [job_service.CancelHyperparameterTuningJobRequest], Awaitable[empty.Empty]
     ]:
         r"""Return a callable for the cancel hyperparameter tuning
         job method over gRPC.
@@ -717,7 +743,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
             ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelHyperparameterTuningJob",
                 request_serializer=job_service.CancelHyperparameterTuningJobRequest.serialize,
-                response_deserializer=empty_pb2.Empty.FromString,
+                response_deserializer=empty.Empty.FromString,
             )
         return self._stubs["cancel_hyperparameter_tuning_job"]
 
@@ -813,8 +839,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
     def delete_batch_prediction_job(
         self,
     ) -> Callable[
-        [job_service.DeleteBatchPredictionJobRequest],
-        Awaitable[operations_pb2.Operation],
+        [job_service.DeleteBatchPredictionJobRequest], Awaitable[operations.Operation]
     ]:
         r"""Return a callable for the delete batch prediction job method over gRPC.
 
@@ -835,7 +860,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
             self._stubs["delete_batch_prediction_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteBatchPredictionJob",
                 request_serializer=job_service.DeleteBatchPredictionJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_batch_prediction_job"]
 
@@ -843,7 +868,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
     def cancel_batch_prediction_job(
         self,
     ) -> Callable[
-        [job_service.CancelBatchPredictionJobRequest], Awaitable[empty_pb2.Empty]
+        [job_service.CancelBatchPredictionJobRequest], Awaitable[empty.Empty]
     ]:
         r"""Return a callable for the cancel batch prediction job method over gRPC.
 
@@ -874,7 +899,7 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
             self._stubs["cancel_batch_prediction_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelBatchPredictionJob",
                 request_serializer=job_service.CancelBatchPredictionJobRequest.serialize,
-                response_deserializer=empty_pb2.Empty.FromString,
+                response_deserializer=empty.Empty.FromString,
             )
         return self._stubs["cancel_batch_prediction_job"]
 
