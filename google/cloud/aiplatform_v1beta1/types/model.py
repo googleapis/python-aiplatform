@@ -53,12 +53,12 @@ class Model(proto.Message):
             additional information. The schema is defined as an OpenAPI
             3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
-            AutoML Models always have this field populated by AI
-            Platform, if no additional metadata is needed, this field is
-            set to an empty string. Note: The URI given on output will
-            be immutable and probably different, including the URI
-            scheme, than the one given on input. The output URI will
-            point to a location where the user only has a read access.
+            AutoML Models always have this field populated by Vertex AI,
+            if no additional metadata is needed, this field is set to an
+            empty string. Note: The URI given on output will be
+            immutable and probably different, including the URI scheme,
+            than the one given on input. The output URI will point to a
+            location where the user only has a read access.
         metadata (google.protobuf.struct_pb2.Value):
             Immutable. An additional information about the Model; the
             schema of the metadata can be found in
@@ -78,7 +78,7 @@ class Model(proto.Message):
             ingested upon
             [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel],
             and all binaries it contains are copied and stored
-            internally by AI Platform. Not present for AutoML Models.
+            internally by Vertex AI. Not present for AutoML Models.
         artifact_uri (str):
             Immutable. The path to the directory
             containing the Model artifact and any of its
@@ -186,7 +186,7 @@ class Model(proto.Message):
             [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Model was
-            uploaded into AI Platform.
+            uploaded into Vertex AI.
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Model was
             most recently updated.
@@ -349,11 +349,11 @@ class PredictSchemata(proto.Message):
             [BatchPredictionJob.input_config][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
             The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
-            AutoML Models always have this field populated by AI
-            Platform. Note: The URI given on output will be immutable
-            and probably different, including the URI scheme, than the
-            one given on input. The output URI will point to a location
-            where the user only has a read access.
+            AutoML Models always have this field populated by Vertex AI.
+            Note: The URI given on output will be immutable and probably
+            different, including the URI scheme, than the one given on
+            input. The output URI will point to a location where the
+            user only has a read access.
         parameters_schema_uri (str):
             Immutable. Points to a YAML file stored on Google Cloud
             Storage describing the parameters of prediction and
@@ -364,12 +364,12 @@ class PredictSchemata(proto.Message):
             [BatchPredictionJob.model_parameters][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model_parameters].
             The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
-            AutoML Models always have this field populated by AI
-            Platform, if no parameters are supported, then it is set to
-            an empty string. Note: The URI given on output will be
-            immutable and probably different, including the URI scheme,
-            than the one given on input. The output URI will point to a
-            location where the user only has a read access.
+            AutoML Models always have this field populated by Vertex AI,
+            if no parameters are supported, then it is set to an empty
+            string. Note: The URI given on output will be immutable and
+            probably different, including the URI scheme, than the one
+            given on input. The output URI will point to a location
+            where the user only has a read access.
         prediction_schema_uri (str):
             Immutable. Points to a YAML file stored on Google Cloud
             Storage describing the format of a single prediction
@@ -380,11 +380,11 @@ class PredictSchemata(proto.Message):
             [BatchPredictionJob.output_config][google.cloud.aiplatform.v1beta1.BatchPredictionJob.output_config].
             The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
-            AutoML Models always have this field populated by AI
-            Platform. Note: The URI given on output will be immutable
-            and probably different, including the URI scheme, than the
-            one given on input. The output URI will point to a location
-            where the user only has a read access.
+            AutoML Models always have this field populated by Vertex AI.
+            Note: The URI given on output will be immutable and probably
+            different, including the URI scheme, than the one given on
+            input. The output URI will point to a location where the
+            user only has a read access.
     """
 
     instance_schema_uri = proto.Field(proto.STRING, number=1,)
@@ -417,9 +417,9 @@ class ModelContainerSpec(proto.Message):
             see `Custom container
             requirements <https://tinyurl.com/cust-cont-reqs>`__.
 
-            You can use the URI to one of AI Platform's `pre-built
+            You can use the URI to one of Vertex AI's `pre-built
             container images for
-            prediction <https://cloud.google.com/ai-platform-unified/docs/predictions/pre-built-containers>`__
+            prediction <https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers>`__
             in this field.
         command (Sequence[str]):
             Immutable. Specifies the command that runs when the
@@ -448,9 +448,9 @@ class ModelContainerSpec(proto.Message):
             container's ``ENTRYPOINT`` and ``CMD``.
 
             In this field, you can reference environment variables `set
-            by AI
-            Platform <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
-            and environment variables set in the
+            by Vertex
+            AI <https://tinyurl.com/cust-cont-reqs#aip-variables>`__ and
+            environment variables set in the
             [env][google.cloud.aiplatform.v1beta1.ModelContainerSpec.env]
             field. You cannot reference environment variables set in the
             Docker image. In order for environment variables to be
@@ -486,9 +486,9 @@ class ModelContainerSpec(proto.Message):
             ``ENTRYPOINT`` `interact <https://tinyurl.com/h3kdcgs>`__.
 
             In this field, you can reference environment variables `set
-            by AI
-            Platform <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
-            and environment variables set in the
+            by Vertex
+            AI <https://tinyurl.com/cust-cont-reqs#aip-variables>`__ and
+            environment variables set in the
             [env][google.cloud.aiplatform.v1beta1.ModelContainerSpec.env]
             field. You cannot reference environment variables set in the
             Docker image. In order for environment variables to be
@@ -535,8 +535,8 @@ class ModelContainerSpec(proto.Message):
             Kubernetes Containers `v1 core
             API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
         ports (Sequence[google.cloud.aiplatform_v1beta1.types.Port]):
-            Immutable. List of ports to expose from the container. AI
-            Platform sends any prediction requests that it receives to
+            Immutable. List of ports to expose from the container.
+            Vertex AI sends any prediction requests that it receives to
             the first port on this list. AI Platform also sends
             `liveness and health
             checks <https://tinyurl.com/cust-cont-reqs#health>`__ to
@@ -553,20 +553,20 @@ class ModelContainerSpec(proto.Message):
                  }
                ]
 
-            AI Platform does not use ports other than the first one
+            Vertex AI does not use ports other than the first one
             listed. This field corresponds to the ``ports`` field of the
             Kubernetes Containers `v1 core
             API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
         predict_route (str):
             Immutable. HTTP path on the container to send prediction
-            requests to. AI Platform forwards requests sent using
+            requests to. Vertex AI forwards requests sent using
             [projects.locations.endpoints.predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict]
-            to this path on the container's IP address and port. AI
-            Platform then returns the container's response in the API
+            to this path on the container's IP address and port. Vertex
+            AI then returns the container's response in the API
             response.
 
-            For example, if you set this field to ``/foo``, then when AI
-            Platform receives a prediction request, it forwards the
+            For example, if you set this field to ``/foo``, then when
+            Vertex AI receives a prediction request, it forwards the
             request body in a POST request to the ``/foo`` path on the
             port of your container specified by the first value of this
             ``ModelContainerSpec``'s
@@ -581,28 +581,28 @@ class ModelContainerSpec(proto.Message):
 
             -  ENDPOINT: The last segment (following ``endpoints/``)of
                the Endpoint.name][] field of the Endpoint where this
-               Model has been deployed. (AI Platform makes this value
+               Model has been deployed. (Vertex AI makes this value
                available to your container code as the
                ```AIP_ENDPOINT_ID`` <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
                environment variable.)
 
             -  DEPLOYED_MODEL:
                [DeployedModel.id][google.cloud.aiplatform.v1beta1.DeployedModel.id]
-               of the ``DeployedModel``. (AI Platform makes this value
+               of the ``DeployedModel``. (Vertex AI makes this value
                available to your container code as the
                ```AIP_DEPLOYED_MODEL_ID`` environment
                variable <https://tinyurl.com/cust-cont-reqs#aip-variables>`__.)
         health_route (str):
             Immutable. HTTP path on the container to send health checks
-            to. AI Platform intermittently sends GET requests to this
-            path on the container's IP address and port to check that
-            the container is healthy. Read more about `health
+            to. Vertex AI intermittently sends GET requests to this path
+            on the container's IP address and port to check that the
+            container is healthy. Read more about `health
             checks <https://tinyurl.com/cust-cont-reqs#checks>`__.
 
-            For example, if you set this field to ``/bar``, then AI
-            Platform intermittently sends a GET request to the ``/bar``
-            path on the port of your container specified by the first
-            value of this ``ModelContainerSpec``'s
+            For example, if you set this field to ``/bar``, then Vertex
+            AI intermittently sends a GET request to the ``/bar`` path
+            on the port of your container specified by the first value
+            of this ``ModelContainerSpec``'s
             [ports][google.cloud.aiplatform.v1beta1.ModelContainerSpec.ports]
             field.
 
@@ -614,14 +614,14 @@ class ModelContainerSpec(proto.Message):
 
             -  ENDPOINT: The last segment (following ``endpoints/``)of
                the Endpoint.name][] field of the Endpoint where this
-               Model has been deployed. (AI Platform makes this value
+               Model has been deployed. (Vertex AI makes this value
                available to your container code as the
                ```AIP_ENDPOINT_ID`` <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
                environment variable.)
 
             -  DEPLOYED_MODEL:
                [DeployedModel.id][google.cloud.aiplatform.v1beta1.DeployedModel.id]
-               of the ``DeployedModel``. (AI Platform makes this value
+               of the ``DeployedModel``. (Vertex AI makes this value
                available to your container code as the
                ```AIP_DEPLOYED_MODEL_ID`` <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
                environment variable.)

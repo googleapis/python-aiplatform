@@ -48,7 +48,7 @@ from .client import ModelServiceClient
 
 
 class ModelServiceAsyncClient:
-    """A service for managing AI Platform's machine learning Models."""
+    """A service for managing Vertex AI's machine learning Models."""
 
     _client: ModelServiceClient
 
@@ -197,7 +197,7 @@ class ModelServiceAsyncClient:
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
-        r"""Uploads a Model artifact into AI Platform.
+        r"""Uploads a Model artifact into Vertex AI.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UploadModelRequest`):

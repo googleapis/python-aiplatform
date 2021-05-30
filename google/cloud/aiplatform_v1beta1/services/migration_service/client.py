@@ -75,8 +75,7 @@ class MigrationServiceClientMeta(type):
 
 class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     """A service that migrates resources from automl.googleapis.com,
-    datalabeling.googleapis.com and ml.googleapis.com to AI
-    Platform.
+    datalabeling.googleapis.com and ml.googleapis.com to Vertex AI.
     """
 
     @staticmethod
@@ -458,7 +457,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     ) -> pagers.SearchMigratableResourcesPager:
         r"""Searches all of the resources in
         automl.googleapis.com, datalabeling.googleapis.com and
-        ml.googleapis.com that can be migrated to AI Platform's
+        ml.googleapis.com that can be migrated to Vertex AI's
         given location.
 
         Args:
@@ -467,7 +466,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
             parent (str):
                 Required. The location that the migratable resources
-                should be searched from. It's the AI Platform location
+                should be searched from. It's the Vertex AI location
                 that the resources can be migrated to, not the
                 resources' original location. Format:
                 ``projects/{project}/locations/{location}``
@@ -549,7 +548,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     ) -> operation.Operation:
         r"""Batch migrates resources from ml.googleapis.com,
         automl.googleapis.com, and datalabeling.googleapis.com
-        to AI Platform (Unified).
+        to Vertex AI.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest):

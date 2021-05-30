@@ -35,7 +35,7 @@ from .base import IndexEndpointServiceTransport, DEFAULT_CLIENT_INFO
 class IndexEndpointServiceGrpcTransport(IndexEndpointServiceTransport):
     """gRPC backend transport for IndexEndpointService.
 
-    A service for managing AI Platform's IndexEndpoints.
+    A service for managing Vertex AI's IndexEndpoints.
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation

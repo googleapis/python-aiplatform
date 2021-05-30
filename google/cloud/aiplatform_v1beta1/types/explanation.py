@@ -219,7 +219,7 @@ class Attribution(proto.Message):
                might reduce the error.
 
             See `this
-            introduction </ai-platform-unified/docs/explainable-ai/overview>`__
+            introduction </vertex-ai/docs/explainable-ai/overview>`__
             for more information.
         output_name (str):
             Output only. Name of the explain output. Specified as the

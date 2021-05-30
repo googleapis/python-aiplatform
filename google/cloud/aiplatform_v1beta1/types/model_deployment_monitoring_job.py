@@ -113,7 +113,7 @@ class ModelDeploymentMonitoringJob(proto.Message):
             type) as prediction request/response. If there are any data
             type differences between predict instance and TFDV instance,
             this field can be used to override the schema. For models
-            trained with AI Platform, this field must be set as all the
+            trained with Vertex AI, this field must be set as all the
             fields in predict instance formatted as string.
         bigquery_tables (Sequence[google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringBigQueryTable]):
             Output only. The created bigquery tables for
