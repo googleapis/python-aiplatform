@@ -68,7 +68,7 @@ class PipelineServiceClientMeta(type):
     _transport_registry["grpc_asyncio"] = PipelineServiceGrpcAsyncIOTransport
 
     def get_transport_class(cls, label: str = None,) -> Type[PipelineServiceTransport]:
-        """Return an appropriate transport class.
+        """Returns an appropriate transport class.
 
         Args:
             label: The name of the desired transport. If none is
@@ -91,7 +91,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
-        """Convert api endpoint to mTLS endpoint.
+        """Converts api endpoint to mTLS endpoint.
+
         Convert "*.sandbox.googleapis.com" and "*.googleapis.com" to
         "*.mtls.sandbox.googleapis.com" and "*.mtls.googleapis.com" respectively.
         Args:
@@ -125,7 +126,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -142,7 +144,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -161,10 +163,11 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @property
     def transport(self) -> PipelineServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
-            PipelineServiceTransport: The transport used by the client instance.
+            PipelineServiceTransport: The transport used by the client
+                instance.
         """
         return self._transport
 
@@ -172,7 +175,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     def artifact_path(
         project: str, location: str, metadata_store: str, artifact: str,
     ) -> str:
-        """Return a fully-qualified artifact string."""
+        """Returns a fully-qualified artifact string."""
         return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}".format(
             project=project,
             location=location,
@@ -182,7 +185,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def parse_artifact_path(path: str) -> Dict[str, str]:
-        """Parse a artifact path into its component segments."""
+        """Parses a artifact path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/metadataStores/(?P<metadata_store>.+?)/artifacts/(?P<artifact>.+?)$",
             path,
@@ -193,7 +196,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     def context_path(
         project: str, location: str, metadata_store: str, context: str,
     ) -> str:
-        """Return a fully-qualified context string."""
+        """Returns a fully-qualified context string."""
         return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}".format(
             project=project,
             location=location,
@@ -203,7 +206,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def parse_context_path(path: str) -> Dict[str, str]:
-        """Parse a context path into its component segments."""
+        """Parses a context path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/metadataStores/(?P<metadata_store>.+?)/contexts/(?P<context>.+?)$",
             path,
@@ -212,14 +215,14 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def custom_job_path(project: str, location: str, custom_job: str,) -> str:
-        """Return a fully-qualified custom_job string."""
+        """Returns a fully-qualified custom_job string."""
         return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
             project=project, location=location, custom_job=custom_job,
         )
 
     @staticmethod
     def parse_custom_job_path(path: str) -> Dict[str, str]:
-        """Parse a custom_job path into its component segments."""
+        """Parses a custom_job path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/customJobs/(?P<custom_job>.+?)$",
             path,
@@ -228,14 +231,14 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def endpoint_path(project: str, location: str, endpoint: str,) -> str:
-        """Return a fully-qualified endpoint string."""
+        """Returns a fully-qualified endpoint string."""
         return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
             project=project, location=location, endpoint=endpoint,
         )
 
     @staticmethod
     def parse_endpoint_path(path: str) -> Dict[str, str]:
-        """Parse a endpoint path into its component segments."""
+        """Parses a endpoint path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
             path,
@@ -246,7 +249,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     def execution_path(
         project: str, location: str, metadata_store: str, execution: str,
     ) -> str:
-        """Return a fully-qualified execution string."""
+        """Returns a fully-qualified execution string."""
         return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}".format(
             project=project,
             location=location,
@@ -256,7 +259,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def parse_execution_path(path: str) -> Dict[str, str]:
-        """Parse a execution path into its component segments."""
+        """Parses a execution path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/metadataStores/(?P<metadata_store>.+?)/executions/(?P<execution>.+?)$",
             path,
@@ -265,14 +268,14 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def model_path(project: str, location: str, model: str,) -> str:
-        """Return a fully-qualified model string."""
+        """Returns a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
             project=project, location=location, model=model,
         )
 
     @staticmethod
     def parse_model_path(path: str) -> Dict[str, str]:
-        """Parse a model path into its component segments."""
+        """Parses a model path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
             path,
@@ -281,14 +284,14 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def network_path(project: str, network: str,) -> str:
-        """Return a fully-qualified network string."""
+        """Returns a fully-qualified network string."""
         return "projects/{project}/global/networks/{network}".format(
             project=project, network=network,
         )
 
     @staticmethod
     def parse_network_path(path: str) -> Dict[str, str]:
-        """Parse a network path into its component segments."""
+        """Parses a network path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
         )
@@ -296,14 +299,14 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def pipeline_job_path(project: str, location: str, pipeline_job: str,) -> str:
-        """Return a fully-qualified pipeline_job string."""
+        """Returns a fully-qualified pipeline_job string."""
         return "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
             project=project, location=location, pipeline_job=pipeline_job,
         )
 
     @staticmethod
     def parse_pipeline_job_path(path: str) -> Dict[str, str]:
-        """Parse a pipeline_job path into its component segments."""
+        """Parses a pipeline_job path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/pipelineJobs/(?P<pipeline_job>.+?)$",
             path,
@@ -314,14 +317,14 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
     def training_pipeline_path(
         project: str, location: str, training_pipeline: str,
     ) -> str:
-        """Return a fully-qualified training_pipeline string."""
+        """Returns a fully-qualified training_pipeline string."""
         return "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
             project=project, location=location, training_pipeline=training_pipeline,
         )
 
     @staticmethod
     def parse_training_pipeline_path(path: str) -> Dict[str, str]:
-        """Parse a training_pipeline path into its component segments."""
+        """Parses a training_pipeline path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/trainingPipelines/(?P<training_pipeline>.+?)$",
             path,
@@ -330,7 +333,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def common_billing_account_path(billing_account: str,) -> str:
-        """Return a fully-qualified billing_account string."""
+        """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
         )
@@ -343,7 +346,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def common_folder_path(folder: str,) -> str:
-        """Return a fully-qualified folder string."""
+        """Returns a fully-qualified folder string."""
         return "folders/{folder}".format(folder=folder,)
 
     @staticmethod
@@ -354,7 +357,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def common_organization_path(organization: str,) -> str:
-        """Return a fully-qualified organization string."""
+        """Returns a fully-qualified organization string."""
         return "organizations/{organization}".format(organization=organization,)
 
     @staticmethod
@@ -365,7 +368,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def common_project_path(project: str,) -> str:
-        """Return a fully-qualified project string."""
+        """Returns a fully-qualified project string."""
         return "projects/{project}".format(project=project,)
 
     @staticmethod
@@ -376,7 +379,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     @staticmethod
     def common_location_path(project: str, location: str,) -> str:
-        """Return a fully-qualified location string."""
+        """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
             project=project, location=location,
         )
@@ -395,7 +398,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the pipeline service client.
+        """Instantiates the pipeline service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -450,9 +453,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 client_cert_source_func = client_options.client_cert_source
             else:
                 is_mtls = mtls.has_default_client_cert_source()
-                client_cert_source_func = (
-                    mtls.default_client_cert_source() if is_mtls else None
-                )
+                if is_mtls:
+                    client_cert_source_func = mtls.default_client_cert_source()
+                else:
+                    client_cert_source_func = None
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -464,12 +468,14 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
             elif use_mtls_env == "always":
                 api_endpoint = self.DEFAULT_MTLS_ENDPOINT
             elif use_mtls_env == "auto":
-                api_endpoint = (
-                    self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
-                )
+                if is_mtls:
+                    api_endpoint = self.DEFAULT_MTLS_ENDPOINT
+                else:
+                    api_endpoint = self.DEFAULT_ENDPOINT
             else:
                 raise MutualTLSChannelError(
-                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted values: never, auto, always"
+                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted "
+                    "values: never, auto, always"
                 )
 
         # Save or instantiate the transport.
@@ -484,8 +490,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 )
             if client_options.scopes:
                 raise ValueError(
-                    "When providing a transport instance, "
-                    "provide its scopes directly."
+                    "When providing a transport instance, provide its scopes "
+                    "directly."
                 )
             self._transport = transport
         else:
