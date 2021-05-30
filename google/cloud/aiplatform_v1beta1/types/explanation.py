@@ -418,8 +418,8 @@ class SmoothGradConfig(proto.Message):
             to all the features. Use this field when all features are
             normalized to have the same distribution: scale to range [0,
             1], [-1, 1] or z-scoring, where features are normalized to
-            have 0-mean and 1-variance. For more details about
-            normalization: https://tinyurl.com/dgc-normalization.
+            have 0-mean and 1-variance. Learn more about
+            `normalization <https://developers.google.com/machine-learning/data-prep/transform/normalization>`__.
 
             For best results the recommended value is about 10% - 20% of
             the standard deviation of the input feature. Refer to

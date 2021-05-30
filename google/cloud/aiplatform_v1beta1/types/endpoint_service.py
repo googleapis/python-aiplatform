@@ -169,7 +169,7 @@ class UpdateEndpointRequest(proto.Message):
             resource on the server.
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Required. The update mask applies to the resource. See
-            `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+            [google.protobuf.FieldMask][google.protobuf.FieldMask].
     """
 
     endpoint = proto.Field(proto.MESSAGE, number=1, message=gca_endpoint.Endpoint,)
