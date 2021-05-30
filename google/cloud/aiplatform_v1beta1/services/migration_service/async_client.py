@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 import functools
 import re
@@ -20,10 +22,10 @@ from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
+from google.api_core import exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials as ga_credentials  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation  # type: ignore
@@ -31,6 +33,7 @@ from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.migration_service import pagers
 from google.cloud.aiplatform_v1beta1.types import migratable_resource
 from google.cloud.aiplatform_v1beta1.types import migration_service
+
 from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
 from .client import MigrationServiceClient
@@ -63,61 +66,38 @@ class MigrationServiceAsyncClient:
     parse_model_path = staticmethod(MigrationServiceClient.parse_model_path)
     version_path = staticmethod(MigrationServiceClient.version_path)
     parse_version_path = staticmethod(MigrationServiceClient.parse_version_path)
+
     common_billing_account_path = staticmethod(
         MigrationServiceClient.common_billing_account_path
     )
     parse_common_billing_account_path = staticmethod(
         MigrationServiceClient.parse_common_billing_account_path
     )
+
     common_folder_path = staticmethod(MigrationServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(
         MigrationServiceClient.parse_common_folder_path
     )
+
     common_organization_path = staticmethod(
         MigrationServiceClient.common_organization_path
     )
     parse_common_organization_path = staticmethod(
         MigrationServiceClient.parse_common_organization_path
     )
+
     common_project_path = staticmethod(MigrationServiceClient.common_project_path)
     parse_common_project_path = staticmethod(
         MigrationServiceClient.parse_common_project_path
     )
+
     common_location_path = staticmethod(MigrationServiceClient.common_location_path)
     parse_common_location_path = staticmethod(
         MigrationServiceClient.parse_common_location_path
     )
 
-    @classmethod
-    def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
-
-        Args:
-            info (dict): The service account private key info.
-            args: Additional arguments to pass to the constructor.
-            kwargs: Additional arguments to pass to the constructor.
-
-        Returns:
-            MigrationServiceAsyncClient: The constructed client.
-        """
-        return MigrationServiceClient.from_service_account_info.__func__(MigrationServiceAsyncClient, info, *args, **kwargs)  # type: ignore
-
-    @classmethod
-    def from_service_account_file(cls, filename: str, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials
-        file.
-
-        Args:
-            filename (str): The path to the service account private key json
-                file.
-            args: Additional arguments to pass to the constructor.
-            kwargs: Additional arguments to pass to the constructor.
-
-        Returns:
-            MigrationServiceAsyncClient: The constructed client.
-        """
-        return MigrationServiceClient.from_service_account_file.__func__(MigrationServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
-
+    from_service_account_info = MigrationServiceClient.from_service_account_info
+    from_service_account_file = MigrationServiceClient.from_service_account_file
     from_service_account_json = from_service_account_file
 
     @property
@@ -136,7 +116,7 @@ class MigrationServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: credentials.Credentials = None,
         transport: Union[str, MigrationServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -173,6 +153,7 @@ class MigrationServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
+
         self._client = MigrationServiceClient(
             credentials=credentials,
             transport=transport,
@@ -208,6 +189,7 @@ class MigrationServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -237,6 +219,7 @@ class MigrationServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -304,6 +287,7 @@ class MigrationServiceAsyncClient:
                 This corresponds to the ``migrate_resource_requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -334,8 +318,10 @@ class MigrationServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
+
         if migrate_resource_requests:
             request.migrate_resource_requests.extend(migrate_resource_requests)
 
