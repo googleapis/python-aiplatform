@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+
+from google.protobuf import struct_pb2 as struct  # type: ignore
+from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -26,6 +29,7 @@ __protobuf__ = proto.module(
 
 class Context(proto.Message):
     r"""Instance of a general context.
+
     Attributes:
         name (str):
             Output only. The resource name of the
@@ -78,21 +82,27 @@ class Context(proto.Message):
             Description of the Context
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    etag = proto.Field(proto.STRING, number=8,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=9,)
-    create_time = proto.Field(
-        proto.MESSAGE, number=10, message=timestamp_pb2.Timestamp,
-    )
-    update_time = proto.Field(
-        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
-    )
-    parent_contexts = proto.RepeatedField(proto.STRING, number=12,)
-    schema_title = proto.Field(proto.STRING, number=13,)
-    schema_version = proto.Field(proto.STRING, number=14,)
-    metadata = proto.Field(proto.MESSAGE, number=15, message=struct_pb2.Struct,)
-    description = proto.Field(proto.STRING, number=16,)
+    name = proto.Field(proto.STRING, number=1)
+
+    display_name = proto.Field(proto.STRING, number=2)
+
+    etag = proto.Field(proto.STRING, number=8)
+
+    labels = proto.MapField(proto.STRING, proto.STRING, number=9)
+
+    create_time = proto.Field(proto.MESSAGE, number=10, message=timestamp.Timestamp,)
+
+    update_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
+
+    parent_contexts = proto.RepeatedField(proto.STRING, number=12)
+
+    schema_title = proto.Field(proto.STRING, number=13)
+
+    schema_version = proto.Field(proto.STRING, number=14)
+
+    metadata = proto.Field(proto.MESSAGE, number=15, message=struct.Struct,)
+
+    description = proto.Field(proto.STRING, number=16)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

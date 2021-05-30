@@ -242,7 +242,7 @@ class ExplanationMetadata(proto.Message):
                 clip_percent_lowerbound (float):
                     Excludes attributions below the specified
                     percentile, from the highlighted areas. Defaults
-                    to 35.
+                    to 62.
                 overlay_type (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Visualization.OverlayType):
                     How the original image is displayed in the
                     visualization. Adjusting the overlay can help
