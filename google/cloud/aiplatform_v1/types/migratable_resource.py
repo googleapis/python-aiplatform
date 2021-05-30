@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
@@ -55,7 +52,6 @@ class MigratableResource(proto.Message):
 
     class MlEngineModelVersion(proto.Message):
         r"""Represents one model Version in ml.googleapis.com.
-
         Attributes:
             endpoint (str):
                 The ml.googleapis.com endpoint that this model Version
@@ -70,13 +66,11 @@ class MigratableResource(proto.Message):
                 ``projects/{project}/models/{model}/versions/{version}``.
         """
 
-        endpoint = proto.Field(proto.STRING, number=1)
-
-        version = proto.Field(proto.STRING, number=2)
+        endpoint = proto.Field(proto.STRING, number=1,)
+        version = proto.Field(proto.STRING, number=2,)
 
     class AutomlModel(proto.Message):
         r"""Represents one Model in automl.googleapis.com.
-
         Attributes:
             model (str):
                 Full resource name of automl Model. Format:
@@ -86,13 +80,11 @@ class MigratableResource(proto.Message):
                 automl.googleapis.com.
         """
 
-        model = proto.Field(proto.STRING, number=1)
-
-        model_display_name = proto.Field(proto.STRING, number=3)
+        model = proto.Field(proto.STRING, number=1,)
+        model_display_name = proto.Field(proto.STRING, number=3,)
 
     class AutomlDataset(proto.Message):
         r"""Represents one Dataset in automl.googleapis.com.
-
         Attributes:
             dataset (str):
                 Full resource name of automl Dataset. Format:
@@ -102,13 +94,11 @@ class MigratableResource(proto.Message):
                 automl.googleapis.com.
         """
 
-        dataset = proto.Field(proto.STRING, number=1)
-
-        dataset_display_name = proto.Field(proto.STRING, number=4)
+        dataset = proto.Field(proto.STRING, number=1,)
+        dataset_display_name = proto.Field(proto.STRING, number=4,)
 
     class DataLabelingDataset(proto.Message):
         r"""Represents one Dataset in datalabeling.googleapis.com.
-
         Attributes:
             dataset (str):
                 Full resource name of data labeling Dataset. Format:
@@ -137,14 +127,11 @@ class MigratableResource(proto.Message):
                     datalabeling.googleapis.com.
             """
 
-            annotated_dataset = proto.Field(proto.STRING, number=1)
+            annotated_dataset = proto.Field(proto.STRING, number=1,)
+            annotated_dataset_display_name = proto.Field(proto.STRING, number=3,)
 
-            annotated_dataset_display_name = proto.Field(proto.STRING, number=3)
-
-        dataset = proto.Field(proto.STRING, number=1)
-
-        dataset_display_name = proto.Field(proto.STRING, number=4)
-
+        dataset = proto.Field(proto.STRING, number=1,)
+        dataset_display_name = proto.Field(proto.STRING, number=4,)
         data_labeling_annotated_datasets = proto.RepeatedField(
             proto.MESSAGE,
             number=3,
@@ -154,23 +141,18 @@ class MigratableResource(proto.Message):
     ml_engine_model_version = proto.Field(
         proto.MESSAGE, number=1, oneof="resource", message=MlEngineModelVersion,
     )
-
     automl_model = proto.Field(
         proto.MESSAGE, number=2, oneof="resource", message=AutomlModel,
     )
-
     automl_dataset = proto.Field(
         proto.MESSAGE, number=3, oneof="resource", message=AutomlDataset,
     )
-
     data_labeling_dataset = proto.Field(
         proto.MESSAGE, number=4, oneof="resource", message=DataLabelingDataset,
     )
-
     last_migrate_time = proto.Field(
         proto.MESSAGE, number=5, message=timestamp.Timestamp,
     )
-
     last_update_time = proto.Field(
         proto.MESSAGE, number=6, message=timestamp.Timestamp,
     )

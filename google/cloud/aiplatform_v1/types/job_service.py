@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
-
 
 from google.cloud.aiplatform_v1.types import (
     batch_prediction_job as gca_batch_prediction_job,
@@ -73,8 +70,7 @@ class CreateCustomJobRequest(proto.Message):
             Required. The CustomJob to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     custom_job = proto.Field(proto.MESSAGE, number=2, message=gca_custom_job.CustomJob,)
 
 
@@ -88,7 +84,7 @@ class GetCustomJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/customJobs/{custom_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListCustomJobsRequest(proto.Message):
@@ -130,14 +126,10 @@ class ListCustomJobsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
     read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
@@ -161,8 +153,7 @@ class ListCustomJobsResponse(proto.Message):
     custom_jobs = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_custom_job.CustomJob,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class DeleteCustomJobRequest(proto.Message):
@@ -176,7 +167,7 @@ class DeleteCustomJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/customJobs/{custom_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CancelCustomJobRequest(proto.Message):
@@ -189,7 +180,7 @@ class CancelCustomJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/customJobs/{custom_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CreateDataLabelingJobRequest(proto.Message):
@@ -204,8 +195,7 @@ class CreateDataLabelingJobRequest(proto.Message):
             Required. The DataLabelingJob to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     data_labeling_job = proto.Field(
         proto.MESSAGE, number=2, message=gca_data_labeling_job.DataLabelingJob,
     )
@@ -213,7 +203,6 @@ class CreateDataLabelingJobRequest(proto.Message):
 
 class GetDataLabelingJobRequest(proto.Message):
     r"""Request message for [DataLabelingJobService.GetDataLabelingJob][].
-
     Attributes:
         name (str):
             Required. The name of the DataLabelingJob. Format:
@@ -221,12 +210,11 @@ class GetDataLabelingJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListDataLabelingJobsRequest(proto.Message):
     r"""Request message for [DataLabelingJobService.ListDataLabelingJobs][].
-
     Attributes:
         parent (str):
             Required. The parent of the DataLabelingJob. Format:
@@ -265,17 +253,12 @@ class ListDataLabelingJobsRequest(proto.Message):
             for descending.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
     read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
-
-    order_by = proto.Field(proto.STRING, number=6)
+    order_by = proto.Field(proto.STRING, number=6,)
 
 
 class ListDataLabelingJobsResponse(proto.Message):
@@ -297,8 +280,7 @@ class ListDataLabelingJobsResponse(proto.Message):
     data_labeling_jobs = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_data_labeling_job.DataLabelingJob,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class DeleteDataLabelingJobRequest(proto.Message):
@@ -313,7 +295,7 @@ class DeleteDataLabelingJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CancelDataLabelingJobRequest(proto.Message):
@@ -327,7 +309,7 @@ class CancelDataLabelingJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CreateHyperparameterTuningJobRequest(proto.Message):
@@ -344,8 +326,7 @@ class CreateHyperparameterTuningJobRequest(proto.Message):
             create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     hyperparameter_tuning_job = proto.Field(
         proto.MESSAGE,
         number=2,
@@ -365,7 +346,7 @@ class GetHyperparameterTuningJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListHyperparameterTuningJobsRequest(proto.Message):
@@ -407,14 +388,10 @@ class ListHyperparameterTuningJobsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
     read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
@@ -442,8 +419,7 @@ class ListHyperparameterTuningJobsResponse(proto.Message):
         number=1,
         message=gca_hyperparameter_tuning_job.HyperparameterTuningJob,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class DeleteHyperparameterTuningJobRequest(proto.Message):
@@ -458,7 +434,7 @@ class DeleteHyperparameterTuningJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CancelHyperparameterTuningJobRequest(proto.Message):
@@ -473,7 +449,7 @@ class CancelHyperparameterTuningJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CreateBatchPredictionJobRequest(proto.Message):
@@ -489,8 +465,7 @@ class CreateBatchPredictionJobRequest(proto.Message):
             Required. The BatchPredictionJob to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
+    parent = proto.Field(proto.STRING, number=1,)
     batch_prediction_job = proto.Field(
         proto.MESSAGE, number=2, message=gca_batch_prediction_job.BatchPredictionJob,
     )
@@ -508,7 +483,7 @@ class GetBatchPredictionJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class ListBatchPredictionJobsRequest(proto.Message):
@@ -550,14 +525,10 @@ class ListBatchPredictionJobsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(proto.STRING, number=1)
-
-    filter = proto.Field(proto.STRING, number=2)
-
-    page_size = proto.Field(proto.INT32, number=3)
-
-    page_token = proto.Field(proto.STRING, number=4)
-
+    parent = proto.Field(proto.STRING, number=1,)
+    filter = proto.Field(proto.STRING, number=2,)
+    page_size = proto.Field(proto.INT32, number=3,)
+    page_token = proto.Field(proto.STRING, number=4,)
     read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
@@ -582,8 +553,7 @@ class ListBatchPredictionJobsResponse(proto.Message):
     batch_prediction_jobs = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_batch_prediction_job.BatchPredictionJob,
     )
-
-    next_page_token = proto.Field(proto.STRING, number=2)
+    next_page_token = proto.Field(proto.STRING, number=2,)
 
 
 class DeleteBatchPredictionJobRequest(proto.Message):
@@ -598,7 +568,7 @@ class DeleteBatchPredictionJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 class CancelBatchPredictionJobRequest(proto.Message):
@@ -613,7 +583,7 @@ class CancelBatchPredictionJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
-    name = proto.Field(proto.STRING, number=1)
+    name = proto.Field(proto.STRING, number=1,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
