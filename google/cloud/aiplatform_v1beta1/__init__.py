@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,22 +15,40 @@
 #
 
 from .services.dataset_service import DatasetServiceClient
+from .services.dataset_service import DatasetServiceAsyncClient
 from .services.endpoint_service import EndpointServiceClient
+from .services.endpoint_service import EndpointServiceAsyncClient
 from .services.featurestore_online_serving_service import (
     FeaturestoreOnlineServingServiceClient,
 )
+from .services.featurestore_online_serving_service import (
+    FeaturestoreOnlineServingServiceAsyncClient,
+)
 from .services.featurestore_service import FeaturestoreServiceClient
+from .services.featurestore_service import FeaturestoreServiceAsyncClient
 from .services.index_endpoint_service import IndexEndpointServiceClient
+from .services.index_endpoint_service import IndexEndpointServiceAsyncClient
 from .services.index_service import IndexServiceClient
+from .services.index_service import IndexServiceAsyncClient
 from .services.job_service import JobServiceClient
+from .services.job_service import JobServiceAsyncClient
 from .services.metadata_service import MetadataServiceClient
+from .services.metadata_service import MetadataServiceAsyncClient
 from .services.migration_service import MigrationServiceClient
+from .services.migration_service import MigrationServiceAsyncClient
 from .services.model_service import ModelServiceClient
+from .services.model_service import ModelServiceAsyncClient
 from .services.pipeline_service import PipelineServiceClient
+from .services.pipeline_service import PipelineServiceAsyncClient
 from .services.prediction_service import PredictionServiceClient
+from .services.prediction_service import PredictionServiceAsyncClient
 from .services.specialist_pool_service import SpecialistPoolServiceClient
+from .services.specialist_pool_service import SpecialistPoolServiceAsyncClient
 from .services.tensorboard_service import TensorboardServiceClient
+from .services.tensorboard_service import TensorboardServiceAsyncClient
 from .services.vizier_service import VizierServiceClient
+from .services.vizier_service import VizierServiceAsyncClient
+
 from .types.accelerator_type import AcceleratorType
 from .types.annotation import Annotation
 from .types.annotation_spec import AnnotationSpec
@@ -295,12 +312,12 @@ from .types.model_deployment_monitoring_job import (
     ModelDeploymentMonitoringObjectiveConfig,
 )
 from .types.model_deployment_monitoring_job import (
-    ModelDeploymentMonitoringObjectiveType,
-)
-from .types.model_deployment_monitoring_job import (
     ModelDeploymentMonitoringScheduleConfig,
 )
 from .types.model_deployment_monitoring_job import ModelMonitoringStatsAnomalies
+from .types.model_deployment_monitoring_job import (
+    ModelDeploymentMonitoringObjectiveType,
+)
 from .types.model_evaluation import ModelEvaluation
 from .types.model_evaluation_slice import ModelEvaluationSlice
 from .types.model_monitoring import ModelMonitoringAlertConfig
@@ -388,10 +405,10 @@ from .types.tensorboard_service import ListTensorboardExperimentsRequest
 from .types.tensorboard_service import ListTensorboardExperimentsResponse
 from .types.tensorboard_service import ListTensorboardRunsRequest
 from .types.tensorboard_service import ListTensorboardRunsResponse
-from .types.tensorboard_service import ListTensorboardTimeSeriesRequest
-from .types.tensorboard_service import ListTensorboardTimeSeriesResponse
 from .types.tensorboard_service import ListTensorboardsRequest
 from .types.tensorboard_service import ListTensorboardsResponse
+from .types.tensorboard_service import ListTensorboardTimeSeriesRequest
+from .types.tensorboard_service import ListTensorboardTimeSeriesResponse
 from .types.tensorboard_service import ReadTensorboardBlobDataRequest
 from .types.tensorboard_service import ReadTensorboardBlobDataResponse
 from .types.tensorboard_service import ReadTensorboardTimeSeriesDataRequest
@@ -438,7 +455,6 @@ from .types.vizier_service import StopTrialRequest
 from .types.vizier_service import SuggestTrialsMetadata
 from .types.vizier_service import SuggestTrialsRequest
 from .types.vizier_service import SuggestTrialsResponse
-
 
 __all__ = (
     "AcceleratorType",
@@ -849,9 +865,9 @@ __all__ = (
     "UploadModelResponse",
     "UserActionReference",
     "Value",
+    "VizierServiceClient",
     "WorkerPoolSpec",
     "WriteTensorboardRunDataRequest",
     "WriteTensorboardRunDataResponse",
     "XraiAttribution",
-    "VizierServiceClient",
 )

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,24 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import warnings
-from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple
+from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import grpc_helpers_async  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
+import packaging.version
 
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1.types import specialist_pool
 from google.cloud.aiplatform_v1.types import specialist_pool_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
-
+from google.longrunning import operations_pb2  # type: ignore
 from .base import SpecialistPoolServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import SpecialistPoolServiceGrpcTransport
 
@@ -61,7 +58,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -88,13 +85,15 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
         Returns:
             aio.Channel: A gRPC AsyncIO channel object.
         """
-        scopes = scopes or cls.AUTH_SCOPES
+
+        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
+
         return grpc_helpers_async.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
-            scopes=scopes,
             quota_project_id=quota_project_id,
+            **self_signed_jwt_kwargs,
             **kwargs,
         )
 
@@ -102,7 +101,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         channel: aio.Channel = None,
@@ -116,7 +115,8 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]): The hostname to connect to.
+            host (Optional[str]):
+                 The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -175,7 +175,6 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
-
         else:
             if api_mtls_endpoint:
                 host = api_mtls_endpoint
@@ -255,7 +254,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
         self,
     ) -> Callable[
         [specialist_pool_service.CreateSpecialistPoolRequest],
-        Awaitable[operations.Operation],
+        Awaitable[operations_pb2.Operation],
     ]:
         r"""Return a callable for the create specialist pool method over gRPC.
 
@@ -275,7 +274,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
             self._stubs["create_specialist_pool"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.SpecialistPoolService/CreateSpecialistPool",
                 request_serializer=specialist_pool_service.CreateSpecialistPoolRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["create_specialist_pool"]
 
@@ -342,7 +341,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
         self,
     ) -> Callable[
         [specialist_pool_service.DeleteSpecialistPoolRequest],
-        Awaitable[operations.Operation],
+        Awaitable[operations_pb2.Operation],
     ]:
         r"""Return a callable for the delete specialist pool method over gRPC.
 
@@ -363,7 +362,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
             self._stubs["delete_specialist_pool"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.SpecialistPoolService/DeleteSpecialistPool",
                 request_serializer=specialist_pool_service.DeleteSpecialistPoolRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_specialist_pool"]
 
@@ -372,7 +371,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
         self,
     ) -> Callable[
         [specialist_pool_service.UpdateSpecialistPoolRequest],
-        Awaitable[operations.Operation],
+        Awaitable[operations_pb2.Operation],
     ]:
         r"""Return a callable for the update specialist pool method over gRPC.
 
@@ -392,7 +391,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
             self._stubs["update_specialist_pool"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.SpecialistPoolService/UpdateSpecialistPool",
                 request_serializer=specialist_pool_service.UpdateSpecialistPoolRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["update_specialist_pool"]
 
