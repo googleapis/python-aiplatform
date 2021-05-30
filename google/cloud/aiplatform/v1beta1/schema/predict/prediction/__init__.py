@@ -36,9 +36,6 @@ from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.tex
 from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.text_sentiment import (
     TextSentimentPredictionResult,
 )
-from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.time_series_forecasting import (
-    TimeSeriesForecastingPredictionResult,
-)
 from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1.types.video_action_recognition import (
     VideoActionRecognitionPredictionResult,
 )
@@ -57,7 +54,6 @@ __all__ = (
     "TabularRegressionPredictionResult",
     "TextExtractionPredictionResult",
     "TextSentimentPredictionResult",
-    "TimeSeriesForecastingPredictionResult",
     "VideoActionRecognitionPredictionResult",
     "VideoClassificationPredictionResult",
     "VideoObjectTrackingPredictionResult",
