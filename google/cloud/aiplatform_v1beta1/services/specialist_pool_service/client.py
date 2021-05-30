@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 from distutils import util
 import os
@@ -39,6 +41,7 @@ from google.cloud.aiplatform_v1beta1.types import specialist_pool as gca_special
 from google.cloud.aiplatform_v1beta1.types import specialist_pool_service
 from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+
 from .transports.base import SpecialistPoolServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import SpecialistPoolServiceGrpcTransport
 from .transports.grpc_asyncio import SpecialistPoolServiceGrpcAsyncIOTransport
@@ -369,8 +372,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateSpecialistPoolRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.CreateSpecialistPool].
             parent (str):
                 Required. The parent Project name for the new
@@ -387,6 +389,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 This corresponds to the ``specialist_pool`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -423,8 +426,10 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, specialist_pool_service.CreateSpecialistPoolRequest):
             request = specialist_pool_service.CreateSpecialistPoolRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
             if specialist_pool is not None:
@@ -467,8 +472,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetSpecialistPoolRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.GetSpecialistPool].
             name (str):
                 Required. The name of the SpecialistPool resource. The
@@ -478,6 +482,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -515,8 +520,10 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, specialist_pool_service.GetSpecialistPoolRequest):
             request = specialist_pool_service.GetSpecialistPoolRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -549,8 +556,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
             parent (str):
                 Required. The name of the SpecialistPool's parent
@@ -560,6 +566,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -591,8 +598,10 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, specialist_pool_service.ListSpecialistPoolsRequest):
             request = specialist_pool_service.ListSpecialistPoolsRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
 
@@ -632,8 +641,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteSpecialistPoolRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.DeleteSpecialistPool].
             name (str):
                 Required. The resource name of the SpecialistPool to
@@ -643,6 +651,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -684,8 +693,10 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, specialist_pool_service.DeleteSpecialistPoolRequest):
             request = specialist_pool_service.DeleteSpecialistPoolRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -727,8 +738,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateSpecialistPoolRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1beta1.SpecialistPoolService.UpdateSpecialistPool].
             specialist_pool (google.cloud.aiplatform_v1beta1.types.SpecialistPool):
                 Required. The SpecialistPool which
@@ -744,6 +754,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -780,8 +791,10 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, specialist_pool_service.UpdateSpecialistPoolRequest):
             request = specialist_pool_service.UpdateSpecialistPoolRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if specialist_pool is not None:
                 request.specialist_pool = specialist_pool
             if update_mask is not None:
