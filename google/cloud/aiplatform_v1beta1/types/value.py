@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
 
@@ -23,6 +25,7 @@ __protobuf__ = proto.module(
 
 class Value(proto.Message):
     r"""Value is the value of the field.
+
     Attributes:
         int_value (int):
             An integer value.
@@ -32,9 +35,11 @@ class Value(proto.Message):
             A string value.
     """
 
-    int_value = proto.Field(proto.INT64, number=1, oneof="value",)
-    double_value = proto.Field(proto.DOUBLE, number=2, oneof="value",)
-    string_value = proto.Field(proto.STRING, number=3, oneof="value",)
+    int_value = proto.Field(proto.INT64, number=1, oneof="value")
+
+    double_value = proto.Field(proto.DOUBLE, number=2, oneof="value")
+
+    string_value = proto.Field(proto.STRING, number=3, oneof="value")
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

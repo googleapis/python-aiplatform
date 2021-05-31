@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import warnings
-from typing import Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Callable, Dict, Optional, Sequence, Tuple
 
 from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
-import google.auth  # type: ignore
-from google.auth import credentials as ga_credentials  # type: ignore
+from google import auth  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
@@ -37,7 +39,8 @@ from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1beta1.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
-from google.longrunning import operations_pb2  # type: ignore
+from google.longrunning import operations_pb2 as operations  # type: ignore
+
 from .base import TensorboardServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -60,7 +63,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Sequence[str] = None,
         channel: grpc.Channel = None,
@@ -74,8 +77,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]):
-                 The hostname to connect to.
+            host (Optional[str]): The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -186,7 +188,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -217,15 +219,13 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
             google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-
-        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
-
+        scopes = scopes or cls.AUTH_SCOPES
         return grpc_helpers.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
+            scopes=scopes,
             quota_project_id=quota_project_id,
-            **self_signed_jwt_kwargs,
             **kwargs,
         )
 
@@ -252,9 +252,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     @property
     def create_tensorboard(
         self,
-    ) -> Callable[
-        [tensorboard_service.CreateTensorboardRequest], operations_pb2.Operation
-    ]:
+    ) -> Callable[[tensorboard_service.CreateTensorboardRequest], operations.Operation]:
         r"""Return a callable for the create tensorboard method over gRPC.
 
         Creates a Tensorboard.
@@ -273,7 +271,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
             self._stubs["create_tensorboard"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.TensorboardService/CreateTensorboard",
                 request_serializer=tensorboard_service.CreateTensorboardRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["create_tensorboard"]
 
@@ -306,9 +304,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     @property
     def update_tensorboard(
         self,
-    ) -> Callable[
-        [tensorboard_service.UpdateTensorboardRequest], operations_pb2.Operation
-    ]:
+    ) -> Callable[[tensorboard_service.UpdateTensorboardRequest], operations.Operation]:
         r"""Return a callable for the update tensorboard method over gRPC.
 
         Updates a Tensorboard.
@@ -327,7 +323,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
             self._stubs["update_tensorboard"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.TensorboardService/UpdateTensorboard",
                 request_serializer=tensorboard_service.UpdateTensorboardRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["update_tensorboard"]
 
@@ -363,9 +359,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     @property
     def delete_tensorboard(
         self,
-    ) -> Callable[
-        [tensorboard_service.DeleteTensorboardRequest], operations_pb2.Operation
-    ]:
+    ) -> Callable[[tensorboard_service.DeleteTensorboardRequest], operations.Operation]:
         r"""Return a callable for the delete tensorboard method over gRPC.
 
         Deletes a Tensorboard.
@@ -384,7 +378,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
             self._stubs["delete_tensorboard"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.TensorboardService/DeleteTensorboard",
                 request_serializer=tensorboard_service.DeleteTensorboardRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_tensorboard"]
 
@@ -512,8 +506,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def delete_tensorboard_experiment(
         self,
     ) -> Callable[
-        [tensorboard_service.DeleteTensorboardExperimentRequest],
-        operations_pb2.Operation,
+        [tensorboard_service.DeleteTensorboardExperimentRequest], operations.Operation
     ]:
         r"""Return a callable for the delete tensorboard experiment method over gRPC.
 
@@ -535,7 +528,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
             ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.TensorboardService/DeleteTensorboardExperiment",
                 request_serializer=tensorboard_service.DeleteTensorboardExperimentRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_tensorboard_experiment"]
 
@@ -658,7 +651,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def delete_tensorboard_run(
         self,
     ) -> Callable[
-        [tensorboard_service.DeleteTensorboardRunRequest], operations_pb2.Operation
+        [tensorboard_service.DeleteTensorboardRunRequest], operations.Operation
     ]:
         r"""Return a callable for the delete tensorboard run method over gRPC.
 
@@ -678,7 +671,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
             self._stubs["delete_tensorboard_run"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.TensorboardService/DeleteTensorboardRun",
                 request_serializer=tensorboard_service.DeleteTensorboardRunRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_tensorboard_run"]
 
@@ -806,8 +799,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
     def delete_tensorboard_time_series(
         self,
     ) -> Callable[
-        [tensorboard_service.DeleteTensorboardTimeSeriesRequest],
-        operations_pb2.Operation,
+        [tensorboard_service.DeleteTensorboardTimeSeriesRequest], operations.Operation
     ]:
         r"""Return a callable for the delete tensorboard time series method over gRPC.
 
@@ -829,7 +821,7 @@ class TensorboardServiceGrpcTransport(TensorboardServiceTransport):
             ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.TensorboardService/DeleteTensorboardTimeSeries",
                 request_serializer=tensorboard_service.DeleteTensorboardTimeSeriesRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_tensorboard_time_series"]
 

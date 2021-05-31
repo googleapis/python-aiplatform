@@ -265,9 +265,9 @@ class BatchPredictionJob(proto.Message):
                 which as value has ```google.rpc.Status`` <Status>`__
                 containing only ``code`` and ``message`` fields.
             bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
-                The BigQuery project location where the output is to be
-                written to. In the given project a new dataset is created
-                with name
+                The BigQuery project or dataset location where the output is
+                to be written to. If project is provided, a new dataset is
+                created with name
                 ``prediction_<model-display-name>_<job-create-time>`` where
                 is made BigQuery-dataset-name compatible (for example, most
                 special characters become underscores), and timestamp is in

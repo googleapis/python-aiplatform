@@ -175,6 +175,12 @@ class CustomJobSpec(proto.Message):
                ``<base_output_directory>/<trial_id>/checkpoints/``
             -  AIP_TENSORBOARD_LOG_DIR =
                ``<base_output_directory>/<trial_id>/logs/``
+        tensorboard (str):
+            Optional. The name of an AI Platform
+            [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+            resource to which this CustomJob will upload Tensorboard
+            logs. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
     """
 
     worker_pool_specs = proto.RepeatedField(
@@ -190,6 +196,8 @@ class CustomJobSpec(proto.Message):
     base_output_directory = proto.Field(
         proto.MESSAGE, number=6, message=io.GcsDestination,
     )
+
+    tensorboard = proto.Field(proto.STRING, number=7)
 
 
 class WorkerPoolSpec(proto.Message):
