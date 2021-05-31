@@ -1151,7 +1151,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             name (str):
                 Required. The name of the AnnotationSpec resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/datasets/{dataset}/annotationSpecs/{annotation_spec}``
 
                 This corresponds to the ``name`` field
@@ -1227,7 +1226,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             parent (str):
                 Required. The resource name of the DataItem to list
                 Annotations from. Format:
-
                 ``projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}``
 
                 This corresponds to the ``parent`` field
