@@ -370,7 +370,7 @@ class DatasetServiceAsyncClient:
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Required. The update mask applies to the resource. For
                 the ``FieldMask`` definition, see
-                `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
                 Updatable fields:
 
                 -  ``display_name``
