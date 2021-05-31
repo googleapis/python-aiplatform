@@ -11,8 +11,8 @@
       "git": {
         "name": "googleapis",
         "remote": "https://github.com/googleapis/googleapis.git",
-        "sha": "15c5e21948ff6fbe41f91bdf04f6252f91a12d59",
-        "internalRef": "364894175"
+        "sha": "810cad37a1d22def3b8e0e2a5593e7a551477058",
+        "internalRef": "365109880"
       }
     }
   ],
