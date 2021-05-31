@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import warnings
-from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple
+from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import grpc_helpers_async  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
+import packaging.version
 
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
@@ -31,8 +29,7 @@ from grpc.experimental import aio  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
-
+from google.longrunning import operations_pb2  # type: ignore
 from .base import IndexEndpointServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import IndexEndpointServiceGrpcTransport
 
@@ -57,7 +54,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -84,13 +81,15 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
         Returns:
             aio.Channel: A gRPC AsyncIO channel object.
         """
-        scopes = scopes or cls.AUTH_SCOPES
+
+        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
+
         return grpc_helpers_async.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
-            scopes=scopes,
             quota_project_id=quota_project_id,
+            **self_signed_jwt_kwargs,
             **kwargs,
         )
 
@@ -98,7 +97,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         channel: aio.Channel = None,
@@ -112,7 +111,8 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]): The hostname to connect to.
+            host (Optional[str]):
+                 The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -171,7 +171,6 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
-
         else:
             if api_mtls_endpoint:
                 host = api_mtls_endpoint
@@ -251,7 +250,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
         self,
     ) -> Callable[
         [index_endpoint_service.CreateIndexEndpointRequest],
-        Awaitable[operations.Operation],
+        Awaitable[operations_pb2.Operation],
     ]:
         r"""Return a callable for the create index endpoint method over gRPC.
 
@@ -271,7 +270,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
             self._stubs["create_index_endpoint"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.IndexEndpointService/CreateIndexEndpoint",
                 request_serializer=index_endpoint_service.CreateIndexEndpointRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["create_index_endpoint"]
 
@@ -367,7 +366,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
         self,
     ) -> Callable[
         [index_endpoint_service.DeleteIndexEndpointRequest],
-        Awaitable[operations.Operation],
+        Awaitable[operations_pb2.Operation],
     ]:
         r"""Return a callable for the delete index endpoint method over gRPC.
 
@@ -387,7 +386,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
             self._stubs["delete_index_endpoint"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.IndexEndpointService/DeleteIndexEndpoint",
                 request_serializer=index_endpoint_service.DeleteIndexEndpointRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_index_endpoint"]
 
@@ -395,7 +394,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
     def deploy_index(
         self,
     ) -> Callable[
-        [index_endpoint_service.DeployIndexRequest], Awaitable[operations.Operation]
+        [index_endpoint_service.DeployIndexRequest], Awaitable[operations_pb2.Operation]
     ]:
         r"""Return a callable for the deploy index method over gRPC.
 
@@ -417,7 +416,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
             self._stubs["deploy_index"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.IndexEndpointService/DeployIndex",
                 request_serializer=index_endpoint_service.DeployIndexRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["deploy_index"]
 
@@ -425,7 +424,8 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
     def undeploy_index(
         self,
     ) -> Callable[
-        [index_endpoint_service.UndeployIndexRequest], Awaitable[operations.Operation]
+        [index_endpoint_service.UndeployIndexRequest],
+        Awaitable[operations_pb2.Operation],
     ]:
         r"""Return a callable for the undeploy index method over gRPC.
 
@@ -447,7 +447,7 @@ class IndexEndpointServiceGrpcAsyncIOTransport(IndexEndpointServiceTransport):
             self._stubs["undeploy_index"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.IndexEndpointService/UndeployIndex",
                 request_serializer=index_endpoint_service.UndeployIndexRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["undeploy_index"]
 

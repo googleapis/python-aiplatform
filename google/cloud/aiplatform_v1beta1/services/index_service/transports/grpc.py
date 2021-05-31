@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,23 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import warnings
-from typing import Callable, Dict, Optional, Sequence, Tuple
+from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+import google.auth  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import index
 from google.cloud.aiplatform_v1beta1.types import index_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
-
+from google.longrunning import operations_pb2  # type: ignore
 from .base import IndexServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -54,7 +51,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Sequence[str] = None,
         channel: grpc.Channel = None,
@@ -68,7 +65,8 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]): The hostname to connect to.
+            host (Optional[str]):
+                 The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -179,7 +177,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -210,13 +208,15 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
             google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-        scopes = scopes or cls.AUTH_SCOPES
+
+        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
+
         return grpc_helpers.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
-            scopes=scopes,
             quota_project_id=quota_project_id,
+            **self_signed_jwt_kwargs,
             **kwargs,
         )
 
@@ -243,7 +243,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
     @property
     def create_index(
         self,
-    ) -> Callable[[index_service.CreateIndexRequest], operations.Operation]:
+    ) -> Callable[[index_service.CreateIndexRequest], operations_pb2.Operation]:
         r"""Return a callable for the create index method over gRPC.
 
         Creates an Index.
@@ -262,7 +262,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
             self._stubs["create_index"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.IndexService/CreateIndex",
                 request_serializer=index_service.CreateIndexRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["create_index"]
 
@@ -321,7 +321,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
     @property
     def update_index(
         self,
-    ) -> Callable[[index_service.UpdateIndexRequest], operations.Operation]:
+    ) -> Callable[[index_service.UpdateIndexRequest], operations_pb2.Operation]:
         r"""Return a callable for the update index method over gRPC.
 
         Updates an Index.
@@ -340,14 +340,14 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
             self._stubs["update_index"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.IndexService/UpdateIndex",
                 request_serializer=index_service.UpdateIndexRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["update_index"]
 
     @property
     def delete_index(
         self,
-    ) -> Callable[[index_service.DeleteIndexRequest], operations.Operation]:
+    ) -> Callable[[index_service.DeleteIndexRequest], operations_pb2.Operation]:
         r"""Return a callable for the delete index method over gRPC.
 
         Deletes an Index. An Index can only be deleted when all its
@@ -368,7 +368,7 @@ class IndexServiceGrpcTransport(IndexServiceTransport):
             self._stubs["delete_index"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.IndexService/DeleteIndex",
                 request_serializer=index_service.DeleteIndexRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_index"]
 

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -42,7 +40,6 @@ class AutoMlImageClassification(proto.Message):
     inputs = proto.Field(
         proto.MESSAGE, number=1, message="AutoMlImageClassificationInputs",
     )
-
     metadata = proto.Field(
         proto.MESSAGE, number=2, message="AutoMlImageClassificationMetadata",
     )
@@ -50,7 +47,6 @@ class AutoMlImageClassification(proto.Message):
 
 class AutoMlImageClassificationInputs(proto.Message):
     r"""
-
     Attributes:
         model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlImageClassificationInputs.ModelType):
 
@@ -102,19 +98,14 @@ class AutoMlImageClassificationInputs(proto.Message):
         MOBILE_TF_HIGH_ACCURACY_1 = 4
 
     model_type = proto.Field(proto.ENUM, number=1, enum=ModelType,)
-
-    base_model_id = proto.Field(proto.STRING, number=2)
-
-    budget_milli_node_hours = proto.Field(proto.INT64, number=3)
-
-    disable_early_stopping = proto.Field(proto.BOOL, number=4)
-
-    multi_label = proto.Field(proto.BOOL, number=5)
+    base_model_id = proto.Field(proto.STRING, number=2,)
+    budget_milli_node_hours = proto.Field(proto.INT64, number=3,)
+    disable_early_stopping = proto.Field(proto.BOOL, number=4,)
+    multi_label = proto.Field(proto.BOOL, number=5,)
 
 
 class AutoMlImageClassificationMetadata(proto.Message):
     r"""
-
     Attributes:
         cost_milli_node_hours (int):
             The actual training cost of creating this
@@ -133,8 +124,7 @@ class AutoMlImageClassificationMetadata(proto.Message):
         BUDGET_REACHED = 1
         MODEL_CONVERGED = 2
 
-    cost_milli_node_hours = proto.Field(proto.INT64, number=1)
-
+    cost_milli_node_hours = proto.Field(proto.INT64, number=1,)
     successful_stop_reason = proto.Field(
         proto.ENUM, number=2, enum=SuccessfulStopReason,
     )
