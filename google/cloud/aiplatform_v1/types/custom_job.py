@@ -98,7 +98,7 @@ class CustomJob(proto.Message):
     end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
     update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
     error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=11)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=11,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=12, message=gca_encryption_spec.EncryptionSpec,
     )

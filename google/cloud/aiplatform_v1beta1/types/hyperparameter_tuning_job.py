@@ -115,7 +115,7 @@ class HyperparameterTuningJob(proto.Message):
     end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
     update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
     error = proto.Field(proto.MESSAGE, number=15, message=status.Status,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=16)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=16,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=17, message=gca_encryption_spec.EncryptionSpec,
     )
