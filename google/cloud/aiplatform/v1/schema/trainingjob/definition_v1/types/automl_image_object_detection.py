@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
 
@@ -40,6 +42,7 @@ class AutoMlImageObjectDetection(proto.Message):
     inputs = proto.Field(
         proto.MESSAGE, number=1, message="AutoMlImageObjectDetectionInputs",
     )
+
     metadata = proto.Field(
         proto.MESSAGE, number=2, message="AutoMlImageObjectDetectionMetadata",
     )
@@ -47,6 +50,7 @@ class AutoMlImageObjectDetection(proto.Message):
 
 class AutoMlImageObjectDetectionInputs(proto.Message):
     r"""
+
     Attributes:
         model_type (google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.AutoMlImageObjectDetectionInputs.ModelType):
 
@@ -87,12 +91,15 @@ class AutoMlImageObjectDetectionInputs(proto.Message):
         MOBILE_TF_HIGH_ACCURACY_1 = 5
 
     model_type = proto.Field(proto.ENUM, number=1, enum=ModelType,)
-    budget_milli_node_hours = proto.Field(proto.INT64, number=2,)
-    disable_early_stopping = proto.Field(proto.BOOL, number=3,)
+
+    budget_milli_node_hours = proto.Field(proto.INT64, number=2)
+
+    disable_early_stopping = proto.Field(proto.BOOL, number=3)
 
 
 class AutoMlImageObjectDetectionMetadata(proto.Message):
     r"""
+
     Attributes:
         cost_milli_node_hours (int):
             The actual training cost of creating this
@@ -111,7 +118,8 @@ class AutoMlImageObjectDetectionMetadata(proto.Message):
         BUDGET_REACHED = 1
         MODEL_CONVERGED = 2
 
-    cost_milli_node_hours = proto.Field(proto.INT64, number=1,)
+    cost_milli_node_hours = proto.Field(proto.INT64, number=1)
+
     successful_stop_reason = proto.Field(
         proto.ENUM, number=2, enum=SuccessfulStopReason,
     )

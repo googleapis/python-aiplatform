@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import warnings
-from typing import Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Callable, Dict, Optional, Sequence, Tuple
 
 from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
-import google.auth  # type: ignore
-from google.auth import credentials as ga_credentials  # type: ignore
+from google import auth  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
@@ -30,7 +32,8 @@ from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import model_evaluation
 from google.cloud.aiplatform_v1beta1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1beta1.types import model_service
-from google.longrunning import operations_pb2  # type: ignore
+from google.longrunning import operations_pb2 as operations  # type: ignore
+
 from .base import ModelServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -53,7 +56,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Sequence[str] = None,
         channel: grpc.Channel = None,
@@ -67,8 +70,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]):
-                 The hostname to connect to.
+            host (Optional[str]): The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -110,10 +112,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
           google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-        self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
-        self._stubs: Dict[str, Callable] = {}
-        self._operations_client = None
 
         if api_mtls_endpoint:
             warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
@@ -121,50 +120,70 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
             warnings.warn("client_cert_source is deprecated", DeprecationWarning)
 
         if channel:
-            # Ignore credentials if a channel was passed.
+            # Sanity check: Ensure that channel and credentials are not both
+            # provided.
             credentials = False
+
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
+        elif api_mtls_endpoint:
+            host = (
+                api_mtls_endpoint
+                if ":" in api_mtls_endpoint
+                else api_mtls_endpoint + ":443"
+            )
 
-        else:
-            if api_mtls_endpoint:
-                host = api_mtls_endpoint
+            if credentials is None:
+                credentials, _ = auth.default(
+                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
+                )
 
-                # Create SSL credentials with client_cert_source or application
-                # default SSL credentials.
-                if client_cert_source:
-                    cert, key = client_cert_source()
-                    self._ssl_channel_credentials = grpc.ssl_channel_credentials(
-                        certificate_chain=cert, private_key=key
-                    )
-                else:
-                    self._ssl_channel_credentials = SslCredentials().ssl_credentials
-
+            # Create SSL credentials with client_cert_source or application
+            # default SSL credentials.
+            if client_cert_source:
+                cert, key = client_cert_source()
+                ssl_credentials = grpc.ssl_channel_credentials(
+                    certificate_chain=cert, private_key=key
+                )
             else:
-                if client_cert_source_for_mtls and not ssl_channel_credentials:
-                    cert, key = client_cert_source_for_mtls()
-                    self._ssl_channel_credentials = grpc.ssl_channel_credentials(
-                        certificate_chain=cert, private_key=key
-                    )
+                ssl_credentials = SslCredentials().ssl_credentials
 
-        # The base transport sets the host, credentials and scopes
-        super().__init__(
-            host=host,
-            credentials=credentials,
-            credentials_file=credentials_file,
-            scopes=scopes,
-            quota_project_id=quota_project_id,
-            client_info=client_info,
-        )
-
-        if not self._grpc_channel:
+            # create a new channel. The provided one is ignored.
             self._grpc_channel = type(self).create_channel(
-                self._host,
-                credentials=self._credentials,
+                host,
+                credentials=credentials,
                 credentials_file=credentials_file,
-                scopes=self._scopes,
+                ssl_credentials=ssl_credentials,
+                scopes=scopes or self.AUTH_SCOPES,
+                quota_project_id=quota_project_id,
+                options=[
+                    ("grpc.max_send_message_length", -1),
+                    ("grpc.max_receive_message_length", -1),
+                ],
+            )
+            self._ssl_channel_credentials = ssl_credentials
+        else:
+            host = host if ":" in host else host + ":443"
+
+            if credentials is None:
+                credentials, _ = auth.default(
+                    scopes=self.AUTH_SCOPES, quota_project_id=quota_project_id
+                )
+
+            if client_cert_source_for_mtls and not ssl_channel_credentials:
+                cert, key = client_cert_source_for_mtls()
+                self._ssl_channel_credentials = grpc.ssl_channel_credentials(
+                    certificate_chain=cert, private_key=key
+                )
+
+            # create a new channel. The provided one is ignored.
+            self._grpc_channel = type(self).create_channel(
+                host,
+                credentials=credentials,
+                credentials_file=credentials_file,
                 ssl_credentials=self._ssl_channel_credentials,
+                scopes=scopes or self.AUTH_SCOPES,
                 quota_project_id=quota_project_id,
                 options=[
                     ("grpc.max_send_message_length", -1),
@@ -172,14 +191,24 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
                 ],
             )
 
-        # Wrap messages. This must be done after self._grpc_channel exists
-        self._prep_wrapped_messages(client_info)
+        self._stubs = {}  # type: Dict[str, Callable]
+        self._operations_client = None
+
+        # Run the base constructor.
+        super().__init__(
+            host=host,
+            credentials=credentials,
+            credentials_file=credentials_file,
+            scopes=scopes or self.AUTH_SCOPES,
+            quota_project_id=quota_project_id,
+            client_info=client_info,
+        )
 
     @classmethod
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -187,7 +216,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
     ) -> grpc.Channel:
         """Create and return a gRPC channel object.
         Args:
-            host (Optional[str]): The host for the channel to use.
+            address (Optional[str]): The host for the channel to use.
             credentials (Optional[~.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify this application to the service. If
@@ -210,15 +239,13 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
             google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
               and ``credentials_file`` are passed.
         """
-
-        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
-
+        scopes = scopes or cls.AUTH_SCOPES
         return grpc_helpers.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
+            scopes=scopes,
             quota_project_id=quota_project_id,
-            **self_signed_jwt_kwargs,
             **kwargs,
         )
 
@@ -245,7 +272,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
     @property
     def upload_model(
         self,
-    ) -> Callable[[model_service.UploadModelRequest], operations_pb2.Operation]:
+    ) -> Callable[[model_service.UploadModelRequest], operations.Operation]:
         r"""Return a callable for the upload model method over gRPC.
 
         Uploads a Model artifact into AI Platform.
@@ -264,7 +291,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
             self._stubs["upload_model"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.ModelService/UploadModel",
                 request_serializer=model_service.UploadModelRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["upload_model"]
 
@@ -347,7 +374,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
     @property
     def delete_model(
         self,
-    ) -> Callable[[model_service.DeleteModelRequest], operations_pb2.Operation]:
+    ) -> Callable[[model_service.DeleteModelRequest], operations.Operation]:
         r"""Return a callable for the delete model method over gRPC.
 
         Deletes a Model.
@@ -368,14 +395,14 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
             self._stubs["delete_model"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.ModelService/DeleteModel",
                 request_serializer=model_service.DeleteModelRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_model"]
 
     @property
     def export_model(
         self,
-    ) -> Callable[[model_service.ExportModelRequest], operations_pb2.Operation]:
+    ) -> Callable[[model_service.ExportModelRequest], operations.Operation]:
         r"""Return a callable for the export model method over gRPC.
 
         Exports a trained, exportable, Model to a location specified by
@@ -397,7 +424,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
             self._stubs["export_model"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.ModelService/ExportModel",
                 request_serializer=model_service.ExportModelRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["export_model"]
 
