@@ -11,8 +11,8 @@
       "git": {
         "name": "googleapis",
         "remote": "https://github.com/googleapis/googleapis.git",
-        "sha": "f6dd7e47620566925a4b3f1ce029e74e1b2f2516",
-        "internalRef": "359781040"
+        "sha": "d1ec8a4330fdc131e49637ed34bb031695a89060",
+        "internalRef": "360235141"
       }
     }
   ],
@@ -200,7 +200,6 @@
     "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/tabular_regression.py",
     "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/text_extraction.py",
     "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/text_sentiment.py",
-    "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/time_series_forecasting.py",
     "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/video_action_recognition.py",
     "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/video_classification.py",
     "google/cloud/aiplatform/v1beta1/schema/predict/prediction_v1beta1/types/video_object_tracking.py",
@@ -216,7 +215,6 @@
     "google/cloud/aiplatform/v1beta1/schema/trainingjob/definition_v1beta1/types/automl_text_classification.py",
     "google/cloud/aiplatform/v1beta1/schema/trainingjob/definition_v1beta1/types/automl_text_extraction.py",
     "google/cloud/aiplatform/v1beta1/schema/trainingjob/definition_v1beta1/types/automl_text_sentiment.py",
-    "google/cloud/aiplatform/v1beta1/schema/trainingjob/definition_v1beta1/types/automl_time_series_forecasting.py",
     "google/cloud/aiplatform/v1beta1/schema/trainingjob/definition_v1beta1/types/automl_video_action_recognition.py",
     "google/cloud/aiplatform/v1beta1/schema/trainingjob/definition_v1beta1/types/automl_video_classification.py",
     "google/cloud/aiplatform/v1beta1/schema/trainingjob/definition_v1beta1/types/automl_video_object_tracking.py",
