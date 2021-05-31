@@ -185,7 +185,7 @@ class CancelCustomJobRequest(proto.Message):
 
 class CreateDataLabelingJobRequest(proto.Message):
     r"""Request message for
-    [DataLabelingJobService.CreateDataLabelingJob][].
+    [JobService.CreateDataLabelingJob][google.cloud.aiplatform.v1.JobService.CreateDataLabelingJob].
 
     Attributes:
         parent (str):
@@ -202,11 +202,12 @@ class CreateDataLabelingJobRequest(proto.Message):
 
 
 class GetDataLabelingJobRequest(proto.Message):
-    r"""Request message for [DataLabelingJobService.GetDataLabelingJob][].
+    r"""Request message for
+    [JobService.GetDataLabelingJob][google.cloud.aiplatform.v1.JobService.GetDataLabelingJob].
+
     Attributes:
         name (str):
             Required. The name of the DataLabelingJob. Format:
-
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
@@ -214,7 +215,9 @@ class GetDataLabelingJobRequest(proto.Message):
 
 
 class ListDataLabelingJobsRequest(proto.Message):
-    r"""Request message for [DataLabelingJobService.ListDataLabelingJobs][].
+    r"""Request message for
+    [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1.JobService.ListDataLabelingJobs].
+
     Attributes:
         parent (str):
             Required. The parent of the DataLabelingJob. Format:
@@ -291,7 +294,6 @@ class DeleteDataLabelingJobRequest(proto.Message):
         name (str):
             Required. The name of the DataLabelingJob to be deleted.
             Format:
-
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
@@ -300,12 +302,11 @@ class DeleteDataLabelingJobRequest(proto.Message):
 
 class CancelDataLabelingJobRequest(proto.Message):
     r"""Request message for
-    [DataLabelingJobService.CancelDataLabelingJob][].
+    [JobService.CancelDataLabelingJob][google.cloud.aiplatform.v1.JobService.CancelDataLabelingJob].
 
     Attributes:
         name (str):
             Required. The name of the DataLabelingJob. Format:
-
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
@@ -342,7 +343,6 @@ class GetHyperparameterTuningJobRequest(proto.Message):
         name (str):
             Required. The name of the HyperparameterTuningJob resource.
             Format:
-
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
@@ -430,7 +430,6 @@ class DeleteHyperparameterTuningJobRequest(proto.Message):
         name (str):
             Required. The name of the HyperparameterTuningJob resource
             to be deleted. Format:
-
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
@@ -445,7 +444,6 @@ class CancelHyperparameterTuningJobRequest(proto.Message):
         name (str):
             Required. The name of the HyperparameterTuningJob to cancel.
             Format:
-
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
@@ -479,7 +477,6 @@ class GetBatchPredictionJobRequest(proto.Message):
         name (str):
             Required. The name of the BatchPredictionJob resource.
             Format:
-
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
@@ -503,6 +500,8 @@ class ListBatchPredictionJobsRequest(proto.Message):
             -  ``display_name`` supports = and !=.
 
             -  ``state`` supports = and !=.
+
+            -  ``model_display_name`` supports = and !=
 
             Some examples of using the filter are:
 
@@ -564,7 +563,6 @@ class DeleteBatchPredictionJobRequest(proto.Message):
         name (str):
             Required. The name of the BatchPredictionJob resource to be
             deleted. Format:
-
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
@@ -579,7 +577,6 @@ class CancelBatchPredictionJobRequest(proto.Message):
         name (str):
             Required. The name of the BatchPredictionJob to cancel.
             Format:
-
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 

@@ -197,7 +197,7 @@ class UpdateModelRequest(proto.Message):
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Required. The update mask applies to the resource. For the
             ``FieldMask`` definition, see
-            `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+            [google.protobuf.FieldMask][google.protobuf.FieldMask].
     """
 
     model = proto.Field(proto.MESSAGE, number=1, message=gca_model.Model,)
@@ -326,7 +326,6 @@ class GetModelEvaluationRequest(proto.Message):
     Attributes:
         name (str):
             Required. The name of the ModelEvaluation resource. Format:
-
             ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
     """
 
@@ -395,7 +394,6 @@ class GetModelEvaluationSliceRequest(proto.Message):
         name (str):
             Required. The name of the ModelEvaluationSlice resource.
             Format:
-
             ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}``
     """
 
@@ -410,7 +408,6 @@ class ListModelEvaluationSlicesRequest(proto.Message):
         parent (str):
             Required. The resource name of the ModelEvaluation to list
             the ModelEvaluationSlices from. Format:
-
             ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
         filter (str):
             The standard list filter.
