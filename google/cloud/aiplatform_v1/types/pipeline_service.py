@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_pipeline
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
@@ -45,7 +48,8 @@ class CreateTrainingPipelineRequest(proto.Message):
             Required. The TrainingPipeline to create.
     """
 
-    parent = proto.Field(proto.STRING, number=1,)
+    parent = proto.Field(proto.STRING, number=1)
+
     training_pipeline = proto.Field(
         proto.MESSAGE, number=2, message=gca_training_pipeline.TrainingPipeline,
     )
@@ -62,7 +66,7 @@ class GetTrainingPipelineRequest(proto.Message):
             ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
     """
 
-    name = proto.Field(proto.STRING, number=1,)
+    name = proto.Field(proto.STRING, number=1)
 
 
 class ListTrainingPipelinesRequest(proto.Message):
@@ -102,10 +106,14 @@ class ListTrainingPipelinesRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(proto.STRING, number=1,)
-    filter = proto.Field(proto.STRING, number=2,)
-    page_size = proto.Field(proto.INT32, number=3,)
-    page_token = proto.Field(proto.STRING, number=4,)
+    parent = proto.Field(proto.STRING, number=1)
+
+    filter = proto.Field(proto.STRING, number=2)
+
+    page_size = proto.Field(proto.INT32, number=3)
+
+    page_token = proto.Field(proto.STRING, number=4)
+
     read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
 
 
@@ -130,7 +138,8 @@ class ListTrainingPipelinesResponse(proto.Message):
     training_pipelines = proto.RepeatedField(
         proto.MESSAGE, number=1, message=gca_training_pipeline.TrainingPipeline,
     )
-    next_page_token = proto.Field(proto.STRING, number=2,)
+
+    next_page_token = proto.Field(proto.STRING, number=2)
 
 
 class DeleteTrainingPipelineRequest(proto.Message):
@@ -145,7 +154,7 @@ class DeleteTrainingPipelineRequest(proto.Message):
             ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
     """
 
-    name = proto.Field(proto.STRING, number=1,)
+    name = proto.Field(proto.STRING, number=1)
 
 
 class CancelTrainingPipelineRequest(proto.Message):
@@ -160,7 +169,7 @@ class CancelTrainingPipelineRequest(proto.Message):
             ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
     """
 
-    name = proto.Field(proto.STRING, number=1,)
+    name = proto.Field(proto.STRING, number=1)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
