@@ -32,8 +32,8 @@ class FeatureStatsAnomaly(proto.Message):
     Timestamp of the stats and anomalies always refers to end_time. Raw
     stats and anomalies are stored in stats_uri or anomaly_uri in the
     tensorflow defined protos. Field data_stats contains almost
-    identical information with the raw stats in AI Platform defined
-    proto, for UI to display.
+    identical information with the raw stats in Vertex AI defined proto,
+    for UI to display.
 
     Attributes:
         score (float):

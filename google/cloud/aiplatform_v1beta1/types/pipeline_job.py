@@ -57,9 +57,7 @@ class PipelineJob(proto.Message):
             Output only. Timestamp when this PipelineJob
             was most recently updated.
         pipeline_spec (google.protobuf.struct_pb2.Struct):
-            Required. The spec of the pipeline. The spec contains a
-            ``schema_version`` field which indicates the Kubeflow
-            Pipeline schema version to decode the struct.
+            Required. The spec of the pipeline.
         state (google.cloud.aiplatform_v1beta1.types.PipelineState):
             Output only. The detailed state of the job.
         job_detail (google.cloud.aiplatform_v1beta1.types.PipelineJobDetail):
@@ -108,8 +106,8 @@ class PipelineJob(proto.Message):
             Private services access must already be configured for the
             network. Pipeline job will apply the network configuration
             to the GCP resources being launched, if applied, such as
-            Cloud AI Platform Training or Dataflow job. If left
-            unspecified, the workload is not peered with any network.
+            Vertex AI Training or Dataflow job. If left unspecified, the
+            workload is not peered with any network.
     """
 
     class RuntimeConfig(proto.Message):

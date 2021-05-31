@@ -42,7 +42,7 @@ from .client import IndexEndpointServiceClient
 
 
 class IndexEndpointServiceAsyncClient:
-    """A service for managing AI Platform's IndexEndpoints."""
+    """A service for managing Vertex AI's IndexEndpoints."""
 
     _client: IndexEndpointServiceClient
 

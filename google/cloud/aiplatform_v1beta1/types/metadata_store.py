@@ -39,10 +39,10 @@ class MetadataStore(proto.Message):
             Output only. Timestamp when this
             MetadataStore was last updated.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
-            Customer-managed encryption key spec for an
+            Customer-managed encryption key spec for a
             Metadata Store. If set, this Metadata Store and
-            all sub-resources of this Metadata Store will be
-            secured by this key.
+            all sub-resources of this Metadata Store are
+            secured using this key.
         description (str):
             Description of the MetadataStore.
         state (google.cloud.aiplatform_v1beta1.types.MetadataStore.MetadataStoreState):
@@ -51,7 +51,7 @@ class MetadataStore(proto.Message):
     """
 
     class MetadataStoreState(proto.Message):
-        r"""Represent state information for a MetadataStore.
+        r"""Represents state information for a MetadataStore.
         Attributes:
             disk_utilization_bytes (int):
                 The disk utilization of the MetadataStore in

@@ -83,7 +83,7 @@ class ModelServiceClientMeta(type):
 
 
 class ModelServiceClient(metaclass=ModelServiceClientMeta):
-    """A service for managing AI Platform's machine learning Models."""
+    """A service for managing Vertex AI's machine learning Models."""
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
@@ -442,7 +442,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
-        r"""Uploads a Model artifact into AI Platform.
+        r"""Uploads a Model artifact into Vertex AI.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UploadModelRequest):
