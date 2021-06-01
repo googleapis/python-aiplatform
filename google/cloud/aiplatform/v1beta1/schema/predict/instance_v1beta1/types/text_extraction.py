@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -26,7 +24,6 @@ __protobuf__ = proto.module(
 
 class TextExtractionPredictionInstance(proto.Message):
     r"""Prediction input format for Text Extraction.
-
     Attributes:
         content (str):
             The text snippet to make the predictions on.
@@ -45,11 +42,9 @@ class TextExtractionPredictionInstance(proto.Message):
             unique.
     """
 
-    content = proto.Field(proto.STRING, number=1)
-
-    mime_type = proto.Field(proto.STRING, number=2)
-
-    key = proto.Field(proto.STRING, number=3)
+    content = proto.Field(proto.STRING, number=1,)
+    mime_type = proto.Field(proto.STRING, number=2,)
+    key = proto.Field(proto.STRING, number=3,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import os
 import mock
+import packaging.version
 
 import grpc
 from grpc.experimental import aio
 import math
 import pytest
 from proto.marshal.rules.dates import DurationRule, TimestampRule
+
 
 from google import auth
 from google.api_core import client_options
@@ -41,6 +41,12 @@ from google.cloud.aiplatform_v1beta1.services.vizier_service import (
 from google.cloud.aiplatform_v1beta1.services.vizier_service import VizierServiceClient
 from google.cloud.aiplatform_v1beta1.services.vizier_service import pagers
 from google.cloud.aiplatform_v1beta1.services.vizier_service import transports
+from google.cloud.aiplatform_v1beta1.services.vizier_service.transports.base import (
+    _API_CORE_VERSION,
+)
+from google.cloud.aiplatform_v1beta1.services.vizier_service.transports.base import (
+    _GOOGLE_AUTH_VERSION,
+)
 from google.cloud.aiplatform_v1beta1.types import study
 from google.cloud.aiplatform_v1beta1.types import study as gca_study
 from google.cloud.aiplatform_v1beta1.types import vizier_service
@@ -48,6 +54,29 @@ from google.longrunning import operations_pb2
 from google.oauth2 import service_account
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+
+
+# TODO(busunkim): Once google-api-core >= 1.26.0 is required:
+# - Delete all the api-core and auth "less than" test cases
+# - Delete these pytest markers (Make the "greater than or equal to" tests the default).
+requires_google_auth_lt_1_25_0 = pytest.mark.skipif(
+    packaging.version.parse(_GOOGLE_AUTH_VERSION) >= packaging.version.parse("1.25.0"),
+    reason="This test requires google-auth < 1.25.0",
+)
+requires_google_auth_gte_1_25_0 = pytest.mark.skipif(
+    packaging.version.parse(_GOOGLE_AUTH_VERSION) < packaging.version.parse("1.25.0"),
+    reason="This test requires google-auth >= 1.25.0",
+)
+
+requires_api_core_lt_1_26_0 = pytest.mark.skipif(
+    packaging.version.parse(_API_CORE_VERSION) >= packaging.version.parse("1.26.0"),
+    reason="This test requires google-api-core < 1.26.0",
+)
+
+requires_api_core_gte_1_26_0 = pytest.mark.skipif(
+    packaging.version.parse(_API_CORE_VERSION) < packaging.version.parse("1.26.0"),
+    reason="This test requires google-api-core >= 1.26.0",
+)
 
 
 def client_cert_source_callback():
@@ -472,25 +501,18 @@ def test_create_study(
             state=gca_study.Study.State.ACTIVE,
             inactive_reason="inactive_reason_value",
         )
-
         response = client.create_study(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.CreateStudyRequest()
 
     # Establish that the response is the type that we expect.
-
     assert isinstance(response, gca_study.Study)
-
     assert response.name == "name_value"
-
     assert response.display_name == "display_name_value"
-
     assert response.state == gca_study.Study.State.ACTIVE
-
     assert response.inactive_reason == "inactive_reason_value"
 
 
@@ -510,7 +532,6 @@ def test_create_study_empty_call():
         client.create_study()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.CreateStudyRequest()
 
 
@@ -537,24 +558,18 @@ async def test_create_study_async(
                 inactive_reason="inactive_reason_value",
             )
         )
-
         response = await client.create_study(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.CreateStudyRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_study.Study)
-
     assert response.name == "name_value"
-
     assert response.display_name == "display_name_value"
-
     assert response.state == gca_study.Study.State.ACTIVE
-
     assert response.inactive_reason == "inactive_reason_value"
 
 
@@ -569,12 +584,12 @@ def test_create_study_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.CreateStudyRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_study), "__call__") as call:
         call.return_value = gca_study.Study()
-
         client.create_study(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -594,12 +609,12 @@ async def test_create_study_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.CreateStudyRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_study), "__call__") as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(gca_study.Study())
-
         await client.create_study(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -619,7 +634,6 @@ def test_create_study_flattened():
     with mock.patch.object(type(client.transport.create_study), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_study.Study()
-
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_study(
@@ -630,9 +644,7 @@ def test_create_study_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0].parent == "parent_value"
-
         assert args[0].study == gca_study.Study(name="name_value")
 
 
@@ -669,9 +681,7 @@ async def test_create_study_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0].parent == "parent_value"
-
         assert args[0].study == gca_study.Study(name="name_value")
 
 
@@ -709,25 +719,18 @@ def test_get_study(
             state=study.Study.State.ACTIVE,
             inactive_reason="inactive_reason_value",
         )
-
         response = client.get_study(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.GetStudyRequest()
 
     # Establish that the response is the type that we expect.
-
     assert isinstance(response, study.Study)
-
     assert response.name == "name_value"
-
     assert response.display_name == "display_name_value"
-
     assert response.state == study.Study.State.ACTIVE
-
     assert response.inactive_reason == "inactive_reason_value"
 
 
@@ -747,7 +750,6 @@ def test_get_study_empty_call():
         client.get_study()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.GetStudyRequest()
 
 
@@ -774,24 +776,18 @@ async def test_get_study_async(
                 inactive_reason="inactive_reason_value",
             )
         )
-
         response = await client.get_study(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.GetStudyRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Study)
-
     assert response.name == "name_value"
-
     assert response.display_name == "display_name_value"
-
     assert response.state == study.Study.State.ACTIVE
-
     assert response.inactive_reason == "inactive_reason_value"
 
 
@@ -806,12 +802,12 @@ def test_get_study_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.GetStudyRequest()
+
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_study), "__call__") as call:
         call.return_value = study.Study()
-
         client.get_study(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -831,12 +827,12 @@ async def test_get_study_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.GetStudyRequest()
+
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_study), "__call__") as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(study.Study())
-
         await client.get_study(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -856,7 +852,6 @@ def test_get_study_flattened():
     with mock.patch.object(type(client.transport.get_study), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = study.Study()
-
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.get_study(name="name_value",)
@@ -865,7 +860,6 @@ def test_get_study_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0].name == "name_value"
 
 
@@ -898,7 +892,6 @@ async def test_get_study_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0].name == "name_value"
 
 
@@ -931,19 +924,15 @@ def test_list_studies(
         call.return_value = vizier_service.ListStudiesResponse(
             next_page_token="next_page_token_value",
         )
-
         response = client.list_studies(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.ListStudiesRequest()
 
     # Establish that the response is the type that we expect.
-
     assert isinstance(response, pagers.ListStudiesPager)
-
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -963,7 +952,6 @@ def test_list_studies_empty_call():
         client.list_studies()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.ListStudiesRequest()
 
 
@@ -985,18 +973,15 @@ async def test_list_studies_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             vizier_service.ListStudiesResponse(next_page_token="next_page_token_value",)
         )
-
         response = await client.list_studies(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.ListStudiesRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListStudiesAsyncPager)
-
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -1011,12 +996,12 @@ def test_list_studies_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListStudiesRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
         call.return_value = vizier_service.ListStudiesResponse()
-
         client.list_studies(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1036,6 +1021,7 @@ async def test_list_studies_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListStudiesRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1043,7 +1029,6 @@ async def test_list_studies_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             vizier_service.ListStudiesResponse()
         )
-
         await client.list_studies(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1063,7 +1048,6 @@ def test_list_studies_flattened():
     with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = vizier_service.ListStudiesResponse()
-
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_studies(parent="parent_value",)
@@ -1072,7 +1056,6 @@ def test_list_studies_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0].parent == "parent_value"
 
 
@@ -1107,7 +1090,6 @@ async def test_list_studies_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0].parent == "parent_value"
 
 
@@ -1260,13 +1242,11 @@ def test_delete_study(
     with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
-
         response = client.delete_study(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.DeleteStudyRequest()
 
     # Establish that the response is the type that we expect.
@@ -1289,7 +1269,6 @@ def test_delete_study_empty_call():
         client.delete_study()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.DeleteStudyRequest()
 
 
@@ -1309,13 +1288,11 @@ async def test_delete_study_async(
     with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
-
         response = await client.delete_study(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.DeleteStudyRequest()
 
     # Establish that the response is the type that we expect.
@@ -1333,12 +1310,12 @@ def test_delete_study_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.DeleteStudyRequest()
+
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
         call.return_value = None
-
         client.delete_study(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1358,12 +1335,12 @@ async def test_delete_study_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.DeleteStudyRequest()
+
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
-
         await client.delete_study(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1383,7 +1360,6 @@ def test_delete_study_flattened():
     with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
-
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.delete_study(name="name_value",)
@@ -1392,7 +1368,6 @@ def test_delete_study_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0].name == "name_value"
 
 
@@ -1425,7 +1400,6 @@ async def test_delete_study_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0].name == "name_value"
 
 
@@ -1461,25 +1435,18 @@ def test_lookup_study(
             state=study.Study.State.ACTIVE,
             inactive_reason="inactive_reason_value",
         )
-
         response = client.lookup_study(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.LookupStudyRequest()
 
     # Establish that the response is the type that we expect.
-
     assert isinstance(response, study.Study)
-
     assert response.name == "name_value"
-
     assert response.display_name == "display_name_value"
-
     assert response.state == study.Study.State.ACTIVE
-
     assert response.inactive_reason == "inactive_reason_value"
 
 
@@ -1499,7 +1466,6 @@ def test_lookup_study_empty_call():
         client.lookup_study()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.LookupStudyRequest()
 
 
@@ -1526,24 +1492,18 @@ async def test_lookup_study_async(
                 inactive_reason="inactive_reason_value",
             )
         )
-
         response = await client.lookup_study(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.LookupStudyRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Study)
-
     assert response.name == "name_value"
-
     assert response.display_name == "display_name_value"
-
     assert response.state == study.Study.State.ACTIVE
-
     assert response.inactive_reason == "inactive_reason_value"
 
 
@@ -1558,12 +1518,12 @@ def test_lookup_study_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.LookupStudyRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
         call.return_value = study.Study()
-
         client.lookup_study(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1583,12 +1543,12 @@ async def test_lookup_study_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.LookupStudyRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(study.Study())
-
         await client.lookup_study(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1608,7 +1568,6 @@ def test_lookup_study_flattened():
     with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = study.Study()
-
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.lookup_study(parent="parent_value",)
@@ -1617,7 +1576,6 @@ def test_lookup_study_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0].parent == "parent_value"
 
 
@@ -1650,7 +1608,6 @@ async def test_lookup_study_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0].parent == "parent_value"
 
 
@@ -1681,13 +1638,11 @@ def test_suggest_trials(
     with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/spam")
-
         response = client.suggest_trials(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.SuggestTrialsRequest()
 
     # Establish that the response is the type that we expect.
@@ -1710,7 +1665,6 @@ def test_suggest_trials_empty_call():
         client.suggest_trials()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.SuggestTrialsRequest()
 
 
@@ -1732,13 +1686,11 @@ async def test_suggest_trials_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
-
         response = await client.suggest_trials(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.SuggestTrialsRequest()
 
     # Establish that the response is the type that we expect.
@@ -1756,12 +1708,12 @@ def test_suggest_trials_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.SuggestTrialsRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
         call.return_value = operations_pb2.Operation(name="operations/op")
-
         client.suggest_trials(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1781,6 +1733,7 @@ async def test_suggest_trials_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.SuggestTrialsRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1788,7 +1741,6 @@ async def test_suggest_trials_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/op")
         )
-
         await client.suggest_trials(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1821,25 +1773,18 @@ def test_create_trial(
             state=study.Trial.State.REQUESTED,
             custom_job="custom_job_value",
         )
-
         response = client.create_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.CreateTrialRequest()
 
     # Establish that the response is the type that we expect.
-
     assert isinstance(response, study.Trial)
-
     assert response.name == "name_value"
-
     assert response.id == "id_value"
-
     assert response.state == study.Trial.State.REQUESTED
-
     assert response.custom_job == "custom_job_value"
 
 
@@ -1859,7 +1804,6 @@ def test_create_trial_empty_call():
         client.create_trial()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.CreateTrialRequest()
 
 
@@ -1886,24 +1830,18 @@ async def test_create_trial_async(
                 custom_job="custom_job_value",
             )
         )
-
         response = await client.create_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.CreateTrialRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
-
     assert response.name == "name_value"
-
     assert response.id == "id_value"
-
     assert response.state == study.Trial.State.REQUESTED
-
     assert response.custom_job == "custom_job_value"
 
 
@@ -1918,12 +1856,12 @@ def test_create_trial_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.CreateTrialRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
         call.return_value = study.Trial()
-
         client.create_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1943,12 +1881,12 @@ async def test_create_trial_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.CreateTrialRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(study.Trial())
-
         await client.create_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1968,7 +1906,6 @@ def test_create_trial_flattened():
     with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = study.Trial()
-
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_trial(
@@ -1979,9 +1916,7 @@ def test_create_trial_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0].parent == "parent_value"
-
         assert args[0].trial == study.Trial(name="name_value")
 
 
@@ -2018,9 +1953,7 @@ async def test_create_trial_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0].parent == "parent_value"
-
         assert args[0].trial == study.Trial(name="name_value")
 
 
@@ -2058,25 +1991,18 @@ def test_get_trial(
             state=study.Trial.State.REQUESTED,
             custom_job="custom_job_value",
         )
-
         response = client.get_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.GetTrialRequest()
 
     # Establish that the response is the type that we expect.
-
     assert isinstance(response, study.Trial)
-
     assert response.name == "name_value"
-
     assert response.id == "id_value"
-
     assert response.state == study.Trial.State.REQUESTED
-
     assert response.custom_job == "custom_job_value"
 
 
@@ -2096,7 +2022,6 @@ def test_get_trial_empty_call():
         client.get_trial()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.GetTrialRequest()
 
 
@@ -2123,24 +2048,18 @@ async def test_get_trial_async(
                 custom_job="custom_job_value",
             )
         )
-
         response = await client.get_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.GetTrialRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
-
     assert response.name == "name_value"
-
     assert response.id == "id_value"
-
     assert response.state == study.Trial.State.REQUESTED
-
     assert response.custom_job == "custom_job_value"
 
 
@@ -2155,12 +2074,12 @@ def test_get_trial_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.GetTrialRequest()
+
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
         call.return_value = study.Trial()
-
         client.get_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2180,12 +2099,12 @@ async def test_get_trial_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.GetTrialRequest()
+
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(study.Trial())
-
         await client.get_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2205,7 +2124,6 @@ def test_get_trial_flattened():
     with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = study.Trial()
-
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.get_trial(name="name_value",)
@@ -2214,7 +2132,6 @@ def test_get_trial_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0].name == "name_value"
 
 
@@ -2247,7 +2164,6 @@ async def test_get_trial_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0].name == "name_value"
 
 
@@ -2280,19 +2196,15 @@ def test_list_trials(
         call.return_value = vizier_service.ListTrialsResponse(
             next_page_token="next_page_token_value",
         )
-
         response = client.list_trials(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.ListTrialsRequest()
 
     # Establish that the response is the type that we expect.
-
     assert isinstance(response, pagers.ListTrialsPager)
-
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -2312,7 +2224,6 @@ def test_list_trials_empty_call():
         client.list_trials()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.ListTrialsRequest()
 
 
@@ -2334,18 +2245,15 @@ async def test_list_trials_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             vizier_service.ListTrialsResponse(next_page_token="next_page_token_value",)
         )
-
         response = await client.list_trials(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.ListTrialsRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListTrialsAsyncPager)
-
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -2360,12 +2268,12 @@ def test_list_trials_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListTrialsRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
         call.return_value = vizier_service.ListTrialsResponse()
-
         client.list_trials(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2385,6 +2293,7 @@ async def test_list_trials_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListTrialsRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2392,7 +2301,6 @@ async def test_list_trials_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             vizier_service.ListTrialsResponse()
         )
-
         await client.list_trials(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2412,7 +2320,6 @@ def test_list_trials_flattened():
     with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = vizier_service.ListTrialsResponse()
-
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_trials(parent="parent_value",)
@@ -2421,7 +2328,6 @@ def test_list_trials_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0].parent == "parent_value"
 
 
@@ -2456,7 +2362,6 @@ async def test_list_trials_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0].parent == "parent_value"
 
 
@@ -2608,25 +2513,18 @@ def test_add_trial_measurement(
             state=study.Trial.State.REQUESTED,
             custom_job="custom_job_value",
         )
-
         response = client.add_trial_measurement(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.AddTrialMeasurementRequest()
 
     # Establish that the response is the type that we expect.
-
     assert isinstance(response, study.Trial)
-
     assert response.name == "name_value"
-
     assert response.id == "id_value"
-
     assert response.state == study.Trial.State.REQUESTED
-
     assert response.custom_job == "custom_job_value"
 
 
@@ -2648,7 +2546,6 @@ def test_add_trial_measurement_empty_call():
         client.add_trial_measurement()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.AddTrialMeasurementRequest()
 
 
@@ -2678,24 +2575,18 @@ async def test_add_trial_measurement_async(
                 custom_job="custom_job_value",
             )
         )
-
         response = await client.add_trial_measurement(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.AddTrialMeasurementRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
-
     assert response.name == "name_value"
-
     assert response.id == "id_value"
-
     assert response.state == study.Trial.State.REQUESTED
-
     assert response.custom_job == "custom_job_value"
 
 
@@ -2710,6 +2601,7 @@ def test_add_trial_measurement_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.AddTrialMeasurementRequest()
+
     request.trial_name = "trial_name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2717,7 +2609,6 @@ def test_add_trial_measurement_field_headers():
         type(client.transport.add_trial_measurement), "__call__"
     ) as call:
         call.return_value = study.Trial()
-
         client.add_trial_measurement(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2737,6 +2628,7 @@ async def test_add_trial_measurement_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.AddTrialMeasurementRequest()
+
     request.trial_name = "trial_name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2744,7 +2636,6 @@ async def test_add_trial_measurement_field_headers_async():
         type(client.transport.add_trial_measurement), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(study.Trial())
-
         await client.add_trial_measurement(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2777,25 +2668,18 @@ def test_complete_trial(
             state=study.Trial.State.REQUESTED,
             custom_job="custom_job_value",
         )
-
         response = client.complete_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.CompleteTrialRequest()
 
     # Establish that the response is the type that we expect.
-
     assert isinstance(response, study.Trial)
-
     assert response.name == "name_value"
-
     assert response.id == "id_value"
-
     assert response.state == study.Trial.State.REQUESTED
-
     assert response.custom_job == "custom_job_value"
 
 
@@ -2815,7 +2699,6 @@ def test_complete_trial_empty_call():
         client.complete_trial()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.CompleteTrialRequest()
 
 
@@ -2842,24 +2725,18 @@ async def test_complete_trial_async(
                 custom_job="custom_job_value",
             )
         )
-
         response = await client.complete_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.CompleteTrialRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
-
     assert response.name == "name_value"
-
     assert response.id == "id_value"
-
     assert response.state == study.Trial.State.REQUESTED
-
     assert response.custom_job == "custom_job_value"
 
 
@@ -2874,12 +2751,12 @@ def test_complete_trial_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.CompleteTrialRequest()
+
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
         call.return_value = study.Trial()
-
         client.complete_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2899,12 +2776,12 @@ async def test_complete_trial_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.CompleteTrialRequest()
+
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(study.Trial())
-
         await client.complete_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2932,13 +2809,11 @@ def test_delete_trial(
     with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
-
         response = client.delete_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.DeleteTrialRequest()
 
     # Establish that the response is the type that we expect.
@@ -2961,7 +2836,6 @@ def test_delete_trial_empty_call():
         client.delete_trial()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.DeleteTrialRequest()
 
 
@@ -2981,13 +2855,11 @@ async def test_delete_trial_async(
     with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
-
         response = await client.delete_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.DeleteTrialRequest()
 
     # Establish that the response is the type that we expect.
@@ -3005,12 +2877,12 @@ def test_delete_trial_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.DeleteTrialRequest()
+
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
         call.return_value = None
-
         client.delete_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3030,12 +2902,12 @@ async def test_delete_trial_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.DeleteTrialRequest()
+
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
-
         await client.delete_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3055,7 +2927,6 @@ def test_delete_trial_flattened():
     with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
-
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.delete_trial(name="name_value",)
@@ -3064,7 +2935,6 @@ def test_delete_trial_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0].name == "name_value"
 
 
@@ -3097,7 +2967,6 @@ async def test_delete_trial_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0].name == "name_value"
 
 
@@ -3131,13 +3000,11 @@ def test_check_trial_early_stopping_state(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/spam")
-
         response = client.check_trial_early_stopping_state(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.CheckTrialEarlyStoppingStateRequest()
 
     # Establish that the response is the type that we expect.
@@ -3162,7 +3029,6 @@ def test_check_trial_early_stopping_state_empty_call():
         client.check_trial_early_stopping_state()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.CheckTrialEarlyStoppingStateRequest()
 
 
@@ -3187,13 +3053,11 @@ async def test_check_trial_early_stopping_state_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
-
         response = await client.check_trial_early_stopping_state(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.CheckTrialEarlyStoppingStateRequest()
 
     # Establish that the response is the type that we expect.
@@ -3211,6 +3075,7 @@ def test_check_trial_early_stopping_state_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.CheckTrialEarlyStoppingStateRequest()
+
     request.trial_name = "trial_name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3218,7 +3083,6 @@ def test_check_trial_early_stopping_state_field_headers():
         type(client.transport.check_trial_early_stopping_state), "__call__"
     ) as call:
         call.return_value = operations_pb2.Operation(name="operations/op")
-
         client.check_trial_early_stopping_state(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3238,6 +3102,7 @@ async def test_check_trial_early_stopping_state_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.CheckTrialEarlyStoppingStateRequest()
+
     request.trial_name = "trial_name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3247,7 +3112,6 @@ async def test_check_trial_early_stopping_state_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/op")
         )
-
         await client.check_trial_early_stopping_state(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3280,25 +3144,18 @@ def test_stop_trial(
             state=study.Trial.State.REQUESTED,
             custom_job="custom_job_value",
         )
-
         response = client.stop_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.StopTrialRequest()
 
     # Establish that the response is the type that we expect.
-
     assert isinstance(response, study.Trial)
-
     assert response.name == "name_value"
-
     assert response.id == "id_value"
-
     assert response.state == study.Trial.State.REQUESTED
-
     assert response.custom_job == "custom_job_value"
 
 
@@ -3318,7 +3175,6 @@ def test_stop_trial_empty_call():
         client.stop_trial()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.StopTrialRequest()
 
 
@@ -3345,24 +3201,18 @@ async def test_stop_trial_async(
                 custom_job="custom_job_value",
             )
         )
-
         response = await client.stop_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.StopTrialRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, study.Trial)
-
     assert response.name == "name_value"
-
     assert response.id == "id_value"
-
     assert response.state == study.Trial.State.REQUESTED
-
     assert response.custom_job == "custom_job_value"
 
 
@@ -3377,12 +3227,12 @@ def test_stop_trial_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.StopTrialRequest()
+
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
         call.return_value = study.Trial()
-
         client.stop_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3402,12 +3252,12 @@ async def test_stop_trial_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.StopTrialRequest()
+
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(study.Trial())
-
         await client.stop_trial(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3437,17 +3287,14 @@ def test_list_optimal_trials(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = vizier_service.ListOptimalTrialsResponse()
-
         response = client.list_optimal_trials(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.ListOptimalTrialsRequest()
 
     # Establish that the response is the type that we expect.
-
     assert isinstance(response, vizier_service.ListOptimalTrialsResponse)
 
 
@@ -3469,7 +3316,6 @@ def test_list_optimal_trials_empty_call():
         client.list_optimal_trials()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.ListOptimalTrialsRequest()
 
 
@@ -3494,13 +3340,11 @@ async def test_list_optimal_trials_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             vizier_service.ListOptimalTrialsResponse()
         )
-
         response = await client.list_optimal_trials(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0] == vizier_service.ListOptimalTrialsRequest()
 
     # Establish that the response is the type that we expect.
@@ -3518,6 +3362,7 @@ def test_list_optimal_trials_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListOptimalTrialsRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3525,7 +3370,6 @@ def test_list_optimal_trials_field_headers():
         type(client.transport.list_optimal_trials), "__call__"
     ) as call:
         call.return_value = vizier_service.ListOptimalTrialsResponse()
-
         client.list_optimal_trials(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3545,6 +3389,7 @@ async def test_list_optimal_trials_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListOptimalTrialsRequest()
+
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3554,7 +3399,6 @@ async def test_list_optimal_trials_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             vizier_service.ListOptimalTrialsResponse()
         )
-
         await client.list_optimal_trials(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3576,7 +3420,6 @@ def test_list_optimal_trials_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = vizier_service.ListOptimalTrialsResponse()
-
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_optimal_trials(parent="parent_value",)
@@ -3585,7 +3428,6 @@ def test_list_optimal_trials_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-
         assert args[0].parent == "parent_value"
 
 
@@ -3622,7 +3464,6 @@ async def test_list_optimal_trials_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-
         assert args[0].parent == "parent_value"
 
 
@@ -3761,10 +3602,32 @@ def test_vizier_service_base_transport():
         transport.operations_client
 
 
+@requires_google_auth_gte_1_25_0
 def test_vizier_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
-        auth, "load_credentials_from_file"
+        auth, "load_credentials_from_file", autospec=True
+    ) as load_creds, mock.patch(
+        "google.cloud.aiplatform_v1beta1.services.vizier_service.transports.VizierServiceTransport._prep_wrapped_messages"
+    ) as Transport:
+        Transport.return_value = None
+        load_creds.return_value = (credentials.AnonymousCredentials(), None)
+        transport = transports.VizierServiceTransport(
+            credentials_file="credentials.json", quota_project_id="octopus",
+        )
+        load_creds.assert_called_once_with(
+            "credentials.json",
+            scopes=None,
+            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            quota_project_id="octopus",
+        )
+
+
+@requires_google_auth_lt_1_25_0
+def test_vizier_service_base_transport_with_credentials_file_old_google_auth():
+    # Instantiate the base transport with a credentials file
+    with mock.patch.object(
+        auth, "load_credentials_from_file", autospec=True
     ) as load_creds, mock.patch(
         "google.cloud.aiplatform_v1beta1.services.vizier_service.transports.VizierServiceTransport._prep_wrapped_messages"
     ) as Transport:
@@ -3782,7 +3645,7 @@ def test_vizier_service_base_transport_with_credentials_file():
 
 def test_vizier_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
-    with mock.patch.object(auth, "default") as adc, mock.patch(
+    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch(
         "google.cloud.aiplatform_v1beta1.services.vizier_service.transports.VizierServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
@@ -3791,9 +3654,23 @@ def test_vizier_service_base_transport_with_adc():
         adc.assert_called_once()
 
 
+@requires_google_auth_gte_1_25_0
 def test_vizier_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, "default") as adc:
+    with mock.patch.object(auth, "default", autospec=True) as adc:
+        adc.return_value = (credentials.AnonymousCredentials(), None)
+        VizierServiceClient()
+        adc.assert_called_once_with(
+            scopes=None,
+            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            quota_project_id=None,
+        )
+
+
+@requires_google_auth_lt_1_25_0
+def test_vizier_service_auth_adc_old_google_auth():
+    # If no credentials are provided, we should use ADC credentials.
+    with mock.patch.object(auth, "default", autospec=True) as adc:
         adc.return_value = (credentials.AnonymousCredentials(), None)
         VizierServiceClient()
         adc.assert_called_once_with(
@@ -3802,17 +3679,147 @@ def test_vizier_service_auth_adc():
         )
 
 
-def test_vizier_service_transport_auth_adc():
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.VizierServiceGrpcTransport,
+        transports.VizierServiceGrpcAsyncIOTransport,
+    ],
+)
+@requires_google_auth_gte_1_25_0
+def test_vizier_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default") as adc:
+    with mock.patch.object(auth, "default", autospec=True) as adc:
         adc.return_value = (credentials.AnonymousCredentials(), None)
-        transports.VizierServiceGrpcTransport(
-            host="squid.clam.whelk", quota_project_id="octopus"
+        transport_class(quota_project_id="octopus", scopes=["1", "2"])
+        adc.assert_called_once_with(
+            scopes=["1", "2"],
+            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            quota_project_id="octopus",
         )
+
+
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.VizierServiceGrpcTransport,
+        transports.VizierServiceGrpcAsyncIOTransport,
+    ],
+)
+@requires_google_auth_lt_1_25_0
+def test_vizier_service_transport_auth_adc_old_google_auth(transport_class):
+    # If credentials and host are not provided, the transport class should use
+    # ADC credentials.
+    with mock.patch.object(auth, "default", autospec=True) as adc:
+        adc.return_value = (credentials.AnonymousCredentials(), None)
+        transport_class(quota_project_id="octopus")
         adc.assert_called_once_with(
             scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
+        )
+
+
+@pytest.mark.parametrize(
+    "transport_class,grpc_helpers",
+    [
+        (transports.VizierServiceGrpcTransport, grpc_helpers),
+        (transports.VizierServiceGrpcAsyncIOTransport, grpc_helpers_async),
+    ],
+)
+@requires_api_core_gte_1_26_0
+def test_vizier_service_transport_create_channel(transport_class, grpc_helpers):
+    # If credentials and host are not provided, the transport class should use
+    # ADC credentials.
+    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
+        grpc_helpers, "create_channel", autospec=True
+    ) as create_channel:
+        creds = credentials.AnonymousCredentials()
+        adc.return_value = (creds, None)
+        transport_class(quota_project_id="octopus", scopes=["1", "2"])
+
+        create_channel.assert_called_with(
+            "aiplatform.googleapis.com:443",
+            credentials=creds,
+            credentials_file=None,
+            quota_project_id="octopus",
+            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            scopes=["1", "2"],
+            default_host="aiplatform.googleapis.com",
+            ssl_credentials=None,
+            options=[
+                ("grpc.max_send_message_length", -1),
+                ("grpc.max_receive_message_length", -1),
+            ],
+        )
+
+
+@pytest.mark.parametrize(
+    "transport_class,grpc_helpers",
+    [
+        (transports.VizierServiceGrpcTransport, grpc_helpers),
+        (transports.VizierServiceGrpcAsyncIOTransport, grpc_helpers_async),
+    ],
+)
+@requires_api_core_lt_1_26_0
+def test_vizier_service_transport_create_channel_old_api_core(
+    transport_class, grpc_helpers
+):
+    # If credentials and host are not provided, the transport class should use
+    # ADC credentials.
+    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
+        grpc_helpers, "create_channel", autospec=True
+    ) as create_channel:
+        creds = credentials.AnonymousCredentials()
+        adc.return_value = (creds, None)
+        transport_class(quota_project_id="octopus")
+
+        create_channel.assert_called_with(
+            "aiplatform.googleapis.com:443",
+            credentials=creds,
+            credentials_file=None,
+            quota_project_id="octopus",
+            scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            ssl_credentials=None,
+            options=[
+                ("grpc.max_send_message_length", -1),
+                ("grpc.max_receive_message_length", -1),
+            ],
+        )
+
+
+@pytest.mark.parametrize(
+    "transport_class,grpc_helpers",
+    [
+        (transports.VizierServiceGrpcTransport, grpc_helpers),
+        (transports.VizierServiceGrpcAsyncIOTransport, grpc_helpers_async),
+    ],
+)
+@requires_api_core_lt_1_26_0
+def test_vizier_service_transport_create_channel_user_scopes(
+    transport_class, grpc_helpers
+):
+    # If credentials and host are not provided, the transport class should use
+    # ADC credentials.
+    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
+        grpc_helpers, "create_channel", autospec=True
+    ) as create_channel:
+        creds = credentials.AnonymousCredentials()
+        adc.return_value = (creds, None)
+
+        transport_class(quota_project_id="octopus", scopes=["1", "2"])
+
+        create_channel.assert_called_with(
+            "aiplatform.googleapis.com:443",
+            credentials=creds,
+            credentials_file=None,
+            quota_project_id="octopus",
+            scopes=["1", "2"],
+            ssl_credentials=None,
+            options=[
+                ("grpc.max_send_message_length", -1),
+                ("grpc.max_receive_message_length", -1),
+            ],
         )
 
 
@@ -4033,7 +4040,6 @@ def test_custom_job_path():
     project = "squid"
     location = "clam"
     custom_job = "whelk"
-
     expected = "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
         project=project, location=location, custom_job=custom_job,
     )
@@ -4058,7 +4064,6 @@ def test_study_path():
     project = "cuttlefish"
     location = "mussel"
     study = "winkle"
-
     expected = "projects/{project}/locations/{location}/studies/{study}".format(
         project=project, location=location, study=study,
     )
@@ -4084,7 +4089,6 @@ def test_trial_path():
     location = "clam"
     study = "whelk"
     trial = "octopus"
-
     expected = "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
         project=project, location=location, study=study, trial=trial,
     )
@@ -4108,7 +4112,6 @@ def test_parse_trial_path():
 
 def test_common_billing_account_path():
     billing_account = "winkle"
-
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -4129,7 +4132,6 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "scallop"
-
     expected = "folders/{folder}".format(folder=folder,)
     actual = VizierServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -4148,7 +4150,6 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "squid"
-
     expected = "organizations/{organization}".format(organization=organization,)
     actual = VizierServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -4167,7 +4168,6 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "whelk"
-
     expected = "projects/{project}".format(project=project,)
     actual = VizierServiceClient.common_project_path(project)
     assert expected == actual
@@ -4187,7 +4187,6 @@ def test_parse_common_project_path():
 def test_common_location_path():
     project = "oyster"
     location = "nudibranch"
-
     expected = "projects/{project}/locations/{location}".format(
         project=project, location=location,
     )

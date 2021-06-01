@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from collections import OrderedDict
 from distutils import util
 import os
@@ -47,7 +45,6 @@ from google.protobuf import empty_pb2 as empty  # type: ignore
 from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-
 from .transports.base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import DatasetServiceGrpcTransport
 from .transports.grpc_asyncio import DatasetServiceGrpcAsyncIOTransport
@@ -431,7 +428,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateDatasetRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [DatasetService.CreateDataset][google.cloud.aiplatform.v1beta1.DatasetService.CreateDataset].
             parent (str):
                 Required. The resource name of the Location to create
@@ -446,7 +444,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 This corresponds to the ``dataset`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -478,10 +475,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, dataset_service.CreateDatasetRequest):
             request = dataset_service.CreateDatasetRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
             if dataset is not None:
@@ -524,7 +519,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetDatasetRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [DatasetService.GetDataset][google.cloud.aiplatform.v1beta1.DatasetService.GetDataset].
             name (str):
                 Required. The name of the Dataset
@@ -533,7 +529,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -562,10 +557,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, dataset_service.GetDatasetRequest):
             request = dataset_service.GetDatasetRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -599,7 +592,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateDatasetRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [DatasetService.UpdateDataset][google.cloud.aiplatform.v1beta1.DatasetService.UpdateDataset].
             dataset (google.cloud.aiplatform_v1beta1.types.Dataset):
                 Required. The Dataset which replaces
@@ -621,7 +615,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -650,10 +643,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, dataset_service.UpdateDatasetRequest):
             request = dataset_service.UpdateDatasetRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if dataset is not None:
                 request.dataset = dataset
             if update_mask is not None:
@@ -690,7 +681,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListDatasetsRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
             parent (str):
                 Required. The name of the Dataset's parent resource.
@@ -699,7 +691,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -731,10 +722,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, dataset_service.ListDatasetsRequest):
             request = dataset_service.ListDatasetsRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -773,7 +762,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteDatasetRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [DatasetService.DeleteDataset][google.cloud.aiplatform.v1beta1.DatasetService.DeleteDataset].
             name (str):
                 Required. The resource name of the Dataset to delete.
@@ -783,7 +773,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -825,10 +814,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, dataset_service.DeleteDatasetRequest):
             request = dataset_service.DeleteDatasetRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -870,7 +857,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ImportDataRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
             name (str):
                 Required. The name of the Dataset resource. Format:
@@ -887,7 +875,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 This corresponds to the ``import_configs`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -920,10 +907,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, dataset_service.ImportDataRequest):
             request = dataset_service.ImportDataRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
             if import_configs is not None:
@@ -967,7 +952,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ExportDataRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
             name (str):
                 Required. The name of the Dataset resource. Format:
@@ -983,7 +969,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 This corresponds to the ``export_config`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1016,10 +1001,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, dataset_service.ExportDataRequest):
             request = dataset_service.ExportDataRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
             if export_config is not None:
@@ -1062,7 +1045,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListDataItemsRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
             parent (str):
                 Required. The resource name of the Dataset to list
@@ -1072,7 +1056,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1104,10 +1087,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, dataset_service.ListDataItemsRequest):
             request = dataset_service.ListDataItemsRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
@@ -1146,7 +1127,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetAnnotationSpecRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1beta1.DatasetService.GetAnnotationSpec].
             name (str):
                 Required. The name of the AnnotationSpec resource.
@@ -1156,7 +1138,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1185,10 +1166,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, dataset_service.GetAnnotationSpecRequest):
             request = dataset_service.GetAnnotationSpecRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if name is not None:
                 request.name = name
 
@@ -1221,7 +1200,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListAnnotationsRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
             parent (str):
                 Required. The resource name of the DataItem to list
@@ -1231,7 +1211,6 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1263,10 +1242,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, dataset_service.ListAnnotationsRequest):
             request = dataset_service.ListAnnotationsRequest(request)
-
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
-
             if parent is not None:
                 request.parent = parent
 
