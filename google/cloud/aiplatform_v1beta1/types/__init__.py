@@ -132,6 +132,7 @@ from .job_service import (
 )
 from .machine_resources import (
     AutomaticResources,
+    AutoscalingMetricSpec,
     BatchDedicatedResources,
     DedicatedResources,
     DiskSpec,
@@ -207,6 +208,7 @@ from .specialist_pool_service import (
 )
 from .study import (
     Measurement,
+    Study,
     StudySpec,
     Trial,
 )
@@ -219,6 +221,30 @@ from .training_pipeline import (
     TrainingPipeline,
 )
 from .user_action_reference import UserActionReference
+from .vizier_service import (
+    AddTrialMeasurementRequest,
+    CheckTrialEarlyStoppingStateMetatdata,
+    CheckTrialEarlyStoppingStateRequest,
+    CheckTrialEarlyStoppingStateResponse,
+    CompleteTrialRequest,
+    CreateStudyRequest,
+    CreateTrialRequest,
+    DeleteStudyRequest,
+    DeleteTrialRequest,
+    GetStudyRequest,
+    GetTrialRequest,
+    ListOptimalTrialsRequest,
+    ListOptimalTrialsResponse,
+    ListStudiesRequest,
+    ListStudiesResponse,
+    ListTrialsRequest,
+    ListTrialsResponse,
+    LookupStudyRequest,
+    StopTrialRequest,
+    SuggestTrialsMetadata,
+    SuggestTrialsRequest,
+    SuggestTrialsResponse,
+)
 
 __all__ = (
     "AcceleratorType",
@@ -321,6 +347,7 @@ __all__ = (
     "ListHyperparameterTuningJobsResponse",
     "JobState",
     "AutomaticResources",
+    "AutoscalingMetricSpec",
     "BatchDedicatedResources",
     "DedicatedResources",
     "DiskSpec",
@@ -381,6 +408,7 @@ __all__ = (
     "UpdateSpecialistPoolOperationMetadata",
     "UpdateSpecialistPoolRequest",
     "Measurement",
+    "Study",
     "StudySpec",
     "Trial",
     "FilterSplit",
@@ -390,4 +418,26 @@ __all__ = (
     "TimestampSplit",
     "TrainingPipeline",
     "UserActionReference",
+    "AddTrialMeasurementRequest",
+    "CheckTrialEarlyStoppingStateMetatdata",
+    "CheckTrialEarlyStoppingStateRequest",
+    "CheckTrialEarlyStoppingStateResponse",
+    "CompleteTrialRequest",
+    "CreateStudyRequest",
+    "CreateTrialRequest",
+    "DeleteStudyRequest",
+    "DeleteTrialRequest",
+    "GetStudyRequest",
+    "GetTrialRequest",
+    "ListOptimalTrialsRequest",
+    "ListOptimalTrialsResponse",
+    "ListStudiesRequest",
+    "ListStudiesResponse",
+    "ListTrialsRequest",
+    "ListTrialsResponse",
+    "LookupStudyRequest",
+    "StopTrialRequest",
+    "SuggestTrialsMetadata",
+    "SuggestTrialsRequest",
+    "SuggestTrialsResponse",
 )

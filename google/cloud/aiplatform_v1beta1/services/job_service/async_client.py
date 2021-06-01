@@ -737,7 +737,6 @@ class JobServiceAsyncClient:
                 [DataLabelingJobService.GetDataLabelingJob][].
             name (:class:`str`):
                 Required. The name of the DataLabelingJob. Format:
-
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
@@ -895,7 +894,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the DataLabelingJob to be deleted.
                 Format:
-
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
@@ -991,7 +989,6 @@ class JobServiceAsyncClient:
                 [DataLabelingJobService.CancelDataLabelingJob][].
             name (:class:`str`):
                 Required. The name of the DataLabelingJob. Format:
-
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
@@ -1145,7 +1142,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob
                 resource. Format:
-
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
@@ -1305,7 +1301,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob
                 resource to be deleted. Format:
-
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
@@ -1414,7 +1409,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob to
                 cancel. Format:
-
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
@@ -1571,7 +1565,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
@@ -1734,7 +1727,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob resource to
                 be deleted. Format:
-
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
@@ -1841,7 +1833,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob to cancel.
                 Format:
-
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
