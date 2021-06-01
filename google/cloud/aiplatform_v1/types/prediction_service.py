@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
-from google.protobuf import struct_pb2  # type: ignore
+
+from google.protobuf import struct_pb2 as struct  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -53,9 +56,11 @@ class PredictRequest(proto.Message):
             [parameters_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri].
     """
 
-    endpoint = proto.Field(proto.STRING, number=1,)
-    instances = proto.RepeatedField(proto.MESSAGE, number=2, message=struct_pb2.Value,)
-    parameters = proto.Field(proto.MESSAGE, number=3, message=struct_pb2.Value,)
+    endpoint = proto.Field(proto.STRING, number=1)
+
+    instances = proto.RepeatedField(proto.MESSAGE, number=2, message=struct.Value,)
+
+    parameters = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
 
 
 class PredictResponse(proto.Message):
@@ -75,10 +80,9 @@ class PredictResponse(proto.Message):
             served this prediction.
     """
 
-    predictions = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=struct_pb2.Value,
-    )
-    deployed_model_id = proto.Field(proto.STRING, number=2,)
+    predictions = proto.RepeatedField(proto.MESSAGE, number=1, message=struct.Value,)
+
+    deployed_model_id = proto.Field(proto.STRING, number=2)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
