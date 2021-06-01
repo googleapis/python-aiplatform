@@ -281,7 +281,7 @@ class Model(proto.Message):
         proto.MESSAGE, number=15, message=deployed_model_ref.DeployedModelRef,
     )
     etag = proto.Field(proto.STRING, number=16,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=17,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=17)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=24, message=gca_encryption_spec.EncryptionSpec,
     )

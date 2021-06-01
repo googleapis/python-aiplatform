@@ -91,7 +91,7 @@ class Dataset(proto.Message):
     create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
     update_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
     etag = proto.Field(proto.STRING, number=6,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=7,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=7)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=11, message=gca_encryption_spec.EncryptionSpec,
     )
@@ -132,7 +132,7 @@ class ImportDataConfig(proto.Message):
     gcs_source = proto.Field(
         proto.MESSAGE, number=1, oneof="source", message=io.GcsSource,
     )
-    data_item_labels = proto.MapField(proto.STRING, proto.STRING, number=2,)
+    data_item_labels = proto.MapField(proto.STRING, proto.STRING, number=2)
     import_schema_uri = proto.Field(proto.STRING, number=4,)
 
 

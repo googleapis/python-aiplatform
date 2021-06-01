@@ -195,7 +195,8 @@ class PipelineServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateTrainingPipelineRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [PipelineService.CreateTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.CreateTrainingPipeline].
             parent (:class:`str`):
                 Required. The resource name of the Location to create
@@ -280,7 +281,8 @@ class PipelineServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetTrainingPipelineRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.GetTrainingPipeline].
             name (:class:`str`):
                 Required. The name of the TrainingPipeline resource.
@@ -356,7 +358,8 @@ class PipelineServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines].
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
@@ -437,7 +440,8 @@ class PipelineServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteTrainingPipelineRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [PipelineService.DeleteTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.DeleteTrainingPipeline].
             name (:class:`str`):
                 Required. The name of the TrainingPipeline resource to
@@ -542,7 +546,8 @@ class PipelineServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CancelTrainingPipelineRequest`):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [PipelineService.CancelTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.CancelTrainingPipeline].
             name (:class:`str`):
                 Required. The name of the TrainingPipeline to cancel.

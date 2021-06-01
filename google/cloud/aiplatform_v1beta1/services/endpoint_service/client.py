@@ -379,7 +379,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateEndpointRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.CreateEndpoint].
             parent (str):
                 Required. The resource name of the Location to create
@@ -468,7 +469,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetEndpointRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [EndpointService.GetEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.GetEndpoint]
             name (str):
                 Required. The name of the Endpoint resource. Format:
@@ -540,7 +542,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListEndpointsRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [EndpointService.ListEndpoints][google.cloud.aiplatform.v1beta1.EndpointService.ListEndpoints].
             parent (str):
                 Required. The resource name of the Location from which
@@ -622,7 +625,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateEndpointRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.UpdateEndpoint].
             endpoint (google.cloud.aiplatform_v1beta1.types.Endpoint):
                 Required. The Endpoint which replaces
@@ -705,7 +709,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteEndpointRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [EndpointService.DeleteEndpoint][google.cloud.aiplatform.v1beta1.EndpointService.DeleteEndpoint].
             name (str):
                 Required. The name of the Endpoint resource to be
@@ -803,7 +808,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeployModelRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [EndpointService.DeployModel][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel].
             endpoint (str):
                 Required. The name of the Endpoint resource into which
@@ -928,7 +934,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UndeployModelRequest):
-                The request object. Request message for
+                The request object.
+                Request message for
                 [EndpointService.UndeployModel][google.cloud.aiplatform.v1beta1.EndpointService.UndeployModel].
             endpoint (str):
                 Required. The name of the Endpoint resource from which
