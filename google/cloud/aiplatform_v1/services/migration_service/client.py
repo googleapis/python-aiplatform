@@ -612,9 +612,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
             if parent is not None:
                 request.parent = parent
-
-            if migrate_resource_requests:
-                request.migrate_resource_requests.extend(migrate_resource_requests)
+            if migrate_resource_requests is not None:
+                request.migrate_resource_requests = migrate_resource_requests
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
