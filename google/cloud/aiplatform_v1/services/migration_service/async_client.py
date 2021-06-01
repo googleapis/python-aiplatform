@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 import functools
 import re
@@ -31,6 +33,7 @@ from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.migration_service import pagers
 from google.cloud.aiplatform_v1.types import migratable_resource
 from google.cloud.aiplatform_v1.types import migration_service
+
 from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
 from .client import MigrationServiceClient
@@ -63,26 +66,31 @@ class MigrationServiceAsyncClient:
     parse_model_path = staticmethod(MigrationServiceClient.parse_model_path)
     version_path = staticmethod(MigrationServiceClient.version_path)
     parse_version_path = staticmethod(MigrationServiceClient.parse_version_path)
+
     common_billing_account_path = staticmethod(
         MigrationServiceClient.common_billing_account_path
     )
     parse_common_billing_account_path = staticmethod(
         MigrationServiceClient.parse_common_billing_account_path
     )
+
     common_folder_path = staticmethod(MigrationServiceClient.common_folder_path)
     parse_common_folder_path = staticmethod(
         MigrationServiceClient.parse_common_folder_path
     )
+
     common_organization_path = staticmethod(
         MigrationServiceClient.common_organization_path
     )
     parse_common_organization_path = staticmethod(
         MigrationServiceClient.parse_common_organization_path
     )
+
     common_project_path = staticmethod(MigrationServiceClient.common_project_path)
     parse_common_project_path = staticmethod(
         MigrationServiceClient.parse_common_project_path
     )
+
     common_location_path = staticmethod(MigrationServiceClient.common_location_path)
     parse_common_location_path = staticmethod(
         MigrationServiceClient.parse_common_location_path
@@ -173,6 +181,7 @@ class MigrationServiceAsyncClient:
             google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
+
         self._client = MigrationServiceClient(
             credentials=credentials,
             transport=transport,
@@ -196,8 +205,7 @@ class MigrationServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.SearchMigratableResourcesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
             parent (:class:`str`):
                 Required. The location that the migratable resources
@@ -209,6 +217,7 @@ class MigrationServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -238,6 +247,7 @@ class MigrationServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
 
@@ -285,8 +295,7 @@ class MigrationServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.BatchMigrateResourcesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
             parent (:class:`str`):
                 Required. The location of the migrated resource will
@@ -306,6 +315,7 @@ class MigrationServiceAsyncClient:
                 This corresponds to the ``migrate_resource_requests`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -336,8 +346,10 @@ class MigrationServiceAsyncClient:
 
         # If we have keyword arguments corresponding to fields on the
         # request, apply these.
+
         if parent is not None:
             request.parent = parent
+
         if migrate_resource_requests:
             request.migrate_resource_requests.extend(migrate_resource_requests)
 

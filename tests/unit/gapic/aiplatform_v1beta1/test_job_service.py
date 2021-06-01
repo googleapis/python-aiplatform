@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import os
 import mock
-import packaging.version
 
 import grpc
 from grpc.experimental import aio
 import math
 import pytest
 from proto.marshal.rules.dates import DurationRule, TimestampRule
-
 
 from google import auth
 from google.api_core import client_options
@@ -39,12 +39,6 @@ from google.cloud.aiplatform_v1beta1.services.job_service import JobServiceAsync
 from google.cloud.aiplatform_v1beta1.services.job_service import JobServiceClient
 from google.cloud.aiplatform_v1beta1.services.job_service import pagers
 from google.cloud.aiplatform_v1beta1.services.job_service import transports
-from google.cloud.aiplatform_v1beta1.services.job_service.transports.base import (
-    _API_CORE_VERSION,
-)
-from google.cloud.aiplatform_v1beta1.services.job_service.transports.base import (
-    _GOOGLE_AUTH_VERSION,
-)
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import batch_prediction_job
 from google.cloud.aiplatform_v1beta1.types import (
@@ -80,29 +74,6 @@ from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 from google.rpc import status_pb2 as status  # type: ignore
 from google.type import money_pb2 as money  # type: ignore
-
-
-# TODO(busunkim): Once google-api-core >= 1.26.0 is required:
-# - Delete all the api-core and auth "less than" test cases
-# - Delete these pytest markers (Make the "greater than or equal to" tests the default).
-requires_google_auth_lt_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) >= packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth < 1.25.0",
-)
-requires_google_auth_gte_1_25_0 = pytest.mark.skipif(
-    packaging.version.parse(_GOOGLE_AUTH_VERSION) < packaging.version.parse("1.25.0"),
-    reason="This test requires google-auth >= 1.25.0",
-)
-
-requires_api_core_lt_1_26_0 = pytest.mark.skipif(
-    packaging.version.parse(_API_CORE_VERSION) >= packaging.version.parse("1.26.0"),
-    reason="This test requires google-api-core < 1.26.0",
-)
-
-requires_api_core_gte_1_26_0 = pytest.mark.skipif(
-    packaging.version.parse(_API_CORE_VERSION) < packaging.version.parse("1.26.0"),
-    reason="This test requires google-api-core >= 1.26.0",
-)
 
 
 def client_cert_source_callback():
@@ -515,17 +486,23 @@ def test_create_custom_job(
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
         )
+
         response = client.create_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CreateCustomJobRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, gca_custom_job.CustomJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
 
@@ -547,6 +524,7 @@ def test_create_custom_job_empty_call():
         client.create_custom_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CreateCustomJobRequest()
 
 
@@ -574,17 +552,22 @@ async def test_create_custom_job_async(
                 state=job_state.JobState.JOB_STATE_QUEUED,
             )
         )
+
         response = await client.create_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CreateCustomJobRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_custom_job.CustomJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
 
@@ -599,7 +582,6 @@ def test_create_custom_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CreateCustomJobRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -607,6 +589,7 @@ def test_create_custom_job_field_headers():
         type(client.transport.create_custom_job), "__call__"
     ) as call:
         call.return_value = gca_custom_job.CustomJob()
+
         client.create_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -626,7 +609,6 @@ async def test_create_custom_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CreateCustomJobRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -636,6 +618,7 @@ async def test_create_custom_job_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             gca_custom_job.CustomJob()
         )
+
         await client.create_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -657,6 +640,7 @@ def test_create_custom_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_custom_job.CustomJob()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_custom_job(
@@ -668,7 +652,9 @@ def test_create_custom_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
+
         assert args[0].custom_job == gca_custom_job.CustomJob(name="name_value")
 
 
@@ -710,7 +696,9 @@ async def test_create_custom_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
+
         assert args[0].custom_job == gca_custom_job.CustomJob(name="name_value")
 
 
@@ -747,17 +735,23 @@ def test_get_custom_job(
             display_name="display_name_value",
             state=job_state.JobState.JOB_STATE_QUEUED,
         )
+
         response = client.get_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.GetCustomJobRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, custom_job.CustomJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
 
@@ -777,6 +771,7 @@ def test_get_custom_job_empty_call():
         client.get_custom_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.GetCustomJobRequest()
 
 
@@ -802,17 +797,22 @@ async def test_get_custom_job_async(
                 state=job_state.JobState.JOB_STATE_QUEUED,
             )
         )
+
         response = await client.get_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.GetCustomJobRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, custom_job.CustomJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
 
@@ -827,12 +827,12 @@ def test_get_custom_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.GetCustomJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_custom_job), "__call__") as call:
         call.return_value = custom_job.CustomJob()
+
         client.get_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -852,7 +852,6 @@ async def test_get_custom_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.GetCustomJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -860,6 +859,7 @@ async def test_get_custom_job_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             custom_job.CustomJob()
         )
+
         await client.get_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -879,6 +879,7 @@ def test_get_custom_job_flattened():
     with mock.patch.object(type(client.transport.get_custom_job), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = custom_job.CustomJob()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.get_custom_job(name="name_value",)
@@ -887,6 +888,7 @@ def test_get_custom_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -921,6 +923,7 @@ async def test_get_custom_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -953,15 +956,19 @@ def test_list_custom_jobs(
         call.return_value = job_service.ListCustomJobsResponse(
             next_page_token="next_page_token_value",
         )
+
         response = client.list_custom_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.ListCustomJobsRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, pagers.ListCustomJobsPager)
+
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -981,6 +988,7 @@ def test_list_custom_jobs_empty_call():
         client.list_custom_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.ListCustomJobsRequest()
 
 
@@ -1002,15 +1010,18 @@ async def test_list_custom_jobs_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             job_service.ListCustomJobsResponse(next_page_token="next_page_token_value",)
         )
+
         response = await client.list_custom_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.ListCustomJobsRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListCustomJobsAsyncPager)
+
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -1025,12 +1036,12 @@ def test_list_custom_jobs_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.ListCustomJobsRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_custom_jobs), "__call__") as call:
         call.return_value = job_service.ListCustomJobsResponse()
+
         client.list_custom_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1050,7 +1061,6 @@ async def test_list_custom_jobs_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.ListCustomJobsRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1058,6 +1068,7 @@ async def test_list_custom_jobs_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             job_service.ListCustomJobsResponse()
         )
+
         await client.list_custom_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1077,6 +1088,7 @@ def test_list_custom_jobs_flattened():
     with mock.patch.object(type(client.transport.list_custom_jobs), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = job_service.ListCustomJobsResponse()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_custom_jobs(parent="parent_value",)
@@ -1085,6 +1097,7 @@ def test_list_custom_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
 
 
@@ -1119,6 +1132,7 @@ async def test_list_custom_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
 
 
@@ -1289,11 +1303,13 @@ def test_delete_custom_job(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/spam")
+
         response = client.delete_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.DeleteCustomJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -1318,6 +1334,7 @@ def test_delete_custom_job_empty_call():
         client.delete_custom_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.DeleteCustomJobRequest()
 
 
@@ -1341,11 +1358,13 @@ async def test_delete_custom_job_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
+
         response = await client.delete_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.DeleteCustomJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -1363,7 +1382,6 @@ def test_delete_custom_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.DeleteCustomJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1371,6 +1389,7 @@ def test_delete_custom_job_field_headers():
         type(client.transport.delete_custom_job), "__call__"
     ) as call:
         call.return_value = operations_pb2.Operation(name="operations/op")
+
         client.delete_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1390,7 +1409,6 @@ async def test_delete_custom_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.DeleteCustomJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1400,6 +1418,7 @@ async def test_delete_custom_job_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/op")
         )
+
         await client.delete_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1421,6 +1440,7 @@ def test_delete_custom_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.delete_custom_job(name="name_value",)
@@ -1429,6 +1449,7 @@ def test_delete_custom_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -1465,6 +1486,7 @@ async def test_delete_custom_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -1497,11 +1519,13 @@ def test_cancel_custom_job(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
+
         response = client.cancel_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CancelCustomJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -1526,6 +1550,7 @@ def test_cancel_custom_job_empty_call():
         client.cancel_custom_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CancelCustomJobRequest()
 
 
@@ -1547,11 +1572,13 @@ async def test_cancel_custom_job_async(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+
         response = await client.cancel_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CancelCustomJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -1569,7 +1596,6 @@ def test_cancel_custom_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CancelCustomJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1577,6 +1603,7 @@ def test_cancel_custom_job_field_headers():
         type(client.transport.cancel_custom_job), "__call__"
     ) as call:
         call.return_value = None
+
         client.cancel_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1596,7 +1623,6 @@ async def test_cancel_custom_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CancelCustomJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1604,6 +1630,7 @@ async def test_cancel_custom_job_field_headers_async():
         type(client.transport.cancel_custom_job), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+
         await client.cancel_custom_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1625,6 +1652,7 @@ def test_cancel_custom_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.cancel_custom_job(name="name_value",)
@@ -1633,6 +1661,7 @@ def test_cancel_custom_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -1667,6 +1696,7 @@ async def test_cancel_custom_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -1709,23 +1739,35 @@ def test_create_data_labeling_job(
             labeling_progress=1810,
             specialist_pools=["specialist_pools_value"],
         )
+
         response = client.create_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CreateDataLabelingJobRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, gca_data_labeling_job.DataLabelingJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.datasets == ["datasets_value"]
+
     assert response.labeler_count == 1375
+
     assert response.instruction_uri == "instruction_uri_value"
+
     assert response.inputs_schema_uri == "inputs_schema_uri_value"
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+
     assert response.labeling_progress == 1810
+
     assert response.specialist_pools == ["specialist_pools_value"]
 
 
@@ -1747,6 +1789,7 @@ def test_create_data_labeling_job_empty_call():
         client.create_data_labeling_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CreateDataLabelingJobRequest()
 
 
@@ -1781,23 +1824,34 @@ async def test_create_data_labeling_job_async(
                 specialist_pools=["specialist_pools_value"],
             )
         )
+
         response = await client.create_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CreateDataLabelingJobRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_data_labeling_job.DataLabelingJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.datasets == ["datasets_value"]
+
     assert response.labeler_count == 1375
+
     assert response.instruction_uri == "instruction_uri_value"
+
     assert response.inputs_schema_uri == "inputs_schema_uri_value"
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+
     assert response.labeling_progress == 1810
+
     assert response.specialist_pools == ["specialist_pools_value"]
 
 
@@ -1812,7 +1866,6 @@ def test_create_data_labeling_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CreateDataLabelingJobRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1820,6 +1873,7 @@ def test_create_data_labeling_job_field_headers():
         type(client.transport.create_data_labeling_job), "__call__"
     ) as call:
         call.return_value = gca_data_labeling_job.DataLabelingJob()
+
         client.create_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1839,7 +1893,6 @@ async def test_create_data_labeling_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CreateDataLabelingJobRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1849,6 +1902,7 @@ async def test_create_data_labeling_job_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             gca_data_labeling_job.DataLabelingJob()
         )
+
         await client.create_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1870,6 +1924,7 @@ def test_create_data_labeling_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_data_labeling_job.DataLabelingJob()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_data_labeling_job(
@@ -1881,7 +1936,9 @@ def test_create_data_labeling_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
+
         assert args[0].data_labeling_job == gca_data_labeling_job.DataLabelingJob(
             name="name_value"
         )
@@ -1925,7 +1982,9 @@ async def test_create_data_labeling_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
+
         assert args[0].data_labeling_job == gca_data_labeling_job.DataLabelingJob(
             name="name_value"
         )
@@ -1972,23 +2031,35 @@ def test_get_data_labeling_job(
             labeling_progress=1810,
             specialist_pools=["specialist_pools_value"],
         )
+
         response = client.get_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.GetDataLabelingJobRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, data_labeling_job.DataLabelingJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.datasets == ["datasets_value"]
+
     assert response.labeler_count == 1375
+
     assert response.instruction_uri == "instruction_uri_value"
+
     assert response.inputs_schema_uri == "inputs_schema_uri_value"
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+
     assert response.labeling_progress == 1810
+
     assert response.specialist_pools == ["specialist_pools_value"]
 
 
@@ -2010,6 +2081,7 @@ def test_get_data_labeling_job_empty_call():
         client.get_data_labeling_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.GetDataLabelingJobRequest()
 
 
@@ -2043,23 +2115,34 @@ async def test_get_data_labeling_job_async(
                 specialist_pools=["specialist_pools_value"],
             )
         )
+
         response = await client.get_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.GetDataLabelingJobRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, data_labeling_job.DataLabelingJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.datasets == ["datasets_value"]
+
     assert response.labeler_count == 1375
+
     assert response.instruction_uri == "instruction_uri_value"
+
     assert response.inputs_schema_uri == "inputs_schema_uri_value"
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+
     assert response.labeling_progress == 1810
+
     assert response.specialist_pools == ["specialist_pools_value"]
 
 
@@ -2074,7 +2157,6 @@ def test_get_data_labeling_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.GetDataLabelingJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2082,6 +2164,7 @@ def test_get_data_labeling_job_field_headers():
         type(client.transport.get_data_labeling_job), "__call__"
     ) as call:
         call.return_value = data_labeling_job.DataLabelingJob()
+
         client.get_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2101,7 +2184,6 @@ async def test_get_data_labeling_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.GetDataLabelingJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2111,6 +2193,7 @@ async def test_get_data_labeling_job_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             data_labeling_job.DataLabelingJob()
         )
+
         await client.get_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2132,6 +2215,7 @@ def test_get_data_labeling_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = data_labeling_job.DataLabelingJob()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.get_data_labeling_job(name="name_value",)
@@ -2140,6 +2224,7 @@ def test_get_data_labeling_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -2176,6 +2261,7 @@ async def test_get_data_labeling_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -2210,15 +2296,19 @@ def test_list_data_labeling_jobs(
         call.return_value = job_service.ListDataLabelingJobsResponse(
             next_page_token="next_page_token_value",
         )
+
         response = client.list_data_labeling_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.ListDataLabelingJobsRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, pagers.ListDataLabelingJobsPager)
+
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -2240,6 +2330,7 @@ def test_list_data_labeling_jobs_empty_call():
         client.list_data_labeling_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.ListDataLabelingJobsRequest()
 
 
@@ -2266,15 +2357,18 @@ async def test_list_data_labeling_jobs_async(
                 next_page_token="next_page_token_value",
             )
         )
+
         response = await client.list_data_labeling_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.ListDataLabelingJobsRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListDataLabelingJobsAsyncPager)
+
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -2289,7 +2383,6 @@ def test_list_data_labeling_jobs_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.ListDataLabelingJobsRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2297,6 +2390,7 @@ def test_list_data_labeling_jobs_field_headers():
         type(client.transport.list_data_labeling_jobs), "__call__"
     ) as call:
         call.return_value = job_service.ListDataLabelingJobsResponse()
+
         client.list_data_labeling_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2316,7 +2410,6 @@ async def test_list_data_labeling_jobs_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.ListDataLabelingJobsRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2326,6 +2419,7 @@ async def test_list_data_labeling_jobs_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             job_service.ListDataLabelingJobsResponse()
         )
+
         await client.list_data_labeling_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2347,6 +2441,7 @@ def test_list_data_labeling_jobs_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = job_service.ListDataLabelingJobsResponse()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_data_labeling_jobs(parent="parent_value",)
@@ -2355,6 +2450,7 @@ def test_list_data_labeling_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
 
 
@@ -2391,6 +2487,7 @@ async def test_list_data_labeling_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
 
 
@@ -2593,11 +2690,13 @@ def test_delete_data_labeling_job(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/spam")
+
         response = client.delete_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.DeleteDataLabelingJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -2622,6 +2721,7 @@ def test_delete_data_labeling_job_empty_call():
         client.delete_data_labeling_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.DeleteDataLabelingJobRequest()
 
 
@@ -2646,11 +2746,13 @@ async def test_delete_data_labeling_job_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
+
         response = await client.delete_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.DeleteDataLabelingJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -2668,7 +2770,6 @@ def test_delete_data_labeling_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.DeleteDataLabelingJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2676,6 +2777,7 @@ def test_delete_data_labeling_job_field_headers():
         type(client.transport.delete_data_labeling_job), "__call__"
     ) as call:
         call.return_value = operations_pb2.Operation(name="operations/op")
+
         client.delete_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2695,7 +2797,6 @@ async def test_delete_data_labeling_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.DeleteDataLabelingJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2705,6 +2806,7 @@ async def test_delete_data_labeling_job_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/op")
         )
+
         await client.delete_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2726,6 +2828,7 @@ def test_delete_data_labeling_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.delete_data_labeling_job(name="name_value",)
@@ -2734,6 +2837,7 @@ def test_delete_data_labeling_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -2770,6 +2874,7 @@ async def test_delete_data_labeling_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -2802,11 +2907,13 @@ def test_cancel_data_labeling_job(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
+
         response = client.cancel_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CancelDataLabelingJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -2831,6 +2938,7 @@ def test_cancel_data_labeling_job_empty_call():
         client.cancel_data_labeling_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CancelDataLabelingJobRequest()
 
 
@@ -2853,11 +2961,13 @@ async def test_cancel_data_labeling_job_async(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+
         response = await client.cancel_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CancelDataLabelingJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -2875,7 +2985,6 @@ def test_cancel_data_labeling_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CancelDataLabelingJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2883,6 +2992,7 @@ def test_cancel_data_labeling_job_field_headers():
         type(client.transport.cancel_data_labeling_job), "__call__"
     ) as call:
         call.return_value = None
+
         client.cancel_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2902,7 +3012,6 @@ async def test_cancel_data_labeling_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CancelDataLabelingJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2910,6 +3019,7 @@ async def test_cancel_data_labeling_job_field_headers_async():
         type(client.transport.cancel_data_labeling_job), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+
         await client.cancel_data_labeling_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2931,6 +3041,7 @@ def test_cancel_data_labeling_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.cancel_data_labeling_job(name="name_value",)
@@ -2939,6 +3050,7 @@ def test_cancel_data_labeling_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -2973,6 +3085,7 @@ async def test_cancel_data_labeling_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -3013,20 +3126,29 @@ def test_create_hyperparameter_tuning_job(
             max_failed_trial_count=2317,
             state=job_state.JobState.JOB_STATE_QUEUED,
         )
+
         response = client.create_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CreateHyperparameterTuningJobRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, gca_hyperparameter_tuning_job.HyperparameterTuningJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.max_trial_count == 1609
+
     assert response.parallel_trial_count == 2128
+
     assert response.max_failed_trial_count == 2317
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
 
@@ -3048,6 +3170,7 @@ def test_create_hyperparameter_tuning_job_empty_call():
         client.create_hyperparameter_tuning_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CreateHyperparameterTuningJobRequest()
 
 
@@ -3079,20 +3202,28 @@ async def test_create_hyperparameter_tuning_job_async(
                 state=job_state.JobState.JOB_STATE_QUEUED,
             )
         )
+
         response = await client.create_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CreateHyperparameterTuningJobRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_hyperparameter_tuning_job.HyperparameterTuningJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.max_trial_count == 1609
+
     assert response.parallel_trial_count == 2128
+
     assert response.max_failed_trial_count == 2317
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
 
@@ -3107,7 +3238,6 @@ def test_create_hyperparameter_tuning_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CreateHyperparameterTuningJobRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3115,6 +3245,7 @@ def test_create_hyperparameter_tuning_job_field_headers():
         type(client.transport.create_hyperparameter_tuning_job), "__call__"
     ) as call:
         call.return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob()
+
         client.create_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3134,7 +3265,6 @@ async def test_create_hyperparameter_tuning_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CreateHyperparameterTuningJobRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3144,6 +3274,7 @@ async def test_create_hyperparameter_tuning_job_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             gca_hyperparameter_tuning_job.HyperparameterTuningJob()
         )
+
         await client.create_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3165,6 +3296,7 @@ def test_create_hyperparameter_tuning_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_hyperparameter_tuning_job.HyperparameterTuningJob()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_hyperparameter_tuning_job(
@@ -3178,7 +3310,9 @@ def test_create_hyperparameter_tuning_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
+
         assert args[
             0
         ].hyperparameter_tuning_job == gca_hyperparameter_tuning_job.HyperparameterTuningJob(
@@ -3228,7 +3362,9 @@ async def test_create_hyperparameter_tuning_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
+
         assert args[
             0
         ].hyperparameter_tuning_job == gca_hyperparameter_tuning_job.HyperparameterTuningJob(
@@ -3276,20 +3412,29 @@ def test_get_hyperparameter_tuning_job(
             max_failed_trial_count=2317,
             state=job_state.JobState.JOB_STATE_QUEUED,
         )
+
         response = client.get_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.GetHyperparameterTuningJobRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, hyperparameter_tuning_job.HyperparameterTuningJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.max_trial_count == 1609
+
     assert response.parallel_trial_count == 2128
+
     assert response.max_failed_trial_count == 2317
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
 
@@ -3311,6 +3456,7 @@ def test_get_hyperparameter_tuning_job_empty_call():
         client.get_hyperparameter_tuning_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.GetHyperparameterTuningJobRequest()
 
 
@@ -3342,20 +3488,28 @@ async def test_get_hyperparameter_tuning_job_async(
                 state=job_state.JobState.JOB_STATE_QUEUED,
             )
         )
+
         response = await client.get_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.GetHyperparameterTuningJobRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, hyperparameter_tuning_job.HyperparameterTuningJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.max_trial_count == 1609
+
     assert response.parallel_trial_count == 2128
+
     assert response.max_failed_trial_count == 2317
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
 
@@ -3370,7 +3524,6 @@ def test_get_hyperparameter_tuning_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.GetHyperparameterTuningJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3378,6 +3531,7 @@ def test_get_hyperparameter_tuning_job_field_headers():
         type(client.transport.get_hyperparameter_tuning_job), "__call__"
     ) as call:
         call.return_value = hyperparameter_tuning_job.HyperparameterTuningJob()
+
         client.get_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3397,7 +3551,6 @@ async def test_get_hyperparameter_tuning_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.GetHyperparameterTuningJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3407,6 +3560,7 @@ async def test_get_hyperparameter_tuning_job_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             hyperparameter_tuning_job.HyperparameterTuningJob()
         )
+
         await client.get_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3428,6 +3582,7 @@ def test_get_hyperparameter_tuning_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = hyperparameter_tuning_job.HyperparameterTuningJob()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.get_hyperparameter_tuning_job(name="name_value",)
@@ -3436,6 +3591,7 @@ def test_get_hyperparameter_tuning_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -3472,6 +3628,7 @@ async def test_get_hyperparameter_tuning_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -3507,15 +3664,19 @@ def test_list_hyperparameter_tuning_jobs(
         call.return_value = job_service.ListHyperparameterTuningJobsResponse(
             next_page_token="next_page_token_value",
         )
+
         response = client.list_hyperparameter_tuning_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.ListHyperparameterTuningJobsRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, pagers.ListHyperparameterTuningJobsPager)
+
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -3537,6 +3698,7 @@ def test_list_hyperparameter_tuning_jobs_empty_call():
         client.list_hyperparameter_tuning_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.ListHyperparameterTuningJobsRequest()
 
 
@@ -3563,15 +3725,18 @@ async def test_list_hyperparameter_tuning_jobs_async(
                 next_page_token="next_page_token_value",
             )
         )
+
         response = await client.list_hyperparameter_tuning_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.ListHyperparameterTuningJobsRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListHyperparameterTuningJobsAsyncPager)
+
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -3586,7 +3751,6 @@ def test_list_hyperparameter_tuning_jobs_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.ListHyperparameterTuningJobsRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3594,6 +3758,7 @@ def test_list_hyperparameter_tuning_jobs_field_headers():
         type(client.transport.list_hyperparameter_tuning_jobs), "__call__"
     ) as call:
         call.return_value = job_service.ListHyperparameterTuningJobsResponse()
+
         client.list_hyperparameter_tuning_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3613,7 +3778,6 @@ async def test_list_hyperparameter_tuning_jobs_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.ListHyperparameterTuningJobsRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3623,6 +3787,7 @@ async def test_list_hyperparameter_tuning_jobs_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             job_service.ListHyperparameterTuningJobsResponse()
         )
+
         await client.list_hyperparameter_tuning_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3644,6 +3809,7 @@ def test_list_hyperparameter_tuning_jobs_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = job_service.ListHyperparameterTuningJobsResponse()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_hyperparameter_tuning_jobs(parent="parent_value",)
@@ -3652,6 +3818,7 @@ def test_list_hyperparameter_tuning_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
 
 
@@ -3688,6 +3855,7 @@ async def test_list_hyperparameter_tuning_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
 
 
@@ -3907,11 +4075,13 @@ def test_delete_hyperparameter_tuning_job(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/spam")
+
         response = client.delete_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.DeleteHyperparameterTuningJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -3936,6 +4106,7 @@ def test_delete_hyperparameter_tuning_job_empty_call():
         client.delete_hyperparameter_tuning_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.DeleteHyperparameterTuningJobRequest()
 
 
@@ -3960,11 +4131,13 @@ async def test_delete_hyperparameter_tuning_job_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
+
         response = await client.delete_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.DeleteHyperparameterTuningJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -3982,7 +4155,6 @@ def test_delete_hyperparameter_tuning_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.DeleteHyperparameterTuningJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3990,6 +4162,7 @@ def test_delete_hyperparameter_tuning_job_field_headers():
         type(client.transport.delete_hyperparameter_tuning_job), "__call__"
     ) as call:
         call.return_value = operations_pb2.Operation(name="operations/op")
+
         client.delete_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4009,7 +4182,6 @@ async def test_delete_hyperparameter_tuning_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.DeleteHyperparameterTuningJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4019,6 +4191,7 @@ async def test_delete_hyperparameter_tuning_job_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/op")
         )
+
         await client.delete_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4040,6 +4213,7 @@ def test_delete_hyperparameter_tuning_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.delete_hyperparameter_tuning_job(name="name_value",)
@@ -4048,6 +4222,7 @@ def test_delete_hyperparameter_tuning_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -4084,6 +4259,7 @@ async def test_delete_hyperparameter_tuning_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -4117,11 +4293,13 @@ def test_cancel_hyperparameter_tuning_job(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
+
         response = client.cancel_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CancelHyperparameterTuningJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -4146,6 +4324,7 @@ def test_cancel_hyperparameter_tuning_job_empty_call():
         client.cancel_hyperparameter_tuning_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CancelHyperparameterTuningJobRequest()
 
 
@@ -4168,11 +4347,13 @@ async def test_cancel_hyperparameter_tuning_job_async(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+
         response = await client.cancel_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CancelHyperparameterTuningJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -4190,7 +4371,6 @@ def test_cancel_hyperparameter_tuning_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CancelHyperparameterTuningJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4198,6 +4378,7 @@ def test_cancel_hyperparameter_tuning_job_field_headers():
         type(client.transport.cancel_hyperparameter_tuning_job), "__call__"
     ) as call:
         call.return_value = None
+
         client.cancel_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4217,7 +4398,6 @@ async def test_cancel_hyperparameter_tuning_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CancelHyperparameterTuningJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4225,6 +4405,7 @@ async def test_cancel_hyperparameter_tuning_job_field_headers_async():
         type(client.transport.cancel_hyperparameter_tuning_job), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+
         await client.cancel_hyperparameter_tuning_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4246,6 +4427,7 @@ def test_cancel_hyperparameter_tuning_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.cancel_hyperparameter_tuning_job(name="name_value",)
@@ -4254,6 +4436,7 @@ def test_cancel_hyperparameter_tuning_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -4288,6 +4471,7 @@ async def test_cancel_hyperparameter_tuning_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -4326,19 +4510,27 @@ def test_create_batch_prediction_job(
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
         )
+
         response = client.create_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CreateBatchPredictionJobRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, gca_batch_prediction_job.BatchPredictionJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.model == "model_value"
+
     assert response.generate_explanation is True
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
 
@@ -4360,6 +4552,7 @@ def test_create_batch_prediction_job_empty_call():
         client.create_batch_prediction_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CreateBatchPredictionJobRequest()
 
 
@@ -4390,19 +4583,26 @@ async def test_create_batch_prediction_job_async(
                 state=job_state.JobState.JOB_STATE_QUEUED,
             )
         )
+
         response = await client.create_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CreateBatchPredictionJobRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_batch_prediction_job.BatchPredictionJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.model == "model_value"
+
     assert response.generate_explanation is True
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
 
@@ -4417,7 +4617,6 @@ def test_create_batch_prediction_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CreateBatchPredictionJobRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4425,6 +4624,7 @@ def test_create_batch_prediction_job_field_headers():
         type(client.transport.create_batch_prediction_job), "__call__"
     ) as call:
         call.return_value = gca_batch_prediction_job.BatchPredictionJob()
+
         client.create_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4444,7 +4644,6 @@ async def test_create_batch_prediction_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CreateBatchPredictionJobRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4454,6 +4653,7 @@ async def test_create_batch_prediction_job_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             gca_batch_prediction_job.BatchPredictionJob()
         )
+
         await client.create_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4475,6 +4675,7 @@ def test_create_batch_prediction_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_batch_prediction_job.BatchPredictionJob()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_batch_prediction_job(
@@ -4488,7 +4689,9 @@ def test_create_batch_prediction_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
+
         assert args[
             0
         ].batch_prediction_job == gca_batch_prediction_job.BatchPredictionJob(
@@ -4538,7 +4741,9 @@ async def test_create_batch_prediction_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
+
         assert args[
             0
         ].batch_prediction_job == gca_batch_prediction_job.BatchPredictionJob(
@@ -4585,19 +4790,27 @@ def test_get_batch_prediction_job(
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
         )
+
         response = client.get_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.GetBatchPredictionJobRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, batch_prediction_job.BatchPredictionJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.model == "model_value"
+
     assert response.generate_explanation is True
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
 
@@ -4619,6 +4832,7 @@ def test_get_batch_prediction_job_empty_call():
         client.get_batch_prediction_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.GetBatchPredictionJobRequest()
 
 
@@ -4649,19 +4863,26 @@ async def test_get_batch_prediction_job_async(
                 state=job_state.JobState.JOB_STATE_QUEUED,
             )
         )
+
         response = await client.get_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.GetBatchPredictionJobRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, batch_prediction_job.BatchPredictionJob)
+
     assert response.name == "name_value"
+
     assert response.display_name == "display_name_value"
+
     assert response.model == "model_value"
+
     assert response.generate_explanation is True
+
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
 
@@ -4676,7 +4897,6 @@ def test_get_batch_prediction_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.GetBatchPredictionJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4684,6 +4904,7 @@ def test_get_batch_prediction_job_field_headers():
         type(client.transport.get_batch_prediction_job), "__call__"
     ) as call:
         call.return_value = batch_prediction_job.BatchPredictionJob()
+
         client.get_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4703,7 +4924,6 @@ async def test_get_batch_prediction_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.GetBatchPredictionJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4713,6 +4933,7 @@ async def test_get_batch_prediction_job_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             batch_prediction_job.BatchPredictionJob()
         )
+
         await client.get_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4734,6 +4955,7 @@ def test_get_batch_prediction_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = batch_prediction_job.BatchPredictionJob()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.get_batch_prediction_job(name="name_value",)
@@ -4742,6 +4964,7 @@ def test_get_batch_prediction_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -4778,6 +5001,7 @@ async def test_get_batch_prediction_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -4812,15 +5036,19 @@ def test_list_batch_prediction_jobs(
         call.return_value = job_service.ListBatchPredictionJobsResponse(
             next_page_token="next_page_token_value",
         )
+
         response = client.list_batch_prediction_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.ListBatchPredictionJobsRequest()
 
     # Establish that the response is the type that we expect.
+
     assert isinstance(response, pagers.ListBatchPredictionJobsPager)
+
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -4842,6 +5070,7 @@ def test_list_batch_prediction_jobs_empty_call():
         client.list_batch_prediction_jobs()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.ListBatchPredictionJobsRequest()
 
 
@@ -4868,15 +5097,18 @@ async def test_list_batch_prediction_jobs_async(
                 next_page_token="next_page_token_value",
             )
         )
+
         response = await client.list_batch_prediction_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.ListBatchPredictionJobsRequest()
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListBatchPredictionJobsAsyncPager)
+
     assert response.next_page_token == "next_page_token_value"
 
 
@@ -4891,7 +5123,6 @@ def test_list_batch_prediction_jobs_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.ListBatchPredictionJobsRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4899,6 +5130,7 @@ def test_list_batch_prediction_jobs_field_headers():
         type(client.transport.list_batch_prediction_jobs), "__call__"
     ) as call:
         call.return_value = job_service.ListBatchPredictionJobsResponse()
+
         client.list_batch_prediction_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4918,7 +5150,6 @@ async def test_list_batch_prediction_jobs_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.ListBatchPredictionJobsRequest()
-
     request.parent = "parent/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4928,6 +5159,7 @@ async def test_list_batch_prediction_jobs_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             job_service.ListBatchPredictionJobsResponse()
         )
+
         await client.list_batch_prediction_jobs(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4949,6 +5181,7 @@ def test_list_batch_prediction_jobs_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = job_service.ListBatchPredictionJobsResponse()
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_batch_prediction_jobs(parent="parent_value",)
@@ -4957,6 +5190,7 @@ def test_list_batch_prediction_jobs_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
 
 
@@ -4993,6 +5227,7 @@ async def test_list_batch_prediction_jobs_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].parent == "parent_value"
 
 
@@ -5199,11 +5434,13 @@ def test_delete_batch_prediction_job(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/spam")
+
         response = client.delete_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.DeleteBatchPredictionJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -5228,6 +5465,7 @@ def test_delete_batch_prediction_job_empty_call():
         client.delete_batch_prediction_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.DeleteBatchPredictionJobRequest()
 
 
@@ -5252,11 +5490,13 @@ async def test_delete_batch_prediction_job_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
+
         response = await client.delete_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.DeleteBatchPredictionJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -5274,7 +5514,6 @@ def test_delete_batch_prediction_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.DeleteBatchPredictionJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5282,6 +5521,7 @@ def test_delete_batch_prediction_job_field_headers():
         type(client.transport.delete_batch_prediction_job), "__call__"
     ) as call:
         call.return_value = operations_pb2.Operation(name="operations/op")
+
         client.delete_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -5301,7 +5541,6 @@ async def test_delete_batch_prediction_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.DeleteBatchPredictionJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5311,6 +5550,7 @@ async def test_delete_batch_prediction_job_field_headers_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/op")
         )
+
         await client.delete_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -5332,6 +5572,7 @@ def test_delete_batch_prediction_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.delete_batch_prediction_job(name="name_value",)
@@ -5340,6 +5581,7 @@ def test_delete_batch_prediction_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -5376,6 +5618,7 @@ async def test_delete_batch_prediction_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -5408,11 +5651,13 @@ def test_cancel_batch_prediction_job(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
+
         response = client.cancel_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CancelBatchPredictionJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -5437,6 +5682,7 @@ def test_cancel_batch_prediction_job_empty_call():
         client.cancel_batch_prediction_job()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CancelBatchPredictionJobRequest()
 
 
@@ -5459,11 +5705,13 @@ async def test_cancel_batch_prediction_job_async(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+
         response = await client.cancel_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0] == job_service.CancelBatchPredictionJobRequest()
 
     # Establish that the response is the type that we expect.
@@ -5481,7 +5729,6 @@ def test_cancel_batch_prediction_job_field_headers():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CancelBatchPredictionJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5489,6 +5736,7 @@ def test_cancel_batch_prediction_job_field_headers():
         type(client.transport.cancel_batch_prediction_job), "__call__"
     ) as call:
         call.return_value = None
+
         client.cancel_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -5508,7 +5756,6 @@ async def test_cancel_batch_prediction_job_field_headers_async():
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = job_service.CancelBatchPredictionJobRequest()
-
     request.name = "name/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5516,6 +5763,7 @@ async def test_cancel_batch_prediction_job_field_headers_async():
         type(client.transport.cancel_batch_prediction_job), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+
         await client.cancel_batch_prediction_job(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -5537,6 +5785,7 @@ def test_cancel_batch_prediction_job_flattened():
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = None
+
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.cancel_batch_prediction_job(name="name_value",)
@@ -5545,6 +5794,7 @@ def test_cancel_batch_prediction_job_flattened():
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -5579,6 +5829,7 @@ async def test_cancel_batch_prediction_job_flattened_async():
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
+
         assert args[0].name == "name_value"
 
 
@@ -5719,32 +5970,10 @@ def test_job_service_base_transport():
         transport.operations_client
 
 
-@requires_google_auth_gte_1_25_0
 def test_job_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
-        auth, "load_credentials_from_file", autospec=True
-    ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.job_service.transports.JobServiceTransport._prep_wrapped_messages"
-    ) as Transport:
-        Transport.return_value = None
-        load_creds.return_value = (credentials.AnonymousCredentials(), None)
-        transport = transports.JobServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
-        )
-        load_creds.assert_called_once_with(
-            "credentials.json",
-            scopes=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
-        )
-
-
-@requires_google_auth_lt_1_25_0
-def test_job_service_base_transport_with_credentials_file_old_google_auth():
-    # Instantiate the base transport with a credentials file
-    with mock.patch.object(
-        auth, "load_credentials_from_file", autospec=True
+        auth, "load_credentials_from_file"
     ) as load_creds, mock.patch(
         "google.cloud.aiplatform_v1beta1.services.job_service.transports.JobServiceTransport._prep_wrapped_messages"
     ) as Transport:
@@ -5762,7 +5991,7 @@ def test_job_service_base_transport_with_credentials_file_old_google_auth():
 
 def test_job_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch(
+    with mock.patch.object(auth, "default") as adc, mock.patch(
         "google.cloud.aiplatform_v1beta1.services.job_service.transports.JobServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
@@ -5771,23 +6000,9 @@ def test_job_service_base_transport_with_adc():
         adc.assert_called_once()
 
 
-@requires_google_auth_gte_1_25_0
 def test_job_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
-        JobServiceClient()
-        adc.assert_called_once_with(
-            scopes=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id=None,
-        )
-
-
-@requires_google_auth_lt_1_25_0
-def test_job_service_auth_adc_old_google_auth():
-    # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
+    with mock.patch.object(auth, "default") as adc:
         adc.return_value = (credentials.AnonymousCredentials(), None)
         JobServiceClient()
         adc.assert_called_once_with(
@@ -5796,141 +6011,17 @@ def test_job_service_auth_adc_old_google_auth():
         )
 
 
-@pytest.mark.parametrize(
-    "transport_class",
-    [transports.JobServiceGrpcTransport, transports.JobServiceGrpcAsyncIOTransport,],
-)
-@requires_google_auth_gte_1_25_0
-def test_job_service_transport_auth_adc(transport_class):
+def test_job_service_transport_auth_adc():
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
+    with mock.patch.object(auth, "default") as adc:
         adc.return_value = (credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus", scopes=["1", "2"])
-        adc.assert_called_once_with(
-            scopes=["1", "2"],
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            quota_project_id="octopus",
+        transports.JobServiceGrpcTransport(
+            host="squid.clam.whelk", quota_project_id="octopus"
         )
-
-
-@pytest.mark.parametrize(
-    "transport_class",
-    [transports.JobServiceGrpcTransport, transports.JobServiceGrpcAsyncIOTransport,],
-)
-@requires_google_auth_lt_1_25_0
-def test_job_service_transport_auth_adc_old_google_auth(transport_class):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
-        transport_class(quota_project_id="octopus")
         adc.assert_called_once_with(
             scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.JobServiceGrpcTransport, grpc_helpers),
-        (transports.JobServiceGrpcAsyncIOTransport, grpc_helpers_async),
-    ],
-)
-@requires_api_core_gte_1_26_0
-def test_job_service_transport_create_channel(transport_class, grpc_helpers):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-        transport_class(quota_project_id="octopus", scopes=["1", "2"])
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com:443",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            scopes=["1", "2"],
-            default_host="aiplatform.googleapis.com",
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.JobServiceGrpcTransport, grpc_helpers),
-        (transports.JobServiceGrpcAsyncIOTransport, grpc_helpers_async),
-    ],
-)
-@requires_api_core_lt_1_26_0
-def test_job_service_transport_create_channel_old_api_core(
-    transport_class, grpc_helpers
-):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-        transport_class(quota_project_id="octopus")
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com:443",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            scopes=("https://www.googleapis.com/auth/cloud-platform",),
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
-        )
-
-
-@pytest.mark.parametrize(
-    "transport_class,grpc_helpers",
-    [
-        (transports.JobServiceGrpcTransport, grpc_helpers),
-        (transports.JobServiceGrpcAsyncIOTransport, grpc_helpers_async),
-    ],
-)
-@requires_api_core_lt_1_26_0
-def test_job_service_transport_create_channel_user_scopes(
-    transport_class, grpc_helpers
-):
-    # If credentials and host are not provided, the transport class should use
-    # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
-        grpc_helpers, "create_channel", autospec=True
-    ) as create_channel:
-        creds = credentials.AnonymousCredentials()
-        adc.return_value = (creds, None)
-
-        transport_class(quota_project_id="octopus", scopes=["1", "2"])
-
-        create_channel.assert_called_with(
-            "aiplatform.googleapis.com:443",
-            credentials=creds,
-            credentials_file=None,
-            quota_project_id="octopus",
-            scopes=["1", "2"],
-            ssl_credentials=None,
-            options=[
-                ("grpc.max_send_message_length", -1),
-                ("grpc.max_receive_message_length", -1),
-            ],
         )
 
 
@@ -6142,6 +6233,7 @@ def test_batch_prediction_job_path():
     project = "squid"
     location = "clam"
     batch_prediction_job = "whelk"
+
     expected = "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
         project=project, location=location, batch_prediction_job=batch_prediction_job,
     )
@@ -6168,6 +6260,7 @@ def test_custom_job_path():
     project = "cuttlefish"
     location = "mussel"
     custom_job = "winkle"
+
     expected = "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
         project=project, location=location, custom_job=custom_job,
     )
@@ -6192,6 +6285,7 @@ def test_data_labeling_job_path():
     project = "squid"
     location = "clam"
     data_labeling_job = "whelk"
+
     expected = "projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}".format(
         project=project, location=location, data_labeling_job=data_labeling_job,
     )
@@ -6218,6 +6312,7 @@ def test_dataset_path():
     project = "cuttlefish"
     location = "mussel"
     dataset = "winkle"
+
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project, location=location, dataset=dataset,
     )
@@ -6242,6 +6337,7 @@ def test_hyperparameter_tuning_job_path():
     project = "squid"
     location = "clam"
     hyperparameter_tuning_job = "whelk"
+
     expected = "projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}".format(
         project=project,
         location=location,
@@ -6270,6 +6366,7 @@ def test_model_path():
     project = "cuttlefish"
     location = "mussel"
     model = "winkle"
+
     expected = "projects/{project}/locations/{location}/models/{model}".format(
         project=project, location=location, model=model,
     )
@@ -6295,6 +6392,7 @@ def test_trial_path():
     location = "clam"
     study = "whelk"
     trial = "octopus"
+
     expected = "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
         project=project, location=location, study=study, trial=trial,
     )
@@ -6318,6 +6416,7 @@ def test_parse_trial_path():
 
 def test_common_billing_account_path():
     billing_account = "winkle"
+
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -6338,6 +6437,7 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "scallop"
+
     expected = "folders/{folder}".format(folder=folder,)
     actual = JobServiceClient.common_folder_path(folder)
     assert expected == actual
@@ -6356,6 +6456,7 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "squid"
+
     expected = "organizations/{organization}".format(organization=organization,)
     actual = JobServiceClient.common_organization_path(organization)
     assert expected == actual
@@ -6374,6 +6475,7 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "whelk"
+
     expected = "projects/{project}".format(project=project,)
     actual = JobServiceClient.common_project_path(project)
     assert expected == actual
@@ -6393,6 +6495,7 @@ def test_parse_common_project_path():
 def test_common_location_path():
     project = "oyster"
     location = "nudibranch"
+
     expected = "projects/{project}/locations/{location}".format(
         project=project, location=location,
     )

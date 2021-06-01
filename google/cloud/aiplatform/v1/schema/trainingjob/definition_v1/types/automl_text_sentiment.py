@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
 
@@ -36,6 +38,7 @@ class AutoMlTextSentiment(proto.Message):
 
 class AutoMlTextSentimentInputs(proto.Message):
     r"""
+
     Attributes:
         sentiment_max (int):
             A sentiment is expressed as an integer
@@ -50,7 +53,7 @@ class AutoMlTextSentimentInputs(proto.Message):
             between 1 and 10 (inclusive).
     """
 
-    sentiment_max = proto.Field(proto.INT32, number=1,)
+    sentiment_max = proto.Field(proto.INT32, number=1)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
