@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
-from google.protobuf import timestamp_pb2  # type: ignore
+
+from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -63,11 +66,15 @@ class Event(proto.Message):
         INPUT = 1
         OUTPUT = 2
 
-    artifact = proto.Field(proto.STRING, number=1,)
-    execution = proto.Field(proto.STRING, number=2,)
-    event_time = proto.Field(proto.MESSAGE, number=3, message=timestamp_pb2.Timestamp,)
+    artifact = proto.Field(proto.STRING, number=1)
+
+    execution = proto.Field(proto.STRING, number=2)
+
+    event_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
+
     type_ = proto.Field(proto.ENUM, number=4, enum=Type,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=5,)
+
+    labels = proto.MapField(proto.STRING, proto.STRING, number=5)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import warnings
-from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple
 
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import grpc_helpers_async  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google.auth import credentials as ga_credentials  # type: ignore
+from google import auth  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-import packaging.version
 
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
@@ -38,7 +40,8 @@ from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1beta1.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
-from google.longrunning import operations_pb2  # type: ignore
+from google.longrunning import operations_pb2 as operations  # type: ignore
+
 from .base import TensorboardServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import TensorboardServiceGrpcTransport
 
@@ -63,7 +66,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -90,15 +93,13 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         Returns:
             aio.Channel: A gRPC AsyncIO channel object.
         """
-
-        self_signed_jwt_kwargs = cls._get_self_signed_jwt_kwargs(host, scopes)
-
+        scopes = scopes or cls.AUTH_SCOPES
         return grpc_helpers_async.create_channel(
             host,
             credentials=credentials,
             credentials_file=credentials_file,
+            scopes=scopes,
             quota_project_id=quota_project_id,
-            **self_signed_jwt_kwargs,
             **kwargs,
         )
 
@@ -106,7 +107,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         channel: aio.Channel = None,
@@ -120,8 +121,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         """Instantiate the transport.
 
         Args:
-            host (Optional[str]):
-                 The hostname to connect to.
+            host (Optional[str]): The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
                 authorization credentials to attach to requests. These
                 credentials identify the application to the service; if none
@@ -180,6 +180,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
             # If a channel was explicitly provided, set it.
             self._grpc_channel = channel
             self._ssl_channel_credentials = None
+
         else:
             if api_mtls_endpoint:
                 host = api_mtls_endpoint
@@ -258,8 +259,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
     def create_tensorboard(
         self,
     ) -> Callable[
-        [tensorboard_service.CreateTensorboardRequest],
-        Awaitable[operations_pb2.Operation],
+        [tensorboard_service.CreateTensorboardRequest], Awaitable[operations.Operation]
     ]:
         r"""Return a callable for the create tensorboard method over gRPC.
 
@@ -279,7 +279,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
             self._stubs["create_tensorboard"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.TensorboardService/CreateTensorboard",
                 request_serializer=tensorboard_service.CreateTensorboardRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["create_tensorboard"]
 
@@ -315,8 +315,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
     def update_tensorboard(
         self,
     ) -> Callable[
-        [tensorboard_service.UpdateTensorboardRequest],
-        Awaitable[operations_pb2.Operation],
+        [tensorboard_service.UpdateTensorboardRequest], Awaitable[operations.Operation]
     ]:
         r"""Return a callable for the update tensorboard method over gRPC.
 
@@ -336,7 +335,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
             self._stubs["update_tensorboard"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.TensorboardService/UpdateTensorboard",
                 request_serializer=tensorboard_service.UpdateTensorboardRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["update_tensorboard"]
 
@@ -373,8 +372,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
     def delete_tensorboard(
         self,
     ) -> Callable[
-        [tensorboard_service.DeleteTensorboardRequest],
-        Awaitable[operations_pb2.Operation],
+        [tensorboard_service.DeleteTensorboardRequest], Awaitable[operations.Operation]
     ]:
         r"""Return a callable for the delete tensorboard method over gRPC.
 
@@ -394,7 +392,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
             self._stubs["delete_tensorboard"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.TensorboardService/DeleteTensorboard",
                 request_serializer=tensorboard_service.DeleteTensorboardRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_tensorboard"]
 
@@ -523,7 +521,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         self,
     ) -> Callable[
         [tensorboard_service.DeleteTensorboardExperimentRequest],
-        Awaitable[operations_pb2.Operation],
+        Awaitable[operations.Operation],
     ]:
         r"""Return a callable for the delete tensorboard experiment method over gRPC.
 
@@ -545,7 +543,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
             ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.TensorboardService/DeleteTensorboardExperiment",
                 request_serializer=tensorboard_service.DeleteTensorboardExperimentRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_tensorboard_experiment"]
 
@@ -670,7 +668,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         self,
     ) -> Callable[
         [tensorboard_service.DeleteTensorboardRunRequest],
-        Awaitable[operations_pb2.Operation],
+        Awaitable[operations.Operation],
     ]:
         r"""Return a callable for the delete tensorboard run method over gRPC.
 
@@ -690,7 +688,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
             self._stubs["delete_tensorboard_run"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.TensorboardService/DeleteTensorboardRun",
                 request_serializer=tensorboard_service.DeleteTensorboardRunRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_tensorboard_run"]
 
@@ -819,7 +817,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         self,
     ) -> Callable[
         [tensorboard_service.DeleteTensorboardTimeSeriesRequest],
-        Awaitable[operations_pb2.Operation],
+        Awaitable[operations.Operation],
     ]:
         r"""Return a callable for the delete tensorboard time series method over gRPC.
 
@@ -841,7 +839,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
             ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.TensorboardService/DeleteTensorboardTimeSeries",
                 request_serializer=tensorboard_service.DeleteTensorboardTimeSeriesRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
+                response_deserializer=operations.Operation.FromString,
             )
         return self._stubs["delete_tensorboard_time_series"]
 

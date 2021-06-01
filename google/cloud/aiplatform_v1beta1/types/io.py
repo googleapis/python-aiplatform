@@ -21,13 +21,39 @@ import proto  # type: ignore
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
+        "AvroSource",
+        "CsvSource",
         "GcsSource",
         "GcsDestination",
         "BigQuerySource",
         "BigQueryDestination",
+        "CsvDestination",
+        "TFRecordDestination",
         "ContainerRegistryDestination",
     },
 )
+
+
+class AvroSource(proto.Message):
+    r"""The storage details for Avro input content.
+
+    Attributes:
+        gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
+            Required. Google Cloud Storage location.
+    """
+
+    gcs_source = proto.Field(proto.MESSAGE, number=1, message="GcsSource",)
+
+
+class CsvSource(proto.Message):
+    r"""The storage details for CSV input content.
+
+    Attributes:
+        gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
+            Required. Google Cloud Storage location.
+    """
+
+    gcs_source = proto.Field(proto.MESSAGE, number=1, message="GcsSource",)
 
 
 class GcsSource(proto.Message):
@@ -93,6 +119,28 @@ class BigQueryDestination(proto.Message):
     """
 
     output_uri = proto.Field(proto.STRING, number=1)
+
+
+class CsvDestination(proto.Message):
+    r"""The storage details for CSV output content.
+
+    Attributes:
+        gcs_destination (google.cloud.aiplatform_v1beta1.types.GcsDestination):
+            Required. Google Cloud Storage location.
+    """
+
+    gcs_destination = proto.Field(proto.MESSAGE, number=1, message="GcsDestination",)
+
+
+class TFRecordDestination(proto.Message):
+    r"""The storage details for TFRecord output content.
+
+    Attributes:
+        gcs_destination (google.cloud.aiplatform_v1beta1.types.GcsDestination):
+            Required. Google Cloud Storage location.
+    """
+
+    gcs_destination = proto.Field(proto.MESSAGE, number=1, message="GcsDestination",)
 
 
 class ContainerRegistryDestination(proto.Message):

@@ -18,6 +18,7 @@
 import proto  # type: ignore
 
 
+from google.protobuf import duration_pb2 as duration  # type: ignore
 from google.protobuf import struct_pb2 as struct  # type: ignore
 from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
@@ -91,11 +92,30 @@ class Trial(proto.Message):
         final_measurement (google.cloud.aiplatform_v1beta1.types.Measurement):
             Output only. The final measurement containing
             the objective value.
+        measurements (Sequence[google.cloud.aiplatform_v1beta1.types.Measurement]):
+            Output only. A list of measurements that are strictly
+            lexicographically ordered by their induced tuples (steps,
+            elapsed_duration). These are used for early stopping
+            computations.
         start_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the Trial was started.
         end_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the Trial's status changed to
             ``SUCCEEDED`` or ``INFEASIBLE``.
+        client_id (str):
+            Output only. The identifier of the client that originally
+            requested this Trial. Each client is identified by a unique
+            client_id. When a client asks for a suggestion, Vizier will
+            assign it a Trial. The client should evaluate the Trial,
+            complete it, and report back to Vizier. If suggestion is
+            asked again by same client_id before the Trial is completed,
+            the same Trial will be returned. Multiple clients with
+            different client_ids can ask for suggestions simultaneously,
+            each of them will get their own Trial.
+        infeasible_reason (str):
+            Output only. A human readable string describing why the
+            Trial is infeasible. This is set only if Trial state is
+            ``INFEASIBLE``.
         custom_job (str):
             Output only. The CustomJob name linked to the
             Trial. It's set for a HyperparameterTuningJob's
@@ -141,9 +161,15 @@ class Trial(proto.Message):
 
     final_measurement = proto.Field(proto.MESSAGE, number=5, message="Measurement",)
 
+    measurements = proto.RepeatedField(proto.MESSAGE, number=6, message="Measurement",)
+
     start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp.Timestamp,)
 
     end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
+
+    client_id = proto.Field(proto.STRING, number=9)
+
+    infeasible_reason = proto.Field(proto.STRING, number=10)
 
     custom_job = proto.Field(proto.STRING, number=11)
 
@@ -575,6 +601,9 @@ class Measurement(proto.Message):
     suggested hyperparameter values.
 
     Attributes:
+        elapsed_duration (google.protobuf.duration_pb2.Duration):
+            Output only. Time that the Trial has been
+            running at the point of this Measurement.
         step_count (int):
             Output only. The number of steps the machine
             learning model has been trained for. Must be
@@ -600,6 +629,8 @@ class Measurement(proto.Message):
         metric_id = proto.Field(proto.STRING, number=1)
 
         value = proto.Field(proto.DOUBLE, number=2)
+
+    elapsed_duration = proto.Field(proto.MESSAGE, number=1, message=duration.Duration,)
 
     step_count = proto.Field(proto.INT64, number=2)
 
