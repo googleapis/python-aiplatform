@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+from google.protobuf import struct_pb2 as struct  # type: ignore
+from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.rpc import status_pb2 as status  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -148,28 +151,34 @@ class TrainingPipeline(proto.Message):
             is not set separately.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
+    name = proto.Field(proto.STRING, number=1)
+
+    display_name = proto.Field(proto.STRING, number=2)
+
     input_data_config = proto.Field(proto.MESSAGE, number=3, message="InputDataConfig",)
-    training_task_definition = proto.Field(proto.STRING, number=4,)
-    training_task_inputs = proto.Field(
-        proto.MESSAGE, number=5, message=struct_pb2.Value,
-    )
-    training_task_metadata = proto.Field(
-        proto.MESSAGE, number=6, message=struct_pb2.Value,
-    )
+
+    training_task_definition = proto.Field(proto.STRING, number=4)
+
+    training_task_inputs = proto.Field(proto.MESSAGE, number=5, message=struct.Value,)
+
+    training_task_metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
+
     model_to_upload = proto.Field(proto.MESSAGE, number=7, message=model.Model,)
+
     state = proto.Field(proto.ENUM, number=9, enum=pipeline_state.PipelineState,)
-    error = proto.Field(proto.MESSAGE, number=10, message=status_pb2.Status,)
-    create_time = proto.Field(
-        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
-    )
-    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(
-        proto.MESSAGE, number=14, message=timestamp_pb2.Timestamp,
-    )
-    labels = proto.MapField(proto.STRING, proto.STRING, number=15,)
+
+    error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
+
+    create_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
+
+    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
+
+    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
+
+    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
+
+    labels = proto.MapField(proto.STRING, proto.STRING, number=15)
+
     encryption_spec = proto.Field(
         proto.MESSAGE, number=18, message=gca_encryption_spec.EncryptionSpec,
     )
@@ -209,15 +218,17 @@ class InputDataConfig(proto.Message):
 
             -  AIP_DATA_FORMAT = "jsonl" for non-tabular data, "csv" for
                tabular data
-
             -  AIP_TRAINING_DATA_URI =
-               "gcs_destination/dataset---/training-*.${AIP_DATA_FORMAT}"
+
+            "gcs_destination/dataset---/training-*.${AIP_DATA_FORMAT}"
 
             -  AIP_VALIDATION_DATA_URI =
-               "gcs_destination/dataset---/validation-*.${AIP_DATA_FORMAT}"
+
+            "gcs_destination/dataset---/validation-*.${AIP_DATA_FORMAT}"
 
             -  AIP_TEST_DATA_URI =
-               "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
+
+            "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
         bigquery_destination (google.cloud.aiplatform_v1beta1.types.BigQueryDestination):
             Only applicable to custom training with tabular Dataset with
             BigQuery source.
@@ -232,12 +243,13 @@ class InputDataConfig(proto.Message):
             ``validation`` and ``test``.
 
             -  AIP_DATA_FORMAT = "bigquery".
-
             -  AIP_TRAINING_DATA_URI =
-               "bigquery_destination.dataset\_\ **\ .training"
+
+            "bigquery_destination.dataset\_\ **\ .training"
 
             -  AIP_VALIDATION_DATA_URI =
-               "bigquery_destination.dataset\_\ **\ .validation"
+
+            "bigquery_destination.dataset\_\ **\ .validation"
 
             -  AIP_TEST_DATA_URI =
                "bigquery_destination.dataset\_\ **\ .test".
@@ -295,24 +307,32 @@ class InputDataConfig(proto.Message):
     fraction_split = proto.Field(
         proto.MESSAGE, number=2, oneof="split", message="FractionSplit",
     )
+
     filter_split = proto.Field(
         proto.MESSAGE, number=3, oneof="split", message="FilterSplit",
     )
+
     predefined_split = proto.Field(
         proto.MESSAGE, number=4, oneof="split", message="PredefinedSplit",
     )
+
     timestamp_split = proto.Field(
         proto.MESSAGE, number=5, oneof="split", message="TimestampSplit",
     )
+
     gcs_destination = proto.Field(
         proto.MESSAGE, number=8, oneof="destination", message=io.GcsDestination,
     )
+
     bigquery_destination = proto.Field(
         proto.MESSAGE, number=10, oneof="destination", message=io.BigQueryDestination,
     )
-    dataset_id = proto.Field(proto.STRING, number=1,)
-    annotations_filter = proto.Field(proto.STRING, number=6,)
-    annotation_schema_uri = proto.Field(proto.STRING, number=9,)
+
+    dataset_id = proto.Field(proto.STRING, number=1)
+
+    annotations_filter = proto.Field(proto.STRING, number=6)
+
+    annotation_schema_uri = proto.Field(proto.STRING, number=9)
 
 
 class FractionSplit(proto.Message):
@@ -336,9 +356,11 @@ class FractionSplit(proto.Message):
             used to evaluate the Model.
     """
 
-    training_fraction = proto.Field(proto.DOUBLE, number=1,)
-    validation_fraction = proto.Field(proto.DOUBLE, number=2,)
-    test_fraction = proto.Field(proto.DOUBLE, number=3,)
+    training_fraction = proto.Field(proto.DOUBLE, number=1)
+
+    validation_fraction = proto.Field(proto.DOUBLE, number=2)
+
+    test_fraction = proto.Field(proto.DOUBLE, number=3)
 
 
 class FilterSplit(proto.Message):
@@ -381,9 +403,11 @@ class FilterSplit(proto.Message):
             test order.
     """
 
-    training_filter = proto.Field(proto.STRING, number=1,)
-    validation_filter = proto.Field(proto.STRING, number=2,)
-    test_filter = proto.Field(proto.STRING, number=3,)
+    training_filter = proto.Field(proto.STRING, number=1)
+
+    validation_filter = proto.Field(proto.STRING, number=2)
+
+    test_filter = proto.Field(proto.STRING, number=3)
 
 
 class PredefinedSplit(proto.Message):
@@ -403,7 +427,7 @@ class PredefinedSplit(proto.Message):
             ignored by the pipeline.
     """
 
-    key = proto.Field(proto.STRING, number=1,)
+    key = proto.Field(proto.STRING, number=1)
 
 
 class TimestampSplit(proto.Message):
@@ -432,10 +456,13 @@ class TimestampSplit(proto.Message):
             value, that piece is ignored by the pipeline.
     """
 
-    training_fraction = proto.Field(proto.DOUBLE, number=1,)
-    validation_fraction = proto.Field(proto.DOUBLE, number=2,)
-    test_fraction = proto.Field(proto.DOUBLE, number=3,)
-    key = proto.Field(proto.STRING, number=4,)
+    training_fraction = proto.Field(proto.DOUBLE, number=1)
+
+    validation_fraction = proto.Field(proto.DOUBLE, number=2)
+
+    test_fraction = proto.Field(proto.DOUBLE, number=3)
+
+    key = proto.Field(proto.STRING, number=4)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
