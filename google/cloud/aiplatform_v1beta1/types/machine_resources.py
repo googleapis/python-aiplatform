@@ -139,7 +139,7 @@ class DedicatedResources(proto.Message):
 
 class AutomaticResources(proto.Message):
     r"""A description of resources that to large degree are decided
-    by AI Platform, and require only a modest additional
+    by Vertex AI, and require only a modest additional
     configuration. Each Model supporting these resources documents
     its specific guidelines.
 
@@ -164,7 +164,7 @@ class AutomaticResources(proto.Message):
             its replicas at maximum may handle, a portion of
             the traffic will be dropped. If this value is
             not provided, a no upper bound for scaling under
-            heavy traffic will be assume, though AI Platform
+            heavy traffic will be assume, though Vertex AI
             may be unable to scale beyond certain replica
             number.
     """
@@ -184,7 +184,7 @@ class BatchDedicatedResources(proto.Message):
             single machine.
         starting_replica_count (int):
             Immutable. The number of machine replicas used at the start
-            of the batch operation. If not set, AI Platform decides
+            of the batch operation. If not set, Vertex AI decides
             starting number, not greater than
             [max_replica_count][google.cloud.aiplatform.v1beta1.BatchDedicatedResources.max_replica_count]
         max_replica_count (int):

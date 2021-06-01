@@ -106,7 +106,7 @@ class JobServiceClientMeta(type):
 
 
 class JobServiceClient(metaclass=JobServiceClientMeta):
-    """A service for creating and managing AI Platform's jobs."""
+    """A service for creating and managing Vertex AI's jobs."""
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):

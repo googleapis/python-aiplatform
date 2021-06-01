@@ -468,10 +468,8 @@ class FeaturestoreServiceAsyncClient:
 
                 Updatable fields:
 
-                -  ``display_name``
                 -  ``labels``
                 -  ``online_serving_config.fixed_node_count``
-                -  ``retention_policy.online_storage_ttl_days``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
