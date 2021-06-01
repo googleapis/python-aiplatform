@@ -27,6 +27,7 @@ from .types.video_classification import VideoClassificationPredictionResult
 from .types.video_object_tracking import VideoObjectTrackingPredictionResult
 
 __all__ = (
+    "ClassificationPredictionResult",
     "ImageObjectDetectionPredictionResult",
     "ImageSegmentationPredictionResult",
     "TabularClassificationPredictionResult",
@@ -36,5 +37,4 @@ __all__ = (
     "VideoActionRecognitionPredictionResult",
     "VideoClassificationPredictionResult",
     "VideoObjectTrackingPredictionResult",
-    "ClassificationPredictionResult",
 )

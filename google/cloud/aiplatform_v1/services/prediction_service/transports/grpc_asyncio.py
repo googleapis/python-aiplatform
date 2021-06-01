@@ -232,9 +232,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         [prediction_service.PredictRequest],
         Awaitable[prediction_service.PredictResponse],
     ]:
-        r"""Return a callable for the
-        predict
-          method over gRPC.
+        r"""Return a callable for the predict method over gRPC.
 
         Perform an online prediction.
 

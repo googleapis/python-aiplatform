@@ -161,7 +161,7 @@ class TrainingPipeline(proto.Message):
     start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
     end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
     update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=15)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=15,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=18, message=gca_encryption_spec.EncryptionSpec,
     )

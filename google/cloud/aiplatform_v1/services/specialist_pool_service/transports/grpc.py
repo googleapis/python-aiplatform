@@ -250,9 +250,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
     ) -> Callable[
         [specialist_pool_service.CreateSpecialistPoolRequest], operations.Operation
     ]:
-        r"""Return a callable for the
-        create specialist pool
-          method over gRPC.
+        r"""Return a callable for the create specialist pool method over gRPC.
 
         Creates a SpecialistPool.
 
@@ -281,9 +279,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
         [specialist_pool_service.GetSpecialistPoolRequest],
         specialist_pool.SpecialistPool,
     ]:
-        r"""Return a callable for the
-        get specialist pool
-          method over gRPC.
+        r"""Return a callable for the get specialist pool method over gRPC.
 
         Gets a SpecialistPool.
 
@@ -312,9 +308,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
         [specialist_pool_service.ListSpecialistPoolsRequest],
         specialist_pool_service.ListSpecialistPoolsResponse,
     ]:
-        r"""Return a callable for the
-        list specialist pools
-          method over gRPC.
+        r"""Return a callable for the list specialist pools method over gRPC.
 
         Lists SpecialistPools in a Location.
 
@@ -342,9 +336,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
     ) -> Callable[
         [specialist_pool_service.DeleteSpecialistPoolRequest], operations.Operation
     ]:
-        r"""Return a callable for the
-        delete specialist pool
-          method over gRPC.
+        r"""Return a callable for the delete specialist pool method over gRPC.
 
         Deletes a SpecialistPool as well as all Specialists
         in the pool.
@@ -373,9 +365,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
     ) -> Callable[
         [specialist_pool_service.UpdateSpecialistPoolRequest], operations.Operation
     ]:
-        r"""Return a callable for the
-        update specialist pool
-          method over gRPC.
+        r"""Return a callable for the update specialist pool method over gRPC.
 
         Updates a SpecialistPool.
 
