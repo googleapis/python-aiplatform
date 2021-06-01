@@ -225,7 +225,7 @@ class UpdateFeaturestoreRequest(proto.Message):
             -  ``display_name``
             -  ``labels``
             -  ``online_serving_config.fixed_node_count``
-            -  ``online_serving_config.max_online_serving_size``
+            -  ``retention_policy.online_storage_ttl_days``
     """
 
     featurestore = proto.Field(
@@ -355,10 +355,19 @@ class ImportFeatureValuesResponse(proto.Message):
         imported_feature_value_count (int):
             Number of Feature values that have been
             imported by the operation.
+        invalid_row_count (int):
+            The number of rows in input source that weren't imported due
+            to either
+
+            -  Not having any featureValues.
+            -  Having a null entityId.
+            -  Having a null timestamp.
+            -  Not being parsable (applicable for CSV sources).
     """
 
     imported_entity_count = proto.Field(proto.INT64, number=1,)
     imported_feature_value_count = proto.Field(proto.INT64, number=2,)
+    invalid_row_count = proto.Field(proto.INT64, number=6,)
 
 
 class BatchReadFeatureValuesRequest(proto.Message):
@@ -1138,6 +1147,14 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
         imported_feature_value_count (int):
             Number of feature values that have been
             imported by the operation.
+        invalid_row_count (int):
+            The number of rows in input source that weren't imported due
+            to either
+
+            -  Not having any featureValues.
+            -  Having a null entityId.
+            -  Having a null timestamp.
+            -  Not being parsable (applicable for CSV sources).
     """
 
     generic_metadata = proto.Field(
@@ -1145,6 +1162,7 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
     )
     imported_entity_count = proto.Field(proto.INT64, number=2,)
     imported_feature_value_count = proto.Field(proto.INT64, number=3,)
+    invalid_row_count = proto.Field(proto.INT64, number=6,)
 
 
 class ExportFeatureValuesOperationMetadata(proto.Message):
