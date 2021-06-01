@@ -83,7 +83,8 @@ class VizierServiceAsyncClient:
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -98,7 +99,7 @@ class VizierServiceAsyncClient:
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -115,7 +116,7 @@ class VizierServiceAsyncClient:
 
     @property
     def transport(self) -> VizierServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
             VizierServiceTransport: The transport used by the client instance.
@@ -134,7 +135,7 @@ class VizierServiceAsyncClient:
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the vizier service client.
+        """Instantiates the vizier service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
