@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
 
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+
+from google.protobuf import struct_pb2 as struct  # type: ignore
+from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -65,12 +68,17 @@ class DataItem(proto.Message):
             "overwrite" update happens.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=3,)
-    payload = proto.Field(proto.MESSAGE, number=4, message=struct_pb2.Value,)
-    etag = proto.Field(proto.STRING, number=7,)
+    name = proto.Field(proto.STRING, number=1)
+
+    create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp.Timestamp,)
+
+    update_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
+
+    labels = proto.MapField(proto.STRING, proto.STRING, number=3)
+
+    payload = proto.Field(proto.MESSAGE, number=4, message=struct.Value,)
+
+    etag = proto.Field(proto.STRING, number=7)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
