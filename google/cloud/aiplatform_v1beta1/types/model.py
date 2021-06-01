@@ -52,7 +52,7 @@ class Model(proto.Message):
             that is specific to it. Unset if the Model does not have any
             additional information. The schema is defined as an OpenAPI
             3.0.2 `Schema
-            Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+            Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
             AutoML Models always have this field populated by Vertex AI,
             if no additional metadata is needed, this field is set to an
             empty string. Note: The URI given on output will be
@@ -348,7 +348,7 @@ class PredictSchemata(proto.Message):
             and
             [BatchPredictionJob.input_config][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
             The schema is defined as an OpenAPI 3.0.2 `Schema
-            Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+            Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
             AutoML Models always have this field populated by Vertex AI.
             Note: The URI given on output will be immutable and probably
             different, including the URI scheme, than the one given on
@@ -363,7 +363,7 @@ class PredictSchemata(proto.Message):
             and
             [BatchPredictionJob.model_parameters][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model_parameters].
             The schema is defined as an OpenAPI 3.0.2 `Schema
-            Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+            Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
             AutoML Models always have this field populated by Vertex AI,
             if no parameters are supported, then it is set to an empty
             string. Note: The URI given on output will be immutable and
@@ -379,7 +379,7 @@ class PredictSchemata(proto.Message):
             and
             [BatchPredictionJob.output_config][google.cloud.aiplatform.v1beta1.BatchPredictionJob.output_config].
             The schema is defined as an OpenAPI 3.0.2 `Schema
-            Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+            Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
             AutoML Models always have this field populated by Vertex AI.
             Note: The URI given on output will be immutable and probably
             different, including the URI scheme, than the one given on
@@ -394,19 +394,19 @@ class PredictSchemata(proto.Message):
 
 class ModelContainerSpec(proto.Message):
     r"""Specification of a container for serving predictions. Some fields in
-    this message correspond to fields in the Kubernetes Container v1
+    this message correspond to fields in the `Kubernetes Container v1
     core
-    `specification <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
+    specification <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
 
     Attributes:
         image_uri (str):
             Required. Immutable. URI of the Docker image to be used as
             the custom container for serving predictions. This URI must
             identify an image in Artifact Registry or Container
-            Registry. Learn more about the container publishing
-            requirements, including permissions requirements for the AI
-            Platform Service Agent,
-            `here <https://tinyurl.com/cust-cont-reqs#publishing>`__.
+            Registry. Learn more about the `container publishing
+            requirements <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#publishing>`__,
+            including permissions requirements for the AI Platform
+            Service Agent.
 
             The container image is ingested upon
             [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel],
@@ -415,7 +415,7 @@ class ModelContainerSpec(proto.Message):
 
             To learn about the requirements for the Docker image itself,
             see `Custom container
-            requirements <https://tinyurl.com/cust-cont-reqs>`__.
+            requirements <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#>`__.
 
             You can use the URI to one of Vertex AI's `pre-built
             container images for
@@ -436,21 +436,21 @@ class ModelContainerSpec(proto.Message):
             ```CMD`` <https://docs.docker.com/engine/reference/builder/#cmd>`__,
             if either exists. If this field is not specified and the
             container does not have an ``ENTRYPOINT``, then refer to the
-            Docker documentation about how ``CMD`` and ``ENTRYPOINT``
-            `interact <https://tinyurl.com/h3kdcgs>`__.
+            Docker documentation about `how ``CMD`` and ``ENTRYPOINT``
+            interact <https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact>`__.
 
             If you specify this field, then you can also specify the
             ``args`` field to provide additional arguments for this
             command. However, if you specify this field, then the
             container's ``CMD`` is ignored. See the `Kubernetes
-            documentation <https://tinyurl.com/y8bvllf4>`__ about how
-            the ``command`` and ``args`` fields interact with a
-            container's ``ENTRYPOINT`` and ``CMD``.
+            documentation about how the ``command`` and ``args`` fields
+            interact with a container's ``ENTRYPOINT`` and
+            ``CMD`` <https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes>`__.
 
-            In this field, you can reference environment variables `set
+            In this field, you can reference `environment variables set
             by Vertex
-            AI <https://tinyurl.com/cust-cont-reqs#aip-variables>`__ and
-            environment variables set in the
+            AI <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__
+            and environment variables set in the
             [env][google.cloud.aiplatform.v1beta1.ModelContainerSpec.env]
             field. You cannot reference environment variables set in the
             Docker image. In order for environment variables to be
@@ -462,7 +462,7 @@ class ModelContainerSpec(proto.Message):
             this syntax with ``$$``; for example: $$(VARIABLE_NAME) This
             field corresponds to the ``command`` field of the Kubernetes
             Containers `v1 core
-            API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
+            API <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
         args (Sequence[str]):
             Immutable. Specifies arguments for the command that runs
             when the container starts. This overrides the container's
@@ -474,21 +474,22 @@ class ModelContainerSpec(proto.Message):
             [command][google.cloud.aiplatform.v1beta1.ModelContainerSpec.command]
             field, then the command from the ``command`` field runs
             without any additional arguments. See the `Kubernetes
-            documentation <https://tinyurl.com/y8bvllf4>`__ about how
-            the ``command`` and ``args`` fields interact with a
-            container's ``ENTRYPOINT`` and ``CMD``.
+            documentation about how the ``command`` and ``args`` fields
+            interact with a container's ``ENTRYPOINT`` and
+            ``CMD`` <https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes>`__.
 
             If you don't specify this field and don't specify the
             ``command`` field, then the container's
             ```ENTRYPOINT`` <https://docs.docker.com/engine/reference/builder/#cmd>`__
             and ``CMD`` determine what runs based on their default
-            behavior. See the Docker documentation about how ``CMD`` and
-            ``ENTRYPOINT`` `interact <https://tinyurl.com/h3kdcgs>`__.
+            behavior. See the Docker documentation about `how ``CMD``
+            and ``ENTRYPOINT``
+            interact <https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact>`__.
 
-            In this field, you can reference environment variables `set
+            In this field, you can reference `environment variables set
             by Vertex
-            AI <https://tinyurl.com/cust-cont-reqs#aip-variables>`__ and
-            environment variables set in the
+            AI <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__
+            and environment variables set in the
             [env][google.cloud.aiplatform.v1beta1.ModelContainerSpec.env]
             field. You cannot reference environment variables set in the
             Docker image. In order for environment variables to be
@@ -500,7 +501,7 @@ class ModelContainerSpec(proto.Message):
             this syntax with ``$$``; for example: $$(VARIABLE_NAME) This
             field corresponds to the ``args`` field of the Kubernetes
             Containers `v1 core
-            API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
+            API <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
         env (Sequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
             Immutable. List of environment variables to set in the
             container. After the container starts running, code running
@@ -533,14 +534,14 @@ class ModelContainerSpec(proto.Message):
 
             This field corresponds to the ``env`` field of the
             Kubernetes Containers `v1 core
-            API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
+            API <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
         ports (Sequence[google.cloud.aiplatform_v1beta1.types.Port]):
             Immutable. List of ports to expose from the container.
             Vertex AI sends any prediction requests that it receives to
             the first port on this list. AI Platform also sends
             `liveness and health
-            checks <https://tinyurl.com/cust-cont-reqs#health>`__ to
-            this port.
+            checks <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#liveness>`__
+            to this port.
 
             If you do not specify this field, it defaults to following
             value:
@@ -556,7 +557,7 @@ class ModelContainerSpec(proto.Message):
             Vertex AI does not use ports other than the first one
             listed. This field corresponds to the ``ports`` field of the
             Kubernetes Containers `v1 core
-            API <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
+            API <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
         predict_route (str):
             Immutable. HTTP path on the container to send prediction
             requests to. Vertex AI forwards requests sent using
@@ -583,21 +584,21 @@ class ModelContainerSpec(proto.Message):
                the Endpoint.name][] field of the Endpoint where this
                Model has been deployed. (Vertex AI makes this value
                available to your container code as the
-               ```AIP_ENDPOINT_ID`` <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
-               environment variable.)
+               ```AIP_ENDPOINT_ID`` environment
+               variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
 
             -  DEPLOYED_MODEL:
                [DeployedModel.id][google.cloud.aiplatform.v1beta1.DeployedModel.id]
                of the ``DeployedModel``. (Vertex AI makes this value
                available to your container code as the
                ```AIP_DEPLOYED_MODEL_ID`` environment
-               variable <https://tinyurl.com/cust-cont-reqs#aip-variables>`__.)
+               variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
         health_route (str):
             Immutable. HTTP path on the container to send health checks
             to. Vertex AI intermittently sends GET requests to this path
             on the container's IP address and port to check that the
             container is healthy. Read more about `health
-            checks <https://tinyurl.com/cust-cont-reqs#checks>`__.
+            checks <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#health>`__.
 
             For example, if you set this field to ``/bar``, then Vertex
             AI intermittently sends a GET request to the ``/bar`` path
@@ -616,15 +617,15 @@ class ModelContainerSpec(proto.Message):
                the Endpoint.name][] field of the Endpoint where this
                Model has been deployed. (Vertex AI makes this value
                available to your container code as the
-               ```AIP_ENDPOINT_ID`` <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
-               environment variable.)
+               ```AIP_ENDPOINT_ID`` environment
+               variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
 
             -  DEPLOYED_MODEL:
                [DeployedModel.id][google.cloud.aiplatform.v1beta1.DeployedModel.id]
                of the ``DeployedModel``. (Vertex AI makes this value
                available to your container code as the
-               ```AIP_DEPLOYED_MODEL_ID`` <https://tinyurl.com/cust-cont-reqs#aip-variables>`__
-               environment variable.)
+               ```AIP_DEPLOYED_MODEL_ID`` environment
+               variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
     """
 
     image_uri = proto.Field(proto.STRING, number=1,)

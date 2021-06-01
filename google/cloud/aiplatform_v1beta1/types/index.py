@@ -45,7 +45,7 @@ class Index(proto.Message):
             that is specific to it. Unset if the Index does not have any
             additional information. The schema is defined as an OpenAPI
             3.0.2 `Schema
-            Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+            Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
             Note: The URI given on output will be immutable and probably
             different, including the URI scheme, than the one given on
             input. The output URI will point to a location where the

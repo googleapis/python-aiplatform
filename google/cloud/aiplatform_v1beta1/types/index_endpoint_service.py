@@ -173,7 +173,7 @@ class UpdateIndexEndpointRequest(proto.Message):
             the resource on the server.
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Required. The update mask applies to the resource. See
-            `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+            [google.protobuf.FieldMask][google.protobuf.FieldMask].
     """
 
     index_endpoint = proto.Field(
