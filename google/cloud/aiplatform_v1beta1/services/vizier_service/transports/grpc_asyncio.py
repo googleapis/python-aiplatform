@@ -254,7 +254,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     def create_study(
         self,
     ) -> Callable[[vizier_service.CreateStudyRequest], Awaitable[gca_study.Study]]:
-        r"""Return a callable for the create study method over gRPC.
+        r"""Return a callable for the
+        create study
+          method over gRPC.
 
         Creates a Study. A resource name will be generated
         after creation of the Study.
@@ -281,7 +283,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     def get_study(
         self,
     ) -> Callable[[vizier_service.GetStudyRequest], Awaitable[study.Study]]:
-        r"""Return a callable for the get study method over gRPC.
+        r"""Return a callable for the
+        get study
+          method over gRPC.
 
         Gets a Study by name.
 
@@ -310,7 +314,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         [vizier_service.ListStudiesRequest],
         Awaitable[vizier_service.ListStudiesResponse],
     ]:
-        r"""Return a callable for the list studies method over gRPC.
+        r"""Return a callable for the
+        list studies
+          method over gRPC.
 
         Lists all the studies in a region for an associated
         project.
@@ -337,7 +343,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     def delete_study(
         self,
     ) -> Callable[[vizier_service.DeleteStudyRequest], Awaitable[empty.Empty]]:
-        r"""Return a callable for the delete study method over gRPC.
+        r"""Return a callable for the
+        delete study
+          method over gRPC.
 
         Deletes a Study.
 
@@ -363,7 +371,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     def lookup_study(
         self,
     ) -> Callable[[vizier_service.LookupStudyRequest], Awaitable[study.Study]]:
-        r"""Return a callable for the lookup study method over gRPC.
+        r"""Return a callable for the
+        lookup study
+          method over gRPC.
 
         Looks a study up using the user-defined display_name field
         instead of the fully qualified resource name.
@@ -392,7 +402,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     ) -> Callable[
         [vizier_service.SuggestTrialsRequest], Awaitable[operations.Operation]
     ]:
-        r"""Return a callable for the suggest trials method over gRPC.
+        r"""Return a callable for the
+        suggest trials
+          method over gRPC.
 
         Adds one or more Trials to a Study, with parameter values
         suggested by AI Platform Vizier. Returns a long-running
@@ -422,7 +434,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     def create_trial(
         self,
     ) -> Callable[[vizier_service.CreateTrialRequest], Awaitable[study.Trial]]:
-        r"""Return a callable for the create trial method over gRPC.
+        r"""Return a callable for the
+        create trial
+          method over gRPC.
 
         Adds a user provided Trial to a Study.
 
@@ -448,7 +462,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     def get_trial(
         self,
     ) -> Callable[[vizier_service.GetTrialRequest], Awaitable[study.Trial]]:
-        r"""Return a callable for the get trial method over gRPC.
+        r"""Return a callable for the
+        get trial
+          method over gRPC.
 
         Gets a Trial.
 
@@ -476,7 +492,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     ) -> Callable[
         [vizier_service.ListTrialsRequest], Awaitable[vizier_service.ListTrialsResponse]
     ]:
-        r"""Return a callable for the list trials method over gRPC.
+        r"""Return a callable for the
+        list trials
+          method over gRPC.
 
         Lists the Trials associated with a Study.
 
@@ -502,7 +520,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     def add_trial_measurement(
         self,
     ) -> Callable[[vizier_service.AddTrialMeasurementRequest], Awaitable[study.Trial]]:
-        r"""Return a callable for the add trial measurement method over gRPC.
+        r"""Return a callable for the
+        add trial measurement
+          method over gRPC.
 
         Adds a measurement of the objective metrics to a
         Trial. This measurement is assumed to have been taken
@@ -530,7 +550,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     def complete_trial(
         self,
     ) -> Callable[[vizier_service.CompleteTrialRequest], Awaitable[study.Trial]]:
-        r"""Return a callable for the complete trial method over gRPC.
+        r"""Return a callable for the
+        complete trial
+          method over gRPC.
 
         Marks a Trial as complete.
 
@@ -556,7 +578,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     def delete_trial(
         self,
     ) -> Callable[[vizier_service.DeleteTrialRequest], Awaitable[empty.Empty]]:
-        r"""Return a callable for the delete trial method over gRPC.
+        r"""Return a callable for the
+        delete trial
+          method over gRPC.
 
         Deletes a Trial.
 
@@ -585,8 +609,10 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         [vizier_service.CheckTrialEarlyStoppingStateRequest],
         Awaitable[operations.Operation],
     ]:
-        r"""Return a callable for the check trial early stopping
-        state method over gRPC.
+        r"""Return a callable for the
+        check trial early stopping
+        state
+          method over gRPC.
 
         Checks whether a Trial should stop or not. Returns a
         long-running operation. When the operation is successful, it
@@ -617,7 +643,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
     def stop_trial(
         self,
     ) -> Callable[[vizier_service.StopTrialRequest], Awaitable[study.Trial]]:
-        r"""Return a callable for the stop trial method over gRPC.
+        r"""Return a callable for the
+        stop trial
+          method over gRPC.
 
         Stops a Trial.
 
@@ -646,7 +674,9 @@ class VizierServiceGrpcAsyncIOTransport(VizierServiceTransport):
         [vizier_service.ListOptimalTrialsRequest],
         Awaitable[vizier_service.ListOptimalTrialsResponse],
     ]:
-        r"""Return a callable for the list optimal trials method over gRPC.
+        r"""Return a callable for the
+        list optimal trials
+          method over gRPC.
 
         Lists the pareto-optimal Trials for multi-objective Study or the
         optimal Trials for single-objective Study. The definition of

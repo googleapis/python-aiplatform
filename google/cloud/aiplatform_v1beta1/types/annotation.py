@@ -93,7 +93,7 @@ class Annotation(proto.Message):
     annotation_source = proto.Field(
         proto.MESSAGE, number=5, message=user_action_reference.UserActionReference,
     )
-    labels = proto.MapField(proto.STRING, proto.STRING, number=6,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=6)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
