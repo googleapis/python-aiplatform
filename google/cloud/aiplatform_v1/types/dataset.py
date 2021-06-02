@@ -126,7 +126,7 @@ class ImportDataConfig(proto.Message):
             Storage describing the import format. Validation will be
             done against the schema. The schema is defined as an
             `OpenAPI 3.0.2 Schema
-            Object <https://tinyurl.com/y538mdwt>`__.
+            Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
     """
 
     gcs_source = proto.Field(

@@ -34,8 +34,7 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
     """gRPC backend transport for MigrationService.
 
     A service that migrates resources from automl.googleapis.com,
-    datalabeling.googleapis.com and ml.googleapis.com to AI
-    Platform.
+    datalabeling.googleapis.com and ml.googleapis.com to Vertex AI.
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
@@ -251,7 +250,7 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
 
         Searches all of the resources in
         automl.googleapis.com, datalabeling.googleapis.com and
-        ml.googleapis.com that can be migrated to AI Platform's
+        ml.googleapis.com that can be migrated to Vertex AI's
         given location.
 
         Returns:
@@ -282,7 +281,7 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
 
         Batch migrates resources from ml.googleapis.com,
         automl.googleapis.com, and datalabeling.googleapis.com
-        to AI Platform (Unified).
+        to Vertex AI.
 
         Returns:
             Callable[[~.BatchMigrateResourcesRequest],

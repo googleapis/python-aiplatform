@@ -40,9 +40,9 @@ __protobuf__ = proto.module(
 class TrainingPipeline(proto.Message):
     r"""The TrainingPipeline orchestrates tasks associated with training a
     Model. It always executes the training task, and optionally may also
-    export data from AI Platform's Dataset which becomes the training
+    export data from Vertex AI's Dataset which becomes the training
     input, [upload][google.cloud.aiplatform.v1.ModelService.UploadModel]
-    the Model to AI Platform, and evaluate the Model.
+    the Model to Vertex AI, and evaluate the Model.
 
     Attributes:
         name (str):
@@ -52,7 +52,7 @@ class TrainingPipeline(proto.Message):
             Required. The user-defined name of this
             TrainingPipeline.
         input_data_config (google.cloud.aiplatform_v1.types.InputDataConfig):
-            Specifies AI Platform owned input data that may be used for
+            Specifies Vertex AI owned input data that may be used for
             training the Model. The TrainingPipeline's
             [training_task_definition][google.cloud.aiplatform.v1.TrainingPipeline.training_task_definition]
             should make clear whether this config is used and if there
@@ -104,10 +104,10 @@ class TrainingPipeline(proto.Message):
             does not support uploading a Model as part of the pipeline.
             When the Pipeline's state becomes
             ``PIPELINE_STATE_SUCCEEDED`` and the trained Model had been
-            uploaded into AI Platform, then the model_to_upload's
-            resource [name][google.cloud.aiplatform.v1.Model.name] is
-            populated. The Model is always uploaded into the Project and
-            Location in which this pipeline is.
+            uploaded into Vertex AI, then the model_to_upload's resource
+            [name][google.cloud.aiplatform.v1.Model.name] is populated.
+            The Model is always uploaded into the Project and Location
+            in which this pipeline is.
         state (google.cloud.aiplatform_v1.types.PipelineState):
             Output only. The detailed state of the
             pipeline.
@@ -175,8 +175,8 @@ class TrainingPipeline(proto.Message):
 
 
 class InputDataConfig(proto.Message):
-    r"""Specifies AI Platform owned input data to be used for
-    training, and possibly evaluating, the Model.
+    r"""Specifies Vertex AI owned input data to be used for training,
+    and possibly evaluating, the Model.
 
     Attributes:
         fraction_split (google.cloud.aiplatform_v1.types.FractionSplit):
@@ -201,24 +201,22 @@ class InputDataConfig(proto.Message):
             format. All training input data is written into that
             directory.
 
-            The AI Platform environment variables representing Cloud
+            The Vertex AI environment variables representing Cloud
             Storage data URIs are represented in the Cloud Storage
             wildcard format to support sharded data. e.g.:
             "gs://.../training-*.jsonl"
 
             -  AIP_DATA_FORMAT = "jsonl" for non-tabular data, "csv" for
                tabular data
-            -  AIP_TRAINING_DATA_URI =
 
-            "gcs_destination/dataset---/training-*.${AIP_DATA_FORMAT}"
+            -  AIP_TRAINING_DATA_URI =
+               "gcs_destination/dataset---/training-*.${AIP_DATA_FORMAT}"
 
             -  AIP_VALIDATION_DATA_URI =
-
-            "gcs_destination/dataset---/validation-*.${AIP_DATA_FORMAT}"
+               "gcs_destination/dataset---/validation-*.${AIP_DATA_FORMAT}"
 
             -  AIP_TEST_DATA_URI =
-
-            "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
+               "gcs_destination/dataset---/test-*.${AIP_DATA_FORMAT}".
         bigquery_destination (google.cloud.aiplatform_v1.types.BigQueryDestination):
             Only applicable to custom training with tabular Dataset with
             BigQuery source.
@@ -233,13 +231,12 @@ class InputDataConfig(proto.Message):
             ``validation`` and ``test``.
 
             -  AIP_DATA_FORMAT = "bigquery".
-            -  AIP_TRAINING_DATA_URI =
 
-            "bigquery_destination.dataset\_\ **\ .training"
+            -  AIP_TRAINING_DATA_URI =
+               "bigquery_destination.dataset\_\ **\ .training"
 
             -  AIP_VALIDATION_DATA_URI =
-
-            "bigquery_destination.dataset\_\ **\ .validation"
+               "bigquery_destination.dataset\_\ **\ .validation"
 
             -  AIP_TEST_DATA_URI =
                "bigquery_destination.dataset\_\ **\ .test".
@@ -261,8 +258,8 @@ class InputDataConfig(proto.Message):
             ignored by the split method are used in respectively
             training, validation or test role, depending on the role of
             the DataItem they are on (for the auto-assigned that role is
-            decided by AI Platform). A filter with same syntax as the
-            one used in
+            decided by Vertex AI). A filter with same syntax as the one
+            used in
             [ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations]
             may be used, but note here it filters across all Annotations
             of the Dataset, and not just within a single DataItem.
@@ -273,8 +270,8 @@ class InputDataConfig(proto.Message):
             Cloud Storage URI that points to a YAML file describing the
             annotation schema. The schema is defined as an OpenAPI 3.0.2
             `Schema
-            Object <https://tinyurl.com/y538mdwt#schema-object>`__. The
-            schema files that can be used here are found in
+            Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
+            The schema files that can be used here are found in
             gs://google-cloud-aiplatform/schema/dataset/annotation/ ,
             note that the chosen schema must be consistent with
             [metadata][google.cloud.aiplatform.v1.Dataset.metadata_schema_uri]
@@ -322,7 +319,7 @@ class FractionSplit(proto.Message):
     the given fractions. Any of ``training_fraction``,
     ``validation_fraction`` and ``test_fraction`` may optionally be
     provided, they must sum to up to 1. If the provided ones sum to less
-    than 1, the remainder is assigned to sets as decided by AI Platform.
+    than 1, the remainder is assigned to sets as decided by Vertex AI.
     If none of the fractions are set, by default roughly 80% of data is
     used for training, 10% for validation, and 10% for test.
 

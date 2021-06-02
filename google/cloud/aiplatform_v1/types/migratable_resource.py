@@ -120,7 +120,6 @@ class MigratableResource(proto.Message):
                 annotated_dataset (str):
                     Full resource name of data labeling AnnotatedDataset.
                     Format:
-
                     ``projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}``.
                 annotated_dataset_display_name (str):
                     The AnnotatedDataset's display name in

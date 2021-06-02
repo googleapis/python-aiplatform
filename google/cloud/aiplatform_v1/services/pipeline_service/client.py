@@ -83,7 +83,11 @@ class PipelineServiceClientMeta(type):
 
 
 class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
-    """A service for creating and managing AI Platform's pipelines."""
+    """A service for creating and managing Vertex AI's pipelines. This
+    includes both ``TrainingPipeline`` resources (used for AutoML and
+    custom training) and ``PipelineJob`` resources (used for Vertex
+    Pipelines).
+    """
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
@@ -434,10 +438,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
             google.cloud.aiplatform_v1.types.TrainingPipeline:
                 The TrainingPipeline orchestrates tasks associated with training a Model. It
                    always executes the training task, and optionally may
-                   also export data from AI Platform's Dataset which
+                   also export data from Vertex AI's Dataset which
                    becomes the training input,
                    [upload][google.cloud.aiplatform.v1.ModelService.UploadModel]
-                   the Model to AI Platform, and evaluate the Model.
+                   the Model to Vertex AI, and evaluate the Model.
 
         """
         # Create or coerce a protobuf request object.
@@ -497,7 +501,6 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
             name (str):
                 Required. The name of the TrainingPipeline resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
 
                 This corresponds to the ``name`` field
@@ -513,10 +516,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
             google.cloud.aiplatform_v1.types.TrainingPipeline:
                 The TrainingPipeline orchestrates tasks associated with training a Model. It
                    always executes the training task, and optionally may
-                   also export data from AI Platform's Dataset which
+                   also export data from Vertex AI's Dataset which
                    becomes the training input,
                    [upload][google.cloud.aiplatform.v1.ModelService.UploadModel]
-                   the Model to AI Platform, and evaluate the Model.
+                   the Model to Vertex AI, and evaluate the Model.
 
         """
         # Create or coerce a protobuf request object.
@@ -655,7 +658,6 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
             name (str):
                 Required. The name of the TrainingPipeline resource to
                 be deleted. Format:
-
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
 
                 This corresponds to the ``name`` field
@@ -761,7 +763,6 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
             name (str):
                 Required. The name of the TrainingPipeline to cancel.
                 Format:
-
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
 
                 This corresponds to the ``name`` field
