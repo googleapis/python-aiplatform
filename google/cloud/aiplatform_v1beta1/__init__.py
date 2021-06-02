@@ -457,21 +457,6 @@ from .types.vizier_service import SuggestTrialsRequest
 from .types.vizier_service import SuggestTrialsResponse
 
 __all__ = (
-    "DatasetServiceAsyncClient",
-    "EndpointServiceAsyncClient",
-    "FeaturestoreOnlineServingServiceAsyncClient",
-    "FeaturestoreServiceAsyncClient",
-    "IndexEndpointServiceAsyncClient",
-    "IndexServiceAsyncClient",
-    "JobServiceAsyncClient",
-    "MetadataServiceAsyncClient",
-    "MigrationServiceAsyncClient",
-    "ModelServiceAsyncClient",
-    "PipelineServiceAsyncClient",
-    "PredictionServiceAsyncClient",
-    "SpecialistPoolServiceAsyncClient",
-    "TensorboardServiceAsyncClient",
-    "VizierServiceAsyncClient",
     "AcceleratorType",
     "ActiveLearningConfig",
     "AddContextArtifactsAndExecutionsRequest",

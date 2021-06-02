@@ -472,7 +472,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.Tensorboard` Tensorboard is a physical database that stores users' training metrics.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.Tensorboard` Tensorboard is a physical database that stores users’ training metrics.
                    A default Tensorboard is provided in each region of a
                    GCP project. If needed users can also create extra
                    Tensorboards in their projects.
@@ -556,7 +556,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.Tensorboard:
                 Tensorboard is a physical database
-                that stores users' training metrics. A
+                that stores users’ training metrics. A
                 default Tensorboard is provided in each
                 region of a GCP project. If needed users
                 can also create extra Tensorboards in
@@ -646,7 +646,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.Tensorboard` Tensorboard is a physical database that stores users' training metrics.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.Tensorboard` Tensorboard is a physical database that stores users’ training metrics.
                    A default Tensorboard is provided in each region of a
                    GCP project. If needed users can also create extra
                    Tensorboards in their projects.

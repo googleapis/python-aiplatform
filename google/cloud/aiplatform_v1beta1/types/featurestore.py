@@ -31,6 +31,13 @@ class Featurestore(proto.Message):
         name (str):
             Output only. Name of the Featurestore. Format:
             ``projects/{project}/locations/{location}/featurestores/{featurestore}``
+        display_name (str):
+            Required. The user-defined name of the
+            Featurestore. The name can be up to 128
+            characters long and can consist of any UTF-8
+            characters.
+            Display name of a Featurestore must be unique
+            within a single Project and Location Pair.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Featurestore
             was created.
@@ -83,6 +90,7 @@ class Featurestore(proto.Message):
         fixed_node_count = proto.Field(proto.INT32, number=2,)
 
     name = proto.Field(proto.STRING, number=1,)
+    display_name = proto.Field(proto.STRING, number=2,)
     create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp_pb2.Timestamp,)
     update_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
     etag = proto.Field(proto.STRING, number=5,)
