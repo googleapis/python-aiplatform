@@ -203,402 +203,6 @@
         }
       }
     },
-    "FeaturestoreOnlineServingService": {
-      "clients": {
-        "grpc": {
-          "libraryClient": "FeaturestoreOnlineServingServiceClient",
-          "rpcs": {
-            "ReadFeatureValues": {
-              "methods": [
-                "read_feature_values"
-              ]
-            },
-            "StreamingReadFeatureValues": {
-              "methods": [
-                "streaming_read_feature_values"
-              ]
-            }
-          }
-        },
-        "grpc-async": {
-          "libraryClient": "FeaturestoreOnlineServingServiceAsyncClient",
-          "rpcs": {
-            "ReadFeatureValues": {
-              "methods": [
-                "read_feature_values"
-              ]
-            },
-            "StreamingReadFeatureValues": {
-              "methods": [
-                "streaming_read_feature_values"
-              ]
-            }
-          }
-        }
-      }
-    },
-    "FeaturestoreService": {
-      "clients": {
-        "grpc": {
-          "libraryClient": "FeaturestoreServiceClient",
-          "rpcs": {
-            "BatchCreateFeatures": {
-              "methods": [
-                "batch_create_features"
-              ]
-            },
-            "BatchReadFeatureValues": {
-              "methods": [
-                "batch_read_feature_values"
-              ]
-            },
-            "CreateEntityType": {
-              "methods": [
-                "create_entity_type"
-              ]
-            },
-            "CreateFeature": {
-              "methods": [
-                "create_feature"
-              ]
-            },
-            "CreateFeaturestore": {
-              "methods": [
-                "create_featurestore"
-              ]
-            },
-            "DeleteEntityType": {
-              "methods": [
-                "delete_entity_type"
-              ]
-            },
-            "DeleteFeature": {
-              "methods": [
-                "delete_feature"
-              ]
-            },
-            "DeleteFeaturestore": {
-              "methods": [
-                "delete_featurestore"
-              ]
-            },
-            "ExportFeatureValues": {
-              "methods": [
-                "export_feature_values"
-              ]
-            },
-            "GetEntityType": {
-              "methods": [
-                "get_entity_type"
-              ]
-            },
-            "GetFeature": {
-              "methods": [
-                "get_feature"
-              ]
-            },
-            "GetFeaturestore": {
-              "methods": [
-                "get_featurestore"
-              ]
-            },
-            "ImportFeatureValues": {
-              "methods": [
-                "import_feature_values"
-              ]
-            },
-            "ListEntityTypes": {
-              "methods": [
-                "list_entity_types"
-              ]
-            },
-            "ListFeatures": {
-              "methods": [
-                "list_features"
-              ]
-            },
-            "ListFeaturestores": {
-              "methods": [
-                "list_featurestores"
-              ]
-            },
-            "SearchFeatures": {
-              "methods": [
-                "search_features"
-              ]
-            },
-            "UpdateEntityType": {
-              "methods": [
-                "update_entity_type"
-              ]
-            },
-            "UpdateFeature": {
-              "methods": [
-                "update_feature"
-              ]
-            },
-            "UpdateFeaturestore": {
-              "methods": [
-                "update_featurestore"
-              ]
-            }
-          }
-        },
-        "grpc-async": {
-          "libraryClient": "FeaturestoreServiceAsyncClient",
-          "rpcs": {
-            "BatchCreateFeatures": {
-              "methods": [
-                "batch_create_features"
-              ]
-            },
-            "BatchReadFeatureValues": {
-              "methods": [
-                "batch_read_feature_values"
-              ]
-            },
-            "CreateEntityType": {
-              "methods": [
-                "create_entity_type"
-              ]
-            },
-            "CreateFeature": {
-              "methods": [
-                "create_feature"
-              ]
-            },
-            "CreateFeaturestore": {
-              "methods": [
-                "create_featurestore"
-              ]
-            },
-            "DeleteEntityType": {
-              "methods": [
-                "delete_entity_type"
-              ]
-            },
-            "DeleteFeature": {
-              "methods": [
-                "delete_feature"
-              ]
-            },
-            "DeleteFeaturestore": {
-              "methods": [
-                "delete_featurestore"
-              ]
-            },
-            "ExportFeatureValues": {
-              "methods": [
-                "export_feature_values"
-              ]
-            },
-            "GetEntityType": {
-              "methods": [
-                "get_entity_type"
-              ]
-            },
-            "GetFeature": {
-              "methods": [
-                "get_feature"
-              ]
-            },
-            "GetFeaturestore": {
-              "methods": [
-                "get_featurestore"
-              ]
-            },
-            "ImportFeatureValues": {
-              "methods": [
-                "import_feature_values"
-              ]
-            },
-            "ListEntityTypes": {
-              "methods": [
-                "list_entity_types"
-              ]
-            },
-            "ListFeatures": {
-              "methods": [
-                "list_features"
-              ]
-            },
-            "ListFeaturestores": {
-              "methods": [
-                "list_featurestores"
-              ]
-            },
-            "SearchFeatures": {
-              "methods": [
-                "search_features"
-              ]
-            },
-            "UpdateEntityType": {
-              "methods": [
-                "update_entity_type"
-              ]
-            },
-            "UpdateFeature": {
-              "methods": [
-                "update_feature"
-              ]
-            },
-            "UpdateFeaturestore": {
-              "methods": [
-                "update_featurestore"
-              ]
-            }
-          }
-        }
-      }
-    },
-    "IndexEndpointService": {
-      "clients": {
-        "grpc": {
-          "libraryClient": "IndexEndpointServiceClient",
-          "rpcs": {
-            "CreateIndexEndpoint": {
-              "methods": [
-                "create_index_endpoint"
-              ]
-            },
-            "DeleteIndexEndpoint": {
-              "methods": [
-                "delete_index_endpoint"
-              ]
-            },
-            "DeployIndex": {
-              "methods": [
-                "deploy_index"
-              ]
-            },
-            "GetIndexEndpoint": {
-              "methods": [
-                "get_index_endpoint"
-              ]
-            },
-            "ListIndexEndpoints": {
-              "methods": [
-                "list_index_endpoints"
-              ]
-            },
-            "UndeployIndex": {
-              "methods": [
-                "undeploy_index"
-              ]
-            },
-            "UpdateIndexEndpoint": {
-              "methods": [
-                "update_index_endpoint"
-              ]
-            }
-          }
-        },
-        "grpc-async": {
-          "libraryClient": "IndexEndpointServiceAsyncClient",
-          "rpcs": {
-            "CreateIndexEndpoint": {
-              "methods": [
-                "create_index_endpoint"
-              ]
-            },
-            "DeleteIndexEndpoint": {
-              "methods": [
-                "delete_index_endpoint"
-              ]
-            },
-            "DeployIndex": {
-              "methods": [
-                "deploy_index"
-              ]
-            },
-            "GetIndexEndpoint": {
-              "methods": [
-                "get_index_endpoint"
-              ]
-            },
-            "ListIndexEndpoints": {
-              "methods": [
-                "list_index_endpoints"
-              ]
-            },
-            "UndeployIndex": {
-              "methods": [
-                "undeploy_index"
-              ]
-            },
-            "UpdateIndexEndpoint": {
-              "methods": [
-                "update_index_endpoint"
-              ]
-            }
-          }
-        }
-      }
-    },
-    "IndexService": {
-      "clients": {
-        "grpc": {
-          "libraryClient": "IndexServiceClient",
-          "rpcs": {
-            "CreateIndex": {
-              "methods": [
-                "create_index"
-              ]
-            },
-            "DeleteIndex": {
-              "methods": [
-                "delete_index"
-              ]
-            },
-            "GetIndex": {
-              "methods": [
-                "get_index"
-              ]
-            },
-            "ListIndexes": {
-              "methods": [
-                "list_indexes"
-              ]
-            },
-            "UpdateIndex": {
-              "methods": [
-                "update_index"
-              ]
-            }
-          }
-        },
-        "grpc-async": {
-          "libraryClient": "IndexServiceAsyncClient",
-          "rpcs": {
-            "CreateIndex": {
-              "methods": [
-                "create_index"
-              ]
-            },
-            "DeleteIndex": {
-              "methods": [
-                "delete_index"
-              ]
-            },
-            "GetIndex": {
-              "methods": [
-                "get_index"
-              ]
-            },
-            "ListIndexes": {
-              "methods": [
-                "list_indexes"
-              ]
-            },
-            "UpdateIndex": {
-              "methods": [
-                "update_index"
-              ]
-            }
-          }
-        }
-      }
-    },
     "JobService": {
       "clients": {
         "grpc": {
@@ -644,11 +248,6 @@
                 "create_hyperparameter_tuning_job"
               ]
             },
-            "CreateModelDeploymentMonitoringJob": {
-              "methods": [
-                "create_model_deployment_monitoring_job"
-              ]
-            },
             "DeleteBatchPredictionJob": {
               "methods": [
                 "delete_batch_prediction_job"
@@ -667,11 +266,6 @@
             "DeleteHyperparameterTuningJob": {
               "methods": [
                 "delete_hyperparameter_tuning_job"
-              ]
-            },
-            "DeleteModelDeploymentMonitoringJob": {
-              "methods": [
-                "delete_model_deployment_monitoring_job"
               ]
             },
             "GetBatchPredictionJob": {
@@ -694,11 +288,6 @@
                 "get_hyperparameter_tuning_job"
               ]
             },
-            "GetModelDeploymentMonitoringJob": {
-              "methods": [
-                "get_model_deployment_monitoring_job"
-              ]
-            },
             "ListBatchPredictionJobs": {
               "methods": [
                 "list_batch_prediction_jobs"
@@ -717,31 +306,6 @@
             "ListHyperparameterTuningJobs": {
               "methods": [
                 "list_hyperparameter_tuning_jobs"
-              ]
-            },
-            "ListModelDeploymentMonitoringJobs": {
-              "methods": [
-                "list_model_deployment_monitoring_jobs"
-              ]
-            },
-            "PauseModelDeploymentMonitoringJob": {
-              "methods": [
-                "pause_model_deployment_monitoring_job"
-              ]
-            },
-            "ResumeModelDeploymentMonitoringJob": {
-              "methods": [
-                "resume_model_deployment_monitoring_job"
-              ]
-            },
-            "SearchModelDeploymentMonitoringStatsAnomalies": {
-              "methods": [
-                "search_model_deployment_monitoring_stats_anomalies"
-              ]
-            },
-            "UpdateModelDeploymentMonitoringJob": {
-              "methods": [
-                "update_model_deployment_monitoring_job"
               ]
             }
           }
@@ -789,11 +353,6 @@
                 "create_hyperparameter_tuning_job"
               ]
             },
-            "CreateModelDeploymentMonitoringJob": {
-              "methods": [
-                "create_model_deployment_monitoring_job"
-              ]
-            },
             "DeleteBatchPredictionJob": {
               "methods": [
                 "delete_batch_prediction_job"
@@ -812,11 +371,6 @@
             "DeleteHyperparameterTuningJob": {
               "methods": [
                 "delete_hyperparameter_tuning_job"
-              ]
-            },
-            "DeleteModelDeploymentMonitoringJob": {
-              "methods": [
-                "delete_model_deployment_monitoring_job"
               ]
             },
             "GetBatchPredictionJob": {
@@ -839,11 +393,6 @@
                 "get_hyperparameter_tuning_job"
               ]
             },
-            "GetModelDeploymentMonitoringJob": {
-              "methods": [
-                "get_model_deployment_monitoring_job"
-              ]
-            },
             "ListBatchPredictionJobs": {
               "methods": [
                 "list_batch_prediction_jobs"
@@ -862,305 +411,6 @@
             "ListHyperparameterTuningJobs": {
               "methods": [
                 "list_hyperparameter_tuning_jobs"
-              ]
-            },
-            "ListModelDeploymentMonitoringJobs": {
-              "methods": [
-                "list_model_deployment_monitoring_jobs"
-              ]
-            },
-            "PauseModelDeploymentMonitoringJob": {
-              "methods": [
-                "pause_model_deployment_monitoring_job"
-              ]
-            },
-            "ResumeModelDeploymentMonitoringJob": {
-              "methods": [
-                "resume_model_deployment_monitoring_job"
-              ]
-            },
-            "SearchModelDeploymentMonitoringStatsAnomalies": {
-              "methods": [
-                "search_model_deployment_monitoring_stats_anomalies"
-              ]
-            },
-            "UpdateModelDeploymentMonitoringJob": {
-              "methods": [
-                "update_model_deployment_monitoring_job"
-              ]
-            }
-          }
-        }
-      }
-    },
-    "MetadataService": {
-      "clients": {
-        "grpc": {
-          "libraryClient": "MetadataServiceClient",
-          "rpcs": {
-            "AddContextArtifactsAndExecutions": {
-              "methods": [
-                "add_context_artifacts_and_executions"
-              ]
-            },
-            "AddContextChildren": {
-              "methods": [
-                "add_context_children"
-              ]
-            },
-            "AddExecutionEvents": {
-              "methods": [
-                "add_execution_events"
-              ]
-            },
-            "CreateArtifact": {
-              "methods": [
-                "create_artifact"
-              ]
-            },
-            "CreateContext": {
-              "methods": [
-                "create_context"
-              ]
-            },
-            "CreateExecution": {
-              "methods": [
-                "create_execution"
-              ]
-            },
-            "CreateMetadataSchema": {
-              "methods": [
-                "create_metadata_schema"
-              ]
-            },
-            "CreateMetadataStore": {
-              "methods": [
-                "create_metadata_store"
-              ]
-            },
-            "DeleteContext": {
-              "methods": [
-                "delete_context"
-              ]
-            },
-            "DeleteMetadataStore": {
-              "methods": [
-                "delete_metadata_store"
-              ]
-            },
-            "GetArtifact": {
-              "methods": [
-                "get_artifact"
-              ]
-            },
-            "GetContext": {
-              "methods": [
-                "get_context"
-              ]
-            },
-            "GetExecution": {
-              "methods": [
-                "get_execution"
-              ]
-            },
-            "GetMetadataSchema": {
-              "methods": [
-                "get_metadata_schema"
-              ]
-            },
-            "GetMetadataStore": {
-              "methods": [
-                "get_metadata_store"
-              ]
-            },
-            "ListArtifacts": {
-              "methods": [
-                "list_artifacts"
-              ]
-            },
-            "ListContexts": {
-              "methods": [
-                "list_contexts"
-              ]
-            },
-            "ListExecutions": {
-              "methods": [
-                "list_executions"
-              ]
-            },
-            "ListMetadataSchemas": {
-              "methods": [
-                "list_metadata_schemas"
-              ]
-            },
-            "ListMetadataStores": {
-              "methods": [
-                "list_metadata_stores"
-              ]
-            },
-            "QueryArtifactLineageSubgraph": {
-              "methods": [
-                "query_artifact_lineage_subgraph"
-              ]
-            },
-            "QueryContextLineageSubgraph": {
-              "methods": [
-                "query_context_lineage_subgraph"
-              ]
-            },
-            "QueryExecutionInputsAndOutputs": {
-              "methods": [
-                "query_execution_inputs_and_outputs"
-              ]
-            },
-            "UpdateArtifact": {
-              "methods": [
-                "update_artifact"
-              ]
-            },
-            "UpdateContext": {
-              "methods": [
-                "update_context"
-              ]
-            },
-            "UpdateExecution": {
-              "methods": [
-                "update_execution"
-              ]
-            }
-          }
-        },
-        "grpc-async": {
-          "libraryClient": "MetadataServiceAsyncClient",
-          "rpcs": {
-            "AddContextArtifactsAndExecutions": {
-              "methods": [
-                "add_context_artifacts_and_executions"
-              ]
-            },
-            "AddContextChildren": {
-              "methods": [
-                "add_context_children"
-              ]
-            },
-            "AddExecutionEvents": {
-              "methods": [
-                "add_execution_events"
-              ]
-            },
-            "CreateArtifact": {
-              "methods": [
-                "create_artifact"
-              ]
-            },
-            "CreateContext": {
-              "methods": [
-                "create_context"
-              ]
-            },
-            "CreateExecution": {
-              "methods": [
-                "create_execution"
-              ]
-            },
-            "CreateMetadataSchema": {
-              "methods": [
-                "create_metadata_schema"
-              ]
-            },
-            "CreateMetadataStore": {
-              "methods": [
-                "create_metadata_store"
-              ]
-            },
-            "DeleteContext": {
-              "methods": [
-                "delete_context"
-              ]
-            },
-            "DeleteMetadataStore": {
-              "methods": [
-                "delete_metadata_store"
-              ]
-            },
-            "GetArtifact": {
-              "methods": [
-                "get_artifact"
-              ]
-            },
-            "GetContext": {
-              "methods": [
-                "get_context"
-              ]
-            },
-            "GetExecution": {
-              "methods": [
-                "get_execution"
-              ]
-            },
-            "GetMetadataSchema": {
-              "methods": [
-                "get_metadata_schema"
-              ]
-            },
-            "GetMetadataStore": {
-              "methods": [
-                "get_metadata_store"
-              ]
-            },
-            "ListArtifacts": {
-              "methods": [
-                "list_artifacts"
-              ]
-            },
-            "ListContexts": {
-              "methods": [
-                "list_contexts"
-              ]
-            },
-            "ListExecutions": {
-              "methods": [
-                "list_executions"
-              ]
-            },
-            "ListMetadataSchemas": {
-              "methods": [
-                "list_metadata_schemas"
-              ]
-            },
-            "ListMetadataStores": {
-              "methods": [
-                "list_metadata_stores"
-              ]
-            },
-            "QueryArtifactLineageSubgraph": {
-              "methods": [
-                "query_artifact_lineage_subgraph"
-              ]
-            },
-            "QueryContextLineageSubgraph": {
-              "methods": [
-                "query_context_lineage_subgraph"
-              ]
-            },
-            "QueryExecutionInputsAndOutputs": {
-              "methods": [
-                "query_execution_inputs_and_outputs"
-              ]
-            },
-            "UpdateArtifact": {
-              "methods": [
-                "update_artifact"
-              ]
-            },
-            "UpdateContext": {
-              "methods": [
-                "update_context"
-              ]
-            },
-            "UpdateExecution": {
-              "methods": [
-                "update_execution"
               ]
             }
           }
@@ -1320,19 +570,9 @@
         "grpc": {
           "libraryClient": "PipelineServiceClient",
           "rpcs": {
-            "CancelPipelineJob": {
-              "methods": [
-                "cancel_pipeline_job"
-              ]
-            },
             "CancelTrainingPipeline": {
               "methods": [
                 "cancel_training_pipeline"
-              ]
-            },
-            "CreatePipelineJob": {
-              "methods": [
-                "create_pipeline_job"
               ]
             },
             "CreateTrainingPipeline": {
@@ -1340,29 +580,14 @@
                 "create_training_pipeline"
               ]
             },
-            "DeletePipelineJob": {
-              "methods": [
-                "delete_pipeline_job"
-              ]
-            },
             "DeleteTrainingPipeline": {
               "methods": [
                 "delete_training_pipeline"
               ]
             },
-            "GetPipelineJob": {
-              "methods": [
-                "get_pipeline_job"
-              ]
-            },
             "GetTrainingPipeline": {
               "methods": [
                 "get_training_pipeline"
-              ]
-            },
-            "ListPipelineJobs": {
-              "methods": [
-                "list_pipeline_jobs"
               ]
             },
             "ListTrainingPipelines": {
@@ -1375,19 +600,9 @@
         "grpc-async": {
           "libraryClient": "PipelineServiceAsyncClient",
           "rpcs": {
-            "CancelPipelineJob": {
-              "methods": [
-                "cancel_pipeline_job"
-              ]
-            },
             "CancelTrainingPipeline": {
               "methods": [
                 "cancel_training_pipeline"
-              ]
-            },
-            "CreatePipelineJob": {
-              "methods": [
-                "create_pipeline_job"
               ]
             },
             "CreateTrainingPipeline": {
@@ -1395,29 +610,14 @@
                 "create_training_pipeline"
               ]
             },
-            "DeletePipelineJob": {
-              "methods": [
-                "delete_pipeline_job"
-              ]
-            },
             "DeleteTrainingPipeline": {
               "methods": [
                 "delete_training_pipeline"
               ]
             },
-            "GetPipelineJob": {
-              "methods": [
-                "get_pipeline_job"
-              ]
-            },
             "GetTrainingPipeline": {
               "methods": [
                 "get_training_pipeline"
-              ]
-            },
-            "ListPipelineJobs": {
-              "methods": [
-                "list_pipeline_jobs"
               ]
             },
             "ListTrainingPipelines": {
@@ -1521,260 +721,6 @@
             "UpdateSpecialistPool": {
               "methods": [
                 "update_specialist_pool"
-              ]
-            }
-          }
-        }
-      }
-    },
-    "TensorboardService": {
-      "clients": {
-        "grpc": {
-          "libraryClient": "TensorboardServiceClient",
-          "rpcs": {
-            "CreateTensorboard": {
-              "methods": [
-                "create_tensorboard"
-              ]
-            },
-            "CreateTensorboardExperiment": {
-              "methods": [
-                "create_tensorboard_experiment"
-              ]
-            },
-            "CreateTensorboardRun": {
-              "methods": [
-                "create_tensorboard_run"
-              ]
-            },
-            "CreateTensorboardTimeSeries": {
-              "methods": [
-                "create_tensorboard_time_series"
-              ]
-            },
-            "DeleteTensorboard": {
-              "methods": [
-                "delete_tensorboard"
-              ]
-            },
-            "DeleteTensorboardExperiment": {
-              "methods": [
-                "delete_tensorboard_experiment"
-              ]
-            },
-            "DeleteTensorboardRun": {
-              "methods": [
-                "delete_tensorboard_run"
-              ]
-            },
-            "DeleteTensorboardTimeSeries": {
-              "methods": [
-                "delete_tensorboard_time_series"
-              ]
-            },
-            "ExportTensorboardTimeSeriesData": {
-              "methods": [
-                "export_tensorboard_time_series_data"
-              ]
-            },
-            "GetTensorboard": {
-              "methods": [
-                "get_tensorboard"
-              ]
-            },
-            "GetTensorboardExperiment": {
-              "methods": [
-                "get_tensorboard_experiment"
-              ]
-            },
-            "GetTensorboardRun": {
-              "methods": [
-                "get_tensorboard_run"
-              ]
-            },
-            "GetTensorboardTimeSeries": {
-              "methods": [
-                "get_tensorboard_time_series"
-              ]
-            },
-            "ListTensorboardExperiments": {
-              "methods": [
-                "list_tensorboard_experiments"
-              ]
-            },
-            "ListTensorboardRuns": {
-              "methods": [
-                "list_tensorboard_runs"
-              ]
-            },
-            "ListTensorboardTimeSeries": {
-              "methods": [
-                "list_tensorboard_time_series"
-              ]
-            },
-            "ListTensorboards": {
-              "methods": [
-                "list_tensorboards"
-              ]
-            },
-            "ReadTensorboardBlobData": {
-              "methods": [
-                "read_tensorboard_blob_data"
-              ]
-            },
-            "ReadTensorboardTimeSeriesData": {
-              "methods": [
-                "read_tensorboard_time_series_data"
-              ]
-            },
-            "UpdateTensorboard": {
-              "methods": [
-                "update_tensorboard"
-              ]
-            },
-            "UpdateTensorboardExperiment": {
-              "methods": [
-                "update_tensorboard_experiment"
-              ]
-            },
-            "UpdateTensorboardRun": {
-              "methods": [
-                "update_tensorboard_run"
-              ]
-            },
-            "UpdateTensorboardTimeSeries": {
-              "methods": [
-                "update_tensorboard_time_series"
-              ]
-            },
-            "WriteTensorboardRunData": {
-              "methods": [
-                "write_tensorboard_run_data"
-              ]
-            }
-          }
-        },
-        "grpc-async": {
-          "libraryClient": "TensorboardServiceAsyncClient",
-          "rpcs": {
-            "CreateTensorboard": {
-              "methods": [
-                "create_tensorboard"
-              ]
-            },
-            "CreateTensorboardExperiment": {
-              "methods": [
-                "create_tensorboard_experiment"
-              ]
-            },
-            "CreateTensorboardRun": {
-              "methods": [
-                "create_tensorboard_run"
-              ]
-            },
-            "CreateTensorboardTimeSeries": {
-              "methods": [
-                "create_tensorboard_time_series"
-              ]
-            },
-            "DeleteTensorboard": {
-              "methods": [
-                "delete_tensorboard"
-              ]
-            },
-            "DeleteTensorboardExperiment": {
-              "methods": [
-                "delete_tensorboard_experiment"
-              ]
-            },
-            "DeleteTensorboardRun": {
-              "methods": [
-                "delete_tensorboard_run"
-              ]
-            },
-            "DeleteTensorboardTimeSeries": {
-              "methods": [
-                "delete_tensorboard_time_series"
-              ]
-            },
-            "ExportTensorboardTimeSeriesData": {
-              "methods": [
-                "export_tensorboard_time_series_data"
-              ]
-            },
-            "GetTensorboard": {
-              "methods": [
-                "get_tensorboard"
-              ]
-            },
-            "GetTensorboardExperiment": {
-              "methods": [
-                "get_tensorboard_experiment"
-              ]
-            },
-            "GetTensorboardRun": {
-              "methods": [
-                "get_tensorboard_run"
-              ]
-            },
-            "GetTensorboardTimeSeries": {
-              "methods": [
-                "get_tensorboard_time_series"
-              ]
-            },
-            "ListTensorboardExperiments": {
-              "methods": [
-                "list_tensorboard_experiments"
-              ]
-            },
-            "ListTensorboardRuns": {
-              "methods": [
-                "list_tensorboard_runs"
-              ]
-            },
-            "ListTensorboardTimeSeries": {
-              "methods": [
-                "list_tensorboard_time_series"
-              ]
-            },
-            "ListTensorboards": {
-              "methods": [
-                "list_tensorboards"
-              ]
-            },
-            "ReadTensorboardBlobData": {
-              "methods": [
-                "read_tensorboard_blob_data"
-              ]
-            },
-            "ReadTensorboardTimeSeriesData": {
-              "methods": [
-                "read_tensorboard_time_series_data"
-              ]
-            },
-            "UpdateTensorboard": {
-              "methods": [
-                "update_tensorboard"
-              ]
-            },
-            "UpdateTensorboardExperiment": {
-              "methods": [
-                "update_tensorboard_experiment"
-              ]
-            },
-            "UpdateTensorboardRun": {
-              "methods": [
-                "update_tensorboard_run"
-              ]
-            },
-            "UpdateTensorboardTimeSeries": {
-              "methods": [
-                "update_tensorboard_time_series"
-              ]
-            },
-            "WriteTensorboardRunData": {
-              "methods": [
-                "write_tensorboard_run_data"
               ]
             }
           }
