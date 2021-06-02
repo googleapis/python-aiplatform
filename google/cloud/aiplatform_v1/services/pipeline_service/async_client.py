@@ -20,10 +20,10 @@ from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
@@ -36,10 +36,10 @@ from google.cloud.aiplatform_v1.types import pipeline_service
 from google.cloud.aiplatform_v1.types import pipeline_state
 from google.cloud.aiplatform_v1.types import training_pipeline
 from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_pipeline
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 from .transports.base import PipelineServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import PipelineServiceGrpcAsyncIOTransport
 from .client import PipelineServiceClient
@@ -134,7 +134,7 @@ class PipelineServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         transport: Union[str, PipelineServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -193,8 +193,7 @@ class PipelineServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateTrainingPipelineRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [PipelineService.CreateTrainingPipeline][google.cloud.aiplatform.v1.PipelineService.CreateTrainingPipeline].
             parent (:class:`str`):
                 Required. The resource name of the Location to create
@@ -279,8 +278,7 @@ class PipelineServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetTrainingPipelineRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1.PipelineService.GetTrainingPipeline].
             name (:class:`str`):
                 Required. The name of the TrainingPipeline resource.
@@ -357,8 +355,7 @@ class PipelineServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListTrainingPipelinesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1.PipelineService.ListTrainingPipelines].
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
@@ -439,8 +436,7 @@ class PipelineServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteTrainingPipelineRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [PipelineService.DeleteTrainingPipeline][google.cloud.aiplatform.v1.PipelineService.DeleteTrainingPipeline].
             name (:class:`str`):
                 Required. The name of the TrainingPipeline resource to
@@ -514,7 +510,7 @@ class PipelineServiceAsyncClient:
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -546,8 +542,7 @@ class PipelineServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CancelTrainingPipelineRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [PipelineService.CancelTrainingPipeline][google.cloud.aiplatform.v1.PipelineService.CancelTrainingPipeline].
             name (:class:`str`):
                 Required. The name of the TrainingPipeline to cancel.

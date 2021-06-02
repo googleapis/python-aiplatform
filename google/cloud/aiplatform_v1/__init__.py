@@ -15,13 +15,21 @@
 #
 
 from .services.dataset_service import DatasetServiceClient
+from .services.dataset_service import DatasetServiceAsyncClient
 from .services.endpoint_service import EndpointServiceClient
+from .services.endpoint_service import EndpointServiceAsyncClient
 from .services.job_service import JobServiceClient
+from .services.job_service import JobServiceAsyncClient
 from .services.migration_service import MigrationServiceClient
+from .services.migration_service import MigrationServiceAsyncClient
 from .services.model_service import ModelServiceClient
+from .services.model_service import ModelServiceAsyncClient
 from .services.pipeline_service import PipelineServiceClient
+from .services.pipeline_service import PipelineServiceAsyncClient
 from .services.prediction_service import PredictionServiceClient
+from .services.prediction_service import PredictionServiceAsyncClient
 from .services.specialist_pool_service import SpecialistPoolServiceClient
+from .services.specialist_pool_service import SpecialistPoolServiceAsyncClient
 
 from .types.accelerator_type import AcceleratorType
 from .types.annotation import Annotation
@@ -179,6 +187,14 @@ from .types.training_pipeline import TrainingPipeline
 from .types.user_action_reference import UserActionReference
 
 __all__ = (
+    "DatasetServiceAsyncClient",
+    "EndpointServiceAsyncClient",
+    "JobServiceAsyncClient",
+    "MigrationServiceAsyncClient",
+    "ModelServiceAsyncClient",
+    "PipelineServiceAsyncClient",
+    "PredictionServiceAsyncClient",
+    "SpecialistPoolServiceAsyncClient",
     "AcceleratorType",
     "ActiveLearningConfig",
     "Annotation",
@@ -322,6 +338,7 @@ __all__ = (
     "SearchMigratableResourcesRequest",
     "SearchMigratableResourcesResponse",
     "SpecialistPool",
+    "SpecialistPoolServiceClient",
     "StudySpec",
     "TimestampSplit",
     "TrainingConfig",
@@ -340,5 +357,4 @@ __all__ = (
     "UploadModelResponse",
     "UserActionReference",
     "WorkerPoolSpec",
-    "SpecialistPoolServiceClient",
 )

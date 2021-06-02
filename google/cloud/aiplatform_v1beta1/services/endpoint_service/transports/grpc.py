@@ -19,8 +19,8 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+import google.auth  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
@@ -28,7 +28,7 @@ import grpc  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1beta1.types import endpoint_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
 from .base import EndpointServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -49,7 +49,7 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Sequence[str] = None,
         channel: grpc.Channel = None,
@@ -175,7 +175,7 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -241,10 +241,8 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
     @property
     def create_endpoint(
         self,
-    ) -> Callable[[endpoint_service.CreateEndpointRequest], operations.Operation]:
-        r"""Return a callable for the
-        create endpoint
-          method over gRPC.
+    ) -> Callable[[endpoint_service.CreateEndpointRequest], operations_pb2.Operation]:
+        r"""Return a callable for the create endpoint method over gRPC.
 
         Creates an Endpoint.
 
@@ -262,7 +260,7 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
             self._stubs["create_endpoint"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/CreateEndpoint",
                 request_serializer=endpoint_service.CreateEndpointRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["create_endpoint"]
 
@@ -270,9 +268,7 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
     def get_endpoint(
         self,
     ) -> Callable[[endpoint_service.GetEndpointRequest], endpoint.Endpoint]:
-        r"""Return a callable for the
-        get endpoint
-          method over gRPC.
+        r"""Return a callable for the get endpoint method over gRPC.
 
         Gets an Endpoint.
 
@@ -300,9 +296,7 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
     ) -> Callable[
         [endpoint_service.ListEndpointsRequest], endpoint_service.ListEndpointsResponse
     ]:
-        r"""Return a callable for the
-        list endpoints
-          method over gRPC.
+        r"""Return a callable for the list endpoints method over gRPC.
 
         Lists Endpoints in a Location.
 
@@ -328,9 +322,7 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
     def update_endpoint(
         self,
     ) -> Callable[[endpoint_service.UpdateEndpointRequest], gca_endpoint.Endpoint]:
-        r"""Return a callable for the
-        update endpoint
-          method over gRPC.
+        r"""Return a callable for the update endpoint method over gRPC.
 
         Updates an Endpoint.
 
@@ -355,10 +347,8 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
     @property
     def delete_endpoint(
         self,
-    ) -> Callable[[endpoint_service.DeleteEndpointRequest], operations.Operation]:
-        r"""Return a callable for the
-        delete endpoint
-          method over gRPC.
+    ) -> Callable[[endpoint_service.DeleteEndpointRequest], operations_pb2.Operation]:
+        r"""Return a callable for the delete endpoint method over gRPC.
 
         Deletes an Endpoint.
 
@@ -376,17 +366,15 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
             self._stubs["delete_endpoint"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/DeleteEndpoint",
                 request_serializer=endpoint_service.DeleteEndpointRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_endpoint"]
 
     @property
     def deploy_model(
         self,
-    ) -> Callable[[endpoint_service.DeployModelRequest], operations.Operation]:
-        r"""Return a callable for the
-        deploy model
-          method over gRPC.
+    ) -> Callable[[endpoint_service.DeployModelRequest], operations_pb2.Operation]:
+        r"""Return a callable for the deploy model method over gRPC.
 
         Deploys a Model into this Endpoint, creating a
         DeployedModel within it.
@@ -405,17 +393,15 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
             self._stubs["deploy_model"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/DeployModel",
                 request_serializer=endpoint_service.DeployModelRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["deploy_model"]
 
     @property
     def undeploy_model(
         self,
-    ) -> Callable[[endpoint_service.UndeployModelRequest], operations.Operation]:
-        r"""Return a callable for the
-        undeploy model
-          method over gRPC.
+    ) -> Callable[[endpoint_service.UndeployModelRequest], operations_pb2.Operation]:
+        r"""Return a callable for the undeploy model method over gRPC.
 
         Undeploys a Model from an Endpoint, removing a
         DeployedModel from it, and freeing all resources it's
@@ -435,7 +421,7 @@ class EndpointServiceGrpcTransport(EndpointServiceTransport):
             self._stubs["undeploy_model"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.EndpointService/UndeployModel",
                 request_serializer=endpoint_service.UndeployModelRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["undeploy_model"]
 

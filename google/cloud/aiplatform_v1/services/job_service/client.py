@@ -21,10 +21,10 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
@@ -53,11 +53,11 @@ from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import manual_batch_tuning_parameters
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import study
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
-from google.type import money_pb2 as money  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
+from google.type import money_pb2  # type: ignore
 from .transports.base import JobServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import JobServiceGrpcTransport
 from .transports.grpc_asyncio import JobServiceGrpcAsyncIOTransport
@@ -360,7 +360,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     def __init__(
         self,
         *,
-        credentials: Optional[credentials.Credentials] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, JobServiceTransport, None] = None,
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -485,8 +485,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.CreateCustomJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.CreateCustomJob][google.cloud.aiplatform.v1.JobService.CreateCustomJob].
             parent (str):
                 Required. The resource name of the Location to create
@@ -571,8 +570,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.GetCustomJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.GetCustomJob][google.cloud.aiplatform.v1.JobService.GetCustomJob].
             name (str):
                 Required. The name of the CustomJob resource. Format:
@@ -649,8 +647,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.ListCustomJobsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.ListCustomJobs][google.cloud.aiplatform.v1.JobService.ListCustomJobs].
             parent (str):
                 Required. The resource name of the Location to list the
@@ -731,8 +728,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.DeleteCustomJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.DeleteCustomJob][google.cloud.aiplatform.v1.JobService.DeleteCustomJob].
             name (str):
                 Required. The name of the CustomJob resource to be
@@ -805,7 +801,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -837,8 +833,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.CancelCustomJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.CancelCustomJob][google.cloud.aiplatform.v1.JobService.CancelCustomJob].
             name (str):
                 Required. The name of the CustomJob to cancel. Format:
@@ -903,8 +898,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.CreateDataLabelingJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DataLabelingJobService.CreateDataLabelingJob][].
             parent (str):
                 Required. The parent of the DataLabelingJob. Format:
@@ -985,8 +979,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.GetDataLabelingJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DataLabelingJobService.GetDataLabelingJob][].
             name (str):
                 Required. The name of the DataLabelingJob. Format:
@@ -1059,8 +1052,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.ListDataLabelingJobsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DataLabelingJobService.ListDataLabelingJobs][].
             parent (str):
                 Required. The parent of the DataLabelingJob. Format:
@@ -1140,8 +1132,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.DeleteDataLabelingJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.DeleteDataLabelingJob][google.cloud.aiplatform.v1.JobService.DeleteDataLabelingJob].
             name (str):
                 Required. The name of the DataLabelingJob to be deleted.
@@ -1215,7 +1206,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -1236,8 +1227,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.CancelDataLabelingJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DataLabelingJobService.CancelDataLabelingJob][].
             name (str):
                 Required. The name of the DataLabelingJob. Format:
@@ -1303,8 +1293,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.CreateHyperparameterTuningJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.CreateHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.CreateHyperparameterTuningJob].
             parent (str):
                 Required. The resource name of the Location to create
@@ -1389,8 +1378,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.GetHyperparameterTuningJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.GetHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.GetHyperparameterTuningJob].
             name (str):
                 Required. The name of the HyperparameterTuningJob
@@ -1467,8 +1455,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.ListHyperparameterTuningJobsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1.JobService.ListHyperparameterTuningJobs].
             parent (str):
                 Required. The resource name of the Location to list the
@@ -1551,8 +1538,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.DeleteHyperparameterTuningJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.DeleteHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.DeleteHyperparameterTuningJob].
             name (str):
                 Required. The name of the HyperparameterTuningJob
@@ -1628,7 +1614,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -1661,8 +1647,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.CancelHyperparameterTuningJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.CancelHyperparameterTuningJob][google.cloud.aiplatform.v1.JobService.CancelHyperparameterTuningJob].
             name (str):
                 Required. The name of the HyperparameterTuningJob to
@@ -1732,8 +1717,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.CreateBatchPredictionJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.CreateBatchPredictionJob][google.cloud.aiplatform.v1.JobService.CreateBatchPredictionJob].
             parent (str):
                 Required. The resource name of the Location to create
@@ -1820,8 +1804,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.GetBatchPredictionJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.GetBatchPredictionJob][google.cloud.aiplatform.v1.JobService.GetBatchPredictionJob].
             name (str):
                 Required. The name of the BatchPredictionJob resource.
@@ -1898,8 +1881,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.ListBatchPredictionJobsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1.JobService.ListBatchPredictionJobs].
             parent (str):
                 Required. The resource name of the Location to list the
@@ -1983,8 +1965,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.DeleteBatchPredictionJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.DeleteBatchPredictionJob][google.cloud.aiplatform.v1.JobService.DeleteBatchPredictionJob].
             name (str):
                 Required. The name of the BatchPredictionJob resource to
@@ -2060,7 +2041,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -2091,8 +2072,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.CancelBatchPredictionJobRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [JobService.CancelBatchPredictionJob][google.cloud.aiplatform.v1.JobService.CancelBatchPredictionJob].
             name (str):
                 Required. The name of the BatchPredictionJob to cancel.

@@ -18,21 +18,23 @@ from typing import Awaitable, Callable, Dict, Optional, Sequence, Union
 import packaging.version
 import pkg_resources
 
-from google import auth  # type: ignore
+import google.auth  # type: ignore
 import google.api_core  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import pipeline_job
+from google.cloud.aiplatform_v1beta1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import training_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
-from google.longrunning import operations_pb2 as operations  # type: ignore
-from google.protobuf import empty_pb2 as empty  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
 
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
@@ -45,7 +47,7 @@ except pkg_resources.DistributionNotFound:
 
 try:
     # google.auth.__version__ was added in 1.26.0
-    _GOOGLE_AUTH_VERSION = auth.__version__
+    _GOOGLE_AUTH_VERSION = google.auth.__version__
 except AttributeError:
     try:  # try pkg_resources if it is available
         _GOOGLE_AUTH_VERSION = pkg_resources.get_distribution("google-auth").version
@@ -66,7 +68,7 @@ class PipelineServiceTransport(abc.ABC):
         self,
         *,
         host: str = DEFAULT_HOST,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -108,17 +110,17 @@ class PipelineServiceTransport(abc.ABC):
         # If no credentials are provided, then determine the appropriate
         # defaults.
         if credentials and credentials_file:
-            raise exceptions.DuplicateCredentialArgs(
+            raise core_exceptions.DuplicateCredentialArgs(
                 "'credentials_file' and 'credentials' are mutually exclusive"
             )
 
         if credentials_file is not None:
-            credentials, _ = auth.load_credentials_from_file(
+            credentials, _ = google.auth.load_credentials_from_file(
                 credentials_file, **scopes_kwargs, quota_project_id=quota_project_id
             )
 
         elif credentials is None:
-            credentials, _ = auth.default(
+            credentials, _ = google.auth.default(
                 **scopes_kwargs, quota_project_id=quota_project_id
             )
 
@@ -198,6 +200,21 @@ class PipelineServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
+            self.create_pipeline_job: gapic_v1.method.wrap_method(
+                self.create_pipeline_job, default_timeout=None, client_info=client_info,
+            ),
+            self.get_pipeline_job: gapic_v1.method.wrap_method(
+                self.get_pipeline_job, default_timeout=None, client_info=client_info,
+            ),
+            self.list_pipeline_jobs: gapic_v1.method.wrap_method(
+                self.list_pipeline_jobs, default_timeout=None, client_info=client_info,
+            ),
+            self.delete_pipeline_job: gapic_v1.method.wrap_method(
+                self.delete_pipeline_job, default_timeout=None, client_info=client_info,
+            ),
+            self.cancel_pipeline_job: gapic_v1.method.wrap_method(
+                self.cancel_pipeline_job, default_timeout=None, client_info=client_info,
+            ),
         }
 
     @property
@@ -246,7 +263,7 @@ class PipelineServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [pipeline_service.DeleteTrainingPipelineRequest],
-        Union[operations.Operation, Awaitable[operations.Operation]],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 
@@ -255,7 +272,55 @@ class PipelineServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [pipeline_service.CancelTrainingPipelineRequest],
-        Union[empty.Empty, Awaitable[empty.Empty]],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def create_pipeline_job(
+        self,
+    ) -> Callable[
+        [pipeline_service.CreatePipelineJobRequest],
+        Union[gca_pipeline_job.PipelineJob, Awaitable[gca_pipeline_job.PipelineJob]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_pipeline_job(
+        self,
+    ) -> Callable[
+        [pipeline_service.GetPipelineJobRequest],
+        Union[pipeline_job.PipelineJob, Awaitable[pipeline_job.PipelineJob]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_pipeline_jobs(
+        self,
+    ) -> Callable[
+        [pipeline_service.ListPipelineJobsRequest],
+        Union[
+            pipeline_service.ListPipelineJobsResponse,
+            Awaitable[pipeline_service.ListPipelineJobsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_pipeline_job(
+        self,
+    ) -> Callable[
+        [pipeline_service.DeletePipelineJobRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def cancel_pipeline_job(
+        self,
+    ) -> Callable[
+        [pipeline_service.CancelPipelineJobRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
     ]:
         raise NotImplementedError()
 

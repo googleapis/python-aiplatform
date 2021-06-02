@@ -24,16 +24,15 @@ import pytest
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 
 
-from google import auth
 from google.api_core import client_options
-from google.api_core import exceptions
+from google.api_core import exceptions as core_exceptions
 from google.api_core import future
 from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
-from google.auth import credentials
+from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.migration_service import (
     MigrationServiceAsyncClient,
@@ -51,6 +50,7 @@ from google.cloud.aiplatform_v1.types import migratable_resource
 from google.cloud.aiplatform_v1.types import migration_service
 from google.longrunning import operations_pb2
 from google.oauth2 import service_account
+import google.auth
 
 
 # TODO(busunkim): Once google-api-core >= 1.26.0 is required:
@@ -125,7 +125,7 @@ def test__get_default_mtls_endpoint():
     "client_class", [MigrationServiceClient, MigrationServiceAsyncClient,]
 )
 def test_migration_service_client_from_service_account_info(client_class):
-    creds = credentials.AnonymousCredentials()
+    creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
     ) as factory:
@@ -142,7 +142,7 @@ def test_migration_service_client_from_service_account_info(client_class):
     "client_class", [MigrationServiceClient, MigrationServiceAsyncClient,]
 )
 def test_migration_service_client_from_service_account_file(client_class):
-    creds = credentials.AnonymousCredentials()
+    creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_file"
     ) as factory:
@@ -195,7 +195,7 @@ def test_migration_service_client_client_options(
 ):
     # Check that if channel is provided we won't create a new one.
     with mock.patch.object(MigrationServiceClient, "get_transport_class") as gtc:
-        transport = transport_class(credentials=credentials.AnonymousCredentials())
+        transport = transport_class(credentials=ga_credentials.AnonymousCredentials())
         client = client_class(transport=transport)
         gtc.assert_not_called()
 
@@ -494,7 +494,7 @@ def test_search_migratable_resources(
     request_type=migration_service.SearchMigratableResourcesRequest,
 ):
     client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -529,7 +529,7 @@ def test_search_migratable_resources_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -548,7 +548,7 @@ async def test_search_migratable_resources_async(
     request_type=migration_service.SearchMigratableResourcesRequest,
 ):
     client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -583,7 +583,7 @@ async def test_search_migratable_resources_async_from_dict():
 
 
 def test_search_migratable_resources_field_headers():
-    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
+    client = MigrationServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -611,7 +611,7 @@ def test_search_migratable_resources_field_headers():
 @pytest.mark.asyncio
 async def test_search_migratable_resources_field_headers_async():
     client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -640,7 +640,7 @@ async def test_search_migratable_resources_field_headers_async():
 
 
 def test_search_migratable_resources_flattened():
-    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
+    client = MigrationServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -660,7 +660,7 @@ def test_search_migratable_resources_flattened():
 
 
 def test_search_migratable_resources_flattened_error():
-    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
+    client = MigrationServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -673,7 +673,7 @@ def test_search_migratable_resources_flattened_error():
 @pytest.mark.asyncio
 async def test_search_migratable_resources_flattened_async():
     client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -700,7 +700,7 @@ async def test_search_migratable_resources_flattened_async():
 @pytest.mark.asyncio
 async def test_search_migratable_resources_flattened_error_async():
     client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -712,7 +712,7 @@ async def test_search_migratable_resources_flattened_error_async():
 
 
 def test_search_migratable_resources_pager():
-    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials,)
+    client = MigrationServiceClient(credentials=ga_credentials.AnonymousCredentials,)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -760,7 +760,7 @@ def test_search_migratable_resources_pager():
 
 
 def test_search_migratable_resources_pages():
-    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials,)
+    client = MigrationServiceClient(credentials=ga_credentials.AnonymousCredentials,)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -798,7 +798,9 @@ def test_search_migratable_resources_pages():
 
 @pytest.mark.asyncio
 async def test_search_migratable_resources_async_pager():
-    client = MigrationServiceAsyncClient(credentials=credentials.AnonymousCredentials,)
+    client = MigrationServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -845,7 +847,9 @@ async def test_search_migratable_resources_async_pager():
 
 @pytest.mark.asyncio
 async def test_search_migratable_resources_async_pages():
-    client = MigrationServiceAsyncClient(credentials=credentials.AnonymousCredentials,)
+    client = MigrationServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -889,7 +893,7 @@ def test_batch_migrate_resources(
     transport: str = "grpc", request_type=migration_service.BatchMigrateResourcesRequest
 ):
     client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -921,7 +925,7 @@ def test_batch_migrate_resources_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -940,7 +944,7 @@ async def test_batch_migrate_resources_async(
     request_type=migration_service.BatchMigrateResourcesRequest,
 ):
     client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -972,7 +976,7 @@ async def test_batch_migrate_resources_async_from_dict():
 
 
 def test_batch_migrate_resources_field_headers():
-    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
+    client = MigrationServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -1000,7 +1004,7 @@ def test_batch_migrate_resources_field_headers():
 @pytest.mark.asyncio
 async def test_batch_migrate_resources_field_headers_async():
     client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1029,7 +1033,7 @@ async def test_batch_migrate_resources_field_headers_async():
 
 
 def test_batch_migrate_resources_flattened():
-    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
+    client = MigrationServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1065,7 +1069,7 @@ def test_batch_migrate_resources_flattened():
 
 
 def test_batch_migrate_resources_flattened_error():
-    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
+    client = MigrationServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -1086,7 +1090,7 @@ def test_batch_migrate_resources_flattened_error():
 @pytest.mark.asyncio
 async def test_batch_migrate_resources_flattened_async():
     client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1129,7 +1133,7 @@ async def test_batch_migrate_resources_flattened_async():
 @pytest.mark.asyncio
 async def test_batch_migrate_resources_flattened_error_async():
     client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1151,16 +1155,16 @@ async def test_batch_migrate_resources_flattened_error_async():
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.MigrationServiceGrpcTransport(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
         client = MigrationServiceClient(
-            credentials=credentials.AnonymousCredentials(), transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
     transport = transports.MigrationServiceGrpcTransport(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
         client = MigrationServiceClient(
@@ -1170,7 +1174,7 @@ def test_credentials_transport_error():
 
     # It is an error to provide scopes and a transport instance.
     transport = transports.MigrationServiceGrpcTransport(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
         client = MigrationServiceClient(
@@ -1181,7 +1185,7 @@ def test_credentials_transport_error():
 def test_transport_instance():
     # A client may be instantiated with a custom transport instance.
     transport = transports.MigrationServiceGrpcTransport(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     client = MigrationServiceClient(transport=transport)
     assert client.transport is transport
@@ -1190,13 +1194,13 @@ def test_transport_instance():
 def test_transport_get_channel():
     # A client may be instantiated with a custom transport instance.
     transport = transports.MigrationServiceGrpcTransport(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     channel = transport.grpc_channel
     assert channel
 
     transport = transports.MigrationServiceGrpcAsyncIOTransport(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     channel = transport.grpc_channel
     assert channel
@@ -1211,23 +1215,23 @@ def test_transport_get_channel():
 )
 def test_transport_adc(transport_class):
     # Test default credentials are used if not provided.
-    with mock.patch.object(auth, "default") as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
+    with mock.patch.object(google.auth, "default") as adc:
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport_class()
         adc.assert_called_once()
 
 
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = MigrationServiceClient(credentials=credentials.AnonymousCredentials(),)
+    client = MigrationServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
     assert isinstance(client.transport, transports.MigrationServiceGrpcTransport,)
 
 
 def test_migration_service_base_transport_error():
     # Passing both a credentials object and credentials_file should raise an error
-    with pytest.raises(exceptions.DuplicateCredentialArgs):
+    with pytest.raises(core_exceptions.DuplicateCredentialArgs):
         transport = transports.MigrationServiceTransport(
-            credentials=credentials.AnonymousCredentials(),
+            credentials=ga_credentials.AnonymousCredentials(),
             credentials_file="credentials.json",
         )
 
@@ -1239,7 +1243,7 @@ def test_migration_service_base_transport():
     ) as Transport:
         Transport.return_value = None
         transport = transports.MigrationServiceTransport(
-            credentials=credentials.AnonymousCredentials(),
+            credentials=ga_credentials.AnonymousCredentials(),
         )
 
     # Every method on the transport should just blindly
@@ -1262,12 +1266,12 @@ def test_migration_service_base_transport():
 def test_migration_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
-        auth, "load_credentials_from_file", autospec=True
+        google.auth, "load_credentials_from_file", autospec=True
     ) as load_creds, mock.patch(
         "google.cloud.aiplatform_v1.services.migration_service.transports.MigrationServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
-        load_creds.return_value = (credentials.AnonymousCredentials(), None)
+        load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.MigrationServiceTransport(
             credentials_file="credentials.json", quota_project_id="octopus",
         )
@@ -1283,12 +1287,12 @@ def test_migration_service_base_transport_with_credentials_file():
 def test_migration_service_base_transport_with_credentials_file_old_google_auth():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
-        auth, "load_credentials_from_file", autospec=True
+        google.auth, "load_credentials_from_file", autospec=True
     ) as load_creds, mock.patch(
         "google.cloud.aiplatform_v1.services.migration_service.transports.MigrationServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
-        load_creds.return_value = (credentials.AnonymousCredentials(), None)
+        load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.MigrationServiceTransport(
             credentials_file="credentials.json", quota_project_id="octopus",
         )
@@ -1301,11 +1305,11 @@ def test_migration_service_base_transport_with_credentials_file_old_google_auth(
 
 def test_migration_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch(
+    with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
         "google.cloud.aiplatform_v1.services.migration_service.transports.MigrationServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
-        adc.return_value = (credentials.AnonymousCredentials(), None)
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.MigrationServiceTransport()
         adc.assert_called_once()
 
@@ -1313,8 +1317,8 @@ def test_migration_service_base_transport_with_adc():
 @requires_google_auth_gte_1_25_0
 def test_migration_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
+    with mock.patch.object(google.auth, "default", autospec=True) as adc:
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         MigrationServiceClient()
         adc.assert_called_once_with(
             scopes=None,
@@ -1326,8 +1330,8 @@ def test_migration_service_auth_adc():
 @requires_google_auth_lt_1_25_0
 def test_migration_service_auth_adc_old_google_auth():
     # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
+    with mock.patch.object(google.auth, "default", autospec=True) as adc:
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         MigrationServiceClient()
         adc.assert_called_once_with(
             scopes=("https://www.googleapis.com/auth/cloud-platform",),
@@ -1346,8 +1350,8 @@ def test_migration_service_auth_adc_old_google_auth():
 def test_migration_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
+    with mock.patch.object(google.auth, "default", autospec=True) as adc:
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport_class(quota_project_id="octopus", scopes=["1", "2"])
         adc.assert_called_once_with(
             scopes=["1", "2"],
@@ -1367,8 +1371,8 @@ def test_migration_service_transport_auth_adc(transport_class):
 def test_migration_service_transport_auth_adc_old_google_auth(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
+    with mock.patch.object(google.auth, "default", autospec=True) as adc:
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport_class(quota_project_id="octopus")
         adc.assert_called_once_with(
             scopes=("https://www.googleapis.com/auth/cloud-platform",),
@@ -1387,10 +1391,12 @@ def test_migration_service_transport_auth_adc_old_google_auth(transport_class):
 def test_migration_service_transport_create_channel(transport_class, grpc_helpers):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
+    with mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
         grpc_helpers, "create_channel", autospec=True
     ) as create_channel:
-        creds = credentials.AnonymousCredentials()
+        creds = ga_credentials.AnonymousCredentials()
         adc.return_value = (creds, None)
         transport_class(quota_project_id="octopus", scopes=["1", "2"])
 
@@ -1423,10 +1429,12 @@ def test_migration_service_transport_create_channel_old_api_core(
 ):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
+    with mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
         grpc_helpers, "create_channel", autospec=True
     ) as create_channel:
-        creds = credentials.AnonymousCredentials()
+        creds = ga_credentials.AnonymousCredentials()
         adc.return_value = (creds, None)
         transport_class(quota_project_id="octopus")
 
@@ -1457,10 +1465,12 @@ def test_migration_service_transport_create_channel_user_scopes(
 ):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
+    with mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
         grpc_helpers, "create_channel", autospec=True
     ) as create_channel:
-        creds = credentials.AnonymousCredentials()
+        creds = ga_credentials.AnonymousCredentials()
         adc.return_value = (creds, None)
 
         transport_class(quota_project_id="octopus", scopes=["1", "2"])
@@ -1487,7 +1497,7 @@ def test_migration_service_transport_create_channel_user_scopes(
     ],
 )
 def test_migration_service_grpc_transport_client_cert_source_for_mtls(transport_class):
-    cred = credentials.AnonymousCredentials()
+    cred = ga_credentials.AnonymousCredentials()
 
     # Check ssl_channel_credentials is used if provided.
     with mock.patch.object(transport_class, "create_channel") as mock_create_channel:
@@ -1526,7 +1536,7 @@ def test_migration_service_grpc_transport_client_cert_source_for_mtls(transport_
 
 def test_migration_service_host_no_port():
     client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com"
         ),
@@ -1536,7 +1546,7 @@ def test_migration_service_host_no_port():
 
 def test_migration_service_host_with_port():
     client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com:8000"
         ),
@@ -1592,9 +1602,9 @@ def test_migration_service_transport_channel_mtls_with_client_cert_source(
             mock_grpc_channel = mock.Mock()
             grpc_create_channel.return_value = mock_grpc_channel
 
-            cred = credentials.AnonymousCredentials()
+            cred = ga_credentials.AnonymousCredentials()
             with pytest.warns(DeprecationWarning):
-                with mock.patch.object(auth, "default") as adc:
+                with mock.patch.object(google.auth, "default") as adc:
                     adc.return_value = (cred, None)
                     transport = transport_class(
                         host="squid.clam.whelk",
@@ -1670,7 +1680,7 @@ def test_migration_service_transport_channel_mtls_with_adc(transport_class):
 
 def test_migration_service_grpc_lro_client():
     client = MigrationServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
     transport = client.transport
 
@@ -1683,7 +1693,7 @@ def test_migration_service_grpc_lro_client():
 
 def test_migration_service_grpc_lro_async_client():
     client = MigrationServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
     )
     transport = client.transport
 
@@ -1722,31 +1732,7 @@ def test_parse_annotated_dataset_path():
 
 def test_dataset_path():
     project = "cuttlefish"
-    location = "mussel"
-    dataset = "winkle"
-    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project, location=location, dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, location, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "dataset": "abalone",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "squid"
-    dataset = "clam"
+    dataset = "mussel"
     expected = "projects/{project}/datasets/{dataset}".format(
         project=project, dataset=dataset,
     )
@@ -1756,7 +1742,31 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "whelk",
+        "project": "winkle",
+        "dataset": "nautilus",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "scallop"
+    location = "abalone"
+    dataset = "squid"
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        project=project, location=location, dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, location, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "clam",
+        "location": "whelk",
         "dataset": "octopus",
     }
     path = MigrationServiceClient.dataset_path(**expected)
@@ -1965,7 +1975,7 @@ def test_client_withDEFAULT_CLIENT_INFO():
         transports.MigrationServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = MigrationServiceClient(
-            credentials=credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -1974,6 +1984,6 @@ def test_client_withDEFAULT_CLIENT_INFO():
     ) as prep:
         transport_class = MigrationServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)

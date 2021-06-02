@@ -20,10 +20,10 @@ from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
@@ -37,10 +37,10 @@ from google.cloud.aiplatform_v1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1.types import dataset_service
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import operation as gca_operation
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import DatasetServiceGrpcAsyncIOTransport
 from .client import DatasetServiceClient
@@ -137,7 +137,7 @@ class DatasetServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         transport: Union[str, DatasetServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -195,8 +195,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateDatasetRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.CreateDataset][google.cloud.aiplatform.v1.DatasetService.CreateDataset].
             parent (:class:`str`):
                 Required. The resource name of the Location to create
@@ -286,8 +285,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetDatasetRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.GetDataset][google.cloud.aiplatform.v1.DatasetService.GetDataset].
             name (:class:`str`):
                 Required. The name of the Dataset
@@ -350,7 +348,7 @@ class DatasetServiceAsyncClient:
         request: dataset_service.UpdateDatasetRequest = None,
         *,
         dataset: gca_dataset.Dataset = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -359,8 +357,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateDatasetRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.UpdateDataset][google.cloud.aiplatform.v1.DatasetService.UpdateDataset].
             dataset (:class:`google.cloud.aiplatform_v1.types.Dataset`):
                 Required. The Dataset which replaces
@@ -448,8 +445,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListDatasetsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.ListDatasets][google.cloud.aiplatform.v1.DatasetService.ListDatasets].
             parent (:class:`str`):
                 Required. The name of the Dataset's parent resource.
@@ -529,8 +525,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteDatasetRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.DeleteDataset][google.cloud.aiplatform.v1.DatasetService.DeleteDataset].
             name (:class:`str`):
                 Required. The resource name of the Dataset to delete.
@@ -603,7 +598,7 @@ class DatasetServiceAsyncClient:
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -624,8 +619,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ImportDataRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.ImportData][google.cloud.aiplatform.v1.DatasetService.ImportData].
             name (:class:`str`):
                 Required. The name of the Dataset resource. Format:
@@ -719,8 +713,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ExportDataRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.ExportData][google.cloud.aiplatform.v1.DatasetService.ExportData].
             name (:class:`str`):
                 Required. The name of the Dataset resource. Format:
@@ -812,8 +805,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListDataItemsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems].
             parent (:class:`str`):
                 Required. The resource name of the Dataset to list
@@ -894,8 +886,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetAnnotationSpecRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1.DatasetService.GetAnnotationSpec].
             name (:class:`str`):
                 Required. The name of the AnnotationSpec resource.
@@ -968,8 +959,7 @@ class DatasetServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListAnnotationsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
             parent (:class:`str`):
                 Required. The resource name of the DataItem to list

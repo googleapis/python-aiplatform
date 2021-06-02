@@ -19,8 +19,8 @@ from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import explanation
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -299,7 +299,7 @@ class Model(proto.Message):
     description = proto.Field(proto.STRING, number=3,)
     predict_schemata = proto.Field(proto.MESSAGE, number=4, message="PredictSchemata",)
     metadata_schema_uri = proto.Field(proto.STRING, number=5,)
-    metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
+    metadata = proto.Field(proto.MESSAGE, number=6, message=struct_pb2.Value,)
     supported_export_formats = proto.RepeatedField(
         proto.MESSAGE, number=20, message=ExportFormat,
     )
@@ -311,8 +311,12 @@ class Model(proto.Message):
     )
     supported_input_storage_formats = proto.RepeatedField(proto.STRING, number=11,)
     supported_output_storage_formats = proto.RepeatedField(proto.STRING, number=12,)
-    create_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
+    create_time = proto.Field(
+        proto.MESSAGE, number=13, message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE, number=14, message=timestamp_pb2.Timestamp,
+    )
     deployed_models = proto.RepeatedField(
         proto.MESSAGE, number=15, message=deployed_model_ref.DeployedModelRef,
     )
@@ -320,7 +324,7 @@ class Model(proto.Message):
         proto.MESSAGE, number=23, message=explanation.ExplanationSpec,
     )
     etag = proto.Field(proto.STRING, number=16,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=17)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=17,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=24, message=gca_encryption_spec.EncryptionSpec,
     )
@@ -389,8 +393,9 @@ class PredictSchemata(proto.Message):
 
 
 class ModelContainerSpec(proto.Message):
-    r"""Specification of a container for serving predictions. This message
-    is a subset of the Kubernetes Container v1 core
+    r"""Specification of a container for serving predictions. Some fields in
+    this message correspond to fields in the Kubernetes Container v1
+    core
     `specification <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
 
     Attributes:

@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+
 from google.cloud.aiplatform.v1.schema.predict.prediction_v1.types.classification import (
     ClassificationPredictionResult,
 )

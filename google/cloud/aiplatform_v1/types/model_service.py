@@ -20,7 +20,7 @@ from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import operation
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -161,7 +161,7 @@ class ListModelsRequest(proto.Message):
     filter = proto.Field(proto.STRING, number=2,)
     page_size = proto.Field(proto.INT32, number=3,)
     page_token = proto.Field(proto.STRING, number=4,)
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
     order_by = proto.Field(proto.STRING, number=6,)
 
 
@@ -201,7 +201,9 @@ class UpdateModelRequest(proto.Message):
     """
 
     model = proto.Field(proto.MESSAGE, number=1, message=gca_model.Model,)
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(
+        proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
+    )
 
 
 class DeleteModelRequest(proto.Message):
@@ -358,7 +360,7 @@ class ListModelEvaluationsRequest(proto.Message):
     filter = proto.Field(proto.STRING, number=2,)
     page_size = proto.Field(proto.INT32, number=3,)
     page_token = proto.Field(proto.STRING, number=4,)
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
 
 
 class ListModelEvaluationsResponse(proto.Message):
@@ -430,7 +432,7 @@ class ListModelEvaluationSlicesRequest(proto.Message):
     filter = proto.Field(proto.STRING, number=2,)
     page_size = proto.Field(proto.INT32, number=3,)
     page_token = proto.Field(proto.STRING, number=4,)
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
 
 
 class ListModelEvaluationSlicesResponse(proto.Message):

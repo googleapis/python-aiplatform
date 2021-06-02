@@ -24,16 +24,15 @@ import pytest
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 
 
-from google import auth
 from google.api_core import client_options
-from google.api_core import exceptions
+from google.api_core import exceptions as core_exceptions
 from google.api_core import future
 from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
-from google.auth import credentials
+from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.specialist_pool_service import (
     SpecialistPoolServiceAsyncClient,
@@ -55,7 +54,8 @@ from google.cloud.aiplatform_v1.types import specialist_pool as gca_specialist_p
 from google.cloud.aiplatform_v1.types import specialist_pool_service
 from google.longrunning import operations_pb2
 from google.oauth2 import service_account
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+import google.auth
 
 
 # TODO(busunkim): Once google-api-core >= 1.26.0 is required:
@@ -130,7 +130,7 @@ def test__get_default_mtls_endpoint():
     "client_class", [SpecialistPoolServiceClient, SpecialistPoolServiceAsyncClient,]
 )
 def test_specialist_pool_service_client_from_service_account_info(client_class):
-    creds = credentials.AnonymousCredentials()
+    creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
     ) as factory:
@@ -147,7 +147,7 @@ def test_specialist_pool_service_client_from_service_account_info(client_class):
     "client_class", [SpecialistPoolServiceClient, SpecialistPoolServiceAsyncClient,]
 )
 def test_specialist_pool_service_client_from_service_account_file(client_class):
-    creds = credentials.AnonymousCredentials()
+    creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_file"
     ) as factory:
@@ -204,7 +204,7 @@ def test_specialist_pool_service_client_client_options(
 ):
     # Check that if channel is provided we won't create a new one.
     with mock.patch.object(SpecialistPoolServiceClient, "get_transport_class") as gtc:
-        transport = transport_class(credentials=credentials.AnonymousCredentials())
+        transport = transport_class(credentials=ga_credentials.AnonymousCredentials())
         client = client_class(transport=transport)
         gtc.assert_not_called()
 
@@ -511,7 +511,7 @@ def test_create_specialist_pool(
     request_type=specialist_pool_service.CreateSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -543,7 +543,7 @@ def test_create_specialist_pool_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -562,7 +562,7 @@ async def test_create_specialist_pool_async(
     request_type=specialist_pool_service.CreateSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -595,7 +595,7 @@ async def test_create_specialist_pool_async_from_dict():
 
 def test_create_specialist_pool_field_headers():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -624,7 +624,7 @@ def test_create_specialist_pool_field_headers():
 @pytest.mark.asyncio
 async def test_create_specialist_pool_field_headers_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -654,7 +654,7 @@ async def test_create_specialist_pool_field_headers_async():
 
 def test_create_specialist_pool_flattened():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -682,7 +682,7 @@ def test_create_specialist_pool_flattened():
 
 def test_create_specialist_pool_flattened_error():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -698,7 +698,7 @@ def test_create_specialist_pool_flattened_error():
 @pytest.mark.asyncio
 async def test_create_specialist_pool_flattened_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -731,7 +731,7 @@ async def test_create_specialist_pool_flattened_async():
 @pytest.mark.asyncio
 async def test_create_specialist_pool_flattened_error_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -749,7 +749,7 @@ def test_get_specialist_pool(
     request_type=specialist_pool_service.GetSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -792,7 +792,7 @@ def test_get_specialist_pool_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -811,7 +811,7 @@ async def test_get_specialist_pool_async(
     request_type=specialist_pool_service.GetSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -855,7 +855,7 @@ async def test_get_specialist_pool_async_from_dict():
 
 def test_get_specialist_pool_field_headers():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -884,7 +884,7 @@ def test_get_specialist_pool_field_headers():
 @pytest.mark.asyncio
 async def test_get_specialist_pool_field_headers_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -914,7 +914,7 @@ async def test_get_specialist_pool_field_headers_async():
 
 def test_get_specialist_pool_flattened():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -936,7 +936,7 @@ def test_get_specialist_pool_flattened():
 
 def test_get_specialist_pool_flattened_error():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -950,7 +950,7 @@ def test_get_specialist_pool_flattened_error():
 @pytest.mark.asyncio
 async def test_get_specialist_pool_flattened_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -977,7 +977,7 @@ async def test_get_specialist_pool_flattened_async():
 @pytest.mark.asyncio
 async def test_get_specialist_pool_flattened_error_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -993,7 +993,7 @@ def test_list_specialist_pools(
     request_type=specialist_pool_service.ListSpecialistPoolsRequest,
 ):
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1028,7 +1028,7 @@ def test_list_specialist_pools_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1047,7 +1047,7 @@ async def test_list_specialist_pools_async(
     request_type=specialist_pool_service.ListSpecialistPoolsRequest,
 ):
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1083,7 +1083,7 @@ async def test_list_specialist_pools_async_from_dict():
 
 def test_list_specialist_pools_field_headers():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1112,7 +1112,7 @@ def test_list_specialist_pools_field_headers():
 @pytest.mark.asyncio
 async def test_list_specialist_pools_field_headers_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1142,7 +1142,7 @@ async def test_list_specialist_pools_field_headers_async():
 
 def test_list_specialist_pools_flattened():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1164,7 +1164,7 @@ def test_list_specialist_pools_flattened():
 
 def test_list_specialist_pools_flattened_error():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1178,7 +1178,7 @@ def test_list_specialist_pools_flattened_error():
 @pytest.mark.asyncio
 async def test_list_specialist_pools_flattened_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1205,7 +1205,7 @@ async def test_list_specialist_pools_flattened_async():
 @pytest.mark.asyncio
 async def test_list_specialist_pools_flattened_error_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1217,7 +1217,9 @@ async def test_list_specialist_pools_flattened_error_async():
 
 
 def test_list_specialist_pools_pager():
-    client = SpecialistPoolServiceClient(credentials=credentials.AnonymousCredentials,)
+    client = SpecialistPoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1263,7 +1265,9 @@ def test_list_specialist_pools_pager():
 
 
 def test_list_specialist_pools_pages():
-    client = SpecialistPoolServiceClient(credentials=credentials.AnonymousCredentials,)
+    client = SpecialistPoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1302,7 +1306,7 @@ def test_list_specialist_pools_pages():
 @pytest.mark.asyncio
 async def test_list_specialist_pools_async_pager():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1349,7 +1353,7 @@ async def test_list_specialist_pools_async_pager():
 @pytest.mark.asyncio
 async def test_list_specialist_pools_async_pages():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials,
+        credentials=ga_credentials.AnonymousCredentials,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1395,7 +1399,7 @@ def test_delete_specialist_pool(
     request_type=specialist_pool_service.DeleteSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1427,7 +1431,7 @@ def test_delete_specialist_pool_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1446,7 +1450,7 @@ async def test_delete_specialist_pool_async(
     request_type=specialist_pool_service.DeleteSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1479,7 +1483,7 @@ async def test_delete_specialist_pool_async_from_dict():
 
 def test_delete_specialist_pool_field_headers():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1508,7 +1512,7 @@ def test_delete_specialist_pool_field_headers():
 @pytest.mark.asyncio
 async def test_delete_specialist_pool_field_headers_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1538,7 +1542,7 @@ async def test_delete_specialist_pool_field_headers_async():
 
 def test_delete_specialist_pool_flattened():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1560,7 +1564,7 @@ def test_delete_specialist_pool_flattened():
 
 def test_delete_specialist_pool_flattened_error():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1574,7 +1578,7 @@ def test_delete_specialist_pool_flattened_error():
 @pytest.mark.asyncio
 async def test_delete_specialist_pool_flattened_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1601,7 +1605,7 @@ async def test_delete_specialist_pool_flattened_async():
 @pytest.mark.asyncio
 async def test_delete_specialist_pool_flattened_error_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1617,7 +1621,7 @@ def test_update_specialist_pool(
     request_type=specialist_pool_service.UpdateSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1649,7 +1653,7 @@ def test_update_specialist_pool_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1668,7 +1672,7 @@ async def test_update_specialist_pool_async(
     request_type=specialist_pool_service.UpdateSpecialistPoolRequest,
 ):
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1701,7 +1705,7 @@ async def test_update_specialist_pool_async_from_dict():
 
 def test_update_specialist_pool_field_headers():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1733,7 +1737,7 @@ def test_update_specialist_pool_field_headers():
 @pytest.mark.asyncio
 async def test_update_specialist_pool_field_headers_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
@@ -1766,7 +1770,7 @@ async def test_update_specialist_pool_field_headers_async():
 
 def test_update_specialist_pool_flattened():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1779,7 +1783,7 @@ def test_update_specialist_pool_flattened():
         # using the keyword arguments to the method.
         client.update_specialist_pool(
             specialist_pool=gca_specialist_pool.SpecialistPool(name="name_value"),
-            update_mask=field_mask.FieldMask(paths=["paths_value"]),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
         # Establish that the underlying call was made with the expected
@@ -1789,12 +1793,12 @@ def test_update_specialist_pool_flattened():
         assert args[0].specialist_pool == gca_specialist_pool.SpecialistPool(
             name="name_value"
         )
-        assert args[0].update_mask == field_mask.FieldMask(paths=["paths_value"])
+        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
 
 
 def test_update_specialist_pool_flattened_error():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1803,14 +1807,14 @@ def test_update_specialist_pool_flattened_error():
         client.update_specialist_pool(
             specialist_pool_service.UpdateSpecialistPoolRequest(),
             specialist_pool=gca_specialist_pool.SpecialistPool(name="name_value"),
-            update_mask=field_mask.FieldMask(paths=["paths_value"]),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
 
 @pytest.mark.asyncio
 async def test_update_specialist_pool_flattened_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1827,7 +1831,7 @@ async def test_update_specialist_pool_flattened_async():
         # using the keyword arguments to the method.
         response = await client.update_specialist_pool(
             specialist_pool=gca_specialist_pool.SpecialistPool(name="name_value"),
-            update_mask=field_mask.FieldMask(paths=["paths_value"]),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
         # Establish that the underlying call was made with the expected
@@ -1837,13 +1841,13 @@ async def test_update_specialist_pool_flattened_async():
         assert args[0].specialist_pool == gca_specialist_pool.SpecialistPool(
             name="name_value"
         )
-        assert args[0].update_mask == field_mask.FieldMask(paths=["paths_value"])
+        assert args[0].update_mask == field_mask_pb2.FieldMask(paths=["paths_value"])
 
 
 @pytest.mark.asyncio
 async def test_update_specialist_pool_flattened_error_async():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
@@ -1852,23 +1856,23 @@ async def test_update_specialist_pool_flattened_error_async():
         await client.update_specialist_pool(
             specialist_pool_service.UpdateSpecialistPoolRequest(),
             specialist_pool=gca_specialist_pool.SpecialistPool(name="name_value"),
-            update_mask=field_mask.FieldMask(paths=["paths_value"]),
+            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
         )
 
 
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.SpecialistPoolServiceGrpcTransport(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
         client = SpecialistPoolServiceClient(
-            credentials=credentials.AnonymousCredentials(), transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
     transport = transports.SpecialistPoolServiceGrpcTransport(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
         client = SpecialistPoolServiceClient(
@@ -1878,7 +1882,7 @@ def test_credentials_transport_error():
 
     # It is an error to provide scopes and a transport instance.
     transport = transports.SpecialistPoolServiceGrpcTransport(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
         client = SpecialistPoolServiceClient(
@@ -1889,7 +1893,7 @@ def test_credentials_transport_error():
 def test_transport_instance():
     # A client may be instantiated with a custom transport instance.
     transport = transports.SpecialistPoolServiceGrpcTransport(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     client = SpecialistPoolServiceClient(transport=transport)
     assert client.transport is transport
@@ -1898,13 +1902,13 @@ def test_transport_instance():
 def test_transport_get_channel():
     # A client may be instantiated with a custom transport instance.
     transport = transports.SpecialistPoolServiceGrpcTransport(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     channel = transport.grpc_channel
     assert channel
 
     transport = transports.SpecialistPoolServiceGrpcAsyncIOTransport(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     channel = transport.grpc_channel
     assert channel
@@ -1919,8 +1923,8 @@ def test_transport_get_channel():
 )
 def test_transport_adc(transport_class):
     # Test default credentials are used if not provided.
-    with mock.patch.object(auth, "default") as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
+    with mock.patch.object(google.auth, "default") as adc:
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport_class()
         adc.assert_called_once()
 
@@ -1928,16 +1932,16 @@ def test_transport_adc(transport_class):
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
     )
     assert isinstance(client.transport, transports.SpecialistPoolServiceGrpcTransport,)
 
 
 def test_specialist_pool_service_base_transport_error():
     # Passing both a credentials object and credentials_file should raise an error
-    with pytest.raises(exceptions.DuplicateCredentialArgs):
+    with pytest.raises(core_exceptions.DuplicateCredentialArgs):
         transport = transports.SpecialistPoolServiceTransport(
-            credentials=credentials.AnonymousCredentials(),
+            credentials=ga_credentials.AnonymousCredentials(),
             credentials_file="credentials.json",
         )
 
@@ -1949,7 +1953,7 @@ def test_specialist_pool_service_base_transport():
     ) as Transport:
         Transport.return_value = None
         transport = transports.SpecialistPoolServiceTransport(
-            credentials=credentials.AnonymousCredentials(),
+            credentials=ga_credentials.AnonymousCredentials(),
         )
 
     # Every method on the transport should just blindly
@@ -1975,12 +1979,12 @@ def test_specialist_pool_service_base_transport():
 def test_specialist_pool_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
-        auth, "load_credentials_from_file", autospec=True
+        google.auth, "load_credentials_from_file", autospec=True
     ) as load_creds, mock.patch(
         "google.cloud.aiplatform_v1.services.specialist_pool_service.transports.SpecialistPoolServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
-        load_creds.return_value = (credentials.AnonymousCredentials(), None)
+        load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.SpecialistPoolServiceTransport(
             credentials_file="credentials.json", quota_project_id="octopus",
         )
@@ -1996,12 +2000,12 @@ def test_specialist_pool_service_base_transport_with_credentials_file():
 def test_specialist_pool_service_base_transport_with_credentials_file_old_google_auth():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
-        auth, "load_credentials_from_file", autospec=True
+        google.auth, "load_credentials_from_file", autospec=True
     ) as load_creds, mock.patch(
         "google.cloud.aiplatform_v1.services.specialist_pool_service.transports.SpecialistPoolServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
-        load_creds.return_value = (credentials.AnonymousCredentials(), None)
+        load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.SpecialistPoolServiceTransport(
             credentials_file="credentials.json", quota_project_id="octopus",
         )
@@ -2014,11 +2018,11 @@ def test_specialist_pool_service_base_transport_with_credentials_file_old_google
 
 def test_specialist_pool_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch(
+    with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
         "google.cloud.aiplatform_v1.services.specialist_pool_service.transports.SpecialistPoolServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
-        adc.return_value = (credentials.AnonymousCredentials(), None)
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.SpecialistPoolServiceTransport()
         adc.assert_called_once()
 
@@ -2026,8 +2030,8 @@ def test_specialist_pool_service_base_transport_with_adc():
 @requires_google_auth_gte_1_25_0
 def test_specialist_pool_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
+    with mock.patch.object(google.auth, "default", autospec=True) as adc:
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         SpecialistPoolServiceClient()
         adc.assert_called_once_with(
             scopes=None,
@@ -2039,8 +2043,8 @@ def test_specialist_pool_service_auth_adc():
 @requires_google_auth_lt_1_25_0
 def test_specialist_pool_service_auth_adc_old_google_auth():
     # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
+    with mock.patch.object(google.auth, "default", autospec=True) as adc:
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         SpecialistPoolServiceClient()
         adc.assert_called_once_with(
             scopes=("https://www.googleapis.com/auth/cloud-platform",),
@@ -2059,8 +2063,8 @@ def test_specialist_pool_service_auth_adc_old_google_auth():
 def test_specialist_pool_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
+    with mock.patch.object(google.auth, "default", autospec=True) as adc:
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport_class(quota_project_id="octopus", scopes=["1", "2"])
         adc.assert_called_once_with(
             scopes=["1", "2"],
@@ -2080,8 +2084,8 @@ def test_specialist_pool_service_transport_auth_adc(transport_class):
 def test_specialist_pool_service_transport_auth_adc_old_google_auth(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc:
-        adc.return_value = (credentials.AnonymousCredentials(), None)
+    with mock.patch.object(google.auth, "default", autospec=True) as adc:
+        adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport_class(quota_project_id="octopus")
         adc.assert_called_once_with(
             scopes=("https://www.googleapis.com/auth/cloud-platform",),
@@ -2102,10 +2106,12 @@ def test_specialist_pool_service_transport_create_channel(
 ):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
+    with mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
         grpc_helpers, "create_channel", autospec=True
     ) as create_channel:
-        creds = credentials.AnonymousCredentials()
+        creds = ga_credentials.AnonymousCredentials()
         adc.return_value = (creds, None)
         transport_class(quota_project_id="octopus", scopes=["1", "2"])
 
@@ -2138,10 +2144,12 @@ def test_specialist_pool_service_transport_create_channel_old_api_core(
 ):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
+    with mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
         grpc_helpers, "create_channel", autospec=True
     ) as create_channel:
-        creds = credentials.AnonymousCredentials()
+        creds = ga_credentials.AnonymousCredentials()
         adc.return_value = (creds, None)
         transport_class(quota_project_id="octopus")
 
@@ -2172,10 +2180,12 @@ def test_specialist_pool_service_transport_create_channel_user_scopes(
 ):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(auth, "default", autospec=True) as adc, mock.patch.object(
+    with mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
         grpc_helpers, "create_channel", autospec=True
     ) as create_channel:
-        creds = credentials.AnonymousCredentials()
+        creds = ga_credentials.AnonymousCredentials()
         adc.return_value = (creds, None)
 
         transport_class(quota_project_id="octopus", scopes=["1", "2"])
@@ -2204,7 +2214,7 @@ def test_specialist_pool_service_transport_create_channel_user_scopes(
 def test_specialist_pool_service_grpc_transport_client_cert_source_for_mtls(
     transport_class,
 ):
-    cred = credentials.AnonymousCredentials()
+    cred = ga_credentials.AnonymousCredentials()
 
     # Check ssl_channel_credentials is used if provided.
     with mock.patch.object(transport_class, "create_channel") as mock_create_channel:
@@ -2243,7 +2253,7 @@ def test_specialist_pool_service_grpc_transport_client_cert_source_for_mtls(
 
 def test_specialist_pool_service_host_no_port():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com"
         ),
@@ -2253,7 +2263,7 @@ def test_specialist_pool_service_host_no_port():
 
 def test_specialist_pool_service_host_with_port():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(),
+        credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com:8000"
         ),
@@ -2309,9 +2319,9 @@ def test_specialist_pool_service_transport_channel_mtls_with_client_cert_source(
             mock_grpc_channel = mock.Mock()
             grpc_create_channel.return_value = mock_grpc_channel
 
-            cred = credentials.AnonymousCredentials()
+            cred = ga_credentials.AnonymousCredentials()
             with pytest.warns(DeprecationWarning):
-                with mock.patch.object(auth, "default") as adc:
+                with mock.patch.object(google.auth, "default") as adc:
                     adc.return_value = (cred, None)
                     transport = transport_class(
                         host="squid.clam.whelk",
@@ -2387,7 +2397,7 @@ def test_specialist_pool_service_transport_channel_mtls_with_adc(transport_class
 
 def test_specialist_pool_service_grpc_lro_client():
     client = SpecialistPoolServiceClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
     )
     transport = client.transport
 
@@ -2400,7 +2410,7 @@ def test_specialist_pool_service_grpc_lro_client():
 
 def test_specialist_pool_service_grpc_lro_async_client():
     client = SpecialistPoolServiceAsyncClient(
-        credentials=credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
     )
     transport = client.transport
 
@@ -2540,7 +2550,7 @@ def test_client_withDEFAULT_CLIENT_INFO():
         transports.SpecialistPoolServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = SpecialistPoolServiceClient(
-            credentials=credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -2549,6 +2559,6 @@ def test_client_withDEFAULT_CLIENT_INFO():
     ) as prep:
         transport_class = SpecialistPoolServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
         )
         prep.assert_called_once_with(client_info)

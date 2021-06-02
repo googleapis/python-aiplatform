@@ -20,10 +20,10 @@ from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
@@ -33,8 +33,8 @@ from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import specialist_pool
 from google.cloud.aiplatform_v1.types import specialist_pool as gca_specialist_pool
 from google.cloud.aiplatform_v1.types import specialist_pool_service
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 from .transports.base import SpecialistPoolServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import SpecialistPoolServiceGrpcAsyncIOTransport
 from .client import SpecialistPoolServiceClient
@@ -136,7 +136,7 @@ class SpecialistPoolServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         transport: Union[str, SpecialistPoolServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -194,8 +194,7 @@ class SpecialistPoolServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateSpecialistPoolRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.CreateSpecialistPool].
             parent (:class:`str`):
                 Required. The parent Project name for the new
@@ -292,8 +291,7 @@ class SpecialistPoolServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetSpecialistPoolRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.GetSpecialistPool].
             name (:class:`str`):
                 Required. The name of the SpecialistPool resource. The
@@ -375,8 +373,7 @@ class SpecialistPoolServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListSpecialistPoolsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1.SpecialistPoolService.ListSpecialistPools].
             parent (:class:`str`):
                 Required. The name of the SpecialistPool's parent
@@ -458,8 +455,7 @@ class SpecialistPoolServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteSpecialistPoolRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.DeleteSpecialistPool].
             name (:class:`str`):
                 Required. The resource name of the SpecialistPool to
@@ -532,7 +528,7 @@ class SpecialistPoolServiceAsyncClient:
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -544,7 +540,7 @@ class SpecialistPoolServiceAsyncClient:
         request: specialist_pool_service.UpdateSpecialistPoolRequest = None,
         *,
         specialist_pool: gca_specialist_pool.SpecialistPool = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -553,8 +549,7 @@ class SpecialistPoolServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateSpecialistPoolRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.UpdateSpecialistPool].
             specialist_pool (:class:`google.cloud.aiplatform_v1.types.SpecialistPool`):
                 Required. The SpecialistPool which

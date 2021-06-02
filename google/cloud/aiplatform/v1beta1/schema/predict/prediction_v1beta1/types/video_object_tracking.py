@@ -15,8 +15,8 @@
 #
 import proto  # type: ignore
 
-from google.protobuf import duration_pb2 as duration  # type: ignore
-from google.protobuf import wrappers_pb2 as wrappers  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
+from google.protobuf import wrappers_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -83,19 +83,23 @@ class VideoObjectTrackingPredictionResult(proto.Message):
                 box.
         """
 
-        time_offset = proto.Field(proto.MESSAGE, number=1, message=duration.Duration,)
-        x_min = proto.Field(proto.MESSAGE, number=2, message=wrappers.FloatValue,)
-        x_max = proto.Field(proto.MESSAGE, number=3, message=wrappers.FloatValue,)
-        y_min = proto.Field(proto.MESSAGE, number=4, message=wrappers.FloatValue,)
-        y_max = proto.Field(proto.MESSAGE, number=5, message=wrappers.FloatValue,)
+        time_offset = proto.Field(
+            proto.MESSAGE, number=1, message=duration_pb2.Duration,
+        )
+        x_min = proto.Field(proto.MESSAGE, number=2, message=wrappers_pb2.FloatValue,)
+        x_max = proto.Field(proto.MESSAGE, number=3, message=wrappers_pb2.FloatValue,)
+        y_min = proto.Field(proto.MESSAGE, number=4, message=wrappers_pb2.FloatValue,)
+        y_max = proto.Field(proto.MESSAGE, number=5, message=wrappers_pb2.FloatValue,)
 
     id = proto.Field(proto.STRING, number=1,)
     display_name = proto.Field(proto.STRING, number=2,)
     time_segment_start = proto.Field(
-        proto.MESSAGE, number=3, message=duration.Duration,
+        proto.MESSAGE, number=3, message=duration_pb2.Duration,
     )
-    time_segment_end = proto.Field(proto.MESSAGE, number=4, message=duration.Duration,)
-    confidence = proto.Field(proto.MESSAGE, number=5, message=wrappers.FloatValue,)
+    time_segment_end = proto.Field(
+        proto.MESSAGE, number=4, message=duration_pb2.Duration,
+    )
+    confidence = proto.Field(proto.MESSAGE, number=5, message=wrappers_pb2.FloatValue,)
     frames = proto.RepeatedField(proto.MESSAGE, number=6, message=Frame,)
 
 

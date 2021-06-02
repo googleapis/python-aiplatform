@@ -19,8 +19,7 @@ from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import grpc_helpers_async  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 import packaging.version
 
@@ -30,8 +29,8 @@ from grpc.experimental import aio  # type: ignore
 from google.cloud.aiplatform_v1.types import pipeline_service
 from google.cloud.aiplatform_v1.types import training_pipeline
 from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_pipeline
-from google.longrunning import operations_pb2 as operations  # type: ignore
-from google.protobuf import empty_pb2 as empty  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
 from .base import PipelineServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import PipelineServiceGrpcTransport
 
@@ -56,7 +55,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -99,7 +98,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         channel: aio.Channel = None,
@@ -254,9 +253,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         [pipeline_service.CreateTrainingPipelineRequest],
         Awaitable[gca_training_pipeline.TrainingPipeline],
     ]:
-        r"""Return a callable for the
-        create training pipeline
-          method over gRPC.
+        r"""Return a callable for the create training pipeline method over gRPC.
 
         Creates a TrainingPipeline. A created
         TrainingPipeline right away will be attempted to be run.
@@ -286,9 +283,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         [pipeline_service.GetTrainingPipelineRequest],
         Awaitable[training_pipeline.TrainingPipeline],
     ]:
-        r"""Return a callable for the
-        get training pipeline
-          method over gRPC.
+        r"""Return a callable for the get training pipeline method over gRPC.
 
         Gets a TrainingPipeline.
 
@@ -317,9 +312,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         [pipeline_service.ListTrainingPipelinesRequest],
         Awaitable[pipeline_service.ListTrainingPipelinesResponse],
     ]:
-        r"""Return a callable for the
-        list training pipelines
-          method over gRPC.
+        r"""Return a callable for the list training pipelines method over gRPC.
 
         Lists TrainingPipelines in a Location.
 
@@ -346,11 +339,9 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         self,
     ) -> Callable[
         [pipeline_service.DeleteTrainingPipelineRequest],
-        Awaitable[operations.Operation],
+        Awaitable[operations_pb2.Operation],
     ]:
-        r"""Return a callable for the
-        delete training pipeline
-          method over gRPC.
+        r"""Return a callable for the delete training pipeline method over gRPC.
 
         Deletes a TrainingPipeline.
 
@@ -368,7 +359,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
             self._stubs["delete_training_pipeline"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.PipelineService/DeleteTrainingPipeline",
                 request_serializer=pipeline_service.DeleteTrainingPipelineRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_training_pipeline"]
 
@@ -376,11 +367,9 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
     def cancel_training_pipeline(
         self,
     ) -> Callable[
-        [pipeline_service.CancelTrainingPipelineRequest], Awaitable[empty.Empty]
+        [pipeline_service.CancelTrainingPipelineRequest], Awaitable[empty_pb2.Empty]
     ]:
-        r"""Return a callable for the
-        cancel training pipeline
-          method over gRPC.
+        r"""Return a callable for the cancel training pipeline method over gRPC.
 
         Cancels a TrainingPipeline. Starts asynchronous cancellation on
         the TrainingPipeline. The server makes a best effort to cancel
@@ -410,7 +399,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
             self._stubs["cancel_training_pipeline"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.PipelineService/CancelTrainingPipeline",
                 request_serializer=pipeline_service.CancelTrainingPipelineRequest.serialize,
-                response_deserializer=empty.Empty.FromString,
+                response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["cancel_training_pipeline"]
 

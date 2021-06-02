@@ -23,9 +23,9 @@ from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters,
 )
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -282,7 +282,7 @@ class BatchPredictionJob(proto.Message):
     display_name = proto.Field(proto.STRING, number=2,)
     model = proto.Field(proto.STRING, number=3,)
     input_config = proto.Field(proto.MESSAGE, number=4, message=InputConfig,)
-    model_parameters = proto.Field(proto.MESSAGE, number=5, message=struct.Value,)
+    model_parameters = proto.Field(proto.MESSAGE, number=5, message=struct_pb2.Value,)
     output_config = proto.Field(proto.MESSAGE, number=6, message=OutputConfig,)
     dedicated_resources = proto.Field(
         proto.MESSAGE, number=7, message=machine_resources.BatchDedicatedResources,
@@ -294,9 +294,9 @@ class BatchPredictionJob(proto.Message):
     )
     output_info = proto.Field(proto.MESSAGE, number=9, message=OutputInfo,)
     state = proto.Field(proto.ENUM, number=10, enum=job_state.JobState,)
-    error = proto.Field(proto.MESSAGE, number=11, message=status.Status,)
+    error = proto.Field(proto.MESSAGE, number=11, message=status_pb2.Status,)
     partial_failures = proto.RepeatedField(
-        proto.MESSAGE, number=12, message=status.Status,
+        proto.MESSAGE, number=12, message=status_pb2.Status,
     )
     resources_consumed = proto.Field(
         proto.MESSAGE, number=13, message=machine_resources.ResourcesConsumed,
@@ -304,11 +304,15 @@ class BatchPredictionJob(proto.Message):
     completion_stats = proto.Field(
         proto.MESSAGE, number=14, message=gca_completion_stats.CompletionStats,
     )
-    create_time = proto.Field(proto.MESSAGE, number=15, message=timestamp.Timestamp,)
-    start_time = proto.Field(proto.MESSAGE, number=16, message=timestamp.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=17, message=timestamp.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=18, message=timestamp.Timestamp,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=19)
+    create_time = proto.Field(
+        proto.MESSAGE, number=15, message=timestamp_pb2.Timestamp,
+    )
+    start_time = proto.Field(proto.MESSAGE, number=16, message=timestamp_pb2.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=17, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE, number=18, message=timestamp_pb2.Timestamp,
+    )
+    labels = proto.MapField(proto.STRING, proto.STRING, number=19,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=24, message=gca_encryption_spec.EncryptionSpec,
     )

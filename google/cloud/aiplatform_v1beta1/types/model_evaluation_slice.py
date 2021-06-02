@@ -15,8 +15,8 @@
 #
 import proto  # type: ignore
 
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -75,8 +75,8 @@ class ModelEvaluationSlice(proto.Message):
     name = proto.Field(proto.STRING, number=1,)
     slice_ = proto.Field(proto.MESSAGE, number=2, message=Slice,)
     metrics_schema_uri = proto.Field(proto.STRING, number=3,)
-    metrics = proto.Field(proto.MESSAGE, number=4, message=struct.Value,)
-    create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp.Timestamp,)
+    metrics = proto.Field(proto.MESSAGE, number=4, message=struct_pb2.Value,)
+    create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp_pb2.Timestamp,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

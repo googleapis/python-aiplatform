@@ -19,8 +19,8 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+import google.auth  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
@@ -30,7 +30,7 @@ from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
 from .base import ModelServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -53,7 +53,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Sequence[str] = None,
         channel: grpc.Channel = None,
@@ -179,7 +179,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -245,10 +245,8 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
     @property
     def upload_model(
         self,
-    ) -> Callable[[model_service.UploadModelRequest], operations.Operation]:
-        r"""Return a callable for the
-        upload model
-          method over gRPC.
+    ) -> Callable[[model_service.UploadModelRequest], operations_pb2.Operation]:
+        r"""Return a callable for the upload model method over gRPC.
 
         Uploads a Model artifact into AI Platform.
 
@@ -266,15 +264,13 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
             self._stubs["upload_model"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.ModelService/UploadModel",
                 request_serializer=model_service.UploadModelRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["upload_model"]
 
     @property
     def get_model(self) -> Callable[[model_service.GetModelRequest], model.Model]:
-        r"""Return a callable for the
-        get model
-          method over gRPC.
+        r"""Return a callable for the get model method over gRPC.
 
         Gets a Model.
 
@@ -300,9 +296,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
     def list_models(
         self,
     ) -> Callable[[model_service.ListModelsRequest], model_service.ListModelsResponse]:
-        r"""Return a callable for the
-        list models
-          method over gRPC.
+        r"""Return a callable for the list models method over gRPC.
 
         Lists Models in a Location.
 
@@ -328,9 +322,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
     def update_model(
         self,
     ) -> Callable[[model_service.UpdateModelRequest], gca_model.Model]:
-        r"""Return a callable for the
-        update model
-          method over gRPC.
+        r"""Return a callable for the update model method over gRPC.
 
         Updates a Model.
 
@@ -355,10 +347,8 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
     @property
     def delete_model(
         self,
-    ) -> Callable[[model_service.DeleteModelRequest], operations.Operation]:
-        r"""Return a callable for the
-        delete model
-          method over gRPC.
+    ) -> Callable[[model_service.DeleteModelRequest], operations_pb2.Operation]:
+        r"""Return a callable for the delete model method over gRPC.
 
         Deletes a Model.
         Note: Model can only be deleted if there are no
@@ -378,17 +368,15 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
             self._stubs["delete_model"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.ModelService/DeleteModel",
                 request_serializer=model_service.DeleteModelRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_model"]
 
     @property
     def export_model(
         self,
-    ) -> Callable[[model_service.ExportModelRequest], operations.Operation]:
-        r"""Return a callable for the
-        export model
-          method over gRPC.
+    ) -> Callable[[model_service.ExportModelRequest], operations_pb2.Operation]:
+        r"""Return a callable for the export model method over gRPC.
 
         Exports a trained, exportable, Model to a location specified by
         the user. A Model is considered to be exportable if it has at
@@ -409,7 +397,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
             self._stubs["export_model"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.ModelService/ExportModel",
                 request_serializer=model_service.ExportModelRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["export_model"]
 
@@ -419,9 +407,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
     ) -> Callable[
         [model_service.GetModelEvaluationRequest], model_evaluation.ModelEvaluation
     ]:
-        r"""Return a callable for the
-        get model evaluation
-          method over gRPC.
+        r"""Return a callable for the get model evaluation method over gRPC.
 
         Gets a ModelEvaluation.
 
@@ -450,9 +436,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         [model_service.ListModelEvaluationsRequest],
         model_service.ListModelEvaluationsResponse,
     ]:
-        r"""Return a callable for the
-        list model evaluations
-          method over gRPC.
+        r"""Return a callable for the list model evaluations method over gRPC.
 
         Lists ModelEvaluations in a Model.
 
@@ -481,9 +465,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         [model_service.GetModelEvaluationSliceRequest],
         model_evaluation_slice.ModelEvaluationSlice,
     ]:
-        r"""Return a callable for the
-        get model evaluation slice
-          method over gRPC.
+        r"""Return a callable for the get model evaluation slice method over gRPC.
 
         Gets a ModelEvaluationSlice.
 
@@ -512,9 +494,7 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         [model_service.ListModelEvaluationSlicesRequest],
         model_service.ListModelEvaluationSlicesResponse,
     ]:
-        r"""Return a callable for the
-        list model evaluation slices
-          method over gRPC.
+        r"""Return a callable for the list model evaluation slices method over gRPC.
 
         Lists ModelEvaluationSlices in a ModelEvaluation.
 

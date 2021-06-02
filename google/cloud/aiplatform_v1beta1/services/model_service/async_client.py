@@ -20,10 +20,10 @@ from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
@@ -38,10 +38,10 @@ from google.cloud.aiplatform_v1beta1.types import model_evaluation
 from google.cloud.aiplatform_v1beta1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1beta1.types import model_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import ModelServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import ModelServiceGrpcAsyncIOTransport
 from .client import ModelServiceClient
@@ -142,7 +142,7 @@ class ModelServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         transport: Union[str, ModelServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -200,8 +200,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UploadModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel].
             parent (:class:`str`):
                 Required. The resource name of the Location into which
@@ -293,8 +292,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.GetModel][google.cloud.aiplatform.v1beta1.ModelService.GetModel].
             name (:class:`str`):
                 Required. The name of the Model resource. Format:
@@ -363,8 +361,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListModelsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels].
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
@@ -437,7 +434,7 @@ class ModelServiceAsyncClient:
         request: model_service.UpdateModelRequest = None,
         *,
         model: gca_model.Model = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -446,8 +443,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UpdateModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.UpdateModel][google.cloud.aiplatform.v1beta1.ModelService.UpdateModel].
             model (:class:`google.cloud.aiplatform_v1beta1.types.Model`):
                 Required. The Model which replaces
@@ -530,8 +526,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel].
             name (:class:`str`):
                 Required. The name of the Model resource to be deleted.
@@ -604,7 +599,7 @@ class ModelServiceAsyncClient:
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -628,8 +623,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ExportModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel].
             name (:class:`str`):
                 Required. The resource name of the Model to export.
@@ -723,8 +717,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetModelEvaluationRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluation].
             name (:class:`str`):
                 Required. The name of the ModelEvaluation resource.
@@ -798,8 +791,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
             parent (:class:`str`):
                 Required. The resource name of the Model to list the
@@ -880,8 +872,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetModelEvaluationSliceRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluationSlice].
             name (:class:`str`):
                 Required. The name of the ModelEvaluationSlice resource.
@@ -955,8 +946,7 @@ class ModelServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
             parent (:class:`str`):
                 Required. The resource name of the ModelEvaluation to

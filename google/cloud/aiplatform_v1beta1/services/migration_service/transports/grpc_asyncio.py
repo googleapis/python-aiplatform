@@ -19,8 +19,7 @@ from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import grpc_helpers_async  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 import packaging.version
 
@@ -28,7 +27,7 @@ import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import migration_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
 from .base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import MigrationServiceGrpcTransport
 
@@ -55,7 +54,7 @@ class MigrationServiceGrpcAsyncIOTransport(MigrationServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -98,7 +97,7 @@ class MigrationServiceGrpcAsyncIOTransport(MigrationServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         channel: aio.Channel = None,
@@ -253,9 +252,7 @@ class MigrationServiceGrpcAsyncIOTransport(MigrationServiceTransport):
         [migration_service.SearchMigratableResourcesRequest],
         Awaitable[migration_service.SearchMigratableResourcesResponse],
     ]:
-        r"""Return a callable for the
-        search migratable resources
-          method over gRPC.
+        r"""Return a callable for the search migratable resources method over gRPC.
 
         Searches all of the resources in
         automl.googleapis.com, datalabeling.googleapis.com and
@@ -285,11 +282,9 @@ class MigrationServiceGrpcAsyncIOTransport(MigrationServiceTransport):
         self,
     ) -> Callable[
         [migration_service.BatchMigrateResourcesRequest],
-        Awaitable[operations.Operation],
+        Awaitable[operations_pb2.Operation],
     ]:
-        r"""Return a callable for the
-        batch migrate resources
-          method over gRPC.
+        r"""Return a callable for the batch migrate resources method over gRPC.
 
         Batch migrates resources from ml.googleapis.com,
         automl.googleapis.com, and datalabeling.googleapis.com
@@ -309,7 +304,7 @@ class MigrationServiceGrpcAsyncIOTransport(MigrationServiceTransport):
             self._stubs["batch_migrate_resources"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MigrationService/BatchMigrateResources",
                 request_serializer=migration_service.BatchMigrateResourcesRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["batch_migrate_resources"]
 

@@ -19,8 +19,8 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+import google.auth  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
@@ -29,7 +29,7 @@ from google.cloud.aiplatform_v1beta1.types import annotation_spec
 from google.cloud.aiplatform_v1beta1.types import dataset
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import dataset_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
 from .base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -50,7 +50,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Sequence[str] = None,
         channel: grpc.Channel = None,
@@ -176,7 +176,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -242,10 +242,8 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     @property
     def create_dataset(
         self,
-    ) -> Callable[[dataset_service.CreateDatasetRequest], operations.Operation]:
-        r"""Return a callable for the
-        create dataset
-          method over gRPC.
+    ) -> Callable[[dataset_service.CreateDatasetRequest], operations_pb2.Operation]:
+        r"""Return a callable for the create dataset method over gRPC.
 
         Creates a Dataset.
 
@@ -263,7 +261,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
             self._stubs["create_dataset"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.DatasetService/CreateDataset",
                 request_serializer=dataset_service.CreateDatasetRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["create_dataset"]
 
@@ -271,9 +269,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def get_dataset(
         self,
     ) -> Callable[[dataset_service.GetDatasetRequest], dataset.Dataset]:
-        r"""Return a callable for the
-        get dataset
-          method over gRPC.
+        r"""Return a callable for the get dataset method over gRPC.
 
         Gets a Dataset.
 
@@ -299,9 +295,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     def update_dataset(
         self,
     ) -> Callable[[dataset_service.UpdateDatasetRequest], gca_dataset.Dataset]:
-        r"""Return a callable for the
-        update dataset
-          method over gRPC.
+        r"""Return a callable for the update dataset method over gRPC.
 
         Updates a Dataset.
 
@@ -329,9 +323,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     ) -> Callable[
         [dataset_service.ListDatasetsRequest], dataset_service.ListDatasetsResponse
     ]:
-        r"""Return a callable for the
-        list datasets
-          method over gRPC.
+        r"""Return a callable for the list datasets method over gRPC.
 
         Lists Datasets in a Location.
 
@@ -356,10 +348,8 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     @property
     def delete_dataset(
         self,
-    ) -> Callable[[dataset_service.DeleteDatasetRequest], operations.Operation]:
-        r"""Return a callable for the
-        delete dataset
-          method over gRPC.
+    ) -> Callable[[dataset_service.DeleteDatasetRequest], operations_pb2.Operation]:
+        r"""Return a callable for the delete dataset method over gRPC.
 
         Deletes a Dataset.
 
@@ -377,17 +367,15 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
             self._stubs["delete_dataset"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.DatasetService/DeleteDataset",
                 request_serializer=dataset_service.DeleteDatasetRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_dataset"]
 
     @property
     def import_data(
         self,
-    ) -> Callable[[dataset_service.ImportDataRequest], operations.Operation]:
-        r"""Return a callable for the
-        import data
-          method over gRPC.
+    ) -> Callable[[dataset_service.ImportDataRequest], operations_pb2.Operation]:
+        r"""Return a callable for the import data method over gRPC.
 
         Imports data into a Dataset.
 
@@ -405,17 +393,15 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
             self._stubs["import_data"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.DatasetService/ImportData",
                 request_serializer=dataset_service.ImportDataRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["import_data"]
 
     @property
     def export_data(
         self,
-    ) -> Callable[[dataset_service.ExportDataRequest], operations.Operation]:
-        r"""Return a callable for the
-        export data
-          method over gRPC.
+    ) -> Callable[[dataset_service.ExportDataRequest], operations_pb2.Operation]:
+        r"""Return a callable for the export data method over gRPC.
 
         Exports data from a Dataset.
 
@@ -433,7 +419,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
             self._stubs["export_data"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.DatasetService/ExportData",
                 request_serializer=dataset_service.ExportDataRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["export_data"]
 
@@ -443,9 +429,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     ) -> Callable[
         [dataset_service.ListDataItemsRequest], dataset_service.ListDataItemsResponse
     ]:
-        r"""Return a callable for the
-        list data items
-          method over gRPC.
+        r"""Return a callable for the list data items method over gRPC.
 
         Lists DataItems in a Dataset.
 
@@ -473,9 +457,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
     ) -> Callable[
         [dataset_service.GetAnnotationSpecRequest], annotation_spec.AnnotationSpec
     ]:
-        r"""Return a callable for the
-        get annotation spec
-          method over gRPC.
+        r"""Return a callable for the get annotation spec method over gRPC.
 
         Gets an AnnotationSpec.
 
@@ -504,9 +486,7 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
         [dataset_service.ListAnnotationsRequest],
         dataset_service.ListAnnotationsResponse,
     ]:
-        r"""Return a callable for the
-        list annotations
-          method over gRPC.
+        r"""Return a callable for the list annotations method over gRPC.
 
         Lists Annotations belongs to a dataitem
 

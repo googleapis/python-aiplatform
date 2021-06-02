@@ -17,7 +17,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import study as gca_study
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -201,8 +201,8 @@ class SuggestTrialsResponse(proto.Message):
 
     trials = proto.RepeatedField(proto.MESSAGE, number=1, message=gca_study.Trial,)
     study_state = proto.Field(proto.ENUM, number=2, enum=gca_study.Study.State,)
-    start_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
+    start_time = proto.Field(proto.MESSAGE, number=3, message=timestamp_pb2.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
 
 
 class SuggestTrialsMetadata(proto.Message):

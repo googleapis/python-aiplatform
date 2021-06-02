@@ -17,7 +17,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import operation
 from google.cloud.aiplatform_v1.types import specialist_pool as gca_specialist_pool
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -107,7 +107,7 @@ class ListSpecialistPoolsRequest(proto.Message):
     parent = proto.Field(proto.STRING, number=1,)
     page_size = proto.Field(proto.INT32, number=2,)
     page_token = proto.Field(proto.STRING, number=3,)
-    read_mask = proto.Field(proto.MESSAGE, number=4, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=4, message=field_mask_pb2.FieldMask,)
 
 
 class ListSpecialistPoolsResponse(proto.Message):
@@ -168,7 +168,9 @@ class UpdateSpecialistPoolRequest(proto.Message):
     specialist_pool = proto.Field(
         proto.MESSAGE, number=1, message=gca_specialist_pool.SpecialistPool,
     )
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(
+        proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
+    )
 
 
 class UpdateSpecialistPoolOperationMetadata(proto.Message):

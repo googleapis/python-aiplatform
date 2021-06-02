@@ -21,10 +21,10 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
@@ -38,9 +38,9 @@ from google.cloud.aiplatform_v1.types import endpoint
 from google.cloud.aiplatform_v1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1.types import endpoint_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import EndpointServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import EndpointServiceGrpcTransport
 from .transports.grpc_asyncio import EndpointServiceGrpcAsyncIOTransport
@@ -255,7 +255,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
     def __init__(
         self,
         *,
-        credentials: Optional[credentials.Credentials] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, EndpointServiceTransport, None] = None,
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -379,8 +379,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.CreateEndpointRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1.EndpointService.CreateEndpoint].
             parent (str):
                 Required. The resource name of the Location to create
@@ -469,8 +468,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.GetEndpointRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.GetEndpoint][google.cloud.aiplatform.v1.EndpointService.GetEndpoint]
             name (str):
                 Required. The name of the Endpoint resource. Format:
@@ -542,8 +540,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.ListEndpointsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.ListEndpoints][google.cloud.aiplatform.v1.EndpointService.ListEndpoints].
             parent (str):
                 Required. The resource name of the Location from which
@@ -616,7 +613,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         request: endpoint_service.UpdateEndpointRequest = None,
         *,
         endpoint: gca_endpoint.Endpoint = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -625,8 +622,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.UpdateEndpointRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1.EndpointService.UpdateEndpoint].
             endpoint (google.cloud.aiplatform_v1.types.Endpoint):
                 Required. The Endpoint which replaces
@@ -709,8 +705,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.DeleteEndpointRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.DeleteEndpoint][google.cloud.aiplatform.v1.EndpointService.DeleteEndpoint].
             name (str):
                 Required. The name of the Endpoint resource to be
@@ -783,7 +778,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -808,8 +803,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.DeployModelRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.DeployModel][google.cloud.aiplatform.v1.EndpointService.DeployModel].
             endpoint (str):
                 Required. The name of the Endpoint resource into which
@@ -934,8 +928,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.UndeployModelRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.UndeployModel][google.cloud.aiplatform.v1.EndpointService.UndeployModel].
             endpoint (str):
                 Required. The name of the Endpoint resource from which

@@ -19,7 +19,7 @@ from google.cloud.aiplatform_v1.types import annotation
 from google.cloud.aiplatform_v1.types import data_item
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1.types import operation
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -90,7 +90,7 @@ class GetDatasetRequest(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1,)
-    read_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,)
 
 
 class UpdateDatasetRequest(proto.Message):
@@ -113,7 +113,9 @@ class UpdateDatasetRequest(proto.Message):
     """
 
     dataset = proto.Field(proto.MESSAGE, number=1, message=gca_dataset.Dataset,)
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(
+        proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
+    )
 
 
 class ListDatasetsRequest(proto.Message):
@@ -161,7 +163,7 @@ class ListDatasetsRequest(proto.Message):
     filter = proto.Field(proto.STRING, number=2,)
     page_size = proto.Field(proto.INT32, number=3,)
     page_token = proto.Field(proto.STRING, number=4,)
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
     order_by = proto.Field(proto.STRING, number=6,)
 
 
@@ -318,7 +320,7 @@ class ListDataItemsRequest(proto.Message):
     filter = proto.Field(proto.STRING, number=2,)
     page_size = proto.Field(proto.INT32, number=3,)
     page_token = proto.Field(proto.STRING, number=4,)
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
     order_by = proto.Field(proto.STRING, number=6,)
 
 
@@ -358,7 +360,7 @@ class GetAnnotationSpecRequest(proto.Message):
     """
 
     name = proto.Field(proto.STRING, number=1,)
-    read_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,)
 
 
 class ListAnnotationsRequest(proto.Message):
@@ -389,7 +391,7 @@ class ListAnnotationsRequest(proto.Message):
     filter = proto.Field(proto.STRING, number=2,)
     page_size = proto.Field(proto.INT32, number=3,)
     page_token = proto.Field(proto.STRING, number=4,)
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
     order_by = proto.Field(proto.STRING, number=6,)
 
 

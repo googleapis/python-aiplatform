@@ -16,8 +16,8 @@
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import explanation
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -90,8 +90,8 @@ class ModelEvaluation(proto.Message):
 
     name = proto.Field(proto.STRING, number=1,)
     metrics_schema_uri = proto.Field(proto.STRING, number=2,)
-    metrics = proto.Field(proto.MESSAGE, number=3, message=struct.Value,)
-    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp.Timestamp,)
+    metrics = proto.Field(proto.MESSAGE, number=3, message=struct_pb2.Value,)
+    create_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
     slice_dimensions = proto.RepeatedField(proto.STRING, number=5,)
     model_explanation = proto.Field(
         proto.MESSAGE, number=8, message=explanation.ModelExplanation,

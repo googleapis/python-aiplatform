@@ -15,8 +15,8 @@
 #
 import proto  # type: ignore
 
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -77,14 +77,14 @@ class Trial(proto.Message):
         """
 
         parameter_id = proto.Field(proto.STRING, number=1,)
-        value = proto.Field(proto.MESSAGE, number=2, message=struct.Value,)
+        value = proto.Field(proto.MESSAGE, number=2, message=struct_pb2.Value,)
 
     id = proto.Field(proto.STRING, number=2,)
     state = proto.Field(proto.ENUM, number=3, enum=State,)
     parameters = proto.RepeatedField(proto.MESSAGE, number=4, message=Parameter,)
     final_measurement = proto.Field(proto.MESSAGE, number=5, message="Measurement",)
-    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
+    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
     custom_job = proto.Field(proto.STRING, number=11,)
 
 

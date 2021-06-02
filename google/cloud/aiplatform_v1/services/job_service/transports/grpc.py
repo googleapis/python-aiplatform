@@ -19,8 +19,8 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+import google.auth  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
@@ -38,8 +38,8 @@ from google.cloud.aiplatform_v1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
 )
 from google.cloud.aiplatform_v1.types import job_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
-from google.protobuf import empty_pb2 as empty  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
 from .base import JobServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -62,7 +62,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Sequence[str] = None,
         channel: grpc.Channel = None,
@@ -188,7 +188,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -255,9 +255,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def create_custom_job(
         self,
     ) -> Callable[[job_service.CreateCustomJobRequest], gca_custom_job.CustomJob]:
-        r"""Return a callable for the
-        create custom job
-          method over gRPC.
+        r"""Return a callable for the create custom job method over gRPC.
 
         Creates a CustomJob. A created CustomJob right away
         will be attempted to be run.
@@ -284,9 +282,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def get_custom_job(
         self,
     ) -> Callable[[job_service.GetCustomJobRequest], custom_job.CustomJob]:
-        r"""Return a callable for the
-        get custom job
-          method over gRPC.
+        r"""Return a callable for the get custom job method over gRPC.
 
         Gets a CustomJob.
 
@@ -314,9 +310,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
     ) -> Callable[
         [job_service.ListCustomJobsRequest], job_service.ListCustomJobsResponse
     ]:
-        r"""Return a callable for the
-        list custom jobs
-          method over gRPC.
+        r"""Return a callable for the list custom jobs method over gRPC.
 
         Lists CustomJobs in a Location.
 
@@ -341,10 +335,8 @@ class JobServiceGrpcTransport(JobServiceTransport):
     @property
     def delete_custom_job(
         self,
-    ) -> Callable[[job_service.DeleteCustomJobRequest], operations.Operation]:
-        r"""Return a callable for the
-        delete custom job
-          method over gRPC.
+    ) -> Callable[[job_service.DeleteCustomJobRequest], operations_pb2.Operation]:
+        r"""Return a callable for the delete custom job method over gRPC.
 
         Deletes a CustomJob.
 
@@ -362,17 +354,15 @@ class JobServiceGrpcTransport(JobServiceTransport):
             self._stubs["delete_custom_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteCustomJob",
                 request_serializer=job_service.DeleteCustomJobRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_custom_job"]
 
     @property
     def cancel_custom_job(
         self,
-    ) -> Callable[[job_service.CancelCustomJobRequest], empty.Empty]:
-        r"""Return a callable for the
-        cancel custom job
-          method over gRPC.
+    ) -> Callable[[job_service.CancelCustomJobRequest], empty_pb2.Empty]:
+        r"""Return a callable for the cancel custom job method over gRPC.
 
         Cancels a CustomJob. Starts asynchronous cancellation on the
         CustomJob. The server makes a best effort to cancel the job, but
@@ -402,7 +392,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
             self._stubs["cancel_custom_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelCustomJob",
                 request_serializer=job_service.CancelCustomJobRequest.serialize,
-                response_deserializer=empty.Empty.FromString,
+                response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["cancel_custom_job"]
 
@@ -413,9 +403,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         [job_service.CreateDataLabelingJobRequest],
         gca_data_labeling_job.DataLabelingJob,
     ]:
-        r"""Return a callable for the
-        create data labeling job
-          method over gRPC.
+        r"""Return a callable for the create data labeling job method over gRPC.
 
         Creates a DataLabelingJob.
 
@@ -443,9 +431,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
     ) -> Callable[
         [job_service.GetDataLabelingJobRequest], data_labeling_job.DataLabelingJob
     ]:
-        r"""Return a callable for the
-        get data labeling job
-          method over gRPC.
+        r"""Return a callable for the get data labeling job method over gRPC.
 
         Gets a DataLabelingJob.
 
@@ -474,9 +460,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         [job_service.ListDataLabelingJobsRequest],
         job_service.ListDataLabelingJobsResponse,
     ]:
-        r"""Return a callable for the
-        list data labeling jobs
-          method over gRPC.
+        r"""Return a callable for the list data labeling jobs method over gRPC.
 
         Lists DataLabelingJobs in a Location.
 
@@ -501,10 +485,8 @@ class JobServiceGrpcTransport(JobServiceTransport):
     @property
     def delete_data_labeling_job(
         self,
-    ) -> Callable[[job_service.DeleteDataLabelingJobRequest], operations.Operation]:
-        r"""Return a callable for the
-        delete data labeling job
-          method over gRPC.
+    ) -> Callable[[job_service.DeleteDataLabelingJobRequest], operations_pb2.Operation]:
+        r"""Return a callable for the delete data labeling job method over gRPC.
 
         Deletes a DataLabelingJob.
 
@@ -522,17 +504,15 @@ class JobServiceGrpcTransport(JobServiceTransport):
             self._stubs["delete_data_labeling_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteDataLabelingJob",
                 request_serializer=job_service.DeleteDataLabelingJobRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_data_labeling_job"]
 
     @property
     def cancel_data_labeling_job(
         self,
-    ) -> Callable[[job_service.CancelDataLabelingJobRequest], empty.Empty]:
-        r"""Return a callable for the
-        cancel data labeling job
-          method over gRPC.
+    ) -> Callable[[job_service.CancelDataLabelingJobRequest], empty_pb2.Empty]:
+        r"""Return a callable for the cancel data labeling job method over gRPC.
 
         Cancels a DataLabelingJob. Success of cancellation is
         not guaranteed.
@@ -551,7 +531,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
             self._stubs["cancel_data_labeling_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelDataLabelingJob",
                 request_serializer=job_service.CancelDataLabelingJobRequest.serialize,
-                response_deserializer=empty.Empty.FromString,
+                response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["cancel_data_labeling_job"]
 
@@ -562,10 +542,8 @@ class JobServiceGrpcTransport(JobServiceTransport):
         [job_service.CreateHyperparameterTuningJobRequest],
         gca_hyperparameter_tuning_job.HyperparameterTuningJob,
     ]:
-        r"""Return a callable for the
-        create hyperparameter tuning
-        job
-          method over gRPC.
+        r"""Return a callable for the create hyperparameter tuning
+        job method over gRPC.
 
         Creates a HyperparameterTuningJob
 
@@ -596,9 +574,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         [job_service.GetHyperparameterTuningJobRequest],
         hyperparameter_tuning_job.HyperparameterTuningJob,
     ]:
-        r"""Return a callable for the
-        get hyperparameter tuning job
-          method over gRPC.
+        r"""Return a callable for the get hyperparameter tuning job method over gRPC.
 
         Gets a HyperparameterTuningJob
 
@@ -629,10 +605,8 @@ class JobServiceGrpcTransport(JobServiceTransport):
         [job_service.ListHyperparameterTuningJobsRequest],
         job_service.ListHyperparameterTuningJobsResponse,
     ]:
-        r"""Return a callable for the
-        list hyperparameter tuning
-        jobs
-          method over gRPC.
+        r"""Return a callable for the list hyperparameter tuning
+        jobs method over gRPC.
 
         Lists HyperparameterTuningJobs in a Location.
 
@@ -660,12 +634,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     def delete_hyperparameter_tuning_job(
         self,
     ) -> Callable[
-        [job_service.DeleteHyperparameterTuningJobRequest], operations.Operation
+        [job_service.DeleteHyperparameterTuningJobRequest], operations_pb2.Operation
     ]:
-        r"""Return a callable for the
-        delete hyperparameter tuning
-        job
-          method over gRPC.
+        r"""Return a callable for the delete hyperparameter tuning
+        job method over gRPC.
 
         Deletes a HyperparameterTuningJob.
 
@@ -685,18 +657,16 @@ class JobServiceGrpcTransport(JobServiceTransport):
             ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteHyperparameterTuningJob",
                 request_serializer=job_service.DeleteHyperparameterTuningJobRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_hyperparameter_tuning_job"]
 
     @property
     def cancel_hyperparameter_tuning_job(
         self,
-    ) -> Callable[[job_service.CancelHyperparameterTuningJobRequest], empty.Empty]:
-        r"""Return a callable for the
-        cancel hyperparameter tuning
-        job
-          method over gRPC.
+    ) -> Callable[[job_service.CancelHyperparameterTuningJobRequest], empty_pb2.Empty]:
+        r"""Return a callable for the cancel hyperparameter tuning
+        job method over gRPC.
 
         Cancels a HyperparameterTuningJob. Starts asynchronous
         cancellation on the HyperparameterTuningJob. The server makes a
@@ -729,7 +699,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
             ] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelHyperparameterTuningJob",
                 request_serializer=job_service.CancelHyperparameterTuningJobRequest.serialize,
-                response_deserializer=empty.Empty.FromString,
+                response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["cancel_hyperparameter_tuning_job"]
 
@@ -740,9 +710,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         [job_service.CreateBatchPredictionJobRequest],
         gca_batch_prediction_job.BatchPredictionJob,
     ]:
-        r"""Return a callable for the
-        create batch prediction job
-          method over gRPC.
+        r"""Return a callable for the create batch prediction job method over gRPC.
 
         Creates a BatchPredictionJob. A BatchPredictionJob
         once created will right away be attempted to start.
@@ -772,9 +740,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         [job_service.GetBatchPredictionJobRequest],
         batch_prediction_job.BatchPredictionJob,
     ]:
-        r"""Return a callable for the
-        get batch prediction job
-          method over gRPC.
+        r"""Return a callable for the get batch prediction job method over gRPC.
 
         Gets a BatchPredictionJob
 
@@ -803,9 +769,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
         [job_service.ListBatchPredictionJobsRequest],
         job_service.ListBatchPredictionJobsResponse,
     ]:
-        r"""Return a callable for the
-        list batch prediction jobs
-          method over gRPC.
+        r"""Return a callable for the list batch prediction jobs method over gRPC.
 
         Lists BatchPredictionJobs in a Location.
 
@@ -830,10 +794,10 @@ class JobServiceGrpcTransport(JobServiceTransport):
     @property
     def delete_batch_prediction_job(
         self,
-    ) -> Callable[[job_service.DeleteBatchPredictionJobRequest], operations.Operation]:
-        r"""Return a callable for the
-        delete batch prediction job
-          method over gRPC.
+    ) -> Callable[
+        [job_service.DeleteBatchPredictionJobRequest], operations_pb2.Operation
+    ]:
+        r"""Return a callable for the delete batch prediction job method over gRPC.
 
         Deletes a BatchPredictionJob. Can only be called on
         jobs that already finished.
@@ -852,17 +816,15 @@ class JobServiceGrpcTransport(JobServiceTransport):
             self._stubs["delete_batch_prediction_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/DeleteBatchPredictionJob",
                 request_serializer=job_service.DeleteBatchPredictionJobRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_batch_prediction_job"]
 
     @property
     def cancel_batch_prediction_job(
         self,
-    ) -> Callable[[job_service.CancelBatchPredictionJobRequest], empty.Empty]:
-        r"""Return a callable for the
-        cancel batch prediction job
-          method over gRPC.
+    ) -> Callable[[job_service.CancelBatchPredictionJobRequest], empty_pb2.Empty]:
+        r"""Return a callable for the cancel batch prediction job method over gRPC.
 
         Cancels a BatchPredictionJob.
 
@@ -891,7 +853,7 @@ class JobServiceGrpcTransport(JobServiceTransport):
             self._stubs["cancel_batch_prediction_job"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.JobService/CancelBatchPredictionJob",
                 request_serializer=job_service.CancelBatchPredictionJobRequest.serialize,
-                response_deserializer=empty.Empty.FromString,
+                response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["cancel_batch_prediction_job"]
 

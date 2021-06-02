@@ -21,17 +21,17 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.cloud.aiplatform_v1.types import prediction_service
-from google.protobuf import struct_pb2 as struct  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
 from .transports.base import PredictionServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import PredictionServiceGrpcTransport
 from .transports.grpc_asyncio import PredictionServiceGrpcAsyncIOTransport
@@ -232,7 +232,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
     def __init__(
         self,
         *,
-        credentials: Optional[credentials.Credentials] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, PredictionServiceTransport, None] = None,
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -347,8 +347,8 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         request: prediction_service.PredictRequest = None,
         *,
         endpoint: str = None,
-        instances: Sequence[struct.Value] = None,
-        parameters: struct.Value = None,
+        instances: Sequence[struct_pb2.Value] = None,
+        parameters: struct_pb2.Value = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -357,8 +357,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1.types.PredictRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [PredictionService.Predict][google.cloud.aiplatform.v1.PredictionService.Predict].
             endpoint (str):
                 Required. The name of the Endpoint requested to serve

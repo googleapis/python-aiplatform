@@ -20,10 +20,10 @@ from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation as gac_operation  # type: ignore
@@ -34,9 +34,9 @@ from google.cloud.aiplatform_v1.types import endpoint
 from google.cloud.aiplatform_v1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1.types import endpoint_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import EndpointServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import EndpointServiceGrpcAsyncIOTransport
 from .client import EndpointServiceClient
@@ -127,7 +127,7 @@ class EndpointServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         transport: Union[str, EndpointServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -185,8 +185,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateEndpointRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1.EndpointService.CreateEndpoint].
             parent (:class:`str`):
                 Required. The resource name of the Location to create
@@ -275,8 +274,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetEndpointRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.GetEndpoint][google.cloud.aiplatform.v1.EndpointService.GetEndpoint]
             name (:class:`str`):
                 Required. The name of the Endpoint resource. Format:
@@ -348,8 +346,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListEndpointsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.ListEndpoints][google.cloud.aiplatform.v1.EndpointService.ListEndpoints].
             parent (:class:`str`):
                 Required. The resource name of the Location from which
@@ -422,7 +419,7 @@ class EndpointServiceAsyncClient:
         request: endpoint_service.UpdateEndpointRequest = None,
         *,
         endpoint: gca_endpoint.Endpoint = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -431,8 +428,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UpdateEndpointRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1.EndpointService.UpdateEndpoint].
             endpoint (:class:`google.cloud.aiplatform_v1.types.Endpoint`):
                 Required. The Endpoint which replaces
@@ -515,8 +511,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeleteEndpointRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.DeleteEndpoint][google.cloud.aiplatform.v1.EndpointService.DeleteEndpoint].
             name (:class:`str`):
                 Required. The name of the Endpoint resource to be
@@ -589,7 +584,7 @@ class EndpointServiceAsyncClient:
         response = operation_async.from_gapic(
             response,
             self._client._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -614,8 +609,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.DeployModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.DeployModel][google.cloud.aiplatform.v1.EndpointService.DeployModel].
             endpoint (:class:`str`):
                 Required. The name of the Endpoint resource into which
@@ -741,8 +735,7 @@ class EndpointServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.UndeployModelRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [EndpointService.UndeployModel][google.cloud.aiplatform.v1.EndpointService.UndeployModel].
             endpoint (:class:`str`):
                 Required. The name of the Endpoint resource from which

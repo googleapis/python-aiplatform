@@ -19,8 +19,8 @@ from google.cloud.aiplatform_v1beta1.types import custom_job
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import study
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -110,12 +110,16 @@ class HyperparameterTuningJob(proto.Message):
     )
     trials = proto.RepeatedField(proto.MESSAGE, number=9, message=study.Trial,)
     state = proto.Field(proto.ENUM, number=10, enum=job_state.JobState,)
-    create_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
-    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
-    error = proto.Field(proto.MESSAGE, number=15, message=status.Status,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=16)
+    create_time = proto.Field(
+        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
+    )
+    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE, number=14, message=timestamp_pb2.Timestamp,
+    )
+    error = proto.Field(proto.MESSAGE, number=15, message=status_pb2.Status,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=16,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=17, message=gca_encryption_spec.EncryptionSpec,
     )

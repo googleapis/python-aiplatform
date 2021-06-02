@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+
 from google.cloud.aiplatform.v1.schema.predict.params_v1.types.image_classification import (
     ImageClassificationPredictionParams,
 )

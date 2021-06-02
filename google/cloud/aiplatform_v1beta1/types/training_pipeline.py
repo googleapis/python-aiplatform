@@ -19,9 +19,9 @@ from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encrypt
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -152,16 +152,24 @@ class TrainingPipeline(proto.Message):
     display_name = proto.Field(proto.STRING, number=2,)
     input_data_config = proto.Field(proto.MESSAGE, number=3, message="InputDataConfig",)
     training_task_definition = proto.Field(proto.STRING, number=4,)
-    training_task_inputs = proto.Field(proto.MESSAGE, number=5, message=struct.Value,)
-    training_task_metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
+    training_task_inputs = proto.Field(
+        proto.MESSAGE, number=5, message=struct_pb2.Value,
+    )
+    training_task_metadata = proto.Field(
+        proto.MESSAGE, number=6, message=struct_pb2.Value,
+    )
     model_to_upload = proto.Field(proto.MESSAGE, number=7, message=model.Model,)
     state = proto.Field(proto.ENUM, number=9, enum=pipeline_state.PipelineState,)
-    error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
-    create_time = proto.Field(proto.MESSAGE, number=11, message=timestamp.Timestamp,)
-    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=15)
+    error = proto.Field(proto.MESSAGE, number=10, message=status_pb2.Status,)
+    create_time = proto.Field(
+        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
+    )
+    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE, number=14, message=timestamp_pb2.Timestamp,
+    )
+    labels = proto.MapField(proto.STRING, proto.STRING, number=15,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=18, message=gca_encryption_spec.EncryptionSpec,
     )

@@ -20,10 +20,10 @@ from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation  # type: ignore
@@ -32,7 +32,7 @@ from google.cloud.aiplatform_v1beta1.services.vizier_service import pagers
 from google.cloud.aiplatform_v1beta1.types import study
 from google.cloud.aiplatform_v1beta1.types import study as gca_study
 from google.cloud.aiplatform_v1beta1.types import vizier_service
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import VizierServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import VizierServiceGrpcAsyncIOTransport
 from .client import VizierServiceClient
@@ -129,7 +129,7 @@ class VizierServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         transport: Union[str, VizierServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -188,8 +188,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateStudyRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.CreateStudy][google.cloud.aiplatform.v1beta1.VizierService.CreateStudy].
             parent (:class:`str`):
                 Required. The resource name of the Location to create
@@ -268,8 +267,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetStudyRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.GetStudy][google.cloud.aiplatform.v1beta1.VizierService.GetStudy].
             name (:class:`str`):
                 Required. The name of the Study resource. Format:
@@ -339,8 +337,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListStudiesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.ListStudies][google.cloud.aiplatform.v1beta1.VizierService.ListStudies].
             parent (:class:`str`):
                 Required. The resource name of the Location to list the
@@ -421,8 +418,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteStudyRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.DeleteStudy][google.cloud.aiplatform.v1beta1.VizierService.DeleteStudy].
             name (:class:`str`):
                 Required. The name of the Study resource to be deleted.
@@ -488,8 +484,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.LookupStudyRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.LookupStudy][google.cloud.aiplatform.v1beta1.VizierService.LookupStudy].
             parent (:class:`str`):
                 Required. The resource name of the Location to get the
@@ -562,8 +557,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.SuggestTrialsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.SuggestTrials][google.cloud.aiplatform.v1beta1.VizierService.SuggestTrials].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
@@ -626,8 +620,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CreateTrialRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.CreateTrial][google.cloud.aiplatform.v1beta1.VizierService.CreateTrial].
             parent (:class:`str`):
                 Required. The resource name of the Study to create the
@@ -709,8 +702,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.GetTrialRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.GetTrial][google.cloud.aiplatform.v1beta1.VizierService.GetTrial].
             name (:class:`str`):
                 Required. The name of the Trial resource. Format:
@@ -784,8 +776,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListTrialsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.ListTrials][google.cloud.aiplatform.v1beta1.VizierService.ListTrials].
             parent (:class:`str`):
                 Required. The resource name of the Study to list the
@@ -867,8 +858,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.AddTrialMeasurementRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.AddTrialMeasurement][google.cloud.aiplatform.v1beta1.VizierService.AddTrialMeasurement].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
@@ -922,8 +912,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CompleteTrialRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.CompleteTrial][google.cloud.aiplatform.v1beta1.VizierService.CompleteTrial].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
@@ -976,8 +965,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.DeleteTrialRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.DeleteTrial][google.cloud.aiplatform.v1beta1.VizierService.DeleteTrial].
             name (:class:`str`):
                 Required. The Trial's name. Format:
@@ -1043,8 +1031,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.CheckTrialEarlyStoppingState][google.cloud.aiplatform.v1beta1.VizierService.CheckTrialEarlyStoppingState].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
@@ -1107,8 +1094,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.StopTrialRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.StopTrial][google.cloud.aiplatform.v1beta1.VizierService.StopTrial].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
@@ -1164,8 +1150,7 @@ class VizierServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.ListOptimalTrialsRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [VizierService.ListOptimalTrials][google.cloud.aiplatform.v1beta1.VizierService.ListOptimalTrials].
             parent (:class:`str`):
                 Required. The name of the Study that

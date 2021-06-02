@@ -15,8 +15,8 @@
 #
 import proto  # type: ignore
 
-from google.protobuf import duration_pb2 as duration  # type: ignore
-from google.protobuf import wrappers_pb2 as wrappers  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
+from google.protobuf import wrappers_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -57,10 +57,12 @@ class VideoActionRecognitionPredictionResult(proto.Message):
     id = proto.Field(proto.STRING, number=1,)
     display_name = proto.Field(proto.STRING, number=2,)
     time_segment_start = proto.Field(
-        proto.MESSAGE, number=4, message=duration.Duration,
+        proto.MESSAGE, number=4, message=duration_pb2.Duration,
     )
-    time_segment_end = proto.Field(proto.MESSAGE, number=5, message=duration.Duration,)
-    confidence = proto.Field(proto.MESSAGE, number=6, message=wrappers.FloatValue,)
+    time_segment_end = proto.Field(
+        proto.MESSAGE, number=5, message=duration_pb2.Duration,
+    )
+    confidence = proto.Field(proto.MESSAGE, number=6, message=wrappers_pb2.FloatValue,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

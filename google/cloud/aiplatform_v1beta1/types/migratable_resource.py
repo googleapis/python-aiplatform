@@ -15,7 +15,7 @@
 #
 import proto  # type: ignore
 
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -150,10 +150,10 @@ class MigratableResource(proto.Message):
         proto.MESSAGE, number=4, oneof="resource", message=DataLabelingDataset,
     )
     last_migrate_time = proto.Field(
-        proto.MESSAGE, number=5, message=timestamp.Timestamp,
+        proto.MESSAGE, number=5, message=timestamp_pb2.Timestamp,
     )
     last_update_time = proto.Field(
-        proto.MESSAGE, number=6, message=timestamp.Timestamp,
+        proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,
     )
 
 

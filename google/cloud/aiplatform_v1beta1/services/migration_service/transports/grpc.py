@@ -19,14 +19,14 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+import google.auth  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import migration_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
 from .base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -51,7 +51,7 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Sequence[str] = None,
         channel: grpc.Channel = None,
@@ -177,7 +177,7 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -247,9 +247,7 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
         [migration_service.SearchMigratableResourcesRequest],
         migration_service.SearchMigratableResourcesResponse,
     ]:
-        r"""Return a callable for the
-        search migratable resources
-          method over gRPC.
+        r"""Return a callable for the search migratable resources method over gRPC.
 
         Searches all of the resources in
         automl.googleapis.com, datalabeling.googleapis.com and
@@ -278,11 +276,9 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
     def batch_migrate_resources(
         self,
     ) -> Callable[
-        [migration_service.BatchMigrateResourcesRequest], operations.Operation
+        [migration_service.BatchMigrateResourcesRequest], operations_pb2.Operation
     ]:
-        r"""Return a callable for the
-        batch migrate resources
-          method over gRPC.
+        r"""Return a callable for the batch migrate resources method over gRPC.
 
         Batch migrates resources from ml.googleapis.com,
         automl.googleapis.com, and datalabeling.googleapis.com
@@ -302,7 +298,7 @@ class MigrationServiceGrpcTransport(MigrationServiceTransport):
             self._stubs["batch_migrate_resources"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.MigrationService/BatchMigrateResources",
                 request_serializer=migration_service.BatchMigrateResourcesRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["batch_migrate_resources"]
 

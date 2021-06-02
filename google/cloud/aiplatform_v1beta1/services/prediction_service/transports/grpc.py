@@ -18,8 +18,8 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+import google.auth  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
@@ -47,7 +47,7 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Sequence[str] = None,
         channel: grpc.Channel = None,
@@ -172,7 +172,7 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -227,9 +227,7 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
     ) -> Callable[
         [prediction_service.PredictRequest], prediction_service.PredictResponse
     ]:
-        r"""Return a callable for the
-        predict
-          method over gRPC.
+        r"""Return a callable for the predict method over gRPC.
 
         Perform an online prediction.
 
@@ -257,9 +255,7 @@ class PredictionServiceGrpcTransport(PredictionServiceTransport):
     ) -> Callable[
         [prediction_service.ExplainRequest], prediction_service.ExplainResponse
     ]:
-        r"""Return a callable for the
-        explain
-          method over gRPC.
+        r"""Return a callable for the explain method over gRPC.
 
         Perform an online explanation.
 

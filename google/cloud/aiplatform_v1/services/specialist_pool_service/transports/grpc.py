@@ -19,15 +19,15 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 from google.api_core import grpc_helpers  # type: ignore
 from google.api_core import operations_v1  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+import google.auth  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 
 import grpc  # type: ignore
 
 from google.cloud.aiplatform_v1.types import specialist_pool
 from google.cloud.aiplatform_v1.types import specialist_pool_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
 from .base import SpecialistPoolServiceTransport, DEFAULT_CLIENT_INFO
 
 
@@ -55,7 +55,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Sequence[str] = None,
         channel: grpc.Channel = None,
@@ -181,7 +181,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: str = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -248,11 +248,9 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
     def create_specialist_pool(
         self,
     ) -> Callable[
-        [specialist_pool_service.CreateSpecialistPoolRequest], operations.Operation
+        [specialist_pool_service.CreateSpecialistPoolRequest], operations_pb2.Operation
     ]:
-        r"""Return a callable for the
-        create specialist pool
-          method over gRPC.
+        r"""Return a callable for the create specialist pool method over gRPC.
 
         Creates a SpecialistPool.
 
@@ -270,7 +268,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
             self._stubs["create_specialist_pool"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.SpecialistPoolService/CreateSpecialistPool",
                 request_serializer=specialist_pool_service.CreateSpecialistPoolRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["create_specialist_pool"]
 
@@ -281,9 +279,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
         [specialist_pool_service.GetSpecialistPoolRequest],
         specialist_pool.SpecialistPool,
     ]:
-        r"""Return a callable for the
-        get specialist pool
-          method over gRPC.
+        r"""Return a callable for the get specialist pool method over gRPC.
 
         Gets a SpecialistPool.
 
@@ -312,9 +308,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
         [specialist_pool_service.ListSpecialistPoolsRequest],
         specialist_pool_service.ListSpecialistPoolsResponse,
     ]:
-        r"""Return a callable for the
-        list specialist pools
-          method over gRPC.
+        r"""Return a callable for the list specialist pools method over gRPC.
 
         Lists SpecialistPools in a Location.
 
@@ -340,11 +334,9 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
     def delete_specialist_pool(
         self,
     ) -> Callable[
-        [specialist_pool_service.DeleteSpecialistPoolRequest], operations.Operation
+        [specialist_pool_service.DeleteSpecialistPoolRequest], operations_pb2.Operation
     ]:
-        r"""Return a callable for the
-        delete specialist pool
-          method over gRPC.
+        r"""Return a callable for the delete specialist pool method over gRPC.
 
         Deletes a SpecialistPool as well as all Specialists
         in the pool.
@@ -363,7 +355,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
             self._stubs["delete_specialist_pool"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.SpecialistPoolService/DeleteSpecialistPool",
                 request_serializer=specialist_pool_service.DeleteSpecialistPoolRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_specialist_pool"]
 
@@ -371,11 +363,9 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
     def update_specialist_pool(
         self,
     ) -> Callable[
-        [specialist_pool_service.UpdateSpecialistPoolRequest], operations.Operation
+        [specialist_pool_service.UpdateSpecialistPoolRequest], operations_pb2.Operation
     ]:
-        r"""Return a callable for the
-        update specialist pool
-          method over gRPC.
+        r"""Return a callable for the update specialist pool method over gRPC.
 
         Updates a SpecialistPool.
 
@@ -393,7 +383,7 @@ class SpecialistPoolServiceGrpcTransport(SpecialistPoolServiceTransport):
             self._stubs["update_specialist_pool"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1.SpecialistPoolService/UpdateSpecialistPool",
                 request_serializer=specialist_pool_service.UpdateSpecialistPoolRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["update_specialist_pool"]
 

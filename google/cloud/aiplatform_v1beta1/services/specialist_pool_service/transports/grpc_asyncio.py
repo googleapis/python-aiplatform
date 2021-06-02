@@ -19,8 +19,7 @@ from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import grpc_helpers_async  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 import packaging.version
 
@@ -29,7 +28,7 @@ from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import specialist_pool
 from google.cloud.aiplatform_v1beta1.types import specialist_pool_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
 from .base import SpecialistPoolServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import SpecialistPoolServiceGrpcTransport
 
@@ -59,7 +58,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -102,7 +101,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         channel: aio.Channel = None,
@@ -255,11 +254,9 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
         self,
     ) -> Callable[
         [specialist_pool_service.CreateSpecialistPoolRequest],
-        Awaitable[operations.Operation],
+        Awaitable[operations_pb2.Operation],
     ]:
-        r"""Return a callable for the
-        create specialist pool
-          method over gRPC.
+        r"""Return a callable for the create specialist pool method over gRPC.
 
         Creates a SpecialistPool.
 
@@ -277,7 +274,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
             self._stubs["create_specialist_pool"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.SpecialistPoolService/CreateSpecialistPool",
                 request_serializer=specialist_pool_service.CreateSpecialistPoolRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["create_specialist_pool"]
 
@@ -288,9 +285,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
         [specialist_pool_service.GetSpecialistPoolRequest],
         Awaitable[specialist_pool.SpecialistPool],
     ]:
-        r"""Return a callable for the
-        get specialist pool
-          method over gRPC.
+        r"""Return a callable for the get specialist pool method over gRPC.
 
         Gets a SpecialistPool.
 
@@ -319,9 +314,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
         [specialist_pool_service.ListSpecialistPoolsRequest],
         Awaitable[specialist_pool_service.ListSpecialistPoolsResponse],
     ]:
-        r"""Return a callable for the
-        list specialist pools
-          method over gRPC.
+        r"""Return a callable for the list specialist pools method over gRPC.
 
         Lists SpecialistPools in a Location.
 
@@ -348,11 +341,9 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
         self,
     ) -> Callable[
         [specialist_pool_service.DeleteSpecialistPoolRequest],
-        Awaitable[operations.Operation],
+        Awaitable[operations_pb2.Operation],
     ]:
-        r"""Return a callable for the
-        delete specialist pool
-          method over gRPC.
+        r"""Return a callable for the delete specialist pool method over gRPC.
 
         Deletes a SpecialistPool as well as all Specialists
         in the pool.
@@ -371,7 +362,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
             self._stubs["delete_specialist_pool"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.SpecialistPoolService/DeleteSpecialistPool",
                 request_serializer=specialist_pool_service.DeleteSpecialistPoolRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_specialist_pool"]
 
@@ -380,11 +371,9 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
         self,
     ) -> Callable[
         [specialist_pool_service.UpdateSpecialistPoolRequest],
-        Awaitable[operations.Operation],
+        Awaitable[operations_pb2.Operation],
     ]:
-        r"""Return a callable for the
-        update specialist pool
-          method over gRPC.
+        r"""Return a callable for the update specialist pool method over gRPC.
 
         Updates a SpecialistPool.
 
@@ -402,7 +391,7 @@ class SpecialistPoolServiceGrpcAsyncIOTransport(SpecialistPoolServiceTransport):
             self._stubs["update_specialist_pool"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.SpecialistPoolService/UpdateSpecialistPool",
                 request_serializer=specialist_pool_service.UpdateSpecialistPoolRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["update_specialist_pool"]
 

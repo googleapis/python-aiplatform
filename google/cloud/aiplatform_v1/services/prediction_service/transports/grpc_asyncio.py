@@ -18,8 +18,7 @@ from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import grpc_helpers_async  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 import packaging.version
 
@@ -51,7 +50,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -94,7 +93,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         channel: aio.Channel = None,
@@ -232,9 +231,7 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
         [prediction_service.PredictRequest],
         Awaitable[prediction_service.PredictResponse],
     ]:
-        r"""Return a callable for the
-        predict
-          method over gRPC.
+        r"""Return a callable for the predict method over gRPC.
 
         Perform an online prediction.
 

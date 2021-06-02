@@ -17,10 +17,10 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import job_state
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
-from google.type import money_pb2 as money  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
+from google.type import money_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -140,18 +140,20 @@ class DataLabelingJob(proto.Message):
     name = proto.Field(proto.STRING, number=1,)
     display_name = proto.Field(proto.STRING, number=2,)
     datasets = proto.RepeatedField(proto.STRING, number=3,)
-    annotation_labels = proto.MapField(proto.STRING, proto.STRING, number=12)
+    annotation_labels = proto.MapField(proto.STRING, proto.STRING, number=12,)
     labeler_count = proto.Field(proto.INT32, number=4,)
     instruction_uri = proto.Field(proto.STRING, number=5,)
     inputs_schema_uri = proto.Field(proto.STRING, number=6,)
-    inputs = proto.Field(proto.MESSAGE, number=7, message=struct.Value,)
+    inputs = proto.Field(proto.MESSAGE, number=7, message=struct_pb2.Value,)
     state = proto.Field(proto.ENUM, number=8, enum=job_state.JobState,)
     labeling_progress = proto.Field(proto.INT32, number=13,)
-    current_spend = proto.Field(proto.MESSAGE, number=14, message=money.Money,)
-    create_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=10, message=timestamp.Timestamp,)
-    error = proto.Field(proto.MESSAGE, number=22, message=status.Status,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=11)
+    current_spend = proto.Field(proto.MESSAGE, number=14, message=money_pb2.Money,)
+    create_time = proto.Field(proto.MESSAGE, number=9, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(
+        proto.MESSAGE, number=10, message=timestamp_pb2.Timestamp,
+    )
+    error = proto.Field(proto.MESSAGE, number=22, message=status_pb2.Status,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=11,)
     specialist_pools = proto.RepeatedField(proto.STRING, number=16,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=20, message=gca_encryption_spec.EncryptionSpec,

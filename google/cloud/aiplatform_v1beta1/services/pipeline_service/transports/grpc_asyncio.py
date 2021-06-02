@@ -19,21 +19,22 @@ from typing import Awaitable, Callable, Dict, Optional, Sequence, Tuple, Union
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import grpc_helpers_async  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google import auth  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 import packaging.version
 
 import grpc  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import pipeline_job
+from google.cloud.aiplatform_v1beta1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import training_pipeline
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
-from google.longrunning import operations_pb2 as operations  # type: ignore
-from google.protobuf import empty_pb2 as empty  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
 from .base import PipelineServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import PipelineServiceGrpcTransport
 
@@ -58,7 +59,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -101,7 +102,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         channel: aio.Channel = None,
@@ -256,9 +257,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         [pipeline_service.CreateTrainingPipelineRequest],
         Awaitable[gca_training_pipeline.TrainingPipeline],
     ]:
-        r"""Return a callable for the
-        create training pipeline
-          method over gRPC.
+        r"""Return a callable for the create training pipeline method over gRPC.
 
         Creates a TrainingPipeline. A created
         TrainingPipeline right away will be attempted to be run.
@@ -288,9 +287,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         [pipeline_service.GetTrainingPipelineRequest],
         Awaitable[training_pipeline.TrainingPipeline],
     ]:
-        r"""Return a callable for the
-        get training pipeline
-          method over gRPC.
+        r"""Return a callable for the get training pipeline method over gRPC.
 
         Gets a TrainingPipeline.
 
@@ -319,9 +316,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         [pipeline_service.ListTrainingPipelinesRequest],
         Awaitable[pipeline_service.ListTrainingPipelinesResponse],
     ]:
-        r"""Return a callable for the
-        list training pipelines
-          method over gRPC.
+        r"""Return a callable for the list training pipelines method over gRPC.
 
         Lists TrainingPipelines in a Location.
 
@@ -348,11 +343,9 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
         self,
     ) -> Callable[
         [pipeline_service.DeleteTrainingPipelineRequest],
-        Awaitable[operations.Operation],
+        Awaitable[operations_pb2.Operation],
     ]:
-        r"""Return a callable for the
-        delete training pipeline
-          method over gRPC.
+        r"""Return a callable for the delete training pipeline method over gRPC.
 
         Deletes a TrainingPipeline.
 
@@ -370,7 +363,7 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
             self._stubs["delete_training_pipeline"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.PipelineService/DeleteTrainingPipeline",
                 request_serializer=pipeline_service.DeleteTrainingPipelineRequest.serialize,
-                response_deserializer=operations.Operation.FromString,
+                response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["delete_training_pipeline"]
 
@@ -378,11 +371,9 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
     def cancel_training_pipeline(
         self,
     ) -> Callable[
-        [pipeline_service.CancelTrainingPipelineRequest], Awaitable[empty.Empty]
+        [pipeline_service.CancelTrainingPipelineRequest], Awaitable[empty_pb2.Empty]
     ]:
-        r"""Return a callable for the
-        cancel training pipeline
-          method over gRPC.
+        r"""Return a callable for the cancel training pipeline method over gRPC.
 
         Cancels a TrainingPipeline. Starts asynchronous cancellation on
         the TrainingPipeline. The server makes a best effort to cancel
@@ -412,9 +403,164 @@ class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
             self._stubs["cancel_training_pipeline"] = self.grpc_channel.unary_unary(
                 "/google.cloud.aiplatform.v1beta1.PipelineService/CancelTrainingPipeline",
                 request_serializer=pipeline_service.CancelTrainingPipelineRequest.serialize,
-                response_deserializer=empty.Empty.FromString,
+                response_deserializer=empty_pb2.Empty.FromString,
             )
         return self._stubs["cancel_training_pipeline"]
+
+    @property
+    def create_pipeline_job(
+        self,
+    ) -> Callable[
+        [pipeline_service.CreatePipelineJobRequest],
+        Awaitable[gca_pipeline_job.PipelineJob],
+    ]:
+        r"""Return a callable for the create pipeline job method over gRPC.
+
+        Creates a PipelineJob. A PipelineJob will run
+        immediately when created.
+
+        Returns:
+            Callable[[~.CreatePipelineJobRequest],
+                    Awaitable[~.PipelineJob]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "create_pipeline_job" not in self._stubs:
+            self._stubs["create_pipeline_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PipelineService/CreatePipelineJob",
+                request_serializer=pipeline_service.CreatePipelineJobRequest.serialize,
+                response_deserializer=gca_pipeline_job.PipelineJob.deserialize,
+            )
+        return self._stubs["create_pipeline_job"]
+
+    @property
+    def get_pipeline_job(
+        self,
+    ) -> Callable[
+        [pipeline_service.GetPipelineJobRequest], Awaitable[pipeline_job.PipelineJob]
+    ]:
+        r"""Return a callable for the get pipeline job method over gRPC.
+
+        Gets a PipelineJob.
+
+        Returns:
+            Callable[[~.GetPipelineJobRequest],
+                    Awaitable[~.PipelineJob]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "get_pipeline_job" not in self._stubs:
+            self._stubs["get_pipeline_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PipelineService/GetPipelineJob",
+                request_serializer=pipeline_service.GetPipelineJobRequest.serialize,
+                response_deserializer=pipeline_job.PipelineJob.deserialize,
+            )
+        return self._stubs["get_pipeline_job"]
+
+    @property
+    def list_pipeline_jobs(
+        self,
+    ) -> Callable[
+        [pipeline_service.ListPipelineJobsRequest],
+        Awaitable[pipeline_service.ListPipelineJobsResponse],
+    ]:
+        r"""Return a callable for the list pipeline jobs method over gRPC.
+
+        Lists PipelineJobs in a Location.
+
+        Returns:
+            Callable[[~.ListPipelineJobsRequest],
+                    Awaitable[~.ListPipelineJobsResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_pipeline_jobs" not in self._stubs:
+            self._stubs["list_pipeline_jobs"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PipelineService/ListPipelineJobs",
+                request_serializer=pipeline_service.ListPipelineJobsRequest.serialize,
+                response_deserializer=pipeline_service.ListPipelineJobsResponse.deserialize,
+            )
+        return self._stubs["list_pipeline_jobs"]
+
+    @property
+    def delete_pipeline_job(
+        self,
+    ) -> Callable[
+        [pipeline_service.DeletePipelineJobRequest], Awaitable[operations_pb2.Operation]
+    ]:
+        r"""Return a callable for the delete pipeline job method over gRPC.
+
+        Deletes a PipelineJob.
+
+        Returns:
+            Callable[[~.DeletePipelineJobRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_pipeline_job" not in self._stubs:
+            self._stubs["delete_pipeline_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PipelineService/DeletePipelineJob",
+                request_serializer=pipeline_service.DeletePipelineJobRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_pipeline_job"]
+
+    @property
+    def cancel_pipeline_job(
+        self,
+    ) -> Callable[
+        [pipeline_service.CancelPipelineJobRequest], Awaitable[empty_pb2.Empty]
+    ]:
+        r"""Return a callable for the cancel pipeline job method over gRPC.
+
+        Cancels a PipelineJob. Starts asynchronous cancellation on the
+        PipelineJob. The server makes a best effort to cancel the
+        pipeline, but success is not guaranteed. Clients can use
+        [PipelineService.GetPipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.GetPipelineJob]
+        or other methods to check whether the cancellation succeeded or
+        whether the pipeline completed despite cancellation. On
+        successful cancellation, the PipelineJob is not deleted; instead
+        it becomes a pipeline with a
+        [PipelineJob.error][google.cloud.aiplatform.v1beta1.PipelineJob.error]
+        value with a [google.rpc.Status.code][google.rpc.Status.code] of
+        1, corresponding to ``Code.CANCELLED``, and
+        [PipelineJob.state][google.cloud.aiplatform.v1beta1.PipelineJob.state]
+        is set to ``CANCELLED``.
+
+        Returns:
+            Callable[[~.CancelPipelineJobRequest],
+                    Awaitable[~.Empty]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "cancel_pipeline_job" not in self._stubs:
+            self._stubs["cancel_pipeline_job"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PipelineService/CancelPipelineJob",
+                request_serializer=pipeline_service.CancelPipelineJobRequest.serialize,
+                response_deserializer=empty_pb2.Empty.FromString,
+            )
+        return self._stubs["cancel_pipeline_job"]
 
 
 __all__ = ("PipelineServiceGrpcAsyncIOTransport",)

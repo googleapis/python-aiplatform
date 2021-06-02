@@ -18,18 +18,18 @@ from typing import Awaitable, Callable, Dict, Optional, Sequence, Union
 import packaging.version
 import pkg_resources
 
-from google import auth  # type: ignore
+import google.auth  # type: ignore
 import google.api_core  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
 from google.api_core import operations_v1  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 
 from google.cloud.aiplatform_v1.types import endpoint
 from google.cloud.aiplatform_v1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1.types import endpoint_service
-from google.longrunning import operations_pb2 as operations  # type: ignore
+from google.longrunning import operations_pb2  # type: ignore
 
 try:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
@@ -42,7 +42,7 @@ except pkg_resources.DistributionNotFound:
 
 try:
     # google.auth.__version__ was added in 1.26.0
-    _GOOGLE_AUTH_VERSION = auth.__version__
+    _GOOGLE_AUTH_VERSION = google.auth.__version__
 except AttributeError:
     try:  # try pkg_resources if it is available
         _GOOGLE_AUTH_VERSION = pkg_resources.get_distribution("google-auth").version
@@ -63,7 +63,7 @@ class EndpointServiceTransport(abc.ABC):
         self,
         *,
         host: str = DEFAULT_HOST,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -105,17 +105,17 @@ class EndpointServiceTransport(abc.ABC):
         # If no credentials are provided, then determine the appropriate
         # defaults.
         if credentials and credentials_file:
-            raise exceptions.DuplicateCredentialArgs(
+            raise core_exceptions.DuplicateCredentialArgs(
                 "'credentials_file' and 'credentials' are mutually exclusive"
             )
 
         if credentials_file is not None:
-            credentials, _ = auth.load_credentials_from_file(
+            credentials, _ = google.auth.load_credentials_from_file(
                 credentials_file, **scopes_kwargs, quota_project_id=quota_project_id
             )
 
         elif credentials is None:
-            credentials, _ = auth.default(
+            credentials, _ = google.auth.default(
                 **scopes_kwargs, quota_project_id=quota_project_id
             )
 
@@ -203,7 +203,7 @@ class EndpointServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [endpoint_service.CreateEndpointRequest],
-        Union[operations.Operation, Awaitable[operations.Operation]],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 
@@ -242,7 +242,7 @@ class EndpointServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [endpoint_service.DeleteEndpointRequest],
-        Union[operations.Operation, Awaitable[operations.Operation]],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 
@@ -251,7 +251,7 @@ class EndpointServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [endpoint_service.DeployModelRequest],
-        Union[operations.Operation, Awaitable[operations.Operation]],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 
@@ -260,7 +260,7 @@ class EndpointServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [endpoint_service.UndeployModelRequest],
-        Union[operations.Operation, Awaitable[operations.Operation]],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

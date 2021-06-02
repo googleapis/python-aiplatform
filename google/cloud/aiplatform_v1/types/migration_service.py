@@ -19,7 +19,7 @@ from google.cloud.aiplatform_v1.types import (
     migratable_resource as gca_migratable_resource,
 )
 from google.cloud.aiplatform_v1.types import operation
-from google.rpc import status_pb2 as status  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -333,7 +333,7 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
         """
 
         error = proto.Field(
-            proto.MESSAGE, number=2, oneof="result", message=status.Status,
+            proto.MESSAGE, number=2, oneof="result", message=status_pb2.Status,
         )
         model = proto.Field(proto.STRING, number=3, oneof="result",)
         dataset = proto.Field(proto.STRING, number=4, oneof="result",)

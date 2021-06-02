@@ -15,8 +15,8 @@
 #
 import proto  # type: ignore
 
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -45,10 +45,10 @@ class GenericOperationMetadata(proto.Message):
     """
 
     partial_failures = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=status.Status,
+        proto.MESSAGE, number=1, message=status_pb2.Status,
     )
-    create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=3, message=timestamp.Timestamp,)
+    create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=3, message=timestamp_pb2.Timestamp,)
 
 
 class DeleteOperationMetadata(proto.Message):

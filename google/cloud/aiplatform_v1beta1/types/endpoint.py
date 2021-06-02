@@ -18,7 +18,7 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import machine_resources
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -90,11 +90,11 @@ class Endpoint(proto.Message):
     deployed_models = proto.RepeatedField(
         proto.MESSAGE, number=4, message="DeployedModel",
     )
-    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=5)
+    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=5,)
     etag = proto.Field(proto.STRING, number=6,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=7)
-    create_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=7,)
+    create_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp_pb2.Timestamp,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
     )
@@ -187,7 +187,7 @@ class DeployedModel(proto.Message):
     id = proto.Field(proto.STRING, number=1,)
     model = proto.Field(proto.STRING, number=2,)
     display_name = proto.Field(proto.STRING, number=3,)
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
+    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
     explanation_spec = proto.Field(
         proto.MESSAGE, number=9, message=explanation.ExplanationSpec,
     )

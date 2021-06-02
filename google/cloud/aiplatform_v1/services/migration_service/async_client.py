@@ -20,10 +20,10 @@ from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
 import google.api_core.client_options as ClientOptions  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 from google.api_core import operation  # type: ignore
@@ -136,7 +136,7 @@ class MigrationServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: credentials.Credentials = None,
+        credentials: ga_credentials.Credentials = None,
         transport: Union[str, MigrationServiceTransport] = "grpc_asyncio",
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -196,8 +196,7 @@ class MigrationServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.SearchMigratableResourcesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
             parent (:class:`str`):
                 Required. The location that the migratable resources
@@ -285,8 +284,7 @@ class MigrationServiceAsyncClient:
 
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.BatchMigrateResourcesRequest`):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
             parent (:class:`str`):
                 Required. The location of the migrated resource will

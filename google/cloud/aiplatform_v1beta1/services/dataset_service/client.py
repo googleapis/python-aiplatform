@@ -21,10 +21,10 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials  # type: ignore
+from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
@@ -41,10 +41,10 @@ from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import dataset_service
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
-from google.protobuf import empty_pb2 as empty  # type: ignore
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
-from google.protobuf import struct_pb2 as struct  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import struct_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
 from .transports.base import DatasetServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import DatasetServiceGrpcTransport
 from .transports.grpc_asyncio import DatasetServiceGrpcAsyncIOTransport
@@ -304,7 +304,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
     def __init__(
         self,
         *,
-        credentials: Optional[credentials.Credentials] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, DatasetServiceTransport, None] = None,
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -428,8 +428,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateDatasetRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.CreateDataset][google.cloud.aiplatform.v1beta1.DatasetService.CreateDataset].
             parent (str):
                 Required. The resource name of the Location to create
@@ -519,8 +518,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetDatasetRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.GetDataset][google.cloud.aiplatform.v1beta1.DatasetService.GetDataset].
             name (str):
                 Required. The name of the Dataset
@@ -583,7 +581,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         request: dataset_service.UpdateDatasetRequest = None,
         *,
         dataset: gca_dataset.Dataset = None,
-        update_mask: field_mask.FieldMask = None,
+        update_mask: field_mask_pb2.FieldMask = None,
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
@@ -592,8 +590,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UpdateDatasetRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.UpdateDataset][google.cloud.aiplatform.v1beta1.DatasetService.UpdateDataset].
             dataset (google.cloud.aiplatform_v1beta1.types.Dataset):
                 Required. The Dataset which replaces
@@ -681,8 +678,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListDatasetsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.ListDatasets][google.cloud.aiplatform.v1beta1.DatasetService.ListDatasets].
             parent (str):
                 Required. The name of the Dataset's parent resource.
@@ -762,8 +758,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.DeleteDatasetRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.DeleteDataset][google.cloud.aiplatform.v1beta1.DatasetService.DeleteDataset].
             name (str):
                 Required. The resource name of the Dataset to delete.
@@ -836,7 +831,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         response = gac_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty.Empty,
+            empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -857,8 +852,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ImportDataRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.ImportData][google.cloud.aiplatform.v1beta1.DatasetService.ImportData].
             name (str):
                 Required. The name of the Dataset resource. Format:
@@ -952,8 +946,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ExportDataRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.ExportData][google.cloud.aiplatform.v1beta1.DatasetService.ExportData].
             name (str):
                 Required. The name of the Dataset resource. Format:
@@ -1045,8 +1038,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListDataItemsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.ListDataItems][google.cloud.aiplatform.v1beta1.DatasetService.ListDataItems].
             parent (str):
                 Required. The resource name of the Dataset to list
@@ -1127,8 +1119,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetAnnotationSpecRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.GetAnnotationSpec][google.cloud.aiplatform.v1beta1.DatasetService.GetAnnotationSpec].
             name (str):
                 Required. The name of the AnnotationSpec resource.
@@ -1200,8 +1191,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListAnnotationsRequest):
-                The request object.
-                Request message for
+                The request object. Request message for
                 [DatasetService.ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
             parent (str):
                 Required. The resource name of the DataItem to list

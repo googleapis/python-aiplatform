@@ -20,9 +20,9 @@ from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import machine_resources
-from google.protobuf import duration_pb2 as duration  # type: ignore
-from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
-from google.rpc import status_pb2 as status  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -93,12 +93,12 @@ class CustomJob(proto.Message):
     display_name = proto.Field(proto.STRING, number=2,)
     job_spec = proto.Field(proto.MESSAGE, number=4, message="CustomJobSpec",)
     state = proto.Field(proto.ENUM, number=5, enum=job_state.JobState,)
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp.Timestamp,)
-    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp.Timestamp,)
-    error = proto.Field(proto.MESSAGE, number=10, message=status.Status,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=11)
+    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
+    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
+    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
+    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp_pb2.Timestamp,)
+    error = proto.Field(proto.MESSAGE, number=10, message=status_pb2.Status,)
+    labels = proto.MapField(proto.STRING, proto.STRING, number=11,)
     encryption_spec = proto.Field(
         proto.MESSAGE, number=12, message=gca_encryption_spec.EncryptionSpec,
     )
@@ -278,7 +278,7 @@ class Scheduling(proto.Message):
             to workers leaving and joining a job.
     """
 
-    timeout = proto.Field(proto.MESSAGE, number=1, message=duration.Duration,)
+    timeout = proto.Field(proto.MESSAGE, number=1, message=duration_pb2.Duration,)
     restart_job_on_worker_restart = proto.Field(proto.BOOL, number=3,)
 
 

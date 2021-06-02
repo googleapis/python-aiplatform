@@ -17,7 +17,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1.types import operation
-from google.protobuf import field_mask_pb2 as field_mask  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -143,7 +143,7 @@ class ListEndpointsRequest(proto.Message):
     filter = proto.Field(proto.STRING, number=2,)
     page_size = proto.Field(proto.INT32, number=3,)
     page_token = proto.Field(proto.STRING, number=4,)
-    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask.FieldMask,)
+    read_mask = proto.Field(proto.MESSAGE, number=5, message=field_mask_pb2.FieldMask,)
     order_by = proto.Field(proto.STRING, number=6,)
 
 
@@ -184,7 +184,9 @@ class UpdateEndpointRequest(proto.Message):
     """
 
     endpoint = proto.Field(proto.MESSAGE, number=1, message=gca_endpoint.Endpoint,)
-    update_mask = proto.Field(proto.MESSAGE, number=2, message=field_mask.FieldMask,)
+    update_mask = proto.Field(
+        proto.MESSAGE, number=2, message=field_mask_pb2.FieldMask,
+    )
 
 
 class DeleteEndpointRequest(proto.Message):
@@ -239,7 +241,7 @@ class DeployModelRequest(proto.Message):
     deployed_model = proto.Field(
         proto.MESSAGE, number=2, message=gca_endpoint.DeployedModel,
     )
-    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3)
+    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3,)
 
 
 class DeployModelResponse(proto.Message):
@@ -296,7 +298,7 @@ class UndeployModelRequest(proto.Message):
 
     endpoint = proto.Field(proto.STRING, number=1,)
     deployed_model_id = proto.Field(proto.STRING, number=2,)
-    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3)
+    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3,)
 
 
 class UndeployModelResponse(proto.Message):
