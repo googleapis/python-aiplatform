@@ -38,8 +38,7 @@ from .client import MigrationServiceClient
 
 class MigrationServiceAsyncClient:
     """A service that migrates resources from automl.googleapis.com,
-    datalabeling.googleapis.com and ml.googleapis.com to AI
-    Platform.
+    datalabeling.googleapis.com and ml.googleapis.com to Vertex AI.
     """
 
     _client: MigrationServiceClient
@@ -90,7 +89,8 @@ class MigrationServiceAsyncClient:
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -105,7 +105,7 @@ class MigrationServiceAsyncClient:
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -122,7 +122,7 @@ class MigrationServiceAsyncClient:
 
     @property
     def transport(self) -> MigrationServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
             MigrationServiceTransport: The transport used by the client instance.
@@ -141,7 +141,7 @@ class MigrationServiceAsyncClient:
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the migration service client.
+        """Instantiates the migration service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -191,7 +191,7 @@ class MigrationServiceAsyncClient:
     ) -> pagers.SearchMigratableResourcesAsyncPager:
         r"""Searches all of the resources in
         automl.googleapis.com, datalabeling.googleapis.com and
-        ml.googleapis.com that can be migrated to AI Platform's
+        ml.googleapis.com that can be migrated to Vertex AI's
         given location.
 
         Args:
@@ -200,7 +200,7 @@ class MigrationServiceAsyncClient:
                 [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
             parent (:class:`str`):
                 Required. The location that the migratable resources
-                should be searched from. It's the AI Platform location
+                should be searched from. It's the Vertex AI location
                 that the resources can be migrated to, not the
                 resources' original location. Format:
                 ``projects/{project}/locations/{location}``
@@ -280,7 +280,7 @@ class MigrationServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Batch migrates resources from ml.googleapis.com,
         automl.googleapis.com, and datalabeling.googleapis.com
-        to AI Platform (Unified).
+        to Vertex AI.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest`):

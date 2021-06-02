@@ -38,7 +38,10 @@ from .grpc import PipelineServiceGrpcTransport
 class PipelineServiceGrpcAsyncIOTransport(PipelineServiceTransport):
     """gRPC AsyncIO backend transport for PipelineService.
 
-    A service for creating and managing AI Platform's pipelines.
+    A service for creating and managing Vertex AI's pipelines. This
+    includes both ``TrainingPipeline`` resources (used for AutoML and
+    custom training) and ``PipelineJob`` resources (used for Vertex
+    Pipelines).
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation

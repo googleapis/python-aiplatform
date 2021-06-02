@@ -54,7 +54,7 @@ from .grpc import JobServiceGrpcTransport
 class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
     """gRPC AsyncIO backend transport for JobService.
 
-    A service for creating and managing AI Platform's jobs.
+    A service for creating and managing Vertex AI's jobs.
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation

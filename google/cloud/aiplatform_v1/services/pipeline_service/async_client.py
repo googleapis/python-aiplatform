@@ -46,7 +46,11 @@ from .client import PipelineServiceClient
 
 
 class PipelineServiceAsyncClient:
-    """A service for creating and managing AI Platform's pipelines."""
+    """A service for creating and managing Vertex AI's pipelines. This
+    includes both ``TrainingPipeline`` resources (used for AutoML and
+    custom training) and ``PipelineJob`` resources (used for Vertex
+    Pipelines).
+    """
 
     _client: PipelineServiceClient
 
@@ -88,7 +92,8 @@ class PipelineServiceAsyncClient:
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -103,7 +108,7 @@ class PipelineServiceAsyncClient:
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -120,7 +125,7 @@ class PipelineServiceAsyncClient:
 
     @property
     def transport(self) -> PipelineServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
             PipelineServiceTransport: The transport used by the client instance.
@@ -139,7 +144,7 @@ class PipelineServiceAsyncClient:
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the pipeline service client.
+        """Instantiates the pipeline service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -220,10 +225,10 @@ class PipelineServiceAsyncClient:
             google.cloud.aiplatform_v1.types.TrainingPipeline:
                 The TrainingPipeline orchestrates tasks associated with training a Model. It
                    always executes the training task, and optionally may
-                   also export data from AI Platform's Dataset which
+                   also export data from Vertex AI's Dataset which
                    becomes the training input,
                    [upload][google.cloud.aiplatform.v1.ModelService.UploadModel]
-                   the Model to AI Platform, and evaluate the Model.
+                   the Model to Vertex AI, and evaluate the Model.
 
         """
         # Create or coerce a protobuf request object.
@@ -283,7 +288,6 @@ class PipelineServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the TrainingPipeline resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
 
                 This corresponds to the ``name`` field
@@ -299,10 +303,10 @@ class PipelineServiceAsyncClient:
             google.cloud.aiplatform_v1.types.TrainingPipeline:
                 The TrainingPipeline orchestrates tasks associated with training a Model. It
                    always executes the training task, and optionally may
-                   also export data from AI Platform's Dataset which
+                   also export data from Vertex AI's Dataset which
                    becomes the training input,
                    [upload][google.cloud.aiplatform.v1.ModelService.UploadModel]
-                   the Model to AI Platform, and evaluate the Model.
+                   the Model to Vertex AI, and evaluate the Model.
 
         """
         # Create or coerce a protobuf request object.
@@ -441,7 +445,6 @@ class PipelineServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the TrainingPipeline resource to
                 be deleted. Format:
-
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
 
                 This corresponds to the ``name`` field
@@ -547,7 +550,6 @@ class PipelineServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the TrainingPipeline to cancel.
                 Format:
-
                 ``projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}``
 
                 This corresponds to the ``name`` field

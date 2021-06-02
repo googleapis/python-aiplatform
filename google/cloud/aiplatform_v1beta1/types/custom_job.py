@@ -114,11 +114,12 @@ class CustomJobSpec(proto.Message):
         scheduling (google.cloud.aiplatform_v1beta1.types.Scheduling):
             Scheduling options for a CustomJob.
         service_account (str):
-            Specifies the service account for workload
-            run-as account. Users submitting jobs must have
-            act-as permission on this run-as account. If
-            unspecified, the AI Platform Custom Code Service
-            Agent for the CustomJob's project is used.
+            Specifies the service account for workload run-as account.
+            Users submitting jobs must have act-as permission on this
+            run-as account. If unspecified, the `AI Platform Custom Code
+            Service
+            Agent <https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents>`__
+            for the CustomJob's project is used.
         network (str):
             The full name of the Compute Engine
             `network </compute/docs/networks-and-firewalls#networks>`__
@@ -141,9 +142,8 @@ class CustomJobSpec(proto.Message):
             name [id][google.cloud.aiplatform.v1beta1.Trial.id] under
             its parent HyperparameterTuningJob's baseOutputDirectory.
 
-            The following AI Platform environment variables will be
-            passed to containers or python modules when this field is
-            set:
+            The following Vertex AI environment variables will be passed
+            to containers or python modules when this field is set:
 
             For CustomJob:
 
@@ -162,7 +162,7 @@ class CustomJobSpec(proto.Message):
             -  AIP_TENSORBOARD_LOG_DIR =
                ``<base_output_directory>/<trial_id>/logs/``
         tensorboard (str):
-            Optional. The name of an AI Platform
+            Optional. The name of a Vertex AI
             [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
             resource to which this CustomJob will upload Tensorboard
             logs. Format:
@@ -239,11 +239,11 @@ class PythonPackageSpec(proto.Message):
     Attributes:
         executor_image_uri (str):
             Required. The URI of a container image in Artifact Registry
-            that will run the provided Python package. AI Platform
+            that will run the provided Python package. Vertex AI
             provides a wide range of executor images with pre-installed
             packages to meet users' various use cases. See the list of
             `pre-built containers for
-            training <https://cloud.google.com/ai-platform-unified/docs/training/pre-built-containers>`__.
+            training <https://cloud.google.com/vertex-ai/docs/training/pre-built-containers>`__.
             You must use an image from this list.
         package_uris (Sequence[str]):
             Required. The Google Cloud Storage location

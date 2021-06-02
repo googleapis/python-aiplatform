@@ -52,7 +52,7 @@ from .base import JobServiceTransport, DEFAULT_CLIENT_INFO
 class JobServiceGrpcTransport(JobServiceTransport):
     """gRPC backend transport for JobService.
 
-    A service for creating and managing AI Platform's jobs.
+    A service for creating and managing Vertex AI's jobs.
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation

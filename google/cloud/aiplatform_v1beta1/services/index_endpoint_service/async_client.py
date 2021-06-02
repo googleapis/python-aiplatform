@@ -42,7 +42,7 @@ from .client import IndexEndpointServiceClient
 
 
 class IndexEndpointServiceAsyncClient:
-    """A service for managing AI Platform's IndexEndpoints."""
+    """A service for managing Vertex AI's IndexEndpoints."""
 
     _client: IndexEndpointServiceClient
 
@@ -82,7 +82,8 @@ class IndexEndpointServiceAsyncClient:
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -97,7 +98,7 @@ class IndexEndpointServiceAsyncClient:
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -114,7 +115,7 @@ class IndexEndpointServiceAsyncClient:
 
     @property
     def transport(self) -> IndexEndpointServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
             IndexEndpointServiceTransport: The transport used by the client instance.
@@ -134,7 +135,7 @@ class IndexEndpointServiceAsyncClient:
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the index endpoint service client.
+        """Instantiates the index endpoint service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -444,7 +445,7 @@ class IndexEndpointServiceAsyncClient:
                 should not be set.
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Required. The update mask applies to the resource. See
-                `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

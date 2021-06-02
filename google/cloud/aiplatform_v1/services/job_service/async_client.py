@@ -60,7 +60,7 @@ from .client import JobServiceClient
 
 
 class JobServiceAsyncClient:
-    """A service for creating and managing AI Platform's jobs."""
+    """A service for creating and managing Vertex AI's jobs."""
 
     _client: JobServiceClient
 
@@ -110,7 +110,8 @@ class JobServiceAsyncClient:
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -125,7 +126,7 @@ class JobServiceAsyncClient:
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -142,7 +143,7 @@ class JobServiceAsyncClient:
 
     @property
     def transport(self) -> JobServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
             JobServiceTransport: The transport used by the client instance.
@@ -161,7 +162,7 @@ class JobServiceAsyncClient:
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the job service client.
+        """Instantiates the job service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -629,7 +630,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CreateDataLabelingJobRequest`):
                 The request object. Request message for
-                [DataLabelingJobService.CreateDataLabelingJob][].
+                [JobService.CreateDataLabelingJob][google.cloud.aiplatform.v1.JobService.CreateDataLabelingJob].
             parent (:class:`str`):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
@@ -710,10 +711,9 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.GetDataLabelingJobRequest`):
                 The request object. Request message for
-                [DataLabelingJobService.GetDataLabelingJob][].
+                [JobService.GetDataLabelingJob][google.cloud.aiplatform.v1.JobService.GetDataLabelingJob].
             name (:class:`str`):
                 Required. The name of the DataLabelingJob. Format:
-
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
@@ -783,7 +783,7 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.ListDataLabelingJobsRequest`):
                 The request object. Request message for
-                [DataLabelingJobService.ListDataLabelingJobs][].
+                [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1.JobService.ListDataLabelingJobs].
             parent (:class:`str`):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
@@ -867,7 +867,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the DataLabelingJob to be deleted.
                 Format:
-
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
@@ -958,10 +957,9 @@ class JobServiceAsyncClient:
         Args:
             request (:class:`google.cloud.aiplatform_v1.types.CancelDataLabelingJobRequest`):
                 The request object. Request message for
-                [DataLabelingJobService.CancelDataLabelingJob][].
+                [JobService.CancelDataLabelingJob][google.cloud.aiplatform.v1.JobService.CancelDataLabelingJob].
             name (:class:`str`):
                 Required. The name of the DataLabelingJob. Format:
-
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
@@ -1111,7 +1109,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob
                 resource. Format:
-
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
@@ -1267,7 +1264,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob
                 resource to be deleted. Format:
-
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
@@ -1374,7 +1370,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the HyperparameterTuningJob to
                 cancel. Format:
-
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
@@ -1527,7 +1522,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
@@ -1686,7 +1680,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob resource to
                 be deleted. Format:
-
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
@@ -1791,7 +1784,6 @@ class JobServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the BatchPredictionJob to cancel.
                 Format:
-
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field

@@ -91,7 +91,8 @@ class DatasetServiceAsyncClient:
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -106,7 +107,7 @@ class DatasetServiceAsyncClient:
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -123,7 +124,7 @@ class DatasetServiceAsyncClient:
 
     @property
     def transport(self) -> DatasetServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
             DatasetServiceTransport: The transport used by the client instance.
@@ -142,7 +143,7 @@ class DatasetServiceAsyncClient:
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the dataset service client.
+        """Instantiates the dataset service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -369,7 +370,7 @@ class DatasetServiceAsyncClient:
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Required. The update mask applies to the resource. For
                 the ``FieldMask`` definition, see
-                `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
                 Updatable fields:
 
                 -  ``display_name``
@@ -891,7 +892,6 @@ class DatasetServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the AnnotationSpec resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/datasets/{dataset}/annotationSpecs/{annotation_spec}``
 
                 This corresponds to the ``name`` field
@@ -964,7 +964,6 @@ class DatasetServiceAsyncClient:
             parent (:class:`str`):
                 Required. The resource name of the DataItem to list
                 Annotations from. Format:
-
                 ``projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}``
 
                 This corresponds to the ``parent`` field

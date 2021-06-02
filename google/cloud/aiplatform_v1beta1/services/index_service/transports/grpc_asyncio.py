@@ -36,7 +36,7 @@ from .grpc import IndexServiceGrpcTransport
 class IndexServiceGrpcAsyncIOTransport(IndexServiceTransport):
     """gRPC AsyncIO backend transport for IndexService.
 
-    A service for creating and managing AI Platform's Index
+    A service for creating and managing Vertex AI's Index
     resources.
 
     This class defines the same methods as the primary client, so the
