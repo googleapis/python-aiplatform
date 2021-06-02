@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import proto  # type: ignore
+
 
 from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import explanation
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+from google.protobuf import struct_pb2 as struct  # type: ignore
+from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -31,6 +34,7 @@ __protobuf__ = proto.module(
 
 class Model(proto.Message):
     r"""A trained machine learning Model.
+
     Attributes:
         name (str):
             The resource name of the Model.
@@ -54,7 +58,7 @@ class Model(proto.Message):
             3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
             AutoML Models always have this field populated by AI
-            Platform, if no additional metadata is needed, this field is
+            Platform, if no additional metadata is needed this field is
             set to an empty string. Note: The URI given on output will
             be immutable and probably different, including the URI
             scheme, than the one given on input. The output URI will
@@ -201,8 +205,8 @@ class Model(proto.Message):
             The Model can be used for [requesting
             explanation][PredictionService.Explain] after being
             [deployed][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel]
-            if it is populated. The Model can be used for [batch
-            explanation][BatchPredictionJob.generate_explanation] if it
+            iff it is populated. The Model can be used for [batch
+            explanation][BatchPredictionJob.generate_explanation] iff it
             is populated.
 
             All fields of the explanation_spec can be overridden by
@@ -210,19 +214,6 @@ class Model(proto.Message):
             of
             [DeployModelRequest.deployed_model][google.cloud.aiplatform.v1beta1.DeployModelRequest.deployed_model],
             or
-            [explanation_spec][google.cloud.aiplatform.v1beta1.BatchPredictionJob.explanation_spec]
-            of
-            [BatchPredictionJob][google.cloud.aiplatform.v1beta1.BatchPredictionJob].
-
-            If the default explanation specification is not set for this
-            Model, this Model can still be used for [requesting
-            explanation][PredictionService.Explain] by setting
-            [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
-            of
-            [DeployModelRequest.deployed_model][google.cloud.aiplatform.v1beta1.DeployModelRequest.deployed_model]
-            and for [batch
-            explanation][BatchPredictionJob.generate_explanation] by
-            setting
             [explanation_spec][google.cloud.aiplatform.v1beta1.BatchPredictionJob.explanation_spec]
             of
             [BatchPredictionJob][google.cloud.aiplatform.v1beta1.BatchPredictionJob].
@@ -253,7 +244,7 @@ class Model(proto.Message):
         AUTOMATIC_RESOURCES = 2
 
     class ExportFormat(proto.Message):
-        r"""Represents export format supported by the Model.
+        r"""Represents a supported by the Model export format.
         All formats export to Google Cloud Storage.
 
         Attributes:
@@ -289,42 +280,58 @@ class Model(proto.Message):
             ARTIFACT = 1
             IMAGE = 2
 
-        id = proto.Field(proto.STRING, number=1,)
+        id = proto.Field(proto.STRING, number=1)
+
         exportable_contents = proto.RepeatedField(
             proto.ENUM, number=2, enum="Model.ExportFormat.ExportableContent",
         )
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    description = proto.Field(proto.STRING, number=3,)
+    name = proto.Field(proto.STRING, number=1)
+
+    display_name = proto.Field(proto.STRING, number=2)
+
+    description = proto.Field(proto.STRING, number=3)
+
     predict_schemata = proto.Field(proto.MESSAGE, number=4, message="PredictSchemata",)
-    metadata_schema_uri = proto.Field(proto.STRING, number=5,)
-    metadata = proto.Field(proto.MESSAGE, number=6, message=struct_pb2.Value,)
+
+    metadata_schema_uri = proto.Field(proto.STRING, number=5)
+
+    metadata = proto.Field(proto.MESSAGE, number=6, message=struct.Value,)
+
     supported_export_formats = proto.RepeatedField(
         proto.MESSAGE, number=20, message=ExportFormat,
     )
-    training_pipeline = proto.Field(proto.STRING, number=7,)
+
+    training_pipeline = proto.Field(proto.STRING, number=7)
+
     container_spec = proto.Field(proto.MESSAGE, number=9, message="ModelContainerSpec",)
-    artifact_uri = proto.Field(proto.STRING, number=26,)
+
+    artifact_uri = proto.Field(proto.STRING, number=26)
+
     supported_deployment_resources_types = proto.RepeatedField(
         proto.ENUM, number=10, enum=DeploymentResourcesType,
     )
-    supported_input_storage_formats = proto.RepeatedField(proto.STRING, number=11,)
-    supported_output_storage_formats = proto.RepeatedField(proto.STRING, number=12,)
-    create_time = proto.Field(
-        proto.MESSAGE, number=13, message=timestamp_pb2.Timestamp,
-    )
-    update_time = proto.Field(
-        proto.MESSAGE, number=14, message=timestamp_pb2.Timestamp,
-    )
+
+    supported_input_storage_formats = proto.RepeatedField(proto.STRING, number=11)
+
+    supported_output_storage_formats = proto.RepeatedField(proto.STRING, number=12)
+
+    create_time = proto.Field(proto.MESSAGE, number=13, message=timestamp.Timestamp,)
+
+    update_time = proto.Field(proto.MESSAGE, number=14, message=timestamp.Timestamp,)
+
     deployed_models = proto.RepeatedField(
         proto.MESSAGE, number=15, message=deployed_model_ref.DeployedModelRef,
     )
+
     explanation_spec = proto.Field(
         proto.MESSAGE, number=23, message=explanation.ExplanationSpec,
     )
-    etag = proto.Field(proto.STRING, number=16,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=17,)
+
+    etag = proto.Field(proto.STRING, number=16)
+
+    labels = proto.MapField(proto.STRING, proto.STRING, number=17)
+
     encryption_spec = proto.Field(
         proto.MESSAGE, number=24, message=gca_encryption_spec.EncryptionSpec,
     )
@@ -365,8 +372,8 @@ class PredictSchemata(proto.Message):
             The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://tinyurl.com/y538mdwt#schema-object>`__.
             AutoML Models always have this field populated by AI
-            Platform, if no parameters are supported, then it is set to
-            an empty string. Note: The URI given on output will be
+            Platform, if no parameters are supported it is set to an
+            empty string. Note: The URI given on output will be
             immutable and probably different, including the URI scheme,
             than the one given on input. The output URI will point to a
             location where the user only has a read access.
@@ -387,15 +394,16 @@ class PredictSchemata(proto.Message):
             where the user only has a read access.
     """
 
-    instance_schema_uri = proto.Field(proto.STRING, number=1,)
-    parameters_schema_uri = proto.Field(proto.STRING, number=2,)
-    prediction_schema_uri = proto.Field(proto.STRING, number=3,)
+    instance_schema_uri = proto.Field(proto.STRING, number=1)
+
+    parameters_schema_uri = proto.Field(proto.STRING, number=2)
+
+    prediction_schema_uri = proto.Field(proto.STRING, number=3)
 
 
 class ModelContainerSpec(proto.Message):
-    r"""Specification of a container for serving predictions. Some fields in
-    this message correspond to fields in the Kubernetes Container v1
-    core
+    r"""Specification of a container for serving predictions. This message
+    is a subset of the Kubernetes Container v1 core
     `specification <https://tinyurl.com/k8s-io-api/v1.18/#container-v1-core>`__.
 
     Attributes:
@@ -416,11 +424,6 @@ class ModelContainerSpec(proto.Message):
             To learn about the requirements for the Docker image itself,
             see `Custom container
             requirements <https://tinyurl.com/cust-cont-reqs>`__.
-
-            You can use the URI to one of AI Platform's `pre-built
-            container images for
-            prediction <https://cloud.google.com/ai-platform-unified/docs/predictions/pre-built-containers>`__
-            in this field.
         command (Sequence[str]):
             Immutable. Specifies the command that runs when the
             container starts. This overrides the container's
@@ -593,7 +596,7 @@ class ModelContainerSpec(proto.Message):
                ```AIP_DEPLOYED_MODEL_ID`` environment
                variable <https://tinyurl.com/cust-cont-reqs#aip-variables>`__.)
         health_route (str):
-            Immutable. HTTP path on the container to send health checks
+            Immutable. HTTP path on the container to send health checkss
             to. AI Platform intermittently sends GET requests to this
             path on the container's IP address and port to check that
             the container is healthy. Read more about `health
@@ -627,17 +630,24 @@ class ModelContainerSpec(proto.Message):
                environment variable.)
     """
 
-    image_uri = proto.Field(proto.STRING, number=1,)
-    command = proto.RepeatedField(proto.STRING, number=2,)
-    args = proto.RepeatedField(proto.STRING, number=3,)
+    image_uri = proto.Field(proto.STRING, number=1)
+
+    command = proto.RepeatedField(proto.STRING, number=2)
+
+    args = proto.RepeatedField(proto.STRING, number=3)
+
     env = proto.RepeatedField(proto.MESSAGE, number=4, message=env_var.EnvVar,)
+
     ports = proto.RepeatedField(proto.MESSAGE, number=5, message="Port",)
-    predict_route = proto.Field(proto.STRING, number=6,)
-    health_route = proto.Field(proto.STRING, number=7,)
+
+    predict_route = proto.Field(proto.STRING, number=6)
+
+    health_route = proto.Field(proto.STRING, number=7)
 
 
 class Port(proto.Message):
     r"""Represents a network port in a container.
+
     Attributes:
         container_port (int):
             The number of the port to expose on the pod's
@@ -645,7 +655,7 @@ class Port(proto.Message):
             1 and 65535 inclusive.
     """
 
-    container_port = proto.Field(proto.INT32, number=3,)
+    container_port = proto.Field(proto.INT32, number=3)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

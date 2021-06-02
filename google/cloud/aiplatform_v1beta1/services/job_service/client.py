@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from collections import OrderedDict
 from distutils import util
 import os
@@ -21,16 +23,16 @@ from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import exceptions as core_exceptions  # type: ignore
+from google.api_core import exceptions  # type: ignore
 from google.api_core import gapic_v1  # type: ignore
 from google.api_core import retry as retries  # type: ignore
-from google.auth import credentials as ga_credentials  # type: ignore
+from google.auth import credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
-from google.api_core import operation as gac_operation  # type: ignore
+from google.api_core import operation as ga_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.job_service import pagers
 from google.cloud.aiplatform_v1beta1.types import batch_prediction_job
@@ -50,25 +52,18 @@ from google.cloud.aiplatform_v1beta1.types import hyperparameter_tuning_job
 from google.cloud.aiplatform_v1beta1.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
 )
-from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_service
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import manual_batch_tuning_parameters
-from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
-from google.cloud.aiplatform_v1beta1.types import (
-    model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
-)
-from google.cloud.aiplatform_v1beta1.types import model_monitoring
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import study
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
-from google.type import money_pb2  # type: ignore
+from google.protobuf import empty_pb2 as empty  # type: ignore
+from google.protobuf import struct_pb2 as struct  # type: ignore
+from google.protobuf import timestamp_pb2 as timestamp  # type: ignore
+from google.rpc import status_pb2 as status  # type: ignore
+from google.type import money_pb2 as money  # type: ignore
+
 from .transports.base import JobServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import JobServiceGrpcTransport
 from .transports.grpc_asyncio import JobServiceGrpcAsyncIOTransport
@@ -258,22 +253,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def endpoint_path(project: str, location: str, endpoint: str,) -> str:
-        """Return a fully-qualified endpoint string."""
-        return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-            project=project, location=location, endpoint=endpoint,
-        )
-
-    @staticmethod
-    def parse_endpoint_path(path: str) -> Dict[str, str]:
-        """Parse a endpoint path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
     def hyperparameter_tuning_job_path(
         project: str, location: str, hyperparameter_tuning_job: str,
     ) -> str:
@@ -305,57 +284,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         """Parse a model path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def model_deployment_monitoring_job_path(
-        project: str, location: str, model_deployment_monitoring_job: str,
-    ) -> str:
-        """Return a fully-qualified model_deployment_monitoring_job string."""
-        return "projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}".format(
-            project=project,
-            location=location,
-            model_deployment_monitoring_job=model_deployment_monitoring_job,
-        )
-
-    @staticmethod
-    def parse_model_deployment_monitoring_job_path(path: str) -> Dict[str, str]:
-        """Parse a model_deployment_monitoring_job path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/modelDeploymentMonitoringJobs/(?P<model_deployment_monitoring_job>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def network_path(project: str, network: str,) -> str:
-        """Return a fully-qualified network string."""
-        return "projects/{project}/global/networks/{network}".format(
-            project=project, network=network,
-        )
-
-    @staticmethod
-    def parse_network_path(path: str) -> Dict[str, str]:
-        """Parse a network path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/global/networks/(?P<network>.+?)$", path
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def tensorboard_path(project: str, location: str, tensorboard: str,) -> str:
-        """Return a fully-qualified tensorboard string."""
-        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
-            project=project, location=location, tensorboard=tensorboard,
-        )
-
-    @staticmethod
-    def parse_tensorboard_path(path: str) -> Dict[str, str]:
-        """Parse a tensorboard path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/tensorboards/(?P<tensorboard>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -438,7 +366,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     def __init__(
         self,
         *,
-        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials: Optional[credentials.Credentials] = None,
         transport: Union[str, JobServiceTransport, None] = None,
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
@@ -578,6 +506,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``custom_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -612,8 +541,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CreateCustomJobRequest):
             request = job_service.CreateCustomJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
             if custom_job is not None:
@@ -657,6 +588,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -691,8 +623,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.GetCustomJobRequest):
             request = job_service.GetCustomJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -735,6 +669,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -766,8 +701,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.ListCustomJobsRequest):
             request = job_service.ListCustomJobsRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
 
@@ -801,7 +738,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    ) -> ga_operation.Operation:
         r"""Deletes a CustomJob.
 
         Args:
@@ -816,6 +753,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -857,8 +795,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.DeleteCustomJobRequest):
             request = job_service.DeleteCustomJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -876,10 +816,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = gac_operation.from_gapic(
+        response = ga_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty_pb2.Empty,
+            empty.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -920,6 +860,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -942,8 +883,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CancelCustomJobRequest):
             request = job_service.CancelCustomJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -977,7 +920,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CreateDataLabelingJobRequest):
                 The request object. Request message for
-                [JobService.CreateDataLabelingJob][google.cloud.aiplatform.v1beta1.JobService.CreateDataLabelingJob].
+                [DataLabelingJobService.CreateDataLabelingJob][].
             parent (str):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
@@ -992,6 +935,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``data_labeling_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1021,8 +965,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CreateDataLabelingJobRequest):
             request = job_service.CreateDataLabelingJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
             if data_labeling_job is not None:
@@ -1058,14 +1004,16 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.GetDataLabelingJobRequest):
                 The request object. Request message for
-                [JobService.GetDataLabelingJob][google.cloud.aiplatform.v1beta1.JobService.GetDataLabelingJob].
+                [DataLabelingJobService.GetDataLabelingJob][].
             name (str):
                 Required. The name of the DataLabelingJob. Format:
+
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1095,8 +1043,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.GetDataLabelingJobRequest):
             request = job_service.GetDataLabelingJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -1130,7 +1080,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.ListDataLabelingJobsRequest):
                 The request object. Request message for
-                [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1beta1.JobService.ListDataLabelingJobs].
+                [DataLabelingJobService.ListDataLabelingJobs][].
             parent (str):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
@@ -1138,6 +1088,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1169,8 +1120,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.ListDataLabelingJobsRequest):
             request = job_service.ListDataLabelingJobsRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
 
@@ -1204,7 +1157,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    ) -> ga_operation.Operation:
         r"""Deletes a DataLabelingJob.
 
         Args:
@@ -1214,11 +1167,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the DataLabelingJob to be deleted.
                 Format:
+
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1260,8 +1215,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.DeleteDataLabelingJobRequest):
             request = job_service.DeleteDataLabelingJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -1279,10 +1236,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = gac_operation.from_gapic(
+        response = ga_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty_pb2.Empty,
+            empty.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -1304,14 +1261,16 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1beta1.types.CancelDataLabelingJobRequest):
                 The request object. Request message for
-                [JobService.CancelDataLabelingJob][google.cloud.aiplatform.v1beta1.JobService.CancelDataLabelingJob].
+                [DataLabelingJobService.CancelDataLabelingJob][].
             name (str):
                 Required. The name of the DataLabelingJob. Format:
+
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1334,8 +1293,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CancelDataLabelingJobRequest):
             request = job_service.CancelDataLabelingJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -1385,6 +1346,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``hyperparameter_tuning_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1415,8 +1377,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CreateHyperparameterTuningJobRequest):
             request = job_service.CreateHyperparameterTuningJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
             if hyperparameter_tuning_job is not None:
@@ -1458,11 +1422,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the HyperparameterTuningJob
                 resource. Format:
+
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1493,8 +1459,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.GetHyperparameterTuningJobRequest):
             request = job_service.GetHyperparameterTuningJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -1539,6 +1507,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1570,8 +1539,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.ListHyperparameterTuningJobsRequest):
             request = job_service.ListHyperparameterTuningJobsRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
 
@@ -1607,7 +1578,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    ) -> ga_operation.Operation:
         r"""Deletes a HyperparameterTuningJob.
 
         Args:
@@ -1617,11 +1588,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the HyperparameterTuningJob
                 resource to be deleted. Format:
+
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1663,8 +1636,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.DeleteHyperparameterTuningJobRequest):
             request = job_service.DeleteHyperparameterTuningJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -1684,10 +1659,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = gac_operation.from_gapic(
+        response = ga_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty_pb2.Empty,
+            empty.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -1725,11 +1700,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the HyperparameterTuningJob to
                 cancel. Format:
+
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1752,8 +1729,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CancelHyperparameterTuningJobRequest):
             request = job_service.CancelHyperparameterTuningJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -1806,6 +1785,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``batch_prediction_job`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1838,8 +1818,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CreateBatchPredictionJobRequest):
             request = job_service.CreateBatchPredictionJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
             if batch_prediction_job is not None:
@@ -1881,11 +1863,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the BatchPredictionJob resource.
                 Format:
+
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1918,8 +1902,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.GetBatchPredictionJobRequest):
             request = job_service.GetBatchPredictionJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -1962,6 +1948,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -1993,8 +1980,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.ListBatchPredictionJobsRequest):
             request = job_service.ListBatchPredictionJobsRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if parent is not None:
                 request.parent = parent
 
@@ -2030,7 +2019,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
+    ) -> ga_operation.Operation:
         r"""Deletes a BatchPredictionJob. Can only be called on
         jobs that already finished.
 
@@ -2041,11 +2030,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the BatchPredictionJob resource to
                 be deleted. Format:
+
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2087,8 +2078,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.DeleteBatchPredictionJobRequest):
             request = job_service.DeleteBatchPredictionJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -2108,10 +2101,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
 
         # Wrap the response in an operation future.
-        response = gac_operation.from_gapic(
+        response = ga_operation.from_gapic(
             response,
             self._transport.operations_client,
-            empty_pb2.Empty,
+            empty.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
@@ -2147,11 +2140,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the BatchPredictionJob to cancel.
                 Format:
+
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -2174,8 +2169,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # there are no flattened fields.
         if not isinstance(request, job_service.CancelBatchPredictionJobRequest):
             request = job_service.CancelBatchPredictionJobRequest(request)
+
             # If we have keyword arguments corresponding to fields on the
             # request, apply these.
+
             if name is not None:
                 request.name = name
 
@@ -2183,713 +2180,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         # and friendly error handling.
         rpc = self._transport._wrapped_methods[
             self._transport.cancel_batch_prediction_job
-        ]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
-        )
-
-        # Send the request.
-        rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
-        )
-
-    def create_model_deployment_monitoring_job(
-        self,
-        request: job_service.CreateModelDeploymentMonitoringJobRequest = None,
-        *,
-        parent: str = None,
-        model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
-        r"""Creates a ModelDeploymentMonitoringJob. It will run
-        periodically on a configured interval.
-
-        Args:
-            request (google.cloud.aiplatform_v1beta1.types.CreateModelDeploymentMonitoringJobRequest):
-                The request object. Request message for
-                [JobService.CreateModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.CreateModelDeploymentMonitoringJob].
-            parent (str):
-                Required. The parent of the
-                ModelDeploymentMonitoringJob. Format:
-                ``projects/{project}/locations/{location}``
-
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            model_deployment_monitoring_job (google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringJob):
-                Required. The
-                ModelDeploymentMonitoringJob to create
-
-                This corresponds to the ``model_deployment_monitoring_job`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringJob:
-                Represents a job that runs
-                periodically to monitor the deployed
-                models in an endpoint. It will analyze
-                the logged training & prediction data to
-                detect any abnormal behaviors.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, model_deployment_monitoring_job])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.CreateModelDeploymentMonitoringJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(
-            request, job_service.CreateModelDeploymentMonitoringJobRequest
-        ):
-            request = job_service.CreateModelDeploymentMonitoringJobRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-            if model_deployment_monitoring_job is not None:
-                request.model_deployment_monitoring_job = (
-                    model_deployment_monitoring_job
-                )
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.create_model_deployment_monitoring_job
-        ]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
-        )
-
-        # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
-
-        # Done; return the response.
-        return response
-
-    def search_model_deployment_monitoring_stats_anomalies(
-        self,
-        request: job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest = None,
-        *,
-        model_deployment_monitoring_job: str = None,
-        deployed_model_id: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.SearchModelDeploymentMonitoringStatsAnomaliesPager:
-        r"""Searches Model Monitoring Statistics generated within
-        a given time window.
-
-        Args:
-            request (google.cloud.aiplatform_v1beta1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest):
-                The request object. Request message for
-                [JobService.SearchModelDeploymentMonitoringStatsAnomalies][google.cloud.aiplatform.v1beta1.JobService.SearchModelDeploymentMonitoringStatsAnomalies].
-            model_deployment_monitoring_job (str):
-                Required. ModelDeploymentMonitoring Job resource name.
-                Format:
-                \`projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}
-
-                This corresponds to the ``model_deployment_monitoring_job`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            deployed_model_id (str):
-                Required. The DeployedModel ID of the
-                [google.cloud.aiplatform.master.ModelDeploymentMonitoringObjectiveConfig.deployed_model_id].
-
-                This corresponds to the ``deployed_model_id`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.services.job_service.pagers.SearchModelDeploymentMonitoringStatsAnomaliesPager:
-                Response message for
-                   [JobService.SearchModelDeploymentMonitoringStatsAnomalies][google.cloud.aiplatform.v1beta1.JobService.SearchModelDeploymentMonitoringStatsAnomalies].
-
-                Iterating over this object will yield results and
-                resolve additional pages automatically.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([model_deployment_monitoring_job, deployed_model_id])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(
-            request, job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest
-        ):
-            request = job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
-                request
-            )
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if model_deployment_monitoring_job is not None:
-                request.model_deployment_monitoring_job = (
-                    model_deployment_monitoring_job
-                )
-            if deployed_model_id is not None:
-                request.deployed_model_id = deployed_model_id
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.search_model_deployment_monitoring_stats_anomalies
-        ]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (
-                    (
-                        "model_deployment_monitoring_job",
-                        request.model_deployment_monitoring_job,
-                    ),
-                )
-            ),
-        )
-
-        # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
-
-        # This method is paged; wrap the response in a pager, which provides
-        # an `__iter__` convenience method.
-        response = pagers.SearchModelDeploymentMonitoringStatsAnomaliesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def get_model_deployment_monitoring_job(
-        self,
-        request: job_service.GetModelDeploymentMonitoringJobRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
-        r"""Gets a ModelDeploymentMonitoringJob.
-
-        Args:
-            request (google.cloud.aiplatform_v1beta1.types.GetModelDeploymentMonitoringJobRequest):
-                The request object. Request message for
-                [JobService.GetModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.GetModelDeploymentMonitoringJob].
-            name (str):
-                Required. The resource name of the
-                ModelDeploymentMonitoringJob. Format:
-                ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
-
-                This corresponds to the ``name`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringJob:
-                Represents a job that runs
-                periodically to monitor the deployed
-                models in an endpoint. It will analyze
-                the logged training & prediction data to
-                detect any abnormal behaviors.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.GetModelDeploymentMonitoringJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, job_service.GetModelDeploymentMonitoringJobRequest):
-            request = job_service.GetModelDeploymentMonitoringJobRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if name is not None:
-                request.name = name
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.get_model_deployment_monitoring_job
-        ]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
-        )
-
-        # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
-
-        # Done; return the response.
-        return response
-
-    def list_model_deployment_monitoring_jobs(
-        self,
-        request: job_service.ListModelDeploymentMonitoringJobsRequest = None,
-        *,
-        parent: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.ListModelDeploymentMonitoringJobsPager:
-        r"""Lists ModelDeploymentMonitoringJobs in a Location.
-
-        Args:
-            request (google.cloud.aiplatform_v1beta1.types.ListModelDeploymentMonitoringJobsRequest):
-                The request object. Request message for
-                [JobService.ListModelDeploymentMonitoringJobs][google.cloud.aiplatform.v1beta1.JobService.ListModelDeploymentMonitoringJobs].
-            parent (str):
-                Required. The parent of the
-                ModelDeploymentMonitoringJob. Format:
-                ``projects/{project}/locations/{location}``
-
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListModelDeploymentMonitoringJobsPager:
-                Response message for
-                   [JobService.ListModelDeploymentMonitoringJobs][google.cloud.aiplatform.v1beta1.JobService.ListModelDeploymentMonitoringJobs].
-
-                Iterating over this object will yield results and
-                resolve additional pages automatically.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.ListModelDeploymentMonitoringJobsRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(
-            request, job_service.ListModelDeploymentMonitoringJobsRequest
-        ):
-            request = job_service.ListModelDeploymentMonitoringJobsRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.list_model_deployment_monitoring_jobs
-        ]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
-        )
-
-        # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
-
-        # This method is paged; wrap the response in a pager, which provides
-        # an `__iter__` convenience method.
-        response = pagers.ListModelDeploymentMonitoringJobsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def update_model_deployment_monitoring_job(
-        self,
-        request: job_service.UpdateModelDeploymentMonitoringJobRequest = None,
-        *,
-        model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = None,
-        update_mask: field_mask_pb2.FieldMask = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
-        r"""Updates a ModelDeploymentMonitoringJob.
-
-        Args:
-            request (google.cloud.aiplatform_v1beta1.types.UpdateModelDeploymentMonitoringJobRequest):
-                The request object. Request message for
-                [JobService.UpdateModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.UpdateModelDeploymentMonitoringJob].
-            model_deployment_monitoring_job (google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringJob):
-                Required. The model monitoring
-                configuration which replaces the
-                resource on the server.
-
-                This corresponds to the ``model_deployment_monitoring_job`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            update_mask (google.protobuf.field_mask_pb2.FieldMask):
-                Required. The update mask applies to
-                the resource.
-
-                This corresponds to the ``update_mask`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.api_core.operation.Operation:
-                An object representing a long-running operation.
-
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.ModelDeploymentMonitoringJob` Represents a job that runs periodically to monitor the deployed models in an
-                   endpoint. It will analyze the logged training &
-                   prediction data to detect any abnormal behaviors.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([model_deployment_monitoring_job, update_mask])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.UpdateModelDeploymentMonitoringJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(
-            request, job_service.UpdateModelDeploymentMonitoringJobRequest
-        ):
-            request = job_service.UpdateModelDeploymentMonitoringJobRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if model_deployment_monitoring_job is not None:
-                request.model_deployment_monitoring_job = (
-                    model_deployment_monitoring_job
-                )
-            if update_mask is not None:
-                request.update_mask = update_mask
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.update_model_deployment_monitoring_job
-        ]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata(
-                (
-                    (
-                        "model_deployment_monitoring_job.name",
-                        request.model_deployment_monitoring_job.name,
-                    ),
-                )
-            ),
-        )
-
-        # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
-
-        # Wrap the response in an operation future.
-        response = gac_operation.from_gapic(
-            response,
-            self._transport.operations_client,
-            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
-            metadata_type=job_service.UpdateModelDeploymentMonitoringJobOperationMetadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def delete_model_deployment_monitoring_job(
-        self,
-        request: job_service.DeleteModelDeploymentMonitoringJobRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> gac_operation.Operation:
-        r"""Deletes a ModelDeploymentMonitoringJob.
-
-        Args:
-            request (google.cloud.aiplatform_v1beta1.types.DeleteModelDeploymentMonitoringJobRequest):
-                The request object. Request message for
-                [JobService.DeleteModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.DeleteModelDeploymentMonitoringJob].
-            name (str):
-                Required. The resource name of the model monitoring job
-                to delete. Format:
-                ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
-
-                This corresponds to the ``name`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-
-        Returns:
-            google.api_core.operation.Operation:
-                An object representing a long-running operation.
-
-                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
-                   empty messages in your APIs. A typical example is to
-                   use it as the request or the response type of an API
-                   method. For instance:
-
-                      service Foo {
-                         rpc Bar(google.protobuf.Empty) returns
-                         (google.protobuf.Empty);
-
-                      }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
-        """
-        # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.DeleteModelDeploymentMonitoringJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(
-            request, job_service.DeleteModelDeploymentMonitoringJobRequest
-        ):
-            request = job_service.DeleteModelDeploymentMonitoringJobRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if name is not None:
-                request.name = name
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.delete_model_deployment_monitoring_job
-        ]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
-        )
-
-        # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
-
-        # Wrap the response in an operation future.
-        response = gac_operation.from_gapic(
-            response,
-            self._transport.operations_client,
-            empty_pb2.Empty,
-            metadata_type=gca_operation.DeleteOperationMetadata,
-        )
-
-        # Done; return the response.
-        return response
-
-    def pause_model_deployment_monitoring_job(
-        self,
-        request: job_service.PauseModelDeploymentMonitoringJobRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> None:
-        r"""Pauses a ModelDeploymentMonitoringJob. If the job is running,
-        the server makes a best effort to cancel the job. Will mark
-        [ModelDeploymentMonitoringJob.state][google.cloud.aiplatform.v1beta1.ModelDeploymentMonitoringJob.state]
-        to 'PAUSED'.
-
-        Args:
-            request (google.cloud.aiplatform_v1beta1.types.PauseModelDeploymentMonitoringJobRequest):
-                The request object. Request message for
-                [JobService.PauseModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.PauseModelDeploymentMonitoringJob].
-            name (str):
-                Required. The resource name of the
-                ModelDeploymentMonitoringJob to pause. Format:
-                ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
-
-                This corresponds to the ``name`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.PauseModelDeploymentMonitoringJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(
-            request, job_service.PauseModelDeploymentMonitoringJobRequest
-        ):
-            request = job_service.PauseModelDeploymentMonitoringJobRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if name is not None:
-                request.name = name
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.pause_model_deployment_monitoring_job
-        ]
-
-        # Certain fields should be provided within the metadata header;
-        # add these here.
-        metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
-        )
-
-        # Send the request.
-        rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
-        )
-
-    def resume_model_deployment_monitoring_job(
-        self,
-        request: job_service.ResumeModelDeploymentMonitoringJobRequest = None,
-        *,
-        name: str = None,
-        retry: retries.Retry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
-    ) -> None:
-        r"""Resumes a paused ModelDeploymentMonitoringJob. It
-        will start to run from next scheduled time. A deleted
-        ModelDeploymentMonitoringJob can't be resumed.
-
-        Args:
-            request (google.cloud.aiplatform_v1beta1.types.ResumeModelDeploymentMonitoringJobRequest):
-                The request object. Request message for
-                [JobService.ResumeModelDeploymentMonitoringJob][google.cloud.aiplatform.v1beta1.JobService.ResumeModelDeploymentMonitoringJob].
-            name (str):
-                Required. The resource name of the
-                ModelDeploymentMonitoringJob to resume. Format:
-                ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
-
-                This corresponds to the ``name`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            retry (google.api_core.retry.Retry): Designation of what errors, if any,
-                should be retried.
-            timeout (float): The timeout for this request.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
-        # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([name])
-        if request is not None and has_flattened_params:
-            raise ValueError(
-                "If the `request` argument is set, then none of "
-                "the individual field arguments should be set."
-            )
-
-        # Minor optimization to avoid making a copy if the user passes
-        # in a job_service.ResumeModelDeploymentMonitoringJobRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(
-            request, job_service.ResumeModelDeploymentMonitoringJobRequest
-        ):
-            request = job_service.ResumeModelDeploymentMonitoringJobRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if name is not None:
-                request.name = name
-
-        # Wrap the RPC method; this adds retry and timeout information,
-        # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.resume_model_deployment_monitoring_job
         ]
 
         # Certain fields should be provided within the metadata header;
