@@ -643,7 +643,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
                 The update mask applies to the resource. For the
                 ``FieldMask`` definition, see
-                `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

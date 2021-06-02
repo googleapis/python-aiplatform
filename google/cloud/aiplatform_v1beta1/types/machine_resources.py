@@ -38,11 +38,13 @@ class MachineSpec(proto.Message):
     r"""Specification of a single machine.
     Attributes:
         machine_type (str):
-            Immutable. The type of the machine. For the machine types
-            supported for prediction, see
-            https://tinyurl.com/aip-docs/predictions/machine-types. For
-            machine types supported for creating a custom training job,
-            see https://tinyurl.com/aip-docs/training/configure-compute.
+            Immutable. The type of the machine.
+
+            See the `list of machine types supported for
+            prediction <https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types>`__
+
+            See the `list of machine types supported for custom
+            training <https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types>`__.
 
             For
             [DeployedModel][google.cloud.aiplatform.v1beta1.DeployedModel]

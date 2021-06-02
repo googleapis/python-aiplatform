@@ -440,7 +440,7 @@ class EndpointServiceAsyncClient:
                 should not be set.
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Required. The update mask applies to the resource. See
-                `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

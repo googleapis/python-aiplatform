@@ -271,8 +271,8 @@ class InputDataConfig(proto.Message):
             Cloud Storage URI that points to a YAML file describing the
             annotation schema. The schema is defined as an OpenAPI 3.0.2
             `Schema
-            Object <https://tinyurl.com/y538mdwt#schema-object>`__. The
-            schema files that can be used here are found in
+            Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
+            The schema files that can be used here are found in
             gs://google-cloud-aiplatform/schema/dataset/annotation/ ,
             note that the chosen schema must be consistent with
             [metadata][google.cloud.aiplatform.v1beta1.Dataset.metadata_schema_uri]
