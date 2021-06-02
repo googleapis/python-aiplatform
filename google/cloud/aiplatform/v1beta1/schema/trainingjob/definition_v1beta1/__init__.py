@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +15,9 @@
 # limitations under the License.
 #
 
-
+from .types.automl_forecasting import AutoMlForecasting
+from .types.automl_forecasting import AutoMlForecastingInputs
+from .types.automl_forecasting import AutoMlForecastingMetadata
 from .types.automl_image_classification import AutoMlImageClassification
 from .types.automl_image_classification import AutoMlImageClassificationInputs
 from .types.automl_image_classification import AutoMlImageClassificationMetadata
@@ -41,7 +44,11 @@ from .types.automl_video_object_tracking import AutoMlVideoObjectTracking
 from .types.automl_video_object_tracking import AutoMlVideoObjectTrackingInputs
 from .types.export_evaluated_data_items_config import ExportEvaluatedDataItemsConfig
 
+
 __all__ = (
+    "AutoMlForecasting",
+    "AutoMlForecastingInputs",
+    "AutoMlForecastingMetadata",
     "AutoMlImageClassification",
     "AutoMlImageClassificationInputs",
     "AutoMlImageClassificationMetadata",
