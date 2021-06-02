@@ -46,7 +46,7 @@ class AnnotationSpec(proto.Message):
             Output only. Timestamp when AnnotationSpec
             was last updated.
         etag (str):
-            Optional. Used to perform a consistent read-
+            Optional. Used to perform consistent read-
             odify-write updates. If not set, a blind
             "overwrite" update happens.
     """

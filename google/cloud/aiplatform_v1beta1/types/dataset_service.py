@@ -372,7 +372,6 @@ class GetAnnotationSpecRequest(proto.Message):
     Attributes:
         name (str):
             Required. The name of the AnnotationSpec resource. Format:
-
             ``projects/{project}/locations/{location}/datasets/{dataset}/annotationSpecs/{annotation_spec}``
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
@@ -391,7 +390,6 @@ class ListAnnotationsRequest(proto.Message):
         parent (str):
             Required. The resource name of the DataItem to list
             Annotations from. Format:
-
             ``projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}``
         filter (str):
             The standard list filter.
