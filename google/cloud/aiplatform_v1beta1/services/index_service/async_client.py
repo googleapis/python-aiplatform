@@ -82,7 +82,8 @@ class IndexServiceAsyncClient:
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -97,7 +98,7 @@ class IndexServiceAsyncClient:
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -114,7 +115,7 @@ class IndexServiceAsyncClient:
 
     @property
     def transport(self) -> IndexServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
             IndexServiceTransport: The transport used by the client instance.
@@ -133,7 +134,7 @@ class IndexServiceAsyncClient:
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the index service client.
+        """Instantiates the index service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
