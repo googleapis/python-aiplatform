@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import proto  # type: ignore
 
 
@@ -26,21 +24,12 @@ __protobuf__ = proto.module(
 
 class TimeSeriesForecastingPredictionResult(proto.Message):
     r"""Prediction output format for Time Series Forecasting.
-
     Attributes:
         value (float):
             The regression value.
-        lower_bound (float):
-            The lower bound of the prediction interval.
-        upper_bound (float):
-            The upper bound of the prediction interval.
     """
 
-    value = proto.Field(proto.FLOAT, number=1)
-
-    lower_bound = proto.Field(proto.FLOAT, number=2)
-
-    upper_bound = proto.Field(proto.FLOAT, number=3)
+    value = proto.Field(proto.FLOAT, number=1,)
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
