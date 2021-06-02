@@ -22,7 +22,6 @@ from .tabular_classification import TabularClassificationPredictionResult
 from .tabular_regression import TabularRegressionPredictionResult
 from .text_extraction import TextExtractionPredictionResult
 from .text_sentiment import TextSentimentPredictionResult
-from .time_series_forecasting import TimeSeriesForecastingPredictionResult
 from .video_action_recognition import VideoActionRecognitionPredictionResult
 from .video_classification import VideoClassificationPredictionResult
 from .video_object_tracking import VideoObjectTrackingPredictionResult
@@ -35,7 +34,6 @@ __all__ = (
     "TabularRegressionPredictionResult",
     "TextExtractionPredictionResult",
     "TextSentimentPredictionResult",
-    "TimeSeriesForecastingPredictionResult",
     "VideoActionRecognitionPredictionResult",
     "VideoClassificationPredictionResult",
     "VideoObjectTrackingPredictionResult",
