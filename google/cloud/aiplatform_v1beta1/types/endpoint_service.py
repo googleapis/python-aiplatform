@@ -228,7 +228,7 @@ class DeployModelRequest(proto.Message):
     deployed_model = proto.Field(
         proto.MESSAGE, number=2, message=gca_endpoint.DeployedModel,
     )
-    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3)
+    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3,)
 
 
 class DeployModelResponse(proto.Message):
@@ -285,7 +285,7 @@ class UndeployModelRequest(proto.Message):
 
     endpoint = proto.Field(proto.STRING, number=1,)
     deployed_model_id = proto.Field(proto.STRING, number=2,)
-    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3)
+    traffic_split = proto.MapField(proto.STRING, proto.INT32, number=3,)
 
 
 class UndeployModelResponse(proto.Message):
