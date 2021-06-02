@@ -11,8 +11,8 @@
       "git": {
         "name": "googleapis",
         "remote": "https://github.com/googleapis/googleapis.git",
-        "sha": "6c96d191b31797c48f7383940e7f8422098cf6f5",
-        "internalRef": "373087373"
+        "sha": "162641cfe5573c648df679a6dd30385650a08704",
+        "internalRef": "373400747"
       }
     }
   ],
@@ -113,7 +113,6 @@
     "docs/params_v1beta1/types.rst",
     "docs/prediction_v1/types.rst",
     "docs/prediction_v1beta1/types.rst",
-    "examples/feature_fragments",
     "google/cloud/aiplatform/py.typed",
     "google/cloud/aiplatform/v1/schema/predict/instance/__init__.py",
     "google/cloud/aiplatform/v1/schema/predict/instance/py.typed",
