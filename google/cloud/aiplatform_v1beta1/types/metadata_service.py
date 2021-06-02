@@ -285,26 +285,28 @@ class ListArtifactsRequest(proto.Message):
             define filter query is based on https://google.aip.dev/160.
             The supported set of filters include the following:
 
-            1. Attributes filtering e.g. display_name = "test"
-
-               Supported fields include: name, display_name, uri, state,
-               schema_title, create_time and update_time. Time fields,
-               i.e. create_time and update_time, require values to
-               specified in RFC-3339 format. e.g. create_time =
-               "2020-11-19T11:30:00-04:00"
-
-            2. Metadata field To filter on metadata fields use traversal
-               operation as follows: metadata.<field_name>.<type_value>
-               e.g. metadata.field_1.number_value = 10.0
-
-            3. Context based filtering To filter Artifacts based on the
-               contexts to which they belong use the function operator
-               with the full resource name "in_context()" e.g.
-               in_context("projects/<project_number>/locations//metadataStores/<metadatastore_name>/contexts/")
+            -  **Attribute filtering**: For example:
+               ``display_name = "test"``. Supported fields include:
+               ``name``, ``display_name``, ``uri``, ``state``,
+               ``schema_title``, ``create_time``, and ``update_time``.
+               Time fields, such as ``create_time`` and ``update_time``,
+               require values specified in RFC-3339 format. For example:
+               ``create_time = "2020-11-19T11:30:00-04:00"``
+            -  **Metadata field**: To filter on metadata fields use
+               traversal operation as follows:
+               ``metadata.<field_name>.<type_value>``. For example:
+               ``metadata.field_1.number_value = 10.0``
+            -  **Context based filtering**: To filter Artifacts based on
+               the contexts to which they belong, use the function
+               operator with the full resource name
+               ``in_context(<context-name>)``. For example:
+               ``in_context("projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context-id>")``
 
             Each of the above supported filter types can be combined
-            together using Logical operators (AND & OR). e.g.
-            display_name = "test" AND metadata.field1.bool_value = true.
+            together using logical operators (``AND`` & ``OR``).
+
+            For example:
+            ``display_name = "test" AND metadata.field1.bool_value = true``.
     """
 
     parent = proto.Field(proto.STRING, number=1,)
@@ -381,7 +383,7 @@ class CreateContextRequest(proto.Message):
             Required. The Context to create.
         context_id (str):
             The {context} portion of the resource name with the format:
-            projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}
+            projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}.
             If not provided, the Context's ID will be a UUID generated
             by the service. Must be 4-128 characters in length. Valid
             characters are /[a-z][0-9]-/. Must be unique across all
@@ -431,7 +433,40 @@ class ListContextsRequest(proto.Message):
             the call that provided the page token. (Otherwise the
             request will fail with INVALID_ARGUMENT error.)
         filter (str):
+            Filter specifying the boolean condition for the Contexts to
+            satisfy in order to be part of the result set. The syntax to
+            define filter query is based on https://google.aip.dev/160.
+            Following are the supported set of filters:
 
+            -  **Attribute filtering**: For example:
+               ``display_name = "test"``. Supported fields include:
+               ``name``, ``display_name``, ``schema_title``,
+               ``create_time``, and ``update_time``. Time fields, such
+               as ``create_time`` and ``update_time``, require values
+               specified in RFC-3339 format. For example:
+               ``create_time = "2020-11-19T11:30:00-04:00"``.
+
+            -  **Metadata field**: To filter on metadata fields use
+               traversal operation as follows:
+               ``metadata.<field_name>.<type_value>``. For example:
+               ``metadata.field_1.number_value = 10.0``.
+
+            -  **Parent Child filtering**: To filter Contexts based on
+               parent-child relationship use the HAS operator as
+               follows:
+
+               ::
+
+                  parent_contexts:
+                  "projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context_id>"
+                  child_contexts:
+                  "projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context_id>"
+
+            Each of the above supported filters can be combined together
+            using logical operators (``AND`` & ``OR``).
+
+            For example:
+            ``display_name = "test" AND metadata.field1.bool_value = true``.
     """
 
     parent = proto.Field(proto.STRING, number=1,)
@@ -526,9 +561,14 @@ class AddContextArtifactsAndExecutionsRequest(proto.Message):
         artifacts (Sequence[str]):
             The resource names of the Artifacts to
             attribute to the Context.
+            Format:
+            projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}
         executions (Sequence[str]):
             The resource names of the Executions to
             associate with the Context.
+
+            Format:
+            projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}
     """
 
     context = proto.Field(proto.STRING, number=1,)
@@ -549,7 +589,8 @@ class AddContextChildrenRequest(proto.Message):
     Attributes:
         context (str):
             Required. The resource name of the parent
-            Context. Format:
+            Context.
+            Format:
             projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}
         child_contexts (Sequence[str]):
             The resource names of the child Contexts.
@@ -647,7 +688,7 @@ class ListExecutionsRequest(proto.Message):
 
             When paginating, all other provided parameters must match
             the call that provided the page token. (Otherwise the
-            request will fail with INVALID_ARGUMENT error.)
+            request will fail with an INVALID_ARGUMENT error.)
         filter (str):
             Filter specifying the boolean condition for the Executions
             to satisfy in order to be part of the result set. The syntax
@@ -655,26 +696,26 @@ class ListExecutionsRequest(proto.Message):
             https://google.aip.dev/160. Following are the supported set
             of filters:
 
-            1. Attributes filtering e.g. display_name = "test"
-
-               supported fields include: name, display_name, state,
-               schema_title, create_time and update_time. Time fields,
-               i.e. create_time and update_time, require values to
-               specified in RFC-3339 format. e.g. create_time =
-               "2020-11-19T11:30:00-04:00"
-
-            2. Metadata field To filter on metadata fields use traversal
-               operation as follows: metadata.<field_name>.<type_value>
-               e.g. metadata.field_1.number_value = 10.0
-
-            3. Context based filtering To filter Executions based on the
-               contexts to which they belong use the function operator
-               with the full resource name "in_context()" e.g.
-               in_context("projects/<project_number>/locations//metadataStores/<metadatastore_name>/contexts/")
+            -  **Attribute filtering**: For example:
+               ``display_name = "test"``. Supported fields include:
+               ``name``, ``display_name``, ``state``, ``schema_title``,
+               ``create_time``, and ``update_time``. Time fields, such
+               as ``create_time`` and ``update_time``, require values
+               specified in RFC-3339 format. For example:
+               ``create_time = "2020-11-19T11:30:00-04:00"``.
+            -  **Metadata field**: To filter on metadata fields use
+               traversal operation as follows:
+               ``metadata.<field_name>.<type_value>`` For example:
+               ``metadata.field_1.number_value = 10.0``
+            -  **Context based filtering**: To filter Executions based
+               on the contexts to which they belong use the function
+               operator with the full resource name:
+               ``in_context(<context-name>)``. For example:
+               ``in_context("projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context-id>")``
 
             Each of the above supported filters can be combined together
-            using Logical operators (AND & OR). e.g. display_name =
-            "test" AND metadata.field1.bool_value = true.
+            using logical operators (``AND`` & ``OR``). For example:
+            ``display_name = "test" AND metadata.field1.bool_value = true``.
     """
 
     parent = proto.Field(proto.STRING, number=1,)
@@ -839,7 +880,7 @@ class ListMetadataSchemasRequest(proto.Message):
         page_token (str):
             A page token, received from a previous
             [MetadataService.ListMetadataSchemas][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataSchemas]
-            call. Provide this to retrieve the subsequent page.
+            call. Provide this to retrieve the next page.
 
             When paginating, all other provided parameters must match
             the call that provided the page token. (Otherwise the
@@ -906,21 +947,23 @@ class QueryArtifactLineageSubgraphRequest(proto.Message):
             https://google.aip.dev/160. The supported set of filters
             include the following:
 
-            1. Attributes filtering e.g. display_name = "test"
-
-               supported fields include: name, display_name, uri, state,
-               schema_title, create_time and update_time. Time fields,
-               i.e. create_time and update_time, require values to
-               specified in RFC-3339 format. e.g. create_time =
-               "2020-11-19T11:30:00-04:00"
-
-            2. Metadata field To filter on metadata fields use traversal
-               operation as follows: metadata.<field_name>.<type_value>
-               e.g. metadata.field_1.number_value = 10.0
+            -  **Attribute filtering**: For example:
+               ``display_name = "test"`` Supported fields include:
+               ``name``, ``display_name``, ``uri``, ``state``,
+               ``schema_title``, ``create_time``, and ``update_time``.
+               Time fields, such as ``create_time`` and ``update_time``,
+               require values specified in RFC-3339 format. For example:
+               ``create_time = "2020-11-19T11:30:00-04:00"``
+            -  **Metadata field**: To filter on metadata fields use
+               traversal operation as follows:
+               ``metadata.<field_name>.<type_value>``. For example:
+               ``metadata.field_1.number_value = 10.0``
 
             Each of the above supported filter types can be combined
-            together using Logical operators (AND & OR). e.g.
-            display_name = "test" AND metadata.field1.bool_value = true.
+            together using logical operators (``AND`` & ``OR``).
+
+            For example:
+            ``display_name = "test" AND metadata.field1.bool_value = true``.
     """
 
     artifact = proto.Field(proto.STRING, number=1,)

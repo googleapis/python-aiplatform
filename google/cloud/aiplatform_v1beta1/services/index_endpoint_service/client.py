@@ -81,7 +81,7 @@ class IndexEndpointServiceClientMeta(type):
 
 
 class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
-    """A service for managing AI Platform's IndexEndpoints."""
+    """A service for managing Vertex AI's IndexEndpoints."""
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):

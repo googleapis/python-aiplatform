@@ -79,7 +79,7 @@ class IndexServiceClientMeta(type):
 
 
 class IndexServiceClient(metaclass=IndexServiceClientMeta):
-    """A service for creating and managing AI Platform's Index
+    """A service for creating and managing Vertex AI's Index
     resources.
     """
 
@@ -643,7 +643,7 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
                 The update mask applies to the resource. For the
                 ``FieldMask`` definition, see
-                `FieldMask <https://tinyurl.com/protobufs#google.protobuf.FieldMask>`__.
+                `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
