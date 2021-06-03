@@ -92,11 +92,19 @@ class _Config:
             if metadata.metadata_service.experiment_name:
                 logging.info("project/location updated, reset Metadata config.")
             metadata.metadata_service.reset()
+
         if project:
             self._project = project
         if location:
             utils.validate_region(location)
             self._location = location
+        if staging_bucket:
+            self._staging_bucket = staging_bucket
+        if credentials:
+            self._credentials = credentials
+        if encryption_spec_key_name:
+            self._encryption_spec_key_name = encryption_spec_key_name
+
         if experiment:
             metadata.metadata_service.set_experiment(
                 experiment=experiment, description=experiment_description
@@ -105,12 +113,6 @@ class _Config:
             raise ValueError(
                 "Experiment name needs to be set in `init` in order to add experiment descriptions."
             )
-        if staging_bucket:
-            self._staging_bucket = staging_bucket
-        if credentials:
-            self._credentials = credentials
-        if encryption_spec_key_name:
-            self._encryption_spec_key_name = encryption_spec_key_name
 
     def get_encryption_spec(
         self,
