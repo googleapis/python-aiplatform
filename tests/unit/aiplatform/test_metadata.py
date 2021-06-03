@@ -16,10 +16,13 @@
 #
 
 from importlib import reload
+from unittest import mock
 from unittest.mock import patch, call
 
 import pytest
 from google.api_core import exceptions
+from google.api_core import operation
+from google.auth import credentials
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
@@ -104,6 +107,32 @@ def get_metadata_store_mock():
             name=_TEST_METADATASTORE,
         )
         yield get_metadata_store_mock
+
+
+@pytest.fixture
+def get_metadata_store_mock_raise_not_found_exception():
+    with patch.object(
+        MetadataServiceClient, "get_metadata_store"
+    ) as get_metadata_store_mock:
+        get_metadata_store_mock.side_effect = [
+            exceptions.NotFound("Test store not found."),
+            GapicMetadataStore(name=_TEST_METADATASTORE,),
+        ]
+
+        yield get_metadata_store_mock
+
+
+@pytest.fixture
+def create_metadata_store_mock():
+    with patch.object(
+        MetadataServiceClient, "create_metadata_store"
+    ) as create_metadata_store_mock:
+        create_metadata_store_lro_mock = mock.Mock(operation.Operation)
+        create_metadata_store_lro_mock.result.return_value = GapicMetadataStore(
+            name=_TEST_METADATASTORE,
+        )
+        create_metadata_store_mock.return_value = create_metadata_store_lro_mock
+        yield create_metadata_store_mock
 
 
 @pytest.fixture
@@ -363,6 +392,54 @@ class TestMetadata:
 
         get_metadata_store_mock.assert_called_once_with(name=_TEST_METADATASTORE)
         get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
+
+    def test_init_experiment_with_credentials(
+        self, get_metadata_store_mock, get_context_mock
+    ):
+        creds = credentials.AnonymousCredentials()
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+            credentials=creds,
+        )
+
+        assert (
+            metadata.metadata_service._experiment.api_client._transport._credentials
+            == creds
+        )
+
+        get_metadata_store_mock.assert_called_once_with(name=_TEST_METADATASTORE)
+        get_context_mock.assert_called_once_with(name=_TEST_CONTEXT_NAME)
+
+    def test_init_and_get_metadata_store_with_credentials(
+        self, get_metadata_store_mock
+    ):
+        creds = credentials.AnonymousCredentials()
+
+        aiplatform.init(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=creds
+        )
+
+        store = metadata._MetadataStore.get_or_create()
+
+        assert store.api_client._transport._credentials == creds
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock_raise_not_found_exception",
+        "create_metadata_store_mock",
+    )
+    def test_init_and_get_then_create_metadata_store_with_credentials(self):
+        creds = credentials.AnonymousCredentials()
+
+        aiplatform.init(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=creds
+        )
+
+        store = metadata._MetadataStore.get_or_create()
+
+        assert store.api_client._transport._credentials == creds
 
     def test_init_experiment_with_existing_description(
         self, get_metadata_store_mock, get_context_mock
