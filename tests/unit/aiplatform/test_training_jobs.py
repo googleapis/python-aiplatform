@@ -110,8 +110,12 @@ _TEST_ID = "12345"
 _TEST_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/{_TEST_ID}"
 )
-_TEST_TENSORBOARD_RESOURCE_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/tensorboards/{_TEST_ID}"
-_TEST_CUSTOM_JOB_RESOURCE_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/customJobs/{_TEST_ID}"
+_TEST_TENSORBOARD_RESOURCE_NAME = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/tensorboards/{_TEST_ID}"
+)
+_TEST_CUSTOM_JOB_RESOURCE_NAME = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/customJobs/{_TEST_ID}"
+)
 _TEST_ALT_PROJECT = "test-project-alt"
 _TEST_ALT_LOCATION = "europe-west4"
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
@@ -440,18 +444,14 @@ def mock_pipeline_service_create():
 
 
 def make_training_pipeline(state):
-        return gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=state,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
-            training_task_inputs={
-                'tensorboard': _TEST_TENSORBOARD_RESOURCE_NAME,
+    return gca_training_pipeline.TrainingPipeline(
+        name=_TEST_PIPELINE_RESOURCE_NAME,
+        state=state,
+        model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        training_task_inputs={"tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME,},
+        training_task_metadata={"backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME,},
+    )
 
-            },
-            training_task_metadata={
-                'backingCustomJob': _TEST_CUSTOM_JOB_RESOURCE_NAME,
-            }
-        )
 
 @pytest.fixture
 def mock_pipeline_service_get():
@@ -459,17 +459,35 @@ def mock_pipeline_service_get():
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as mock_get_training_pipeline:
         mock_get_training_pipeline.side_effect = [
-            make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING),
-            make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
-            make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
-            make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
-            make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
-            make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
-            make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
-            make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
-            make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+            make_training_pipeline(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING
+            ),
+            make_training_pipeline(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_training_pipeline(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_training_pipeline(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_training_pipeline(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_training_pipeline(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_training_pipeline(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_training_pipeline(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_training_pipeline(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
         ]
-        
+
         yield mock_get_training_pipeline
 
 
@@ -746,7 +764,9 @@ class TestCustomTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -907,7 +927,9 @@ class TestCustomTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -1143,7 +1165,9 @@ class TestCustomTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -1434,7 +1458,9 @@ class TestCustomTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -1663,7 +1689,9 @@ class TestCustomTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -1913,7 +1941,9 @@ class TestCustomContainerTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -2062,7 +2092,9 @@ class TestCustomContainerTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -2280,7 +2312,9 @@ class TestCustomContainerTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -2546,7 +2580,9 @@ class TestCustomContainerTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -2692,7 +2728,9 @@ class TestCustomContainerTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -3141,7 +3179,9 @@ class TestCustomPythonPackageTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -3293,7 +3333,9 @@ class TestCustomPythonPackageTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -3444,7 +3486,9 @@ class TestCustomPythonPackageTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -3667,7 +3711,9 @@ class TestCustomPythonPackageTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -3941,7 +3987,9 @@ class TestCustomPythonPackageTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 
@@ -4078,7 +4126,6 @@ class TestCustomPythonPackageTrainingJob:
                     "service_account": _TEST_SERVICE_ACCOUNT,
                     "tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME,
                 },
-                
                 struct_pb2.Value(),
             ),
             model_to_upload=true_managed_model,
@@ -4090,7 +4137,9 @@ class TestCustomPythonPackageTrainingJob:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(name=_TEST_MODEL_NAME)
 

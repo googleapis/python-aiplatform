@@ -265,7 +265,9 @@ class TestEndToEnd:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource == make_training_pipeline(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED)
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(
             name=test_training_jobs._TEST_MODEL_NAME

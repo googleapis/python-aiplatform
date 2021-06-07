@@ -25,7 +25,7 @@ def custom_job_console_uri(custom_job_resource_name: str) -> str:
 
 def custom_job_tensorboard_console_uri(
     tensorboard_resource_name: str, custom_job_resource_name: str
-) -> str:   
+) -> str:
     """Helper method to create console uri to tensorboard from custom job resource."""
     # projects+40556267596+locations+us-central1+tensorboards+740208820004847616+experiments+2214368039829241856
     fields = utils.extract_fields_from_resource_name(tensorboard_resource_name)

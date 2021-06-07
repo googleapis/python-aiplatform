@@ -1211,7 +1211,12 @@ class CustomJob(_RunnableJob):
         _LOGGER.info("View Custom Job:\n%s" % self._dashboard_uri())
 
         if tensorboard:
-            _LOGGER.info("View Tensorboard:\n%s" % console_utils.custom_job_tensorboard_console_uri(tensorboard, self.resource_name))
+            _LOGGER.info(
+                "View Tensorboard:\n%s"
+                % console_utils.custom_job_tensorboard_console_uri(
+                    tensorboard, self.resource_name
+                )
+            )
 
         self._block_until_complete()
 
@@ -1526,7 +1531,12 @@ class HyperparameterTuningJob(_RunnableJob):
         _LOGGER.info("View HyperparameterTuningJob:\n%s" % self._dashboard_uri())
 
         if tensorboard:
-            _LOGGER.info("View Tensorboard:\n%s" % console_utils.custom_job_tensorboard_console_uri(tensorboard, self.resource_name))
+            _LOGGER.info(
+                "View Tensorboard:\n%s"
+                % console_utils.custom_job_tensorboard_console_uri(
+                    tensorboard, self.resource_name
+                )
+            )
 
         self._block_until_complete()
 
