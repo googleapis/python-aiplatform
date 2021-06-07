@@ -19,6 +19,7 @@ from google.cloud.aiplatform import utils
 
 
 def custom_job_console_uri(custom_job_resource_name: str) -> str:
+    """Helper method to create console uri from custom job resource name."""
     fields = utils.extract_fields_from_resource_name(custom_job_resource_name)
     return f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/training/{fields.id}?project={fields.project}"
 
