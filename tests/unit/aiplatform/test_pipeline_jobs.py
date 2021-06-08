@@ -16,14 +16,10 @@
 #
 
 import pytest
-import functools
 
 from unittest import mock
 from importlib import reload
 from unittest.mock import patch
-
-from google.cloud import storage
-from google.cloud import bigquery
 
 from google.auth import credentials as auth_credentials
 
@@ -64,38 +60,14 @@ _TEST_MAX_REPLICA_COUNT = 12
 
 _TEST_PIPELINE_PARAMETER_VALUES = {"name_param": {"stringValue": "hello"}}
 _TEST_PIPELINE_JOB_SPEC = {
-  "displayName": "my-pipeline",
-  "runtimeConfig": {
-    "gcsOutputDirectory": "gs://some-bucket/tmp/",
-     "parameters": {
-      "name_param": {
-        "stringValue": "world"
-      }
-    }
-  },
+  "runtimeConfig": {},
   "pipelineSpec": {
     "pipelineInfo": {
       "name": "my-pipeline"
     },
     "root": {
       "dag": {
-        "tasks": {
-          "task-test": {
-            "taskInfo": {
-              "name": "task-test"
-            },
-            "inputs": {
-              "parameters": {
-                "name": {
-                  "componentInputParameter": "name_param"
-                }
-              }
-            },
-            "componentRef": {
-              "name": "comp-test"
-            }
-          }
-        }
+        "tasks": {}
       },
       "inputDefinitions": {
         "parameters": {
@@ -105,33 +77,7 @@ _TEST_PIPELINE_JOB_SPEC = {
         }
       }
     },
-    "deploymentSpec": {
-      "executors": {
-        "exec-test": {
-          "container": {
-            "image": "python:3.7-alpine",
-            "command": [
-              "echo",
-              "Hello {{$.inputs.parameters['name']}} {{$.scheduledTime.strftime('%Y-%m-%d')}}"
-            ]
-          }
-        }
-      }
-    },
-    "components": {
-      "comp-test": {
-        "executorLabel": "exec-test",
-        "inputDefinitions": {
-          "parameters": {
-            "name": {
-              "type": "STRING"
-            }
-          }
-        }
-      }
-    },
-    "sdkVersion": "dummy-kfp-version",
-    "schemaVersion": "2.0.0"
+    "components": {},
   },
 }
 

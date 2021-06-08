@@ -16,7 +16,7 @@
 #
 
 import time
-from typing import  Optional, Dict, List
+from typing import Optional, Dict, List
 
 import logging
 import re
@@ -50,26 +50,27 @@ _PIPELINE_COMPLETE_STATES = set(
     ]
 )
 
-_PIPELINE_CLIENT_VERSION='v1beta1'
+_PIPELINE_CLIENT_VERSION = "v1beta1"
 
 # AIPlatformPipelines service API job name relative name prefix pattern.
-_JOB_NAME_PATTERN = '{parent}/pipelineJobs/{job_id}'
+_JOB_NAME_PATTERN = "{parent}/pipelineJobs/{job_id}"
 
 # Pattern for valid names used as a Vertex resource name.
-_VALID_NAME_PATTERN = re.compile('^[a-z][-a-z0-9]{0,127}$')
+_VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
 
-def _set_enable_caching_value(pipeline_spec: Dict,
-                              enable_caching: bool) -> None:
-  """Sets pipeline tasks caching options.
-  Args:
-   pipeline_spec: The dictionary of pipeline spec.
-   enable_caching: Whether to enable caching.
-  """
-  for component in [pipeline_spec['root']] + list(
-      pipeline_spec['components'].values()):
-    if 'dag' in component:
-      for task in component['dag']['tasks'].values():
-        task['cachingOptions'] = {'enableCache': enable_caching}
+
+def _set_enable_caching_value(pipeline_spec: Dict, enable_caching: bool) -> None:
+    """Sets pipeline tasks caching options.
+    Args:
+     pipeline_spec: The dictionary of pipeline spec.
+     enable_caching: Whether to enable caching.
+    """
+    for component in [pipeline_spec["root"]] + list(
+        pipeline_spec["components"].values()
+    ):
+        if "dag" in component:
+            for task in component["dag"]["tasks"].values():
+                task["cachingOptions"] = {"enableCache": enable_caching}
 
 
 class PipelineJob(base.VertexAiResourceNounWithFutureManager):
@@ -153,51 +154,57 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         )
         pipeline_root = pipeline_root or initializer.global_config.staging_bucket
         pipeline_spec = utils.load_json(job_spec_path)
-        pipeline_name = pipeline_spec['pipelineSpec']['pipelineInfo']['name']
-        job_id = job_id or '{pipeline_name}-{timestamp}'.format(
-            pipeline_name=re.sub('[^-0-9a-z]+', '-',
-                                pipeline_name.lower()).lstrip('-').rstrip('-'),
-            timestamp=_get_current_time().strftime('%Y%m%d%H%M%S'))
+        pipeline_name = pipeline_spec["pipelineSpec"]["pipelineInfo"]["name"]
+        job_id = job_id or "{pipeline_name}-{timestamp}".format(
+            pipeline_name=re.sub("[^-0-9a-z]+", "-", pipeline_name.lower())
+            .lstrip("-")
+            .rstrip("-"),
+            timestamp=_get_current_time().strftime("%Y%m%d%H%M%S"),
+        )
         if not _VALID_NAME_PATTERN.match(job_id):
-          raise ValueError(
-              'Generated job ID: {} is illegal as a Vertex pipelines job ID. '
-              'Expecting an ID following the regex pattern '
-              '"[a-z][-a-z0-9]{{0,127}}"'.format(job_id))
+            raise ValueError(
+                "Generated job ID: {} is illegal as a Vertex pipelines job ID. "
+                "Expecting an ID following the regex pattern "
+                '"[a-z][-a-z0-9]{{0,127}}"'.format(job_id)
+            )
 
         job_name = _JOB_NAME_PATTERN.format(parent=self._parent, job_id=job_id)
 
-        pipeline_spec['name'] = job_name
-        pipeline_spec['displayName'] = job_id
+        pipeline_spec["name"] = job_name
+        pipeline_spec["displayName"] = job_id
 
         builder = pipeline_runtime_config_builder.PipelineRuntimeConfigBuilder.from_job_spec_json(
-            pipeline_spec)
+            pipeline_spec
+        )
         builder.update_pipeline_root(pipeline_root)
         builder.update_runtime_parameters(parameter_values)
 
         runtime_config = builder.build()
-        pipeline_spec['runtimeConfig'] = runtime_config
+        pipeline_spec["runtimeConfig"] = runtime_config
 
-        _set_enable_caching_value(pipeline_spec['pipelineSpec'], enable_caching)
+        _set_enable_caching_value(pipeline_spec["pipelineSpec"], enable_caching)
 
         if encryption_spec_key_name is not None:
-          pipeline_spec['encryptionSpec'] = {'kmsKeyName': encryption_spec_key_name}
+            pipeline_spec["encryptionSpec"] = {"kmsKeyName": encryption_spec_key_name}
         if service_account is not None:
-          pipeline_spec['serviceAccount'] = service_account
+            pipeline_spec["serviceAccount"] = service_account
         if network is not None:
-          pipeline_spec['network'] = network
+            pipeline_spec["network"] = network
 
         if labels:
-          if not isinstance(labels, Dict):
-            raise ValueError(
-                'Expect labels to be a mapping of string key value pairs. '
-                'Got "{}" of type "{}"'.format(labels, type(labels)))
-          for k, v in labels.items():
-            if not isinstance(k, str) or not isinstance(v, str):
-              raise ValueError(
-                  'Expect labels to be a mapping of string key value pairs. '
-                  'Got "{}".'.format(labels))
+            if not isinstance(labels, Dict):
+                raise ValueError(
+                    "Expect labels to be a mapping of string key value pairs. "
+                    'Got "{}" of type "{}"'.format(labels, type(labels))
+                )
+            for k, v in labels.items():
+                if not isinstance(k, str) or not isinstance(v, str):
+                    raise ValueError(
+                        "Expect labels to be a mapping of string key value pairs. "
+                        'Got "{}".'.format(labels)
+                    )
 
-          pipeline_spec['labels'] = labels
+            pipeline_spec["labels"] = labels
 
         self._gca_resource = gca_pipeline_job_v1beta1.PipelineJob(
             display_name=display_name,
@@ -241,10 +248,9 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_create_with_lro(self.__class__)
 
-        self._gca_resource = self.api_client.select_version(_PIPELINE_CLIENT_VERSION).create_pipeline_job(
-            parent=self._parent,
-            pipeline_job=self._gca_resource
-        )
+        self._gca_resource = self.api_client.select_version(
+            _PIPELINE_CLIENT_VERSION
+        ).create_pipeline_job(parent=self._parent, pipeline_job=self._gca_resource)
 
         _LOGGER.log_create_complete_with_getter(
             self.__class__, self._gca_resource, "pipeline_job"
@@ -291,7 +297,9 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         False otherwise.
         """
         self._assert_has_run()
-        return self.state == gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED
+        return (
+            self.state == gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED
+        )
 
     def _dashboard_uri(self) -> str:
         """Helper method to compose the dashboard uri where pipeline can be
@@ -303,9 +311,9 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     def _sync_gca_resource(self):
         """Helper method to sync the local gca_source against the service."""
 
-        self._gca_resource = self.api_client.select_version(_PIPELINE_CLIENT_VERSION).get_pipeline_job(
-            name=self.resource_name
-        )
+        self._gca_resource = self.api_client.select_version(
+            _PIPELINE_CLIENT_VERSION
+        ).get_pipeline_job(name=self.resource_name)
 
     def _block_until_complete(self):
         """Helper method to block and check on job until complete."""
@@ -337,7 +345,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         _LOGGER.log_action_completed_against_resource("run", "completed", self)
 
         if self._gca_resource.name and not self.has_failed:
-          _LOGGER.info("Pipeline Job available at:\n%s" % self._dashboard_uri())
+            _LOGGER.info("Pipeline Job available at:\n%s" % self._dashboard_uri())
 
     def _raise_failure(self):
         """Helper method to raise failure if PipelineJob fails.
@@ -348,4 +356,3 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         if self._gca_resource.error.code != code_pb2.OK:
             raise RuntimeError("Pipeline failed with:\n%s" % self._gca_resource.error)
-
