@@ -44,7 +44,7 @@ def predict_tabular_classification_sample(
     response = client.predict(
         endpoint=endpoint, instances=instances, parameters=parameters
     )
-    print("response")
+    print(response)
     print(" deployed_model_id:", response.deployed_model_id)
     # See gs://google-cloud-aiplatform/schema/predict/prediction/tables_classification.yaml for the format of the predictions.
     predictions = response.predictions
