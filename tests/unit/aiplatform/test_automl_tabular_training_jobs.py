@@ -50,6 +50,12 @@ _TEST_TRAINING_COLUMN_TRANSFORMATIONS = [
     {"auto": {"column_name": "petal_length"}},
     {"auto": {"column_name": "petal_width"}},
 ]
+__TEST_TRAINING_COLUMN_SPECS = {
+    "sepal_width": "auto",
+    "sepal_length": "auto",
+    "sepal_width": "auto",
+    "sepal_width": "auto",
+}
 _TEST_TRAINING_TARGET_COLUMN = "target"
 _TEST_TRAINING_BUDGET_MILLI_NODE_HOURS = 1000
 _TEST_TRAINING_WEIGHT_COLUMN = "weight"

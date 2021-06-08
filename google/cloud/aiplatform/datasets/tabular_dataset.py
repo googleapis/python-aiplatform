@@ -50,7 +50,10 @@ class TabularDataset(datasets._Dataset):
 
         Raises:
             RuntimeError: When no valid source is found.
+            ValueError: When target_column is not in dataset
         """
+        if target_column is not in self.column_names:
+            raise ValueError("Target column not in dataset.")
         column_names = [
             column
             for column in self.column_names
