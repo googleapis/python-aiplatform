@@ -26,6 +26,7 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
 
+#TODO: extend tabular dataset
 class TimeSeriesDataset(datasets._Dataset):
     """Managed time series dataset resource for Vertex AI"""
 
@@ -46,7 +47,7 @@ class TimeSeriesDataset(datasets._Dataset):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "TimeSeriesDataset":
-        """Creates a new tabular dataset.
+        """Creates a new d dataset.
 
         Args:
             display_name (str):

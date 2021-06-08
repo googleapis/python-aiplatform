@@ -2301,6 +2301,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         optimization_prediction_type: str,
         optimization_objective: Optional[str] = None,
         column_transformations: Optional[Union[Dict, List[Dict]]] = None,
+        column_specs: Optional[Dict[str, str]] = None,
         optimization_objective_recall_value: Optional[float] = None,
         optimization_objective_precision_value: Optional[float] = None,
         project: Optional[str] = None,
@@ -2360,6 +2361,17 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 If an input column has no transformations on it, such a column is
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
+                Only one of column_transformations or column_specs should be passed.
+            column_specs (Optional[Dict[str, str]]):
+                Optional. Transformations to apply to the input columns (i.e. columns other
+                than the targetColumn). Each transformation may produce multiple
+                result values from the column's value, and all are used for training.
+                When creating transformation for BigQuery Struct column, the column
+                should be flattened using "." as the delimiter.
+                If an input column has no transformations on it, such a column is
+                ignored by the training, except for the targetColumn, which should have
+                no transformations defined on.
+                Only one of column_transformations or column_specs should be passed.
             optimization_objective_recall_value (float):
                 Optional. Required when maximize-precision-at-recall optimizationObjective was
                 picked, represents the recall value at which the optimization is done.
@@ -2413,6 +2425,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
         self._column_transformations = column_transformations
+        self._column_specs = column_specs
         self._optimization_objective = optimization_objective
         self._optimization_prediction_type = optimization_prediction_type
         self._optimization_objective_recall_value = optimization_objective_recall_value
@@ -2627,11 +2640,36 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce an Vertex AI Model.
+        Raises:
+            ValueError: When column doesn't exist in dataset.
+            ValueError: When target column is in transformations.
         """
 
         training_task_definition = schema.training_job.definition.automl_tabular
+        column_transformations = None
 
-        if self._column_transformations is None:
+        # user populated transformations
+        if self._column_transformations is not None and self._column_specs is not None:
+            _LOGGER.info(
+                "column_transformations and column_specs were both passed. column_transformations was used."
+            )
+        if self._column_transformations is not None:
+            column_transformations = self._column_transformations
+        if self._column_specs is not None and column_transformations is None:
+            column_transformations = [
+                {self._column_specs[column]: {"column_name": column}} for column in self._column_specs
+            ]
+        if column_transformations is not None:
+            column_names = dataset.column_names
+            for transformation in column_transformations:
+                for data_type in transformation:
+                    column = transformation[data_type][column_name]
+                    if column not in column_names:
+                        raise ValueError(f"'{column}' is not in the dataset.")
+                    if column is target_column:
+                        raise ValueError("Target column is in transformations.")
+        # auto-populate transformations
+        if column_transformations is None:
             _LOGGER.info(
                 "No column transformations provided, so now retrieving columns from dataset in order to set default column transformations."
             )
@@ -2649,8 +2687,6 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 "The column transformation of type 'auto' was set for the following columns: %s."
                 % column_names
             )
-        else:
-            column_transformations = self._column_transformations
 
         training_task_inputs_dict = {
             # required inputs
@@ -2707,6 +2743,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         self._additional_experiments.extend(additional_experiments)
 
 
+#TODO: add tabular sugar to forecasting
 class AutoMLForecastingTrainingJob(_TrainingJob):
     _supported_training_schemas = (schema.training_job.definition.automl_forecasting,)
 
