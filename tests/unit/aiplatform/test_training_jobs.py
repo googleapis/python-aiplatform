@@ -448,8 +448,8 @@ def make_training_pipeline(state):
         name=_TEST_PIPELINE_RESOURCE_NAME,
         state=state,
         model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
-        training_task_inputs={"tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME,},
-        training_task_metadata={"backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME,},
+        training_task_inputs={"tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME,}, 
+        training_task_metadata={"backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME,}, 
     )
 
 
@@ -778,7 +778,7 @@ class TestCustomTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
-        assert job._has_logged_custom_job == True
+        assert job._has_logged_custom_job
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_bigquery_destination(
@@ -1954,6 +1954,8 @@ class TestCustomContainerTrainingJob:
         assert not job.has_failed
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+        assert job._has_logged_custom_job
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_bigquery_destination(
@@ -4151,7 +4153,7 @@ class TestCustomPythonPackageTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
-        assert job._has_logged_custom_job == True
+        assert job._has_logged_custom_job
 
     def test_run_call_pipeline_service_create_with_nontabular_dataset_raises_if_annotation_schema_uri(
         self, mock_nontabular_dataset,
