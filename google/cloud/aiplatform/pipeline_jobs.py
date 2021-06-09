@@ -53,7 +53,7 @@ _PIPELINE_COMPLETE_STATES = set(
 
 _PIPELINE_CLIENT_VERSION = "v1beta1"
 
-# AIPlatformPipelines service API job name relative name prefix pattern.
+# Vertex AI Pipelines service API job name relative name prefix pattern.
 _JOB_NAME_PATTERN = "{parent}/pipelineJobs/{job_id}"
 
 # Pattern for valid names used as a Vertex resource name.
@@ -62,6 +62,7 @@ _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
 
 def _set_enable_caching_value(pipeline_spec: Dict, enable_caching: bool) -> None:
     """Sets pipeline tasks caching options.
+
     Args:
      pipeline_spec: The dictionary of pipeline spec.
      enable_caching: Whether to enable caching.
@@ -219,6 +220,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         sync: bool = True,
     ) -> None:
         """Run this configured PipelineJob.
+
         Args:
             service_account (str):
                 Optional. Specifies the service account for workload run-as account.
@@ -232,7 +234,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 Whether to execute this method synchronously. If False, this method
                 will unblock and it will be executed in a concurrent Future.
         """
-
         if service_account:
             self._gca_resource.pipeline_spec.service_account = service_account
 
@@ -260,7 +261,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     @property
     def state(self) -> Optional[gca_pipeline_state_v1beta1.PipelineState]:
         """Current pipeline state."""
-
         if self._assert_has_run():
             return
 
@@ -298,19 +298,17 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         """Helper method to compose the dashboard uri where pipeline can be
         viewed."""
         fields = utils.extract_fields_from_resource_name(self.resource_name)
-        url = f"https://console.cloud.google.com/ai/platform/locations/{fields.location}/pipelines/runs/{fields.id}?project={fields.project}"
+        url = f"https://console.cloud.google.com/vertex-ai/locations/{fields.location}/pipelines/runs/{fields.id}?project={fields.project}"
         return url
 
     def _sync_gca_resource(self):
         """Helper method to sync the local gca_source against the service."""
-
         self._gca_resource = self.api_client.select_version(
             _PIPELINE_CLIENT_VERSION
         ).get_pipeline_job(name=self.resource_name)
 
     def _block_until_complete(self):
         """Helper method to block and check on job until complete."""
-
         # Used these numbers so failures surface fast
         wait = 5  # start at five seconds
         log_wait = 5

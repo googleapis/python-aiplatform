@@ -59,7 +59,7 @@ _TEST_ACCELERATOR_COUNT = 2
 _TEST_STARTING_REPLICA_COUNT = 2
 _TEST_MAX_REPLICA_COUNT = 12
 
-_TEST_PIPELINE_PARAMETER_VALUES = {"name_param": {"stringValue": "hello"}}
+_TEST_PIPELINE_PARAMETER_VALUES = {"name_param": "hello"}
 _TEST_PIPELINE_JOB_SPEC = {
     "runtimeConfig": {},
     "pipelineSpec": {
@@ -180,9 +180,7 @@ class TestPipelineJob:
                     "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
                     "parameters": {
                         "name_param": {
-                            "stringValue": {
-                                "stringValue": "hello",
-                            },
+                            "stringValue": "hello",
                         }
                     },
                 },

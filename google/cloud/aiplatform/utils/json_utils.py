@@ -27,6 +27,7 @@ def load_json(path: str,
         project: Optional[str],
         credentials: Optional[auth_credentials.Credentials] = None) -> Dict[str, Any]:
     """Loads data from a JSON document.
+
     Args:
       path (str):
           The path of the JSON document. It can be a local path or a GS URI.
@@ -37,7 +38,6 @@ def load_json(path: str,
     Returns:
       A deserialized Dict object representing the JSON document.
     """
-
     if path.startswith('gs://'):
       return _load_json_from_gs_uri(path, project,credentials)
     else:
@@ -47,6 +47,7 @@ def load_json(path: str,
 def _load_json_from_gs_uri(uri: str,project:Optional[str],
         credentials: Optional[auth_credentials.Credentials] = None) -> Dict[str, Any]:
     """Loads data from a JSON document referenced by a GS URI.
+
     Args:
       path (str):
           GCS URI for JSON document.
@@ -57,7 +58,6 @@ def _load_json_from_gs_uri(uri: str,project:Optional[str],
     Returns:
       A deserialized Dict object representing the JSON document.
     """
-
     storage_client = storage.Client(project=project, credentials=credentials)
     blob = storage.Blob.from_string(uri, storage_client)
     return json.loads(blob.download_as_bytes())
@@ -65,6 +65,7 @@ def _load_json_from_gs_uri(uri: str,project:Optional[str],
 
 def _load_json_from_local_file(file_path: str) -> Dict[str, Any]:
     """Loads data from a JSON local file.
+
     Args:
       file_path: The local file path of the JSON document.
     Returns:
