@@ -108,9 +108,8 @@ class PipelineRuntimeConfigBuilder(object):
       A dictionary represents the Vertex pipeline Value proto message.
 
     Raises:
-      AssertionError: if the value is None.
-      ValueError: if the parameeter name is not found in pipeline root inputs.
-      TypeError: if the paraemter type is not one of 'INT', 'DOUBLE', 'STRING'.
+      ValueError: if the parameter name is not found in pipeline root inputs.
+      TypeError: if the parameter type is not one of 'INT', 'DOUBLE', 'STRING'.
     """
     assert value is not None, 'None values should be filterd out.'
 

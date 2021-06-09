@@ -28,6 +28,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import json_utils
 from google.cloud.aiplatform.utils import pipeline_runtime_config_builder
 
 from google.cloud.aiplatform.compat.services import pipeline_service_client
@@ -93,9 +94,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         parameter_values: Optional[Dict] = None,
         enable_caching: bool = True,
         encryption_spec_key_name: Optional[str] = None,
-        network: Optional[str] = None,
         labels: Optional[Dict] = None,
-        service_account: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -153,7 +152,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             project=project, location=location
         )
         pipeline_root = pipeline_root or initializer.global_config.staging_bucket
-        pipeline_spec = utils.load_json(job_spec_path)
+        pipeline_spec = json_utils.load_json(job_spec_path, project, credentials)
         pipeline_name = pipeline_spec["pipelineSpec"]["pipelineInfo"]["name"]
         job_id = job_id or "{pipeline_name}-{timestamp}".format(
             pipeline_name=re.sub("[^-0-9a-z]+", "-", pipeline_name.lower())
@@ -186,10 +185,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         if encryption_spec_key_name is not None:
             pipeline_spec["encryptionSpec"] = {"kmsKeyName": encryption_spec_key_name}
-        if service_account is not None:
-            pipeline_spec["serviceAccount"] = service_account
-        if network is not None:
-            pipeline_spec["network"] = network
 
         if labels:
             if not isinstance(labels, Dict):
@@ -214,8 +209,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
-            service_account=service_account,
-            network=network,
         )
 
     @base.optional_sync()

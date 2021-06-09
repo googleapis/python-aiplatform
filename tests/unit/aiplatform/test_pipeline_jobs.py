@@ -16,6 +16,7 @@
 #
 
 import pytest
+import json
 
 from unittest import mock
 from importlib import reload
@@ -24,10 +25,11 @@ from unittest.mock import patch
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
+from google.cloud import storage
 
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import json_utils
 
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
     client as pipeline_service_client_v1beta1,
@@ -50,7 +52,6 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_ID}"
 
 _TEST_PIPELINE_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
-_TEST_PIPELINE_JOB_DISPLAY_NAME = "test-pipeline-job"
 
 _TEST_MACHINE_TYPE = "n1-standard-4"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
@@ -60,32 +61,24 @@ _TEST_MAX_REPLICA_COUNT = 12
 
 _TEST_PIPELINE_PARAMETER_VALUES = {"name_param": {"stringValue": "hello"}}
 _TEST_PIPELINE_JOB_SPEC = {
-  "runtimeConfig": {},
-  "pipelineSpec": {
-    "pipelineInfo": {
-      "name": "my-pipeline"
+    "runtimeConfig": {},
+    "pipelineSpec": {
+        "pipelineInfo": {"name": "my-pipeline"},
+        "root": {
+            "dag": {"tasks": {}},
+            "inputDefinitions": {"parameters": {"name_param": {"type": "STRING"}}},
+        },
+        "components": {},
     },
-    "root": {
-      "dag": {
-        "tasks": {}
-      },
-      "inputDefinitions": {
-        "parameters": {
-          "name_param": {
-            "type": "STRING"
-          }
-        }
-      }
-    },
-    "components": {},
-  },
 }
 
 _TEST_PIPELINE_GET_METHOD_NAME = "get_fake_pipeline_job"
 _TEST_PIPELINE_LIST_METHOD_NAME = "list_fake_pipeline_jobs"
 _TEST_PIPELINE_CANCEL_METHOD_NAME = "cancel_fake_pipeline_job"
 _TEST_PIPELINE_DELETE_METHOD_NAME = "delete_fake_pipeline_job"
-_TEST_PIPELINE_RESOURCE_NAME = f"{_TEST_PARENT}/fakePipelineJobs/{_TEST_PIPELINE_JOB_ID}"
+_TEST_PIPELINE_RESOURCE_NAME = (
+    f"{_TEST_PARENT}/fakePipelineJobs/{_TEST_PIPELINE_JOB_ID}"
+)
 
 
 @pytest.fixture
@@ -99,6 +92,7 @@ def mock_pipeline_service_create():
         )
         yield mock_create_pipeline_job
 
+
 @pytest.fixture
 def mock_pipeline_service_get():
     with mock.patch.object(
@@ -110,10 +104,11 @@ def mock_pipeline_service_get():
         )
         yield mock_get_pipeline_job
 
+
 @pytest.fixture
 def mock_load_json():
-    with patch.object(utils, 'load_json') as mock_load_json:
-        mock_load_json.return_value = _TEST_PIPELINE_JOB_SPEC
+    with patch.object(storage.Blob, "download_as_bytes") as mock_load_json:
+        mock_load_json.return_value = json.dumps(_TEST_PIPELINE_JOB_SPEC)
         yield mock_load_json
 
 
@@ -142,16 +137,16 @@ class TestPipelineJob:
         mock_pipeline_service_get,
         mock_load_json,
         sync,
-      ):
+    ):
         aiplatform.init(
-          project=_TEST_PROJECT,
-          staging_bucket=_TEST_GCS_BUCKET_NAME,
-          location=_TEST_LOCATION,
-          credentials=_TEST_CREDENTIALS,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
         )
 
         job = pipeline_jobs.PipelineJob(
-            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            display_name=_TEST_PIPELINE_JOB_ID,
             job_spec_path=_TEST_JOB_SPEC_PATH,
             job_id=_TEST_PIPELINE_JOB_ID,
             parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
@@ -170,13 +165,31 @@ class TestPipelineJob:
 
         # Construct expected request
         expected_gapic_pipeline_job = gca_pipeline_job_v1beta1.PipelineJob(
-            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
-            pipeline_spec=_TEST_PIPELINE_JOB_SPEC,
+            display_name=_TEST_PIPELINE_JOB_ID,
+            pipeline_spec={
+                "displayName": _TEST_PIPELINE_JOB_ID,
+                "name": _TEST_PIPELINE_JOB_NAME,
+                "pipelineSpec": {
+                    "components": {},
+                    "pipelineInfo": _TEST_PIPELINE_JOB_SPEC["pipelineSpec"][
+                        "pipelineInfo"
+                    ],
+                    "root": _TEST_PIPELINE_JOB_SPEC["pipelineSpec"]["root"],
+                },
+                "runtimeConfig": {
+                    "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+                    "parameters": {
+                        "name_param": {
+                            "stringValue": {
+                                "stringValue": "hello",
+                            },
+                        }
+                    },
+                },
+            },
         )
 
         mock_pipeline_service_create.assert_called_once_with(
             parent=_TEST_PARENT,
             pipeline_job=expected_gapic_pipeline_job,
         )
-
-

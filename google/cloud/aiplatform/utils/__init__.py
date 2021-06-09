@@ -22,7 +22,7 @@ import pathlib
 from collections import namedtuple
 import logging
 import re
-from typing import Any, Dict, Match, Optional, Type, TypeVar, Tuple
+from typing import Any, Match, Optional, Type, TypeVar, Tuple
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -193,48 +193,6 @@ def full_resource_name(
 
     return resource_name
 
-
-def load_json(path: str) -> Dict[str, Any]:
-    """Loads data from a JSON document.
-    Args:
-      path: The path of the JSON document. It can be a local path or a GS URI.
-    Returns:
-      A deserialized Dict object representing the JSON document.
-    """
-
-    if path.startswith('gs://'):
-      return _load_json_from_gs_uri(path)
-    else:
-      return _load_json_from_local_file(path)
-
-
-def _load_json_from_gs_uri(uri: str) -> Dict[str, Any]:
-    """Loads data from a JSON document referenced by a GS URI.
-    Args:
-      uri: The GCS URI of the JSON document.
-    Returns:
-      A deserialized Dict object representing the JSON document.
-    Raises:
-      google.cloud.exceptions.NotFound: If the blob is not found.
-      json.decoder.JSONDecodeError: On JSON parsing problems.
-      ValueError: If uri is not a valid gs URI.
-    """
-    storage_client = storage.Client()
-    blob = storage.Blob.from_string(uri, storage_client)
-    return json.loads(blob.download_as_string())
-
-
-def _load_json_from_local_file(file_path: str) -> Dict[str, Any]:
-    """Loads data from a JSON local file.
-    Args:
-      file_path: The local file path of the JSON document.
-    Returns:
-      A deserialized Dict object representing the JSON document.
-    Raises:
-      json.decoder.JSONDecodeError: On JSON parsing problems.
-    """
-    with open(file_path) as f:
-      return json.load(f)
 
 # TODO(b/172286889) validate resource noun
 def validate_resource_noun(resource_noun: str) -> bool:
