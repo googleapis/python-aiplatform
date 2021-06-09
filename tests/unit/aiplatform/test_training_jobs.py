@@ -448,8 +448,8 @@ def make_training_pipeline(state):
         name=_TEST_PIPELINE_RESOURCE_NAME,
         state=state,
         model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
-        training_task_inputs={"tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME,},
-        training_task_metadata={"backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME,},
+        training_task_inputs={"tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME},
+        training_task_metadata={"backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME},
     )
 
 
