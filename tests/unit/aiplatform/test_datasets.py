@@ -345,20 +345,25 @@ def gcs_client_download_as_bytes_mock():
         gcs_blob_mock.return_value = b'"column_1","column_2"\n0, 1'
         yield gcs_blob_mock
 
+
 @pytest.fixture
 def gcs_client_mock():
-    with patch.object(storage, 'Client') as client_mock:
+    with patch.object(storage, "Client") as client_mock:
         yield client_mock
+
 
 @pytest.fixture
 def bq_client_mock():
-    with patch.object(bigquery, 'Client') as client_mock:
+    with patch.object(bigquery, "Client") as client_mock:
         yield client_mock
+
 
 @pytest.fixture
 def bigquery_client_table_mock():
     with patch.object(bigquery.Client, "get_table") as bigquery_client_table_mock:
-        bigquery_client_table_mock.return_value = bigquery.Table("project.dataset.table")
+        bigquery_client_table_mock.return_value = bigquery.Table(
+            "project.dataset.table"
+        )
         yield bigquery_client_table_mock
 
 
@@ -467,7 +472,8 @@ class TestDataset:
         self, create_dataset_mock, sync
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         my_dataset = datasets._Dataset.create(
@@ -722,11 +728,13 @@ class TestImageDataset:
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset(self, create_dataset_mock, sync):
         aiplatform.init(
-            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         my_dataset = datasets.ImageDataset.create(
-            display_name=_TEST_DISPLAY_NAME, sync=sync,
+            display_name=_TEST_DISPLAY_NAME,
+            sync=sync,
         )
 
         if not sync:
@@ -887,11 +895,14 @@ class TestTabularDataset:
         self, create_dataset_mock, sync
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         my_dataset = datasets.TabularDataset.create(
-            display_name=_TEST_DISPLAY_NAME, bq_source=_TEST_SOURCE_URI_BQ, sync=sync,
+            display_name=_TEST_DISPLAY_NAME,
+            bq_source=_TEST_SOURCE_URI_BQ,
+            sync=sync,
         )
 
         if not sync:
@@ -1004,22 +1015,22 @@ class TestTabularDataset:
 
         assert my_dataset.column_names == ["column_1", "column_2"]
 
-    @pytest.mark.usefixtures(
-        "get_dataset_tabular_gcs_mock"
-    )
+    @pytest.mark.usefixtures("get_dataset_tabular_gcs_mock")
     def test_tabular_dataset_column_name_gcs_with_creds(self, gcs_client_mock):
         creds = auth_credentials.AnonymousCredentials()
         my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME, credentials=creds)
 
         # we are just testing creds passing
         # this exception if from the mock not returning
-        # the csv data which is tested above 
+        # the csv data which is tested above
         try:
             my_dataset.column_names
         except StopIteration:
             pass
 
-        gcs_client_mock.assert_called_once_with(project=_TEST_PROJECT, credentials=creds)
+        gcs_client_mock.assert_called_once_with(
+            project=_TEST_PROJECT, credentials=creds
+        )
 
     @pytest.mark.usefixtures(
         "get_dataset_tabular_bq_mock",
@@ -1030,7 +1041,9 @@ class TestTabularDataset:
 
         my_dataset.column_names
 
-        assert bq_client_mock.call_args_list[0] == mock.call(project=_TEST_PROJECT, credentials=creds)
+        assert bq_client_mock.call_args_list[0] == mock.call(
+            project=_TEST_PROJECT, credentials=creds
+        )
 
     @pytest.mark.usefixtures(
         "get_dataset_tabular_bq_mock",
@@ -1066,11 +1079,13 @@ class TestTextDataset:
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset(self, create_dataset_mock, sync):
         aiplatform.init(
-            project=_TEST_PROJECT, encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         my_dataset = datasets.TextDataset.create(
-            display_name=_TEST_DISPLAY_NAME, sync=sync,
+            display_name=_TEST_DISPLAY_NAME,
+            sync=sync,
         )
 
         if not sync:
@@ -1234,7 +1249,8 @@ class TestVideoDataset:
         )
 
         my_dataset = datasets.VideoDataset.create(
-            display_name=_TEST_DISPLAY_NAME, sync=sync,
+            display_name=_TEST_DISPLAY_NAME,
+            sync=sync,
         )
 
         if not sync:

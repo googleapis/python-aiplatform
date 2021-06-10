@@ -76,7 +76,7 @@ class TabularDataset(datasets._Dataset):
                 return self._retrieve_gcs_source_columns(
                     project=self.project,
                     gcs_csv_file_path=gcs_source_uris[0],
-                    credentials=self.credentials 
+                    credentials=self.credentials,
                 )
         elif bq_source:
             bq_table_uri = bq_source.get("uri")
@@ -84,7 +84,7 @@ class TabularDataset(datasets._Dataset):
                 return self._retrieve_bq_source_columns(
                     project=self.project,
                     bq_table_uri=bq_table_uri,
-                    credentials=self.credentials
+                    credentials=self.credentials,
                 )
 
         raise RuntimeError("No valid CSV or BigQuery datasource found.")
@@ -93,8 +93,8 @@ class TabularDataset(datasets._Dataset):
     def _retrieve_gcs_source_columns(
         project: str,
         gcs_csv_file_path: str,
-        credentials: Optional[auth_credentials.Credentials] = None
-        ) -> List[str]:
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[str]:
         """Retrieve the columns from a comma-delimited CSV file stored on Google Cloud Storage
 
         Example Usage:
@@ -169,8 +169,8 @@ class TabularDataset(datasets._Dataset):
     def _retrieve_bq_source_columns(
         project: str,
         bq_table_uri: str,
-        credentials: Optional[auth_credentials.Credentials] = None
-        ) -> List[str]:
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[str]:
         """Retrieve the columns from a table on Google BigQuery
 
         Example Usage:
