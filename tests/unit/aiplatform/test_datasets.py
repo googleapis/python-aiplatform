@@ -341,27 +341,25 @@ def list_datasets_mock():
 
 @pytest.fixture
 def gcs_client_download_as_bytes_mock():
-    with patch.object(storage.Blob, "download_as_bytes") as bigquery_blob_mock:
-        bigquery_blob_mock.return_value = b'"column_1","column_2"\n0, 1'
-        yield bigquery_blob_mock
+    with patch.object(storage.Blob, "download_as_bytes") as gcs_blob_mock:
+        gcs_blob_mock.return_value = b'"column_1","column_2"\n0, 1'
+        yield gcs_blob_mock
 
 @pytest.fixture
-def gcs_client_download_as_bytes_mock_with_creds():
-
-    with patch.object(storage, 'Client', autospec=True) as client_mock:
-        return client_mock
-
-
-    # with patch.object(storage.Blob, "download_as_bytes") as bigquery_blob_mock:
-    #     bigquery_blob_mock.return_value = b'"column_1","column_2"\n0, 1'
-    #     yield bigquery_blob_mock
-
+def gcs_client_mock():
+    with patch.object(storage, 'Client') as client_mock:
+        yield client_mock
 
 @pytest.fixture
-def bigquery_client_mock():
-    with patch.object(bigquery.Client, "get_table") as bigquery_client_mock:
-        bigquery_client_mock.return_value = bigquery.Table("project.dataset.table")
-        yield bigquery_client_mock
+def bq_client_mock():
+    with patch.object(bigquery, 'Client') as client_mock:
+        yield client_mock
+
+@pytest.fixture
+def bigquery_client_table_mock():
+    with patch.object(bigquery.Client, "get_table") as bigquery_client_table_mock:
+        bigquery_client_table_mock.return_value = bigquery.Table("project.dataset.table")
+        yield bigquery_client_table_mock
 
 
 @pytest.fixture
@@ -1007,18 +1005,36 @@ class TestTabularDataset:
         assert my_dataset.column_names == ["column_1", "column_2"]
 
     @pytest.mark.usefixtures(
-        "get_dataset_tabular_gcs_mock", "gcs_client_download_as_bytes_mock"
+        "get_dataset_tabular_gcs_mock"
     )
-    def test_tabular_dataset_column_name_gcs_with_creds(self, gcs_client_download_as_bytes_mock_with_creds):
-        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
+    def test_tabular_dataset_column_name_gcs_with_creds(self, gcs_client_mock):
+        creds = auth_credentials.AnonymousCredentials()
+        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME, credentials=creds)
 
-        assert my_dataset.column_names == ["column_1", "column_2"]
+        # we are just testing creds passing
+        # this exception if from the mock not returning
+        # the csv data which is tested above 
+        try:
+            my_dataset.column_names
+        except StopIteration:
+            pass
 
-        assert gcs_client_download_as_bytes_mock_with_creds.assert_called_once_with(project=_TEST_PROJECT)
+        gcs_client_mock.assert_called_once_with(project=_TEST_PROJECT, credentials=creds)
 
     @pytest.mark.usefixtures(
         "get_dataset_tabular_bq_mock",
-        "bigquery_client_mock",
+    )
+    def test_tabular_dataset_column_name_bq_with_creds(self, bq_client_mock):
+        creds = auth_credentials.AnonymousCredentials()
+        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME, credentials=creds)
+
+        my_dataset.column_names
+
+        assert bq_client_mock.call_args_list[0] == mock.call(project=_TEST_PROJECT, credentials=creds)
+
+    @pytest.mark.usefixtures(
+        "get_dataset_tabular_bq_mock",
+        "bigquery_client_table_mock",
         "bigquery_table_schema_mock",
     )
     def test_tabular_dataset_column_name_bigquery(self):

@@ -144,6 +144,7 @@ class TabularDataset(datasets._Dataset):
                 line += blob.download_as_bytes(
                     start=start_index, end=start_index + increment
                 ).decode("utf-8")
+
                 first_new_line_index = line.find("\n")
                 start_index += increment
 
