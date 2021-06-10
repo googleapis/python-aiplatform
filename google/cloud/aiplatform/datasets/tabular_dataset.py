@@ -168,7 +168,7 @@ class TabularDataset(datasets._Dataset):
     @staticmethod
     def _retrieve_bq_source_columns(
         project: str,
-        bq_table_uri:str,
+        bq_table_uri: str,
         credentials: Optional[auth_credentials.Credentials] = None
         ) -> List[str]:
         """Retrieve the columns from a table on Google BigQuery
