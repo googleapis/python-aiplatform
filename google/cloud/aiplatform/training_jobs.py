@@ -2700,6 +2700,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
                 For tabular Datasets, all their data is exported to
                 training, to pick and choose from.
+            target_column (str):
+                Required. The name of the column values of which the Model is to predict.
             training_fraction_split (float):
                 Required. The fraction of the input data that is to be
                 used to train the Model. This is ignored if Dataset is not provided.
