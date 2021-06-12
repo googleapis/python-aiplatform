@@ -29,6 +29,7 @@ from unittest import mock
 from unittest.mock import patch
 
 from google.auth import credentials as auth_credentials
+from google.api_core import exceptions as api_core_exceptions
 
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import source_utils
@@ -204,6 +205,18 @@ def get_training_job_tabular_mock():
         )
 
         yield get_training_job_tabular_mock
+
+
+@pytest.fixture
+def get_training_job_non_existent_mock():
+    with patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as get_training_job_non_existent_mock:
+        get_training_job_non_existent_mock.side_effect = api_core_exceptions.NotFound(
+            "404"
+        )
+
+        yield get_training_job_non_existent_mock
 
 
 @pytest.fixture
@@ -1496,6 +1509,36 @@ class TestCustomTrainingJob:
                 project=_TEST_PROJECT,
                 location=_TEST_ALT_LOCATION,
             )
+
+    @pytest.mark.usefixtures("get_training_job_tabular_mock")
+    def test_get_and_return_subclass_automl(self):
+        subcls = aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
+            resource_name=_TEST_PIPELINE_RESOURCE_NAME
+        )
+
+        assert isinstance(subcls, aiplatform.training_jobs.AutoMLTabularTrainingJob)
+
+    @pytest.mark.usefixtures("get_training_job_custom_mock")
+    def test_get_and_return_subclass_custom(self):
+        subcls = aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
+            resource_name=_TEST_PIPELINE_RESOURCE_NAME
+        )
+
+        assert isinstance(subcls, aiplatform.training_jobs.CustomTrainingJob)
+
+    @pytest.mark.usefixtures("get_training_job_non_existent_mock")
+    def test_get_and_return_subclass_not_found(self):
+        with pytest.raises(api_core_exceptions.NotFound) as e:
+            aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
+                resource_name=_TEST_PIPELINE_RESOURCE_NAME
+            )
+
+        assert e.match(
+            regexp=(
+                r"The training job used to create this model could not be found: "
+                fr"{_TEST_PIPELINE_RESOURCE_NAME}"
+            )
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_nontabular_dataset(
