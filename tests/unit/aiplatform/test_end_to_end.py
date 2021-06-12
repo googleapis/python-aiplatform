@@ -47,6 +47,7 @@ from test_endpoints import predict_client_predict_mock  # noqa: F401
 from test_models import deploy_model_mock  # noqa: F401
 
 import test_training_jobs
+from test_training_jobs import make_training_pipeline
 from test_training_jobs import mock_model_service_get  # noqa: F401
 from test_training_jobs import mock_pipeline_service_create  # noqa: F401
 from test_training_jobs import mock_pipeline_service_get  # noqa: F401
@@ -264,7 +265,9 @@ class TestEndToEnd:
             training_pipeline=true_training_pipeline,
         )
 
-        assert job._gca_resource is mock_pipeline_service_get.return_value
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
 
         mock_model_service_get.assert_called_once_with(
             name=test_training_jobs._TEST_MODEL_NAME

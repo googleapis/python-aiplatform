@@ -205,7 +205,7 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "Optional[_MetadataStore]":
+    ) -> Optional["_MetadataStore"]:
         """Returns a MetadataStore resource.
 
         Args:

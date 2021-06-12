@@ -36,10 +36,10 @@ class ExplanationMetadata(proto.Message):
             An empty InputMetadata is valid. It describes a text feature
             which has the name specified as the key in
             [ExplanationMetadata.inputs][google.cloud.aiplatform.v1beta1.ExplanationMetadata.inputs].
-            The baseline of the empty feature is chosen by AI Platform.
+            The baseline of the empty feature is chosen by Vertex AI.
 
-            For AI Platform provided Tensorflow images, the key can be
-            any friendly name of the feature. Once specified,
+            For Vertex AI-provided Tensorflow images, the key can be any
+            friendly name of the feature. Once specified,
             [featureAttributions][google.cloud.aiplatform.v1beta1.Attribution.feature_attributions]
             are keyed by this key (if not grouped with another feature).
 
@@ -48,7 +48,7 @@ class ExplanationMetadata(proto.Message):
         outputs (Sequence[google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.OutputsEntry]):
             Required. Map from output names to output
             metadata.
-            For AI Platform provided Tensorflow images, keys
+            For Vertex AI-provided Tensorflow images, keys
             can be any user defined string that consists of
             any UTF-8 characters.
             For custom images, keys are the name of the
@@ -60,9 +60,9 @@ class ExplanationMetadata(proto.Message):
             describing the format of the [feature
             attributions][google.cloud.aiplatform.v1beta1.Attribution.feature_attributions].
             The schema is defined as an OpenAPI 3.0.2 `Schema
-            Object <https://tinyurl.com/y538mdwt#schema-object>`__.
-            AutoML tabular Models always have this field populated by AI
-            Platform. Note: The URI given on output may be different,
+            Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
+            AutoML tabular Models always have this field populated by
+            Vertex AI. Note: The URI given on output may be different,
             including the URI scheme, than the one given on input. The
             output URI will point to a location where the user only has
             a read access.
@@ -73,22 +73,22 @@ class ExplanationMetadata(proto.Message):
 
         Fields other than
         [InputMetadata.input_baselines][google.cloud.aiplatform.v1beta1.ExplanationMetadata.InputMetadata.input_baselines]
-        are applicable only for Models that are using AI Platform-provided
+        are applicable only for Models that are using Vertex AI-provided
         images for Tensorflow.
 
         Attributes:
             input_baselines (Sequence[google.protobuf.struct_pb2.Value]):
                 Baseline inputs for this feature.
 
-                If no baseline is specified, AI Platform chooses the
-                baseline for this feature. If multiple baselines are
-                specified, AI Platform returns the average attributions
-                across them in [Attributions.baseline_attribution][].
+                If no baseline is specified, Vertex AI chooses the baseline
+                for this feature. If multiple baselines are specified,
+                Vertex AI returns the average attributions across them in
+                [Attributions.baseline_attribution][].
 
-                For AI Platform provided Tensorflow images (both 1.x and
-                2.x), the shape of each baseline must match the shape of the
-                input tensor. If a scalar is provided, we broadcast to the
-                same shape as the input tensor.
+                For Vertex AI-provided Tensorflow images (both 1.x and 2.x),
+                the shape of each baseline must match the shape of the input
+                tensor. If a scalar is provided, we broadcast to the same
+                shape as the input tensor.
 
                 For custom images, the element of the baselines must be in
                 the same format as the feature's input in the
@@ -100,7 +100,7 @@ class ExplanationMetadata(proto.Message):
                 [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
             input_tensor_name (str):
                 Name of the input tensor for this feature.
-                Required and is only applicable to AI Platform
+                Required and is only applicable to Vertex AI-
                 provided images for Tensorflow.
             encoding (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Encoding):
                 Defines how the feature is encoded into the
@@ -141,8 +141,8 @@ class ExplanationMetadata(proto.Message):
                 A list of baselines for the encoded tensor.
                 The shape of each baseline should match the
                 shape of the encoded tensor. If a scalar is
-                provided, AI Platform broadcast to the same
-                shape as the encoded tensor.
+                provided, Vertex AI broadcasts to the same shape
+                as the encoded tensor.
             visualization (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata.InputMetadata.Visualization):
                 Visualization configurations for image
                 explanation.

@@ -118,7 +118,7 @@ class ListModelsAsyncPager:
         *,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
-        """Instantiate the pager.
+        """Instantiates the pager.
 
         Args:
             method (Callable): The method that was originally called, and
@@ -246,7 +246,7 @@ class ListModelEvaluationsAsyncPager:
         *,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
-        """Instantiate the pager.
+        """Instantiates the pager.
 
         Args:
             method (Callable): The method that was originally called, and
@@ -376,7 +376,7 @@ class ListModelEvaluationSlicesAsyncPager:
         *,
         metadata: Sequence[Tuple[str, str]] = ()
     ):
-        """Instantiate the pager.
+        """Instantiates the pager.
 
         Args:
             method (Callable): The method that was originally called, and

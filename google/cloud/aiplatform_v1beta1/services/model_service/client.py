@@ -64,7 +64,7 @@ class ModelServiceClientMeta(type):
     _transport_registry["grpc_asyncio"] = ModelServiceGrpcAsyncIOTransport
 
     def get_transport_class(cls, label: str = None,) -> Type[ModelServiceTransport]:
-        """Return an appropriate transport class.
+        """Returns an appropriate transport class.
 
         Args:
             label: The name of the desired transport. If none is
@@ -83,11 +83,12 @@ class ModelServiceClientMeta(type):
 
 
 class ModelServiceClient(metaclass=ModelServiceClientMeta):
-    """A service for managing AI Platform's machine learning Models."""
+    """A service for managing Vertex AI's machine learning Models."""
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
-        """Convert api endpoint to mTLS endpoint.
+        """Converts api endpoint to mTLS endpoint.
+
         Convert "*.sandbox.googleapis.com" and "*.googleapis.com" to
         "*.mtls.sandbox.googleapis.com" and "*.mtls.googleapis.com" respectively.
         Args:
@@ -121,7 +122,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -138,7 +140,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -157,23 +159,24 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @property
     def transport(self) -> ModelServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
-            ModelServiceTransport: The transport used by the client instance.
+            ModelServiceTransport: The transport used by the client
+                instance.
         """
         return self._transport
 
     @staticmethod
     def endpoint_path(project: str, location: str, endpoint: str,) -> str:
-        """Return a fully-qualified endpoint string."""
+        """Returns a fully-qualified endpoint string."""
         return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
             project=project, location=location, endpoint=endpoint,
         )
 
     @staticmethod
     def parse_endpoint_path(path: str) -> Dict[str, str]:
-        """Parse a endpoint path into its component segments."""
+        """Parses a endpoint path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
             path,
@@ -182,14 +185,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def model_path(project: str, location: str, model: str,) -> str:
-        """Return a fully-qualified model string."""
+        """Returns a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
             project=project, location=location, model=model,
         )
 
     @staticmethod
     def parse_model_path(path: str) -> Dict[str, str]:
-        """Parse a model path into its component segments."""
+        """Parses a model path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
             path,
@@ -200,14 +203,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
     def model_evaluation_path(
         project: str, location: str, model: str, evaluation: str,
     ) -> str:
-        """Return a fully-qualified model_evaluation string."""
+        """Returns a fully-qualified model_evaluation string."""
         return "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}".format(
             project=project, location=location, model=model, evaluation=evaluation,
         )
 
     @staticmethod
     def parse_model_evaluation_path(path: str) -> Dict[str, str]:
-        """Parse a model_evaluation path into its component segments."""
+        """Parses a model_evaluation path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)/evaluations/(?P<evaluation>.+?)$",
             path,
@@ -218,7 +221,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
     def model_evaluation_slice_path(
         project: str, location: str, model: str, evaluation: str, slice: str,
     ) -> str:
-        """Return a fully-qualified model_evaluation_slice string."""
+        """Returns a fully-qualified model_evaluation_slice string."""
         return "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}".format(
             project=project,
             location=location,
@@ -229,7 +232,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def parse_model_evaluation_slice_path(path: str) -> Dict[str, str]:
-        """Parse a model_evaluation_slice path into its component segments."""
+        """Parses a model_evaluation_slice path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)/evaluations/(?P<evaluation>.+?)/slices/(?P<slice>.+?)$",
             path,
@@ -240,14 +243,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
     def training_pipeline_path(
         project: str, location: str, training_pipeline: str,
     ) -> str:
-        """Return a fully-qualified training_pipeline string."""
+        """Returns a fully-qualified training_pipeline string."""
         return "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
             project=project, location=location, training_pipeline=training_pipeline,
         )
 
     @staticmethod
     def parse_training_pipeline_path(path: str) -> Dict[str, str]:
-        """Parse a training_pipeline path into its component segments."""
+        """Parses a training_pipeline path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/trainingPipelines/(?P<training_pipeline>.+?)$",
             path,
@@ -256,7 +259,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def common_billing_account_path(billing_account: str,) -> str:
-        """Return a fully-qualified billing_account string."""
+        """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
         )
@@ -269,7 +272,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def common_folder_path(folder: str,) -> str:
-        """Return a fully-qualified folder string."""
+        """Returns a fully-qualified folder string."""
         return "folders/{folder}".format(folder=folder,)
 
     @staticmethod
@@ -280,7 +283,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def common_organization_path(organization: str,) -> str:
-        """Return a fully-qualified organization string."""
+        """Returns a fully-qualified organization string."""
         return "organizations/{organization}".format(organization=organization,)
 
     @staticmethod
@@ -291,7 +294,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def common_project_path(project: str,) -> str:
-        """Return a fully-qualified project string."""
+        """Returns a fully-qualified project string."""
         return "projects/{project}".format(project=project,)
 
     @staticmethod
@@ -302,7 +305,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def common_location_path(project: str, location: str,) -> str:
-        """Return a fully-qualified location string."""
+        """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
             project=project, location=location,
         )
@@ -321,7 +324,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the model service client.
+        """Instantiates the model service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -376,9 +379,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 client_cert_source_func = client_options.client_cert_source
             else:
                 is_mtls = mtls.has_default_client_cert_source()
-                client_cert_source_func = (
-                    mtls.default_client_cert_source() if is_mtls else None
-                )
+                if is_mtls:
+                    client_cert_source_func = mtls.default_client_cert_source()
+                else:
+                    client_cert_source_func = None
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -390,12 +394,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             elif use_mtls_env == "always":
                 api_endpoint = self.DEFAULT_MTLS_ENDPOINT
             elif use_mtls_env == "auto":
-                api_endpoint = (
-                    self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
-                )
+                if is_mtls:
+                    api_endpoint = self.DEFAULT_MTLS_ENDPOINT
+                else:
+                    api_endpoint = self.DEFAULT_ENDPOINT
             else:
                 raise MutualTLSChannelError(
-                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted values: never, auto, always"
+                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted "
+                    "values: never, auto, always"
                 )
 
         # Save or instantiate the transport.
@@ -410,8 +416,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 )
             if client_options.scopes:
                 raise ValueError(
-                    "When providing a transport instance, "
-                    "provide its scopes directly."
+                    "When providing a transport instance, provide its scopes "
+                    "directly."
                 )
             self._transport = transport
         else:
@@ -436,7 +442,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
-        r"""Uploads a Model artifact into AI Platform.
+        r"""Uploads a Model artifact into Vertex AI.
 
         Args:
             request (google.cloud.aiplatform_v1beta1.types.UploadModelRequest):
@@ -695,7 +701,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
                 Required. The update mask applies to the resource. For
                 the ``FieldMask`` definition, see
-                `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

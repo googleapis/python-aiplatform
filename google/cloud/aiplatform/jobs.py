@@ -36,6 +36,7 @@ from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import console_utils
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
 
@@ -1209,6 +1210,14 @@ class CustomJob(_RunnableJob):
 
         _LOGGER.info("View Custom Job:\n%s" % self._dashboard_uri())
 
+        if tensorboard:
+            _LOGGER.info(
+                "View Tensorboard:\n%s"
+                % console_utils.custom_job_tensorboard_console_uri(
+                    tensorboard, self.resource_name
+                )
+            )
+
         self._block_until_complete()
 
     @property
@@ -1520,6 +1529,14 @@ class HyperparameterTuningJob(_RunnableJob):
         )
 
         _LOGGER.info("View HyperparameterTuningJob:\n%s" % self._dashboard_uri())
+
+        if tensorboard:
+            _LOGGER.info(
+                "View Tensorboard:\n%s"
+                % console_utils.custom_job_tensorboard_console_uri(
+                    tensorboard, self.resource_name
+                )
+            )
 
         self._block_until_complete()
 
