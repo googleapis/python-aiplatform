@@ -21,6 +21,7 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 import abc
 
 from google.auth import credentials as auth_credentials
+from google.api_core import exceptions as api_exceptions
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import datasets
@@ -135,7 +136,6 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
     @abc.abstractmethod
     def _supported_training_schemas(cls) -> Tuple[str]:
         """List of supported schemas for this training job."""
-
         pass
 
     @classmethod
@@ -152,10 +152,10 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             resource_name (str):
                 Required. A fully-qualified resource name or ID.
             project (str):
-                Optional project to retrieve dataset from. If not set, project
+                Optional project to retrieve training job from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional location to retrieve dataset from. If not set, location
+                Optional location to retrieve training job from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
@@ -193,11 +193,80 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
+    @classmethod
+    def _get_and_return_subclass(
+        cls,
+        resource_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "_TrainingJob":
+        """Retrieve Training Job subclass for the given resource_name without
+        knowing the training_task_definition.
+
+        Example usage:
+        ```
+        aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
+            'projects/.../locations/.../trainingPipelines/12345'
+        )
+        # Returns: <google.cloud.aiplatform.training_jobs.AutoMLImageTrainingJob>
+        ```
+
+        Args:
+            resource_name (str):
+                Required. A fully-qualified resource name or ID.
+            project (str):
+                Optional project to retrieve dataset from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional location to retrieve dataset from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+
+        Raises:
+            api_core.exceptions.NotFound: If the provided training job's resource
+                name cannot be found on the Vertex service.
+
+        Returns:
+            An Vertex AI Training Job
+        """
+
+        # Retrieve training pipeline resource before class construction
+        client = cls._instantiate_client(location=location, credentials=credentials)
+
+        try:
+            gca_training_pipeline = getattr(client, cls._getter_method)(
+                name=resource_name
+            )
+        except api_exceptions.NotFound:
+            raise api_exceptions.NotFound(
+                "The training job used to create this model could not be found:"
+                f" {resource_name}"
+            )
+
+        schema_uri = gca_training_pipeline.training_task_definition
+
+        # Collect all AutoML training job classes and CustomTrainingJob
+        class_list = [
+            c for c in cls.__subclasses__() if c.__name__.startswith("AutoML")
+        ] + [CustomTrainingJob]
+
+        # Identify correct training job subclass, construct and return object
+        for c in class_list:
+            if schema_uri in c._supported_training_schemas:
+                return c._empty_constructor(
+                    project=project,
+                    location=location,
+                    credentials=credentials,
+                    resource_name=resource_name,
+                )
+
     @property
     @abc.abstractmethod
     def _model_upload_fail_string(self) -> str:
         """Helper property for model upload failure."""
-
         pass
 
     @abc.abstractmethod

@@ -20,6 +20,7 @@ from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 from google.api_core import operation
 from google.auth import credentials as auth_credentials
 
+from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import explain
@@ -118,6 +119,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             location=location or initializer.global_config.location,
             credentials=credentials,
         )
+
+    @property
+    def traffic_split(self):
+        self._sync_gca_resource()
+        return dict(self._gca_resource.traffic_split)
 
     @classmethod
     def create(
@@ -1211,12 +1217,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     _delete_method = "delete_model"
 
     @property
-    def uri(self):
-        """Uri of the model."""
-        return self._gca_resource.artifact_uri
+    def uri(self) -> Optional[str]:
+        """Path to the directory containing the Model artifact and any of its
+        supporting files. Not present for AutoML Models."""
+        return self._gca_resource.artifact_uri or None
 
     @property
-    def description(self):
+    def description(self) -> str:
         """Description of the model."""
         return self._gca_resource.description
 
@@ -1239,6 +1246,56 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             ]
             for export_format in self._gca_resource.supported_export_formats
         }
+
+    @property
+    def supported_deployment_resources_types(
+        self,
+    ) -> List[aiplatform.gapic.Model.DeploymentResourcesType]:
+        return list(self._gca_resource.supported_deployment_resources_types)
+
+    @property
+    def supported_input_storage_formats(self) -> List[str]:
+        """The formats this Model supports in the `input_config` field of a 
+        `BatchPredictionJob`. If `Model.predict_schemata.instance_schema_uri`
+        exists, the instances should be given as per that schema.
+        
+        [Read the docs for more on batch prediction formats](https://cloud.google.com/vertex-ai/docs/predictions/batch-predictions#batch_request_input)
+        
+        If this Model doesn't support any of these formats it means it cannot be
+        used with a `BatchPredictionJob`.
+        """
+        return list(self._gca_resource.supported_input_storage_formats)
+
+    @property
+    def supported_output_storage_formats(self) -> List[str]:
+        return list(self._gca_resource.supported_output_storage_formats)
+
+    @property
+    def predict_schemata(self) -> Optional[aiplatform.gapic.PredictSchemata]:
+        """The schemata that describe formats of the Model's predictions and
+        explanations, if available."""
+        return getattr(self._gca_resource, "predict_schemata")
+
+    @property
+    def training_job(self) -> Optional["aiplatform.training_jobs._TrainingJob"]:
+        """The TrainingJob that uploaded this Model, if any."""
+        job_name = self._gca_resource.training_pipeline
+
+        if not job_name:
+            return None
+
+        return aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
+            resource_name=job_name,
+            project=self.project,
+            location=self.location,
+            credentials=self.credentials,
+        )
+
+    @property
+    def container_spec(self) -> Optional[aiplatform.gapic.ModelContainerSpec]:
+        """The specification of the container that is to be used when deploying
+        this Model. Not present for AutoML Models."""
+        return getattr(self._gca_resource, "container_spec")
 
     def __init__(
         self,

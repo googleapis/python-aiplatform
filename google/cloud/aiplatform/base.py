@@ -42,7 +42,8 @@ from google.api_core import operation
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-
+from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
+from google.rpc import status_pb2
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
@@ -562,6 +563,63 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         """Time this resource was last updated."""
         self._sync_gca_resource()
         return self._gca_resource.update_time
+
+    @property
+    def start_time(self) -> Optional[datetime.datetime]:
+        """Time when the Pipline or Job entered the `JOB_STATE_RUNNING` or
+        `PIPELINE_STATE_RUNNING` for the first time. Only for Job or Pipeline resources."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "start_time")
+
+    @property
+    def end_time(self) -> Optional[datetime.datetime]:
+        """Time when the Job resource entered the `JOB_STATE_SUCCEEDED`,
+        `JOB_STATE_FAILED`, `JOB_STATE_CANCELLED` state, or when the Pipeline resource
+        entered the `PIPELINE_STATE_SUCCEEDED`, `PIPELINE_STATE_FAILED`,
+        `PIPELINE_STATE_CANCELLED` state. Only for Job or Pipeline resources."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "end_time")
+
+    @property
+    def error(self) -> Optional[status_pb2.Status]:
+        """Detailed error info for Job or Pipeline resources.
+        Only populated when the Pipeline's state is `PIPELINE_STATE_FAILED` or
+        `PIPELINE_STATE_CANCELLED` or when the Job's state is `JOB_STATE_FAILED`
+        or `JOB_STATE_CANCELLED`."""
+
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "error")
+
+    @property
+    def network(self) -> Optional[str]:
+        """The full name of the Google Compute Engine
+        [network](https://cloud.google.com/vpc/docs/vpc#networks) to which this
+        Vertex AI resource should be peered.
+
+        Takes the format `projects/{project}/global/networks/{network}`. Where
+        {project} is a project number, as in `12345`, and {network} is a network name.
+
+        Private services access must already be configured for the network. If left
+        unspecified, the resource is not peered with any network.
+        """
+        return getattr(self._gca_resource, "network")
+
+    @property
+    def encryption_spec(self) -> Optional[gca_encryption_spec.EncryptionSpec]:
+        """Customer-managed encryption key options for this Vertex AI resource.
+
+        If this is set, then all resources created by this Vertex AI resource will
+        be encrypted with the provided encryption key.
+        """
+        return getattr(self._gca_resource, "encryption_spec")
+
+    @property
+    def labels(self) -> Dict[str, str]:
+        """User-defined labels containing metadata about this resource.
+
+        Read more about labels at https://goo.gl/xmQnxf
+        """
+        return self._gca_resource.labels
 
     @property
     def gca_resource(self) -> proto.Message:
