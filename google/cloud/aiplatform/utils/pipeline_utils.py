@@ -33,9 +33,12 @@ class PipelineRuntimeConfigBuilder(object):
     """Creates a PipelineRuntimeConfigBuilder object.
 
     Args:
-      pipeline_root: The root of the pipeline outputs.
-      parameter_types: The mapping from pipeline parameter name to its type.
-      parameter_values: The mapping from runtime parameter name to its value.
+      pipeline_root (str):
+          Required. The root of the pipeline outputs.
+      parameter_types (Mapping[str, str]):
+          Required. The mapping from pipeline parameter name to its type.
+      parameter_values (Dict[str, Any]):
+          Optional. The mapping from runtime parameter name to its value.
     """
     self._pipeline_root = pipeline_root
     self._parameter_types = parameter_types
@@ -47,17 +50,16 @@ class PipelineRuntimeConfigBuilder(object):
     """Creates a PipelineRuntimeConfigBuilder object from PipelineJob json spec.
 
     Args:
-      job_spec: The PipelineJob spec.
+      job_spec (Mapping[str, Any]):
+          Required. The PipelineJob spec.
 
     Returns:
       A PipelineRuntimeConfigBuilder object.
     """
     runtime_config_spec = job_spec['runtimeConfig']
-    parameter_types = {}
     parameter_input_definitions = job_spec['pipelineSpec']['root'].get(
         'inputDefinitions', {}).get('parameters', {})
-    for k, v in parameter_input_definitions.items():
-      parameter_types[k] = v['type']
+    parameter_types = {k: v['type'] for k, v in parameter_input_definitions.items()}
 
     pipeline_root = runtime_config_spec.get('gcsOutputDirectory')
     parameter_values = _parse_runtime_parameters(runtime_config_spec)
@@ -67,23 +69,29 @@ class PipelineRuntimeConfigBuilder(object):
     """Updates pipeline_root value.
 
     Args:
-      pipeline_root: The root of the pipeline outputs.
+      pipeline_root (str):
+          Optional. The root of the pipeline outputs.
     """
     if pipeline_root:
       self._pipeline_root = pipeline_root
 
   def update_runtime_parameters(
-      self, parameter_values: Optional[Mapping[str, Any]]) -> None:
+      self, parameter_values: Optional[Mapping[str, Any]] = None) -> None:
     """Merges runtime parameter values.
 
     Args:
-      parameter_values: The mapping from runtime parameter names to its values.
+      parameter_values (Mapping[str, Any]):
+          Optional. The mapping from runtime parameter names to its values.
     """
     if parameter_values:
       self._parameter_values.update(parameter_values)
 
-  def build(self) -> Mapping[str, Any]:
-    """Build a RuntimeConfig proto."""
+  def build(self) -> Dict[str, Any]:
+    """Build a RuntimeConfig proto.
+
+    Raises:
+      ValueError: if the pipeline root is not specified.
+    """
     if not self._pipeline_root:
       raise ValueError('Pipeline root must be specified, either during compile '
                        'time, or when calling the service.')
@@ -97,21 +105,23 @@ class PipelineRuntimeConfigBuilder(object):
     }
 
   def _get_vertex_value(self, name: str, value: Union[int, float,
-                                                    str]) -> Mapping[str, Any]:
+                                                    str]) -> Dict[str, Any]:
     """Converts primitive values into Vertex pipeline Value proto message.
 
     Args:
-      name: The name of the pipeline parameter.
-      value: The value of the pipeline parameter.
+      name (str):
+          Required. The name of the pipeline parameter.
+      value (Union[int, float, str]):
+          Required. The value of the pipeline parameter.
 
     Returns:
       A dictionary represents the Vertex pipeline Value proto message.
 
     Raises:
-      ValueError: if the parameter name is not found in pipeline root inputs.
-      TypeError: if the parameter type is not one of 'INT', 'DOUBLE', 'STRING'.
+      ValueError: if the parameter name is not found in pipeline root inputs, or value is none.
     """
-    assert value is not None, 'None values should be filterd out.'
+    if not value:
+      raise ValueError('None values should be filterd out.')
 
     if name not in self._parameter_types:
       raise ValueError('The pipeline parameter {} is not found in the pipeline '
@@ -132,7 +142,11 @@ class PipelineRuntimeConfigBuilder(object):
 
 def _parse_runtime_parameters(
     runtime_config_spec: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
-  """Extracts runtime parameters from runtime config json spec."""
+  """Extracts runtime parameters from runtime config json spec.
+
+  Raises:
+      TypeError: if the parameter type is not one of 'INT', 'DOUBLE', 'STRING'.
+  """
   runtime_parameters = runtime_config_spec.get('parameters')
   if not runtime_parameters:
     return None

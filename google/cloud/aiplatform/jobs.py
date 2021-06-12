@@ -21,7 +21,6 @@ import abc
 import copy
 import sys
 import time
-import logging
 
 from google.cloud import storage
 from google.cloud import bigquery
@@ -57,7 +56,6 @@ from google.cloud.aiplatform.compat.types import (
     study as gca_study_compat,
 )
 
-logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 _LOGGER = base.Logger(__name__)
 
 _JOB_COMPLETE_STATES = (

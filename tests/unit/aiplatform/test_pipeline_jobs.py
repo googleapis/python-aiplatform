@@ -44,20 +44,14 @@ _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_PIPELINE_JOB_ID = "sample-test-pipeline-202111111"
 _TEST_GCS_BUCKET_NAME = "my-bucket"
-_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+_TEST_CREDENTIALS = auth_credentials.AnonymousCredentials()
 _TEST_SERVICE_ACCOUNT = "abcde@my-project.iam.gserviceaccount.com"
 
-_TEST_JOB_SPEC_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}/job_spec.json"
+_TEST_TEMPLATE_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}/job_spec.json"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_ID}"
 
 _TEST_PIPELINE_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
-
-_TEST_MACHINE_TYPE = "n1-standard-4"
-_TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
-_TEST_ACCELERATOR_COUNT = 2
-_TEST_STARTING_REPLICA_COUNT = 2
-_TEST_MAX_REPLICA_COUNT = 12
 
 _TEST_PIPELINE_PARAMETER_VALUES = {"name_param": "hello"}
 _TEST_PIPELINE_JOB_SPEC = {
@@ -93,22 +87,55 @@ def mock_pipeline_service_create():
         yield mock_create_pipeline_job
 
 
+def make_pipeline_job(state):
+    return gca_pipeline_job_v1beta1.PipelineJob(
+        name=_TEST_PIPELINE_JOB_NAME,
+        state=state,
+    )
+
+
 @pytest.fixture
 def mock_pipeline_service_get():
     with mock.patch.object(
         pipeline_service_client_v1beta1.PipelineServiceClient, "get_pipeline_job"
     ) as mock_get_pipeline_job:
-        mock_get_pipeline_job.return_value = gca_pipeline_job_v1beta1.PipelineJob(
-            name=_TEST_PIPELINE_JOB_NAME,
-            state=gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED,
-        )
+        mock_get_pipeline_job.side_effect = [
+            make_pipeline_job(
+                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_RUNNING
+            ),
+            make_pipeline_job(
+                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_pipeline_job(
+                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_pipeline_job(
+                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_pipeline_job(
+                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_pipeline_job(
+                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_pipeline_job(
+                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_pipeline_job(
+                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_pipeline_job(
+                gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+        ]
+
         yield mock_get_pipeline_job
 
 
 @pytest.fixture
 def mock_load_json():
     with patch.object(storage.Blob, "download_as_bytes") as mock_load_json:
-        mock_load_json.return_value = json.dumps(_TEST_PIPELINE_JOB_SPEC)
+        mock_load_json.return_value = json.dumps(_TEST_PIPELINE_JOB_SPEC).encode()
         yield mock_load_json
 
 
@@ -147,21 +174,20 @@ class TestPipelineJob:
 
         job = pipeline_jobs.PipelineJob(
             display_name=_TEST_PIPELINE_JOB_ID,
-            job_spec_path=_TEST_JOB_SPEC_PATH,
+            template_path=_TEST_TEMPLATE_PATH,
             job_id=_TEST_PIPELINE_JOB_ID,
             parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
             enable_caching=True,
         )
 
-        pipeline_job = job.run(
+        job.run(
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
             sync=sync,
         )
 
-        # TODO(ji-yaqi): uncomment when wait method is added.
-        # if not sync:
-        #     pipeline_job.wait()
+        if not sync:
+            job.wait()
 
         # Construct expected request
         expected_gapic_pipeline_job = gca_pipeline_job_v1beta1.PipelineJob(
@@ -190,4 +216,12 @@ class TestPipelineJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=_TEST_PARENT,
             pipeline_job=expected_gapic_pipeline_job,
+        )
+
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME,
+        )
+
+        assert job._gca_resource == make_pipeline_job(
+            gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
         )

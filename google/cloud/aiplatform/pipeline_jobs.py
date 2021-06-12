@@ -16,9 +16,8 @@
 #
 
 import time
-from typing import Optional, Dict, List
+from typing import Any, Optional, Dict, List
 
-import logging
 import re
 import sys
 
@@ -29,7 +28,7 @@ from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import json_utils
-from google.cloud.aiplatform.utils import pipeline_runtime_config_builder
+from google.cloud.aiplatform.utils import pipeline_utils
 
 from google.cloud.aiplatform.compat.services import pipeline_service_client
 from google.cloud.aiplatform.compat.types import (
@@ -39,7 +38,6 @@ from google.cloud.aiplatform.compat.types import (
 
 from google.rpc import code_pb2
 
-logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 _LOGGER = base.Logger(__name__)
 
 _PIPELINE_COMPLETE_STATES = set(
@@ -51,8 +49,6 @@ _PIPELINE_COMPLETE_STATES = set(
     ]
 )
 
-_PIPELINE_CLIENT_VERSION = "v1beta1"
-
 # Vertex AI Pipelines service API job name relative name prefix pattern.
 _JOB_NAME_PATTERN = "{parent}/pipelineJobs/{job_id}"
 
@@ -60,12 +56,16 @@ _JOB_NAME_PATTERN = "{parent}/pipelineJobs/{job_id}"
 _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
 
 
-def _set_enable_caching_value(pipeline_spec: Dict, enable_caching: bool) -> None:
+def _set_enable_caching_value(
+    pipeline_spec: Dict[str, Any], enable_caching: bool
+) -> None:
     """Sets pipeline tasks caching options.
 
     Args:
-     pipeline_spec: The dictionary of pipeline spec.
-     enable_caching: Whether to enable caching.
+     pipeline_spec (Dict[str, Any]):
+          The dictionary of pipeline spec.
+     enable_caching (bool):
+          Whether to enable caching.
     """
     for component in [pipeline_spec["root"]] + list(
         pipeline_spec["components"].values()
@@ -77,7 +77,7 @@ def _set_enable_caching_value(pipeline_spec: Dict, enable_caching: bool) -> None
 
 class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
-    client_class = utils.PipelineClientWithOverride
+    client_class = utils.PipelineJobClientWithOverride
     _is_client_prediction_client = False
 
     _resource_noun = "pipelineJobs"
@@ -89,13 +89,13 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     def __init__(
         self,
         display_name: str,
-        job_spec_path: str,
+        template_path: str,
         job_id: Optional[str] = None,
         pipeline_root: Optional[str] = None,
-        parameter_values: Optional[Dict] = None,
+        parameter_values: Optional[Dict[str, Any]] = None,
         enable_caching: bool = True,
         encryption_spec_key_name: Optional[str] = None,
-        labels: Optional[Dict] = None,
+        labels: Optional[Dict[str, str]] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -106,21 +106,20 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         Args:
             display_name (str):
                 Required. The user-defined name of this Pipeline.
-            job_spec_path (str):
-                 The path of PipelineJob JSON file. It can be a local path or a
-                 GS URI. Example: "gs://project.name"
-            job_id (Optional[str]):
-                Optionally, the user can provide the unique ID of the job run.
+            template_path (str):
+                Required. The path of PipelineJob JSON file. It can be a local path or a
+                Google Cloud Storage URI. Example: "gs://project.name"
+            job_id (str):
+                Optional. The unique ID of the job run.
                 If not specified, pipeline name + timestamp will be used.
-            pipeline_root (Optional[str]):
-                Optionally the user can override the pipeline root
-                specified during the compile time. Default to be staging bucket.
-            parameter_values (Optional[Dict]):
-                The mapping from runtime parameter names to its values that
+            pipeline_root (str):
+                Optional. The root of the pipeline outputs. Default to be staging bucket.
+            parameter_values (Dict[str, Any]):
+                Optional. The mapping from runtime parameter names to its values that
                 control the pipeline run.
             enable_caching (bool):
                 Required. Whether to turn on caching for the run. Defaults to True.
-            encryption_spec_key_name (Optional[str]):
+            encryption_spec_key_name (str):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the job. Has the
                 form:
@@ -133,17 +132,20 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 be encrypted with the provided encryption key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
-            labels (Optional[Dict]):
-                The user defined metadata to organize PipelineJob.
-            credentials (Optional[auth_credentials.Credentials]):
-                Custom credentials to use to create this batch prediction
+            labels (Dict[str,str]):
+                Optional. The user defined metadata to organize PipelineJob.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create this batch prediction
                 job. Overrides credentials set in aiplatform.init.
-            project: Optional[str] = None,
-                Optional project to retrieve PipelineJob from. If not set,
+            project (str),
+                Optional. Project to retrieve PipelineJob from. If not set,
                 project set in aiplatform.init will be used.
-            location: Optional[str] = None,
-                Optional location to retrieve PipelineJob from. If not set,
+            location (str),
+                Optional. Location to create PipelineJob. If not set,
                 location set in aiplatform.init will be used.
+
+        Raises:
+            ValueError: If inputs are formatted wrong.
         """
         utils.validate_display_name(display_name)
 
@@ -153,7 +155,9 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             project=project, location=location
         )
         pipeline_root = pipeline_root or initializer.global_config.staging_bucket
-        pipeline_spec = json_utils.load_json(job_spec_path, project, credentials)
+        pipeline_spec = json_utils.load_json(
+            template_path, self.project, self.credentials
+        )
         pipeline_name = pipeline_spec["pipelineSpec"]["pipelineInfo"]["name"]
         job_id = job_id or "{pipeline_name}-{timestamp}".format(
             pipeline_name=re.sub("[^-0-9a-z]+", "-", pipeline_name.lower())
@@ -173,7 +177,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         pipeline_spec["name"] = job_name
         pipeline_spec["displayName"] = job_id
 
-        builder = pipeline_runtime_config_builder.PipelineRuntimeConfigBuilder.from_job_spec_json(
+        builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
             pipeline_spec
         )
         builder.update_pipeline_root(pipeline_root)
@@ -188,11 +192,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             pipeline_spec["encryptionSpec"] = {"kmsKeyName": encryption_spec_key_name}
 
         if labels:
-            if not isinstance(labels, Dict):
-                raise ValueError(
-                    "Expect labels to be a mapping of string key value pairs. "
-                    'Got "{}" of type "{}"'.format(labels, type(labels))
-                )
             for k, v in labels.items():
                 if not isinstance(k, str) or not isinstance(v, str):
                     raise ValueError(
@@ -206,7 +205,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             display_name=display_name,
             pipeline_spec=pipeline_spec,
             labels=labels,
-            runtime_config=None,
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
@@ -242,9 +240,9 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_create_with_lro(self.__class__)
 
-        self._gca_resource = self.api_client.select_version(
-            _PIPELINE_CLIENT_VERSION
-        ).create_pipeline_job(parent=self._parent, pipeline_job=self._gca_resource)
+        self._gca_resource = self.api_client.create_pipeline_job(
+            parent=self._parent, pipeline_job=self._gca_resource
+        )
 
         _LOGGER.log_create_complete_with_getter(
             self.__class__, self._gca_resource, "pipeline_job"
@@ -261,8 +259,8 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     @property
     def state(self) -> Optional[gca_pipeline_state_v1beta1.PipelineState]:
         """Current pipeline state."""
-        if self._assert_has_run():
-            return
+        if not self._has_run:
+            raise RuntimeError("Job has not run. No state available.")
 
         self._sync_gca_resource()
         return self._gca_resource.state
@@ -272,24 +270,12 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         """Helper property to check if this pipeline job has been run."""
         return self._gca_resource is not None
 
-    def _assert_has_run(self) -> bool:
-        """Helper method to assert that this pipeline has run."""
-        if not self._has_run:
-            if self._is_waiting_to_run():
-                return True
-            raise RuntimeError(
-                "PipelineJob has not been launched. You must run this"
-                " PipelineJob using PipelineJob.run. "
-            )
-        return False
-
     @property
     def has_failed(self) -> bool:
         """Returns True if pipeline has failed.
 
         False otherwise.
         """
-        self._assert_has_run()
         return (
             self.state == gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED
         )
@@ -303,9 +289,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
     def _sync_gca_resource(self):
         """Helper method to sync the local gca_source against the service."""
-        self._gca_resource = self.api_client.select_version(
-            _PIPELINE_CLIENT_VERSION
-        ).get_pipeline_job(name=self.resource_name)
+        self._gca_resource = self.api_client.get_pipeline_job(name=self.resource_name)
 
     def _block_until_complete(self):
         """Helper method to block and check on job until complete."""
@@ -330,20 +314,3 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 log_wait = min(log_wait * multiplier, max_wait)
                 previous_time = current_time
             time.sleep(wait)
-
-        self._raise_failure()
-
-        _LOGGER.log_action_completed_against_resource("run", "completed", self)
-
-        if self._gca_resource.name and not self.has_failed:
-            _LOGGER.info("Pipeline Job available at:\n%s" % self._dashboard_uri())
-
-    def _raise_failure(self):
-        """Helper method to raise failure if PipelineJob fails.
-
-        Raises:
-            RuntimeError: If pipeline failed.
-        """
-
-        if self._gca_resource.error.code != code_pb2.OK:
-            raise RuntimeError("Pipeline failed with:\n%s" % self._gca_resource.error)

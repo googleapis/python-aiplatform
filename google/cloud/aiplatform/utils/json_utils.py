@@ -16,27 +16,26 @@
 #
 
 import json
-
-from typing import Any, Dict,Optional
+from typing import Any, Dict, Optional
 
 from google.auth import credentials as auth_credentials
-
 from google.cloud import storage
 
 def load_json(path: str,
-        project: Optional[str],
+        project: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None) -> Dict[str, Any]:
     """Loads data from a JSON document.
 
     Args:
       path (str):
-          The path of the JSON document. It can be a local path or a GS URI.
+          Required. The path of the JSON document in Google Cloud Storage or local.
       project (str):
-          Project to initiate the Storage client with.
+          Optional. Project to initiate the Storage client with.
       credentials (auth_credentials.Credentials):
-          Credentials to use with Storage Client.
+          Optional. Credentials to use with Storage Client.
+
     Returns:
-      A deserialized Dict object representing the JSON document.
+      A Dict object representing the JSON document.
     """
     if path.startswith('gs://'):
       return _load_json_from_gs_uri(path, project,credentials)
@@ -44,19 +43,20 @@ def load_json(path: str,
       return _load_json_from_local_file(path)
 
 
-def _load_json_from_gs_uri(uri: str,project:Optional[str],
+def _load_json_from_gs_uri(uri: str, project: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None) -> Dict[str, Any]:
-    """Loads data from a JSON document referenced by a GS URI.
+    """Loads data from a JSON document referenced by a GCS URI.
 
     Args:
       path (str):
-          GCS URI for JSON document.
+          Required. GCS URI for JSON document.
       project (str):
-          Project to initiate the Storage client with.
+          Optional. Project to initiate the Storage client with.
       credentials (auth_credentials.Credentials):
-          Credentials to use with Storage Client.
+          Optional. Credentials to use with Storage Client.
+
     Returns:
-      A deserialized Dict object representing the JSON document.
+      A Dict object representing the JSON document.
     """
     storage_client = storage.Client(project=project, credentials=credentials)
     blob = storage.Blob.from_string(uri, storage_client)
@@ -67,9 +67,11 @@ def _load_json_from_local_file(file_path: str) -> Dict[str, Any]:
     """Loads data from a JSON local file.
 
     Args:
-      file_path: The local file path of the JSON document.
+      file_path (str):
+          Required. The local file path of the JSON document.
+
     Returns:
-      A deserialized Dict object representing the JSON document.
+      A Dict object representing the JSON document.
     """
     with open(file_path) as f:
       return json.load(f)
