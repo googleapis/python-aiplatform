@@ -23,6 +23,8 @@ import sys
 import time
 import logging
 
+from google.rpc import status_pb2
+
 from google.cloud import storage
 from google.cloud import bigquery
 
@@ -45,6 +47,7 @@ from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_bp_job_compat,
     batch_prediction_job_v1 as gca_bp_job_v1,
     batch_prediction_job_v1beta1 as gca_bp_job_v1beta1,
+    completion_stats as gca_completion_stats,
     custom_job as gca_custom_job_compat,
     custom_job_v1beta1 as gca_custom_job_v1beta1,
     explanation_v1beta1 as gca_explanation_v1beta1,
@@ -301,6 +304,27 @@ class BatchPredictionJob(_Job):
             location=location,
             credentials=credentials,
         )
+
+    @property
+    def output_info(self):
+        """Information describing the output of this job, including output location
+        into which prediction output is written.
+        
+        This is only available for batch predicition jobs that have run successfully.
+        """
+        return self._gca_resource.output_info
+
+    @property
+    def partial_failures(self) -> Optional[Sequence[status_pb2.Status]]:
+        """Partial failures encountered. For example, single files that can't be read.
+        This field never exceeds 20 entries. Status details fields contain standard
+        GCP error details."""
+        return getattr(self._gca_resource, "partial_failures")
+
+    @property
+    def completion_stats(self) -> Optional[gca_completion_stats.CompletionStats]:
+        """Statistics on completed and failed prediction instances."""
+        return getattr(self._gca_resource, "completion_stats")
 
     @classmethod
     def create(

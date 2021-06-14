@@ -586,7 +586,6 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         Only populated when the Pipeline's state is `PIPELINE_STATE_FAILED` or
         `PIPELINE_STATE_CANCELLED` or when the Job's state is `JOB_STATE_FAILED`
         or `JOB_STATE_CANCELLED`."""
-
         self._sync_gca_resource()
         return getattr(self._gca_resource, "error")
 

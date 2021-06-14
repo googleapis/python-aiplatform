@@ -18,6 +18,7 @@ import proto
 from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.api_core import operation
+from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
@@ -121,7 +122,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
     @property
-    def traffic_split(self):
+    def traffic_split(self) -> dict:
+        """A map from a DeployedModel's ID to the percentage of this Endpoint's
+        traffic that should be forwarded to that DeployedModel.
+        
+        If a DeployedModel's ID is not listed in this map, then it receives no traffic.
+        
+        The traffic percentage values must add up to 100, or map must be empty if
+        the Endpoint is to not accept any traffic at a moment.
+        """
         self._sync_gca_resource()
         return dict(self._gca_resource.traffic_split)
 
@@ -1255,19 +1264,37 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
     @property
     def supported_input_storage_formats(self) -> List[str]:
-        """The formats this Model supports in the `input_config` field of a 
+        """The formats this Model supports in the `input_config` field of a
         `BatchPredictionJob`. If `Model.predict_schemata.instance_schema_uri`
         exists, the instances should be given as per that schema.
-        
+
         [Read the docs for more on batch prediction formats](https://cloud.google.com/vertex-ai/docs/predictions/batch-predictions#batch_request_input)
-        
+
         If this Model doesn't support any of these formats it means it cannot be
-        used with a `BatchPredictionJob`.
+        used with a `BatchPredictionJob`. However, if it has
+        `supported_deployment_resources_types`, it could serve online predictions
+        by using `Endpoint.predict()` or `Endpoint.explain()`.
         """
         return list(self._gca_resource.supported_input_storage_formats)
 
     @property
     def supported_output_storage_formats(self) -> List[str]:
+        """The formats this Model supports in the `output_config` field of a
+        `BatchPredictionJob`.
+        
+        If both `Model.predict_schemata.instance_schema_uri` and 
+        `Model.predict_schemata.prediction_schema_uri` exist, the predictions
+        are returned together with their instances. In other words, the
+        prediction has the original instance data first, followed by the actual
+        prediction content (as per the schema).
+
+        [Read the docs for more on batch prediction formats](https://cloud.google.com/vertex-ai/docs/predictions/batch-predictions)
+
+        If this Model doesn't support any of these formats it means it cannot be
+        used with a `BatchPredictionJob`. However, if it has
+        `supported_deployment_resources_types`, it could serve online predictions
+        by using `Endpoint.predict()` or `Endpoint.explain()`.
+        """
         return list(self._gca_resource.supported_output_storage_formats)
 
     @property
@@ -1278,24 +1305,40 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
     @property
     def training_job(self) -> Optional["aiplatform.training_jobs._TrainingJob"]:
-        """The TrainingJob that uploaded this Model, if any."""
-        job_name = self._gca_resource.training_pipeline
+        """The TrainingJob that uploaded this Model, if any.
+
+        Raises:
+            api_core.exceptions.NotFound: If the Model's training job resource
+                cannot be found on the Vertex service.
+        """
+        job_name = getattr(self._gca_resource, "training_pipeline")
 
         if not job_name:
             return None
 
-        return aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
-            resource_name=job_name,
-            project=self.project,
-            location=self.location,
-            credentials=self.credentials,
-        )
+        try:
+            return aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
+                resource_name=job_name,
+                project=self.project,
+                location=self.location,
+                credentials=self.credentials,
+            )
+        except api_exceptions.NotFound:
+            raise api_exceptions.NotFound(
+                f"The training job used to create this model could not be found: {job_name}"
+            )
 
     @property
     def container_spec(self) -> Optional[aiplatform.gapic.ModelContainerSpec]:
         """The specification of the container that is to be used when deploying
         this Model. Not present for AutoML Models."""
         return getattr(self._gca_resource, "container_spec")
+
+    @property
+    def artifact_uri(self) -> Optional[str]:
+        """The path to the directory containing the Model artifact and any of its
+        supporting files. Not present for AutoML Models."""
+        return getattr(self._gca_resource, "artifact_uri")
 
     def __init__(
         self,

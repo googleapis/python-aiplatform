@@ -19,8 +19,10 @@ import importlib
 from concurrent import futures
 import pytest
 from unittest import mock
+from unittest.mock import patch
 
 from google.api_core import operation as ga_operation
+from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
@@ -58,6 +60,7 @@ from google.cloud.aiplatform_v1.services.job_service import client as job_servic
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client,
 )
+from google.cloud.aiplatform.compat.services import pipeline_service_client
 from google.cloud.aiplatform_v1.types import (
     batch_prediction_job as gca_batch_prediction_job,
     io as gca_io,
@@ -99,6 +102,10 @@ _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
 _TEST_STARTING_REPLICA_COUNT = 2
 _TEST_MAX_REPLICA_COUNT = 12
+
+_TEST_PIPELINE_RESOURCE_NAME = (
+    "projects/my-project/locations/us-central1/trainingPipeline/12345"
+)
 
 _TEST_BATCH_PREDICTION_GCS_SOURCE = "gs://example-bucket/folder/instance.jsonl"
 _TEST_BATCH_PREDICTION_GCS_SOURCE_LIST = [
@@ -248,6 +255,19 @@ def get_model_with_custom_project_mock():
         get_model_mock.return_value = gca_model.Model(
             display_name=_TEST_MODEL_NAME,
             name=_TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT,
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
+def get_model_with_training_job():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            name=_TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT,
+            training_pipeline=_TEST_PIPELINE_RESOURCE_NAME,
         )
         yield get_model_mock
 
@@ -455,6 +475,16 @@ def create_batch_prediction_job_with_explanations_mock():
         batch_prediction_job_mock.name = _TEST_BATCH_PREDICTION_JOB_NAME
         create_batch_prediction_job_mock.return_value = batch_prediction_job_mock
         yield create_batch_prediction_job_mock
+
+
+@pytest.fixture
+def get_training_job_non_existent_mock():
+    with patch.object(
+        pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+    ) as get_training_job_non_existent_mock:
+        get_training_job_non_existent_mock.side_effect = api_exceptions.NotFound("404")
+
+        yield get_training_job_non_existent_mock
 
 
 @pytest.fixture
@@ -1384,3 +1414,20 @@ class TestModel:
             assert e.match(
                 regexp=r"This model can not be exported as a container image."
             )
+
+    @pytest.mark.usefixtures(
+        "get_training_job_non_existent_mock", "get_model_with_training_job"
+    )
+    def test_get_and_return_subclass_not_found(self):
+        test_model = models.Model(_TEST_ID)
+
+        # Attempt to access Model's training job that no longer exists
+        with pytest.raises(api_exceptions.NotFound) as e:
+            test_model.training_job
+
+        assert e.match(
+            regexp=(
+                r"The training job used to create this model could not be found: "
+                fr"{_TEST_PIPELINE_RESOURCE_NAME}"
+            )
+        )

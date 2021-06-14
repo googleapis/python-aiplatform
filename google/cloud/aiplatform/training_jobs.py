@@ -226,10 +226,6 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
 
-        Raises:
-            api_core.exceptions.NotFound: If the provided training job's resource
-                name cannot be found on the Vertex service.
-
         Returns:
             An Vertex AI Training Job
         """
@@ -237,15 +233,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         # Retrieve training pipeline resource before class construction
         client = cls._instantiate_client(location=location, credentials=credentials)
 
-        try:
-            gca_training_pipeline = getattr(client, cls._getter_method)(
-                name=resource_name
-            )
-        except api_exceptions.NotFound:
-            raise api_exceptions.NotFound(
-                "The training job used to create this model could not be found:"
-                f" {resource_name}"
-            )
+        gca_training_pipeline = getattr(client, cls._getter_method)(name=resource_name)
 
         schema_uri = gca_training_pipeline.training_task_definition
 

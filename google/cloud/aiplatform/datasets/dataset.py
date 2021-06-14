@@ -81,12 +81,6 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         self._gca_resource = self._get_gca_resource(resource_name=dataset_name)
         self._validate_metadata_schema_uri()
 
-    # TODO(b/190008971): Use `data_item_count` once available
-    def __len__(self):
-        return list(
-            self.api_client.list_data_items(parent=self.resource_name)
-        ).__len__()
-
     @property
     def metadata_schema_uri(self) -> str:
         """The metadata schema uri of this dataset resource."""
