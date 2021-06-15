@@ -88,8 +88,7 @@ def mock_pipeline_service_create():
 
 def make_pipeline_job(state):
     return gca_pipeline_job_v1beta1.PipelineJob(
-        name=_TEST_PIPELINE_JOB_NAME,
-        state=state,
+        name=_TEST_PIPELINE_JOB_NAME, state=state,
     )
 
 
@@ -180,9 +179,7 @@ class TestPipelineJob:
         )
 
         job.run(
-            service_account=_TEST_SERVICE_ACCOUNT,
-            network=_TEST_NETWORK,
-            sync=sync,
+            service_account=_TEST_SERVICE_ACCOUNT, network=_TEST_NETWORK, sync=sync,
         )
 
         if not sync:
@@ -203,23 +200,16 @@ class TestPipelineJob:
                 },
                 "runtimeConfig": {
                     "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
-                    "parameters": {
-                        "name_param": {
-                            "stringValue": "hello",
-                        }
-                    },
+                    "parameters": {"name_param": {"stringValue": "hello"}},
                 },
             },
         )
 
         mock_pipeline_service_create.assert_called_once_with(
-            parent=_TEST_PARENT,
-            pipeline_job=expected_gapic_pipeline_job,
+            parent=_TEST_PARENT, pipeline_job=expected_gapic_pipeline_job,
         )
 
-        mock_pipeline_service_get.assert_called_with(
-            name=_TEST_PIPELINE_JOB_NAME,
-        )
+        mock_pipeline_service_get.assert_called_with(name=_TEST_PIPELINE_JOB_NAME,)
 
         assert job._gca_resource == make_pipeline_job(
             gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED

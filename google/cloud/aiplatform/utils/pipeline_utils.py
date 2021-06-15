@@ -46,9 +46,8 @@ class PipelineRuntimeConfigBuilder(object):
 
     @classmethod
     def from_job_spec_json(
-      cls,
-      job_spec: Mapping[str, Any],
-    ) -> 'PipelineRuntimeConfigBuilder':
+        cls, job_spec: Mapping[str, Any],
+    ) -> "PipelineRuntimeConfigBuilder":
         """Creates a PipelineRuntimeConfigBuilder object from PipelineJob json spec.
 
         Args:
@@ -58,13 +57,15 @@ class PipelineRuntimeConfigBuilder(object):
         Returns:
           A PipelineRuntimeConfigBuilder object.
         """
-        runtime_config_spec = job_spec['runtimeConfig']
-        parameter_input_definitions = job_spec['pipelineSpec']['root'].get(
-            'inputDefinitions', {}).get('parameters', {})
-        parameter_types = {k: v['type'] for k, v in
-                           parameter_input_definitions.items()}
+        runtime_config_spec = job_spec["runtimeConfig"]
+        parameter_input_definitions = (
+            job_spec["pipelineSpec"]["root"]
+            .get("inputDefinitions", {})
+            .get("parameters", {})
+        )
+        parameter_types = {k: v["type"] for k, v in parameter_input_definitions.items()}
 
-        pipeline_root = runtime_config_spec.get('gcsOutputDirectory')
+        pipeline_root = runtime_config_spec.get("gcsOutputDirectory")
         parameter_values = _parse_runtime_parameters(runtime_config_spec)
         return cls(pipeline_root, parameter_types, parameter_values)
 
@@ -97,19 +98,21 @@ class PipelineRuntimeConfigBuilder(object):
           ValueError: if the pipeline root is not specified.
         """
         if not self._pipeline_root:
-            raise ValueError('Pipeline root must be specified, either during '
-                             'compile time, or when calling the service.')
+            raise ValueError(
+                "Pipeline root must be specified, either during "
+                "compile time, or when calling the service."
+            )
         return {
-            'gcsOutputDirectory': self._pipeline_root,
-            'parameters': {
+            "gcsOutputDirectory": self._pipeline_root,
+            "parameters": {
                 k: self._get_vertex_value(k, v)
                 for k, v in self._parameter_values.items()
                 if v is not None
-            }
+            },
         }
 
     def _get_vertex_value(
-      self, name: str, value: Union[int, float, str]
+        self, name: str, value: Union[int, float, str]
     ) -> Dict[str, Any]:
         """Converts primitive values into Vertex pipeline Value proto message.
 
@@ -127,21 +130,23 @@ class PipelineRuntimeConfigBuilder(object):
           inputs, or value is none.
         """
         if not value:
-            raise ValueError('None values should be filterd out.')
+            raise ValueError("None values should be filterd out.")
 
         if name not in self._parameter_types:
-            raise ValueError('The pipeline parameter {} is not found in the '
-                             'pipeline job input definitions.'.format(name))
+            raise ValueError(
+                "The pipeline parameter {} is not found in the "
+                "pipeline job input definitions.".format(name)
+            )
 
         result = {}
-        if self._parameter_types[name] == 'INT':
-            result['intValue'] = value
-        elif self._parameter_types[name] == 'DOUBLE':
-            result['doubleValue'] = value
-        elif self._parameter_types[name] == 'STRING':
-            result['stringValue'] = value
+        if self._parameter_types[name] == "INT":
+            result["intValue"] = value
+        elif self._parameter_types[name] == "DOUBLE":
+            result["doubleValue"] = value
+        elif self._parameter_types[name] == "STRING":
+            result["stringValue"] = value
         else:
-            raise TypeError('Got unknown type of value: {}'.format(value))
+            raise TypeError("Got unknown type of value: {}".format(value))
 
         return result
 
@@ -154,19 +159,19 @@ def _parse_runtime_parameters(
     Raises:
         TypeError: if the parameter type is not one of 'INT', 'DOUBLE', 'STRING'.
     """
-    runtime_parameters = runtime_config_spec.get('parameters')
+    runtime_parameters = runtime_config_spec.get("parameters")
     if not runtime_parameters:
         return None
 
     result = {}
     for name, value in runtime_parameters.items():
-        if 'intValue' in value:
-            result[name] = int(value['intValue'])
-        elif 'doubleValue' in value:
-            result[name] = float(value['doubleValue'])
-        elif 'stringValue' in value:
-            result[name] = value['stringValue']
+        if "intValue" in value:
+            result[name] = int(value["intValue"])
+        elif "doubleValue" in value:
+            result[name] = float(value["doubleValue"])
+        elif "stringValue" in value:
+            result[name] = value["stringValue"]
         else:
-            raise TypeError('Got unknown type of value: {}'.format(value))
+            raise TypeError("Got unknown type of value: {}".format(value))
 
     return result

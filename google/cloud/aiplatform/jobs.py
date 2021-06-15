@@ -19,7 +19,6 @@ from typing import Iterable, Optional, Union, Sequence, Dict, List
 
 import abc
 import copy
-import sys
 import time
 
 from google.cloud import storage
@@ -568,11 +567,9 @@ class BatchPredictionJob(_Job):
         gapic_batch_prediction_job.output_config = output_config
 
         # Optional Fields
-        gapic_batch_prediction_job.encryption_spec = (
-            initializer.global_config.get_encryption_spec(
-                encryption_spec_key_name=encryption_spec_key_name,
-                select_version=select_version,
-            )
+        gapic_batch_prediction_job.encryption_spec = initializer.global_config.get_encryption_spec(
+            encryption_spec_key_name=encryption_spec_key_name,
+            select_version=select_version,
         )
 
         if model_parameters:
@@ -604,10 +601,8 @@ class BatchPredictionJob(_Job):
             gapic_batch_prediction_job.generate_explanation = generate_explanation
 
         if explanation_metadata or explanation_parameters:
-            gapic_batch_prediction_job.explanation_spec = (
-                gca_explanation_v1beta1.ExplanationSpec(
-                    metadata=explanation_metadata, parameters=explanation_parameters
-                )
+            gapic_batch_prediction_job.explanation_spec = gca_explanation_v1beta1.ExplanationSpec(
+                metadata=explanation_metadata, parameters=explanation_parameters
             )
 
         # TODO (b/174502913): Support private feature once released
@@ -1088,23 +1083,19 @@ class CustomJob(_RunnableJob):
                 "should be set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
 
-        worker_pool_specs = (
-            worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
-                replica_count=replica_count,
-                machine_type=machine_type,
-                accelerator_count=accelerator_count,
-                accelerator_type=accelerator_type,
-            ).pool_specs
-        )
+        worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+            replica_count=replica_count,
+            machine_type=machine_type,
+            accelerator_count=accelerator_count,
+            accelerator_type=accelerator_type,
+        ).pool_specs
 
         python_packager = source_utils._TrainingScriptPythonPackager(
             script_path=script_path, requirements=requirements
         )
 
         package_gcs_uri = python_packager.package_and_copy_to_gcs(
-            gcs_staging_dir=staging_bucket,
-            project=project,
-            credentials=credentials,
+            gcs_staging_dir=staging_bucket, project=project, credentials=credentials,
         )
 
         for spec in worker_pool_specs:
@@ -1429,18 +1420,16 @@ class HyperparameterTuningJob(_RunnableJob):
             ],
         )
 
-        self._gca_resource = (
-            gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
-                display_name=display_name,
-                study_spec=study_spec,
-                max_trial_count=max_trial_count,
-                parallel_trial_count=parallel_trial_count,
-                max_failed_trial_count=max_failed_trial_count,
-                trial_job_spec=copy.deepcopy(custom_job.job_spec),
-                encryption_spec=initializer.global_config.get_encryption_spec(
-                    encryption_spec_key_name=encryption_spec_key_name
-                ),
-            )
+        self._gca_resource = gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
+            display_name=display_name,
+            study_spec=study_spec,
+            max_trial_count=max_trial_count,
+            parallel_trial_count=parallel_trial_count,
+            max_failed_trial_count=max_failed_trial_count,
+            trial_job_spec=copy.deepcopy(custom_job.job_spec),
+            encryption_spec=initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            ),
         )
 
     @base.optional_sync()
@@ -1499,11 +1488,9 @@ class HyperparameterTuningJob(_RunnableJob):
 
         if timeout or restart_job_on_worker_restart:
             duration = duration_pb2.Duration(seconds=timeout) if timeout else None
-            self._gca_resource.trial_job_spec.scheduling = (
-                gca_custom_job_compat.Scheduling(
-                    timeout=duration,
-                    restart_job_on_worker_restart=restart_job_on_worker_restart,
-                )
+            self._gca_resource.trial_job_spec.scheduling = gca_custom_job_compat.Scheduling(
+                timeout=duration,
+                restart_job_on_worker_restart=restart_job_on_worker_restart,
             )
 
         if tensorboard:
