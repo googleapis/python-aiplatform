@@ -166,7 +166,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 doesn't match the custom training task definition.
 
         Returns:
-            An Vertex AI Training Job
+            A Vertex AI Training Job
         """
 
         # Create job with dummy parameters
@@ -226,7 +226,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            An Vertex AI Training Job
+            A Vertex AI Training Job
         """
 
         # Retrieve training pipeline resource before class construction
@@ -651,7 +651,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         """Helper method to get and instantiate the Model to Upload.
 
         Returns:
-            model: Vertex AI Model if training succeeded and produced an Vertex AI
+            model: Vertex AI Model if training succeeded and produced a Vertex AI
                 Model. None otherwise.
 
         Raises:
@@ -1163,7 +1163,7 @@ class _CustomTrainingJob(_TrainingJob):
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -1631,7 +1631,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -1652,7 +1652,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -1801,7 +1801,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -1822,7 +1822,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
         package_gcs_uri = python_packager.package_and_copy_to_gcs(
             gcs_staging_dir=self._staging_bucket,
@@ -2246,7 +2246,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -2267,7 +2267,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run, staging_bucket has not
@@ -2410,7 +2410,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -2431,7 +2431,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         for spec in worker_pool_specs:
@@ -2697,7 +2697,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -2815,7 +2815,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         training_task_definition = schema.training_job.definition.automl_tabular
@@ -3099,7 +3099,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError if Training job has already been run or is waiting to run.
@@ -3284,7 +3284,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         training_task_definition = schema.training_job.definition.automl_forecasting
@@ -3578,7 +3578,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -3679,7 +3679,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         # Retrieve the objective-specific training task schema based on prediction_type
@@ -4115,7 +4115,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -4136,7 +4136,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -4261,7 +4261,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -4282,7 +4282,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
         for spec in worker_pool_specs:
             spec["python_package_spec"] = {
@@ -4489,7 +4489,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -4553,7 +4553,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         # Retrieve the objective-specific training task schema based on prediction_type
@@ -4831,7 +4831,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         if model_display_name is None:

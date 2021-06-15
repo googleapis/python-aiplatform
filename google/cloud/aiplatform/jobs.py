@@ -866,7 +866,7 @@ class _RunnableJob(_Job):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "_RunnableJob":
-        """Get an Vertex AI Job for the given resource_name.
+        """Get a Vertex AI Job for the given resource_name.
 
         Args:
             resource_name (str):
@@ -882,7 +882,7 @@ class _RunnableJob(_Job):
                 credentials set in aiplatform.init.
 
         Returns:
-            An Vertex AI Job.
+            A Vertex AI Job.
         """
         self = cls._empty_constructor(
             project=project,
@@ -1181,7 +1181,7 @@ class CustomJob(_RunnableJob):
                 distributed training jobs that are not resilient
                 to workers leaving and joining a job.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -1497,7 +1497,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 distributed training jobs that are not resilient
                 to workers leaving and joining a job.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:

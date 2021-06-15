@@ -267,7 +267,7 @@ class _Config:
 
         Args:
             client_class (utils.VertexAiServiceClientWithOverride):
-                (Required) An Vertex AI Service Client with optional overrides.
+                (Required) A Vertex AI Service Client with optional overrides.
             credentials (auth_credentials.Credentials):
                 Custom auth credentials. If not provided will use the current config.
             location_override (str): Optional location override.

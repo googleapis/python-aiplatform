@@ -870,7 +870,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
 
         Args:
             gapic_resource (proto.Message):
-                A GAPIC representation of an Vertex AI resource, usually
+                A GAPIC representation of a Vertex AI resource, usually
                 retrieved by a get_* or in a list_* API call.
             project (str):
                 Optional. Project to construct SDK object from. If not set,
