@@ -15,28 +15,22 @@
 # limitations under the License.
 #
 
+import datetime
 import time
-from typing import Any, Optional, Dict, List
-
 import re
-import sys
+from typing import Any, Optional, Dict
 
 from google.auth import credentials as auth_credentials
-
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import json_utils
 from google.cloud.aiplatform.utils import pipeline_utils
 
-from google.cloud.aiplatform.compat.services import pipeline_service_client
 from google.cloud.aiplatform.compat.types import (
     pipeline_job_v1beta1 as gca_pipeline_job_v1beta1,
     pipeline_state_v1beta1 as gca_pipeline_state_v1beta1,
 )
-
-from google.rpc import code_pb2
 
 _LOGGER = base.Logger(__name__)
 
@@ -56,6 +50,11 @@ _JOB_NAME_PATTERN = "{parent}/pipelineJobs/{job_id}"
 _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
 
 
+def _get_current_time() -> datetime.datetime:
+    """Gets the current timestamp."""
+    return datetime.datetime.now()
+
+
 def _set_enable_caching_value(
     pipeline_spec: Dict[str, Any], enable_caching: bool
 ) -> None:
@@ -63,9 +62,9 @@ def _set_enable_caching_value(
 
     Args:
      pipeline_spec (Dict[str, Any]):
-          The dictionary of pipeline spec.
+          Required. The dictionary of pipeline spec.
      enable_caching (bool):
-          Whether to enable caching.
+          Required. Whether to enable caching.
     """
     for component in [pipeline_spec["root"]] + list(
         pipeline_spec["components"].values()
@@ -82,8 +81,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
     _resource_noun = "pipelineJobs"
     _getter_method = "get_pipeline_job"
-    _list_method = "list_pipeline_jobs"
-    _cancel_method = "cancel_pipeline_job"
     _delete_method = "delete_pipeline_job"
 
     def __init__(
@@ -93,7 +90,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         job_id: Optional[str] = None,
         pipeline_root: Optional[str] = None,
         parameter_values: Optional[Dict[str, Any]] = None,
-        enable_caching: bool = True,
+        enable_caching: Optional[bool] = True,
         encryption_spec_key_name: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -118,7 +115,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 Optional. The mapping from runtime parameter names to its values that
                 control the pipeline run.
             enable_caching (bool):
-                Required. Whether to turn on caching for the run. Defaults to True.
+                Optional. Whether to turn on caching for the run. Defaults to True.
             encryption_spec_key_name (str):
                 Optional. The Cloud KMS resource identifier of the customer
                 managed encryption key used to protect the job. Has the
@@ -145,9 +142,17 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 location set in aiplatform.init will be used.
 
         Raises:
-            ValueError: If inputs are formatted wrong.
+            ValueError: If job_id or labels have incorrect format.
         """
         utils.validate_display_name(display_name)
+
+        if labels:
+            for k, v in labels.items():
+                if not isinstance(k, str) or not isinstance(v, str):
+                    raise ValueError(
+                        "Expect labels to be a mapping of string key value pairs. "
+                        'Got "{}".'.format(labels)
+                    )
 
         super().__init__(project=project, location=location, credentials=credentials)
 
@@ -192,13 +197,6 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             pipeline_spec["encryptionSpec"] = {"kmsKeyName": encryption_spec_key_name}
 
         if labels:
-            for k, v in labels.items():
-                if not isinstance(k, str) or not isinstance(v, str):
-                    raise ValueError(
-                        "Expect labels to be a mapping of string key value pairs. "
-                        'Got "{}".'.format(labels)
-                    )
-
             pipeline_spec["labels"] = labels
 
         self._gca_resource = gca_pipeline_job_v1beta1.PipelineJob(
@@ -215,7 +213,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         self,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
-        sync: bool = True,
+        sync: Optional[bool] = True,
     ) -> None:
         """Run this configured PipelineJob.
 
@@ -229,8 +227,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will unblock and it will be executed in a concurrent Future.
+                Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
         """
         if service_account:
             self._gca_resource.pipeline_spec.service_account = service_account
@@ -268,7 +265,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     @property
     def _has_run(self) -> bool:
         """Helper property to check if this pipeline job has been run."""
-        return self._gca_resource is not None
+        return bool(self._gca_resource.name)
 
     @property
     def has_failed(self) -> bool:

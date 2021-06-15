@@ -21,14 +21,17 @@ from typing import Any, Dict, Optional
 from google.auth import credentials as auth_credentials
 from google.cloud import storage
 
+
 def load_json(path: str,
-        project: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None) -> Dict[str, Any]:
+              project: Optional[str] = None,
+              credentials: Optional[auth_credentials.Credentials] = None
+              ) -> Dict[str, Any]:
     """Loads data from a JSON document.
 
     Args:
       path (str):
-          Required. The path of the JSON document in Google Cloud Storage or local.
+          Required. The path of the JSON document in Google Cloud Storage or
+          local.
       project (str):
           Optional. Project to initiate the Storage client with.
       credentials (auth_credentials.Credentials):
@@ -38,13 +41,15 @@ def load_json(path: str,
       A Dict object representing the JSON document.
     """
     if path.startswith('gs://'):
-      return _load_json_from_gs_uri(path, project,credentials)
+        return _load_json_from_gs_uri(path, project, credentials)
     else:
-      return _load_json_from_local_file(path)
+        return _load_json_from_local_file(path)
 
 
-def _load_json_from_gs_uri(uri: str, project: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None) -> Dict[str, Any]:
+def _load_json_from_gs_uri(uri: str,
+                           project: Optional[str] = None,
+                           credentials: Optional[auth_credentials.Credentials]
+                           = None) -> Dict[str, Any]:
     """Loads data from a JSON document referenced by a GCS URI.
 
     Args:
@@ -74,4 +79,4 @@ def _load_json_from_local_file(file_path: str) -> Dict[str, Any]:
       A Dict object representing the JSON document.
     """
     with open(file_path) as f:
-      return json.load(f)
+        return json.load(f)

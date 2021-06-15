@@ -29,7 +29,6 @@ from google.cloud import storage
 
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.utils import json_utils
 
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
     client as pipeline_service_client_v1beta1,
