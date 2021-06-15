@@ -242,10 +242,7 @@ class TestAutoMLTabularTrainingJob:
         column_specs[
             _TEST_TRAINING_COLUMN_NAMES[0]
         ] = aiplatform.column.data_types.NUMERIC
-        column_specs[
-            _TEST_TRAINING_COLUMN_NAMES[0]
-        ] = aiplatform.column.data_types.AUTO
-
+        column_specs[_TEST_TRAINING_COLUMN_NAMES[0]] = aiplatform.column.data_types.AUTO
 
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,

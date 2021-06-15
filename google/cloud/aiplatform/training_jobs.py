@@ -2665,9 +2665,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             for transformation in column_transformations:
                 for data_type in transformation:
                     column = transformation[data_type]
-                    if column['column_name'] not in column_names:
+                    if column["column_name"] not in column_names:
                         raise ValueError(f"'{column}' is not in the dataset.")
-                    if column['column_name'] is target_column:
+                    if column["column_name"] is target_column:
                         raise ValueError("Target column is in transformations.")
         # auto-populate transformations
         if column_transformations is None:

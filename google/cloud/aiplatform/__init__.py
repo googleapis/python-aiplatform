@@ -45,7 +45,6 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
 )
-from google.cloud.aiplatform.column import data_types
 
 """
 Usage:
