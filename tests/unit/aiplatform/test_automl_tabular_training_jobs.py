@@ -51,7 +51,7 @@ _TEST_TRAINING_COLUMN_TRANSFORMATIONS = [
     {"auto": {"column_name": "petal_length"}},
     {"auto": {"column_name": "petal_width"}},
 ]
-__TEST_TRAINING_COLUMN_SPECS = {
+_TEST_TRAINING_COLUMN_SPECS = {
     "sepal_width": "auto",
     "sepal_length": "auto",
     "sepal_width": "auto",
@@ -238,7 +238,7 @@ class TestAutoMLTabularTrainingJob:
             dataset=mock_dataset_tabular, target_column=_TEST_TRAINING_TARGET_COLUMN,
         )
 
-        assert column_specs == __TEST_TRAINING_COLUMN_SPECS
+        assert column_specs == _TEST_TRAINING_COLUMN_SPECS
         column_specs[
             _TEST_TRAINING_COLUMN_NAMES[0]
         ] = aiplatform.column.data_types.NUMERIC
@@ -329,7 +329,7 @@ class TestAutoMLTabularTrainingJob:
             dataset=mock_dataset_tabular, target_column=_TEST_TRAINING_TARGET_COLUMN,
         )
 
-        assert column_specs == __TEST_TRAINING_COLUMN_SPECS
+        assert column_specs == _TEST_TRAINING_COLUMN_SPECS
 
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
