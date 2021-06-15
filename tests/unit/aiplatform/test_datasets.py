@@ -1005,44 +1005,6 @@ class TestTabularDataset:
 
         assert my_dataset.column_names == ["column_1", "column_2"]
 
-    @pytest.mark.usefixtures(
-        "get_dataset_tabular_gcs_mock", "gcs_client_download_as_bytes_mock"
-    )
-    def test_tabular_dataset_column_name_gcs(self):
-        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
-
-        with pytest.raises(ValueError):
-            my_dataset.auto_column_specs("column_3")
-
-    @pytest.mark.usefixtures(
-        "get_dataset_tabular_gcs_mock", "gcs_client_download_as_bytes_mock"
-    )
-    def test_tabular_dataset_column_name_gcs(self):
-        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
-
-        assert my_dataset.auto_column_specs("column_2") == {"column_1": "auto"}
-
-    @pytest.mark.usefixtures(
-        "get_dataset_tabular_bq_mock",
-        "bigquery_client_mock",
-        "bigquery_table_schema_mock",
-    )
-    def test_tabular_dataset_column_name_bigquery(self):
-        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
-
-        with pytest.raises(ValueError):
-            my_dataset.auto_column_specs("column_3")
-
-    @pytest.mark.usefixtures(
-        "get_dataset_tabular_bq_mock",
-        "bigquery_client_mock",
-        "bigquery_table_schema_mock",
-    )
-    def test_tabular_dataset_column_name_bigquery(self):
-        my_dataset = datasets.TabularDataset(dataset_name=_TEST_NAME)
-
-        assert my_dataset.auto_column_specs("column_2") == {"column_1": "auto"}
-
 
 class TestTextDataset:
     def setup_method(self):

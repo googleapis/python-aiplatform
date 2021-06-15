@@ -18,7 +18,7 @@
 import csv
 import logging
 
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
@@ -38,29 +38,6 @@ class TabularDataset(datasets._Dataset):
     _supported_metadata_schema_uris: Optional[Tuple[str]] = (
         schema.dataset.metadata.tabular,
     )
-
-    def auto_column_specs(self, target_column: str) -> Dict[str, str]:
-        """Returns a dict with all non-target columns as keys and 'auto' as values.
-        Args:
-            target_column(str):
-                Required. Intended target column.
-        Returns:
-            Dict[str, str]
-                Column names as keys and 'auto' as values
-
-        Raises:
-            RuntimeError: When no valid source is found.
-            ValueError: When target_column is not in dataset
-        """
-        if target_column is not in self.column_names:
-            raise ValueError("Target column not in dataset.")
-        column_names = [
-            column
-            for column in self.column_names
-            if column != target_column
-        ]
-        column_specs = {column: 'auto' for column in column_names}
-        return column_specs
 
     @property
     def column_names(self) -> List[str]:

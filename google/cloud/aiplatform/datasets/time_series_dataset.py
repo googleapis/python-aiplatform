@@ -26,7 +26,7 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 
 
-#TODO: extend tabular dataset
+# TODO: extend tabular dataset
 class TimeSeriesDataset(datasets._Dataset):
     """Managed time series dataset resource for Vertex AI"""
 

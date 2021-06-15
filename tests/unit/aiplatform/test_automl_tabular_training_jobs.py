@@ -233,11 +233,20 @@ class TestAutoMLTabularTrainingJob:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
+        column_specs = training_jobs.AutoMLTabularTrainingJob.get_auto_column_specs(
+            dataset=mock_dataset_tabular, target_column=_TEST_TRAINING_TARGET_COLUMN,
+        )
+
+        assert column_specs == __TEST_TRAINING_COLUMN_SPECS
+        column_specs[
+            _TEST_TRAINING_COLUMN_NAMES[0]
+        ] = aiplatform.column.data_types.NUMERIC
+
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
-            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            column_specs=column_specs,
             optimization_objective_recall_value=None,
             optimization_objective_precision_value=None,
         )
@@ -315,11 +324,17 @@ class TestAutoMLTabularTrainingJob:
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
+        column_specs = training_jobs.AutoMLTabularTrainingJob.get_auto_column_specs(
+            dataset=mock_dataset_tabular, target_column=_TEST_TRAINING_TARGET_COLUMN,
+        )
+
+        assert column_specs == __TEST_TRAINING_COLUMN_SPECS
+
         job = training_jobs.AutoMLTabularTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
-            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            column_specs=column_specs,
             optimization_objective_recall_value=None,
             optimization_objective_precision_value=None,
             training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,

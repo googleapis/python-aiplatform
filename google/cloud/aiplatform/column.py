@@ -17,6 +17,7 @@
 
 """Vertex AI tabular data types"""
 
+
 class data_types:
     AUTO = "auto"
     NUMERIC = "numeric"

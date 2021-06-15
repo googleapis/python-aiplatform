@@ -2657,13 +2657,14 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             column_transformations = self._column_transformations
         if self._column_specs is not None and column_transformations is None:
             column_transformations = [
-                {self._column_specs[column]: {"column_name": column}} for column in self._column_specs
+                {self._column_specs[column]: {"column_name": column}}
+                for column in self._column_specs
             ]
         if column_transformations is not None:
             column_names = dataset.column_names
             for transformation in column_transformations:
                 for data_type in transformation:
-                    column = transformation[data_type][column_name]
+                    column = transformation[data_type]
                     if column not in column_names:
                         raise ValueError(f"'{column}' is not in the dataset.")
                     if column is target_column:
@@ -2742,8 +2743,34 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         """
         self._additional_experiments.extend(additional_experiments)
 
+    @classmethod
+    def get_auto_column_specs(
+        self, dataset: datasets.TabularDataset, target_column: str,
+    ) -> Dict[str, str]:
+        """Returns a dict with all non-target columns as keys and 'auto' as values.
+        Args:
+            dataset (datasets.TabularDataset):
+                Required. Intended dataset.
+            target_column(str):
+                Required. Intended target column.
+        Returns:
+            Dict[str, str]
+                Column names as keys and 'auto' as values
 
-#TODO: add tabular sugar to forecasting
+        Raises:
+            RuntimeError: When no valid source is found.
+            ValueError: When target_column is not in dataset
+        """
+        if target_column not in dataset.column_names:
+            raise ValueError("Target column not in dataset.")
+        column_names = [
+            column for column in dataset.column_names if column != target_column
+        ]
+        column_specs = {column: "auto" for column in column_names}
+        return column_specs
+
+
+# TODO: add tabular sugar to forecasting
 class AutoMLForecastingTrainingJob(_TrainingJob):
     _supported_training_schemas = (schema.training_job.definition.automl_forecasting,)
 
