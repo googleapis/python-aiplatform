@@ -306,7 +306,7 @@ class BatchPredictionJob(_Job):
         )
 
     @property
-    def output_info(self):
+    def output_info(self,) -> Optional[aiplatform.gapic.BatchPredictionJob.OutputInfo]:
         """Information describing the output of this job, including output location
         into which prediction output is written.
 

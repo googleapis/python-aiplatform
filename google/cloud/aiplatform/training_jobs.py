@@ -222,7 +222,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 Optional location to retrieve dataset from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
 
         Returns:

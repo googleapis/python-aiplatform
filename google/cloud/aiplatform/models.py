@@ -122,7 +122,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
     @property
-    def traffic_split(self) -> dict:
+    def traffic_split(self) -> Dict[str, int]:
         """A map from a DeployedModel's ID to the percentage of this Endpoint's
         traffic that should be forwarded to that DeployedModel.
 
@@ -1333,12 +1333,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """The specification of the container that is to be used when deploying
         this Model. Not present for AutoML Models."""
         return getattr(self._gca_resource, "container_spec")
-
-    @property
-    def artifact_uri(self) -> Optional[str]:
-        """The path to the directory containing the Model artifact and any of its
-        supporting files. Not present for AutoML Models."""
-        return getattr(self._gca_resource, "artifact_uri")
 
     def __init__(
         self,
