@@ -125,9 +125,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
     def traffic_split(self) -> dict:
         """A map from a DeployedModel's ID to the percentage of this Endpoint's
         traffic that should be forwarded to that DeployedModel.
-        
+
         If a DeployedModel's ID is not listed in this map, then it receives no traffic.
-        
+
         The traffic percentage values must add up to 100, or map must be empty if
         the Endpoint is to not accept any traffic at a moment.
         """
@@ -1281,8 +1281,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def supported_output_storage_formats(self) -> List[str]:
         """The formats this Model supports in the `output_config` field of a
         `BatchPredictionJob`.
-        
-        If both `Model.predict_schemata.instance_schema_uri` and 
+
+        If both `Model.predict_schemata.instance_schema_uri` and
         `Model.predict_schemata.prediction_schema_uri` exist, the predictions
         are returned together with their instances. In other words, the
         prediction has the original instance data first, followed by the actual

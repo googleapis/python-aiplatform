@@ -309,7 +309,7 @@ class BatchPredictionJob(_Job):
     def output_info(self):
         """Information describing the output of this job, including output location
         into which prediction output is written.
-        
+
         This is only available for batch predicition jobs that have run successfully.
         """
         return self._gca_resource.output_info

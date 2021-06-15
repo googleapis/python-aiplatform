@@ -21,7 +21,6 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 import abc
 
 from google.auth import credentials as auth_credentials
-from google.api_core import exceptions as api_exceptions
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import datasets
