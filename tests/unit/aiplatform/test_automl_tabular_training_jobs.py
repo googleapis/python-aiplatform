@@ -42,6 +42,7 @@ _TEST_TRAINING_COLUMN_NAMES = [
     "sepal_length",
     "petal_length",
     "petal_width",
+    "target",
 ]
 
 _TEST_TRAINING_COLUMN_TRANSFORMATIONS = [
