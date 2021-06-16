@@ -43,7 +43,6 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
-from google.rpc import status_pb2
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
