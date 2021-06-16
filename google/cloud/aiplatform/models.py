@@ -1274,6 +1274,20 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def supported_deployment_resources_types(
         self,
     ) -> List[aiplatform.gapic.Model.DeploymentResourcesType]:
+        """List of deployment resource types accepted for this Model.
+
+        When this Model is deployed, its prediction resources are described by
+        the `prediction_resources` field of the objects returned by
+        `Endpoint.list_models()`. Because not all Models support all resource
+        configuration types, the configuration types this Model supports are
+        listed here.
+
+        If no configuration types are listed, the Model cannot be
+        deployed to an `Endpoint` and does not support online predictions
+        (`Endpoint.predict()` or `Endpoint.explain()`). Such a Model can serve
+        predictions by using a `BatchPredictionJob`, if it has at least one entry
+        each in `Model.supported_input_storage_formats` and
+        `Model.supported_output_storage_formats`."""
         return list(self._gca_resource.supported_deployment_resources_types)
 
     @property

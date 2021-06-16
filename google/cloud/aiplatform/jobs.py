@@ -24,13 +24,12 @@ import sys
 import time
 import logging
 
-from google.rpc import status_pb2
-
 from google.cloud import storage
 from google.cloud import bigquery
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import duration_pb2  # type: ignore
+from google.rpc import status_pb2
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
