@@ -27,7 +27,6 @@ def create_endpoint_sample(
 
     print(endpoint.display_name)
     print(endpoint.resource_name)
-    print(endpoint.uri)
     return endpoint
 
 
