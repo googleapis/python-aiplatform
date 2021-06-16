@@ -134,6 +134,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         self._sync_gca_resource()
         return dict(self._gca_resource.traffic_split)
 
+    @property
+    def network(self) -> Optional[str]:
+        """The full name of the Google Compute Engine
+        [network](https://cloud.google.com/vpc/docs/vpc#networks) to which this
+        Endpoint should be peered.
+
+        Takes the format `projects/{project}/global/networks/{network}`. Where
+        {project} is a project number, as in `12345`, and {network} is a network name.
+
+        Private services access must already be configured for the network. If left
+        unspecified, the Endpoint is not peered with any network.
+        """
+        return getattr(self._gca_resource, "network")
+
     @classmethod
     def create(
         cls,

@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import datetime
 import time
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
@@ -46,6 +47,7 @@ from google.cloud.aiplatform.v1.schema.trainingjob import (
 )
 
 from google.rpc import code_pb2
+from google.rpc import status_pb2
 
 import proto
 
@@ -137,6 +139,28 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
     def _supported_training_schemas(cls) -> Tuple[str]:
         """List of supported schemas for this training job."""
         pass
+
+    @property
+    def start_time(self) -> Optional[datetime.datetime]:
+        """Time when the TrainingJob entered the `PIPELINE_STATE_RUNNING` for
+        the first time."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "start_time")
+
+    @property
+    def end_time(self) -> Optional[datetime.datetime]:
+        """Time when the TrainingJob resource entered the `PIPELINE_STATE_SUCCEEDED`,
+        `PIPELINE_STATE_FAILED`, `PIPELINE_STATE_CANCELLED` state."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "end_time")
+
+    @property
+    def error(self) -> Optional[status_pb2.Status]:
+        """Detailed error info for this TrainingJob resource. Only populated when
+        the TrainingJob's state is `PIPELINE_STATE_FAILED` or
+        `PIPELINE_STATE_CANCELLED`."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "error")
 
     @classmethod
     def get(
@@ -1064,6 +1088,21 @@ class _CustomTrainingJob(_TrainingJob):
         # once Custom Job is known we log the console uri and the tensorboard uri
         # this flags keeps that state so we don't log it multiple times
         self._has_logged_custom_job = False
+
+    @property
+    def network(self) -> Optional[str]:
+        """The full name of the Google Compute Engine
+        [network](https://cloud.google.com/vpc/docs/vpc#networks) to which this
+        CustomTrainingJob should be peered.
+
+        Takes the format `projects/{project}/global/networks/{network}`. Where
+        {project} is a project number, as in `12345`, and {network} is a network name.
+
+        Private services access must already be configured for the network. If left
+        unspecified, the CustomTrainingJob is not peered with any network.
+        """
+        # Return `network` value in training task inputs if set in Map
+        return self._gca_resource.training_task_inputs.get("network")
 
     def _prepare_and_validate_run(
         self,

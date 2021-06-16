@@ -19,6 +19,7 @@ from typing import Iterable, Optional, Union, Sequence, Dict, List
 
 import abc
 import copy
+import datetime
 import sys
 import time
 import logging
@@ -141,6 +142,27 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
         self._sync_gca_resource()
 
         return self._gca_resource.state
+
+    @property
+    def start_time(self) -> Optional[datetime.datetime]:
+        """Time when the Job resource entered the `JOB_STATE_RUNNING` for the
+        first time."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "start_time")
+
+    @property
+    def end_time(self) -> Optional[datetime.datetime]:
+        """Time when the Job resource entered the `JOB_STATE_SUCCEEDED`,
+        `JOB_STATE_FAILED`, or `JOB_STATE_CANCELLED` state."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "end_time")
+
+    @property
+    def error(self) -> Optional[status_pb2.Status]:
+        """Detailed error info for this Job resource. Only populated when the
+        Job's state is `JOB_STATE_FAILED` or `JOB_STATE_CANCELLED`."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "error")
 
     @property
     @abc.abstractmethod
@@ -911,7 +933,7 @@ class CustomJob(_RunnableJob):
 
     _resource_noun = "customJobs"
     _getter_method = "get_custom_job"
-    _list_method = "list_custom_job"
+    _list_method = "list_custom_jobs"
     _cancel_method = "cancel_custom_job"
     _delete_method = "delete_custom_job"
     _job_type = "training"
@@ -1010,6 +1032,20 @@ class CustomJob(_RunnableJob):
                 encryption_spec_key_name=encryption_spec_key_name
             ),
         )
+
+    @property
+    def network(self) -> Optional[str]:
+        """The full name of the Google Compute Engine
+        [network](https://cloud.google.com/vpc/docs/vpc#networks) to which this
+        CustomJob should be peered.
+
+        Takes the format `projects/{project}/global/networks/{network}`. Where
+        {project} is a project number, as in `12345`, and {network} is a network name.
+
+        Private services access must already be configured for the network. If left
+        unspecified, the CustomJob is not peered with any network.
+        """
+        return getattr(self._gca_resource, "network")
 
     @classmethod
     def from_local_script(
@@ -1467,6 +1503,20 @@ class HyperparameterTuningJob(_RunnableJob):
                 encryption_spec_key_name=encryption_spec_key_name
             ),
         )
+
+    @property
+    def network(self) -> Optional[str]:
+        """The full name of the Google Compute Engine
+        [network](https://cloud.google.com/vpc/docs/vpc#networks) to which this
+        HyperparameterTuningJob should be peered.
+
+        Takes the format `projects/{project}/global/networks/{network}`. Where
+        {project} is a project number, as in `12345`, and {network} is a network name.
+
+        Private services access must already be configured for the network. If left
+        unspecified, the HyperparameterTuningJob is not peered with any network.
+        """
+        return getattr(self._gca_resource.trial_job_spec, "network")
 
     @base.optional_sync()
     def run(
