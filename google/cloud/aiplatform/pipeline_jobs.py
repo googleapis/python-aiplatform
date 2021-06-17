@@ -26,6 +26,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import json_utils
 from google.cloud.aiplatform.utils import pipeline_utils
+from google.protobuf import json_format
 
 from google.cloud.aiplatform.compat.types import (
     pipeline_job_v1beta1 as gca_pipeline_job_v1beta1,
@@ -159,11 +160,16 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         self._parent = initializer.global_config.common_location_path(
             project=project, location=location
         )
-        pipeline_root = pipeline_root or initializer.global_config.staging_bucket
-        pipeline_spec = json_utils.load_json(
+        pipeline_job = json_utils.load_json(
             template_path, self.project, self.credentials
         )
-        pipeline_name = pipeline_spec["pipelineSpec"]["pipelineInfo"]["name"]
+        pipeline_root = (
+            pipeline_root
+            or pipeline_job["runtimeConfig"].get("gcsOutputDirectory")
+            or initializer.global_config.staging_bucket
+        )
+
+        pipeline_name = pipeline_job["pipelineSpec"]["pipelineInfo"]["name"]
         job_id = job_id or "{pipeline_name}-{timestamp}".format(
             pipeline_name=re.sub("[^-0-9a-z]+", "-", pipeline_name.lower())
             .lstrip("-")
@@ -177,32 +183,22 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 '"[a-z][-a-z0-9]{{0,127}}"'.format(job_id)
             )
 
-        job_name = _JOB_NAME_PATTERN.format(parent=self._parent, job_id=job_id)
-
-        pipeline_spec["name"] = job_name
-        pipeline_spec["displayName"] = job_id
-
         builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
-            pipeline_spec
+            pipeline_job
         )
         builder.update_pipeline_root(pipeline_root)
         builder.update_runtime_parameters(parameter_values)
+        runtime_config_dict = builder.build()
+        runtime_config = gca_pipeline_job_v1beta1.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(runtime_config_dict, runtime_config)
 
-        runtime_config = builder.build()
-        pipeline_spec["runtimeConfig"] = runtime_config
-
-        _set_enable_caching_value(pipeline_spec["pipelineSpec"], enable_caching)
-
-        if encryption_spec_key_name is not None:
-            pipeline_spec["encryptionSpec"] = {"kmsKeyName": encryption_spec_key_name}
-
-        if labels:
-            pipeline_spec["labels"] = labels
+        _set_enable_caching_value(pipeline_job["pipelineSpec"], enable_caching)
 
         self._gca_resource = gca_pipeline_job_v1beta1.PipelineJob(
             display_name=display_name,
-            pipeline_spec=pipeline_spec,
+            pipeline_spec=pipeline_job["pipelineSpec"],
             labels=labels,
+            runtime_config=runtime_config,
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),

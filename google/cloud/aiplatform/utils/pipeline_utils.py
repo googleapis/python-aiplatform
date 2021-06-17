@@ -103,7 +103,7 @@ class PipelineRuntimeConfigBuilder(object):
                 "compile time, or when calling the service."
             )
         return {
-            "gcsOutputDirectory": self._pipeline_root,
+            "gcs_output_directory": self._pipeline_root,
             "parameters": {
                 k: self._get_vertex_value(k, v)
                 for k, v in self._parameter_values.items()

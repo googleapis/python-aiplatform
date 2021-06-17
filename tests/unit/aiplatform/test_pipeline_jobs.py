@@ -29,11 +29,11 @@ from google.cloud import storage
 
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform import initializer
+from google.protobuf import json_format
 
 from google.cloud.aiplatform_v1beta1.services.pipeline_service import (
     client as pipeline_service_client_v1beta1,
 )
-
 from google.cloud.aiplatform_v1beta1.types import (
     pipeline_job as gca_pipeline_job_v1beta1,
     pipeline_state as gca_pipeline_state_v1beta1,
@@ -185,31 +185,29 @@ class TestPipelineJob:
         if not sync:
             job.wait()
 
+        expected_runtime_config_dict = {
+            "gcs_output_directory": _TEST_GCS_BUCKET_NAME,
+            "parameters": {"name_param": {"stringValue": "hello"}},
+        }
+        runtime_config = gca_pipeline_job_v1beta1.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
         # Construct expected request
         expected_gapic_pipeline_job = gca_pipeline_job_v1beta1.PipelineJob(
             display_name=_TEST_PIPELINE_JOB_ID,
             pipeline_spec={
-                "displayName": _TEST_PIPELINE_JOB_ID,
-                "name": _TEST_PIPELINE_JOB_NAME,
-                "pipelineSpec": {
-                    "components": {},
-                    "pipelineInfo": _TEST_PIPELINE_JOB_SPEC["pipelineSpec"][
-                        "pipelineInfo"
-                    ],
-                    "root": _TEST_PIPELINE_JOB_SPEC["pipelineSpec"]["root"],
-                },
-                "runtimeConfig": {
-                    "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
-                    "parameters": {"name_param": {"stringValue": "hello"}},
-                },
+                "components": {},
+                "pipelineInfo": _TEST_PIPELINE_JOB_SPEC["pipelineSpec"]["pipelineInfo"],
+                "root": _TEST_PIPELINE_JOB_SPEC["pipelineSpec"]["root"],
             },
+            runtime_config=runtime_config,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
             parent=_TEST_PARENT, pipeline_job=expected_gapic_pipeline_job,
         )
 
-        mock_pipeline_service_get.assert_called_with(name=_TEST_PIPELINE_JOB_NAME,)
+        mock_pipeline_service_get.assert_called_with(name=_TEST_PIPELINE_JOB_NAME)
 
         assert job._gca_resource == make_pipeline_job(
             gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED
