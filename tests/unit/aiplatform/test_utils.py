@@ -27,6 +27,7 @@ from google.api_core import gapic_v1
 from google.cloud import aiplatform
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import pipeline_utils
 
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     client as model_service_client_v1beta1,
@@ -342,3 +343,100 @@ def test_client_w_override_select_version():
         client_w_override.select_version(compat.V1).get_model.__self__,
         model_service_client_v1.ModelServiceClient,
     )
+
+
+class TestPipelineUtils:
+    SAMPLE_JOB_SPEC = {
+        "pipelineSpec": {
+            "root": {
+                "inputDefinitions": {
+                    "parameters": {
+                        "string_param": {"type": "STRING"},
+                        "int_param": {"type": "INT"},
+                        "float_param": {"type": "DOUBLE"},
+                        "new_param": {"type": "STRING"},
+                    }
+                }
+            }
+        },
+        "runtimeConfig": {
+            "gcs_output_directory": "path/to/my/root",
+            "parameters": {
+                "string_param": {"stringValue": "test-string"},
+                "int_param": {"intValue": 42},
+                "float_param": {"doubleValue": 3.14},
+            },
+        },
+    }
+
+    def test_pipeline_utils_runtime_config_builder_from_values(self):
+        my_builder = pipeline_utils.PipelineRuntimeConfigBuilder(
+            pipeline_root="path/to/my/root",
+            parameter_types={
+                "string_param": "STRING",
+                "int_param": "INT",
+                "float_param": "DOUBLE",
+            },
+            parameter_values={
+                "string_param": "test-string",
+                "int_param": 42,
+                "float_param": 3.14,
+            },
+        )
+        actual_runtime_config = my_builder.build()
+        assert True
+
+        expected_runtime_config = self.SAMPLE_JOB_SPEC["runtimeConfig"]
+        assert expected_runtime_config == actual_runtime_config
+
+    def test_pipeline_utils_runtime_config_builder_from_json(self):
+        my_builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
+            self.SAMPLE_JOB_SPEC
+        )
+        actual_runtime_config = my_builder.build()
+
+        expected_runtime_config = self.SAMPLE_JOB_SPEC["runtimeConfig"]
+        assert expected_runtime_config == actual_runtime_config
+
+    def test_pipeline_utils_runtime_config_builder_with_no_op_updates(self):
+        my_builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
+            self.SAMPLE_JOB_SPEC
+        )
+        my_builder.update_pipeline_root(None)
+        my_builder.update_runtime_parameters(None)
+        actual_runtime_config = my_builder.build()
+
+        expected_runtime_config = self.SAMPLE_JOB_SPEC["runtimeConfig"]
+        assert expected_runtime_config == actual_runtime_config
+
+    def test_pipeline_utils_runtime_config_builder_with_merge_updates(self):
+        my_builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
+            self.SAMPLE_JOB_SPEC
+        )
+        my_builder.update_pipeline_root("path/to/my/new/root")
+        my_builder.update_runtime_parameters(
+            {"int_param": 888, "new_param": "new-string"}
+        )
+        actual_runtime_config = my_builder.build()
+
+        expected_runtime_config = {
+            "gcs_output_directory": "path/to/my/new/root",
+            "parameters": {
+                "string_param": {"stringValue": "test-string"},
+                "int_param": {"intValue": 888},
+                "float_param": {"doubleValue": 3.14},
+                "new_param": {"stringValue": "new-string"},
+            },
+        }
+        assert expected_runtime_config == actual_runtime_config
+
+    def test_pipeline_utils_runtime_config_builder_parameter_not_found(self):
+        my_builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
+            self.SAMPLE_JOB_SPEC
+        )
+        my_builder.update_pipeline_root("path/to/my/new/root")
+        my_builder.update_runtime_parameters({"no_such_param": "new-string"})
+        with pytest.raises(ValueError) as e:
+            my_builder.build()
+
+        assert e.match(regexp=r"The pipeline parameter no_such_param is not found")
