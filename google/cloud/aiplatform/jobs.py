@@ -20,7 +20,6 @@ from typing import Iterable, Optional, Union, Sequence, Dict, List
 import abc
 import copy
 import datetime
-import sys
 import time
 
 from google.cloud import storage
