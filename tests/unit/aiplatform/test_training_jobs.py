@@ -1550,6 +1550,40 @@ class TestCustomTrainingJob:
                 location=_TEST_ALT_LOCATION,
             )
 
+    def test_unique_supported_training_schemas(self):
+        """Ensure that the `_supported_training_schemas` across AutoML training
+        classes and CustomTrainingJob contain unique values."""
+
+        schemas = [
+            schema
+            for c in aiplatform.training_jobs._TrainingJob.__subclasses__()
+            for schema in c._supported_training_schemas
+            if c.__name__.startswith("AutoML")
+        ]
+
+        schemas.extend(
+            aiplatform.training_jobs.CustomTrainingJob._supported_training_schemas
+        )
+
+        # Ensure all schemas across classes are unique
+        assert len(set(schemas)) == len(schemas)
+
+    @pytest.mark.usefixtures("get_training_job_tabular_mock")
+    def test_get_and_return_subclass_automl(self):
+        subcls = aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
+            resource_name=_TEST_PIPELINE_RESOURCE_NAME
+        )
+
+        assert isinstance(subcls, aiplatform.training_jobs.AutoMLTabularTrainingJob)
+
+    @pytest.mark.usefixtures("get_training_job_custom_mock")
+    def test_get_and_return_subclass_custom(self):
+        subcls = aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
+            resource_name=_TEST_PIPELINE_RESOURCE_NAME
+        )
+
+        assert isinstance(subcls, aiplatform.training_jobs.CustomTrainingJob)
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_nontabular_dataset(
         self,

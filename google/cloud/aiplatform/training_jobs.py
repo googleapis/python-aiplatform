@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import datetime
 import time
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
@@ -46,6 +47,7 @@ from google.cloud.aiplatform.v1.schema.trainingjob import (
 )
 
 from google.rpc import code_pb2
+from google.rpc import status_pb2
 
 import proto
 
@@ -136,8 +138,29 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
     @abc.abstractmethod
     def _supported_training_schemas(cls) -> Tuple[str]:
         """List of supported schemas for this training job."""
-
         pass
+
+    @property
+    def start_time(self) -> Optional[datetime.datetime]:
+        """Time when the TrainingJob entered the `PIPELINE_STATE_RUNNING` for
+        the first time."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "start_time")
+
+    @property
+    def end_time(self) -> Optional[datetime.datetime]:
+        """Time when the TrainingJob resource entered the `PIPELINE_STATE_SUCCEEDED`,
+        `PIPELINE_STATE_FAILED`, `PIPELINE_STATE_CANCELLED` state."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "end_time")
+
+    @property
+    def error(self) -> Optional[status_pb2.Status]:
+        """Detailed error info for this TrainingJob resource. Only populated when
+        the TrainingJob's state is `PIPELINE_STATE_FAILED` or
+        `PIPELINE_STATE_CANCELLED`."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "error")
 
     @classmethod
     def get(
@@ -153,10 +176,10 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             resource_name (str):
                 Required. A fully-qualified resource name or ID.
             project (str):
-                Optional project to retrieve dataset from. If not set, project
+                Optional project to retrieve training job from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional location to retrieve dataset from. If not set, location
+                Optional location to retrieve training job from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
@@ -167,7 +190,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 doesn't match the custom training task definition.
 
         Returns:
-            An Vertex AI Training Job
+            A Vertex AI Training Job
         """
 
         # Create job with dummy parameters
@@ -194,11 +217,68 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
+    @classmethod
+    def _get_and_return_subclass(
+        cls,
+        resource_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "_TrainingJob":
+        """Retrieve Training Job subclass for the given resource_name without
+        knowing the training_task_definition.
+
+        Example usage:
+        ```
+        aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
+            'projects/.../locations/.../trainingPipelines/12345'
+        )
+        # Returns: <google.cloud.aiplatform.training_jobs.AutoMLImageTrainingJob>
+        ```
+
+        Args:
+            resource_name (str):
+                Required. A fully-qualified resource name or ID.
+            project (str):
+                Optional project to retrieve dataset from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional location to retrieve dataset from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            A Vertex AI Training Job
+        """
+
+        # Retrieve training pipeline resource before class construction
+        client = cls._instantiate_client(location=location, credentials=credentials)
+
+        gca_training_pipeline = getattr(client, cls._getter_method)(name=resource_name)
+
+        schema_uri = gca_training_pipeline.training_task_definition
+
+        # Collect all AutoML training job classes and CustomTrainingJob
+        class_list = [
+            c for c in cls.__subclasses__() if c.__name__.startswith("AutoML")
+        ] + [CustomTrainingJob]
+
+        # Identify correct training job subclass, construct and return object
+        for c in class_list:
+            if schema_uri in c._supported_training_schemas:
+                return c._empty_constructor(
+                    project=project,
+                    location=location,
+                    credentials=credentials,
+                    resource_name=resource_name,
+                )
+
     @property
     @abc.abstractmethod
     def _model_upload_fail_string(self) -> str:
         """Helper property for model upload failure."""
-
         pass
 
     @abc.abstractmethod
@@ -595,7 +675,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         """Helper method to get and instantiate the Model to Upload.
 
         Returns:
-            model: Vertex AI Model if training succeeded and produced an Vertex AI
+            model: Vertex AI Model if training succeeded and produced a Vertex AI
                 Model. None otherwise.
 
         Raises:
@@ -1009,6 +1089,21 @@ class _CustomTrainingJob(_TrainingJob):
         # this flags keeps that state so we don't log it multiple times
         self._has_logged_custom_job = False
 
+    @property
+    def network(self) -> Optional[str]:
+        """The full name of the Google Compute Engine
+        [network](https://cloud.google.com/vpc/docs/vpc#networks) to which this
+        CustomTrainingJob should be peered.
+
+        Takes the format `projects/{project}/global/networks/{network}`. Where
+        {project} is a project number, as in `12345`, and {network} is a network name.
+
+        Private services access must already be configured for the network. If left
+        unspecified, the CustomTrainingJob is not peered with any network.
+        """
+        # Return `network` value in training task inputs if set in Map
+        return self._gca_resource.training_task_inputs.get("network")
+
     def _prepare_and_validate_run(
         self,
         model_display_name: Optional[str] = None,
@@ -1107,7 +1202,7 @@ class _CustomTrainingJob(_TrainingJob):
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -1575,7 +1670,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -1596,7 +1691,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -1745,7 +1840,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -1766,7 +1861,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
         package_gcs_uri = python_packager.package_and_copy_to_gcs(
             gcs_staging_dir=self._staging_bucket,
@@ -2190,7 +2285,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -2211,7 +2306,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run, staging_bucket has not
@@ -2354,7 +2449,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -2375,7 +2470,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         for spec in worker_pool_specs:
@@ -2641,7 +2736,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -2759,7 +2854,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         training_task_definition = schema.training_job.definition.automl_tabular
@@ -3043,7 +3138,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError if Training job has already been run or is waiting to run.
@@ -3228,7 +3323,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         training_task_definition = schema.training_job.definition.automl_forecasting
@@ -3522,7 +3617,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -3623,7 +3718,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         # Retrieve the objective-specific training task schema based on prediction_type
@@ -4059,7 +4154,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -4080,7 +4175,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -4205,7 +4300,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
                 Supported only for tabular and time series Datasets.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -4226,7 +4321,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
         for spec in worker_pool_specs:
             spec["python_package_spec"] = {
@@ -4433,7 +4528,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -4497,7 +4592,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         # Retrieve the objective-specific training task schema based on prediction_type
@@ -4775,7 +4870,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         if model_display_name is None:
