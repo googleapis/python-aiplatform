@@ -65,7 +65,7 @@ class PipelineRuntimeConfigBuilder(object):
         )
         parameter_types = {k: v["type"] for k, v in parameter_input_definitions.items()}
 
-        pipeline_root = runtime_config_spec.get("gcsOutputDirectory")
+        pipeline_root = runtime_config_spec.get("gcs_output_directory")
         parameter_values = _parse_runtime_parameters(runtime_config_spec)
         return cls(pipeline_root, parameter_types, parameter_values)
 

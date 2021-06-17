@@ -360,7 +360,7 @@ class TestPipelineUtils:
             }
         },
         "runtimeConfig": {
-            "gcsOutputDirectory": "path/to/my/root",
+            "gcs_output_directory": "path/to/my/root",
             "parameters": {
                 "string_param": {"stringValue": "test-string"},
                 "int_param": {"intValue": 42},
@@ -420,7 +420,7 @@ class TestPipelineUtils:
         actual_runtime_config = my_builder.build()
 
         expected_runtime_config = {
-            "gcsOutputDirectory": "path/to/my/new/root",
+            "gcs_output_directory": "path/to/my/new/root",
             "parameters": {
                 "string_param": {"stringValue": "test-string"},
                 "int_param": {"intValue": 888},

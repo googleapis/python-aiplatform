@@ -81,8 +81,9 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     _is_client_prediction_client = False
 
     _resource_noun = "pipelineJobs"
-    _getter_method = "get_pipeline_job"
     _delete_method = "delete_pipeline_job"
+    _getter_method = "get_pipeline_job"
+    _list_method = "list_pipeline_jobs"
 
     def __init__(
         self,
