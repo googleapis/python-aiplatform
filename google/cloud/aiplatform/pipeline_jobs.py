@@ -182,6 +182,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 "Expecting an ID following the regex pattern "
                 '"[a-z][-a-z0-9]{{0,127}}"'.format(job_id)
             )
+        job_name = _JOB_NAME_PATTERN.format(parent=self._parent, job_id=job_id)
 
         builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
             pipeline_job
@@ -196,6 +197,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         self._gca_resource = gca_pipeline_job_v1beta1.PipelineJob(
             display_name=display_name,
+            name=job_name,
             pipeline_spec=pipeline_job["pipelineSpec"],
             labels=labels,
             runtime_config=runtime_config,
