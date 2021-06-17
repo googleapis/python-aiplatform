@@ -92,11 +92,19 @@ class _Config:
             if metadata.metadata_service.experiment_name:
                 logging.info("project/location updated, reset Metadata config.")
             metadata.metadata_service.reset()
+
         if project:
             self._project = project
         if location:
             utils.validate_region(location)
             self._location = location
+        if staging_bucket:
+            self._staging_bucket = staging_bucket
+        if credentials:
+            self._credentials = credentials
+        if encryption_spec_key_name:
+            self._encryption_spec_key_name = encryption_spec_key_name
+
         if experiment:
             metadata.metadata_service.set_experiment(
                 experiment=experiment, description=experiment_description
@@ -105,12 +113,6 @@ class _Config:
             raise ValueError(
                 "Experiment name needs to be set in `init` in order to add experiment descriptions."
             )
-        if staging_bucket:
-            self._staging_bucket = staging_bucket
-        if credentials:
-            self._credentials = credentials
-        if encryption_spec_key_name:
-            self._encryption_spec_key_name = encryption_spec_key_name
 
     def get_encryption_spec(
         self,
@@ -192,7 +194,7 @@ class _Config:
         return self._encryption_spec_key_name
 
     def get_client_options(
-        self, location_override: Optional[str] = None
+        self, location_override: Optional[str] = None, prediction_client: bool = False
     ) -> client_options.ClientOptions:
         """Creates GAPIC client_options using location and type.
 
@@ -201,6 +203,8 @@ class _Config:
                 Set this parameter to get client options for a location different from
                 location set by initializer. Must be a GCP region supported by AI
                 Platform (Unified).
+            prediction_client (str): Optional flag to use a prediction endpoint.
+
 
         Returns:
             clients_options (google.api_core.client_options.ClientOptions):
@@ -218,8 +222,14 @@ class _Config:
 
         utils.validate_region(region)
 
+        service_base_path = (
+            constants.PREDICTION_API_BASE_PATH
+            if prediction_client
+            else constants.API_BASE_PATH
+        )
+
         return client_options.ClientOptions(
-            api_endpoint=f"{region}-{constants.API_BASE_PATH}"
+            api_endpoint=f"{region}-{service_base_path}"
         )
 
     def common_location_path(
@@ -257,7 +267,7 @@ class _Config:
 
         Args:
             client_class (utils.VertexAiServiceClientWithOverride):
-                (Required) An Vertex AI Service Client with optional overrides.
+                (Required) A Vertex AI Service Client with optional overrides.
             credentials (auth_credentials.Credentials):
                 Custom auth credentials. If not provided will use the current config.
             location_override (str): Optional location override.
@@ -276,7 +286,8 @@ class _Config:
         kwargs = {
             "credentials": credentials or self.credentials,
             "client_options": self.get_client_options(
-                location_override=location_override
+                location_override=location_override,
+                prediction_client=prediction_client,
             ),
             "client_info": client_info,
         }

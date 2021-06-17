@@ -140,7 +140,7 @@ def system(session):
     # Install all test dependencies, then install this package into the
     # virtualenv's dist-packages.
     session.install("mock", "pytest", "google-cloud-testutils", "-c", constraints_path)
-    session.install("-e", ".", "-c", constraints_path)
+    session.install("-e", ".[testing]", "-c", constraints_path)
 
     # Run py.test against the system tests.
     if system_test_exists:
@@ -169,7 +169,7 @@ def cover(session):
     test runs (not system test runs), and then erases coverage data.
     """
     session.install("coverage", "pytest-cov")
-    session.run("coverage", "report", "--show-missing", "--fail-under=95")
+    session.run("coverage", "report", "--show-missing", "--fail-under=99")
 
     session.run("coverage", "erase")
 
@@ -179,7 +179,7 @@ def docs(session):
     """Build the docs for this library."""
 
     session.install("-e", ".")
-    session.install("sphinx", "alabaster", "recommonmark")
+    session.install("sphinx==4.0.1", "alabaster", "recommonmark")
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
     session.run(
@@ -200,7 +200,9 @@ def docfx(session):
     """Build the docfx yaml files for this library."""
 
     session.install("-e", ".")
-    session.install("sphinx", "alabaster", "recommonmark", "gcp-sphinx-docfx-yaml")
+    session.install(
+        "sphinx==4.0.1", "alabaster", "recommonmark", "gcp-sphinx-docfx-yaml"
+    )
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
     session.run(

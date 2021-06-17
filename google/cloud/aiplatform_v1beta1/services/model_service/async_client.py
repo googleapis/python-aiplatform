@@ -48,7 +48,7 @@ from .client import ModelServiceClient
 
 
 class ModelServiceAsyncClient:
-    """A service for managing AI Platform's machine learning Models."""
+    """A service for managing Vertex AI's machine learning Models."""
 
     _client: ModelServiceClient
 
@@ -96,7 +96,8 @@ class ModelServiceAsyncClient:
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -111,7 +112,7 @@ class ModelServiceAsyncClient:
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -128,7 +129,7 @@ class ModelServiceAsyncClient:
 
     @property
     def transport(self) -> ModelServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
             ModelServiceTransport: The transport used by the client instance.
@@ -147,7 +148,7 @@ class ModelServiceAsyncClient:
         client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the model service client.
+        """Instantiates the model service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -196,7 +197,7 @@ class ModelServiceAsyncClient:
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
-        r"""Uploads a Model artifact into AI Platform.
+        r"""Uploads a Model artifact into Vertex AI.
 
         Args:
             request (:class:`google.cloud.aiplatform_v1beta1.types.UploadModelRequest`):
@@ -455,7 +456,7 @@ class ModelServiceAsyncClient:
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
                 Required. The update mask applies to the resource. For
                 the ``FieldMask`` definition, see
-                `FieldMask <https://tinyurl.com/protobufs/google.protobuf#fieldmask>`__.
+                [google.protobuf.FieldMask][google.protobuf.FieldMask].
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

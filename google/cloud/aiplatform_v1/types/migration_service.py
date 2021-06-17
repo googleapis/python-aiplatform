@@ -43,7 +43,7 @@ class SearchMigratableResourcesRequest(proto.Message):
     Attributes:
         parent (str):
             Required. The location that the migratable resources should
-            be searched from. It's the AI Platform location that the
+            be searched from. It's the Vertex AI location that the
             resources can be migrated to, not the resources' original
             location. Format:
             ``projects/{project}/locations/{location}``
@@ -53,21 +53,25 @@ class SearchMigratableResourcesRequest(proto.Message):
         page_token (str):
             The standard page token.
         filter (str):
-            Supported filters are:
+            A filter for your search. You can use the following types of
+            filters:
 
-            -  Resource type: For a specific type of MigratableResource.
+            -  Resource type filters. The following strings filter for a
+               specific type of
+               [MigratableResource][google.cloud.aiplatform.v1.MigratableResource]:
 
                -  ``ml_engine_model_version:*``
-               -  ``automl_model:*``,
+               -  ``automl_model:*``
                -  ``automl_dataset:*``
-               -  ``data_labeling_dataset:*``.
+               -  ``data_labeling_dataset:*``
 
-            -  Migrated or not: Filter migrated resource or not by
-               last_migrate_time.
+            -  "Migrated or not" filters. The following strings filter
+               for resources that either have or have not already been
+               migrated:
 
-               -  ``last_migrate_time:*`` will filter migrated
+               -  ``last_migrate_time:*`` filters for migrated
                   resources.
-               -  ``NOT last_migrate_time:*`` will filter not yet
+               -  ``NOT last_migrate_time:*`` filters for not yet
                   migrated resources.
     """
 
@@ -124,28 +128,27 @@ class BatchMigrateResourcesRequest(proto.Message):
 
 class MigrateResourceRequest(proto.Message):
     r"""Config of migrating one resource from automl.googleapis.com,
-    datalabeling.googleapis.com and ml.googleapis.com to AI
-    Platform.
+    datalabeling.googleapis.com and ml.googleapis.com to Vertex AI.
 
     Attributes:
         migrate_ml_engine_model_version_config (google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateMlEngineModelVersionConfig):
             Config for migrating Version in
-            ml.googleapis.com to AI Platform's Model.
+            ml.googleapis.com to Vertex AI's Model.
         migrate_automl_model_config (google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateAutomlModelConfig):
             Config for migrating Model in
-            automl.googleapis.com to AI Platform's Model.
+            automl.googleapis.com to Vertex AI's Model.
         migrate_automl_dataset_config (google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateAutomlDatasetConfig):
             Config for migrating Dataset in
-            automl.googleapis.com to AI Platform's Dataset.
+            automl.googleapis.com to Vertex AI's Dataset.
         migrate_data_labeling_dataset_config (google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateDataLabelingDatasetConfig):
             Config for migrating Dataset in
-            datalabeling.googleapis.com to AI Platform's
+            datalabeling.googleapis.com to Vertex AI's
             Dataset.
     """
 
     class MigrateMlEngineModelVersionConfig(proto.Message):
-        r"""Config for migrating version in ml.googleapis.com to AI
-        Platform's Model.
+        r"""Config for migrating version in ml.googleapis.com to Vertex
+        AI's Model.
 
         Attributes:
             endpoint (str):
@@ -164,8 +167,8 @@ class MigrateResourceRequest(proto.Message):
                 Format:
                 ``projects/{project}/models/{model}/versions/{version}``.
             model_display_name (str):
-                Required. Display name of the model in AI
-                Platform. System will pick a display name if
+                Required. Display name of the model in Vertex
+                AI. System will pick a display name if
                 unspecified.
         """
 
@@ -174,16 +177,16 @@ class MigrateResourceRequest(proto.Message):
         model_display_name = proto.Field(proto.STRING, number=3,)
 
     class MigrateAutomlModelConfig(proto.Message):
-        r"""Config for migrating Model in automl.googleapis.com to AI
-        Platform's Model.
+        r"""Config for migrating Model in automl.googleapis.com to Vertex
+        AI's Model.
 
         Attributes:
             model (str):
                 Required. Full resource name of automl Model. Format:
                 ``projects/{project}/locations/{location}/models/{model}``.
             model_display_name (str):
-                Optional. Display name of the model in AI
-                Platform. System will pick a display name if
+                Optional. Display name of the model in Vertex
+                AI. System will pick a display name if
                 unspecified.
         """
 
@@ -191,16 +194,16 @@ class MigrateResourceRequest(proto.Message):
         model_display_name = proto.Field(proto.STRING, number=2,)
 
     class MigrateAutomlDatasetConfig(proto.Message):
-        r"""Config for migrating Dataset in automl.googleapis.com to AI
-        Platform's Dataset.
+        r"""Config for migrating Dataset in automl.googleapis.com to
+        Vertex AI's Dataset.
 
         Attributes:
             dataset (str):
                 Required. Full resource name of automl Dataset. Format:
                 ``projects/{project}/locations/{location}/datasets/{dataset}``.
             dataset_display_name (str):
-                Required. Display name of the Dataset in AI
-                Platform. System will pick a display name if
+                Required. Display name of the Dataset in
+                Vertex AI. System will pick a display name if
                 unspecified.
         """
 
@@ -216,26 +219,25 @@ class MigrateResourceRequest(proto.Message):
                 Required. Full resource name of data labeling Dataset.
                 Format: ``projects/{project}/datasets/{dataset}``.
             dataset_display_name (str):
-                Optional. Display name of the Dataset in AI
-                Platform. System will pick a display name if
+                Optional. Display name of the Dataset in
+                Vertex AI. System will pick a display name if
                 unspecified.
             migrate_data_labeling_annotated_dataset_configs (Sequence[google.cloud.aiplatform_v1.types.MigrateResourceRequest.MigrateDataLabelingDatasetConfig.MigrateDataLabelingAnnotatedDatasetConfig]):
                 Optional. Configs for migrating
                 AnnotatedDataset in datalabeling.googleapis.com
-                to AI Platform's SavedQuery. The specified
+                to Vertex AI's SavedQuery. The specified
                 AnnotatedDatasets have to belong to the
                 datalabeling Dataset.
         """
 
         class MigrateDataLabelingAnnotatedDatasetConfig(proto.Message):
             r"""Config for migrating AnnotatedDataset in
-            datalabeling.googleapis.com to AI Platform's SavedQuery.
+            datalabeling.googleapis.com to Vertex AI's SavedQuery.
 
             Attributes:
                 annotated_dataset (str):
                     Required. Full resource name of data labeling
                     AnnotatedDataset. Format:
-
                     ``projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}``.
             """
 

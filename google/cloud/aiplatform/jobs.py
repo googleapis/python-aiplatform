@@ -19,6 +19,8 @@ from typing import Iterable, Optional, Union, Sequence, Dict, List
 
 import abc
 import copy
+import datetime
+import sys
 import time
 
 from google.cloud import storage
@@ -26,6 +28,7 @@ from google.cloud import bigquery
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import duration_pb2  # type: ignore
+from google.rpc import status_pb2
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -34,6 +37,7 @@ from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import console_utils
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
 
@@ -42,6 +46,7 @@ from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_bp_job_compat,
     batch_prediction_job_v1 as gca_bp_job_v1,
     batch_prediction_job_v1beta1 as gca_bp_job_v1beta1,
+    completion_stats as gca_completion_stats,
     custom_job as gca_custom_job_compat,
     custom_job_v1beta1 as gca_custom_job_v1beta1,
     explanation_v1beta1 as gca_explanation_v1beta1,
@@ -134,6 +139,27 @@ class _Job(base.VertexAiResourceNounWithFutureManager):
         self._sync_gca_resource()
 
         return self._gca_resource.state
+
+    @property
+    def start_time(self) -> Optional[datetime.datetime]:
+        """Time when the Job resource entered the `JOB_STATE_RUNNING` for the
+        first time."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "start_time")
+
+    @property
+    def end_time(self) -> Optional[datetime.datetime]:
+        """Time when the Job resource entered the `JOB_STATE_SUCCEEDED`,
+        `JOB_STATE_FAILED`, or `JOB_STATE_CANCELLED` state."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "end_time")
+
+    @property
+    def error(self) -> Optional[status_pb2.Status]:
+        """Detailed error info for this Job resource. Only populated when the
+        Job's state is `JOB_STATE_FAILED` or `JOB_STATE_CANCELLED`."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "error")
 
     @property
     @abc.abstractmethod
@@ -297,6 +323,27 @@ class BatchPredictionJob(_Job):
             location=location,
             credentials=credentials,
         )
+
+    @property
+    def output_info(self,) -> Optional[aiplatform.gapic.BatchPredictionJob.OutputInfo]:
+        """Information describing the output of this job, including output location
+        into which prediction output is written.
+
+        This is only available for batch predicition jobs that have run successfully.
+        """
+        return self._gca_resource.output_info
+
+    @property
+    def partial_failures(self) -> Optional[Sequence[status_pb2.Status]]:
+        """Partial failures encountered. For example, single files that can't be read.
+        This field never exceeds 20 entries. Status details fields contain standard
+        GCP error details."""
+        return getattr(self._gca_resource, "partial_failures")
+
+    @property
+    def completion_stats(self) -> Optional[gca_completion_stats.CompletionStats]:
+        """Statistics on completed and failed prediction instances."""
+        return getattr(self._gca_resource, "completion_stats")
 
     @classmethod
     def create(
@@ -838,7 +885,7 @@ class _RunnableJob(_Job):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "_RunnableJob":
-        """Get an Vertex AI Job for the given resource_name.
+        """Get a Vertex AI Job for the given resource_name.
 
         Args:
             resource_name (str):
@@ -854,7 +901,7 @@ class _RunnableJob(_Job):
                 credentials set in aiplatform.init.
 
         Returns:
-            An Vertex AI Job.
+            A Vertex AI Job.
         """
         self = cls._empty_constructor(
             project=project,
@@ -883,7 +930,7 @@ class CustomJob(_RunnableJob):
 
     _resource_noun = "customJobs"
     _getter_method = "get_custom_job"
-    _list_method = "list_custom_job"
+    _list_method = "list_custom_jobs"
     _cancel_method = "cancel_custom_job"
     _delete_method = "delete_custom_job"
     _job_type = "training"
@@ -982,6 +1029,20 @@ class CustomJob(_RunnableJob):
                 encryption_spec_key_name=encryption_spec_key_name
             ),
         )
+
+    @property
+    def network(self) -> Optional[str]:
+        """The full name of the Google Compute Engine
+        [network](https://cloud.google.com/vpc/docs/vpc#networks) to which this
+        CustomJob should be peered.
+
+        Takes the format `projects/{project}/global/networks/{network}`. Where
+        {project} is a project number, as in `12345`, and {network} is a network name.
+
+        Private services access must already be configured for the network. If left
+        unspecified, the CustomJob is not peered with any network.
+        """
+        return getattr(self._gca_resource, "network")
 
     @classmethod
     def from_local_script(
@@ -1153,7 +1214,7 @@ class CustomJob(_RunnableJob):
                 distributed training jobs that are not resilient
                 to workers leaving and joining a job.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -1205,6 +1266,14 @@ class CustomJob(_RunnableJob):
         )
 
         _LOGGER.info("View Custom Job:\n%s" % self._dashboard_uri())
+
+        if tensorboard:
+            _LOGGER.info(
+                "View Tensorboard:\n%s"
+                % console_utils.custom_job_tensorboard_console_uri(
+                    tensorboard, self.resource_name
+                )
+            )
 
         self._block_until_complete()
 
@@ -1432,6 +1501,20 @@ class HyperparameterTuningJob(_RunnableJob):
             ),
         )
 
+    @property
+    def network(self) -> Optional[str]:
+        """The full name of the Google Compute Engine
+        [network](https://cloud.google.com/vpc/docs/vpc#networks) to which this
+        HyperparameterTuningJob should be peered.
+
+        Takes the format `projects/{project}/global/networks/{network}`. Where
+        {project} is a project number, as in `12345`, and {network} is a network name.
+
+        Private services access must already be configured for the network. If left
+        unspecified, the HyperparameterTuningJob is not peered with any network.
+        """
+        return getattr(self._gca_resource.trial_job_spec, "network")
+
     @base.optional_sync()
     def run(
         self,
@@ -1461,7 +1544,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 distributed training jobs that are not resilient
                 to workers leaving and joining a job.
             tensorboard (str):
-                Optional. The name of an Vertex AI
+                Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
                 resource to which this CustomJob will upload Tensorboard
                 logs. Format:
@@ -1517,6 +1600,14 @@ class HyperparameterTuningJob(_RunnableJob):
         )
 
         _LOGGER.info("View HyperparameterTuningJob:\n%s" % self._dashboard_uri())
+
+        if tensorboard:
+            _LOGGER.info(
+                "View Tensorboard:\n%s"
+                % console_utils.custom_job_tensorboard_console_uri(
+                    tensorboard, self.resource_name
+                )
+            )
 
         self._block_until_complete()
 

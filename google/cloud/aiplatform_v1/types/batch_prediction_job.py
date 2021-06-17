@@ -88,8 +88,7 @@ class BatchPredictionJob(proto.Message):
             Immutable. Parameters configuring the batch behavior.
             Currently only applicable when
             [dedicated_resources][google.cloud.aiplatform.v1.BatchPredictionJob.dedicated_resources]
-            are used (in other cases AI Platform does the tuning
-            itself).
+            are used (in other cases Vertex AI does the tuning itself).
         output_info (google.cloud.aiplatform_v1.types.BatchPredictionJob.OutputInfo):
             Output only. Information further describing
             the output of this job.
@@ -216,9 +215,9 @@ class BatchPredictionJob(proto.Message):
                 which as value has ```google.rpc.Status`` <Status>`__
                 containing only ``code`` and ``message`` fields.
             bigquery_destination (google.cloud.aiplatform_v1.types.BigQueryDestination):
-                The BigQuery project location where the output is to be
-                written to. In the given project a new dataset is created
-                with name
+                The BigQuery project or dataset location where the output is
+                to be written to. If project is provided, a new dataset is
+                created with name
                 ``prediction_<model-display-name>_<job-create-time>`` where
                 is made BigQuery-dataset-name compatible (for example, most
                 special characters become underscores), and timestamp is in
@@ -238,10 +237,9 @@ class BatchPredictionJob(proto.Message):
                 ```google.rpc.Status`` <Status>`__ represented as a STRUCT,
                 and containing only ``code`` and ``message``.
             predictions_format (str):
-                Required. The format in which AI Platform gives the
+                Required. The format in which Vertex AI gives the
                 predictions, must be one of the
                 [Model's][google.cloud.aiplatform.v1.BatchPredictionJob.model]
-
                 [supported_output_storage_formats][google.cloud.aiplatform.v1.Model.supported_output_storage_formats].
         """
 

@@ -91,8 +91,7 @@ class BatchPredictionJob(proto.Message):
             Immutable. Parameters configuring the batch behavior.
             Currently only applicable when
             [dedicated_resources][google.cloud.aiplatform.v1beta1.BatchPredictionJob.dedicated_resources]
-            are used (in other cases AI Platform does the tuning
-            itself).
+            are used (in other cases Vertex AI does the tuning itself).
         generate_explanation (bool):
             Generate explanation with the batch prediction results.
 
@@ -282,7 +281,7 @@ class BatchPredictionJob(proto.Message):
                 ```google.rpc.Status`` <Status>`__ represented as a STRUCT,
                 and containing only ``code`` and ``message``.
             predictions_format (str):
-                Required. The format in which AI Platform gives the
+                Required. The format in which Vertex AI gives the
                 predictions, must be one of the
                 [Model's][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
                 [supported_output_storage_formats][google.cloud.aiplatform.v1beta1.Model.supported_output_storage_formats].

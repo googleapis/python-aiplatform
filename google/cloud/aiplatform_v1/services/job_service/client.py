@@ -76,7 +76,7 @@ class JobServiceClientMeta(type):
     _transport_registry["grpc_asyncio"] = JobServiceGrpcAsyncIOTransport
 
     def get_transport_class(cls, label: str = None,) -> Type[JobServiceTransport]:
-        """Return an appropriate transport class.
+        """Returns an appropriate transport class.
 
         Args:
             label: The name of the desired transport. If none is
@@ -95,11 +95,12 @@ class JobServiceClientMeta(type):
 
 
 class JobServiceClient(metaclass=JobServiceClientMeta):
-    """A service for creating and managing AI Platform's jobs."""
+    """A service for creating and managing Vertex AI's jobs."""
 
     @staticmethod
     def _get_default_mtls_endpoint(api_endpoint):
-        """Convert api endpoint to mTLS endpoint.
+        """Converts api endpoint to mTLS endpoint.
+
         Convert "*.sandbox.googleapis.com" and "*.googleapis.com" to
         "*.mtls.sandbox.googleapis.com" and "*.mtls.googleapis.com" respectively.
         Args:
@@ -133,7 +134,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @classmethod
     def from_service_account_info(cls, info: dict, *args, **kwargs):
-        """Creates an instance of this client using the provided credentials info.
+        """Creates an instance of this client using the provided credentials
+            info.
 
         Args:
             info (dict): The service account private key info.
@@ -150,7 +152,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
         """Creates an instance of this client using the provided credentials
-        file.
+            file.
 
         Args:
             filename (str): The path to the service account private key json
@@ -169,10 +171,11 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @property
     def transport(self) -> JobServiceTransport:
-        """Return the transport used by the client instance.
+        """Returns the transport used by the client instance.
 
         Returns:
-            JobServiceTransport: The transport used by the client instance.
+            JobServiceTransport: The transport used by the client
+                instance.
         """
         return self._transport
 
@@ -180,7 +183,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     def batch_prediction_job_path(
         project: str, location: str, batch_prediction_job: str,
     ) -> str:
-        """Return a fully-qualified batch_prediction_job string."""
+        """Returns a fully-qualified batch_prediction_job string."""
         return "projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}".format(
             project=project,
             location=location,
@@ -189,7 +192,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def parse_batch_prediction_job_path(path: str) -> Dict[str, str]:
-        """Parse a batch_prediction_job path into its component segments."""
+        """Parses a batch_prediction_job path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/batchPredictionJobs/(?P<batch_prediction_job>.+?)$",
             path,
@@ -198,14 +201,14 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def custom_job_path(project: str, location: str, custom_job: str,) -> str:
-        """Return a fully-qualified custom_job string."""
+        """Returns a fully-qualified custom_job string."""
         return "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
             project=project, location=location, custom_job=custom_job,
         )
 
     @staticmethod
     def parse_custom_job_path(path: str) -> Dict[str, str]:
-        """Parse a custom_job path into its component segments."""
+        """Parses a custom_job path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/customJobs/(?P<custom_job>.+?)$",
             path,
@@ -216,14 +219,14 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     def data_labeling_job_path(
         project: str, location: str, data_labeling_job: str,
     ) -> str:
-        """Return a fully-qualified data_labeling_job string."""
+        """Returns a fully-qualified data_labeling_job string."""
         return "projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}".format(
             project=project, location=location, data_labeling_job=data_labeling_job,
         )
 
     @staticmethod
     def parse_data_labeling_job_path(path: str) -> Dict[str, str]:
-        """Parse a data_labeling_job path into its component segments."""
+        """Parses a data_labeling_job path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/dataLabelingJobs/(?P<data_labeling_job>.+?)$",
             path,
@@ -232,14 +235,14 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def dataset_path(project: str, location: str, dataset: str,) -> str:
-        """Return a fully-qualified dataset string."""
+        """Returns a fully-qualified dataset string."""
         return "projects/{project}/locations/{location}/datasets/{dataset}".format(
             project=project, location=location, dataset=dataset,
         )
 
     @staticmethod
     def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parse a dataset path into its component segments."""
+        """Parses a dataset path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
             path,
@@ -250,7 +253,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
     def hyperparameter_tuning_job_path(
         project: str, location: str, hyperparameter_tuning_job: str,
     ) -> str:
-        """Return a fully-qualified hyperparameter_tuning_job string."""
+        """Returns a fully-qualified hyperparameter_tuning_job string."""
         return "projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}".format(
             project=project,
             location=location,
@@ -259,7 +262,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def parse_hyperparameter_tuning_job_path(path: str) -> Dict[str, str]:
-        """Parse a hyperparameter_tuning_job path into its component segments."""
+        """Parses a hyperparameter_tuning_job path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/hyperparameterTuningJobs/(?P<hyperparameter_tuning_job>.+?)$",
             path,
@@ -268,14 +271,14 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def model_path(project: str, location: str, model: str,) -> str:
-        """Return a fully-qualified model string."""
+        """Returns a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
             project=project, location=location, model=model,
         )
 
     @staticmethod
     def parse_model_path(path: str) -> Dict[str, str]:
-        """Parse a model path into its component segments."""
+        """Parses a model path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
             path,
@@ -284,14 +287,14 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def trial_path(project: str, location: str, study: str, trial: str,) -> str:
-        """Return a fully-qualified trial string."""
+        """Returns a fully-qualified trial string."""
         return "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
             project=project, location=location, study=study, trial=trial,
         )
 
     @staticmethod
     def parse_trial_path(path: str) -> Dict[str, str]:
-        """Parse a trial path into its component segments."""
+        """Parses a trial path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/studies/(?P<study>.+?)/trials/(?P<trial>.+?)$",
             path,
@@ -300,7 +303,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def common_billing_account_path(billing_account: str,) -> str:
-        """Return a fully-qualified billing_account string."""
+        """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
         )
@@ -313,7 +316,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def common_folder_path(folder: str,) -> str:
-        """Return a fully-qualified folder string."""
+        """Returns a fully-qualified folder string."""
         return "folders/{folder}".format(folder=folder,)
 
     @staticmethod
@@ -324,7 +327,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def common_organization_path(organization: str,) -> str:
-        """Return a fully-qualified organization string."""
+        """Returns a fully-qualified organization string."""
         return "organizations/{organization}".format(organization=organization,)
 
     @staticmethod
@@ -335,7 +338,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def common_project_path(project: str,) -> str:
-        """Return a fully-qualified project string."""
+        """Returns a fully-qualified project string."""
         return "projects/{project}".format(project=project,)
 
     @staticmethod
@@ -346,7 +349,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     @staticmethod
     def common_location_path(project: str, location: str,) -> str:
-        """Return a fully-qualified location string."""
+        """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
             project=project, location=location,
         )
@@ -365,7 +368,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiate the job service client.
+        """Instantiates the job service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -420,9 +423,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 client_cert_source_func = client_options.client_cert_source
             else:
                 is_mtls = mtls.has_default_client_cert_source()
-                client_cert_source_func = (
-                    mtls.default_client_cert_source() if is_mtls else None
-                )
+                if is_mtls:
+                    client_cert_source_func = mtls.default_client_cert_source()
+                else:
+                    client_cert_source_func = None
 
         # Figure out which api endpoint to use.
         if client_options.api_endpoint is not None:
@@ -434,12 +438,14 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             elif use_mtls_env == "always":
                 api_endpoint = self.DEFAULT_MTLS_ENDPOINT
             elif use_mtls_env == "auto":
-                api_endpoint = (
-                    self.DEFAULT_MTLS_ENDPOINT if is_mtls else self.DEFAULT_ENDPOINT
-                )
+                if is_mtls:
+                    api_endpoint = self.DEFAULT_MTLS_ENDPOINT
+                else:
+                    api_endpoint = self.DEFAULT_ENDPOINT
             else:
                 raise MutualTLSChannelError(
-                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted values: never, auto, always"
+                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted "
+                    "values: never, auto, always"
                 )
 
         # Save or instantiate the transport.
@@ -454,8 +460,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
                 )
             if client_options.scopes:
                 raise ValueError(
-                    "When providing a transport instance, "
-                    "provide its scopes directly."
+                    "When providing a transport instance, provide its scopes "
+                    "directly."
                 )
             self._transport = transport
         else:
@@ -899,7 +905,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.CreateDataLabelingJobRequest):
                 The request object. Request message for
-                [DataLabelingJobService.CreateDataLabelingJob][].
+                [JobService.CreateDataLabelingJob][google.cloud.aiplatform.v1.JobService.CreateDataLabelingJob].
             parent (str):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
@@ -980,10 +986,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.GetDataLabelingJobRequest):
                 The request object. Request message for
-                [DataLabelingJobService.GetDataLabelingJob][].
+                [JobService.GetDataLabelingJob][google.cloud.aiplatform.v1.JobService.GetDataLabelingJob].
             name (str):
                 Required. The name of the DataLabelingJob. Format:
-
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
@@ -1053,7 +1058,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.ListDataLabelingJobsRequest):
                 The request object. Request message for
-                [DataLabelingJobService.ListDataLabelingJobs][].
+                [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1.JobService.ListDataLabelingJobs].
             parent (str):
                 Required. The parent of the DataLabelingJob. Format:
                 ``projects/{project}/locations/{location}``
@@ -1137,7 +1142,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the DataLabelingJob to be deleted.
                 Format:
-
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
@@ -1228,10 +1232,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         Args:
             request (google.cloud.aiplatform_v1.types.CancelDataLabelingJobRequest):
                 The request object. Request message for
-                [DataLabelingJobService.CancelDataLabelingJob][].
+                [JobService.CancelDataLabelingJob][google.cloud.aiplatform.v1.JobService.CancelDataLabelingJob].
             name (str):
                 Required. The name of the DataLabelingJob. Format:
-
                 ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
                 This corresponds to the ``name`` field
@@ -1383,7 +1386,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the HyperparameterTuningJob
                 resource. Format:
-
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
@@ -1543,7 +1545,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the HyperparameterTuningJob
                 resource to be deleted. Format:
-
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
@@ -1652,7 +1653,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the HyperparameterTuningJob to
                 cancel. Format:
-
                 ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
 
                 This corresponds to the ``name`` field
@@ -1809,7 +1809,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the BatchPredictionJob resource.
                 Format:
-
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
@@ -1970,7 +1969,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the BatchPredictionJob resource to
                 be deleted. Format:
-
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field
@@ -2077,7 +2075,6 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             name (str):
                 Required. The name of the BatchPredictionJob to cancel.
                 Format:
-
                 ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
 
                 This corresponds to the ``name`` field

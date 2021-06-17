@@ -73,20 +73,28 @@ class TabularDataset(datasets._Dataset):
                 gcs_source_uris.sort()
 
                 # Get the first file in sorted list
-                return TabularDataset._retrieve_gcs_source_columns(
-                    self.project, gcs_source_uris[0]
+                return self._retrieve_gcs_source_columns(
+                    project=self.project,
+                    gcs_csv_file_path=gcs_source_uris[0],
+                    credentials=self.credentials,
                 )
         elif bq_source:
             bq_table_uri = bq_source.get("uri")
             if bq_table_uri:
-                return TabularDataset._retrieve_bq_source_columns(
-                    self.project, bq_table_uri
+                return self._retrieve_bq_source_columns(
+                    project=self.project,
+                    bq_table_uri=bq_table_uri,
+                    credentials=self.credentials,
                 )
 
         raise RuntimeError("No valid CSV or BigQuery datasource found.")
 
     @staticmethod
-    def _retrieve_gcs_source_columns(project: str, gcs_csv_file_path: str) -> List[str]:
+    def _retrieve_gcs_source_columns(
+        project: str,
+        gcs_csv_file_path: str,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[str]:
         """Retrieve the columns from a comma-delimited CSV file stored on Google Cloud Storage
 
         Example Usage:
@@ -104,7 +112,8 @@ class TabularDataset(datasets._Dataset):
             gcs_csv_file_path (str):
                 Required. A full path to a CSV files stored on Google Cloud Storage.
                 Must include "gs://" prefix.
-
+            credentials (auth_credentials.Credentials):
+                Credentials to use to with GCS Client.
         Returns:
             List[str]
                 A list of columns names in the CSV file.
@@ -116,7 +125,7 @@ class TabularDataset(datasets._Dataset):
         gcs_bucket, gcs_blob = utils.extract_bucket_and_prefix_from_gcs_path(
             gcs_csv_file_path
         )
-        client = storage.Client(project=project)
+        client = storage.Client(project=project, credentials=credentials)
         bucket = client.bucket(gcs_bucket)
         blob = bucket.blob(gcs_blob)
 
@@ -135,6 +144,7 @@ class TabularDataset(datasets._Dataset):
                 line += blob.download_as_bytes(
                     start=start_index, end=start_index + increment
                 ).decode("utf-8")
+
                 first_new_line_index = line.find("\n")
                 start_index += increment
 
@@ -156,7 +166,11 @@ class TabularDataset(datasets._Dataset):
         return next(csv_reader)
 
     @staticmethod
-    def _retrieve_bq_source_columns(project: str, bq_table_uri: str) -> List[str]:
+    def _retrieve_bq_source_columns(
+        project: str,
+        bq_table_uri: str,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> List[str]:
         """Retrieve the columns from a table on Google BigQuery
 
         Example Usage:
@@ -174,6 +188,8 @@ class TabularDataset(datasets._Dataset):
             bq_table_uri (str):
                 Required. A URI to a BigQuery table.
                 Can include "bq://" prefix but not required.
+            credentials (auth_credentials.Credentials):
+                Credentials to use with BQ Client.
 
         Returns:
             List[str]
@@ -185,7 +201,7 @@ class TabularDataset(datasets._Dataset):
         if bq_table_uri.startswith(prefix):
             bq_table_uri = bq_table_uri[len(prefix) :]
 
-        client = bigquery.Client(project=project)
+        client = bigquery.Client(project=project, credentials=credentials)
         table = client.get_table(bq_table_uri)
         schema = table.schema
         return [schema.name for schema in schema]

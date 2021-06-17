@@ -76,7 +76,6 @@ class GetSpecialistPoolRequest(proto.Message):
         name (str):
             Required. The name of the SpecialistPool resource. The form
             is
-
             ``projects/{project}/locations/{location}/specialistPools/{specialist_pool}``.
     """
 
@@ -181,7 +180,6 @@ class UpdateSpecialistPoolOperationMetadata(proto.Message):
         specialist_pool (str):
             Output only. The name of the SpecialistPool to which the
             specialists are being added. Format:
-
             ``projects/{project_id}/locations/{location_id}/specialistPools/{specialist_pool}``
         generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
             The operation generic information.
