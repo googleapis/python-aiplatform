@@ -71,7 +71,7 @@ _TEST_PIPELINE_DELETE_METHOD_NAME = "delete_fake_pipeline_job"
 _TEST_PIPELINE_RESOURCE_NAME = (
     f"{_TEST_PARENT}/fakePipelineJobs/{_TEST_PIPELINE_JOB_ID}"
 )
-
+_TEST_PIPELINE_CREATE_TIME = datetime.now()
 
 @pytest.fixture
 def mock_pipeline_service_create():
@@ -81,7 +81,7 @@ def mock_pipeline_service_create():
         mock_create_pipeline_job.return_value = gca_pipeline_job_v1beta1.PipelineJob(
             name=_TEST_PIPELINE_JOB_NAME,
             state=gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            create_time=datetime.fromisoformat("2021-11-11 00:05:23.283+00:00"),
+            create_time=_TEST_PIPELINE_CREATE_TIME,
         )
         yield mock_create_pipeline_job
 
@@ -90,7 +90,7 @@ def make_pipeline_job(state):
     return gca_pipeline_job_v1beta1.PipelineJob(
         name=_TEST_PIPELINE_JOB_NAME,
         state=state,
-        create_time=datetime.fromisoformat("2021-11-11 00:05:23.283+00:00"),
+        create_time=_TEST_PIPELINE_CREATE_TIME,
     )
 
 
