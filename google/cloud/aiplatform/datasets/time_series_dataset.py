@@ -47,7 +47,7 @@ class TimeSeriesDataset(datasets._Dataset):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
     ) -> "TimeSeriesDataset":
-        """Creates a new d dataset.
+        """Creates a new time series dataset.
 
         Args:
             display_name (str):

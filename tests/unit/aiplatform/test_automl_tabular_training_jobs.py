@@ -242,6 +242,7 @@ class TestAutoMLTabularTrainingJob:
         column_specs[
             _TEST_TRAINING_COLUMN_NAMES[0]
         ] = aiplatform.column.data_types.NUMERIC
+        assert column_specs[_TEST_TRAINING_COLUMN_NAMES[0]] is "numeric"
         column_specs[_TEST_TRAINING_COLUMN_NAMES[0]] = aiplatform.column.data_types.AUTO
 
         job = training_jobs.AutoMLTabularTrainingJob(

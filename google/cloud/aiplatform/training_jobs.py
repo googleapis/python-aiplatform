@@ -2300,8 +2300,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         display_name: str,
         optimization_prediction_type: str,
         optimization_objective: Optional[str] = None,
-        column_transformations: Optional[Union[Dict, List[Dict]]] = None,
         column_specs: Optional[Dict[str, str]] = None,
+        column_transformations: Optional[Union[Dict, List[Dict]]] = None,
         optimization_objective_recall_value: Optional[float] = None,
         optimization_objective_precision_value: Optional[float] = None,
         project: Optional[str] = None,
@@ -2352,6 +2352,15 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 "minimize-rmse" (default) - Minimize root-mean-squared error (RMSE).
                 "minimize-mae" - Minimize mean-absolute error (MAE).
                 "minimize-rmsle" - Minimize root-mean-squared log error (RMSLE).
+            column_specs (Optional[Dict[str, str]]):
+                Optional. Transformations to apply to the input columns (i.e. columns other
+                than the targetColumn). Each transformation may produce multiple
+                result values from the column's value, and all are used for training.
+                When creating transformation for BigQuery Struct column, the column
+                should be flattened using "." as the delimiter.
+                If an input column has no transformations on it, such a column is
+                ignored by the training, except for the targetColumn, which should have
+                no transformations defined on.
             column_transformations (Optional[Union[Dict, List[Dict]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
@@ -2362,15 +2371,6 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
                 Only one of column_transformations or column_specs should be passed.
-            column_specs (Optional[Dict[str, str]]):
-                Optional. Transformations to apply to the input columns (i.e. columns other
-                than the targetColumn). Each transformation may produce multiple
-                result values from the column's value, and all are used for training.
-                When creating transformation for BigQuery Struct column, the column
-                should be flattened using "." as the delimiter.
-                If an input column has no transformations on it, such a column is
-                ignored by the training, except for the targetColumn, which should have
-                no transformations defined on.
                 Only one of column_transformations or column_specs should be passed.
             optimization_objective_recall_value (float):
                 Optional. Required when maximize-precision-at-recall optimizationObjective was
@@ -2655,12 +2655,6 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             )
         if self._column_transformations is not None:
             column_transformations = self._column_transformations
-        if self._column_specs is not None and column_transformations is None:
-            column_transformations = [
-                {self._column_specs[column]: {"column_name": column}}
-                for column in self._column_specs
-            ]
-        if column_transformations is not None:
             column_names = dataset.column_names
             for transformation in column_transformations:
                 for data_type in transformation:
@@ -2669,6 +2663,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                         raise ValueError(f"'{column}' is not in the dataset.")
                     if column["column_name"] is target_column:
                         raise ValueError("Target column is in transformations.")
+        elif self._column_specs is not None:
+            column_transformations = [
+                {self._column_specs[column]: {"column_name": column}}
+                for column in self._column_specs
+            ]
         # auto-populate transformations
         if column_transformations is None:
             _LOGGER.info(
@@ -2743,7 +2742,6 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         """
         self._additional_experiments.extend(additional_experiments)
 
-    @classmethod
     def get_auto_column_specs(
         self, dataset: datasets.TabularDataset, target_column: str,
     ) -> Dict[str, str]:
