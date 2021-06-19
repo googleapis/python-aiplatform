@@ -21,7 +21,7 @@ import os
 import setuptools  # type: ignore
 
 name = "google-cloud-aiplatform"
-version = "1.0.1"
+version = "1.1.0"
 description = "Cloud AI Platform API client library"
 
 package_root = os.path.abspath(os.path.dirname(__file__))
@@ -44,7 +44,11 @@ setuptools.setup(
     version=version,
     description=description,
     long_description=readme,
-    packages=setuptools.PEP420PackageFinder.find(),
+    packages=[
+        package
+        for package in setuptools.PEP420PackageFinder.find()
+        if package.startswith("google")
+    ],
     entry_points={
         "console_scripts": [
             "tb-gcp-uploader=google.cloud.aiplatform.tensorboard.uploader_main:run_main"

@@ -30,6 +30,7 @@ from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
+from google.cloud.aiplatform.pipeline_jobs import PipelineJob
 from google.cloud.aiplatform.jobs import (
     BatchPredictionJob,
     CustomJob,
@@ -86,6 +87,7 @@ __all__ = (
     "ImageDataset",
     "HyperparameterTuningJob",
     "Model",
+    "PipelineJob",
     "TabularDataset",
     "TextDataset",
     "TimeSeriesDataset",

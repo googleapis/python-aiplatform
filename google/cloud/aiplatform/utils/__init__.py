@@ -459,6 +459,14 @@ class PipelineClientWithOverride(ClientWithOverride):
     )
 
 
+class PipelineJobClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.V1BETA1
+    _version_map = (
+        (compat.V1BETA1, pipeline_service_client_v1beta1.PipelineServiceClient),
+    )
+
+
 class PredictionClientWithOverride(ClientWithOverride):
     _is_temporary = False
     _default_version = compat.DEFAULT_VERSION
@@ -491,6 +499,7 @@ VertexAiServiceClientWithOverride = TypeVar(
     JobClientWithOverride,
     ModelClientWithOverride,
     PipelineClientWithOverride,
+    PipelineJobClientWithOverride,
     PredictionClientWithOverride,
     MetadataClientWithOverride,
     TensorboardClientWithOverride,
