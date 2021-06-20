@@ -697,7 +697,9 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             )
 
             return models.Model(
-                fields.id, project=fields.project, location=fields.location,
+                fields.id,
+                project=fields.project,
+                location=fields.location,
             )
 
     def _wait_callback(self):
@@ -1161,12 +1163,14 @@ class _CustomTrainingJob(_TrainingJob):
             model_display_name = model_display_name or self._display_name + "-model"
 
         # validates args and will raise
-        worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
-            replica_count=replica_count,
-            machine_type=machine_type,
-            accelerator_count=accelerator_count,
-            accelerator_type=accelerator_type,
-        ).pool_specs
+        worker_pool_specs = (
+            worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+                replica_count=replica_count,
+                machine_type=machine_type,
+                accelerator_count=accelerator_count,
+                accelerator_type=accelerator_type,
+            ).pool_specs
+        )
 
         managed_model = self._managed_model
         if model_display_name:
@@ -2971,7 +2975,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         self._additional_experiments.extend(additional_experiments)
 
     def get_auto_column_specs(
-        dataset: datasets.TabularDataset, target_column: str,
+        dataset: datasets.TabularDataset,
+        target_column: str,
     ) -> Dict[str, str]:
         """Returns a dict with all non-target columns as keys and 'auto' as values.
         Args:
@@ -4791,8 +4796,10 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 schema.training_job.definition.automl_text_classification
             )
 
-            training_task_inputs_dict = training_job_inputs.AutoMlTextClassificationInputs(
-                multi_label=multi_label
+            training_task_inputs_dict = (
+                training_job_inputs.AutoMlTextClassificationInputs(
+                    multi_label=multi_label
+                )
             )
         elif prediction_type == "extraction":
             training_task_definition = (
