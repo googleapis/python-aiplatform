@@ -2971,7 +2971,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         self._additional_experiments.extend(additional_experiments)
 
     def get_auto_column_specs(
-        self, dataset: datasets.TabularDataset, target_column: str,
+        dataset: datasets.TabularDataset, target_column: str,
     ) -> Dict[str, str]:
         """Returns a dict with all non-target columns as keys and 'auto' as values.
         Args:
