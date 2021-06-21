@@ -443,13 +443,15 @@ def mock_pipeline_service_create():
         yield mock_create_training_pipeline
 
 
-def make_training_pipeline(state):
+def make_training_pipeline(state, add_training_task_metadata=True):
     return gca_training_pipeline.TrainingPipeline(
         name=_TEST_PIPELINE_RESOURCE_NAME,
         state=state,
         model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
         training_task_inputs={"tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME},
-        training_task_metadata={"backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME},
+        training_task_metadata={"backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME}
+        if add_training_task_metadata
+        else None,
     )
 
 
@@ -460,7 +462,11 @@ def mock_pipeline_service_get():
     ) as mock_get_training_pipeline:
         mock_get_training_pipeline.side_effect = [
             make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+                add_training_task_metadata=False,
+            ),
+            make_training_pipeline(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
             ),
             make_training_pipeline(
                 gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
