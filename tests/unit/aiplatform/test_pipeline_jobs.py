@@ -73,6 +73,7 @@ _TEST_PIPELINE_RESOURCE_NAME = (
 )
 _TEST_PIPELINE_CREATE_TIME = datetime.now()
 
+
 @pytest.fixture
 def mock_pipeline_service_create():
     with mock.patch.object(
