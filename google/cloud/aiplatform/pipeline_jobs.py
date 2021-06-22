@@ -264,7 +264,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     @property
     def _has_run(self) -> bool:
         """Helper property to check if this pipeline job has been run."""
-        return bool(self._gca_resource.name)
+        return bool(self._gca_resource.create_time)
 
     @property
     def has_failed(self) -> bool:
@@ -310,3 +310,19 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 log_wait = min(log_wait * multiplier, max_wait)
                 previous_time = current_time
             time.sleep(wait)
+
+    def cancel(self) -> None:
+        """Starts asynchronous cancellation on the PipelineJob. The server
+        makes a best effort to cancel the job, but success is not guaranteed.
+        On successful cancellation, the PipelineJob is not deleted; instead it
+        becomes a job with state set to `CANCELLED`.
+
+        Raises:
+            RuntimeError: If this PipelineJob has not started running.
+        """
+        if not self._has_run:
+            raise RuntimeError(
+                "This PipelineJob has not been launched, use the `run()` method "
+                "to start. `cancel()` can only be called on a job that is running."
+            )
+        self.api_client.cancel_pipeline_job(name=self.resource_name)
