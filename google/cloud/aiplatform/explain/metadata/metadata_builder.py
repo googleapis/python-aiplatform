@@ -17,22 +17,17 @@
 
 """Base abstract class for metadata builders."""
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
 import abc
 _ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 
 class MetadataBuilder(_ABC):
-  """Abstract base class for metadata builders."""
+    """Abstract base class for metadata builders."""
 
-  @abc.abstractmethod
-  def save_model_with_metadata(self, filepath: str):
-    """Saves the model with metadata."""
+    @abc.abstractmethod
+    def save_model_with_metadata(self, filepath: str):
+        """Saves the model with metadata."""
 
-  @abc.abstractmethod
-  def get_metadata(self):
-    """Returns the current metadata as a dictionary."""
+    @abc.abstractmethod
+    def get_metadata(self):
+        """Returns the current metadata as a dictionary."""
