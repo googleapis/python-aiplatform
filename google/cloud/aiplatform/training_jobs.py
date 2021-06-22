@@ -1243,7 +1243,8 @@ class _CustomTrainingJob(_TrainingJob):
 
     def _wait_callback(self):
         if (
-            self._gca_resource.training_task_metadata.get("backingCustomJob")
+            self._gca_resource.training_task_metadata
+            and self._gca_resource.training_task_metadata.get("backingCustomJob")
             and not self._has_logged_custom_job
         ):
             _LOGGER.info(f"View backing custom job:\n{self._custom_job_console_uri()}")
