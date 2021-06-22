@@ -181,6 +181,7 @@ class TestEndToEndTabular:
         shared_state["resources"].extend([automl_endpoint, custom_endpoint])
 
         # Send online prediction with same instance to both deployed models
+        # This sample is taken from an observation where median_house_value = 94600
         custom_endpoint.wait()
         custom_prediction = custom_endpoint.predict(
             [
@@ -211,3 +212,11 @@ class TestEndToEndTabular:
                 },
             ]
         )
+
+        # Ensure a single prediction was returned
+        assert len(custom_prediction.predictions) == 1
+        assert len(automl_prediction.predictions) == 1
+
+        # Ensure the models are remotely accurate
+        assert 200000 > automl_prediction.predictions[0] > 50000
+        assert 200000 > custom_prediction.predictions[0] > 50000
