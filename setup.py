@@ -31,7 +31,7 @@ with io.open(readme_filename, encoding="utf-8") as readme_file:
 
 tensorboard_extra_require = [
     "tensorflow-cpu>=2.3.0, <=2.5.0",
-    "grpcio~=1.34.0",
+    "grpcio~=1.38.1",
     "six~=1.15.0",
 ]
 metadata_extra_require = ["pandas >= 1.0.0"]
