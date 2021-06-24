@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import datetime
 import time
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
@@ -28,6 +29,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import console_utils
 
 from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var,
@@ -45,6 +47,7 @@ from google.cloud.aiplatform.v1.schema.trainingjob import (
 )
 
 from google.rpc import code_pb2
+from google.rpc import status_pb2
 
 import proto
 
@@ -135,8 +138,29 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
     @abc.abstractmethod
     def _supported_training_schemas(cls) -> Tuple[str]:
         """List of supported schemas for this training job."""
-
         pass
+
+    @property
+    def start_time(self) -> Optional[datetime.datetime]:
+        """Time when the TrainingJob entered the `PIPELINE_STATE_RUNNING` for
+        the first time."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "start_time")
+
+    @property
+    def end_time(self) -> Optional[datetime.datetime]:
+        """Time when the TrainingJob resource entered the `PIPELINE_STATE_SUCCEEDED`,
+        `PIPELINE_STATE_FAILED`, `PIPELINE_STATE_CANCELLED` state."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "end_time")
+
+    @property
+    def error(self) -> Optional[status_pb2.Status]:
+        """Detailed error info for this TrainingJob resource. Only populated when
+        the TrainingJob's state is `PIPELINE_STATE_FAILED` or
+        `PIPELINE_STATE_CANCELLED`."""
+        self._sync_gca_resource()
+        return getattr(self._gca_resource, "error")
 
     @classmethod
     def get(
@@ -152,10 +176,10 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             resource_name (str):
                 Required. A fully-qualified resource name or ID.
             project (str):
-                Optional project to retrieve dataset from. If not set, project
+                Optional project to retrieve training job from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional location to retrieve dataset from. If not set, location
+                Optional location to retrieve training job from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
@@ -166,7 +190,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 doesn't match the custom training task definition.
 
         Returns:
-            An Vertex AI Training Job
+            A Vertex AI Training Job
         """
 
         # Create job with dummy parameters
@@ -193,11 +217,68 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
+    @classmethod
+    def _get_and_return_subclass(
+        cls,
+        resource_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "_TrainingJob":
+        """Retrieve Training Job subclass for the given resource_name without
+        knowing the training_task_definition.
+
+        Example usage:
+        ```
+        aiplatform.training_jobs._TrainingJob._get_and_return_subclass(
+            'projects/.../locations/.../trainingPipelines/12345'
+        )
+        # Returns: <google.cloud.aiplatform.training_jobs.AutoMLImageTrainingJob>
+        ```
+
+        Args:
+            resource_name (str):
+                Required. A fully-qualified resource name or ID.
+            project (str):
+                Optional project to retrieve dataset from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional location to retrieve dataset from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            A Vertex AI Training Job
+        """
+
+        # Retrieve training pipeline resource before class construction
+        client = cls._instantiate_client(location=location, credentials=credentials)
+
+        gca_training_pipeline = getattr(client, cls._getter_method)(name=resource_name)
+
+        schema_uri = gca_training_pipeline.training_task_definition
+
+        # Collect all AutoML training job classes and CustomTrainingJob
+        class_list = [
+            c for c in cls.__subclasses__() if c.__name__.startswith("AutoML")
+        ] + [CustomTrainingJob]
+
+        # Identify correct training job subclass, construct and return object
+        for c in class_list:
+            if schema_uri in c._supported_training_schemas:
+                return c._empty_constructor(
+                    project=project,
+                    location=location,
+                    credentials=credentials,
+                    resource_name=resource_name,
+                )
+
     @property
     @abc.abstractmethod
     def _model_upload_fail_string(self) -> str:
         """Helper property for model upload failure."""
-
         pass
 
     @abc.abstractmethod
@@ -594,7 +675,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         """Helper method to get and instantiate the Model to Upload.
 
         Returns:
-            model: Vertex AI Model if training succeeded and produced an Vertex AI
+            model: Vertex AI Model if training succeeded and produced a Vertex AI
                 Model. None otherwise.
 
         Raises:
@@ -619,6 +700,10 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 fields.id, project=fields.project, location=fields.location,
             )
 
+    def _wait_callback(self):
+        """Callback performs custom logging during _block_until_complete. Override in subclass."""
+        pass
+
     def _block_until_complete(self):
         """Helper method to block and check on job until complete."""
 
@@ -629,6 +714,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         multiplier = 2  # scale wait by 2 every iteration
 
         previous_time = time.time()
+
         while self.state not in _PIPELINE_COMPLETE_STATES:
             current_time = time.time()
             if current_time - previous_time >= log_wait:
@@ -642,6 +728,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 )
                 log_wait = min(log_wait * multiplier, max_wait)
                 previous_time = current_time
+            self._wait_callback()
             time.sleep(wait)
 
         self._raise_failure()
@@ -997,6 +1084,26 @@ class _CustomTrainingJob(_TrainingJob):
                 "set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
 
+        # Backing Custom Job resource is not known until after data preprocessing
+        # once Custom Job is known we log the console uri and the tensorboard uri
+        # this flags keeps that state so we don't log it multiple times
+        self._has_logged_custom_job = False
+
+    @property
+    def network(self) -> Optional[str]:
+        """The full name of the Google Compute Engine
+        [network](https://cloud.google.com/vpc/docs/vpc#networks) to which this
+        CustomTrainingJob should be peered.
+
+        Takes the format `projects/{project}/global/networks/{network}`. Where
+        {project} is a project number, as in `12345`, and {network} is a network name.
+
+        Private services access must already be configured for the network. If left
+        unspecified, the CustomTrainingJob is not peered with any network.
+        """
+        # Return `network` value in training task inputs if set in Map
+        return self._gca_resource.training_task_inputs.get("network")
+
     def _prepare_and_validate_run(
         self,
         model_display_name: Optional[str] = None,
@@ -1076,6 +1183,7 @@ class _CustomTrainingJob(_TrainingJob):
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        tensorboard: Optional[str] = None,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
 
@@ -1093,6 +1201,21 @@ class _CustomTrainingJob(_TrainingJob):
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            tensorboard (str):
+                Optional. The name of a Vertex AI
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following Vertex AI environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
         Returns:
             Training task inputs and Output directory for custom job.
         """
@@ -1113,8 +1236,42 @@ class _CustomTrainingJob(_TrainingJob):
             training_task_inputs["service_account"] = service_account
         if network:
             training_task_inputs["network"] = network
+        if tensorboard:
+            training_task_inputs["tensorboard"] = tensorboard
 
         return training_task_inputs, base_output_dir
+
+    def _wait_callback(self):
+        if (
+            self._gca_resource.training_task_metadata
+            and self._gca_resource.training_task_metadata.get("backingCustomJob")
+            and not self._has_logged_custom_job
+        ):
+            _LOGGER.info(f"View backing custom job:\n{self._custom_job_console_uri()}")
+
+            if self._gca_resource.training_task_inputs.get("tensorboard"):
+                _LOGGER.info(f"View tensorboard:\n{self._tensorboard_console_uri()}")
+
+            self._has_logged_custom_job = True
+
+    def _custom_job_console_uri(self) -> str:
+        """Helper method to compose the dashboard uri where custom job can be viewed."""
+        custom_job_resource_name = self._gca_resource.training_task_metadata.get(
+            "backingCustomJob"
+        )
+        return console_utils.custom_job_console_uri(custom_job_resource_name)
+
+    def _tensorboard_console_uri(self) -> str:
+        """Helper method to compose dashboard uri where tensorboard can be viewed."""
+        tensorboard_resource_name = self._gca_resource.training_task_inputs.get(
+            "tensorboard"
+        )
+        custom_job_resource_name = self._gca_resource.training_task_metadata.get(
+            "backingCustomJob"
+        )
+        return console_utils.custom_job_tensorboard_console_uri(
+            tensorboard_resource_name, custom_job_resource_name
+        )
 
     @property
     def _model_upload_fail_string(self) -> str:
@@ -1372,6 +1529,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
         predefined_split_column_name: Optional[str] = None,
+        tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
@@ -1512,6 +1670,21 @@ class CustomTrainingJob(_CustomTrainingJob):
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            tensorboard (str):
+                Optional. The name of a Vertex AI
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following Vertex AI environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -1519,7 +1692,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -1550,6 +1723,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
+            tensorboard=tensorboard,
             sync=sync,
         )
 
@@ -1578,6 +1752,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
         predefined_split_column_name: Optional[str] = None,
+        tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -1665,6 +1840,21 @@ class CustomTrainingJob(_CustomTrainingJob):
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            tensorboard (str):
+                Optional. The name of a Vertex AI
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following Vertex AI environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -1672,7 +1862,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
         package_gcs_uri = python_packager.package_and_copy_to_gcs(
             gcs_staging_dir=self._staging_bucket,
@@ -1704,6 +1894,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            tensorboard=tensorboard,
         )
 
         model = self._run_job(
@@ -1960,6 +2151,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
         predefined_split_column_name: Optional[str] = None,
+        tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
@@ -2093,6 +2285,21 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            tensorboard (str):
+                Optional. The name of a Vertex AI
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following Vertex AI environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2100,7 +2307,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run, staging_bucket has not
@@ -2130,6 +2337,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
+            tensorboard=tensorboard,
             sync=sync,
         )
 
@@ -2157,6 +2365,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
         predefined_split_column_name: Optional[str] = None,
+        tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -2240,6 +2449,21 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            tensorboard (str):
+                Optional. The name of a Vertex AI
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following Vertex AI environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2247,7 +2471,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         for spec in worker_pool_specs:
@@ -2273,6 +2497,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            tensorboard=tensorboard,
         )
 
         model = self._run_job(
@@ -2454,6 +2679,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
                 For tabular Datasets, all their data is exported to
                 training, to pick and choose from.
+            target_column (str):
+                Required. The name of the column values of which the Model is to predict.
             training_fraction_split (float):
                 Required. The fraction of the input data that is to be
                 used to train the Model. This is ignored if Dataset is not provided.
@@ -2510,7 +2737,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -2569,6 +2796,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
                 For tabular Datasets, all their data is exported to
                 training, to pick and choose from.
+            target_column (str):
+                Required. The name of the column values of which the Model is to predict.
             training_fraction_split (float):
                 Required. The fraction of the input data that is to be
                 used to train the Model. This is ignored if Dataset is not provided.
@@ -2626,7 +2855,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         training_task_definition = schema.training_job.definition.automl_tabular
@@ -2910,7 +3139,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError if Training job has already been run or is waiting to run.
@@ -3095,7 +3324,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         training_task_definition = schema.training_job.definition.automl_forecasting
@@ -3389,7 +3618,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -3490,7 +3719,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         # Retrieve the objective-specific training task schema based on prediction_type
@@ -3791,6 +4020,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         validation_fraction_split: float = 0.1,
         test_fraction_split: float = 0.1,
         predefined_split_column_name: Optional[str] = None,
+        tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
@@ -3924,6 +4154,21 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            tensorboard (str):
+                Optional. The name of a Vertex AI
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following Vertex AI environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3931,7 +4176,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
@@ -3956,6 +4201,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
             bigquery_destination=bigquery_destination,
+            tensorboard=tensorboard,
             sync=sync,
         )
 
@@ -3983,6 +4229,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         test_fraction_split: float = 0.1,
         predefined_split_column_name: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
+        tensorboard: Optional[str] = None,
         sync=True,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
@@ -4053,6 +4300,21 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            tensorboard (str):
+                Optional. The name of a Vertex AI
+                [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
+                resource to which this CustomJob will upload Tensorboard
+                logs. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                The training script should write Tensorboard to following Vertex AI environment
+                variable:
+
+                AIP_TENSORBOARD_LOG_DIR
+
+                `service_account` is required with provided `tensorboard`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4060,7 +4322,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
         for spec in worker_pool_specs:
             spec["python_package_spec"] = {
@@ -4086,6 +4348,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            tensorboard=tensorboard,
         )
 
         model = self._run_job(
@@ -4266,7 +4529,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 be immediately returned and synced when the Future has completed.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
 
         Raises:
             RuntimeError: If Training job has already been run or is waiting to run.
@@ -4330,7 +4593,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         # Retrieve the objective-specific training task schema based on prediction_type
@@ -4608,7 +4871,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
-                produce an Vertex AI Model.
+                produce a Vertex AI Model.
         """
 
         if model_display_name is None:

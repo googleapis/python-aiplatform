@@ -286,7 +286,7 @@ class FileWriter(tf.compat.v1.summary.FileWriter):
     which is largely discouraged in TensorBoard. We do not want a
     TB.Writer but require one for testing in integrational style
     (writing out event files and use the real event readers).
-  """
+    """
 
     def __init__(self, *args, **kwargs):
         # Briefly enter graph mode context so this testing FileWriter can be
@@ -1422,9 +1422,9 @@ class VarintCostTest(tf.test.TestCase):
 def _clear_wall_times(repeated_time_series_data):
     """Clears the wall_time fields in a TimeSeriesData to be deterministic.
 
-  Args:
-    repeated_time_series_data: Iterable of tensorboard_data.TimeSeriesData.
-  """
+    Args:
+      repeated_time_series_data: Iterable of tensorboard_data.TimeSeriesData.
+    """
 
     for time_series_data in repeated_time_series_data:
         for value in time_series_data.values:

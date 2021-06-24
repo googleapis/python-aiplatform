@@ -42,7 +42,7 @@ from google.api_core import operation
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-
+from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
@@ -564,6 +564,23 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         return self._gca_resource.update_time
 
     @property
+    def encryption_spec(self) -> Optional[gca_encryption_spec.EncryptionSpec]:
+        """Customer-managed encryption key options for this Vertex AI resource.
+
+        If this is set, then all resources created by this Vertex AI resource will
+        be encrypted with the provided encryption key.
+        """
+        return getattr(self._gca_resource, "encryption_spec")
+
+    @property
+    def labels(self) -> Dict[str, str]:
+        """User-defined labels containing metadata about this resource.
+
+        Read more about labels at https://goo.gl/xmQnxf
+        """
+        return self._gca_resource.labels
+
+    @property
     def gca_resource(self) -> proto.Message:
         """The underlying resource proto represenation."""
         return self._gca_resource
@@ -813,7 +830,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
 
         Args:
             gapic_resource (proto.Message):
-                A GAPIC representation of an Vertex AI resource, usually
+                A GAPIC representation of a Vertex AI resource, usually
                 retrieved by a get_* or in a list_* API call.
             project (str):
                 Optional. Project to construct SDK object from. If not set,
