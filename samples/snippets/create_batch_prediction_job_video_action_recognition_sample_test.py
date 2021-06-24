@@ -35,6 +35,7 @@ def teardown(teardown_batch_prediction_job):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 # Creating AutoML Video Object Tracking batch prediction job
 def test_create_batch_prediction_job_video_action_recognition_sample(
     capsys, shared_state, job_client

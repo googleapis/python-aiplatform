@@ -37,6 +37,7 @@ def teardown(teardown_training_pipeline):
     yield
 
 
+@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
 # Training AutoML Vision Model
 def test_create_training_pipeline_video_action_recognition_sample(capsys, shared_state):
     create_training_pipeline_video_action_recognition_sample.create_training_pipeline_video_action_recognition_sample(
