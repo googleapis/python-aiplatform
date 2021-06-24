@@ -111,8 +111,7 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
                 input_mds[
                     name
                 ] = explanation_metadata.ExplanationMetadata.InputMetadata(
-                    input_tensor_name=name,
-                    modality=explanation_metadata.ExplanationMetadata.Modality.CATEGORICAL,
+                    input_tensor_name=name, modality="categorical",
                 )
 
         output_mds = {}
@@ -140,32 +139,3 @@ class SavedModelMetadataBuilder(metadata_builder.MetadataBuilder):
             inputs=self._inputs, outputs=self._outputs,
         )
         return json_format.MessageToDict(current_md._pb)
-
-    def save_model_with_metadata(self, file_path: str) -> str:
-        """Saves the model and the generated metadata to the given file path.
-        Args:
-            file_path: Path to save the model and the metadata. It can be a GCS bucket or a local folder. The folder needs to be empty.
-
-        Returns:
-            Full file path where the model and the metadata are written.
-
-        Raises:
-            ImportError if tensorflow is not installed.
-        """
-        kwargs = self._saved_model_args.copy()
-        sigs = (
-            kwargs.pop("signatures")
-            if "signatures" in kwargs
-            else self._loaded_model.signatures
-        )
-
-        try:
-            import tensorflow as tf
-        except ImportError:
-            raise ImportError(
-                "Tensorflow is not installed and is required to load saved model. "
-                'Please install the SDK using "pip install google-cloud-aiplatform[full]"'
-            )
-        tf.saved_model.save(self._loaded_model, file_path, signatures=sigs, **kwargs)
-        self.save_metadata(file_path)
-        return file_path
